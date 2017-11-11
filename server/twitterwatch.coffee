@@ -42,7 +42,7 @@ linkify = do ->
       else text # shouldn't really ever reach here
 
 # See https://dev.twitter.com/streaming/overview/request-parameters#track
-hashtag = 'mysteryhunt,mitmysteryhunt'
+hashtag = settings.hashtags?.join() ? 'mysteryhunt,mitmysteryhunt'
 twit.stream 'statuses/filter', {track: hashtag}, (stream) ->
   console.log "Listening to #{hashtag} on twitter"
   stream.on 'data', (data) ->
