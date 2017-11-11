@@ -1,0 +1,24 @@
+{
+  "name": "codex-blackboard",
+  "version": "1.0.0",
+  "description": "codex-blackboard ================",
+  "main": "index.js",
+  "dependencies": {
+    "babel-runtime": "^6.26.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Torgen/codex-blackboard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Torgen/codex-blackboard/issues"
+  },
+  "homepage": "https://github.com/Torgen/codex-blackboard#readme",
+  "private": true
+}
