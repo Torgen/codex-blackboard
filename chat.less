@@ -88,6 +88,20 @@
     }
     &.media:after { border-right-color: @bb-message-pm-color; }
   }
+  .bb-message-presence {
+    display: inline-block;
+    &:before {
+      .glyphicon;
+      content: " ";
+      padding-top: 1px;
+    }
+    &.join:before {
+      background-position: -408px -96px;
+    }
+    &.part:before {
+      background-position: -433px -96px;
+    }
+  }
   .bb-message-system {
     color: #888;
     font-size: 12px;

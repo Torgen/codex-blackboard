@@ -468,7 +468,7 @@ if Meteor.isServer
       return if presence.room_name is 'oplog/0'
       Messages.insert
         system: true
-        nick: n
+        nick: presence.nick
         to: null
         presence: 'join'
         body: "#{name} joined the room."
@@ -484,7 +484,7 @@ if Meteor.isServer
       return if presence.room_name is 'oplog/0'
       Messages.insert
         system: true
-        nick: n
+        nick: presence.nick
         to: null
         presence: 'part'
         body: "#{name} left the room."
