@@ -1,11 +1,6 @@
 # helper functions to perform Google Drive operations
 
 # Credentials
-KEY = Meteor.settings.key or Assets.getBinary 'drive-key.pem.crypt'
-if Meteor.settings.password?
-  # Decrypt the JWT authentication key synchronously at startup
-  KEY = Gapi.decrypt KEY, Meteor.settings.password
-EMAIL = Meteor.settings.email or '571639156428@developer.gserviceaccount.com'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Drive folder settings
@@ -207,11 +202,14 @@ purge = () -> rmrfFolder(rootFolder)
 
 # Intialize APIs and load rootFolder
 do ->
-  try
-    unless /^-----BEGIN RSA PRIVATE KEY-----/.test(KEY)
-      throw "INVALID GOOGLE DRIVE KEY OR PASSWORD"
-    jwt = new Gapi.apis.auth.JWT(EMAIL, null, KEY, SCOPES)
-    jwt.credentials = Gapi.authorize(jwt);
+  Gapi.apis.auth.getApplicationDefault(Meteor.bindEnvironment (err, jwt) ->
+    if err
+      console.warn "Error trying to retrieve drive API:", error.__proto__
+      console.warn "Google Drive integration disabled."
+      drive = null
+      return
+    if jwt.createScopedRequired && jwt.createScopedRequired()
+      jwt = jwt.createScoped(SCOPES)
     # record the API and auth info
     drive = Gapi.apis.drive('v2')
     Gapi.registerAuth jwt
@@ -225,10 +223,8 @@ do ->
     # for debugging/development
     debug.drive = drive
     debug.jwt = jwt
-  catch error
-    console.warn "Error trying to retrieve drive API:", error.__proto__
-    console.warn "Google Drive integration disabled."
-    drive = null
+  )
+
 
 # exports
 share.drive =
