@@ -90,16 +90,19 @@
   }
   .bb-message-presence {
     display: inline-block;
+    padding-right: 10px;
     &:before {
       .glyphicon;
       content: " ";
-      padding-top: 1px;
     }
     &.join:before {
       background-position: -408px -96px;
     }
     &.part:before {
       background-position: -433px -96px;
+    }
+    & > img {
+      padding-right: 3px;
     }
   }
   .bb-message-system {
