@@ -9,13 +9,13 @@
 #     "access_token_secret": "wwwwwwwwwwwwwwwwwwwwww"
 #   }
 # }
+return unless share.model.DO_BATCH_PROCESSING
 settings = Meteor.settings?.twitter ? {}
 settings.consumer_key ?= process.env.TWITTER_CONSUMER_KEY
 settings.consumer_secret ?= process.env.TWITTER_CONSUMER_SECRET
 settings.access_token_key ?= process.env.TWITTER_ACCESS_TOKEN_KEY
 settings.access_token_secret ?= process.env.TWITTER_ACCESS_TOKEN_SECRET
 HASHTAGS = settings.hashtags?.join() ? process.env.TWITTER_HASHTAGS ? 'mysteryhunt,mitmysteryhunt'
-
 return unless settings.consumer_key and settings.consumer_secret
 return unless settings.access_token_key and settings.access_token_secret
 twit = new Twitter

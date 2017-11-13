@@ -18,6 +18,23 @@ MIGRATE_ANSWERS = false
 # move pages of messages to oldmessages collection
 MOVE_OLD_PAGES = true
 
+# In order to use all threads of the machine and preserve session stickiness,
+# we need to run one instance of the app per CPU and use source hashing to
+# distribute load between them. (If we didn't need stickiness, we could use
+# the 'cluster' node.js addon, if there was a way to insert starting the
+# children into the startup code, which I haven't fonud yet.)
+# Since the app does batch processing, we need to disable it in all but one
+# instance. (Or we run N+1 instances, one of which doesn't serve user traffic,
+# which is what we'll actually do.) We won't be able to detect that any
+# particular instance is doing the batch processing, so we will use an
+# environment variable / setting from json to configure it. Batch processing
+# has to be enabled by default, since many users will just run meteor in dev
+# mode and won't even know it's an option.
+DO_BATCH_PROCESSING = do ->
+  return false if Meteor.isClient
+  return !(Meteor.settings.disableBatch ? process.env.DISABLE_BATCH_PROCESSING)
+
+
 # helper function: like _.throttle, but always ensures `wait` of idle time
 # between invocations.  This ensures that we stay chill even if a single
 # execution of the function starts to exceed `wait`.
@@ -82,7 +99,7 @@ LastAnswer = BBCollection.last_answer = \
 #   round_start: integer, indicating how many rounds total are in all
 #                preceding round groups (a bit racy, but server fixes it up)
 RoundGroups = BBCollection.roundgroups = new Mongo.Collection "roundgroups"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   RoundGroups._ensureIndex {canon: 1}, {unique:true, dropDups:true}
   updateRoundStart = ->
     round_start = 0
@@ -121,7 +138,7 @@ if Meteor.isServer
 #   puzzles: [ array of puzzle _ids, in order ]
 #   drive: google drive url or id
 Rounds = BBCollection.rounds = new Mongo.Collection "rounds"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   Rounds._ensureIndex {canon: 1}, {unique:true, dropDups:true}
   if MIGRATE_ANSWERS
     # migrate objects -- rename 'Meta answer' tag to 'Answer'
@@ -167,7 +184,7 @@ if Meteor.isServer
 #   tags: [ { name: "Status", canon: "status", value: "stuck" }, ... ]
 #   drive: google drive url or id
 Puzzles = BBCollection.puzzles = new Mongo.Collection "puzzles"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   Puzzles._ensureIndex {canon: 1}, {unique:true, dropDups:true}
   if MIGRATE_ANSWERS
     # migrate objects -- we used to have an `answer` field in Puzzles.
@@ -193,7 +210,7 @@ if Meteor.isServer
 #   backsolve: true/false
 #   provided: true/false
 CallIns = BBCollection.callins = new Mongo.Collection "callins"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
    CallIns._ensureIndex {created: 1}, {}
    CallIns._ensureIndex {type: 1, target: 1, answer: 1}, {unique:true, dropDups:true}
 
@@ -205,7 +222,7 @@ if Meteor.isServer
 #   last_used: timestamp (0 if never used)
 #   use_count: integer
 Quips = BBCollection.quips = new Mongo.Collection "quips"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   Quips._ensureIndex {last_used: 1}, {}
 
 # Nicks are:
@@ -222,7 +239,7 @@ if Meteor.isServer
 #   tags: [ { name: "Real Name", canon: "real_name", value: "C. Scott Ananian" }, ... ]
 # valid tags include "Real Name", "Gravatar" (email address to use for photos)
 Nicks = BBCollection.nicks = new Mongo.Collection "nicks"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   Nicks._ensureIndex {canon: 1}, {unique:true, dropDups:true}
   Nicks._ensureIndex {priv_located_order: 1}, {}
   # synchronize priv_located* with located* at a throttled rate.
@@ -285,7 +302,7 @@ computeMessageFollowup = (prev, curr) ->
    prev.oplog == curr.oplog and
    prev.nick == curr.nick and
    prev.to == curr.to)
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   for M in [ Messages, OldMessages ]
     M._ensureIndex {to:1, room_name:1, timestamp:-1}, {}
     M._ensureIndex {nick:1, room_name:1, timestamp:-1}, {}
@@ -361,7 +378,7 @@ if Meteor.isServer
 #   archived: boolean (true iff this page is in oldmessages)
 # Messages with from <= timestamp < to are included in a specific page.
 Pages = BBCollection.pages = new Mongo.Collection "pages"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   # used in the server observe code below
   Pages._ensureIndex {room_name:1, to:-1}, {unique:true}
   # used in the publish method
@@ -433,7 +450,7 @@ if Meteor.isServer
 #   room_name: string, as in Messages
 #   timestamp: timestamp of last read message
 LastRead = BBCollection.lastread = new Mongo.Collection "lastread"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   LastRead._ensureIndex {nick:1, room_name:1}, {unique:true, dropDups:true}
   LastRead._ensureIndex {nick:1}, {} # be safe
 
@@ -445,7 +462,7 @@ if Meteor.isServer
 #   foreground_uuid: identity of client with tab in foreground
 #   present: boolean (true if user is present, false if not)
 Presence = BBCollection.presence = new Mongo.Collection "presence"
-if Meteor.isServer
+if DO_BATCH_PROCESSING
   Presence._ensureIndex {nick: 1, room_name:1}, {unique:true, dropDups:true}
   Presence._ensureIndex {timestamp:-1}, {}
   Presence._ensureIndex {present:1, room_name:1}, {}
@@ -1466,6 +1483,7 @@ share.model =
   PRESENCE_KEEPALIVE_MINUTES: PRESENCE_KEEPALIVE_MINUTES
   MESSAGE_PAGE: MESSAGE_PAGE
   NOT_A_TIMESTAMP: NOT_A_TIMESTAMP
+  DO_BATCH_PROCESSING: DO_BATCH_PROCESSING
   # collection types
   CallIns: CallIns
   Quips: Quips

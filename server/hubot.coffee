@@ -137,6 +137,7 @@ class BlackboardAdapter extends Hubot.Adapter
   # Returns nothing.
   close: ->
 
+return unless model.DO_BATCH_PROCESSING
 Meteor.startup ->
   robot = new Robot null, null, false, BOTNAME
   robot.alias = 'bot'
