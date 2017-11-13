@@ -10,6 +10,11 @@
 #   }
 # }
 settings = Meteor.settings?.twitter ? {}
+settings.consumer_key ?= process.env.TWITTER_CONSUMER_KEY
+settings.consumer_secret ?= process.env.TWITTER_CONSUMER_SECRET
+settings.access_token_key ?= process.env.TWITTER_ACCESS_TOKEN_KEY
+settings.access_token_secret ?= process.env.TWITTER_ACCESS_TOKEN_SECRET
+HASHTAGS = settings.hashtags?.join() ? process.env.TWITTER_HASHTAGS ? 'mysteryhunt,mitmysteryhunt'
 
 return unless settings.consumer_key and settings.consumer_secret
 return unless settings.access_token_key and settings.access_token_secret
@@ -42,9 +47,8 @@ linkify = do ->
       else text # shouldn't really ever reach here
 
 # See https://dev.twitter.com/streaming/overview/request-parameters#track
-hashtag = settings.hashtags?.join() ? 'mysteryhunt,mitmysteryhunt'
-twit.stream 'statuses/filter', {track: hashtag}, (stream) ->
-  console.log "Listening to #{hashtag} on twitter"
+twit.stream 'statuses/filter', {track: HASHTAGS}, (stream) ->
+  console.log "Listening to #{HASHTAGS} on twitter"
   stream.on 'data', (data) ->
     return if data.retweeted_status? # don't report retweets
     unless data.user? # weird bug we saw

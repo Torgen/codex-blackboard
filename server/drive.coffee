@@ -4,10 +4,9 @@
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Drive folder settings
-ROOT_FOLDER_NAME = Meteor.settings.folder or "MIT Mystery Hunt 2014"
-CODEX_ACCOUNT = Meteor.settings.driveowner ? 'dan@ros.art'
-CODEX_HUMAN_NAME = Meteor.settings.drivehumanname ? 'Dan Rosart'
-# FYI: password for CODEX_ACCOUNT is Meteor.settings.password
+ROOT_FOLDER_NAME = Meteor.settings.folder or process.env.DRIVE_ROOT_FOLDER or 'MIT Mystery Hunt 2014'
+CODEX_ACCOUNT = Meteor.settings.driveowner or process.env.DRIVE_OWNER_ADDRESS or 'dan@ros.art'
+CODEX_HUMAN_NAME = Meteor.settings.drivehumanname or process.env.DRIVE_OWNER_NAME or 'Dan Rosart'
 WORKSHEET_NAME = (name) -> "Worksheet: #{name}"
 
 # Constants

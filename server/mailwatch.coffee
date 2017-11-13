@@ -14,19 +14,28 @@
 # package.
 
 watch = Meteor.settings?.watch ? {}
+watch.username ?= process.env.MAILWATCH_USERNAME
+watch.password ?= process.env.MAILWATCH_PASSWORD
+watch.host ?= process.env.MAILWATCH_HOST ? 'imap.gmail.com'
+watch.port ?= process.env.MAILWATCH_PORT ? 993
+watch.tls ?= process.env.MAILWATCH_TLS ? true
+watch.tlsOptions ?= if (tls_options_env = process.env.MAILWATCH_TLS_OPTIONS)? then EJSON.parse(tls_options_env) else { rejectUnauthorized: false }
+watch.mailbox ?= process.env.MAILWATCH_MAILBOX ? 'INBOX'
+watch.markSeen ?= process.env.MAILWATCH_MARK_SEEN ? true
+watch.mailParserOptions = if (mailparser_options_env = process.env.MAILWATCH_MAILPARSER_OPTIONS)? then EJSON.parse(mailparser_options_env) else { streamAttachments: true }
 
 return unless watch.username and watch.password
 mailListener = new MailListener
   username: watch.username
   password: watch.password
-  host: watch.host ? 'imap.gmail.com'
-  port: watch.port ? 993
-  tls: watch.tls ? true
-  tlsOptions: watch.tlsOptions ? { rejectUnauthorized: false }
-  mailbox: watch.mailbox ? 'INBOX'
-  markSeen: watch.markSeen ? true
+  host: watch.host
+  port: watch.port
+  tls: watch.tls
+  tlsOptions: watch.tlsOptions
+  mailbox: watch.mailbox
+  markSeen: watch.markSeen
   fetchUnreadOnStart: false
-  mailParserOptions: watch.mailParserOptions ? { streamAttachments: true }
+  mailParserOptions: watch.mailParserOptions
 
 mailListener.on 'server:connected', ->
   console.log 'Watching for mail to', watch.username
