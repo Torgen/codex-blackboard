@@ -68,15 +68,17 @@ function sudopart() {
   fi
   # ensure transparent hugepages get disabled. Mongodb wants this.
   systemctl enable nothp.service
-  systemctl enable codex-batch.service
-  handlebars < $scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars > /etc/nginx/sites-available $PORTS --domainname "$domainname"
-  ln -s /etc/nginx/sites-{available,enabled}/codex
+  systemctl start mongod.service
   
   # Turn on replication on mongodb.
   # This lets the meteor instances act like secondary replicas, which lets them
   # get updates in real-time instead of after 10 seconds when they poll.
   mongo --eval 'rs.initiate({_id: "meteor", members: [{_id: 0, host: "127.0.0.1:27017"}]});'
 
+  systemctl enable codex-batch.service
+  handlebars < $scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars > /etc/nginx/sites-available $PORTS --domainname "$domainname"
+  ln -s /etc/nginx/sites-{available,enabled}/codex
+  
   systemctl enable codex.target
   systemctl start codex.target
   systemctl reload nginx.service
