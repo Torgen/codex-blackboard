@@ -1,6 +1,6 @@
 upstream codex {
-        ip_hash;{{#each port}}
-        server localhost:{{this}};{{/each}}
+  ip_hash;{{#each port}}
+  server localhost:{{this}};{{/each}}
 }
 
 # TODO: add server name, http redirects to https, basic auth, certbot
@@ -8,9 +8,9 @@ server {
 	listen 80 default_server;
 	location / {
 		proxy_pass http://codex;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection "upgrade";
-                proxy_set_header Host $http_host;
-        }
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+  }
 }
