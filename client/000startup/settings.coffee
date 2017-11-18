@@ -38,3 +38,7 @@ settings.BB_DISABLE_PM = server.disablePM ? false
 # two messages.  The (slow) client-side followups look specifically
 # at messages visible to you, so don't have this issue.)
 settings.SLOW_CHAT_FOLLOWUPS = server.slowChatFollowups ? false
+
+settings.PICKER_CLIENT_ID = server.picker?.clientId
+settings.PICKER_APP_ID = server.picker?.appId
+settings.PICKER_DEVELOPER_KEY = server.picker?.developerKey
