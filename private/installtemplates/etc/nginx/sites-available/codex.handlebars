@@ -1,8 +1,6 @@
 upstream codex {
-        ip_hash;
-{{#each port}}
-        server localhost:{{this}};
-{{/each}}
+        ip_hash;{{#each port}}
+        server localhost:{{this}};{{/each}}
 }
 
 # TODO: add server name, http redirects to https, basic auth, certbot
