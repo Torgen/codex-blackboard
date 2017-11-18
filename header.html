@@ -18,10 +18,12 @@
 <div class='bb-breadcrumbs'>
   {{#if drive}}
 <span class="bb-drive-buttons">
+    {{#if picker}}
   <button type="button"
           class="bb-upload-file btn btn-inverse">
     <i class="icon-upload icon-white"></i> Upload file
   </button>
+    {{/if}}
   <a class="bb-drive-link btn btn-inverse"
      title="Open Drive Folder"
      target="_blank"

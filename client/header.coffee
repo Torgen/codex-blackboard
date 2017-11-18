@@ -217,6 +217,7 @@ Template.header_breadcrumbs.helpers
   type: -> Session.get('type')
   id: -> Session.get('id')
   idIsNew: -> Session.equals('id', 'new')
+  picker: -> settings.PICKER_CLIENT_ID? and settings.PICKER_APP_ID? and settings.PICKER_DEVELOPER_KEY?
   drive: -> switch Session.get('type')
     when 'general'
       Session.get 'RINGHUNTERS_FOLDER'
