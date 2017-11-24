@@ -11,12 +11,6 @@ settings.CLIENT_UUID = Random.id()
 # used to create gravatars from nicks
 settings.DEFAULT_HOST = server.defaultHost ? 'codexian.us'
 
-# used for wiki links
-settings.WIKI_HOST = server.wikiHost ? 'https://wiki.codexian.us'
-
-# hunt year, used to make wiki links
-settings.HUNT_YEAR = server.huntYear ? 2014
-
 # -- Performance settings --
 
 # make fewer people subscribe to ringhunters chat.

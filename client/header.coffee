@@ -149,25 +149,6 @@ Template.header_loginmute.helpers
       realname: model.getTag n, 'Real Name'
       gravatar: (model.getTag n, 'Gravatar') or "#{nick}@#{settings.DEFAULT_HOST}"
     }
-  wikipage: ->
-    return '' if Session.equals('currentPage', 'blackboard')
-    [type, id] = [Session.get('type'), Session.get('id')]
-    return '' unless (type and id)
-    switch type
-      when 'puzzles'
-        round = model.Rounds.findOne puzzles: id
-        group = model.RoundGroups.findOne rounds: round?._id
-        puzzle_num = 1 + (round?.puzzles or []).indexOf(id)
-        round_num = 1 + group?.round_start + \
-          (group?.rounds or []).indexOf(round?._id)
-        "#{settings.HUNT_YEAR}/R#{round_num}P#{puzzle_num}"
-      when 'rounds'
-        group = model.RoundGroups.findOne rounds: id
-        round_num = 1 + group?.round_start + \
-          (group?.rounds or []).indexOf(id)
-        "#{settings.HUNT_YEAR}/R#{round_num}P0"
-      else
-        ''
 
 Template.header_loginmute.onRendered ->
   # tool tips

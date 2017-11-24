@@ -374,11 +374,6 @@ Template.messages_input.submit = (message) ->
     when "/me"
       args.body = rest
       args.action = true
-    when "/help"
-      args.to = args.nick
-      args.body = "should read <a href='#{settings.WIKI_HOST}/wiki/Chat_System' target='_blank'>Chat System</a> on the wiki"
-      args.bodyIsHtml = true
-      args.action = true
     when "/users", "/show", "/list"
       args.to = args.nick
       args.action = true
