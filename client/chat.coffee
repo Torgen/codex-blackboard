@@ -60,13 +60,13 @@ isFollowup = (former, latter) ->
   return true
 
 effectFollowup = (former, latter) ->
-  console.log "Checking on #{former} and #{latter}"
+  console.log former, latter
   return unless latter?.classList?
   if isFollowup(former, latter)
     console.log "#{latter} is followup of #{former}"
     latter.classList.add("bb-message-followup")
   else
-    console.log"#{latter} is not followup of #{former}"
+    console.log "#{latter} is not followup of #{former}"
     latter.classList.remove("bb-message-followup")
 
 # Globals
@@ -76,11 +76,10 @@ instachat["alertWhenUnreadMessages"] = false
 instachat["scrolledToBottom"]        = true
 instachat["mutationObserver"] = new MutationObserver (recs, obs) ->
   for rec in recs
-    prevEl = rec.previousSibling.nextSibling?.previousElementSibling
-    nextEl = rec.nextSibling.previousSibling?.nextElementSibling
-    effectFollowup(prevEl, rec.addedNodes[0] ? nextEl)
+    prevEl = rec.previousSibling?.nextSibling?.previousElementSibling
+    effectFollowup(prevEl, prevEl.nextElementSibling) if prevEl?
     for node, i in rec.addedNodes
-      effectFollowup(node, node.nextElementSibling)
+      effectFollowup(node, node.nextElementSibling) if node instanceof Element
     
 
 # Favicon instance, used for notifications
