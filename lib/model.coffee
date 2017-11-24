@@ -285,9 +285,6 @@ if DO_BATCH_PROCESSING
 #                             "general/0" for main chat.
 #                             "oplog/0" for the operation log.
 #   timestamp: timestamp
-#   followup: boolean (true if the previous message in the log is not
-#                      a system/action/oplog message and shares the same
-#                      `nick` and `to` values)
 #
 # Messages which are part of the operation log have `nick`, `message`,
 # and `timestamp` set to describe what was done, when, and by who.
@@ -297,78 +294,12 @@ if DO_BATCH_PROCESSING
 # modified so we can hyperlink to it.
 Messages = BBCollection.messages = new Mongo.Collection "messages"
 OldMessages = BBCollection.oldmessages = new Mongo.Collection "oldmessages"
-computeMessageFollowup = (prev, curr) ->
-  (prev.system == curr.system and
-   prev.action == curr.action and
-   prev.oplog == curr.oplog and
-   prev.nick == curr.nick and
-   prev.to == curr.to)
 if DO_BATCH_PROCESSING
   for M in [ Messages, OldMessages ]
     M._ensureIndex {to:1, room_name:1, timestamp:-1}, {}
     M._ensureIndex {nick:1, room_name:1, timestamp:-1}, {}
     M._ensureIndex {room_name:1, timestamp:-1}, {}
     M._ensureIndex {room_name:1, timestamp:1}, {}
-  # watch messages collection and set the followup field as appropriate
-  # (followup field should already be set properly when the field is
-  #  archived into the OldMessages collection)
-  do ->
-    # defer (and then throttle) this computation on startup, so
-    # startup doesn't take forever.
-    initiallyDefer = true
-    check = (room_name, timestamp, m) ->
-      return if initiallyDefer
-      prev = Messages.find(
-        {room_name: room_name, timestamp: $lt: +timestamp},
-        {sort:[['timestamp','desc']], limit: 1 }).fetch()
-      eq = Messages.find(
-        {room_name: room_name, timestamp: +timestamp},
-        {sort:[['timestamp','asc']]}).fetch()
-      next = Messages.find(
-        {room_name: room_name, timestamp: $gt: +timestamp},
-        {sort:[['timestamp','asc']], limit: 1}).fetch()
-      affected = prev.concat(eq, next)
-      # ok, for all possibly affected messages, see if the followup field is
-      # correct.
-      for i in [1...affected.length] by 1
-        [ prev, curr ] = [ affected[i-1], affected[i] ]
-        f = computeMessageFollowup prev, curr
-        if (!!curr.followup) != f
-          console.log 'Updating followup status', curr._id, curr.nick
-          Messages.update curr._id, $set: followup: f
-    Messages.find({}).observe
-      added: (msg) -> check(msg.room_name, msg.timestamp, msg)
-      removed: (msg) -> check(msg.room_name, msg.timestamp)
-      changed: (nmsg, omsg) ->
-        check(omsg.room_name, omsg.timestamp)
-        check(nmsg.room_name, nmsg.timestamp, nmsg)
-    initiallyDefer = false
-    # ok, now we're going to (slowly) check all the messages, in chunks,
-    # at startup. We're throttling this so we don't hose the server on
-    # restart.
-    [checked,alleq] = [0,false]
-    CHUNK_SIZE = 50 # messages
-    CHUNK_PACE = 10 # seconds
-    checkChunk = throttle ->
-      cur = if alleq
-        Messages.find(timestamp: checked)
-      else
-        Messages.find({timestamp: $gt: checked},{sort:[['timestamp','asc']], limit: CHUNK_SIZE})
-      lastTimestamp = null
-      cur.forEach (msg) ->
-        lastTimestamp = msg.timestamp
-        check(msg.room_name, msg.timestamp, msg)
-      if alleq
-        alleq = false
-        checkChunk()
-      else if lastTimestamp?
-        checked = lastTimestamp
-        alleq = true
-        checkChunk()
-      else
-        console.log 'Done checking followups.'
-    , CHUNK_PACE*1000
-    checkChunk()
 
 # Pages -- paging metadata for Messages collection
 #   from: timestamp (first page has from==0)
@@ -608,7 +539,6 @@ spread_id_to_link = (id) ->
       oplog: true
       action: true
       system: false
-      followup: true
       to: null
 
   newObject = (type, args, extra, options={}) ->
@@ -1127,16 +1057,6 @@ spread_id_to_link = (id) ->
           nick: newMsg.nick
           room_name: newMsg.room_name
           timestamp: newMsg.timestamp
-      # update the 'followup' field to reduce flicker.
-      # it doesn't matter if this computation isn't exact (for example if
-      # there are multiple messages with the same timestamp); there's
-      # a server observe thread to compute the actual correct value.  we just
-      # want to reduce flicker in the common case.
-      prev = Messages.find(
-        {room_name: newMsg.room_name, timestamp: $lt: newMsg.timestamp},
-        {sort: [['timestamp','desc']], limit: 1 }).fetch()
-      if prev.length and computeMessageFollowup(prev[0], newMsg)
-        newMsg.followup = true
       newMsg._id = Messages.insert newMsg
       return newMsg
 

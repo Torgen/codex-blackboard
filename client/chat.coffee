@@ -96,29 +96,13 @@ Template.messages.helpers
     room_name = Session.get 'room_name'
     nick = model.canonical(Session.get('nick') or '')
     p = pageForTimestamp room_name, +Session.get('timestamp')
-    unless settings.SLOW_CHAT_FOLLOWUPS
-      # no follow up formatting, but blazing fast client rendering!
-      return messagesForPage p,
-        sort: [['timestamp','asc']]
-        transform: (m) ->
-          _id: m._id
-          followup: m.followup or false
-          message: m
-          isBot: m.nick is 'codexbot' and m.to is null
-    messages = messagesForPage p,
+    return messagesForPage p,
       sort: [['timestamp','asc']]
-    sameNick = do ->
-      prevContext = null
-      (m) ->
-        thisContext = m.nick + (if m.to then "/#{m.to}" else "")
-        thisContext = null if m.system or m.action
-        result = thisContext? and (thisContext == prevContext)
-        prevContext = thisContext
-        return result
-    for m, i in messages.fetch()
-      followup: sameNick(m)
-      message: m
-      isBot: m.nick is 'codexbot' and m.to is null
+      transform: (m) ->
+        _id: m._id
+        message: m
+        isBot: m.nick is 'codexbot' and m.to is null
+
   email: ->
     cn = model.canonical(this.message.nick)
     n = model.Nicks.findOne canon: cn
