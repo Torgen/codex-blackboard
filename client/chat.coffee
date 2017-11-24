@@ -76,6 +76,11 @@ instachat["alertWhenUnreadMessages"] = false
 instachat["scrolledToBottom"]        = true
 instachat["mutationObserver"] = new MutationObserver (recs, obs) ->
   for rec in recs
+    someElement = false
+    check = (e) -> someElement = true if e instanceof Element
+    check node for node in rec.addedNodes
+    check node for node in rec.removedNodes
+    continue unless someElement
     prevEl = rec.previousSibling?.nextSibling?.previousElementSibling
     effectFollowup(prevEl, prevEl.nextElementSibling) if prevEl?
     for node, i in rec.addedNodes
