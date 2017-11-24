@@ -50,11 +50,38 @@ messagesForPage = (p, opts={}) ->
     timestamp: cond
   , opts
 
+isFollowup = (former, latter) ->
+  return false unless former?.classList?.contains("media")
+  return false unless latter.classList.contains("media")
+  return false unless former.dataset.nick == latter.dataset.nick
+  if former.classList.contains("bb-message-pm")
+    return false unless latter.classList.contains("bb-message-pm")
+    return false unless former.dataset.pmTo == latter.dataset.pmTo
+  return true
+
+effectFollowup = (former, latter) ->
+  console.log "Checking on #{former} and #{latter}"
+  return unless latter?.classList?
+  if isFollowup(former, latter)
+    console.log "#{latter} is followup of #{former}"
+    latter.classList.add("bb-message-followup")
+  else
+    console.log"#{latter} is not followup of #{former}"
+    latter.classList.remove("bb-message-followup")
+
 # Globals
 instachat = {}
 instachat["UTCOffset"] = new Date().getTimezoneOffset() * 60000
 instachat["alertWhenUnreadMessages"] = false
 instachat["scrolledToBottom"]        = true
+instachat["mutationObserver"] = new MutationObserver (recs, obs) ->
+  for rec in recs
+    prevEl = rec.previousSibling.nextSibling?.previousElementSibling
+    nextEl = rec.nextSibling.previousSibling?.nextElementSibling
+    effectFollowup(prevEl, rec.addedNodes[0] ? nextEl)
+    for node, i in rec.addedNodes
+      effectFollowup(node, node.nextElementSibling)
+    
 
 # Favicon instance, used for notifications
 # (first add host to path)
@@ -165,6 +192,12 @@ Template.messages.onCreated ->
     this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to,
       onReady: onReady
     Tracker.onInvalidate invalidator
+
+Template.messages.onRendered ->
+  if settings.FOLLOWUP_STYLE is "js"
+    $("#messages").each ->
+      console.log "Observing #{this}"
+      instachat.mutationObserver.observe(this, {childList: true})
 
 whos_here_helper = ->
   roomName = Session.get('type') + '/' + Session.get('id')
@@ -515,6 +548,7 @@ startupChat = ->
 cleanupChat = ->
   try
     favicon.reset()
+  instachat.mutationObserver.disconnect()
   if instachat.keepaliveInterval?
     Meteor.clearInterval instachat.keepaliveInterval
     instachat.keepalive = instachat.keepaliveInterval = undefined
