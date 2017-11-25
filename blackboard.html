@@ -176,6 +176,7 @@
       <td class="puzzle-name"><div>
         {{#unless canEdit}}
           <a href="{{spread_link round.spreadsheet}}" title="Spreadsheet for round" class="pull-right"><i class="icon-th"></i></a>
+          <a href="{{doc_link round.doc}}" title="Doc for round" class="pull-right"><i class="icon-file"></i></a>
           {{link id=round._id title="Chat room for round" chat=true class="pull-right" icon="icon-comment"}}
           {{#if round.link}}<a class="pull-right" href="{{round.link}}" title="Link to hunt site"><i class="icon-share-alt"></i></a>{{/if}}
         {{/unless}}
@@ -307,6 +308,7 @@
              title="Edit the name of this puzzle"></i>
         {{else}}
           <a href="{{spread_link puzzle.spreadsheet}}" title="Spreadsheet for puzzle" class="pull-right"><i class="icon-th"></i></a>
+          <a href="{{doc_link puzzle.doc}}" title="Doc for puzzle" class="pull-right"><i class="icon-file"></i></a>
           {{link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="icon-comment"}}
           {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" title="Link to hunt site"><i class="icon-share-alt"></i></a>{{/if}}
         {{/if}}

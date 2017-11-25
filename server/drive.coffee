@@ -8,10 +8,12 @@ ROOT_FOLDER_NAME = Meteor.settings.folder or process.env.DRIVE_ROOT_FOLDER or 'M
 CODEX_ACCOUNT = Meteor.settings.driveowner or process.env.DRIVE_OWNER_ADDRESS or 'dan@ros.art'
 CODEX_HUMAN_NAME = Meteor.settings.drivehumanname or process.env.DRIVE_OWNER_NAME or 'Dan Rosart'
 WORKSHEET_NAME = (name) -> "Worksheet: #{name}"
+DOC_NAME = (name) -> "Notes: #{name}"
 
 # Constants
 GDRIVE_FOLDER_MIME_TYPE = 'application/vnd.google-apps.folder'
 GDRIVE_SPREADSHEET_MIME_TYPE = 'application/vnd.google-apps.spreadsheet'
+GDRIVE_DOC_MIME_TYPE = 'application/vnd.google-apps.document'
 XLSX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 MAX_RESULTS = 200
 SPREADSHEET_TEMPLATE = Assets.getBinary 'spreadsheet-template.xlsx'
@@ -92,31 +94,48 @@ ensurePermissions = (id) ->
         resource: p
   'ok'
 
+spreadsheetSettings =
+  titleFunc: WORKSHEET_NAME
+  driveMimeType: GDRIVE_SPREADSHEET_MIME_TYPE
+  uploadMimeType: XLSX_MIME_TYPE
+  uploadTemplate: SPREADSHEET_TEMPLATE
+
+docSettings =
+  titleFunc: DOC_NAME
+  driveMimeType: GDRIVE_DOC_MIME_TYPE
+  uploadMimeType: 'text/plain'
+  uploadTemplate: 'Put notes here.'
+  
+ensure = (name, folder, settings) ->
+  doc = (Gapi.exec drive.children, 'list',
+    folderId: folder.id
+    q: "title=#{quote settings.titleFunc name} and mimeType=#{quote settings.mimeType}"
+    maxResults: 1
+  ).items[0]
+  unless doc?
+    doc =
+      title: settings.titleFunc name
+      mimeType: settings.uploadMimeType
+      parents: [id: folder.id]
+    doc = Gapi.exec drive.files 'insert',
+      convert: true
+      body: doc
+      resource: doc
+      media:
+        mimeType: settings.uploadMimeType
+        body: settings.uploadTemplate
+    ensurePermissions(doc.id)
+  return doc
+
 createPuzzle = (name) ->
   folder = ensureFolder name, rootFolder
   # is the spreadsheet already there?
-  spreadsheet = (Gapi.exec drive.children, 'list',
-    folderId: folder.id
-    q: "title=#{quote WORKSHEET_NAME name} and mimeType=#{quote GDRIVE_SPREADSHEET_MIME_TYPE}"
-    maxResults: 1
-  ).items[0]
-  unless spreadsheet?
-    # create an new spreadsheet from our template
-    spreadsheet =
-      title: WORKSHEET_NAME name
-      mimeType: XLSX_MIME_TYPE
-      parents: [id: folder.id]
-    spreadsheet = Gapi.exec drive.files, 'insert',
-      convert: true
-      body: spreadsheet # this is only necessary due to bug in gapi, afaict
-      resource: spreadsheet
-      media:
-        mimeType: XLSX_MIME_TYPE
-        body: SPREADSHEET_TEMPLATE
-  ensurePermissions(spreadsheet.id)
+  spreadsheet = ensure(name, folder, spreadsheetSettings)
+  doc = ensure(name, folder, docSettings)
   return {
     id: folder.id
     spreadId: spreadsheet.id
+    docId: doc.id
   }
 
 findPuzzle = (name) ->
@@ -126,14 +145,20 @@ findPuzzle = (name) ->
     maxResults: 1
   folder = resp.items[0]
   return null unless folder?
+  # TODO: batch these requests together.
   # look for spreadsheet
-  resp = Gapi.exec drive.children, 'list',
+  spread = Gapi.exec drive.children, 'list',
     folderId: folder.id
     q: "title=#{quote WORKSHEET_NAME name}"
     maxResults: 1
+  doc = Gapi.exec drive.children, 'list',
+    filderId: folder.id
+    q: "title==#{quote DOC_NAME name}"
+    maxResults: 1
   return {
     id: folder.id
-    spreadId: resp.items[0]?.id
+    spreadId: spread.items[0]?.id
+    docId: doc.items[0]?.id
   }
 
 listPuzzles = ->
@@ -149,7 +174,7 @@ listPuzzles = ->
     break unless resp.nextPageToken?
   results
 
-renamePuzzle = (name, id, spreadId) ->
+renamePuzzle = (name, id, spreadId, docId) ->
   Gapi.exec drive.files, 'patch',
     fileId: id
     resource:
@@ -159,6 +184,11 @@ renamePuzzle = (name, id, spreadId) ->
       fileId: spreadId
       resource:
         title: (WORKSHEET_NAME name)
+  if docId?
+    Gapi.exec drive.files, 'patch',
+      fileId: docId
+      resource:
+        title: (DOC_NAME name)
   'ok'
 
 rmrfFolder = (id) ->
