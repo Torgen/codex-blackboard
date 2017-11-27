@@ -109,7 +109,7 @@ docSettings =
 ensure = (name, folder, settings) ->
   doc = (Gapi.exec drive.children, 'list',
     folderId: folder.id
-    q: "title=#{quote settings.titleFunc name} and mimeType=#{quote settings.mimeType}"
+    q: "title=#{quote settings.titleFunc name} and mimeType=#{quote settings.driveMimeType}"
     maxResults: 1
   ).items[0]
   unless doc?
@@ -117,7 +117,7 @@ ensure = (name, folder, settings) ->
       title: settings.titleFunc name
       mimeType: settings.uploadMimeType
       parents: [id: folder.id]
-    doc = Gapi.exec drive.files 'insert',
+    doc = Gapi.exec drive.files, 'insert',
       convert: true
       body: doc
       resource: doc

@@ -546,9 +546,9 @@ canonical = (s) ->
 drive_id_to_link = (id) ->
   "https://docs.google.com/folder/d/#{id}/edit"
 spread_id_to_link = (id) ->
-  "https://docs.google.com/spreadsheet/d/#{id}/edit"
+  "https://docs.google.com/spreadsheets/d/#{id}/edit"
 doc_id_to_link = (id) ->
-  "https://docs.google.com/document/d/#{id}/edit
+  "https://docs.google.com/document/d/#{id}/edit"
 
 (->
   # private helpers, not exported
@@ -868,7 +868,7 @@ doc_id_to_link = (id) ->
       doc = r?.doc
       result = renameObject "rounds", args
       # rename google drive folder
-      renameDriveFolder args.name, drive, spreadsheet if (result and drive?), doc if (result and drive?)
+      renameDriveFolder args.name, drive, (spreadsheet if (result and drive?)), doc if (result and drive?)
       return result
     deleteRound: (args) ->
       check args, ObjectWith
@@ -888,7 +888,7 @@ doc_id_to_link = (id) ->
       # remove from all roundgroups
       RoundGroups.update { rounds: rid },{ $pull: rounds: rid },{ multi: true }
       # delete google drive folder and all contents, recursively
-      deleteDriveFolder drive, spreadsheet if drive?, doc if drive?
+      deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
       # XXX: delete chat room logs?
       return r
 
@@ -919,7 +919,7 @@ doc_id_to_link = (id) ->
       doc = p?.doc
       result = renameObject "puzzles", args
       # rename google drive folder
-      renameDriveFolder args.name, drive, spreadsheet if (result and drive?), doc if (result and drive?)
+      renameDriveFolder args.name, drive, (spreadsheet if (result and drive?)), doc if (result and drive?)
       return result
     deletePuzzle: (args) ->
       check args, ObjectWith
@@ -936,7 +936,7 @@ doc_id_to_link = (id) ->
       # remove from all rounds
       Rounds.update { puzzles: pid },{ $pull: puzzles: pid },{ multi: true }
       # delete google drive folder
-      deleteDriveFolder drive, spreadsheet if drive?, doc if drive?
+      deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
       # XXX: delete chat room logs?
       return r
 
