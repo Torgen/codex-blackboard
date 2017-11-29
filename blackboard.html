@@ -2,19 +2,7 @@
 
 <!-- puzzles w/ index -->
 <div class="row-fluid">
-  <div id="bb-sidebar" class="span2">
-    <ul class="nav nav-list bb-sidenav span2">
-      <li class="divider"></li>
-      {{#each roundgroups}}
-      <li class="nav-header">{{name}}</li>
-      {{#each rounds}}
-      <li><a title="r{{round_num}}" href="#r{{round._id}}{{updateScrollSpy}}"><i class="icon-chevron-right"></i>
-      {{round.name}}</a></li>
-      {{/each}}
-      {{/each}}
-    </ul>
-  </div>
-  <div id="bb-tables" class="{{#if hideStatus}}span10{{else}}span8{{/if}} {{#if canEdit}}bb-canEdit{{/if}}">
+  <div id="bb-tables" class="{{#if hideStatus}}span12{{else}}span9{{/if}} {{#if canEdit}}bb-canEdit{{/if}}">
     <!-- content div -->
 <div class="btn-toolbar pull-right text-right bb-top-buttons">
     {{#if canEdit}}
@@ -103,7 +91,7 @@
   {{#if hideStatus}}
   <div class="bb-hide-status"><i class='icon-chevron-left'></i></div>
   {{else}}
-  <div id="bb-right-sidebar" class="span2"><div>
+  <div id="bb-right-sidebar" class="span3"><div>
     <div class="bb-hide-status"><i class='icon-chevron-right'></i></div>
     {{> blackboard_status_grid}}
   </div></div><!-- bb-right-sidebar -->
@@ -136,7 +124,7 @@
 </template>
 
 <template name="blackboard_round">
-  <section id="r{{round._id}}{{updateScrollSpy}}">
+  <section id="r{{round._id}}">
   {{#if showRound }}
   <h3 class="bb-editable" data-bbedit="rounds/{{round._id}}/title">
   {{#if editing "rounds" round._id "title"}}
