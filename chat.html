@@ -58,7 +58,7 @@
     {{/if}}{{/if}}
     {{#each messages}}{{scrollHack}}
       {{#if message.presence}}
-<div class="bb-message-presence {{message.presence}}" title={{body}}>
+<div class="bb-message-presence {{message.presence}}" title="{{body}}" data-nick="{{message.nick}}">
   {{gravatar id=email image="wavatar" size=14 }}{{message.nick}}
 </div>
       {{else if message.system}}
@@ -67,13 +67,13 @@
      {{body}}
 </div>
       {{else if message.action}}
-<div class="bb-message-action">
+<div class="bb-message-action" data-nick="{{message.nick}}">
    <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
      <i class="icon-hand-right"></i>
      <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{body}}
 </div>
       {{else}}
-<div class="media{{#if message.to}} bb-message-pm{{/if}}{{#if followup}} bb-message-followup{{/if}}{{#if isBot}} bb-is-bot{{/if}}">
+<div class="media{{#if message.to}} bb-message-pm{{/if}}{{#if isBot}} bb-is-bot{{/if}}" data-nick="{{message.nick}}" data-pm-to="{{message.to}}">
   {{gravatar id=email image="wavatar" size=48 classes="media-object pull-left img-rounded" }}
   <div class="media-body bb-message-body">
     <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>

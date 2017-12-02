@@ -50,11 +50,42 @@ messagesForPage = (p, opts={}) ->
     timestamp: cond
   , opts
 
+isFollowup = (former, latter) ->
+  return false unless former?.classList?.contains("media")
+  return false unless latter.classList.contains("media")
+  return false unless former.dataset.nick == latter.dataset.nick
+  if former.classList.contains("bb-message-pm")
+    return false unless latter.classList.contains("bb-message-pm")
+    return false unless former.dataset.pmTo == latter.dataset.pmTo
+  return true
+
+effectFollowup = (former, latter) ->
+  console.log former, latter
+  return unless latter?.classList?
+  if isFollowup(former, latter)
+    console.log "#{latter} is followup of #{former}"
+    latter.classList.add("bb-message-followup")
+  else
+    console.log "#{latter} is not followup of #{former}"
+    latter.classList.remove("bb-message-followup")
+
 # Globals
 instachat = {}
 instachat["UTCOffset"] = new Date().getTimezoneOffset() * 60000
 instachat["alertWhenUnreadMessages"] = false
 instachat["scrolledToBottom"]        = true
+instachat["mutationObserver"] = new MutationObserver (recs, obs) ->
+  for rec in recs
+    someElement = false
+    check = (e) -> someElement = true if e instanceof Element
+    check node for node in rec.addedNodes
+    check node for node in rec.removedNodes
+    continue unless someElement
+    prevEl = rec.previousSibling?.nextSibling?.previousElementSibling
+    effectFollowup(prevEl, prevEl.nextElementSibling) if prevEl?
+    for node, i in rec.addedNodes
+      effectFollowup(node, node.nextElementSibling) if node instanceof Element
+    
 
 # Favicon instance, used for notifications
 # (first add host to path)
@@ -96,29 +127,13 @@ Template.messages.helpers
     room_name = Session.get 'room_name'
     nick = model.canonical(Session.get('nick') or '')
     p = pageForTimestamp room_name, +Session.get('timestamp')
-    unless settings.SLOW_CHAT_FOLLOWUPS
-      # no follow up formatting, but blazing fast client rendering!
-      return messagesForPage p,
-        sort: [['timestamp','asc']]
-        transform: (m) ->
-          _id: m._id
-          followup: m.followup or false
-          message: m
-          isBot: m.nick is 'codexbot' and m.to is null
-    messages = messagesForPage p,
+    return messagesForPage p,
       sort: [['timestamp','asc']]
-    sameNick = do ->
-      prevContext = null
-      (m) ->
-        thisContext = m.nick + (if m.to then "/#{m.to}" else "")
-        thisContext = null if m.system or m.action
-        result = thisContext? and (thisContext == prevContext)
-        prevContext = thisContext
-        return result
-    for m, i in messages.fetch()
-      followup: sameNick(m)
-      message: m
-      isBot: m.nick is 'codexbot' and m.to is null
+      transform: (m) ->
+        _id: m._id
+        message: m
+        isBot: m.nick is 'codexbot' and m.to is null
+
   email: ->
     cn = model.canonical(this.message.nick)
     n = model.Nicks.findOne canon: cn
@@ -181,6 +196,12 @@ Template.messages.onCreated ->
     this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to,
       onReady: onReady
     Tracker.onInvalidate invalidator
+
+Template.messages.onRendered ->
+  if settings.FOLLOWUP_STYLE is "js"
+    $("#messages").each ->
+      console.log "Observing #{this}"
+      instachat.mutationObserver.observe(this, {childList: true})
 
 whos_here_helper = ->
   roomName = Session.get('type') + '/' + Session.get('id')
@@ -526,6 +547,7 @@ startupChat = ->
 cleanupChat = ->
   try
     favicon.reset()
+  instachat.mutationObserver.disconnect()
   if instachat.keepaliveInterval?
     Meteor.clearInterval instachat.keepaliveInterval
     instachat.keepalive = instachat.keepaliveInterval = undefined
