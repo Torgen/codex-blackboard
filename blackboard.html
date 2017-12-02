@@ -101,26 +101,25 @@
 
 <template name="blackboard_status_grid">
   <div class="bb-status-grid">
+  <table>
+  <tbody>
     {{#each roundgroups}}
-    <div class="bb-status-grid-row bb-status-{{#unless solved}}un{{/unless}}solved">{{link id=_id}}</div>
+    <tr><th colspan=2 class="bb-status-grid-roundgroup bb-status-{{#unless solved}}un{{/unless}}solved">{{link id=_id}}</th></tr>
     {{#each rounds}}
-    <div class="bb-status-grid-row">
-      <div class="bb-status-grid-cell">
-        <div class="bb-status-{{#unless round.solved}}un{{/unless}}solved">
-          {{link id=round._id title=round.name text=rX}}:
-        </div>
-      </div><!--
-      -->{{#each puzzles}}<!--
-      --><div class="bb-status-grid-cell">
-        <div class="bb-status-{{#unless puzzle.solved}}un{{/unless}}solved">
+    <tr>
+      <td class="bb-status-grid-round bb-status-{{#unless round.solved}}un{{/unless}}solved">
+          {{link id=round._id title="meta" text=round.name}}
+      </td><td class="bb-status-grid-puzzles">
+      {{#each puzzles}}<!--
+      --><div class="bb-status-grid-cell bb-status-{{#unless puzzle.solved}}un{{/unless}}solved">
           {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
-        </div>
       </div><!--
-      -->{{/each}}
-    </div>
+      -->{{/each}}</td>
+    </tr>
     {{/each}}
     {{/each}}
-  </div><!-- bb-status-grid -->
+  </tbody>
+  </table></div><!-- bb-status-grid -->
 </template>
 
 <template name="blackboard_round">
