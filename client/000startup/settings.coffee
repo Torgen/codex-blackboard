@@ -29,7 +29,8 @@ settings.BB_SUB_ALL = server.subAll ? true
 # (PMs are always allows in ringhunters)
 settings.BB_DISABLE_PM = server.disablePM ? false
 
-settings.FOLLOWUP_STYLE = server.followupStyle ? 'none'
+# Set to 'none' to have no followup rendering.
+settings.FOLLOWUP_STYLE = server.followupStyle ? 'js'
 
 settings.PICKER_CLIENT_ID = server.picker?.clientId
 settings.PICKER_APP_ID = server.picker?.appId
