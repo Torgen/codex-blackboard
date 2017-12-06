@@ -29,14 +29,6 @@ Template.registerHelper 'editing', (args..., options) ->
   return false unless (Session.get 'nick') and canEdit
   return Session.equals 'editing', args.join('/')
 
-Template.registerHelper 'wikiRP', (options) ->
-  [r,p] = [options.hash?.r, options.hash?.p]
-  "#{settings.WIKI_HOST}/wiki/#{settings.HUNT_YEAR}_R#{r}P#{p}"
-Template.registerHelper 'wiki', (options) ->
-  title = options.hash?.title
-  return settings.WIKI_HOST unless title
-  "#{settings.WIKI_HOST}/wiki/#{title}"
-
 Template.registerHelper 'linkify', (contents) ->
   contents = chat.convertURLsToLinksAndImages(UI._escape(contents))
   return new Spacebars.SafeString(contents)

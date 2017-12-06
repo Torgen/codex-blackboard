@@ -4,8 +4,6 @@
 <div class="row-fluid">
   <div id="bb-sidebar" class="span2">
     <ul class="nav nav-list bb-sidenav span2">
-      <li><a class="bb-wiki" href="{{wiki title=""}}"
-             target="_blank">Codex Wiki</a></li>
       <li class="divider"></li>
       {{#each roundgroups}}
       <li class="nav-header">{{name}}</li>
@@ -241,7 +239,7 @@
       {{ whos_working.count }} people
       ({{local_working}}<i class="icon-map-marker"></i>)
       </span>
-      <span class="bb-long comma-list">
+      <span class="bb-long">
       {{#each whos_working}}{{> nick_presence }} {{/each}}
       </span>
       </div>
@@ -289,7 +287,7 @@
 
 <template name="nick_presence">
 <span class="nick {{#unless foreground}}background{{/unless}} {{#if nickNear nick}}near{{/if}}"
-      title="{{nickOrName nick}}{{nickLocation nick}}">{{nick}}</span>
+      title="{{nickOrName nick}}{{nickLocation nick}}">{{gravatar id=email image="wavatar" size=14 }}</span>
 </template>
 
 <template name="blackboard_puzzle">
@@ -376,7 +374,7 @@
       {{ whos_working.count }} people
       ({{local_working}}<i class="icon-map-marker"></i>)
       </span>
-      <span class="bb-long comma-list">
+      <span class="bb-long">
       {{#each whos_working}}{{> nick_presence }} {{/each}}
       </span>
       </div>
