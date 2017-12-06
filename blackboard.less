@@ -147,31 +147,6 @@ body {
     text-transform: uppercase;
   }
 }
-#bb-sidebar {
-  .bb-sidenav {
-    margin-top: 10px;
-    background-color: #fff;
-    -webkit-border-radius: 6px;
-       -moz-border-radius: 6px;
-            border-radius: 6px;
-    -webkit-box-shadow: 0 1px 4px rgba(0,0,0,.065);
-       -moz-box-shadow: 0 1px 4px rgba(0,0,0,.065);
-            box-shadow: 0 1px 4px rgba(0,0,0,.065);
-    border: 1px solid #e5e5e5;
-
-    position: fixed; /* for wide screens */
-
-    li.nav-header, li > a { .ellipsis; }
-
-    /* Chevrons */
-    .icon-chevron-right {
-      float: right;
-      margin-top: 2px;
-      margin-right: -6px;
-      opacity: .25;
-    }
-  }
-}
 #bb-right-sidebar {
   position: fixed;
   right: 14px;
@@ -207,10 +182,15 @@ body {
     padding: 5px;
     font-size: 80%;
 
-    .bb-status-grid-row {
-      padding-left: 1.5em;
-      text-indent: -1.5em;
-      & > * { text-indent: 0; }
+    .bb-status-grid-roundgroup {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    td {
+      padding: 0px;
+    }
+    .bb-status-grid-round {
+      padding-right:2px;
     }
     .bb-status-grid-cell {
       display: inline-block;
