@@ -77,6 +77,12 @@ function sudopart() {
   mongo --eval 'rs.initiate({_id: "meteor", members: [{_id: 0, host: "127.0.0.1:27017"}]});'
 
   systemctl enable codex-batch.service
+  
+  add-apt-repository -y ppa:certbot/certbot
+  apt-get update
+  apt-get install -y python-certbot-nginx 
+  certbot --nginx --cert-name $domainname
+  
   cd /etc/ssl/certs
   openssl dhparam -out dhparam.pem 4096
   handlebars < $scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars > /etc/nginx/sites-available $PORTS --domainname "$domainname"
@@ -92,11 +98,6 @@ function sudopart() {
   systemctl enable codex.target
   systemctl start codex.target
   systemctl reload nginx.service
-  
-  add-apt-repository -y ppa:certbot/certbot
-  apt-get update
-  apt-get install -y python-certbot-nginx 
-  certbot --nginx --cert-name $domainname
 }
 
 sudo sudopart
