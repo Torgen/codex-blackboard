@@ -3,7 +3,6 @@ upstream codex {
   server localhost:{{this}};{{/each}}
 }
 
-# TODO: add server name, http redirects to https, basic auth, certbot
 server {
 	listen 80 default_server;
   listen [::]:80 default_server;
