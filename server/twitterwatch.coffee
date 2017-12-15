@@ -61,3 +61,4 @@ twit.stream 'statuses/filter', {track: HASHTAGS}, (stream) ->
       action: 'true'
       body: "<a href='https://twitter.com/#{data.user.screen_name}'>@#{data.user.screen_name}</a> <a href='https://twitter.com/#{data.user.screen_name}/status/#{data.id_str}' target='_blank'>says:</a> #{text}"
       bodyIsHtml: true
+      bot_ignore: true

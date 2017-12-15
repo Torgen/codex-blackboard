@@ -2,21 +2,7 @@
 
 <!-- puzzles w/ index -->
 <div class="row-fluid">
-  <div id="bb-sidebar" class="span2">
-    <ul class="nav nav-list bb-sidenav span2">
-      <li><a class="bb-wiki" href="{{wiki title=""}}"
-             target="_blank">Codex Wiki</a></li>
-      <li class="divider"></li>
-      {{#each roundgroups}}
-      <li class="nav-header">{{name}}</li>
-      {{#each rounds}}
-      <li><a title="r{{round_num}}" href="#r{{round._id}}{{updateScrollSpy}}"><i class="icon-chevron-right"></i>
-      {{round.name}}</a></li>
-      {{/each}}
-      {{/each}}
-    </ul>
-  </div>
-  <div id="bb-tables" class="{{#if hideStatus}}span10{{else}}span8{{/if}} {{#if canEdit}}bb-canEdit{{/if}}">
+  <div id="bb-tables" class="{{#if hideStatus}}span12{{else}}span9{{/if}} {{#if canEdit}}bb-canEdit{{/if}}">
     <!-- content div -->
 <div class="btn-toolbar pull-right text-right bb-top-buttons">
     {{#if canEdit}}
@@ -55,8 +41,22 @@
       <span class="bb-hide-when-narrower">Codex</span></span> <span class="bb-hide-when-narrow">Puzzle </span><span class="bb-no-wrap">Blackboard
       </span>
     </h1>
-    {{#each roundgroups}}
-    <section id="group{{_id}}">
+  <table class="table table-bordered table-condensed bb-puzzle">
+  <thead>
+    {{#unless compactMode}}
+    <tr>
+      <th class="puzzle-name">Name</th>
+      <th class="puzzle-answer">Solution</th>
+      <th class="puzzle-status">Status</th>
+      {{#unless canEdit}}
+      <th class="puzzle-working">Working on this</th>
+      <th class="puzzle-update">Last update</th>
+      {{/unless}}
+    </tr>
+    {{/unless}}
+  </thead>
+    {{#each roundgroups}}<tbody>
+    <tr><th colspan=5 id="group{{_id}}">
       <h2 class="bb-editable" data-bbedit="roundgroups/{{_id}}/title">
     {{#if editing "roundgroups" _id "title"}}
       <input type="text" id="roundgroups-{{_id}}-title"
@@ -96,16 +96,18 @@
      </button>
    </div>
   {{/if}}
-    {{#each rounds}}
+  </th></tr>
+  {{#each rounds}}
       {{> blackboard_round }}
     {{/each}}
-    </section>
+    </tbody>
     {{/each}}
+  </table>
   </div><!-- bb-tables -->
   {{#if hideStatus}}
   <div class="bb-hide-status"><i class='icon-chevron-left'></i></div>
   {{else}}
-  <div id="bb-right-sidebar" class="span2"><div>
+  <div id="bb-right-sidebar" class="span3"><div>
     <div class="bb-hide-status"><i class='icon-chevron-right'></i></div>
     {{> blackboard_status_grid}}
   </div></div><!-- bb-right-sidebar -->
@@ -115,32 +117,31 @@
 
 <template name="blackboard_status_grid">
   <div class="bb-status-grid">
+  <table>
+  <tbody>
     {{#each roundgroups}}
-    <div class="bb-status-grid-row bb-status-{{#unless solved}}un{{/unless}}solved">{{link id=_id}}</div>
+    <tr><th colspan=2 class="bb-status-grid-roundgroup bb-status-{{#unless solved}}un{{/unless}}solved">{{link id=_id}}</th></tr>
     {{#each rounds}}
-    <div class="bb-status-grid-row">
-      <div class="bb-status-grid-cell">
-        <div class="bb-status-{{#unless round.solved}}un{{/unless}}solved">
-          {{link id=round._id title=round.name text=rX}}:
-        </div>
-      </div><!--
-      -->{{#each puzzles}}<!--
-      --><div class="bb-status-grid-cell">
-        <div class="bb-status-{{#unless puzzle.solved}}un{{/unless}}solved">
+    <tr>
+      <td class="bb-status-grid-round bb-status-{{#unless round.solved}}un{{/unless}}solved">
+          {{link id=round._id title="meta" text=round.name}}
+      </td><td class="bb-status-grid-puzzles">
+      {{#each puzzles}}<!--
+      --><div class="bb-status-grid-cell bb-status-{{#unless puzzle.solved}}un{{/unless}}solved">
           {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
-        </div>
       </div><!--
-      -->{{/each}}
-    </div>
+      -->{{/each}}</td>
+    </tr>
     {{/each}}
     {{/each}}
-  </div><!-- bb-status-grid -->
+  </tbody>
+  </table></div><!-- bb-status-grid -->
 </template>
 
 <template name="blackboard_round">
-  <section id="r{{round._id}}{{updateScrollSpy}}">
   {{#if showRound }}
-  <h3 class="bb-editable" data-bbedit="rounds/{{round._id}}/title">
+  <tr><th colspan=5>
+  <h3 id="r{{round._id}}{{updateScrollSpy}}" class="bb-editable" data-bbedit="rounds/{{round._id}}/title">
   {{#if editing "rounds" round._id "title"}}
       <input type="text" id="rounds-{{round._id}}-title"
              value="{{round.name}}"
@@ -155,21 +156,8 @@
     {{link id=round._id title=rX editing=canEdit}}
     <small>({{rX}}: {{num_solved}}/{{num_puzzles}} puzzles solved)</small>
   {{/if}}
-  </h3>
-
+  </h3></th></tr>
   {{#if hasPuzzles}}
-  <table class="table table-bordered table-condensed bb-puzzle"><tbody>
-    {{#unless compactMode}}
-    <tr>
-      <th class="puzzle-name">Name</th>
-      <th class="puzzle-answer">Solution</th>
-      <th class="puzzle-status">Status</th>
-      {{#unless canEdit}}
-      <th class="puzzle-working">Working on this</th>
-      <th class="puzzle-update">Last update</th>
-      {{/unless}}
-    </tr>
-    {{/unless}}
     {{! META }}
     {{#if showMeta}}
     <tr>
@@ -238,7 +226,7 @@
       {{ whos_working.count }} people
       ({{local_working}}<i class="icon-map-marker"></i>)
       </span>
-      <span class="bb-long comma-list">
+      <span class="bb-long">
       {{#each whos_working}}{{> nick_presence }} {{/each}}
       </span>
       </div>
@@ -256,9 +244,8 @@
     {{#each puzzles}}
       {{> blackboard_puzzle}}
     {{/each}}
-  </tbody></table>
   {{else}}
-  <p><i>No puzzles in this round yet.</i></p>
+  <tr><td colspan=5>No puzzles in this round yet.</td></tr>
   {{/if}}
   {{#unless "true"}}{{#with round}}{{>blackboard_tags}}{{/with}}{{/unless}}
   {{#if canEdit}}
@@ -283,12 +270,11 @@
      </button>
   </div>
   {{/if}}{{/if}}
-  </section>
 </template>
 
 <template name="nick_presence">
 <span class="nick {{#unless foreground}}background{{/unless}} {{#if nickNear nick}}near{{/if}}"
-      title="{{nickOrName nick}}{{nickLocation nick}}">{{nick}}</span>
+      title="{{nickOrName nick}}{{nickLocation nick}}">{{gravatar id=email image="wavatar" size=14 }}</span>
 </template>
 
 <template name="blackboard_puzzle">
@@ -375,7 +361,7 @@
       {{ whos_working.count }} people
       ({{local_working}}<i class="icon-map-marker"></i>)
       </span>
-      <span class="bb-long comma-list">
+      <span class="bb-long">
       {{#each whos_working}}{{> nick_presence }} {{/each}}
       </span>
       </div>
