@@ -27,7 +27,8 @@ function sudopart() {
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
   echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.4.list
   curl -sL https://deb.nodesource.com/setup_8.x | bash -
-  apt-get install -y mongodb-org nginx nodejs
+  apt-get update
+  apt-get install -y mongodb-org nginx nodejs software-properties-common
 
   # This will help us template some files
   npm install -g handlebars-cmd
@@ -76,12 +77,26 @@ function sudopart() {
   mongo --eval 'rs.initiate({_id: "meteor", members: [{_id: 0, host: "127.0.0.1:27017"}]});'
 
   systemctl enable codex-batch.service
+  cd /etc/ssl/certs
+  openssl dhparam -out dhparam.pem 4096
   handlebars < $scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars > /etc/nginx/sites-available $PORTS --domainname "$domainname"
   ln -s /etc/nginx/sites-{available,enabled}/codex
+  rm /etc/nginx/sites-enabled/default
+  
+  login=$2
+  while [ -z "$login" ] ; do
+    read -p "Need a user name for basic authentication" login
+  done
+  printf "${login}:$(openssl passwd -apr1)\n" > /etc/nginx/.htpasswd
   
   systemctl enable codex.target
   systemctl start codex.target
   systemctl reload nginx.service
+  
+  add-apt-repository -y ppa:certbot/certbot
+  apt-get update
+  apt-get install -y python-certbot-nginx 
+  certbot --nginx --cert-name $domainname
 }
 
 sudo sudopart
