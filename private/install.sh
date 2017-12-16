@@ -46,6 +46,7 @@ sudo npm install
 
 # Copy the static files
 sudo cp -a $scriptroot/installfiles/* /
+sudo systemctl daemon-reload
 
 handlebars < $scriptroot/installtemplates/etc/codex-common.env.handlebars > /etc/codex-common.env --domainname "$domainname"
 sudo vim /etc/codex-common.env
@@ -63,7 +64,7 @@ PORTS=""
 if [ $(nproc) -eq 1 ]; then
   PORTS="--port 28000"
 else
-  for index in {1..$(nproc)}; do
+  for index in $(seq 1 $(nproc)); do
     port=$[$index + 28000]
     PORTS="$PORTS --port $port"
     sudo systemctl enable codex@${port}.service
