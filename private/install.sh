@@ -48,7 +48,7 @@ sudo npm install
 sudo cp -a $scriptroot/installfiles/* /
 sudo systemctl daemon-reload
 
-handlebars < $scriptroot/installtemplates/etc/codex-common.env.handlebars > /etc/codex-common.env --domainname "$domainname"
+handlebars < $scriptroot/installtemplates/etc/codex-common.env.handlebars --domainname "$domainname" | sudo bash -c "cat > /etc/codex-common.env"
 sudo vim /etc/codex-common.env
 sudo chmod 600 /etc/codex-batch.env
 sudo vim /etc/codex-batch.env
@@ -89,7 +89,7 @@ sudo certbot certonly --standalone -d $domainname
   
 cd /etc/ssl/certs
 sudo openssl dhparam -out dhparam.pem 4096
-sudo handlebars < $scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars > /etc/nginx/sites-available $PORTS --domainname "$domainname"
+handlebars < $scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars $PORTS --domainname "$domainname" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
 sudo ln -s /etc/nginx/sites-{available,enabled}/codex
 sudo rm /etc/nginx/sites-enabled/default
   
@@ -97,7 +97,7 @@ login=$2
 while [ -z "$login" ] ; do
   read -p "Need a user name for basic authentication" login
 done
-sudo bash -c 'printf "${login}:$(openssl passwd -apr1)\n" > /etc/nginx/.htpasswd'
+printf "${login}:$(openssl passwd -apr1)\n" | sudo bash -c "cat > /etc/nginx/.htpasswd"
   
 sudo systemctl enable codex.target
 sudo systemctl start codex.target
