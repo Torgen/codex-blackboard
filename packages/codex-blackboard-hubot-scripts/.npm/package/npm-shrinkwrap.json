@@ -4,6 +4,7 @@
     "codex-blackboard-hubot-scripts": {
       "version": "2.0.0",
       "resolved": "https://github.com/cscott/codex-blackboard-hubot-scripts/tarball/62d35c1a0134fc59916cc4c8521f4837cb3135a0",
+      "from": "codex-blackboard-hubot-scripts@https://github.com/cscott/codex-blackboard-hubot-scripts/tarball/62d35c1a0134fc59916cc4c8521f4837cb3135a0",
       "integrity": "sha1-ltE65ni59HBf51YXwcVfRV0on0o=",
       "dependencies": {
         "hubot": {
