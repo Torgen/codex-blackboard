@@ -27,7 +27,7 @@ curl https://install.meteor.com/ | sh
 
 # Set up apt
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
-sudo bach -c 'echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.4.list'
+sudo bash -c 'echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.4.list'
 curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -
 sudo apt-get update
 sudo apt-get install -y mongodb-org nginx nodejs software-properties-common
@@ -48,9 +48,9 @@ sudo npm install
 sudo cp -a $scriptroot/installfiles/* /
 
 handlebars < $scriptroot/installtemplates/etc/codex-common.env.handlebars > /etc/codex-common.env --domainname "$domainname"
-sudo $EDITOR /etc/codex-common.env
+sudo vim /etc/codex-common.env
 sudo chmod 600 /etc/codex-batch.env
-sudo $EDITOR /etc/codex-batch.env
+sudo vim /etc/codex-batch.env
 
 # Figure out how many service we're starting.
 # On a single core machine, we start a single task at port 28000 that does
