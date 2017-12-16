@@ -83,8 +83,9 @@ sudo systemctl enable codex-batch.service
   
 sudo add-apt-repository -y ppa:certbot/certbot
 sudo apt-get update
-sudo apt-get install -y python-certbot-nginx 
-sudo certbot --nginx --cert-name $domainname
+sudo apt-get install -y certbot
+
+sudo certbot certonly --standalone -d $domainname
   
 cd /etc/ssl/certs
 sudo openssl dhparam -out dhparam.pem 4096
