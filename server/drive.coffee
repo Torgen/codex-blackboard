@@ -42,23 +42,24 @@ userRateExceeded = (error) ->
       return true
   return false
 
-delays = [100, 250, 500, 1000, 2000]
+delays = [100, 250, 500, 1000, 2000, 5000, 10000]
 
-afterDelay = Meteor.wrapAsync (ix, base, name, params, auth, callback) ->
+afterDelay = (ix, base, name, params, callback) ->
   try
-    r = Gapi.exec base, name, params, auth
+    r = Gapi.exec base, name, params 
     callback null, r
   catch error
     if ix >= delays.length or not userRateExceeded(error)
       callback error, null
       return
+    console.warn "Rate limited for #{name}; Will retry after #{delays[ix]}ms"
     later = ->
-      afterDelay ix+1, base, name, params, auth, callback
+      afterDelay ix+1, base, name, params, callback
     Meteor.setTimeout later, delays[ix]
     
 
-apiThrottle = Meteor.wrapAsync (base, name, params, auth, callback) ->
-  afterDelay 0, base, name, params, auth, callback
+apiThrottle = Meteor.wrapAsync (base, name, params, callback) ->
+  afterDelay 0, base, name, params, callback
 
 ensureFolder = (name, parent) ->
   # check to see if the folder already exists
