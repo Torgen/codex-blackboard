@@ -1,35 +1,72 @@
 codex-blackboard
 ================
 
-Meteor app for coordating solving for our MIT Mystery Hunt team.  To run,
-first obtain the password for our google drive account.  Then:
+Meteor app for coordinating solving for our MIT Mystery Hunt team. To run in
+production mode on a freshly installed linux box (Ubuntu 16.04LTS preferred),
+point DNS at the public IP for your machine, clone this repo into a directory,
+then run `private/install.sh $domainname` from that directory. This will install
+NGinx, Node.js, Meteor, and MongoDB, build the app, configure systemd to start
+everything on boot, and install an SSL certificate from Lets Encrypt. It will
+also give you a chance to modify the configuration before everything starts.
+You can get an advance idea of what you may configure from reading
+`private/installtemplates/etc/codex-common.env.handlebars` and
+`private/installfiles/etc/codex-batch.env`. A summary:
+
+* MongoDB wants to store its data in an XFS partition. If you have
+  unpartitioned space on your hard drive, you may want to create an xfs
+  partition and mount it at /var/lib/mongodb. If you haven't done this, the
+  install script will pause at the start and give you a chance, but you can
+  always not do it--our database probably won't be big enough for it to matter.
+* Google Drive integration requires an application default credential. If
+  you're running on Compute Engine, this will be set up, but the Google Drive
+  scope won't be configured; you have to do this while the VM is stopped.
+  On any other kind of machine, download the service account key json file,
+  put it somewhere nobody:nogroup can read it, and set
+  `GOOGLE_APPLICATION_CREDENTIALS=${path_to_file}` in `/etc/codex-common.env`.
+  If this is a shared machine, you can change the user the blackboard runs as
+  by editing `/etc/systemd/system/codex@.service` and
+  `/etc/systemd/system/codex-batch.service` so the file can be owned by root.
+* Letting users upload files to the drive folders requires Google Picker
+  credentials. Get some from
+  https://console.developers.google.com/start/api?id=picker&credential=client_key
+  and add a `picker` key to the `METEOR_SETTINGS` json object in
+  `/etc/codex-common.env`.
+* Scraping twitter requires creating a twitter application at
+  https://app.twitter.com. You may want to create a burner twitter account,
+  since you have to give the app read/write access to the twitter account to
+  use the streaming API. These credentials go in `/etc/codex-batch.env`.
+* Scraping email requires putting a login and password in
+  `/env/codex-batch.env`. The other settings are documented there.
+  
+Developing
+==========
+
+To run in development mode:
 
     $ cd codex-blackboard
-    $ echo '{ "password":"<password here>" }' > private/settings.json
-    $ meteor --settings private/settings.json
+    $ meteor
     <browse to localhost:3000>
 
-If you don't have the google drive password, you can just omit the
-`private/settings.json` file and the `--settings` option to meteor; the app
-will skip all the google drive integration steps.
+If you have application default credentials configured (e.g. you're running on
+Compute Engine, you manually configured the environment variable, or you used
+`gcloud auth application-default login` to log in as yourself), it will use
+Drive as that account, but the default settings will share any documents you
+create with me. This will annoy us both. You can prevent this by setting
+DRIVE_OWNER_ADDRESS and DRIVE_OWNER_NAME environment variables, or setting
+driveowner and drivehumanname in the meteor settings json file. (i.e. make a
+json file with those keys, then pass the filename to meteor with the --settings flag.)
 
 Your code is pushed live to the server as you make changes, so
-you can just leave `meteor` running.  Occassionally we make changes to the
-database schema -- add new sample data, change how things are organized, etc.
-In those cases:
+you can just leave `meteor` running. You can reset the internal database with:
 
     $ meteor reset
     $ meteor --settings private/settings.json
 
-will wipe the old database and start afresh.
-
-Note that MongoDB changed its default database format between meteor 1.3.x
-and 1.4.x.  See the "Database upgrade" section below to learn about
-migrating the meteor database if you are doing an upgrade.
+but note that this won't delete any Google Drive files.
 
 ## Installing Meteor
 
-Our blackboard app currently requires Meteor 1.4.
+Our blackboard app currently requires Meteor 1.6.
 
 At the moment the two ways to install Meteor are:
 
@@ -66,53 +103,3 @@ changes.
 You should probably watch the screencast at http://meteor.com to get a sense
 of the framework; you might also want to check out the examples they've
 posted, too.
-
-## Working with Google Drive
-
-We use JWT for authenticating with google drive.  The official
-documentation is a bit sparse.  I suggest you read the docs for the
-[gapitoken] package which describes how to make a `.pem` private key
-file for the service account associated with this app.  In order to
-avoid publicly exposing the private key in github, we then encrypt
-this private key file with a password, stored in `private/settings.json` but
-*not* checked in.  The server-side `Gapi.encrypt` function (in
-`packages/googleapis/googleapis.js`) can be used to create a properly
-encrypted key if the credentials or password ever needs to change.
-
-For development, it is useful to have a scratch drive folder which is
-specific to your development install and can be wiped out and reset.
-Add a `folder` key to your `private/settings.json` file to name this scratch
-folder.  For example:
-    {"password":"<password here>","folder":"My Dev Test Folder"}
-
-[gapitoken]: https://npmjs.org/package/gapitoken
-
-## Database upgrade
-MongoDB changed its default database format to "WiredTiger" between
-meteor 1.3.x and 1.4.x.  See:
-https://docs.meteor.com/changelog.html#v14
-
-To migrate the meteor database format, first ensure that you have
-`mongodump` installed (`apt-get install mongo-tools` if necessary).
-
-Ensure meteor is running your app before starting the dump:
-    $ meteor --settings private/settings.json &
-    $ mongodump -h 127.0.0.1 --port 3001 -d meteor
-Then stop meteor and reset the DB (which will create a DB of the new type):
-    $ meteor reset
-Start up meteor again, and restore the DB into the new storage engine:
-    $ meteor --settings private/settings.json &
-    $ mongorestore --maintainInsertionOrder -h 127.0.0.1 --port 3001 -d meteor --drop dump/meteor
-If your version of mongorestore is "old", then you might have to drop the
-`--maintainInsertionOrder` argument to the `mongorestore` command.
-
-## Goals, etc.
-
-The following links should give you a sense of the functionality we're
-attempting to reimplement (talk to us if you need a reminder of the
-login and password for these):
-
-* http://codex.hopto.org/codex/wiki/All_Puzzles11
-* http://codex.hopto.org/codex/wiki/2011_R1P1
-* http://codex.hopto.org/show.asp?roomname=r10meta
-* http://codex.hopto.org/codex/wiki/Chat_System#Chat_Bot

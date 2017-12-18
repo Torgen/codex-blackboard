@@ -9,7 +9,6 @@
 <div class="bb-top-left-content">{{! start top left splitter }}
 {{#unless puzzle.solved}}{{> puzzle_callin_modal}}{{/unless}}
 <h1>Puzzle <small>{{puzzle.name}}
-  (<a class="bb-wiki" href="{{wikiRP r=round_num p=puzzle_num}}">wiki r{{round_num}}p{{puzzle_num}}</a>)
   {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">puzzle link <i class="icon-share-alt"></i></a>){{/if}}
 </small></h1>
 

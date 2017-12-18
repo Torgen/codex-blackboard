@@ -37,9 +37,35 @@ wrapCheck = (f, type) ->
     return unless checkAuth type
     f.apply(this, arguments)
 
+userRateExceeded = (error) ->
+  return false unless error.code == 403
+  for subError in error.errors
+    if subError.domain is "usageLimits" and subError.reason is "userRateLimitExceeded"
+      return true
+  return false
+
+delays = [100, 250, 500, 1000, 2000, 5000, 10000]
+
+afterDelay = (ix, base, name, params, callback) ->
+  try
+    r = Gapi.exec base, name, params 
+    callback null, r
+  catch error
+    if ix >= delays.length or not userRateExceeded(error)
+      callback error, null
+      return
+    console.warn "Rate limited for #{name}; Will retry after #{delays[ix]}ms"
+    later = ->
+      afterDelay ix+1, base, name, params, callback
+    Meteor.setTimeout later, delays[ix]
+    
+
+apiThrottle = Meteor.wrapAsync (base, name, params, callback) ->
+  afterDelay 0, base, name, params, callback
+
 ensureFolder = (name, parent) ->
   # check to see if the folder already exists
-  resp = Gapi.exec drive.children, 'list',
+  resp = apiThrottle drive.children, 'list',
     folderId: parent or 'root'
     q: "title=#{quote name}"
     maxResults: 1
@@ -51,7 +77,7 @@ ensureFolder = (name, parent) ->
       title: name
       mimeType: GDRIVE_FOLDER_MIME_TYPE
     resource.parents = [id: parent] if parent
-    resource = Gapi.exec drive.files, 'insert',
+    resource = apiThrottle drive.files, 'insert',
       resource: resource
   # give the new folder the right permissions
   ensurePermissions(resource.id)
@@ -84,12 +110,12 @@ ensurePermissions = (id) ->
     role: 'writer'
     type: 'anyone'
   ]
-  resp = Gapi.exec drive.permissions, 'list', (fileId: id)
+  resp = apiThrottle drive.permissions, 'list', (fileId: id)
   perms.forEach (p) ->
     # does this permission already exist?
     exists = resp.items.some (pp) -> samePerm(p, pp)
     unless exists
-      Gapi.exec drive.permissions, 'insert',
+      apiThrottle drive.permissions, 'insert',
         fileId: id
         resource: p
   'ok'
@@ -107,7 +133,7 @@ docSettings =
   uploadTemplate: 'Put notes here.'
   
 ensure = (name, folder, settings) ->
-  doc = (Gapi.exec drive.children, 'list',
+  doc = (apiThrottle drive.children, 'list',
     folderId: folder.id
     q: "title=#{quote settings.titleFunc name} and mimeType=#{quote settings.driveMimeType}"
     maxResults: 1
@@ -117,7 +143,7 @@ ensure = (name, folder, settings) ->
       title: settings.titleFunc name
       mimeType: settings.uploadMimeType
       parents: [id: folder.id]
-    doc = Gapi.exec drive.files, 'insert',
+    doc = apiThrottle drive.files, 'insert',
       convert: true
       body: doc
       resource: doc
@@ -139,7 +165,7 @@ createPuzzle = (name) ->
   }
 
 findPuzzle = (name) ->
-  resp = Gapi.exec drive.children, 'list',
+  resp = apiThrottle drive.children, 'list',
     folderId: rootFolder
     q: "title=#{quote name} and mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
     maxResults: 1
@@ -147,12 +173,12 @@ findPuzzle = (name) ->
   return null unless folder?
   # TODO: batch these requests together.
   # look for spreadsheet
-  spread = Gapi.exec drive.children, 'list',
+  spread = apiThrottle drive.children, 'list',
     folderId: folder.id
     q: "title=#{quote WORKSHEET_NAME name}"
     maxResults: 1
-  doc = Gapi.exec drive.children, 'list',
-    filderId: folder.id
+  doc = apiThrottle drive.children, 'list',
+    folderId: folder.id
     q: "title==#{quote DOC_NAME name}"
     maxResults: 1
   return {
@@ -165,7 +191,7 @@ listPuzzles = ->
   results = []
   resp = {}
   loop
-    resp = Gapi.exec drive.children, 'list',
+    resp = apiThrottle drive.children, 'list',
       folderId: rootFolder
       q: "mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
       maxResults: MAX_RESULTS
@@ -175,17 +201,17 @@ listPuzzles = ->
   results
 
 renamePuzzle = (name, id, spreadId, docId) ->
-  Gapi.exec drive.files, 'patch',
+  apiThrottle drive.files, 'patch',
     fileId: id
     resource:
       title: name
   if spreadId?
-    Gapi.exec drive.files, 'patch',
+    apiThrottle drive.files, 'patch',
       fileId: spreadId
       resource:
         title: (WORKSHEET_NAME name)
   if docId?
-    Gapi.exec drive.files, 'patch',
+    apiThrottle drive.files, 'patch',
       fileId: docId
       resource:
         title: (DOC_NAME name)
@@ -196,7 +222,7 @@ rmrfFolder = (id) ->
     resp = {}
     loop
       # delete subfolders
-      resp = Gapi.exec drive.children, 'list',
+      resp = apiThrottle drive.children, 'list',
         folderId: id
         q: "mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
         maxResults: MAX_RESULTS
@@ -206,22 +232,22 @@ rmrfFolder = (id) ->
       break unless resp.nextPageToken?
     loop
       # delete non-folder stuff
-      resp = Gapi.exec drive.children, 'list',
+      resp = apiThrottle drive.children, 'list',
         folderId: id
         q: "mimeType!=#{quote GDRIVE_FOLDER_MIME_TYPE}"
         maxResults: MAX_RESULTS
         pageToken: resp.nextPageToken
       resp.items.forEach (item) ->
-        Gapi.exec drive.files, 'delete', (fileId: item.id)
+        apiThrottle drive.files, 'delete', (fileId: item.id)
       break unless resp.nextPageToken?
     # are we done? look for remaining items owned by us
-    resp = Gapi.exec drive.children, 'list',
+    resp = apiThrottle drive.children, 'list',
       folderId: id
       q: "#{quote EMAIL} in owners"
       maxResults: 1
     break if resp.items.length is 0
   # folder empty; delete the folder and we're done
-  Gapi.exec drive.files, 'delete', (fileId: id)
+  apiThrottle drive.files, 'delete', (fileId: id)
   'ok'
 
 deletePuzzle = (id) -> rmrfFolder(id)

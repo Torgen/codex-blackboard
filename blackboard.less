@@ -142,37 +142,9 @@ body {
     margin-bottom: -1px;
   }
 
-  .bb-wiki { text-transform: uppercase; }
-
   .answer {
     font-family: 'Inconsolata', 'Andale Mono', Courier, monospace;
     text-transform: uppercase;
-  }
-}
-#bb-sidebar {
-  .bb-sidenav {
-    margin-top: 10px;
-    background-color: #fff;
-    -webkit-border-radius: 6px;
-       -moz-border-radius: 6px;
-            border-radius: 6px;
-    -webkit-box-shadow: 0 1px 4px rgba(0,0,0,.065);
-       -moz-box-shadow: 0 1px 4px rgba(0,0,0,.065);
-            box-shadow: 0 1px 4px rgba(0,0,0,.065);
-    border: 1px solid #e5e5e5;
-
-    position: fixed; /* for wide screens */
-
-    & > li:first-child { text-align: center; /* wiki link */ }
-    li.nav-header, li > a { .ellipsis; }
-
-    /* Chevrons */
-    .icon-chevron-right {
-      float: right;
-      margin-top: 2px;
-      margin-right: -6px;
-      opacity: .25;
-    }
   }
 }
 #bb-right-sidebar {
@@ -196,6 +168,7 @@ body {
     margin-top: 10px;
     margin-left: -7px;
     margin-right: -7px;
+    min-height: 66px;
     -webkit-border-radius: 6px;
        -moz-border-radius: 6px;
             border-radius: 6px;
@@ -210,10 +183,15 @@ body {
     padding: 5px;
     font-size: 80%;
 
-    .bb-status-grid-row {
-      padding-left: 1.5em;
-      text-indent: -1.5em;
-      & > * { text-indent: 0; }
+    .bb-status-grid-roundgroup {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    td {
+      padding: 0px;
+    }
+    .bb-status-grid-round {
+      padding-right:2px;
     }
     .bb-status-grid-cell {
       display: inline-block;
@@ -270,13 +248,7 @@ body {
     color: #888;
     margin-bottom: 0;
   }
-  section {
-    /* Indent our sections to start underneath the chat/update log */
-    padding-top: @navbar-height;
-    margin-top: (-@navbar-height);
-  }
   h2 {
-    border-bottom: 1px solid #e5e5e5;
     font-size: 200%;
     .bb-edit-icon, .bb-delete-icon { margin-top: 13px; }
   }
@@ -295,7 +267,6 @@ body {
   }
   .bb-top-buttons {
     margin-top: 8px;
-    margin-bottom: -17px;
     .btn-group-vertical {
       margin-top: 2px;
       & > .checkbox {
@@ -316,14 +287,10 @@ body {
   dl {
     margin: 0;
     &:empty { display: none; }
-    /* narrower tag names */
-    @tag-width: 120px;
     dt {
-      width: @tag-width;
       .bb-edit-icon { margin-left: 3px; }
     }
     dd {
-      margin-left: (@tag-width + 10px);
       position: relative; /* fixes z-order, makes whole width clickable */
       .bb-edit-icon { margin-right: 5px; }
       .bb-delete-icon { margin-right: 3px; }
@@ -388,11 +355,6 @@ body {
     /* try to make table spacing more-or-less consistent */
     td,th {
       position: relative; /* fix z-order issues, make whole width clickable */
-      width: 10%;
-      &.puzzle-name   { width: 35%; }
-      &.puzzle-answer { width: 25%; }
-      &.puzzle-update { width: 90px; min-width: 90px; }
-      &.puzzle-working { min-width: 99px; }
     }
 
     .puzzle-working {

@@ -1,0 +1,5 @@
+[Unit]
+Description=Codex Blackboard
+
+[Install]
+WantedBy=multi-user.target

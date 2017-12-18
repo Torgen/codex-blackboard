@@ -1,0 +1,24 @@
+[Unit]
+Description=Codex Blackboard Server
+Documentation=https://github.com/Torgen/codex-blackboard
+After=mongod.service
+Requires=mongod.service
+StopWhenUnneeded=true
+RefuseManualStart=true
+RefuseManualStop=true
+
+[Service]
+ExecStart=/usr/bin/node /opt/codex/bundle/main.js
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=codex
+WorkingDirectory=/opt/codex/bundle
+User=nobody
+Group=nogroup
+EnvironmentFile=/etc/codex-common.env
+Environment=PORT=%i
+Environment=DISABLE_BATCH_PROCESSING=true
+
+[Install]
+WantedBy=codex.target

@@ -146,31 +146,13 @@ Template.header_loginmute.helpers
     nick = Session.get 'nick'
     return nick unless nick
     n = model.Nicks.findOne canon: model.canonical(nick)
+    cn = n?.canon or model.canonical(nick)
     return {
       name: n?.name or nick
-      canon: n?.canon or model.canonical(nick)
+      canon: cn
       realname: model.getTag n, 'Real Name'
-      gravatar: (model.getTag n, 'Gravatar') or "#{nick}@#{settings.DEFAULT_HOST}"
+      gravatar: (model.getTag n, 'Gravatar') or "#{cn}@#{settings.DEFAULT_HOST}"
     }
-  wikipage: ->
-    return '' if Session.equals('currentPage', 'blackboard')
-    [type, id] = [Session.get('type'), Session.get('id')]
-    return '' unless (type and id)
-    switch type
-      when 'puzzles'
-        round = model.Rounds.findOne puzzles: id
-        group = model.RoundGroups.findOne rounds: round?._id
-        puzzle_num = 1 + (round?.puzzles or []).indexOf(id)
-        round_num = 1 + group?.round_start + \
-          (group?.rounds or []).indexOf(round?._id)
-        "#{settings.HUNT_YEAR}/R#{round_num}P#{puzzle_num}"
-      when 'rounds'
-        group = model.RoundGroups.findOne rounds: id
-        round_num = 1 + group?.round_start + \
-          (group?.rounds or []).indexOf(id)
-        "#{settings.HUNT_YEAR}/R#{round_num}P0"
-      else
-        ''
 
 Template.header_loginmute.onRendered ->
   # tool tips
@@ -320,7 +302,7 @@ Template.header_nickmodal_contents.onCreated ->
       $('#nickEmail').val(gravatar or '')
     this.updateGravatar()
   this.updateGravatar = () =>
-    email = $('#nickEmail').val() or "#{$('#nickInput').val()}@#{settings.DEFAULT_HOST}"
+    email = $('#nickEmail').val() or "#{model.canonical($('#nickInput').val())}@#{settings.DEFAULT_HOST}"
     gravatar = $.gravatar email,
       image: 'wavatar' # 'monsterid'
       classes: 'img-polaroid'
