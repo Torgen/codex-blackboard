@@ -180,9 +180,13 @@
 
 @media (max-width: 480px) {
   body {
-    padding-left: 2px;
-    padding-right: 2px;
+    padding-left: 0px;
+    padding-right: 0px;
     background: white;
+  }
+  .navbar-fixed-top, .navbar-fixed-bottom {
+    margin-left: 0px;
+    margin-right: 0px;
   }
   .bb-chat-messages {
     .media {
@@ -200,6 +204,7 @@
     }
     .media + .media.bb-message-followup { margin-top: -4px; }
     .bb-message-action, .bb-message-system { padding-left: 6px; }
+    .bb-message-last-read { margin-left: 0px; margin-right: 0px; }
     .bb-message-body {
       /* min-height: 0; */
               border-radius: 0px;
