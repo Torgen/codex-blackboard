@@ -113,6 +113,7 @@ Template.messages.helpers
   ready: -> Session.equals('chatReady', true) and \
             Template.instance().subscriptionsReady()
   isLastRead: (ts) -> Session.equals('lastread', +ts)
+  usefulEnough: (m) -> not m.useless or not Session.get('nobot')
   prevTimestamp: ->
     p = pageForTimestamp Session.get('room_name'), +Session.get('timestamp')
     return unless p?.from

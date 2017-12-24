@@ -18,6 +18,8 @@ bind = (f) ->
   g = Meteor.bindEnvironment (self, args...) -> f.apply(self, args)
   (args...) -> g @, args...
 
+Useful = share.Useful
+
 class Robot extends Hubot.Robot
   constructor: (args...) ->
     super args...
@@ -45,16 +47,28 @@ sendHelper = Meteor.bindEnvironment (robot, envelope, strings, map) ->
       room_name: envelope.room
       present: true
       foreground: true
+  useful = false
   while strings.length > 0
     string = strings.shift()
-    if typeof(string) == 'function'
+    if string instanceof Useful
+      useful = string.useful
+    else if typeof(string) == 'function'
       string()
     else
       try
-        map(string)
+        map(string, useful)
       catch err
         console.error "Hubot error: #{err}" if DEBUG
         robot.logger.error "Blackboard send error: #{err}"
+
+mentionize = (f) ->
+  (str) ->
+    if typeof(str) == 'function'
+      return str
+    else if str instanceof Useful
+      return str
+    else
+      return f(str)
 
 class BlackboardAdapter extends Hubot.Adapter
   # Public: Raw method for sending data back to the chat source. Extend this.
@@ -64,14 +78,15 @@ class BlackboardAdapter extends Hubot.Adapter
   #
   # Returns nothing.
   send: (envelope, strings...) ->
-    sendHelper @robot, envelope, strings, (string) =>
+    return @priv envelope, strings... if envelope.message.private
+    sendHelper @robot, envelope, strings, (string, useful) ->
       console.log "send #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      return @priv envelope, string if envelope.message.private
       Meteor.call "newMessage",
         nick: "codexbot"
         body: string
         room_name: envelope.room
         bot_ignore: true
+        useless: not useful
 
   # Public: Raw method for sending emote data back to the chat source.
   #
@@ -80,19 +95,20 @@ class BlackboardAdapter extends Hubot.Adapter
   #
   # Returns nothing.
   emote: (envelope, strings...) ->
-    sendHelper @robot, envelope, strings, (string) =>
+    return @priv envelope, strings.map(mentionize (str) -> "*** #{str} ***")... if envelope.message.private
+    sendHelper @robot, envelope, strings, (string, useful) ->
       console.log "emote #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      return @priv envelope, "*** #{string} ***" if envelope.message.private
       Meteor.call "newMessage",
         nick: "codexbot"
         body: string
         room_name: envelope.room
         action: true
         bot_ignore: true
+        useless: not useful
 
   # Priv: our extension -- send a PM to user
   priv: (envelope, strings...) ->
-    sendHelper @robot, envelope, strings, (string) ->
+    sendHelper @robot, envelope, strings, (string, useful) ->
       console.log "priv #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
       Meteor.call "newMessage",
         nick: "codexbot"
@@ -100,6 +116,7 @@ class BlackboardAdapter extends Hubot.Adapter
         body: string
         room_name: envelope.room
         bot_ignore: true
+        useless: not useful
 
   # Public: Raw method for building a reply and sending it back to the chat
   # source. Extend this.
@@ -112,7 +129,7 @@ class BlackboardAdapter extends Hubot.Adapter
     if envelope.message.private
       @priv envelope, strings...
     else
-      @send envelope, strings.map((str) -> "#{envelope.user.id}: #{str}")...
+      @send envelope, strings.map(mentionize (str) -> "#{envelope.user.id}: #{str}")...
 
   # Public: Raw method for setting a topic on the chat source. Extend this.
   #
@@ -191,3 +208,4 @@ Meteor.startup ->
     room_name: 'general/0'
     action: true
     bot_ignore: true
+    useless: true
