@@ -286,6 +286,10 @@ if DO_BATCH_PROCESSING
 #                             "oplog/0" for the operation log.
 #   timestamp: timestamp
 #   useless: boolean (true for "fun" bot messages and commands that trigger them.)
+#   anyUsefulResponses: boolean (true if a message the bot answered because of
+#                       a 'respond' rule had a non-useless response.)
+#   anyUselessResponses: boolean (true if a message the bot answered because of
+#                        a 'respond' rule had a useless response.)
 #
 # Messages which are part of the operation log have `nick`, `message`,
 # and `timestamp` set to describe what was done, when, and by who.

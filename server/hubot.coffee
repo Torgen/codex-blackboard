@@ -2,6 +2,8 @@
 'use strict'
 model = share.model # import
 
+Useful = share.Useful
+
 # Log messages?
 DEBUG = !Meteor.isProduction
 
@@ -13,12 +15,36 @@ Hubot.Response::priv = (strings...) ->
 # More monkey-patching
 Hubot.Robot::loadAdapter = -> # disable
 
+class RespondResponse extends Hubot.Response
+  constructor: (@delegate) ->
+    super @delegate.robot, @delegate.message, @delegate.match
+    console.log "RespondResponse for #{@message.id}" if DEBUG
+
+  runWithMiddleware: (method, opts, strings...) ->
+    useful = false
+    mod = {}
+    for str in strings
+      if str instanceof Useful
+        useful = str.useful
+      else if typeof(str) == 'string'
+        if useful
+          mod.anyUsefulResponses = true
+        else
+          mod.anyUselessResponses = true
+    model.Messages.update @message.id, $set: mod
+    @delegate.runWithMiddleware method, opts, strings...
+
+Hubot.Robot::oldRespond = Hubot.Robot::respond
+Hubot.Robot::respond = (regex, options, callback) ->
+  if not callback? and typeof(options) is 'function'
+    [options, callback] = [{}, options]
+  return @oldRespond regex, (resp) ->
+    callback new RespondResponse resp
+
 # grrrr, Meteor.bindEnvironment doesn't preserve `this` apparently
 bind = (f) ->
   g = Meteor.bindEnvironment (self, args...) -> f.apply(self, args)
   (args...) -> g @, args...
-
-Useful = share.Useful
 
 class Robot extends Hubot.Robot
   constructor: (args...) ->
