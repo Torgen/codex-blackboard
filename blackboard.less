@@ -168,6 +168,7 @@ body {
     margin-top: 10px;
     margin-left: -7px;
     margin-right: -7px;
+    min-height: 66px;
     -webkit-border-radius: 6px;
        -moz-border-radius: 6px;
             border-radius: 6px;
@@ -630,7 +631,7 @@ html.fullHeight {
   }
 }
 
-@media (min-width: 480px) and (max-width: 979px) {
+@media (min-width: 481px) and (max-width: 979px) {
   /* re-fix the chat footer to the bottom */
   .bb-chat-footer.navbar-fixed-bottom {
     position: fixed;
@@ -646,5 +647,21 @@ html.fullHeight {
   /* Remove padding above jumbotron */
   body {
     padding-top: 0;
+  }
+  #bb-body {
+    .bb-blackboard-h1 { display: none; }
+    .bb-lastchat, .bb-lastupdate {
+      padding-left: 0px;
+      padding-right: 50px;
+      font-size: 75%;
+      & > .left { display: none; }
+    } 
+    .table-condensed {
+      th, td {
+        padding: 2px;
+        font-size: 75%;
+        line-height: initial;
+      }
+    }
   }
 }

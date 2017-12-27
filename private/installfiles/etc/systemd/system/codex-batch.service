@@ -1,0 +1,24 @@
+[Unit]
+Description=Codex Batch Server
+Documentation=https://github.com/Torgen/codex-blackboard
+After=mongod.service
+Requires=mongod.service
+StopWhenUnneeded=true
+RefuseManualStart=true
+RefuseManualStop=true
+
+[Service]
+ExecStart=/usr/bin/node /opt/codex/bundle/main.js
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=codex-batch
+WorkingDirectory=/opt/codex/bundle
+User=nobody
+Group=nogroup
+EnvironmentFile=/etc/codex-common.env
+EnvironmentFile=/etc/codex-batch.env
+Environment=PORT=28000
+
+[Install]
+WantedBy=codex.target
