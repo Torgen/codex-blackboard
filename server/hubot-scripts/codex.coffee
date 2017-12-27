@@ -132,7 +132,12 @@ share.hubot.codex = (robot) ->
       who: who
       backsolve: backsolve
       provided: provided
-    msg.reply new share.Useful, "Okay, \"#{answer}\" for #{target.object.name} added to call-in list!"
+    if target.type is "puzzles"
+      round = share.model.Rounds.findOne(puzzles: target.object._id)
+    unless msg.envelope.room is "general/0" or \
+           msg.envelope.room is "#{target.type}/#{target.object._id}" or \
+           (round? and msg.envelope.room is "rounds/#{round._id}")
+      msg.reply new share.Useful, "Okay, \"#{answer}\" for #{target.object.name} added to call-in list!"
     msg.finish()
 
 # deleteAnswer

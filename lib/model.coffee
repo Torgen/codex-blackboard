@@ -889,12 +889,23 @@ spread_id_to_link = (id) ->
         backsolve: !!args.backsolve
         provided: !!args.provided
       , {suppressLog:true}
-      Meteor.call 'newMessage',
-        body: "is requesting a call-in for #{args.answer.toUpperCase()}" + \
-          (if args.notifyGeneral then " (#{name})" else "") + provided + backsolve
+      body = (specify) ->
+        "is requesting a call-in for #{args.answer.toUpperCase()}" + \
+        (if specify then " (#{name})" else "") + provided + backsolve
+      msg =
+        body: body(false)
         action: true
         nick: args.who
-        room_name: if args.notifyGeneral then null else "#{args.type}/#{id}"
+        room_name: "#{args.type}/#{id}"
+      Meteor.call 'newMessage', msg
+      delete msg.room_name
+      msg.body = body(true)
+      Meteor.call 'newMessage', msg
+      if args.type is "puzzles"
+        round = Rounds.findOne({puzzles: id})
+        if round?
+          msg.room_name = "rounds/#{round._id}"
+          Meteor.call "newMessage", msg
       oplog "New answer #{args.answer} submitted for", args.type, id, args.who
 
     newQuip: (args) ->
