@@ -1205,6 +1205,12 @@ spread_id_to_link = (id) ->
           target: args.object
           answer: args.value
           who: args.who
+      if canonical(args.name) is 'stuck'
+        return Meteor.call (if args.value then "summon" else "unsummon"),
+          type: args.type
+          object: args.object
+          value: args.value
+          who: args.who
       args.now = UTCNow() # don't let caller lie about the time
       return setTagInternal args
 
@@ -1217,8 +1223,81 @@ spread_id_to_link = (id) ->
           type: args.type
           target: args.object
           who: args.who
+      if canonical(args.name) is 'stuck'
+        return Meteor.call 'unsummon',
+          type: args.type
+          object: args.object
+          who: args.who
       args.now = UTCNow() # don't let caller lie about the time
       return deleteTagInternal args
+
+    summon: (args) ->
+      check args, ObjectWith
+        object: IdOrObject
+        type: ValidAnswerType
+        who: NonEmptyString
+      id = args.object._id or args.object
+      puzz = collection(args.type).findOne id
+      if not puzz?
+        return "Couldn't find #{id} in #{args.type}"
+      if getTag(puzz, 'answer')?
+        return "#{puzz.name} is already answered"
+      if getTag(puzz, 'stuck')?
+        return "#{puzz.name} is already marked stuck"
+      setTagInternal
+        object: id
+        type: args.type
+        name: 'stuck'
+        value: args.value or 'yes'
+        who: args.who
+        now: UTCNow()
+      body = "has requested help getting unstuck"
+      if args.value?
+        body = "#{body} (#{UI._escape args.value})"
+      Meteor.call 'newMessage',
+        nick: args.who
+        action: true
+        bodyIsHtml: true
+        body: body
+        room_name: "#{args.type}/#{id}"
+      body = "#{body} in <a target=_blank href=\"/#{args.type}/#{id}\">#{UI._escape puzz.name}</a>"
+      Meteor.call 'newMessage',
+        nick: args.who
+        action: true
+        bodyIsHtml: true
+        body: body
+
+    unsummon: (args) ->
+      check args, ObjectWith
+        object: IdOrObject
+        type: ValidAnswerType
+        who: NonEmptyString
+      id = args.object._id or args.object
+      puzz = collection(args.type).findOne id
+      if not puzz?
+        return "Couldn't find #{id} in #{args.type}"
+      sticker = (tag.touched_by for tag in puzz.tags when tag.canon is 'stuck')[0]
+      if not sticker?
+        return "#{puzz.name} isn't stuck"
+      deleteTagInternal
+        object: id
+        type: args.type
+        name: 'stuck'
+        who: args.who
+        now: UTCNow()
+      body = "has arrived to help"
+      if canonical(args.who) is sticker
+        body = "no longer needs help getting unstuck"
+      Meteor.call 'newMessage',
+        nick: args.who,
+        action: true,
+        body: body, 
+        room_name: "#{args.type}/#{id}"
+      body = "#{body} in #{puzz.name}"
+      Meteor.call 'newMessage',
+        nick: args.who,
+        action: true,
+        body: body
 
     addRoundToGroup: (args) ->
       check args, ObjectWith
@@ -1312,6 +1391,12 @@ spread_id_to_link = (id) ->
         object: args.target
         name: 'Answer'
         value: args.answer
+        who: args.who
+        now: now
+      deleteTagInternal
+        type: args.type
+        object: args.target
+        name: 'stuck'
         who: args.who
         now: now
       if args.backsolve
