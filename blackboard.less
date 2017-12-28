@@ -147,6 +147,15 @@ body {
     text-transform: uppercase;
   }
 }
+@keyframes yellowblink {
+  0%   { background: #FF9; }
+  80%  { background: #FF9; }
+  85%  { background: #FFC; }
+  90%  { background: #FF9; }
+  95%  { background: #FFC; }
+  100% { background: #FF9; }
+}
+
 #bb-right-sidebar {
   position: fixed;
   right: 14px;
@@ -200,6 +209,12 @@ body {
     }
     .bb-status-solved {
       background:#AAFF99;
+    }
+    .bb-status-stuck {
+      background:#FF9;
+      animation-name: yellowblink;
+      animation-duration: 5s;
+      animation-iteration-count: infinite;
     }
     .bb-status-unsolved {
       background:#FCFCFC;

@@ -120,14 +120,14 @@
   <table>
   <tbody>
     {{#each roundgroups}}
-    <tr><th colspan=2 class="bb-status-grid-roundgroup bb-status-{{#unless solved}}un{{/unless}}solved">{{link id=_id}}</th></tr>
+    <tr><th colspan=2 class="bb-status-grid-roundgroup bb-status-{{#if solved}}solved{{else if stuck this}}stuck{{else}}unsolved{{/if}}">{{link id=_id}}</th></tr>
     {{#each rounds}}
     <tr>
-      <td class="bb-status-grid-round bb-status-{{#unless round.solved}}un{{/unless}}solved">
+      <td class="bb-status-grid-round bb-status-{{#if round.solved}}solved{{else if stuck round}}stuck{{else}}unsolved{{/if}}">
           {{link id=round._id title="meta" text=round.name}}
       </td><td class="bb-status-grid-puzzles">
       {{#each puzzles}}<!--
-      --><div class="bb-status-grid-cell bb-status-{{#unless puzzle.solved}}un{{/unless}}solved">
+      --><div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
           {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
       </div><!--
       -->{{/each}}</td>
