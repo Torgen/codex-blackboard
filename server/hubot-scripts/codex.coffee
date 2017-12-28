@@ -12,6 +12,8 @@
 #   hubot bot: <roundgroup> is a new round group
 #   hubot bot: Delete round group <roundgroup>
 #   hubot bot: New quip: <quip>
+#   hubot bot: stuck [on <puzzle>] [because <reason>]
+#   hubot bot: unstuck [on <puzzle>]
 
 # helper function: concat regexes
 rejoin = (regs...) ->
@@ -322,4 +324,50 @@ share.hubot.codex = (robot) ->
       value: tag_value
       who: who
     msg.reply new share.Useful, "The #{tag_name} for #{target.object.name} is now \"#{tag_value}\"."
+    msg.finish()
+
+# Stuck
+  robot.commands.push 'bot stuck[ on <puzzle|round>][ because <reason>]'
+  robot.respond (rejoin 'stuck(?: on ',thingRE,')?(?: because ',thingRE,')?',/$/i), (msg) ->
+    if msg.match[1]?
+      target = Meteor.call 'getByName', name: msg.match[1]
+      if not target?
+        msg.reply new share.Useful, "I don't know what \"#{msg.match[1]}\" is."
+        return msg.finish()
+    else
+      target = objectFromRoom msg
+      return unless target?
+    result = Meteor.call 'summon',
+      type: target.type
+      object: target.object._id
+      value: msg.match[2]
+      who: msg.envelope.user.id
+    if result?
+      msg.reply new share.Useful, result
+      return msg.finish()
+    if msg.envelope.room isnt "general/0" and \
+       msg.envelope.room isnt "#{target.type}/#{target.object._id}"
+      msg.reply new share.Useful, "Help is on the way."
+    msg.finish()
+
+  robot.commands.push 'but unstuck[ on <puzzle|round>]'
+  robot.respond (rejoin 'unstuck(?: on ',thingRE,')?',/$/i), (msg) ->
+    if msg.match[1]?
+      target = Meteor.call 'getByName', name: msg.match[1]
+      if not target?
+        msg.reply new share.Useful, "I don't know what \"#{msg.match[1]}\" is."
+        return msg.finish()
+    else
+      target = objectFromRoom msg
+      return unless target?
+    result = Meteor.call 'unsummon',
+      type: target.type
+      object: target.object._id
+      who: msg.envelope.user.id
+    if result?
+      msg.reply new share.Useful, result
+      return msg.finish()
+    if msg.envelope.room isnt "general/0" and \
+       msg.envelope.room isnt "#{target.type}/#{target.object._id}"
+      msg.reply new share.Useful, "Call for help cancelled"
     msg.finish()

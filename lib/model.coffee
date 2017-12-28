@@ -1266,6 +1266,7 @@ spread_id_to_link = (id) ->
         action: true
         bodyIsHtml: true
         body: body
+      return
 
     unsummon: (args) ->
       check args, ObjectWith
@@ -1298,6 +1299,7 @@ spread_id_to_link = (id) ->
         nick: args.who,
         action: true,
         body: body
+      return
 
     addRoundToGroup: (args) ->
       check args, ObjectWith
