@@ -201,22 +201,24 @@
       {{/if}}
       </td>
     {{#unless compactMode}}
-      <td class="puzzle-status bb-editable"
-        data-bbedit="tags/{{round._id}}/status/value">
-      {{#if editing "tags" round._id "status" "value"}}
-        <input type="text" id="tags-{{round._id}}-status-value"
-               value="{{tag "status"}}"
+      <td class="puzzle-status {{#unless round.solved}}bb-editable{{/unless}}"
+        data-bbedit="tags/{{round._id}}/stuck/value">
+      {{#if editing "tags" round._id "stuck" "value"}}
+        <input type="text" id="tags-{{round._id}}-stuck-value"
+               value="{{tag "stuck"}}"
                class="input-block-level" autofocus />
       {{else}}
+        {{#unless round.solved}}
         {{#if canEdit}}
           <i class="bb-edit-icon icon-pencil pull-right"
              title="Change the status of this round meta"></i>
-          {{#if tag "status"}}
+          {{#if tag "stuck"}}
             <i class="bb-delete-icon icon-remove pull-left"
                title="Delete the status message for this round meta"></i>
           {{/if}}
         {{/if}}
-        {{tag "status"}}
+        {{/unless}}
+        {{tag "stuck"}}
       {{/if}}
       </td>
     {{#unless canEdit}}
@@ -336,22 +338,24 @@
       {{/if}}
     </td>
     {{#unless compactMode}}
-    <td class="puzzle-status bb-editable"
-        data-bbedit="tags/{{puzzle._id}}/status/value">
-      {{#if editing "tags" puzzle._id "status" "value"}}
-        <input type="text" id="tags-{{puzzle._id}}-status-value"
-               value="{{tag "status"}}"
+    <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
+        data-bbedit="tags/{{puzzle._id}}/stuck/value">
+      {{#if editing "tags" puzzle._id "stuck" "value"}}
+        <input type="text" id="tags-{{puzzle._id}}-stuck-value"
+               value="{{tag "stuck"}}"
                class="input-block-level" autofocus />
       {{else}}
+        {{#unless puzzle.solved}}
         {{#if canEdit}}
           <i class="bb-edit-icon icon-pencil pull-right"
              title="Change the status of this puzzle"></i>
-          {{#if tag "status"}}
+          {{#if tag "stuck"}}
             <i class="bb-delete-icon icon-remove pull-left"
                title="Delete the status message for this puzzle"></i>
           {{/if}}
         {{/if}}
-        {{tag "status"}}
+        {{/unless}}
+        {{tag "stuck"}}
       {{/if}}
     </td>
     {{#unless canEdit}}

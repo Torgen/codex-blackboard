@@ -249,7 +249,7 @@ processBlackboardEdit =
     tags = model.collection(n.type).findOne(id).tags
     t = (tag for tag in tags when tag.canon is canon)[0]
     # special case for 'status' tag, which might not previously exist
-    for special in ['Status', 'Answer']
+    for special in ['Status', 'Answer', 'stuck']
       if (not t) and canon is model.canonical(special)
         t =
           name: special
@@ -317,7 +317,8 @@ tagHelper = (id) ->
   { id: id, name: t.name, canon: t.canon, value: t.value } \
     for t in (this?.tags or []) when not \
         ((Session.equals('currentPage', 'blackboard') and \
-         (t.canon is 'status' or (!isRoundGroup and t.canon is 'answer'))) or \
+         (t.canon is 'status' or t.canon is 'stuck' or \
+             (!isRoundGroup and t.canon is 'answer'))) or \
          ((t.canon is 'answer' or t.canon is 'backsolve') and \
           (Session.equals('currentPage', 'puzzle') or \
            Session.equals('currentPage', 'round'))))

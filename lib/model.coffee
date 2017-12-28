@@ -1248,7 +1248,7 @@ spread_id_to_link = (id) ->
         object: id
         type: args.type
         name: 'stuck'
-        value: args.value or 'yes'
+        value: args.value or 'stuck'
         who: args.who
         now: UTCNow()
       body = "has requested help getting unstuck"
