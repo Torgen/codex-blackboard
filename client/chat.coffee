@@ -105,6 +105,9 @@ Template.chat.helpers
     type = Session.get 'type'
     type isnt 'general' and \
       (model.collection(type)?.findOne Session.get("id"))?.solved
+  puzzle: ->
+    type = Session.get 'type'
+    type isnt 'general' and (model.collection(type)?.findOne Session.get("id"))
 
 # Template Binding
 Template.messages.helpers

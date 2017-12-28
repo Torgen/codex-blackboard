@@ -69,6 +69,23 @@ Template.puzzle.events
 Template.puzzle_correct_answer.helpers
   tag: (name) -> (model.getTag this, name) or ''
 
+Template.puzzle_summon_button.helpers
+  stuck: -> (model.getTag this, 'stuck')?
+
+Template.puzzle_summon_button.events
+  "click .bb-summon-btn.stuck": (event, template) ->
+    share.ensureNick =>
+      Meteor.call 'unsummon',
+        who: Session.get 'nick'
+        type: Session.get 'type'
+        object: Session.get 'id'
+  "click .bb-summon-btn.unstuck": (event, template) ->
+    share.ensureNick =>
+      Meteor.call 'summon',
+        who: Session.get 'nick'
+        type: Session.get 'type'
+        object: Session.get 'id'
+
 Template.puzzle_callin_modal.events
   "click .bb-callin-btn": (event, template) ->
     share.ensureNick =>

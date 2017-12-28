@@ -7,7 +7,10 @@
 <div class="bb-top-content">{{! start top of splitter }}
 
 <div class="bb-top-left-content">{{! start top left splitter }}
-{{#unless puzzle.solved}}{{> puzzle_callin_modal}}{{/unless}}
+{{#unless puzzle.solved}}
+  {{> puzzle_callin_modal}}
+  {{#with puzzle}}{{> puzzle_summon_button}}{{/with}}
+{{/unless}}
 <h1>Puzzle <small>{{puzzle.name}}
   {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">puzzle link <i class="icon-share-alt"></i></a>){{/if}}
 </small></h1>
@@ -95,6 +98,10 @@ Open spreadsheet in new window</a>
     </dd>
 {{/each}}
 </dl>
+</template>
+
+<template name="puzzle_summon_button">
+<button class="btn btn-small bb-summon-btn {{#if stuck}}stuck{{else}}unstuck{{/if}} {{#if currentPageEquals "chat"}}btn-inverse{{/if}}">{{#if stuck}}Uns{{else}}S{{/if}}ummon Solvers</button>
 </template>
 
 <template name="puzzle_callin_modal">
