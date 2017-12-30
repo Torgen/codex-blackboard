@@ -45,6 +45,24 @@ if settings.BB_SUB_ALL
   Meteor.subscribe 'all-roundsandpuzzles'
 # we also always subscribe to the last-pages feed; see chat.coffee
 
+notificationDeps = {}
+
+keystring = (k) -> "notification_#{k}"
+
+share.notification =
+  set: (k, v) ->
+    ks = keystring k
+    localStorage.setItem(ks, v)
+    notificationDeps[ks] ?= new Tracker.Dependency
+    notificationDeps[ks].changed()
+  get: (k) ->
+    ks = keystring k
+    notificationDeps[ks] ?= new Tracker.Dependency
+    notificationDeps[ks].depend()
+    v = localStorage.getItem(ks)
+    return unless v?
+    v is "true"
+
 notificationDefaults =
   callins: false
   answers: true
@@ -53,16 +71,15 @@ notificationDefaults =
   newpuzzles: true
 
 setupNotifications = ->
-  for stream, enabled of notificationDefaults
-    keyname = "notification_#{stream}"
-    Session.setDefault keyname, $.cookie(keyname)
+  for stream, def of notificationDefaults
+    share.notification.set(stream, def) unless share.notification.get(stream)?
   Session.set 'notifications', true
   now = share.model.UTCNow()
   Meteor.subscribe 'messages-in-range', 'oplog/0', now
   share.model.Messages.find({room_name: 'oplog/0', timestamp: $gte: now}).observeChanges
     added: (id, msg) ->
       return unless Notification.permission is 'granted'
-      return unless Session.get "notification_#{msg.stream}"
+      return unless share.notification.get(msg.stream)
       gravatar = $.gravatar chat.nickEmail(msg.nick),
         image: 'wavatar'
         size: 192
@@ -73,8 +90,7 @@ setupNotifications = ->
                 #{share.model.collection(msg.type).findOne(msg.id)?.name}"
       new Notification msg.nick,
         body: body
-        tag: msg.stream
-        renotify: true
+        tag: id
         icon: gravatar[0].src
 
 do ->
@@ -82,11 +98,11 @@ do ->
   return setupNotifications() if Notification.permission is 'granted'
   Notification.requestPermission (ok) ->
     return unless ok is 'granted'
-    for stream, enabled of notificationDefaults
-      keyname = "notification_#{stream}"
-      Session.set keyname, enabled
-      $.cookie keyname, enabled
     setupNotifications()
+
+addEventListener 'storage', (event) ->
+  return unless event.storageArea is localStorage
+  notificationDeps[event.key]?.changed()
 
 # Router
 BlackboardRouter = Backbone.Router.extend

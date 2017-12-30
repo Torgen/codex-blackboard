@@ -34,13 +34,30 @@
     Compact mode
   </label>
 </div>
-    {{/unless}}
+{{/unless}}
 </div>
     <h1 align="center" class="bb-blackboard-h1">
       <span class="bb-no-wrap">
       <span class="bb-hide-when-narrower">Codex</span></span> <span class="bb-hide-when-narrow">Puzzle </span><span class="bb-no-wrap">Blackboard
       </span>
     </h1>
+    {{#unless canEdit}}
+    {{#if notificationsEnabled}}
+    <div id="notification-controls">
+      <div class="label">Enabled notifications:</div>
+      <div>
+      {{#each notificationStreams}}
+        <label for="bb-notification-{{name}}">
+          <input type="checkbox" id="bb-notification-{{name}}"
+                 data-notification-stream="{{name}}"
+                 checked="{{notificationStreamEnabled name}}">
+        {{label}}
+        </label>
+      {{/each}}
+      </div>
+    </div>
+    {{/if}}
+    {{/unless}}
   <table class="table table-bordered table-condensed bb-puzzle">
   <thead>
     {{#unless compactMode}}

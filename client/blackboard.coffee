@@ -60,6 +60,22 @@ Template.blackboard.helpers
   hideStatus: -> Session.get 'hideStatus'
   compactMode: compactMode
 
+# Notifications
+notificationStreams = [
+  {name: 'newpuzzles', label: 'New Puzzles'}
+  {name: 'announcements', label: 'Announcements'}
+  {name: 'callins', label: "Call-Ins"}
+  {name: 'answers', label: "Answers"}
+  {name: 'stuck', label: "Stuck Puzzles"}
+]
+Template.blackboard.helpers
+  notificationStreams: notificationStreams
+  notificationsEnabled: -> Session.get 'notifications'
+  notificationStreamEnabled: (stream) -> share.notification.get stream
+Template.blackboard.events
+  "change #notification-controls [data-notification-stream]": (event, template) ->
+    share.notification.set event.target.dataset.notificationStream, event.target.checked
+
 ############## groups, rounds, and puzzles ####################
 Template.blackboard.helpers
   roundgroups: ->
