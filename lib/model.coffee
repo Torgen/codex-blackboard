@@ -294,9 +294,10 @@ if DO_BATCH_PROCESSING
 # Messages which are part of the operation log have `nick`, `message`,
 # and `timestamp` set to describe what was done, when, and by who.
 # They have `system=false`, `action=true`, `oplog=true`, `to=null`,
-# and `room_name="oplog/0"`.  They also have two additional fields,
+# and `room_name="oplog/0"`.  They also have three additional fields:
 # `type` and `id`, which give a mongodb reference to the object
-# modified so we can hyperlink to it.
+# modified so we can hyperlink to it, and stream, which maps to the
+# JS Notification API 'tag' for deduping and selective muting.
 Messages = BBCollection.messages = new Mongo.Collection "messages"
 OldMessages = BBCollection.oldmessages = new Mongo.Collection "oldmessages"
 if DO_BATCH_PROCESSING
@@ -470,6 +471,21 @@ pretty_collection = (type) ->
 getTag = (object, name) ->
   (tag.value for tag in (object?.tags or []) when tag.canon is canonical(name))[0]
 
+oplog = (message, type="", id="", who="", stream="") ->
+  Messages.insert
+    room_name: 'oplog/0'
+    nick: canonical(who)
+    timestamp: UTCNow()
+    body: message
+    bodyIsHtml: false
+    type:type
+    id:id 
+    oplog: true
+    action: true
+    system: false
+    to: null
+    stream: stream
+
 # canonical names: lowercases, all non-alphanumerics replaced with '_'
 canonical = (s) ->
   s = s.toLowerCase().replace(/^\s+/, '').replace(/\s+$/, '') # lower, strip
@@ -532,20 +548,6 @@ spread_id_to_link = (id) ->
         check o[k], pattern[k]
       true
 
-  oplog = (message, type="", id="", who="") ->
-    Messages.insert
-      room_name: 'oplog/0'
-      nick: canonical(who)
-      timestamp: UTCNow()
-      body: message
-      bodyIsHtml: false
-      type:type
-      id:id
-      oplog: true
-      action: true
-      system: false
-      to: null
-
   newObject = (type, args, extra, options={}) ->
     check args, ObjectWith
       name: NonEmptyString
@@ -569,7 +571,9 @@ spread_id_to_link = (id) ->
         return collection(type).findOne({canon:canonical(args.name)})
       throw error # something went wrong, who knows what, pass it on
     unless options.suppressLog
-      oplog "Added", type, object._id, args.who
+      oplog "Added", type, object._id, args.who, \
+          if type in ['puzzles', 'rounds', 'roundgroups'] \
+              then 'newpuzzles' else ''
     return object
 
   renameObject = (type, args, options={}) ->
@@ -906,7 +910,8 @@ spread_id_to_link = (id) ->
         if round?
           msg.room_name = "rounds/#{round._id}"
           Meteor.call "newMessage", msg
-      oplog "New answer #{args.answer} submitted for", args.type, id, args.who
+      oplog "New answer #{args.answer} submitted for", args.type, id, \
+          args.who, 'callins'
 
     newQuip: (args) ->
       check args, ObjectWith
@@ -1016,7 +1021,8 @@ spread_id_to_link = (id) ->
       callin = CallIns.findOne(args.id)
       throw new Meteor.Error(400, "bad callin") unless callin
       unless args.suppressLog
-        oplog "Canceled call-in of #{callin.answer} for", callin.type, callin.target, args.who
+        oplog "Canceled call-in of #{callin.answer} for", callin.type, \
+            callin.target, args.who
       deleteObject "callins",
         id: args.id
         who: args.who
@@ -1242,16 +1248,18 @@ spread_id_to_link = (id) ->
         return "Couldn't find #{id} in #{args.type}"
       if getTag(puzz, 'answer')?
         return "#{puzz.name} is already answered"
+      newStuck = args.value or 'stuck'
       oldStuck = getTag(puzz, 'stuck')
       setTagInternal
         object: id
         type: args.type
         name: 'stuck'
-        value: args.value or 'stuck'
+        value: newStuck
         who: args.who
         now: UTCNow()
       if oldStuck?
         return
+      oplog "Requested help (#{newStuck}) on", args.type, id, args.who, 'stuck'
       body = "has requested help getting unstuck"
       if args.value?
         body = "#{body} (#{UI._escape args.value})"
@@ -1423,7 +1431,7 @@ spread_id_to_link = (id) ->
         solved_by: canonical(args.who)
         touched: now
         touched_by: canonical(args.who)
-      oplog "Found an answer to", args.type, id, args.who
+      oplog "Found an answer to", args.type, id, args.who, 'answers'
       # cancel any entries on the call-in queue for this puzzle
       for c in CallIns.find(type: args.type, target: id).fetch()
         Meteor.call 'cancelCallIn',
@@ -1453,7 +1461,8 @@ spread_id_to_link = (id) ->
           backsolve: !!args.backsolve
           provided: !!args.provided
 
-      oplog "Incorrect answer #{args.answer} for", args.type, id, args.who
+      oplog "reports incorrect answer #{args.answer} for", args.type, id, args.who, \
+          'callins'
       # cancel any matching entries on the call-in queue for this puzzle
       for c in CallIns.find(type: args.type, target: id, answer: args.answer).fetch()
         Meteor.call 'cancelCallIn',
@@ -1529,6 +1538,7 @@ share.model =
   pretty_collection: pretty_collection
   getTag: getTag
   canonical: canonical
+  oplog: oplog
   drive_id_to_link: drive_id_to_link
   spread_id_to_link: spread_id_to_link
   UTCNow: UTCNow
