@@ -45,6 +45,49 @@ if settings.BB_SUB_ALL
   Meteor.subscribe 'all-roundsandpuzzles'
 # we also always subscribe to the last-pages feed; see chat.coffee
 
+notificationDefaults =
+  callins: false
+  answers: true
+  stuck: false
+  announcements: true
+  newpuzzles: true
+
+setupNotifications = ->
+  for stream, enabled of notificationDefaults
+    keyname = "notification_#{stream}"
+    Session.setDefault keyname, $.cookie(keyname)
+  Session.set 'notifications', true
+  now = share.model.UTCNow()
+  Meteor.subscribe 'messages-in-range', 'oplog/0', now
+  share.model.Messages.find({room_name: 'oplog/0', timestamp: $gte: now}).observeChanges
+    added: (id, msg) ->
+      return unless Notification.permission is 'granted'
+      return unless Session.get "notification_#{msg.stream}"
+      gravatar = $.gravatar chat.nickEmail(msg.nick),
+        image: 'wavatar'
+        size: 192
+        secure: true
+      body = msg.body
+      if msg.type and msg.id
+        body = "#{body} #{share.model.pretty_collection(msg.type)}
+                #{share.model.collection(msg.type).findOne(msg.id)?.name}"
+      new Notification msg.nick,
+        body: body
+        tag: msg.stream
+        renotify: true
+        icon: gravatar[0].src
+
+do ->
+  return if Notification.permission is 'denied'
+  return setupNotifications() if Notification.permission is 'granted'
+  Notification.requestPermission (ok) ->
+    return unless ok is 'granted'
+    for stream, enabled of notificationDefaults
+      keyname = "notification_#{stream}"
+      Session.set keyname, enabled
+      $.cookie keyname, enabled
+    setupNotifications()
+
 # Router
 BlackboardRouter = Backbone.Router.extend
   routes:
