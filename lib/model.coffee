@@ -1431,7 +1431,7 @@ spread_id_to_link = (id) ->
         solved_by: canonical(args.who)
         touched: now
         touched_by: canonical(args.who)
-      oplog "Found an answer to", args.type, id, args.who, 'answers'
+      oplog "Found an answer (#{args.answer.toUpperCase()}) to", args.type, id, args.who, 'answers'
       # cancel any entries on the call-in queue for this puzzle
       for c in CallIns.find(type: args.type, target: id).fetch()
         Meteor.call 'cancelCallIn',
