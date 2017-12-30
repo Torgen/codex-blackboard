@@ -14,6 +14,7 @@
 #   hubot bot: New quip: <quip>
 #   hubot bot: stuck [on <puzzle>] [because <reason>]
 #   hubot bot: unstuck [on <puzzle>]
+#   hubot bot: announce <message>
 
 # helper function: concat regexes
 rejoin = (regs...) ->
@@ -370,4 +371,10 @@ share.hubot.codex = (robot) ->
     if msg.envelope.room isnt "general/0" and \
        msg.envelope.room isnt "#{target.type}/#{target.object._id}"
       msg.reply new share.Useful, "Call for help cancelled"
+    msg.finish()
+
+  robot.commands.push 'bot announce <message>'
+  robot.respond /announce (.*)$/i, (msg) ->
+    share.model.oplog msg.match[1], "", "", msg.envelope.user.id, \
+        "announcements"
     msg.finish()
