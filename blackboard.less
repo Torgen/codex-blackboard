@@ -439,10 +439,10 @@ html.fullHeight {
        &, & > div { height:100%; }
        /* top padding here also anchors the margin in the embedded <h1>
           element and fixes an odd-looking 10px shift */
-       padding-right: 6px; /* for slider (shifted to center) */
-       padding-left: 500px; /* for left pane */
+       padding-left: 6px; /* for slider (shifted to center) */
+       padding-right: 200px; /* for right pane */
        & > .bb-right-content {
-         margin-left: -6px; /* shift extra space to bottom */
+         margin-left: -6px; /* shift extra space to left */
        }
        .bb-right-content, .bb-left-header {
          padding-left: 2px; padding-right: 2px;
@@ -461,7 +461,6 @@ html.fullHeight {
        }
        & > .bb-left-content {
          position: absolute;
-         width: 500px;
          left: 0; top: 0;
          .bb-left-header {
            position: absolute; width: 235px; height: 20px; top: 0; right: 140px;
@@ -474,6 +473,7 @@ html.fullHeight {
        /* horizontal splitter in right half */
        & > .bb-right-content {
          position: relative;
+         width: 200px;
          padding-bottom: 306px; /* for bottom pane */
          & > .bb-top-right-content, & > .bb-bottom-right-content {
            width: 100%;
@@ -485,7 +485,7 @@ html.fullHeight {
            cursor: ns-resize;
            position: absolute;
            left: 0; right: 0;
-           top: 500px;
+           bottom: 300px;
          }
          &.active {
            & > .bb-splitter-handle { background-color: #e88; }
