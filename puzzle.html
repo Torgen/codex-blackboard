@@ -1,81 +1,61 @@
 <template name="puzzle">
 <div class="row-fluid bb-puzzleround">
  <!-- this is a puzzle page -->
-
 {{#with data}}
 <div class="bb-splitter">
-<div class="bb-top-content">{{! start top of splitter }}
+  <div class="bb-left-content">{{! start left of splitter }}
+  {{#if puzzle.spreadsheet}}
+    <div class="bb-left-header">
+      <a align="center" href="{{spread_link puzzle.spreadsheet}}"
+         target="_blank"><i class='icon-fullscreen'></i>
+      Open spreadsheet in new window</a>
+    </div>
+    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{spread_link puzzle.spreadsheet}}&widget=true&chrome=false'></iframe>
+  {{else}}
+    <p>No spreadsheet.</p>
+  {{/if}}
+  </div>{{! end left of splitter }}
+  <div class="bb-splitter-handle"></div>
+  <div class="bb-right-content">{{! start right of splitter }}
+    <div class="bb-top-right-content">{{! start top right splitter }}
+      {{#unless puzzle.solved}}
+        {{#with puzzle}}{{> puzzle_callin_modal}}{{> puzzle_summon_modal}}{{/with}}
+      {{/unless}}
+      <h1 class="{{#if stuck}}bb-status-stuck{{/if}}">{{capType}} <small>{{puzzle.name}}
+        {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">puzzle link <i class="icon-share-alt"></i></a>){{/if}}
+      </small></h1>
 
-<div class="bb-top-left-content">{{! start top left splitter }}
-{{#unless puzzle.solved}}
-  {{#with puzzle}}{{> puzzle_callin_modal}}{{> puzzle_summon_modal}}{{/with}}
-{{/unless}}
-<h1 class="{{#if stuck}}bb-status-stuck{{/if}}">Puzzle <small>{{puzzle.name}}
-  {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">puzzle link <i class="icon-share-alt"></i></a>){{/if}}
-</small></h1>
-
-{{#with puzzle}}{{> blackboard_tags }}{{/with}}
-{{#if puzzle.solved}}{{#with puzzle}}{{> puzzle_correct_answer}}{{/with}}{{/if}}
-{{#with puzzle}}{{> puzzle_incorrect_answers}}{{/with}}
-
-{{#unless "true"}}
-<ul>
-<li>Round: {{link id=round._id}}</li>
-<li><a href="/chat/puzzles/{{puzzle._id}}" class="chat-link">Chat room for this puzzle</a></li>
-
-<li><a href="{{drive_link puzzle.drive}}">Google drive folder for this puzzle</a></li>
-<li><a href="{{drive_link puzzle.drive}}" class="bb-drive-upload">Upload file to google drive for this puzzle</a></li>
-</ul>
-
-Experimental:
-<ul>
-<li><a href="{{drive_link puzzle.drive}}" class="bb-drive-select">Select file from google drive</a></li>
-</ul>
-{{/unless}}
-</div>
-
-<div class="bb-splitter-handle"></div>
-
-<div class="bb-top-right-content">{{! start top right splitter }}
-
-<div class="bb-message-container">
-  {{> messages }}
-</div>
-
-<div class="bb-chat-input bb-chat-footer">
-  {{> messages_input }}
-</div>
-
-<div class="bb-chat-pop-out">
-  <a href="/chat/puzzles/{{puzzle._id}}" class="chat-link bb-pop-out"
-     target="chat{{puzzle._id}}"><i class="icon-share-alt"></i>
-Pop out</a>
-</div>
-
-</div>
-
-</div> {{! end top of splitter }}
-
-<div class="bb-splitter-handle"></div>
-
-<div class="bb-bottom-content">{{! start bottom of splitter }}
-
-{{#if puzzle.spreadsheet}}
-<div class="bb-bottom-header">
-<a align="center" href="{{spread_link puzzle.spreadsheet}}"
-   target="_blank"><i class='icon-fullscreen'></i>
-Open spreadsheet in new window</a>
-</div>
-
-<iframe class="bb-spreadsheet-frame" frameborder='0' src='https://docs.google.com/spreadsheet/ccc?key={{puzzle.spreadsheet}}&widget=true&chrome=false'></iframe>
-{{else}}
-<p>No spreadsheet.</p>
-{{/if}}
-
-</div>{{! end bottom of splitter }}
+      {{#with puzzle}}
+        {{> blackboard_tags }}
+        {{#if solved}}{{> puzzle_correct_answer}}{{/if}}
+        {{> puzzle_incorrect_answers}}
+      {{/with}}
+      {{#if puzzles}}
+      <table class="bb-round-answers table table-bordered table-condensed"><tbody>
+        <tr><th>Puzzle in round</th><th>Answer</th></tr>
+        {{#each puzzles}}
+        <tr><td>{{link _id}}</td><td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td></tr>
+        {{/each}}
+      </tbody></table>
+      {{/if}}
+    </div>
+    <div class="bb-splitter-handle"></div>
+    <div class="bb-bottom-right-content">{{! start bottom right splitter }}
+      <div class="bb-message-container">
+        {{> messages }}
+      </div>
+      <div class="bb-chat-input bb-chat-footer">
+        {{> messages_input }}
+      </div>
+      <div class="bb-chat-pop-out">
+        <a href="/chat/{{type}}/{{puzzle._id}}" class="chat-link bb-pop-out"
+           target="chat{{puzzle._id}}"><i class="icon-share-alt"></i>
+      Pop out</a>
+      </div>
+    </div>
+  </div> {{! end right of splitter }}
 </div>
 {{/with}}
-
 </div>
 </template>
 

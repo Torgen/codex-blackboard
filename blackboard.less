@@ -421,7 +421,7 @@ body.has-emojis {
 html.fullHeight {
 
   &, body, #bb-body, #bb-content, .bb-puzzleround,
-  .bb-splitter, .bb-splitter > .bb-top-content, .bb-splitter iframe {
+  .bb-splitter, .bb-splitter > .bb-right-content, .bb-splitter iframe {
     height: 100%;
   }
   #bb-body, #bb-content, .bb-puzzleround,
@@ -432,36 +432,38 @@ html.fullHeight {
     position: relative; /* establish positioning context */
     width: 100%;
     padding-left: 0px; padding-right: 0px;
-    .bb-splitter { /* horizontal */
+    .bb-splitter { /* vertical */
        position: relative;
-       &, & > div { width:100%; }
+       display: flex;
+       flex-direction: row;
+       &, & > div { height:100%; }
        /* top padding here also anchors the margin in the embedded <h1>
           element and fixes an odd-looking 10px shift */
-       padding-top: 6px; /* for slider (shifted to center) */
-       padding-bottom: 500px; /* for bottom pane */
-       & > .bb-top-content {
-         margin-top: -6px; /* shift extra space to bottom */
+       padding-right: 6px; /* for slider (shifted to center) */
+       padding-left: 500px; /* for left pane */
+       & > .bb-right-content {
+         margin-left: -6px; /* shift extra space to bottom */
        }
-       .bb-top-content, .bb-bottom-header {
+       .bb-right-content, .bb-left-header {
          padding-left: 2px; padding-right: 2px;
        }
        .bb-splitter-handle {
-         background: #ccc url('/img/hgrabber.gif') no-repeat center;
+         background: #ccc url('/img/vgrabber.gif') no-repeat center;
          &:hover { background-color: #aaa; }
        }
        & > .bb-splitter-handle {
-         height: 6px;
-         cursor: n-resize;
+         width: 6px;
+         cursor: ew-resize;
        }
        &.active {
          & > .bb-splitter-handle { background-color: #e88; }
-         .bb-top-content, .bb-bottom-content { pointer-events: none; }
+         .bb-left-content, .bb-right-content { pointer-events: none; }
        }
-       & > .bb-bottom-content {
+       & > .bb-left-content {
          position: absolute;
-         height: 500px;
-         left: 0; bottom: 0;
-         .bb-bottom-header {
+         width: 500px;
+         left: 0; top: 0;
+         .bb-left-header {
            position: absolute; width: 235px; height: 20px; top: 0; right: 140px;
          }
          iframe {
@@ -469,29 +471,29 @@ html.fullHeight {
            border-top: none;
          }
        }
-       /* vertical splitter in top half */
-       & > .bb-top-content {
+       /* horizontal splitter in right half */
+       & > .bb-right-content {
          position: relative;
-         padding-right: 306px; /* for right-hand pane */
-         & > .bb-top-left-content, & > .bb-top-right-content {
-           height: 100%;
+         padding-bottom: 306px; /* for bottom pane */
+         & > .bb-top-right-content, & > .bb-bottom-right-content {
+           width: 100%;
            overflow: auto;
          }
          & > .bb-splitter-handle {
-           width: 6px;
-           background-image: url('/img/vgrabber.gif');
-           cursor: w-resize;
+           height: 6px;
+           background-image: url('/img/hgrabber.gif');
+           cursor: ns-resize;
            position: absolute;
-           top: 0; bottom: 0;
-           right: 300px;
+           left: 0; right: 0;
+           top: 500px;
          }
          &.active {
            & > .bb-splitter-handle { background-color: #e88; }
-           .bb-top-left-content, .bb-top-right-content { pointer-events: none; }
+           .bb-top-right-content, .bb-bottom-right-content { pointer-events: none; }
          }
-         & > .bb-top-right-content {
+         & > .bb-bottom-right-content {
            position: absolute;
-           width: 300px; right: 0; top: 0;
+           height: 300px; right: 0; top: 0;
            /* chat stylin' */
            background: url('/img/grid_noise.png');
            background-attachment: fixed;
