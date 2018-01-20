@@ -175,7 +175,7 @@ BlackboardRouter = Backbone.Router.extend
     share.ensureNick()
 
   RoundPage: (id) ->
-    this.Page("puzzle", "rounds", id)
+    this.Page("round", "rounds", id)
     Session.set "timestamp", 0
 
   PuzzlePage: (id) ->
