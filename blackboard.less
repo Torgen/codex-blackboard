@@ -482,6 +482,12 @@ html.fullHeight {
            height: 100%;
            overflow: auto;
          }
+         & > .bb-top-right-content {
+           table:not(.table-bordered) {
+             tr > td:first-child { text-align: right }
+             td.rightanswer, td.wronganswer { font-weight: bold }
+           }
+         }
          & > .bb-splitter-handle {
            height: 6px;
            background-image: url('/img/hgrabber.gif');

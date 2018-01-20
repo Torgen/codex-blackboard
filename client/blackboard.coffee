@@ -380,6 +380,7 @@ tagHelper = (id) ->
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.blackboard_puzzle_tags.helpers { tags: tagHelper }
+Template.puzzle.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information
 Template.blackboard.onCreated -> this.autorun =>
