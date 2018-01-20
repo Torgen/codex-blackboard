@@ -9,6 +9,7 @@ capType = (type) ->
     'Round'
 
 Template.puzzle.helpers
+  tag: (name) -> (model.getTag this, name) or ''
   data: ->
     r = {}
     r.type = Session.get('type')
@@ -35,7 +36,7 @@ Template.puzzle.onCreated ->
     type = Session.get('type')
     id = Session.get('id')
     name = model.collection(type)?.findOne(id)?.name or id
-    $("title").text("#{cap_type type}: #{name}")
+    $("title").text("#{capType type}: #{name}")
   # presumably we also want to subscribe to the puzzle's chat room
   # and presence information at some point.
   this.autorun =>
@@ -68,9 +69,6 @@ Template.puzzle.onDestroyed ->
 
 Template.puzzle.events
   "mousedown .bb-splitter-handle": (e,t) -> share.Splitter.handleEvent(e,t)
-
-Template.puzzle_correct_answer.helpers
-  tag: (name) -> (model.getTag this, name) or ''
 
 Template.puzzle_summon_modal.helpers
   stuck: -> model.isStuck this

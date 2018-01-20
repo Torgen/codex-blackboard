@@ -19,6 +19,9 @@
 }
 .bb-puzzleround {
   .bb-content-area;
+  .bb-chat-messages {
+    .bb-tiny-chat-messages;
+  }
 }
 .compactHeader .bb-chat-messages {
   padding-top: 3px;
@@ -178,6 +181,31 @@
 .bb-puzzle .background.near:before { opacity: 0.2; }
 .bb-chat-presence .near:before { .glyphicon-white; }
 
+.bb-tiny-chat-messages {
+  .media {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    /* hide chat bubble arrows when display gets too narrow */
+    &:before, &:after { display: none; }
+    .timestamp { float: right; /* still */ }
+    .media-object.pull-left { float: left; /* still */ margin: 0px; }
+    .img-rounded {
+              border-radius: 0px;
+         -moz-border-radius: 0px;
+      -webkit-border-radius: 0px;
+    }
+  }
+  .media + .media.bb-message-followup { margin-top: -4px; }
+  .bb-message-action, .bb-message-system { padding-left: 6px; }
+  .bb-message-last-read { margin-left: 0px; margin-right: 0px; }
+  .bb-message-body {
+    /* min-height: 0; */
+            border-radius: 0px;
+       -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+  }
+}
+
 @media (max-width: 480px) {
   body {
     padding-left: 0px;
@@ -189,28 +217,7 @@
     margin-right: 0px;
   }
   .bb-chat-messages {
-    .media {
-      margin-top: 0px;
-      margin-bottom: 0px;
-      /* hide chat bubble arrows when display gets too narrow */
-      &:before, &:after { display: none; }
-      .timestamp { float: right; /* still */ }
-      .media-object.pull-left { float: left; /* still */ margin: 0px; }
-      .img-rounded {
-                border-radius: 0px;
-           -moz-border-radius: 0px;
-        -webkit-border-radius: 0px;
-      }
-    }
-    .media + .media.bb-message-followup { margin-top: -4px; }
-    .bb-message-action, .bb-message-system { padding-left: 6px; }
-    .bb-message-last-read { margin-left: 0px; margin-right: 0px; }
-    .bb-message-body {
-      /* min-height: 0; */
-              border-radius: 0px;
-         -moz-border-radius: 0px;
-      -webkit-border-radius: 0px;
-    }
+    .bb-tiny-chat-messages;
   }
 }
 /*

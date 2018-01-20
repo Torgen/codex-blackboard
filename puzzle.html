@@ -26,9 +26,9 @@
       </small></h1>
 
       {{#with puzzle}}
-        {{> blackboard_tags }}
-        {{#if solved}}{{> puzzle_correct_answer}}{{/if}}
+        {{#if solved}}<b>Answer: </b><span class="answer">{{tag "answer"}}</span> <span class="timestamp">{{pretty_ts solved}}</span>{{#if tag "backsolve"}} <span class="backsolve">(backsolve)</span>{{/if}}{{/if}}
         {{> puzzle_incorrect_answers}}
+        {{> blackboard_tags}}
       {{/with}}
       {{#if puzzles}}
       <table class="bb-round-answers table table-bordered table-condensed"><tbody>

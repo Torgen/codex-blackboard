@@ -7,16 +7,10 @@ Splitter = share.Splitter =
     get: () -> $('.bb-bottom-right-content').height()
     set: (size, manual) ->
       if not size?
-        # resize to let top content be fully visible
-        SPLITTER_WIDGET_HEIGHT = 6 # pixels
-        topHeight = $('.bb-top-right-content')[0]?.scrollHeight
-        if topHeight? and topHeight > 0
-          topHeight += SPLITTER_WIDGET_HEIGHT
-          size = $('.bb-right-content').innerHeight() - topHeight
-        else
-          size = 300
-      $('.bb-right-content').css 'padding-bottom', +size
+        size = 300
+      $('.bb-right-content').css 'padding-bottom', +size + 6
       $('.bb-bottom-right-content').css 'height', +size
+      $('.bb-right-content > .bb-splitter-handle').css 'bottom', +size
       Splitter.vsize.manualResized = !!manual
       +size
   hsize:
@@ -27,12 +21,13 @@ Splitter = share.Splitter =
       if not size?
         # 200px wide chat
         size = 200
-      $('.bb-splitter').css 'padding-right', +size + SPLITTER_WIDGET_WIDTH
+      $('.bb-splitter').css 'padding-right', +size
       $('.bb-splitter > .bb-splitter-handle').css 'right', +size
       $('.bb-right-content').css 'width', +size
       Splitter.hsize.manualResized = !!manual
       +size
   handleEvent: (event, template) ->
+    console.log event.currentTarget unless Meteor.isProduction
     if $(event.currentTarget).closest('.bb-right-content').length
       this.handleVEvent event, template
     else
@@ -44,7 +39,7 @@ Splitter = share.Splitter =
     initialSize = Splitter.hsize.get()
     mouseMove = (event) ->
       newSize = initialSize - (event.pageX - initialPos)
-      Splitter.vsize.set newSize, 'manual'
+      Splitter.hsize.set newSize, 'manual'
     mouseUp = (event) ->
       pane.removeClass('active')
       $(document).unbind('mousemove', mouseMove).unbind('mouseup', mouseUp)
