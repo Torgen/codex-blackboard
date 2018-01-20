@@ -58,6 +58,11 @@
     {{> chat_header }}
   {{/if}}
   </li>
+  {{#if currentPageEquals "round"}}
+    {{> header_breadcrumbs_unsolved_buttons round}}
+  {{else if currentPageEquals "puzzle"}}
+    {{> header_breadcrumbs_unsolved_buttons puzzle}}
+  {{/if}}
   {{#if drive}}
     {{#if picker}}
 <li class="bb-drive-buttons">
@@ -77,6 +82,14 @@
   {{/if}}
 </ul>
 </div>
+</template>
+
+<template name="header_breadcrumbs_unsolved_buttons">
+{{#unless solved}}
+<li class="bb-drive-buttons">
+{{> puzzle_callin_modal}}{{> puzzle_summon_modal}}
+</li>
+{{/unless}}
 </template>
 
 <template name="header_loginmute">

@@ -18,12 +18,12 @@
   <div class="bb-splitter-handle"></div>
   <div class="bb-right-content">{{! start right of splitter }}
     <div class="bb-top-right-content">{{! start top right splitter }}
-      {{#unless puzzle.solved}}
-        {{#with puzzle}}{{> puzzle_callin_modal}}{{> puzzle_summon_modal}}{{/with}}
-      {{/unless}}
-      <h1 class="{{#if stuck}}bb-status-stuck{{/if}}">{{capType}} <small>{{puzzle.name}}
-        {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">puzzle link <i class="icon-share-alt"></i></a>){{/if}}
-      </small></h1>
+      <div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
+        <h1>{{puzzle.name}}</h1>
+        <h2>{{capType}}
+          {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">link<i class="icon-share-alt"></i></a>){{/if}}
+        </h2>
+      </div>
 
       {{#with puzzle}}
         {{#if solved}}<b>Answer: </b><span class="answer">{{tag "answer"}}</span> <span class="timestamp">{{pretty_ts solved}}</span>{{#if tag "backsolve"}} <span class="backsolve">(backsolve)</span>{{/if}}{{/if}}
@@ -80,7 +80,10 @@
 </template>
 
 <template name="puzzle_summon_modal">
-<button class="btn btn-small bb-summon-btn {{#if stuck}}stuck{{else}}unstuck{{/if}} {{#if currentPageEquals "chat"}}btn-inverse{{/if}}">{{#if stuck}}Clear STUCK status{{else}}Flag as STUCK{{/if}}</button>
+<button class="btn {{#if currentPageEquals "chat"}}btn-small{{/if}} bb-summon-btn {{#if stuck}}stuck{{else}}unstuck{{/if}} btn-inverse">
+{{#unless currentPageEquals "chat"}}<i class="icon-white icon-{{#if stuck}}exclama{{else}}ques{{/if}}tion-sign"></i>{{/unless}}
+{{#if stuck}}Clear STUCK status{{else}}Flag as STUCK{{/if}}
+</button>
 <div class="modal">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -140,7 +143,11 @@
 </template>
 
 <template name="puzzle_callin_modal">
-<button class="btn btn-small bb-callin-btn {{#if currentPageEquals "chat"}}btn-inverse{{/if}}">Request Call-In</button>
+<button class="btn {{#if currentPageEquals "chat"}}btn-small{{/if}} bb-callin-btn btn-inverse">
+{{! TODO: after bootstrap upgrade, change icon to earphone }}
+{{#unless currentPageEquals "chat"}}<i class="icon-white icon-share"></i>{{/unless}}
+Request Call-In
+</button>
 <div class="modal">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>

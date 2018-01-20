@@ -18,7 +18,7 @@ Template.puzzle.helpers
       round = r.round = model.Rounds.findOne puzzles: puzzle?._id
       r.puzzle_num = 1 + (round?.puzzles or []).indexOf(puzzle?._id)
     else
-      r.puzzle = round = r.round = model.Rounds.findOne Session.get("id")
+      puzzle = r.puzzle = round = r.round = model.Rounds.findOne Session.get("id")
       r.puzzles = ((model.Puzzles.findOne(p) or {_id:p}) \
         for p in (round?.puzzles or []))
     group = r.group = model.RoundGroups.findOne rounds: round?._id
