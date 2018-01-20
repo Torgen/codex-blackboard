@@ -19,8 +19,8 @@ Splitter = share.Splitter =
     set: (size, manual) ->
       SPLITTER_WIDGET_WIDTH = 6 # pixels
       if not size?
-        # 200px wide chat
-        size = 200
+        # 300px wide chat
+        size = 300
       $('.bb-splitter').css 'padding-right', +size
       $('.bb-splitter > .bb-splitter-handle').css 'right', +size
       $('.bb-right-content').css 'width', +size
