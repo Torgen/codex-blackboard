@@ -49,6 +49,18 @@
     background-image: url('/img/robot-off.png');
   }
 }
+.statuslight {
+  height: 14px;
+  width: 14px;
+  display: inline-block;
+  border-radius: 50%;
+  vertical-align: middle;
+  .connected & { background-color: #0F0; }
+  .connecting & { background-color: #FF0; }
+  .failed & { background-color: #F00; }
+  .waiting & { background-color: #F80; }
+  .offline & { background-color: #000; }
+}
 #bb-body {
   .timestamp { font-size: .65em; }
 }

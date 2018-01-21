@@ -128,6 +128,7 @@ Template.header_loginmute.helpers
     if Session.get "mute" then "Muted" else "Click to mute"
   botIcon: ->
     if Session.get "nobot" then "icon-bot-off" else "icon-bot-on"
+  connectStatus: Meteor.status
   botTitle: ->
     if Session.get "nobot"
       "Codexbot promises not to bother you"
@@ -178,6 +179,10 @@ Template.header_loginmute.events
       share.Router.navigate "/edit", {trigger: true}
   "click .bb-protect": (event, template) ->
     share.Router.navigate "/", {trigger: true}
+  "click .connected, click .connecting, click .waiting": (event, template) ->
+    Meteor.disconnect()
+  "click .failed, click .offline": (event, template) ->
+    Meteor.reconnect()
 
 ############## breadcrumbs #######################
 Template.header_breadcrumbs.helpers
