@@ -1235,6 +1235,8 @@ spread_id_to_link = (id) ->
           object: args.object
           value: args.value
           who: args.who
+      if canonical(arg.name) is 'link'
+        return Meteor.call 'setField', {args..., fields: {'link': args.value}}
       args.now = UTCNow() # don't let caller lie about the time
       return setTagInternal args
 
@@ -1252,6 +1254,8 @@ spread_id_to_link = (id) ->
           type: args.type
           object: args.object
           who: args.who
+      if canonical(arg.name) is 'link'
+        return Meteor.call 'setField', {args..., fields: {'link': null}}
       args.now = UTCNow() # don't let caller lie about the time
       return deleteTagInternal args
 
