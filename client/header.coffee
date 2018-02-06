@@ -39,7 +39,7 @@ Template.registerHelper 'link', (args) ->
   link += '</a>'
   return new Spacebars.SafeString(link)
 
-$(document).on 'click', 'a.puzzles-link, a.rounds-link, a.chat-link, a.home-link, a.oplogs-link, a.quips-link', (event) ->
+$(document).on 'click', 'a.puzzles-link, a.rounds-link, a.chat-link, a.home-link, a.oplogs-link, a.quips-link, a.callins-link, a.facts-link', (event) ->
   return unless event.button is 0 # check right-click
   return if event.ctrlKey or event.shiftKey or event.altKey # check alt/ctrl/shift clicks
   return if /^https?:/.test($(event.currentTarget).attr('href'))
