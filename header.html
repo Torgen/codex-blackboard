@@ -64,8 +64,7 @@
 <template name="header_breadcrumb_quip">
   <li class="{{#if currentPageEquals "quip"}}active{{/if}}">
     <a href="/quip/{{id}}" class="quip-link">
-      <i class="icon-check icon-white"></i>
-      {{#if idIsNew}}Add New Quip{{else}}Quip: {{quip.name}}{{/if}}
+      <i class="icon-check icon-white"></i> {{#if idIsNew}}Add New Quip{{else}}Quip: {{quip.name}}{{/if}}
     </a>
   </li>
 </template>
@@ -73,8 +72,7 @@
 <template name="header_breadcrumb_oplog">
   <li class="{{#if currentPageEquals "oplog"}}active{{/if}}">
     <a href="/oplog" class="oplog-link">
-      <i class="icon-time icon-white"></i>
-      Operation Logs
+      <i class="icon-time icon-white"></i> Operation Logs
     </a>
   </li>
 </template>
@@ -82,8 +80,15 @@
 <template name="header_breadcrumb_facts">
   <li class="{{#if currentPageEquals "facts"}}active{{/if}}">
     <a href="/facts" class="facts-link">
-      <i class="icon-wrench icon-white"></i>
-      Server Facts
+      <i class="icon-wrench icon-white"></i> Server Facts
+    </a>
+  </li>
+</template>
+
+<template name="header_breadcrumb_callins">
+  <li class="{{#if currentPageEquals "callins"}}active{{/if}}">
+    <a href="/callins" class="callinss-link">
+      <i class="icon-check icon-white"></i> Answer Queue
     </a>
   </li>
 </template>
