@@ -20,7 +20,7 @@
 
 <template name="header_breadcrumb_blackboard">
   <li class="{{#if currentPageEquals "blackboard"}}active{{/if}}">
-    <a href="/" class="home-link"><i class="icon-home icon-white"></i>Blackboard</a>
+    <a href="/" class="home-link"><i class="icon-home icon-white"></i> Blackboard</a>
   </li>
   {{> header_breadcrumb_chat}}
 </template>
@@ -46,7 +46,7 @@
 <template name="header_breadcrumb_round">
   <li class="{{#if currentPageEquals "round"}}active{{else}}bb-omit-when-narrow{{/if}}">
     <a href="/rounds/{{id}}" class="rounds-link">
-      <i class="icon-folder-open icon-white"></i>Round: {{round.name}}
+      <i class="icon-folder-open icon-white"></i> Round: {{round.name}}
     </a>
   </li>
   {{> header_breadcrumb_extra_links round}}
@@ -55,14 +55,14 @@
 <template name="header_breadcrumb_puzzle">
   <li class="{{#if currentPageEquals "puzzle"}}active{{else}}bb-omit-when-narrow{{/if}}">
     <a href="/puzzles/{{id}}" class="puzzles-link">
-      <i class="icon-book icon-white"></i>Puzzle: {{puzzle.name}}
+      <i class="icon-book icon-white"></i> Puzzle: {{puzzle.name}}
     </a>
   </li>
   {{> header_breadcrumb_extra_links puzzle}}
 </template>
 
 <template name="header_breadcrumb_quip">
-  <li class="{{#if currentPageEquals"quip"}}active{{/if}}">
+  <li class="{{#if currentPageEquals "quip"}}active{{/if}}">
     <a href="/quip/{{id}}" class="quip-link">
       <i class="icon-check icon-white"></i>
       {{#if idIsNew}}Add New Quip{{else}}Quip: {{quip.name}}{{/if}}
