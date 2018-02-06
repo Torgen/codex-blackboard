@@ -185,16 +185,19 @@ Tracker.autorun ->
     base.push {page: 'puzzle', type: 'puzzles', id: currentid}
   else if currenttype is 'rounds'
     base.push {page: 'round', type: 'rounds', id: currentid}
-  else if currenttype isnt 'chat'
+  else if currentpage isnt 'chat' and currentpage isnt 'blackboard'
     base.push {page: currentpage, type: currenttype, id: currentid}
   # If the new breadcrumbs are a prefix of the old ones, keep the old ones.
-  for crumb, i in base
-    return if i >= breadcrumbs.length
-    oldcrumb = breadcrumbs[i]
-    break if crumb.page isnt oldcrumb.page or crumb.type isnt oldcrumb.type or crumb.id isnt oldcrumb.id
+  if breadcrumbs? and base.length <= breadcrumbs.length
+    return if do ->
+      for crumb, i in base
+        oldcrumb = breadcrumbs[i]
+        if crumb.page isnt oldcrumb.page or crumb.type isnt oldcrumb.type or crumb.id isnt oldcrumb.id
+          return false
+      return true
   Session.set 'breadcrumbs', base
 
-Template.header_breadcrumb_chat_link.helpers
+Template.header_breadcrumb_chat.helpers
   inThisRoom: ->
     return false unless Session.equals 'currentPage', 'chat'
     return false unless Session.equals 'type', @type
@@ -205,7 +208,7 @@ Template.header_breadcrumb_round.onCreated ->
     @subscribe 'round-by-id', Template.currentData().id
 Template.header_breadcrumb_round.helpers
   round: ->
-    model.Rounds.findOne puzzles: @id if @id
+    model.Rounds.findOne @id if @id
 
 Template.header_breadcrumb_puzzle.onCreated ->
   @autorun =>
