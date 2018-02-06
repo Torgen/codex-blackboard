@@ -14,8 +14,13 @@
       justify-content: stretch;
       float: none;
       & > li {
+        display: flex;
         flex-grow: 0;
         flex-shrink: 0;
+        & > a + a {
+          padding-left: 0px;
+          margin-left: -10px;
+        }
       }
       & > .fill {
         flex-grow: 1;

@@ -14,7 +14,7 @@
 
 <template name="header_breadcrumb_chat">
   <li class="{{#if inThisRoom}}active{{/if}}">
-    <a href="/chat/{{type}}/{{id}}" class="chat-link"><i class="icon-comment icon-white"></i>{{> Template.contentBlock}}</a>
+    <a href="/chat/{{type}}/{{id}}" class="chat-link"><i class="icon-comment icon-white"></i> {{> Template.contentBlock}} Chat</a>
   </li>
 </template>
 
@@ -26,21 +26,16 @@
 </template>
 
 <template name="header_breadcrumb_extra_links">
-  {{#if link}}
-    <li class="{{#unless currentPageEquals ../page}}bb-omit-when-narrow{{/unless}}">
-      <a href="{{link}}" target="_blank" title="Round on hunt site">
-        <i class="icon-share-alt icon-white"></i>
-      </a>
-    </li>
+  {{#if this.link}}
+    <a href="{{this.link}}" target="_blank" title="Round on hunt site">
+      <i class="icon-share-alt icon-white"></i>
+    </a>
   {{/if}}
   {{#if spreadsheet}}
-  <li class="{{#unless currentPageEquals ../page}}bb-omit-when-narrow{{/unless}}">
     <a href="{{spread_link spreadsheet}}" target="_blank" title="Spreadsheet">
       <i class="icon-th icon-white"></i>
     </a>
-  </li>
   {{/if}}
-  {{> header_breadcrumb_chat ..}}
 </template>
 
 <template name="header_breadcrumb_round">
@@ -48,8 +43,9 @@
     <a href="/rounds/{{id}}" class="rounds-link">
       <i class="icon-folder-open icon-white"></i> Round: {{round.name}}
     </a>
+    {{> header_breadcrumb_extra_links round}}
   </li>
-  {{> header_breadcrumb_extra_links round}}
+  {{> header_breadcrumb_chat }}
 </template>
 
 <template name="header_breadcrumb_puzzle">
@@ -57,8 +53,9 @@
     <a href="/puzzles/{{id}}" class="puzzles-link">
       <i class="icon-book icon-white"></i> Puzzle: {{puzzle.name}}
     </a>
+    {{> header_breadcrumb_extra_links puzzle}}
   </li>
-  {{> header_breadcrumb_extra_links puzzle}}
+  {{> header_breadcrumb_chat }}
 </template>
 
 <template name="header_breadcrumb_quip">
