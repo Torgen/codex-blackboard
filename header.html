@@ -13,49 +13,50 @@
 </template>
 
 <template name="header_breadcrumb_chat">
-  <li class="{{#if inThisRoom}}active{{/if}}">
-    <a href="/chat/{{type}}/{{id}}" class="chat-link"><i class="icon-comment icon-white"></i> {{> Template.contentBlock}} Chat</a>
-  </li>
+  <a href="/chat/{{type}}/{{id}}" class="chat-link{{#if inThisRoom}} current{{/if}}" title="Chat"><i class="icon-comment icon-white"></i></a>
 </template>
 
 <template name="header_breadcrumb_blackboard">
-  <li class="{{#if currentPageEquals "blackboard"}}active{{/if}}">
-    <a href="/" class="home-link"><i class="icon-home icon-white"></i> Blackboard</a>
+  <li class="{{#if active}}active{{/if}}">
+    <a href="/" class="home-link"><i class="icon-home icon-white"></i> Blackboard
+    <i class="icon-th-list icon-white {{#if currentPageEquals "blackboard"}}current{{/if}}"></i></a>
+    {{> header_breadcrumb_chat}}
   </li>
-  {{> header_breadcrumb_chat}}
 </template>
 
 <template name="header_breadcrumb_extra_links">
   {{#if this.link}}
-    <a href="{{this.link}}" target="_blank" title="Round on hunt site">
-      <i class="icon-share-alt icon-white"></i>
+    <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "puzzle"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/puzzle" title="Puzzle">
+      <i class="icon-globe icon-white"></i>
     </a>
   {{/if}}
   {{#if spreadsheet}}
-    <a href="{{spread_link spreadsheet}}" target="_blank" title="Spreadsheet">
+    <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "spreadsheet"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/spreadsheet" title="Spreadsheet">
       <i class="icon-th icon-white"></i>
     </a>
   {{/if}}
+    <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "info"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/info"  title="Info">
+      <i class="icon-info-sign icon-white"></i>
+    </a>
+  {{> header_breadcrumb_chat ..}}
 </template>
 
 <template name="header_breadcrumb_round">
-  <li class="{{#if currentPageEquals "round"}}active{{else}}bb-omit-when-narrow{{/if}}">
+  <li class="{{#if active}}active{{else}}bb-omit-when-narrow{{/if}}">
     <a href="/rounds/{{id}}" class="rounds-link">
       <i class="icon-folder-open icon-white"></i> Round: {{round.name}}
     </a>
     {{> header_breadcrumb_extra_links round}}
   </li>
-  {{> header_breadcrumb_chat }}
 </template>
 
 <template name="header_breadcrumb_puzzle">
-  <li class="{{#if currentPageEquals "puzzle"}}active{{else}}bb-omit-when-narrow{{/if}}">
+  <li class="{{#if active}}active{{else}}bb-omit-when-narrow{{/if}}">
     <a href="/puzzles/{{id}}" class="puzzles-link">
       <i class="icon-book icon-white"></i> Puzzle: {{puzzle.name}}
     </a>
     {{> header_breadcrumb_extra_links puzzle}}
   </li>
-  {{> header_breadcrumb_chat }}
 </template>
 
 <template name="header_breadcrumb_quip">

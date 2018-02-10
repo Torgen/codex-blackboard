@@ -21,6 +21,12 @@
           padding-left: 0px;
           margin-left: -10px;
         }
+        i.current, .current i {
+          border-bottom: 2px solid white;
+        }
+        a:not(.current) i:not(.current):hover {
+          border-bottom: 1px solid white;
+        }
       }
       & > .fill {
         flex-grow: 1;

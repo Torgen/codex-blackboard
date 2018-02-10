@@ -8,8 +8,26 @@ capType = (type) ->
   else if type is 'rounds'
     'Round'
 
+possibleViews = (puzzle) ->
+  x = []
+  x.push 'spreadsheet' if puzzle?.spreadsheet?
+  x.push 'puzzle' if puzzle?.link?
+  x.push 'info'
+  x
+currentViewIs = (puzzle, view) ->
+  # only puzzle and round have view.
+  page = Session.get 'currentPage'
+  return false unless (page is 'puzzle') or (page is 'round')
+  possible = possibleViews puzzle
+  if Session.equals 'view', view
+    return true if possible.includes view
+  return false if possible.includes Session.get 'view'
+  return view is possible[0]
+
+Template.puzzle_info.helpers
+   tag: (name) -> (model.getTag this, name) or ''
+
 Template.puzzle.helpers
-  tag: (name) -> (model.getTag this, name) or ''
   data: ->
     r = {}
     r.type = Session.get('type')
@@ -30,6 +48,10 @@ Template.puzzle.helpers
   vsize: -> share.Splitter.vsize.get()
   vsizePlusHandle: -> +share.Splitter.vsize.get() + 6
   hsize: -> share.Splitter.hsize.get()
+  currentViewIs: (view) -> currentViewIs @puzzle, view
+
+Template.header_breadcrumb_extra_links.helpers
+  currentViewIs: (view) -> currentViewIs this, view
 
 Template.puzzle.onCreated ->
   $('html').addClass('fullHeight')

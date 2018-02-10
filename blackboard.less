@@ -511,24 +511,21 @@ html.fullHeight {
          iframe {
            padding-top: 0px; /* was 26px, but we're chosing to overlap header */
            border-top: none;
+           &.bb-puzzle-frame { padding-top:5px; }
          }
+       }
+       table:not(.table-bordered) {
+         tr > td:first-child { text-align: right }
+         td.rightanswer, td.wronganswer { font-weight: bold }
        }
        /* horizontal splitter in right half */
        & > .bb-right-content {
          position: absolute;
          right: 0px;
-         width: 300px;
-         padding-bottom: 306px; /* for bottom pane */
          & > .bb-top-right-content, & > .bb-bottom-right-content {
            width: 100%;
            height: 100%;
            overflow: auto;
-         }
-         & > .bb-top-right-content {
-           table:not(.table-bordered) {
-             tr > td:first-child { text-align: right }
-             td.rightanswer, td.wronganswer { font-weight: bold }
-           }
          }
          & > .bb-splitter-handle {
            height: 6px;
@@ -544,7 +541,7 @@ html.fullHeight {
          }
          & > .bb-bottom-right-content {
            position: absolute;
-           height: 300px; right: 0; bottom: 0;
+           right: 0; bottom: 0;
            /* chat stylin' */
            background: url('/img/grid_noise.png');
            background-attachment: fixed;
@@ -573,6 +570,9 @@ html.fullHeight {
              border: 1px solid #888;
              padding-left: 2px; padding-right: 4px;
              border-bottom-left-radius: 5px;
+             &.in-margin {
+               padding-top: 5px;
+             }
            }
          }
        }

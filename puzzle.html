@@ -1,3 +1,36 @@
+<template name="puzzle_info">
+<div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
+  <h1>{{puzzle.name}}</h1>
+  <h2>{{capType}}
+    {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">link<i class="icon-share-alt"></i></a>){{/if}}
+  </h2>
+</div>
+{{#with puzzle}}
+  <table><tbody>
+  {{#if solved}}
+    <tr><td class="rightanswer">Answer:</td><td class="answer">{{tag "answer"}}</td></tr>
+    <tr><td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts solved}}</td></tr>
+  {{/if}}
+  {{#each incorrectAnswers}}
+    <tr><td class="wronganswer">IncorrectAnswer:</td><td class="answer">{{answer}}</td></tr>
+    <tr><td class="backsolve">{{#if backsolve}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts timestamp}}</td></tr>
+  {{/each}}
+  {{#each tags _id}}
+    <tr><td class="tagname">{{name}}:</td><td class="tagvalue">{{value}}</td></tr>
+  {{/each}}
+  </tbody></table>
+{{/with}}
+{{> starred_messages canModify=mynick}}
+{{#if puzzles}}
+<table class="bb-round-answers table table-bordered table-condensed"><tbody>
+  <tr><th>Puzzle in round</th><th>Answer</th></tr>
+  {{#each puzzles}}
+  <tr><td>{{link _id}}</td><td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td></tr>
+  {{/each}}
+</tbody></table>
+{{/if}}
+</template>
+
 <template name="puzzle">
 <div class="row-fluid bb-puzzleround">
  <!-- this is a puzzle page -->
@@ -5,59 +38,45 @@
 <div class="bb-splitter" style="padding-right: {{hsize}}px">
   <div class="bb-left-content">{{! start left of splitter }}
   {{#if puzzle.spreadsheet}}
-    <div class="bb-left-header">
+    <div class="bb-left-header" style="{{#unless currentViewIs "spreadsheet"}}display: none;{{/unless}}">
       <a align="center" href="{{spread_link puzzle.spreadsheet}}"
          target="_blank"><i class='icon-fullscreen'></i>
       Open spreadsheet in new window</a>
     </div>
-    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{spread_link puzzle.spreadsheet}}&widget=true&chrome=false'></iframe>
-  {{else}}
-    <p>No spreadsheet.</p>
+    {{! hide iframe when not current view for faster tab change }}
+    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{spread_link puzzle.spreadsheet}}&widget=true&chrome=false'
+            style="{{#unless currentViewIs "spreadsheet"}}display:none{{/unless}}"></iframe>
+  {{/if}}
+  {{#if puzzle.link}}
+    <div class="bb-left-header" style="{{#unless currentViewIs "puzzle"}}display: none;{{/unless}}">
+      <a align="center" href="{{puzzle.link}}"
+         target="_blank"><i class='icon-fullscreen'></i>
+      Open puzzle in new window</a>
+    </div>
+    {{! hide iframe when not current view for faster tab change }}
+    <iframe class="bb-puzzle-frame" frameborder='0' src='{{puzzle.link}}'
+            style="{{#unless currentViewIs "puzzle"}}display:none{{/unless}}"></iframe>
+  {{/if}}
+  {{#if currentViewIs "info"}}
+    <div class="bb-puzzle-frame">{{> puzzle_info}}</div>
   {{/if}}
   </div>{{! end left of splitter }}
   <div class="bb-splitter-handle" style="right: {{hsize}}px"></div>
-  <div class="bb-right-content" style="width: {{hsize}}px; padding-bottom: {{vsizePlusHandle}}px">{{! start right of splitter }}
+  <div class="bb-right-content" style="width: {{hsize}}px; {{#unless currentViewIs "info"}}padding-bottom: {{vsizePlusHandle}}px{{/unless}}">{{! start right of splitter }}
+    {{#unless currentViewIs "info"}}
     <div class="bb-top-right-content">{{! start top right splitter }}
-      <div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
-        <h1>{{puzzle.name}}</h1>
-        <h2>{{capType}}
-          {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">link<i class="icon-share-alt"></i></a>){{/if}}
-        </h2>
-      </div>
-      {{#with puzzle}}
-        <table><tbody>
-        {{#if solved}}
-          <tr><td class="rightanswer">Answer:</td><td class="answer">{{tag "answer"}}</td></tr>
-          <tr><td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts solved}}</td></tr>
-        {{/if}}
-        {{#each incorrectAnswers}}
-          <tr><td class="wronganswer">IncorrectAnswer:</td><td class="answer">{{answer}}</td></tr>
-          <tr><td class="backsolve">{{#if backsolve}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts timestamp}}</td></tr>
-        {{/each}}
-        {{#each tags _id}}
-          <tr><td class="tagname">{{name}}:</td><td class="tagvalue">{{value}}</td></tr>
-        {{/each}}
-        </tbody></table>
-      {{/with}}
-      {{> starred_messages canModify=mynick}}
-      {{#if puzzles}}
-      <table class="bb-round-answers table table-bordered table-condensed"><tbody>
-        <tr><th>Puzzle in round</th><th>Answer</th></tr>
-        {{#each puzzles}}
-        <tr><td>{{link _id}}</td><td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td></tr>
-        {{/each}}
-      </tbody></table>
-      {{/if}}
+      {{> puzzle_info }}
     </div>
     <div class="bb-splitter-handle" style="bottom: {{vsize}}px"></div>
-    <div class="bb-bottom-right-content" style="height: {{vsize}}px">{{! start bottom right splitter }}
+    {{/unless}}
+    <div class="bb-bottom-right-content" style="{{#unless currentViewIs "info"}}height: {{vsize}}px{{/unless}}">{{! start bottom right splitter }}
       <div class="bb-message-container">
         {{> messages }}
       </div>
       <div class="bb-chat-input bb-chat-footer">
         {{> messages_input }}
       </div>
-      <div class="bb-chat-pop-out">
+      <div class="bb-chat-pop-out {{#if currentViewIs "info"}}in-margin{{/if}}">
         <a href="/chat/{{type}}/{{puzzle._id}}" class="chat-link bb-pop-out"
            target="chat{{puzzle._id}}"><i class="icon-share-alt"></i>
       Pop out</a>
