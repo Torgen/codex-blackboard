@@ -73,4 +73,6 @@ Splitter = share.Splitter =
     x = Splitter[dim]
     return if x.dragging.get()
     console.log "about to set #{dim}"
-    x.size.set reactiveLocalStorage.getItem "splitter.#{dim}"
+    val = reactiveLocalStorage.getItem "splitter.#{dim}"
+    return unless val?
+    x.set val
