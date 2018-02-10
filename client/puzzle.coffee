@@ -8,23 +8,21 @@ capType = (type) ->
   else if type is 'rounds'
     'Round'
 
-defaultView = (puzzle) ->
-  return 'spreadsheet' if puzzle?.spreadsheet?
-  return 'puzzle' if puzzle?.link?
-  return 'info'
+possibleViews = (puzzle) ->
+  x = []
+  x.push 'spreadsheet' if puzzle?.spreadsheet?
+  x.push 'puzzle' if puzzle?.link?
+  x.push 'info'
+  x
 currentViewIs = (puzzle, view) ->
   # only puzzle and round have view.
   page = Session.get 'currentPage'
   return false unless (page is 'puzzle') or (page is 'round')
+  possible = possibleViews puzzle
   if Session.equals 'view', view
-    switch view
-      when 'spreadsheet'
-        return true if puzzle?.spreadsheet?
-      when 'puzzle'
-        return true if puzzle?.link?
-      when 'info'
-        return true
-  return view is defaultView puzzle
+    return true if possible.includes view
+  return false if possible.includes Session.get 'view'
+  return view is possible[0]
 
 Template.puzzle_info.helpers
    tag: (name) -> (model.getTag this, name) or ''
