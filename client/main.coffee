@@ -143,7 +143,9 @@ BlackboardRouter = Backbone.Router.extend
     "": "BlackboardPage"
     "edit": "EditPage"
     "rounds/:round": "RoundPage"
+    "rounds/:round/:view": "RoundPage"
     "puzzles/:puzzle": "PuzzlePage"
+    "puzzles/:puzzle/:view": "PuzzlePage"
     "roundgroups/:roundgroup": "RoundGroupPage"
     "chat/:type/:id": "ChatPage"
     "chat/:type/:id/:timestamp": "ChatPage"
@@ -165,13 +167,17 @@ BlackboardRouter = Backbone.Router.extend
       canEdit: true
       editing: undefined
 
-  RoundPage: (id) ->
+  RoundPage: (id, view=null) ->
     this.Page("round", "rounds", id)
-    Session.set "timestamp", 0
+    Session.set
+      timestamp: 0
+      view: view
 
-  PuzzlePage: (id) ->
+  PuzzlePage: (id, view=null) ->
     this.Page("puzzle", "puzzles", id)
-    Session.set "timestamp", 0
+    Session.set
+      timestamp: 0
+      view: view
 
   RoundGroupPage: (id) ->
     this.goToChat "roundgroups", id, 0

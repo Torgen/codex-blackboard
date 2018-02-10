@@ -8,6 +8,23 @@ capType = (type) ->
   else if type is 'rounds'
     'Round'
 
+defaultView = (puzzle) ->
+  return 'spreadsheet' if puzzle.spreadsheet?
+  return 'puzzle' if puzzle.link?
+  return 'info'
+currentViewIs = (puzzle, view) ->
+  if Session.equals 'view', view
+    switch view
+      when 'spreadsheet'
+        return puzzle.spreadsheet?
+      when 'puzzle'
+        return puzzle.link?
+      when 'info'
+        return true
+  if not Session.get('view')?
+    return view is defaultView puzzle
+  return false
+
 Template.puzzle.helpers
   tag: (name) -> (model.getTag this, name) or ''
   data: ->
@@ -30,6 +47,10 @@ Template.puzzle.helpers
   vsize: -> share.Splitter.vsize.get()
   vsizePlusHandle: -> +share.Splitter.vsize.get() + 6
   hsize: -> share.Splitter.hsize.get()
+  currentViewIs: (view) -> currentViewIs @puzzle, view
+
+Template.header_breadcrumb_extra_links.helpers
+  currentViewIs: (view) -> currentViewIs @puzzle, view
 
 Template.puzzle.onCreated ->
   $('html').addClass('fullHeight')
