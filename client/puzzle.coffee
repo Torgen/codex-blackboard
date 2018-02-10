@@ -13,6 +13,7 @@ possibleViews = (puzzle) ->
   x.push 'spreadsheet' if puzzle?.spreadsheet?
   x.push 'puzzle' if puzzle?.link?
   x.push 'info'
+  x.push 'doc' if puzzle?.doc?
   x
 currentViewIs = (puzzle, view) ->
   # only puzzle and round have view.
