@@ -208,16 +208,22 @@ Template.header_breadcrumb_chat.helpers
     return false unless Session.equals 'type', @type
     Session.equals 'id', @id
 
-
 active = ->
   (Session.equals('currentPage', @page) or Session.equals('currentPage', 'chat')) and \
   Session.equals('type', @type) and Session.equals('id', @id)
+
+Template.header_breadcrumb_blackboard.helpers
+  active: active
+
+Template.header_breadcrumb_extra_links.helpers
+  active: -> active.bind(Template.parentData(1))()
 
 Template.header_breadcrumb_round.onCreated ->
   @autorun =>
     @subscribe 'round-by-id', Template.currentData().id
 Template.header_breadcrumb_round.helpers
   round: -> model.Rounds.findOne @id if @id
+  active: active
 
 Template.header_breadcrumb_puzzle.onCreated ->
   @autorun =>
@@ -225,6 +231,7 @@ Template.header_breadcrumb_puzzle.onCreated ->
     @subscribe 'round-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_puzzle.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
+  active: active
 
 Template.header_breadcrumb_quip.onCreated ->
   @autorun => @subscribe 'quips'

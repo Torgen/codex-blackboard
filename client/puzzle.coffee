@@ -9,24 +9,29 @@ capType = (type) ->
     'Round'
 
 defaultView = (puzzle) ->
-  return 'spreadsheet' if puzzle.spreadsheet?
-  return 'puzzle' if puzzle.link?
+  return 'spreadsheet' if puzzle?.spreadsheet?
+  return 'puzzle' if puzzle?.link?
   return 'info'
 currentViewIs = (puzzle, view) ->
+  # only puzzle and round have view.
+  page = Session.get 'currentPage'
+  return false unless (page is 'puzzle') or (page is 'round')
   if Session.equals 'view', view
     switch view
       when 'spreadsheet'
-        return puzzle.spreadsheet?
+        return puzzle?.spreadsheet?
       when 'puzzle'
-        return puzzle.link?
+        return puzzle?.link?
       when 'info'
         return true
   if not Session.get('view')?
     return view is defaultView puzzle
   return false
 
+Template.puzzle_info.helpers
+   tag: (name) -> (model.getTag this, name) or ''
+
 Template.puzzle.helpers
-  tag: (name) -> (model.getTag this, name) or ''
   data: ->
     r = {}
     r.type = Session.get('type')
@@ -50,7 +55,7 @@ Template.puzzle.helpers
   currentViewIs: (view) -> currentViewIs @puzzle, view
 
 Template.header_breadcrumb_extra_links.helpers
-  currentViewIs: (view) -> currentViewIs @puzzle, view
+  currentViewIs: (view) -> currentViewIs this, view
 
 Template.puzzle.onCreated ->
   $('html').addClass('fullHeight')
