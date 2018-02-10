@@ -2,13 +2,10 @@
 model = share.model # import
 settings = share.settings # import
 
-GENERAL_ROOM = 'Ringhunters'
+GENERAL_ROOM = 'Loopfinders'
 
 Session.setDefault
   room_name: 'general/0'
-  nick:      ($.cookie("nick") || "")
-  mute:      !!$.cookie("mute")
-  nobot:     !!$.cookie("nobot")
   type:      'general'
   id:        '0'
   timestamp: 0
@@ -50,24 +47,33 @@ messagesForPage = (p, opts={}) ->
     timestamp: cond
   , opts
 
-isFollowup = (former, latter) ->
-  return false unless former?.classList?.contains("media")
-  return false unless latter.classList.contains("media")
-  return false unless former.dataset.nick == latter.dataset.nick
-  if former.classList.contains("bb-message-pm")
-    return false unless latter.classList.contains("bb-message-pm")
-    return false unless former.dataset.pmTo == latter.dataset.pmTo
+# compare to: computeMessageFollowup in lib/model.coffee
+computeMessageFollowup = (prev, curr) ->
+  return false unless prev?.classList?.contains("media")
+  return false unless prev.dataset.nick == curr.dataset.nick
+  for c in ['bb-message-pm','bb-message-action','bb-message-system','bb-oplog']
+    return false unless prev.classList.contains(c) is curr.classList.contains(c)
+  return false unless prev.dataset.pmTo == curr.dataset.pmTo
   return true
 
-effectFollowup = (former, latter) ->
-  console.log former, latter
-  return unless latter?.classList?
-  if isFollowup(former, latter)
-    console.log "#{latter} is followup of #{former}"
-    latter.classList.add("bb-message-followup")
+assignMessageFollowup = (curr, prev) ->
+  return prev unless curr instanceof Element
+  return curr unless curr.classList.contains('media')
+  if prev is undefined
+    prev = curr.previousElementSibling
+  if prev?
+    prev = prev.previousElementSibling unless prev instanceof Element
+  if computeMessageFollowup(prev, curr)
+    curr.classList.add("bb-message-followup")
   else
-    console.log "#{latter} is not followup of #{former}"
-    latter.classList.remove("bb-message-followup")
+    curr.classList.remove("bb-message-followup")
+  return curr
+
+assignMessageFollowupList = (nodeList) ->
+  prev = if nodeList.length > 0 then nodeList[0].previousElementSibling
+  for n in nodeList when n instanceof Element
+    prev = assignMessageFollowup n, prev
+  return prev
 
 # Globals
 instachat = {}
@@ -76,16 +82,14 @@ instachat["alertWhenUnreadMessages"] = false
 instachat["scrolledToBottom"]        = true
 instachat["mutationObserver"] = new MutationObserver (recs, obs) ->
   for rec in recs
-    someElement = false
-    check = (e) -> someElement = true if e instanceof Element
-    check node for node in rec.addedNodes
-    check node for node in rec.removedNodes
-    continue unless someElement
-    prevEl = rec.previousSibling?.nextSibling?.previousElementSibling
-    effectFollowup(prevEl, prevEl.nextElementSibling) if prevEl?
-    for node, i in rec.addedNodes
-      effectFollowup(node, node.nextElementSibling) if node instanceof Element
-    
+    console.log rec unless Meteor.isProduction
+    # previous element's followup status can't be affected by changes after it;
+    assignMessageFollowupList rec.addedNodes
+    nextEl = rec.nextSibling
+    if nextEl? and not (nextEl instanceof Element)
+      nextEl = nextEl.nextElementSibling
+    assignMessageFollowup nextEl
+  return
 
 # Favicon instance, used for notifications
 # (first add host to path)
@@ -93,7 +97,7 @@ favicon = badge: (-> false), reset: (-> false)
 Meteor.startup ->
   favicon = share.chat.favicon = new Favico
     animation: 'slide'
-    fontFamily: 'Droid Sans'
+    fontFamily: 'Noto Sans'
     fontStyle: '700'
 
 Template.chat.helpers
@@ -101,10 +105,58 @@ Template.chat.helpers
     type = Session.get 'type'
     type is 'general' or \
       (model.collection(type)?.findOne Session.get("id"))?
+  object: ->
+    type = Session.get 'type'
+    type isnt 'general' and \
+      (model.collection(type)?.findOne Session.get("id"))
   solved: ->
     type = Session.get 'type'
     type isnt 'general' and \
       (model.collection(type)?.findOne Session.get("id"))?.solved
+
+nickEmail = (nick) ->
+  cn = model.canonical(nick)
+  n = model.Nicks.findOne canon: cn
+  return model.getTag(n, 'Gravatar') or "#{cn}@#{settings.DEFAULT_HOST}"  
+
+Template.starred_messages.onCreated ->
+  this.autorun =>
+    this.subscribe 'starred-messages', Session.get 'room_name'
+
+Template.starred_messages.helpers
+  messages: ->
+    # It would be nice to write a concatenation cursor, but it seems overkill
+    # for the number of starred messages we're ever likely to have.
+    r = []
+    for coll in [ model.OldMessages, model.Messages ]
+      c = coll.find {room_name: (Session.get 'room_name'), starred: true },
+        sort: [['timestamp', 'asc']]
+        transform: messageTransform
+      r.push c.fetch()...
+    r
+
+Template.media_message.events
+  'click .bb-message-star.starred': (event, template) ->
+    return unless $(event.target).closest('.can-modify-star').size() > 0
+    Meteor.call 'setStarred', this._id, false
+  'click .bb-message-star:not(.starred)': (event, template) ->
+    return unless $(event.target).closest('.can-modify-star').size() > 0
+    Meteor.call 'setStarred', this._id, true
+
+
+messageTransform = (m) ->
+  _id: m._id
+  message: m
+  email: nickEmail m.nick
+  body: ->
+    body = m.body or ''
+    unless m.bodyIsHtml
+      body = UI._escape body
+      body = body.replace /\n|\r\n?/g, '<br/>'
+      body = convertURLsToLinksAndImages body, m._id
+      if doesMentionNick m
+        body = highlightNick body, m.bodyIsHtml
+    new Spacebars.SafeString(body)
 
 # Template Binding
 Template.messages.helpers
@@ -113,6 +165,16 @@ Template.messages.helpers
   ready: -> Session.equals('chatReady', true) and \
             Template.instance().subscriptionsReady()
   isLastRead: (ts) -> Session.equals('lastread', +ts)
+  usefulEnough: (m) ->
+    # test Session.get('nobot') last to get a fine-grained dependency
+    # on the `nobot` session variable only for 'useless' messages
+    myNick = reactiveLocalStorage.getItem 'nick'
+    m.nick is myNick or m.to is myNick or \
+        m.useful or \
+        (m.nick isnt 'via twitter' and m.nick isnt 'codexbot' and \
+            not m.useless_cmd) or \
+        doesMentionNick(m) or \
+        ('true' isnt reactiveLocalStorage.getItem 'nobot')
   prevTimestamp: ->
     p = pageForTimestamp Session.get('room_name'), +Session.get('timestamp')
     return unless p?.from
@@ -125,29 +187,15 @@ Template.messages.helpers
     "/chat/#{p.room_name}/#{p.to}"
   messages: ->
     room_name = Session.get 'room_name'
-    nick = model.canonical(Session.get('nick') or '')
+    # I will go out on a limb and say we need this because transform uses
+    # doesMentionNick and transforms aren't usually reactive, so we need to
+    # recompute them if you log in as someone else.
+    reactiveLocalStorage.getItem 'nick'
     p = pageForTimestamp room_name, +Session.get('timestamp')
     return messagesForPage p,
       sort: [['timestamp','asc']]
-      transform: (m) ->
-        _id: m._id
-        message: m
-        isBot: m.nick is 'codexbot' and m.to is null
-
-  email: ->
-    cn = model.canonical(this.message.nick)
-    n = model.Nicks.findOne canon: cn
-    return model.getTag(n, 'Gravatar') or "#{cn}@#{settings.DEFAULT_HOST}"
-  body: ->
-    body = this.message.body or ''
-    unless this.message.bodyIsHtml
-      body = UI._escape(body)
-      body = body.replace(/\n|\r\n?/g, '<br/>')
-      body = convertURLsToLinksAndImages(body, this.message._id)
-    if doesMentionNick(this.message)
-      body = highlightNick(body, this.message.bodyIsHtml)
-    new Spacebars.SafeString(body)
-
+      transform: messageTransform
+      
 selfScroll = null
 
 touchSelfScroll = ->
@@ -172,10 +220,10 @@ Template.messages.onCreated ->
     room_name = Session.get 'room_name'
     return unless room_name
     this.subscribe 'presence-for-room', room_name
-    nick = (if settings.BB_DISABLE_PM then null else Session.get 'nick') or null
-    # re-enable private messages, but just in ringhunters (for codexbot)
+    nick = if settings.BB_DISABLE_PM then null else (reactiveLocalStorage.getItem 'nick') or null
+    # re-enable private messages, but just in loopfinders (for codexbot)
     if settings.BB_DISABLE_PM and room_name is "general/0"
-      nick = (Session.get 'nick') or null
+      nick = (reactiveLocalStorage.getItem 'nick') or null
     timestamp = (+Session.get('timestamp'))
     p = pageForTimestamp room_name, timestamp, {subscribe: this}
     return unless p? # wait until page information is loaded
@@ -198,9 +246,16 @@ Template.messages.onCreated ->
     Tracker.onInvalidate invalidator
 
 Template.messages.onRendered ->
+  chatBottom = document.getElementById('chat-bottom')
+  if window.IntersectionObserver and chatBottom?
+    instachat.bottomObserver = new window.IntersectionObserver (entries) ->
+      return if selfScroll?
+      instachat.scrolledToBottom = entries[0].isIntersecting
+    instachat.bottomObserver.observe(chatBottom)
   if settings.FOLLOWUP_STYLE is "js"
+    # observe future changes
     $("#messages").each ->
-      console.log "Observing #{this}"
+      console.log "Observing #{this}" unless Meteor.isProduction
       instachat.mutationObserver.observe(this, {childList: true})
 
 whos_here_helper = ->
@@ -215,7 +270,7 @@ Template.chat_header.helpers
 
 regex_escape = (s) -> s.replace /[$-\/?[-^{|}]/g, '\\$&'
 
-doesMentionNick = (doc, raw_nick=(Session.get 'nick')) ->
+doesMentionNick = (doc, raw_nick=(reactiveLocalStorage.getItem 'nick')) ->
   return false unless raw_nick
   return false unless doc.body?
   return false if doc.system # system messages don't count as mentions
@@ -318,23 +373,15 @@ scrollMessagesView = ->
 # Event Handlers
 ['mute','nobot'].forEach (btn) ->
   $(document).on 'click', "button.#{btn}", ->
-    if Session.get btn
-      $.removeCookie btn, {path:'/'}
-    else
-      $.cookie btn, true, {expires: 365, path: '/'}
+    reactiveLocalStorage.setItem btn, 'true' isnt reactiveLocalStorage.getItem btn
 
-    Session.set btn, !!$.cookie btn
-Tracker.autorun ->
-  if Session.equals('nobot', true)
-    document.documentElement.classList.add('bb-nobot')
-  else
-    document.documentElement.classList.remove('bb-nobot')
-  touchSelfScroll() # ignore scroll event generated by CSS relayout
-  maybeScrollMessagesView()
+    if btn is 'nobot'
+      touchSelfScroll() # ignore scroll event generated by CSS relayout
+      maybeScrollMessagesView()
 
 # ensure that we stay stuck to bottom even after images load
 imageScrollHack = window.imageScrollHack = ->
-  console.log "#{event.type} event, suppressing scroll (at bottom=#{instachat.scrolledToBottom})"
+  console.log "#{event.type} event, suppressing scroll (at bottom=#{instachat.scrolledToBottom})" unless Meteor.isProduction
   touchSelfScroll() # ignore scroll event generated by image resize
   maybeScrollMessagesView()
 # note that image load does not delegate, so we can't use it here in
@@ -344,6 +391,7 @@ $(document).on 'mouseenter', '.bb-message-body .inline-image', imageScrollHack
 # unstick from bottom if the user manually scrolls
 $(window).scroll (event) ->
   return unless Session.equals('currentPage', 'chat')
+  return if instachat.bottomObserver
   #console.log if selfScroll? then 'Self scroll' else 'External scroll'
   return maybeScrollMessagesView() if selfScroll?
   # set to false, just in case older browser doesn't have scroll properties
@@ -357,9 +405,10 @@ $(window).scroll (event) ->
   # firefox says that the HTML element is scrolling, not the body element...
   if html.scrollTopMax?
     atBottom = (html.scrollTop+SLOP >= (html.scrollTopMax-1)) or atBottom
-  console.log 'Scroll debug:', 'atBottom', atBottom, 'scrollPos', scrollPos, 'scrollMax', scrollMax
-  console.log ' body scrollTop', body.scrollTop, 'scrollTopMax', body.scrollTopMax, 'scrollHeight', body.scrollHeight, 'clientHeight', body.clientHeight
-  console.log ' html scrollTop', html.scrollTop, 'scrollTopMax', html.scrollTopMax, 'scrollHeight', html.scrollHeight, 'clientHeight', html.clientHeight
+  unless Meteor.isProduction
+    console.log 'Scroll debug:', 'atBottom', atBottom, 'scrollPos', scrollPos, 'scrollMax', scrollMax
+    console.log ' body scrollTop', body.scrollTop, 'scrollTopMax', body.scrollTopMax, 'scrollHeight', body.scrollHeight, 'clientHeight', body.clientHeight
+    console.log ' html scrollTop', html.scrollTop, 'scrollTopMax', html.scrollTopMax, 'scrollHeight', html.scrollHeight, 'clientHeight', html.clientHeight
   instachat.scrolledToBottom = atBottom
 
 # Form Interceptors
@@ -381,13 +430,10 @@ $(document).on 'submit', '#joinRoom', ->
       $("#roomName").val prettyRoomName()
   return false
 
-Template.messages_input.helpers
-  hasNick: -> Session.get('nick') or false
-
 Template.messages_input.submit = (message) ->
   return unless message
   args =
-    nick: Session.get 'nick'
+    nick: reactiveLocalStorage.getItem 'nick'
     room_name: Session.get 'room_name'
     body: message
   [word1, rest] = message.split(/\s+([^]*)/, 2)
@@ -420,7 +466,7 @@ Template.messages_input.submit = (message) ->
       args.to = args.nick
       args.action = true
       return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
-        if (not result?) and /^ringhunters$/i.test(rest.trim())
+        if (not result?) and /^loopfinders$/i.test(rest.trim())
           result = {type:'general',object:_id:'0'}
         if error? or not result?
           args.body = "tried to join an unknown chat room"
@@ -435,6 +481,9 @@ Template.messages_input.submit = (message) ->
       while rest
         n = model.Nicks.findOne canon: model.canonical(to)
         break if n
+        if to is 'bot' # allow 'bot' as a shorthand for 'codexbot'
+          to = 'codexbot'
+          continue
         [extra, rest] = rest.split(/\s+([^]*)/, 2)
         to += ' ' + extra
       if n
@@ -464,23 +513,28 @@ Template.messages_input.events
       $message = $ event.currentTarget
       message = $message.val()
       if message
+        re = new RegExp "^#{regex_escape message}", "i"
         for present in whos_here_helper().fetch()
           n = model.Nicks.findOne(canon: present.nick)
           realname = if n then model.getTag(n, 'Real Name')
-          re = new RegExp "^#{message}", "i"
           if re.test present.nick
-            $message.val "#{present.nick}: "
+            return $message.val "#{present.nick}: "
           else if realname and re.test realname
-            $message.val "#{realname}: "
+            return $message.val "#{realname}: "
           else if re.test "@#{present.nick}"
-            $message.val "@#{present.nick} "
+            return $message.val "@#{present.nick} "
           else if realname and re.test "@#{realname}"
-            $message.val "@#{realname} "
+            return $message.val "@#{realname} "
           else if re.test("/m #{present.nick}") or \
                   re.test("/msg #{present.nick}") or \
                   realname and (re.test("/m #{realname}") or \
                                 re.test("/msg #{realname}"))
-            $message.val "/msg #{present.nick} "
+            return $message.val "/msg #{present.nick} "
+        if re.test('bot')
+          return $message.val 'codexbot '
+        if re.test('/m bot') or re.test('/msg bot')
+          return $message.val '/msg codexbot '
+
     # implicit submit on enter (but not shift-enter or ctrl-enter)
     return unless event.which is 13 and not (event.shiftKey or event.ctrlKey)
     event.preventDefault() # prevent insertion of enter
@@ -506,7 +560,7 @@ updateLastRead = ->
     room_name: Session.get 'room_name'
   ,
     sort: [['timestamp','desc']]
-  nick = Session.get 'nick'
+  nick = reactiveLocalStorage.getItem 'nick'
   return unless lastMessage and nick
   Meteor.call 'updateLastRead',
     nick: nick
@@ -524,7 +578,9 @@ Template.chat.onCreated ->
 
 Template.chat.onRendered ->
   $(window).resize()
-  share.ensureNick ->
+  @autorun ->
+    nick = reactiveLocalStorage.getItem 'nick'
+    return unless nick
     type = Session.get('type')
     id = Session.get('id')
     joinRoom type, id
@@ -532,9 +588,10 @@ Template.chat.onRendered ->
 startupChat = ->
   return if instachat.keepaliveInterval?
   instachat.keepalive = ->
-    return unless Session.get('nick')
+    nick = reactiveLocalStorage.getItem 'nick'
+    return unless nick
     Meteor.call "setPresence",
-      nick: Session.get('nick')
+      nick: nick
       room_name: Session.get "room_name"
       present: true
       foreground: isVisible() # foreground/background tab status
@@ -547,13 +604,15 @@ startupChat = ->
 cleanupChat = ->
   try
     favicon.reset()
-  instachat.mutationObserver.disconnect()
+  instachat.mutationObserver?.disconnect()
+  instachat.bottomObserver?.disconnect()
   if instachat.keepaliveInterval?
     Meteor.clearInterval instachat.keepaliveInterval
     instachat.keepalive = instachat.keepaliveInterval = undefined
-  if Session.get('nick') and false # causes bouncing. just let it time out.
+  nick = reactiveLocalStorage.getItem 'nick'
+  if nick and false # causes bouncing. just let it time out.
     Meteor.call "setPresence",
-      nick: Session.get('nick')
+      nick: nick
       room_name: Session.get "room_name"
       present: false
 
@@ -572,7 +631,7 @@ updateNotice = do ->
   [lastUnread, lastMention] = [0, 0]
   (unread, mention) ->
     if mention > lastMention and instachat.ready
-      instachat.messageMentionSound?.play?() unless Session.get "mute"
+      instachat.messageMentionSound?.play?() unless 'true' is reactiveLocalStorage.getItem 'mute'
     # update title and favicon
     if mention > 0
       favicon.badge mention, {bgColor: '#00f'} if mention != lastMention
@@ -583,7 +642,7 @@ updateNotice = do ->
 
 Tracker.autorun ->
   pageWithChat = /^(chat|puzzle|round)$/.test Session.get('currentPage')
-  nick = model.canonical(Session.get('nick') or '')
+  nick = model.canonical((reactiveLocalStorage.getItem 'nick') or '')
   room_name = Session.get 'room_name'
   unless pageWithChat and nick and room_name
     Session.set 'lastread', undefined
@@ -642,6 +701,7 @@ share.chat =
   cleanupChat: cleanupChat
   hideMessageAlert: hideMessageAlert
   joinRoom: joinRoom
+  nickEmail: nickEmail
   # pagination helpers
   pageForTimestamp: pageForTimestamp
   messagesForPage: messagesForPage

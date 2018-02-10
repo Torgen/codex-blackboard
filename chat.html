@@ -2,10 +2,19 @@
 
   {{> messages}}
 
-  {{#if ready}}
+  {{#if object}}
+    {{#with object}}
+      {{> puzzle_callin_modal}}
+      {{> puzzle_summon_modal}}
+    {{/with}}
   <div class="bb-chat-callin {{#if solved}}solved{{/if}}">
     {{#if solved}}Solved
-    {{else}}{{> puzzle_callin_modal}}{{/if}}
+    {{else}}
+      {{#with object}}
+        {{> puzzle_callin_button}}
+        {{> puzzle_summon_button}}
+      {{/with}}
+    {{/if}}
   </div>
   {{/if}}
   <div class="navbar navbar-inverse navbar-fixed-bottom bb-chat-footer">
@@ -37,7 +46,7 @@
 </template>
 
 <template name="messages_input">
-      {{#if hasNick}}
+      {{#if mynick}}
       <form id="messageForm" class="navbar-form">
         <textarea id="messageInput" class="input-block-level" rows="1"
                placeholder="Type your message and press enter..."
@@ -46,9 +55,38 @@
       {{/if}}
 </template>
 
+<template name="starred_messages">
+  {{#if messages}}
+  <div class="bb-chat-messages bb-starred-messages {{#if canModify}}can-modify-star{{/if}}">
+    <h3>Starred Messages</h3>
+    {{#each messages}}
+      {{> media_message }}
+    {{/each}}
+  </div>
+  {{/if}}
+</template>
+
+<template name="media_message">
+<div class="media{{#if message.to}} bb-message-pm{{/if}}" data-nick="{{message.nick}}" data-pm-to="{{message.to}}">
+  {{gravatar id=email image="wavatar" size=48 classes="media-object pull-left img-rounded" }}
+  <div class="media-body bb-message-body">
+    <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
+    {{#unless message.to}}
+      {{! can't star a PM. }}
+      <div class="bb-message-star {{#if message.starred}}starred{{/if}}"></div>
+    {{/unless}}
+    <h5 class="media-heading"><span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span>
+          {{#if message.to}}
+    <small>(Private message to {{nickOrName message.to}})</small>
+          {{/if}}
+    </h5>
+    {{body}}
+  </div> 
+</div>  
+</template>
 
 <template name="messages">
-  <div id="messages" class="row-fluid bb-chat-messages">
+  <div id="messages" class="row-fluid bb-chat-messages {{#if mynick}}can-modify-star{{/if}}">
     {{#if ready}}{{#if prevTimestamp}}
       <p align="center">
         <a href="{{prevTimestamp}}" class="chat-link">See earlier messages</a>
@@ -58,7 +96,7 @@
     {{/if}}{{/if}}
     {{#each messages}}{{scrollHack}}
       {{#if message.presence}}
-<div class="bb-message-presence {{message.presence}}" title="{{body}}" data-nick="{{message.nick}}">
+<div class="bb-message-presence {{message.presence}}" title={{body}}>
   {{gravatar id=email image="wavatar" size=14 }}{{message.nick}}
 </div>
       {{else if message.system}}
@@ -66,25 +104,16 @@
    <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
      {{body}}
 </div>
-      {{else if message.action}}
+      {{else if usefulEnough message}}
+        {{# if message.action}}
 <div class="bb-message-action" data-nick="{{message.nick}}">
    <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
      <i class="icon-hand-right"></i>
      <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{body}}
 </div>
-      {{else}}
-<div class="media{{#if message.to}} bb-message-pm{{/if}}{{#if isBot}} bb-is-bot{{/if}}" data-nick="{{message.nick}}" data-pm-to="{{message.to}}">
-  {{gravatar id=email image="wavatar" size=48 classes="media-object pull-left img-rounded" }}
-  <div class="media-body bb-message-body">
-    <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
-    <h5 class="media-heading"><span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span>
-    {{#if message.to}}
-    <small>(Private message to {{nickOrName message.to}})</small>
-    {{/if}}
-    </h5>
-    {{body}}
-  </div>
-</div>
+        {{else}}
+          {{> media_message }}
+        {{/if}}
       {{/if}}
       {{#if isLastRead message.timestamp}}
 <div class="bb-message-last-read">read</div>
@@ -106,7 +135,8 @@ No chat messages{{#if timestamp}} before {{pretty_ts timestamp}}{{/if}}.
       {{/if}}
       <a href="/chat/{{room_name}}" class="chat-link">See most recent logs</a>
       </p>
+    {{/if}}{{/if}}
     {{! Ensure there's always a small "last-child" here to scroll to.}}
-    {{else}}<p></p>{{/if}}{{else}}<p></p>{{/if}}
+    <p id=chat-bottom></p>
   </div>
 </template>

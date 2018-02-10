@@ -34,6 +34,7 @@ DO_BATCH_PROCESSING = do ->
   return false if Meteor.isClient
   return !(Meteor.settings.disableBatch ? process.env.DISABLE_BATCH_PROCESSING)
 
+emojify = (s) -> share.emojify?(s) or s
 
 # helper function: like _.throttle, but always ensures `wait` of idle time
 # between invocations.  This ensures that we stay chill even if a single
@@ -278,20 +279,26 @@ if DO_BATCH_PROCESSING
 #   system: boolean (true for system messages, false for user messages)
 #   action: boolean (true for /me commands)
 #   oplog:  boolean (true for semi-automatic operation log message)
-#   botI_inore: optional boolean (true for messages from e.g. email or twitter)
 #   presence: optional string ('join'/'part' for presence-change only)
+#   bot_ignore: optional boolean (true for messages from e.g. email or twitter)
 #   to:   destination of pm (optional)
+#   starred: boolean. Pins this message to the top of the puzzle page or blackboard.
 #   room_name: "<type>/<id>", ie "puzzle/1", "round/1".
 #                             "general/0" for main chat.
 #                             "oplog/0" for the operation log.
 #   timestamp: timestamp
+#   useful: boolean (true for useful responses from bots; not set for "fun"
+#                    bot messages and commands that trigger them.)
+#   useless_cmd: boolean (true if this message triggered the bot to
+#                         make a not-useful response)
 #
 # Messages which are part of the operation log have `nick`, `message`,
 # and `timestamp` set to describe what was done, when, and by who.
 # They have `system=false`, `action=true`, `oplog=true`, `to=null`,
-# and `room_name="oplog/0"`.  They also have two additional fields,
+# and `room_name="oplog/0"`.  They also have three additional fields:
 # `type` and `id`, which give a mongodb reference to the object
-# modified so we can hyperlink to it.
+# modified so we can hyperlink to it, and stream, which maps to the
+# JS Notification API 'tag' for deduping and selective muting.
 Messages = BBCollection.messages = new Mongo.Collection "messages"
 OldMessages = BBCollection.oldmessages = new Mongo.Collection "oldmessages"
 if DO_BATCH_PROCESSING
@@ -300,6 +307,7 @@ if DO_BATCH_PROCESSING
     M._ensureIndex {nick:1, room_name:1, timestamp:-1}, {}
     M._ensureIndex {room_name:1, timestamp:-1}, {}
     M._ensureIndex {room_name:1, timestamp:1}, {}
+    M._ensureIndex {room_name:1, starred: -1, timestamp: 1}, {}
 
 # Pages -- paging metadata for Messages collection
 #   from: timestamp (first page has from==0)
@@ -465,6 +473,10 @@ pretty_collection = (type) ->
 getTag = (object, name) ->
   (tag.value for tag in (object?.tags or []) when tag.canon is canonical(name))[0]
 
+
+isStuck = (object) ->
+  object? and /^stuck\b/i.test(getTag(object, 'Status') or '')
+
 # canonical names: lowercases, all non-alphanumerics replaced with '_'
 canonical = (s) ->
   s = s.toLowerCase().replace(/^\s+/, '').replace(/\s+$/, '') # lower, strip
@@ -529,7 +541,7 @@ doc_id_to_link = (id) ->
         check o[k], pattern[k]
       true
 
-  oplog = (message, type="", id="", who="") ->
+  oplog = (message, type="", id="", who="", stream="") ->
     Messages.insert
       room_name: 'oplog/0'
       nick: canonical(who)
@@ -539,9 +551,11 @@ doc_id_to_link = (id) ->
       type:type
       id:id
       oplog: true
+      followup: true
       action: true
       system: false
       to: null
+      stream: stream
 
   newObject = (type, args, extra, options={}) ->
     check args, ObjectWith
@@ -566,7 +580,9 @@ doc_id_to_link = (id) ->
         return collection(type).findOne({canon:canonical(args.name)})
       throw error # something went wrong, who knows what, pass it on
     unless options.suppressLog
-      oplog "Added", type, object._id, args.who
+      oplog "Added", type, object._id, args.who, \
+          if type in ['puzzles', 'rounds', 'roundgroups'] \
+              then 'new-puzzles' else ''
     return object
 
   renameObject = (type, args, options={}) ->
@@ -604,58 +620,58 @@ doc_id_to_link = (id) ->
     return true
 
   setTagInternal = (args) ->
-      check args, ObjectWith
-        type: ValidType
-        object: IdOrObject
-        name: NonEmptyString
-        value: Match.Any
-        who: NonEmptyString
-        now: Number
-      id = args.object._id or args.object
-      now = args.now
-      canon = canonical(args.name)
-      loop
-        tags = collection(args.type).findOne(id).tags
-        # remove existing value for tag, if present
-        ntags = (tag for tag in tags when tag.canon isnt canon)
-        # add new tag, but keep tags sorted
-        ntags.push
-          name:args.name
-          canon:canon
-          value:args.value
-          touched: now
-          touched_by: canonical(args.who)
-        ntags.sort (a, b) -> (a?.canon or "").localeCompare (b?.canon or "")
-        # update the tag set only if there wasn't a race
-        numchanged = collection(args.type).update { _id: id, tags: tags }, $set:
-          tags: ntags
-          touched: now
-          touched_by: canonical(args.who)
-        # try again if this update failed due to a race (server only)
-        break unless Meteor.isServer and numchanged is 0
-      return true
+    check args, ObjectWith
+      type: ValidType
+      object: IdOrObject
+      name: NonEmptyString
+      value: Match.Any
+      who: NonEmptyString
+      now: Number
+    id = args.object._id or args.object
+    now = args.now
+    canon = canonical(args.name)
+    loop
+      tags = collection(args.type).findOne(id).tags
+      # remove existing value for tag, if present
+      ntags = (tag for tag in tags when tag.canon isnt canon)
+      # add new tag, but keep tags sorted
+      ntags.push
+        name:args.name
+        canon:canon
+        value:args.value
+        touched: now
+        touched_by: canonical(args.who)
+      ntags.sort (a, b) -> (a?.canon or "").localeCompare (b?.canon or "")
+      # update the tag set only if there wasn't a race
+      numchanged = collection(args.type).update { _id: id, tags: tags }, $set:
+        tags: ntags
+        touched: now
+        touched_by: canonical(args.who)
+      # try again if this update failed due to a race (server only)
+      break unless Meteor.isServer and numchanged is 0
+    return true
 
   deleteTagInternal = (args) ->
-      check args, ObjectWith
-        type: ValidType
-        object: IdOrObject
-        name: NonEmptyString
-        who: NonEmptyString
-        now: Number
-      id = args.object._id or args.object
-      now = args.now
-      canon = canonical(args.name)
-      loop
-        tags = collection(args.type).findOne(id).tags
-        ntags = (tag for tag in tags when tag.canon isnt canon)
-        # update the tag set only if there wasn't a race
-        numchanged = collection(args.type).update { _id: id, tags: tags }, $set:
-          tags: ntags
-          touched: now
-          touched_by: canonical(args.who)
-        # try again if this update failed due to a race (server only)
-        break unless Meteor.isServer and numchanged is 0
-      return true
+    check args, ObjectWith
+      type: ValidType
+      object: IdOrObject
+      name: NonEmptyString
+      who: NonEmptyString
+      now: Number
+    id = args.object._id or args.object
+    now = args.now
+    canon = canonical(args.name)
+    loop
+      tags = collection(args.type).findOne(id).tags
+      ntags = (tag for tag in tags when tag.canon isnt canon)
+      # update the tag set only if there wasn't a race
+      numchanged = collection(args.type).update { _id: id, tags: tags }, $set:
+        tags: ntags
+        touched: now
+        touched_by: canonical(args.who)
+      # try again if this update failed due to a race (server only)
+      break unless Meteor.isServer and numchanged is 0
+    return true
 
   newDriveFolder = (type, id, name) ->
     check type, NonEmptyString
@@ -893,13 +909,31 @@ doc_id_to_link = (id) ->
         backsolve: !!args.backsolve
         provided: !!args.provided
       , {suppressLog:true}
-      Meteor.call 'newMessage',
-        body: "is requesting a call-in for #{args.answer.toUpperCase()}" + \
-          (if args.notifyGeneral then " (#{name})" else "") + provided + backsolve
+      body = (opts) ->
+        "is requesting a call-in for #{args.answer.toUpperCase()}" + \
+        (if opts?.specifyPuzzle then " (#{name})" else "") + provided + backsolve
+      msg =
         action: true
         nick: args.who
-        room_name: if args.notifyGeneral then null else "#{args.type}/#{id}"
-      oplog "New answer #{args.answer} submitted for", args.type, id, args.who
+      # send to the general chat
+      msg.body = body(specifyPuzzle: true)
+      unless args?.suppressRoom is "general/0"
+        Meteor.call 'newMessage', msg
+      # send to the puzzle chat
+      msg.body = body(specifyPuzzle: false)
+      msg.room_name = "#{args.type}/#{id}"
+      unless args?.suppressRoom is msg.room_name
+        Meteor.call 'newMessage', msg
+      # send to the round chat
+      if args.type is "puzzles"
+        round = Rounds.findOne({puzzles: id})
+        if round?
+          msg.body = body(specifyPuzzle: true)
+          msg.room_name = "rounds/#{round._id}"
+          unless args?.suppressRoom is msg.room_name
+            Meteor.call "newMessage", msg
+      oplog "New answer #{args.answer} submitted for", args.type, id, \
+          args.who, 'callins'
 
     newQuip: (args) ->
       check args, ObjectWith
@@ -1009,7 +1043,8 @@ doc_id_to_link = (id) ->
       callin = CallIns.findOne(args.id)
       throw new Meteor.Error(400, "bad callin") unless callin
       unless args.suppressLog
-        oplog "Canceled call-in of #{callin.answer} for", callin.type, callin.target, args.who
+        oplog "Canceled call-in of #{callin.answer} for", callin.type, \
+            callin.target, args.who
       deleteObject "callins",
         id: args.id
         who: args.who
@@ -1059,15 +1094,43 @@ doc_id_to_link = (id) ->
         to: canonical(args.to or "") or null
         room_name: args.room_name or "general/0"
         timestamp: UTCNow()
+        useful: args.useful or false
+        useless_cmd: args.useless_cmd or false
+      if args.oplog
+        newMsg.oplog = newMsg.action = newMsg.followup = true
+        newMsg.room_name = 'oplog/0'
+        newMsg.stream = args.stream or ''
+      # translate emojis!
+      newMsg.body = emojify newMsg.body unless newMsg.bodyIsHtml
       # update the user's 'last read' message to include this one
       # (doing it here allows us to use server timestamp on message)
-      unless (args.suppressLastRead or newMsg.system or (not newMsg.nick))
+      unless (args.suppressLastRead or newMsg.system or newMsg.oplog or (not newMsg.nick))
         Meteor.call 'updateLastRead',
           nick: newMsg.nick
           room_name: newMsg.room_name
           timestamp: newMsg.timestamp
       newMsg._id = Messages.insert newMsg
       return newMsg
+
+    setStarred: (id, starred) ->
+      check id, NonEmptyString
+      check starred, Boolean
+      # Entirely premature optimization: if starring a message, assume it's
+      # recent; if unstarring, assume it's old.
+      if starred
+        colls = [ Messages, OldMessages]
+      else
+        colls = [ OldMessages, Messages ]
+      for coll in colls
+        num = coll.update (
+          _id: id
+          to: null
+          system: $in: [false, null]
+          action: $in: [false, null]
+          oplog: $in: [false, null]
+          presence: null
+        ), $set: {starred: starred or null}
+        return if num > 0
 
     updateLastRead: (args) ->
       check args, ObjectWith
@@ -1197,6 +1260,15 @@ doc_id_to_link = (id) ->
           target: args.object
           answer: args.value
           who: args.who
+      if canonical(args.name) is 'status'
+        return Meteor.call (if args.value then "summon" else "unsummon"),
+          type: args.type
+          object: args.object
+          value: args.value
+          who: args.who
+      if canonical(args.name) is 'link'
+        args.fields = { link: args.value }
+        return Meteor.call 'setField', args
       args.now = UTCNow() # don't let caller lie about the time
       return setTagInternal args
 
@@ -1209,8 +1281,90 @@ doc_id_to_link = (id) ->
           type: args.type
           target: args.object
           who: args.who
+      if canonical(args.name) is 'status'
+        return Meteor.call 'unsummon',
+          type: args.type
+          object: args.object
+          who: args.who
+      if canonical(args.name) is 'link'
+        args.fields = { link: null }
+        return Meteor.call 'setField', args
       args.now = UTCNow() # don't let caller lie about the time
       return deleteTagInternal args
+
+    summon: (args) ->
+      check args, ObjectWith
+        object: IdOrObject
+        type: ValidAnswerType
+        who: NonEmptyString
+        how: Match.Optional(NonEmptyString)
+      id = args.object._id or args.object
+      obj = collection(args.type).findOne id
+      if not obj?
+        return "Couldn't find #{pretty_collection args.type} #{id}"
+      if obj.solved
+        return "#{pretty_collection args.type} #{obj.name} is already answered"
+      wasStuck = isStuck obj
+      how = args.how or 'Stuck'
+      setTagInternal
+        object: id
+        type: args.type
+        name: 'Status'
+        value: how
+        who: args.who
+        now: UTCNow()
+      if wasStuck
+        return
+      oplog "Help requested for", args.type, id, args.who, 'stuck'
+      body = "has requested help: #{how}"
+      Meteor.call 'newMessage',
+        nick: args.who
+        action: true
+        body: body
+        room_name: "#{args.type}/#{id}"
+      objUrl = # see Router.urlFor
+        Meteor._relativeToSiteRootUrl "/#{args.type}/#{id}"
+      body = "has requested help: #{UI._escape how} (#{pretty_collection args.type} <a class=\"#{UI._escape args.type}-link\" href=\"#{objUrl}\">#{UI._escape obj.name}</a>)"
+      Meteor.call 'newMessage',
+        nick: args.who
+        action: true
+        bodyIsHtml: true
+        body: body
+      return
+
+    unsummon: (args) ->
+      check args, ObjectWith
+        object: IdOrObject
+        type: ValidAnswerType
+        who: NonEmptyString
+      id = args.object._id or args.object
+      obj = collection(args.type).findOne id
+      if not obj?
+        return "Couldn't find #{pretty_collection args.type} #{id}"
+      if not (isStuck obj)
+        return "#{pretty_collection args.type} #{obj.name} isn't stuck"
+      oplog "Help request cancelled for", args.type, id, args.who
+      sticker = (tag.touched_by for tag in obj.tags when tag.canon is 'status')?[0] or 'nobody'
+      deleteTagInternal
+        object: id
+        type: args.type
+        name: 'status'
+        who: args.who
+        now: UTCNow()
+      body = "has arrived to help"
+      if canonical(args.who) is sticker
+        body = "no longer needs help getting unstuck"
+      Meteor.call 'newMessage',
+        nick: args.who
+        action: true
+        body: body
+        room_name: "#{args.type}/#{id}"
+      body = "#{body} in #{pretty_collection args.type} #{obj.name}"
+      Meteor.call 'newMessage',
+        nick: args.who
+        action: true
+        body: body
+      return
 
     addRoundToGroup: (args) ->
       check args, ObjectWith
@@ -1306,6 +1460,12 @@ doc_id_to_link = (id) ->
         value: args.answer
         who: args.who
         now: now
+      deleteTagInternal
+        type: args.type
+        object: args.target
+        name: 'status'
+        who: args.who
+        now: now
       if args.backsolve
         setTagInternal
           type: args.type
@@ -1327,7 +1487,7 @@ doc_id_to_link = (id) ->
         solved_by: canonical(args.who)
         touched: now
         touched_by: canonical(args.who)
-      oplog "Found an answer to", args.type, id, args.who
+      oplog "Found an answer (#{args.answer.toUpperCase()}) to", args.type, id, args.who, 'answers'
       # cancel any entries on the call-in queue for this puzzle
       for c in CallIns.find(type: args.type, target: id).fetch()
         Meteor.call 'cancelCallIn',
@@ -1350,14 +1510,15 @@ doc_id_to_link = (id) ->
       target = collection(args.type).findOne(id)
       throw new Meteor.Error(400, "bad target") unless target
       collection(args.type).update id, $push:
-         incorrectAnswers:
+        incorrectAnswers:
           answer: args.answer
           timestamp: UTCNow()
           who: args.who
           backsolve: !!args.backsolve
           provided: !!args.provided
 
-      oplog "Incorrect answer #{args.answer} for", args.type, id, args.who
+      oplog "reports incorrect answer #{args.answer} for", args.type, id, args.who, \
+          'callins'
       # cancel any matching entries on the call-in queue for this puzzle
       for c in CallIns.find(type: args.type, target: id, answer: args.answer).fetch()
         Meteor.call 'cancelCallIn',
@@ -1403,6 +1564,16 @@ doc_id_to_link = (id) ->
       return unless Meteor.isServer
       # Return special folder used for uploads to general Ringhunters chat
       return share.drive.ringhuntersFolder
+
+    # if a round/puzzle folder gets accidentally deleted, this can be used to
+    # manually re-create it.
+    fixPuzzleFolder: (args) ->
+      check args, ObjectWith
+        type: ValidType
+        object: IdOrObject
+        name: NonEmptyString
+      id = args.object._id or args.object
+      newDriveFolder args.type, id, args.name
 )()
 
 UTCNow = -> Date.now()
@@ -1432,6 +1603,7 @@ share.model =
   collection: collection
   pretty_collection: pretty_collection
   getTag: getTag
+  isStuck: isStuck
   canonical: canonical
   drive_id_to_link: drive_id_to_link
   spread_id_to_link: spread_id_to_link

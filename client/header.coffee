@@ -39,7 +39,7 @@ Template.registerHelper 'link', (args) ->
   link += '</a>'
   return new Spacebars.SafeString(link)
 
-$(document).on 'click', 'a.puzzles-link, a.rounds-link, a.chat-link, a.home-link, a.oplogs-link, a.quips-link', (event) ->
+$(document).on 'click', 'a.puzzles-link, a.rounds-link, a.chat-link, a.home-link, a.oplogs-link, a.quips-link, a.callins-link, a.facts-link', (event) ->
   return unless event.button is 0 # check right-click
   return if event.ctrlKey or event.shiftKey or event.altKey # check alt/ctrl/shift clicks
   return if /^https?:/.test($(event.currentTarget).attr('href'))
@@ -80,6 +80,14 @@ Template.registerHelper 'gravatar', (args) ->
   html = $('<div>').append( g.eq(0).clone() ).html()
   return new Spacebars.SafeString(html)
 
+today_fmt = Intl.DateTimeFormat navigator.language,
+  hour: 'numeric'
+  minute: 'numeric'
+past_fmt = Intl.DateTimeFormat navigator.language,
+  hour: 'numeric'
+  minute: 'numeric'
+  weekday: 'short'
+
 # timestamps
 Template.registerHelper 'pretty_ts', (args) ->
   args = keyword_or_positional 'timestamp', args
@@ -88,14 +96,11 @@ Template.registerHelper 'pretty_ts', (args) ->
   style = (args.style or "time")
   switch (style)
     when "time"
-      d = new Date(timestamp)
-      hrs = d.getHours()
-      ampm = if hrs < 12 then 'AM' else 'PM'
-      hrs = 12 if hrs is 0
-      hrs = (hrs-12) if hrs > 12
-      min = d.getMinutes()
-      min = if min < 10 then "0" + min else min
-      hrs + ":" + min + ' ' + ampm
+      diff = (Session.get('currentTime') or model.UTCNow()) - timestamp
+      d = new Date timestamp
+      if diff > 86400000
+        return past_fmt.format d
+      today_fmt.format d
     when "duration", "brief_duration", "brief duration"
       brief = (style isnt 'duration')
       duration = (Session.get('currentTime') or model.UTCNow()) - timestamp
@@ -123,27 +128,22 @@ Template.registerHelper 'pretty_ts', (args) ->
     else
       "Unknown timestamp style: #{style}"
 
-# Scroll spy
-Template.registerHelper 'updateScrollSpy', (args) ->
-  ss = $("body").data("scrollspy")
-  ss?.refresh()
-  return ''
-
 ############## log in/protect/mute panel ####################
 Template.header_loginmute.helpers
   volumeIcon: ->
-    if Session.get "mute" then "icon-volume-off" else "icon-volume-up"
+    if 'true' is reactiveLocalStorage.getItem 'mute' then 'icon-volume-off' else 'icon-volume-up'
   volumeTitle: ->
-    if Session.get "mute" then "Muted" else "Click to mute"
+    if 'true' is reactiveLocalStorage.getItem 'mute' then 'Muted' else 'Click to mute'
   botIcon: ->
-    if Session.get "nobot" then "icon-bot-off" else "icon-bot-on"
+    if 'true' is reactiveLocalStorage.getItem 'nobot' then 'icon-bot-off' else 'icon-bot-on'
+  connectStatus: Meteor.status
   botTitle: ->
-    if Session.get "nobot"
+    if 'true' is reactiveLocalStorage.getItem 'nobot'
       "Codexbot promises not to bother you"
     else
       "Codexbot is feeling chatty!"
   sessionNick: ->
-    nick = Session.get 'nick'
+    nick = reactiveLocalStorage.getItem 'nick'
     return nick unless nick
     n = model.Nicks.findOne canon: model.canonical(nick)
     cn = n?.canon or model.canonical(nick)
@@ -167,24 +167,74 @@ Template.header_loginmute.events
   "click .bb-logout": (event, template) ->
     event.preventDefault()
     share.chat.cleanupChat() if Session.equals('currentPage', 'chat')
-    $.removeCookie 'nick', {path:'/'}
-    Session.set
-      nick: undefined
-      canEdit: undefined
-      editing: undefined
-    if Session.equals('currentPage', 'chat')
-      ensureNick -> # login again immediately
-        share.chat.joinRoom Session.get('type'), Session.get('id')
-  "click .bb-protect, click .bb-unprotect": (event, template) ->
-    target = event.currentTarget
+    reactiveLocalStorage.removeItem 'nick'
+  "click .bb-unprotect": (event, template) ->
     ensureNick ->
-      canEdit = $(target).attr('data-canEdit') is 'true'
-      Session.set
-        canEdit: (canEdit or undefined)
-        editing: undefined # abort current edit, whatever it is
+      share.Router.navigate "/edit", {trigger: true}
+  "click .bb-protect": (event, template) ->
+    share.Router.navigate "/", {trigger: true}
+  "click .connected, click .connecting, click .waiting": (event, template) ->
+    Meteor.disconnect()
+  "click .failed, click .offline": (event, template) ->
+    Meteor.reconnect()
 
 ############## breadcrumbs #######################
+Tracker.autorun ->
+  breadcrumbs = Session.get 'breadcrumbs'
+  currentpage = Session.get 'currentPage'
+  currenttype = Session.get 'type'
+  currentid = Session.get 'id'
+  # Regenerate breadcrumbs
+  base = [{page: 'blackboard', type: 'general', id: '0'}]
+  if currenttype is 'puzzles'
+    round = model.Rounds.findOne puzzles: currentid
+    if round?
+      base.push {page: 'round', type: 'rounds', id: round._id}
+    base.push {page: 'puzzle', type: 'puzzles', id: currentid}
+  else if currenttype is 'rounds'
+    base.push {page: 'round', type: 'rounds', id: currentid}
+  else if currentpage isnt 'chat' and currentpage isnt 'blackboard'
+    base.push {page: currentpage, type: currenttype, id: currentid}
+  # If the new breadcrumbs are a prefix of the old ones, keep the old ones.
+  if breadcrumbs? and base.length <= breadcrumbs.length
+    return if do ->
+      for crumb, i in base
+        oldcrumb = breadcrumbs[i]
+        if crumb.page isnt oldcrumb.page or crumb.type isnt oldcrumb.type or crumb.id isnt oldcrumb.id
+          return false
+      return true
+  Session.set 'breadcrumbs', base
+
+Template.header_breadcrumb_chat.helpers
+  inThisRoom: ->
+    return false unless Session.equals 'currentPage', 'chat'
+    return false unless Session.equals 'type', @type
+    Session.equals 'id', @id
+
+Template.header_breadcrumb_round.onCreated ->
+  @autorun =>
+    @subscribe 'round-by-id', Template.currentData().id
+Template.header_breadcrumb_round.helpers
+  round: ->
+    model.Rounds.findOne @id if @id
+
+Template.header_breadcrumb_puzzle.onCreated ->
+  @autorun =>
+    @subscribe 'puzzle-by-id', Template.currentData().id
+    @subscribe 'round-for-puzzle', Template.currentData().id
+Template.header_breadcrumb_puzzle.helpers
+  puzzle: ->
+    model.Puzzles.findOne @id if @id
+
+Template.header_breadcrumb_quip.onCreated ->
+  @autorun => @subscribe 'quips'
+Template.header_breadcrumb_quip.helpers ->
+  idIsNew: -> 'new' is @id
+  quip: ->  model.Quips.findOne @id unless @id is 'new'
+
 Template.header_breadcrumbs.helpers
+  breadcrumbs: -> Session.get 'breadcrumbs'
+  crumb_template: -> "header_breadcrumb_#{this.page}"
   round: ->
     if Session.equals('type', 'puzzles')
       model.Rounds.findOne puzzles: Session.get("id")
@@ -231,7 +281,7 @@ Template.header_breadcrumbs.events
       Meteor.call 'newMessage',
         body: message
         bodyIsHtml: true
-        nick: Session.get 'nick'
+        nick: reactiveLocalStorage.getItem 'nick'
         action: true
         room_name: Session.get('type')+'/'+Session.get('id')
 
@@ -282,8 +332,21 @@ uploadToDriveFolder = share.uploadToDriveFolder = (folder, callback) ->
 Template.header_nickmodal.helpers
   nickModalVisible: -> Session.get 'nickModalVisible'
 
+dismissable = ->
+  return false if Session.equals 'currentPage', 'chat'
+  return false is Session.equals 'currentPage', 'callins'
+  not ((Session.equals 'currentPage', 'blackboard') and Session.get 'canEdit')
+
+Template.header_nickmodal.onCreated ->
+  @autorun ->
+    hasNick = (reactiveLocalStorage.getItem 'nick')?
+    if hasNick
+      $('#nickPickModal').modal 'hide'
+    else if not dismissable() and not Session.equals 'nickModalVisible', true
+      Session.set 'nickModalVisible', true
+
 Template.header_nickmodal_contents.helpers
-  nick: -> Session.get "nick" or ''
+  dismissable: dismissable
 Template.header_nickmodal_contents.onCreated ->
   # we'd need to subscribe to 'all-nicks' here if we didn't have a permanent
   # subscription to it (in main.coffee)
@@ -318,7 +381,7 @@ Template.header_nickmodal_contents.onRendered ->
   $('#nickSuccess').val('false')
   $('#nickPickModal').modal keyboard: false, backdrop:"static"
   $('#nickInput').select()
-  firstNick = Session.get 'nick' or ''
+  firstNick = (reactiveLocalStorage.getItem 'nick') or ''
   $('#nickInput').val firstNick
   this.update firstNick, force:true
   $('#nickInput').typeahead
@@ -350,8 +413,7 @@ $(document).on 'submit', '#nickPick', ->
     $warning.html("Nickname must be between 1 and 20 characters long!")
     $warningGroup.addClass('error')
   else
-    $.cookie "nick", nick, {expires: 365, path: '/'}
-    Session.set "nick", nick
+    reactiveLocalStorage.setItem 'nick', nick
     realname = $('#nickRealname').val()
     gravatar = $('#nickEmail').val()
     Meteor.call 'newNick', {name: nick}, (error,n) ->
@@ -376,10 +438,7 @@ changeNick = (cb) ->
   Session.set 'nickModalVisible', true
 
 ensureNick = share.ensureNick = (cb=(->)) ->
-  if Session.get 'nick'
-    cb()
-  else if $.cookie('nick')
-    Session.set 'nick', $.cookie('nick')
+  if reactiveLocalStorage.getItem 'nick'
     cb()
   else
     changeNick cb
@@ -388,6 +447,7 @@ ensureNick = share.ensureNick = (cb=(->)) ->
 Template.header_confirmmodal.helpers
   confirmModalVisible: -> !!(Session.get 'confirmModalVisible')
 Template.header_confirmmodal_contents.onRendered ->
+  $('#confirmModal .bb-confirm-cancel').focus()
   $('#confirmModal').modal show: true
 Template.header_confirmmodal_contents.events
   "click .bb-confirm-ok": (event, template) ->
@@ -467,7 +527,7 @@ Template.header_lastchats.onCreated ->
     return unless p? # wait until page info is loaded
     messages = if p.archived then "oldmessages" else "messages"
     # use autorun to ensure subscription changes if/when nick does
-    nick = (Session.get 'nick') or null
+    nick = (reactiveLocalStorage.getItem 'nick') or null
     if nick? and not settings.BB_DISABLE_PM
       this.subscribe "#{messages}-in-range-nick", nick, p.room_name, p.from, p.to
     this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to

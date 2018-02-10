@@ -4,7 +4,7 @@
 # but you can also edit it by hand.
 
 insecure@1.0.7
-coffeescript@1.11.1_4
+coffeescript
 backbone
 less@2.7.11
 bootstrap
@@ -15,7 +15,6 @@ cscottnet:googleapis
 cscottnet:twitter
 cscottnet:mail-listener2
 cscottnet:alertify-bootstrap
-cscottnet:es5-shim
 cscottnet:hubot
 codex-blackboard-hubot-scripts
 cscottnet:random-name
@@ -23,7 +22,7 @@ cscottnet:geolocation
 reactive-var@1.0.11
 meteor-base@1.2.0
 mobile-experience@1.0.5
-mongo@1.3.0
+mongo@1.3.1
 blaze-html-templates@1.0.4
 session@1.1.7
 jquery@1.11.10
@@ -37,4 +36,7 @@ standard-minifier-js@2.2.0
 modules@0.11.0
 shell-server@0.3.0
 babel-runtime@1.1.1
-dynamic-import
+dynamic-import@0.2.0
+ecmascript
+mdj:reactive-storage
+zenorocha:clipboard

@@ -26,11 +26,14 @@ You can get an advance idea of what you may configure from reading
   If this is a shared machine, you can change the user the blackboard runs as
   by editing `/etc/systemd/system/codex@.service` and
   `/etc/systemd/system/codex-batch.service` so the file can be owned by root.
-* Letting users upload files to the drive folders requires Google Picker
-  credentials. Get some from
+* Letting users upload files to the drive folders from the blackboard requires
+  Google Picker credentials. Get some from
   https://console.developers.google.com/start/api?id=picker&credential=client_key
   and add a `picker` key to the `METEOR_SETTINGS` json object in
-  `/etc/codex-common.env`.
+  `/etc/codex-common.env`. Note that new applicatinos are marked as risky unless
+  their privacy policy gets manually reviewed, and since we're behind basic auth,
+  that's unlikely to happen. If you don't get the picker credentials, users will
+  still be able to upload files by following the drive folder link.
 * Scraping twitter requires creating a twitter application at
   https://app.twitter.com. You may want to create a burner twitter account,
   since you have to give the app read/write access to the twitter account to

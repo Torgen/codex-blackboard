@@ -43,15 +43,14 @@ randomNick = ->
 
 # login
 login = (nick=randomNick()) ->
-  $.cookie 'nick', nick, {expires:365, path: '/'}
-  Session.set 'nick', nick
+  reactiveLocalStorage.setItem 'nick', nick
   Meteor.call 'newNick', {name:nick}
 
 # say something every 10s or so
 saySomething = (room_name) ->
   Meteor.setTimeout saySomething.bind(null, room_name), \
     (5 + 10*Random.fraction()) * 1000 # 5-15 seconds
-  who = Session.get('nick') or 'loadtest'
+  who = (reactiveLocalStorage.getItem 'nick') or 'loadtest'
   friend = randomNick()
   m = switch Random.choice ['system','action','pm','text','text','text']
     when 'system'
@@ -90,7 +89,7 @@ saySomething = (room_name) ->
 addPuzzles = (data) ->
   Meteor.setTimeout addPuzzles.bind(null, data),
     (15 + 10*Random.fraction()) * 1000 # 15-25 seconds
-  [who,name] = [Session.get('nick'), Random.hexString(16)]
+  [who,name] = [reactiveLocalStorage.getItem('nick'), Random.hexString(16)]
   [followup,removeit] = [null,null]
   cb = (err,o) ->
     return if err?

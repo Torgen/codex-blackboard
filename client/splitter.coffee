@@ -3,56 +3,42 @@
 
 Splitter = share.Splitter =
   vsize:
-    manualResized: false
-    get: () -> $('.bb-bottom-content').height()
+    dragging: new ReactiveVar false
+    size: new ReactiveVar 300
+    get: () -> Splitter.vsize.size.get()
     set: (size, manual) ->
       if not size?
-        # resize to let top content be fully visible
-        SPLITTER_WIDGET_HEIGHT = 6 # pixels
-        topHeight = $('.bb-top-left-content')[0]?.scrollHeight
-        if topHeight? and topHeight > 0
-          topHeight += SPLITTER_WIDGET_HEIGHT
-          size = $('.bb-splitter').innerHeight() - topHeight
-        else
-          size = 300
-      $('.bb-splitter').css 'padding-bottom', +size
-      $('.bb-bottom-content').css 'height', +size
-      Splitter.vsize.manualResized = !!manual
+        size = 300
+      Splitter.vsize.size.set size
+      #$('.bb-right-content').css 'padding-bottom', +size + 6
+      #$('.bb-bottom-right-content').css 'height', +size
+      #$('.bb-right-content > .bb-splitter-handle').css 'bottom', +size
+      #Splitter.vsize.manualResized = !!manual
       +size
   hsize:
-    manualResized: false
-    get: () -> $('.bb-top-right-content').width()
+    dragging: new ReactiveVar false
+    size: new ReactiveVar 300
+    get: () -> Splitter.hsize.size.get()
     set: (size, manual) ->
-      SPLITTER_WIDGET_WIDTH = 6 # pixels
       if not size?
-        # 200px wide chat
-        size = 200
-      $('.bb-top-content').css 'padding-right', +size + SPLITTER_WIDGET_WIDTH
-      $('.bb-top-content > .bb-splitter-handle').css 'right', +size
-      $('.bb-top-right-content').css 'width', +size
-      Splitter.hsize.manualResized = !!manual
+        # 300px wide chat
+        size = 300
+      Splitter.hsize.size.set size
+      #$('.bb-splitter').css 'padding-right', +size
+      #$('.bb-splitter > .bb-splitter-handle').css 'right', +size
+      #$('.bb-right-content').css 'width', +size
+      #Splitter.hsize.manualResized = !!manual
       +size
   handleEvent: (event, template) ->
-    if $(event.currentTarget).closest('.bb-top-content').length
-      this.handleHEvent event, template
-    else
+    console.log event.currentTarget unless Meteor.isProduction
+    if $(event.currentTarget).closest('.bb-right-content').length
       this.handleVEvent event, template
-  handleVEvent: (event, template) ->
-    event.preventDefault() # don't highlight text, etc.
-    pane = $(event.currentTarget).closest('.bb-splitter')
-    initialPos = event.pageY
-    initialSize = Splitter.vsize.get()
-    mouseMove = (event) ->
-      newSize = initialSize - (event.pageY - initialPos)
-      Splitter.vsize.set newSize, 'manual'
-    mouseUp = (event) ->
-      pane.removeClass('active')
-      $(document).unbind('mousemove', mouseMove).unbind('mouseup', mouseUp)
-    pane.addClass('active')
-    $(document).bind('mousemove', mouseMove).bind('mouseup', mouseUp)
+    else
+      this.handleHEvent event, template
   handleHEvent: (event, template) ->
     event.preventDefault() # don't highlight text, etc.
-    pane = $(event.currentTarget).closest('.bb-top-content')
+    pane = $(event.currentTarget).closest('.bb-splitter')
+    Splitter.hsize.dragging.set true
     initialPos = event.pageX
     initialSize = Splitter.hsize.get()
     mouseMove = (event) ->
@@ -61,5 +47,30 @@ Splitter = share.Splitter =
     mouseUp = (event) ->
       pane.removeClass('active')
       $(document).unbind('mousemove', mouseMove).unbind('mouseup', mouseUp)
+      reactiveLocalStorage.setItem 'splitter.hsize', Splitter.hsize.size.get()
+      Splitter.hsize.dragging.set false
     pane.addClass('active')
     $(document).bind('mousemove', mouseMove).bind('mouseup', mouseUp)
+  handleVEvent: (event, template) ->
+    event.preventDefault() # don't highlight text, etc.
+    pane = $(event.currentTarget).closest('.bb-right-content')
+    Splitter.vsize.dragging.set true
+    initialPos = event.pageY
+    initialSize = Splitter.vsize.get()
+    mouseMove = (event) ->
+      newSize = initialSize - (event.pageY - initialPos)
+      Splitter.vsize.set newSize, 'manual'
+    mouseUp = (event) ->
+      pane.removeClass('active')
+      $(document).unbind('mousemove', mouseMove).unbind('mouseup', mouseUp)
+      reactiveLocalStorage.setItem 'splitter.vsize', Splitter.vsize.size.get()
+      Splitter.vsize.dragging.set false
+    pane.addClass('active')
+    $(document).bind('mousemove', mouseMove).bind('mouseup', mouseUp)
+ 
+['hsize', 'vsize'].forEach (dim) ->
+  Tracker.autorun ->
+    x = Splitter[dim]
+    return if x.dragging.get()
+    console.log "about to set #{dim}"
+    x.size.set reactiveLocalStorage.getItem "splitter.#{dim}"

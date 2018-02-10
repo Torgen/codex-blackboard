@@ -19,6 +19,9 @@
 }
 .bb-puzzleround {
   .bb-content-area;
+  .bb-chat-messages {
+    .bb-tiny-chat-messages;
+  }
 }
 .compactHeader .bb-chat-messages {
   padding-top: 3px;
@@ -46,6 +49,37 @@
                 border-top-right-radius: 0;
         .media-heading { display: none; }
       }
+  }
+  &.bb-starred-messages {
+    padding: 0px;
+    clear: both;
+  }
+  .bb-message-star {
+    display: inline-block;
+    width: 14px; height: 14px; margin-top: 1px; line-height: 14px;
+    vertical-align: text-top;
+    @mask_image: url("/packages/bootstrap/img/glyphicons-halflings.png");
+    -webkit-mask-image: @mask_image;
+    mask-image: @mask_image;
+    float: right;
+    &.starred {
+      -webkit-mask-position: -120px 0;
+      mask-position: -120px 0;
+      background: palegoldenrod;
+    } 
+    &:not(.starred) {
+      -webkit-mask-position: -144px 0;
+      mask-position: -144px 0;
+      background: lightgrey;
+    } 
+  } 
+  &.can-modify-star .bb-message-star {
+    &.starred {
+      background: gold;
+    }
+    &:not(.starred) {
+      background: black;
+    }
   }
   .media {
     position: relative; /* establish context for arrow placement */
@@ -178,21 +212,50 @@
 .bb-puzzle .background.near:before { opacity: 0.2; }
 .bb-chat-presence .near:before { .glyphicon-white; }
 
-@media (max-width: 480px) {
-  .bb-chat-messages {
-    .media {
-      /* hide chat bubble arrows when display gets too narrow */
-      &:before, &:after { display: none; }
-      .timestamp { float: right; /* still */ }
-      .media-object.pull-left { display: none; }
+.bb-tiny-chat-messages {
+  .media {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    /* hide chat bubble arrows when display gets too narrow */
+    &:before, &:after { display: none; }
+    .timestamp { float: right; /* still */ }
+    .media-object.pull-left { float: left; /* still */ margin: 0px; }
+    .img-rounded {
+              border-radius: 0px;
+         -moz-border-radius: 0px;
+      -webkit-border-radius: 0px;
     }
-    .bb-message-action, .bb-message-system { padding-left: 6px; }
-    .bb-message-body { min-height: 0; }
+  }
+  .media + .media.bb-message-followup { margin-top: -4px; }
+  .bb-message-action, .bb-message-system { padding-left: 6px; }
+  .bb-message-last-read { margin-left: 0px; margin-right: 0px; }
+  .bb-message-body {
+    /* min-height: 0; */
+            border-radius: 0px;
+       -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
   }
 }
-/* hide messages from bot if bot is muted */
-html.bb-nobot .bb-is-bot { display: none; }
 
+@media (max-width: 480px) {
+  body {
+    padding-left: 0px;
+    padding-right: 0px;
+    background: white;
+  }
+  .navbar-fixed-top, .navbar-fixed-bottom {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  .bb-chat-messages {
+    .bb-tiny-chat-messages;
+  }
+}
+/*
+@media (max-width: 432px) {
+  .bb-chat-messages .media-object.pull-left { display: none; }
+} 
+*/
 .messageRow, .actionRow {
   color: #666; /*font-size: 1.2em; margin: 4px 5px;*/
 }
@@ -213,6 +276,7 @@ html.bb-nobot .bb-is-bot { display: none; }
     padding-left: 15px;
     padding-right: 15px;
     textarea {
+      overflow: hidden;
       margin-bottom: 0; margin-top: 5px;
       resize: none; height: 30px;
     }

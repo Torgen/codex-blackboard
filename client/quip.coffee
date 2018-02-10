@@ -8,7 +8,7 @@ Template.quip.helpers
     if id is 'new' then null else model.Quips.findOne id
   recentQuips: ->
     model.Quips.find({},{sort:[['created','desc']], limit: 10})
-  canEdit: -> Session.get 'nick'
+  canEdit: -> reactiveLocalStorage.getItem 'nick'
 
 Template.quip.events
   "click .bb-addquip-btn": (event, template) ->
@@ -17,7 +17,7 @@ Template.quip.events
      share.ensureNick =>
        Meteor.call "removeQuip", {
          id: Session.get 'id'
-         who: Session.get 'nick'
+         who: reactiveLocalStorage.getItem 'nick'
        }, (error, result) ->
          unless error?
            share.Router.goTo "quips", "new"
@@ -35,7 +35,7 @@ Template.quip.events
        $textarea.val ''
        q = Meteor.call 'newQuip', {
          text: text
-         who: Session.get 'nick'
+         who: reactiveLocalStorage.getItem 'nick'
        }, (error, result) ->
          unless error?
            share.Router.goTo "quips", result._id
@@ -66,7 +66,7 @@ processQuipEdit =
     Meteor.call 'setField',
       type: 'quips'
       object: id
-      who: Session.get 'nick'
+      who: reactiveLocalStorage.getItem 'nick'
       fields: text: text
 
 Template.quip.onCreated -> this.autorun =>

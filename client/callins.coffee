@@ -19,8 +19,6 @@ Meteor.startup ->
     initial = false
 
 Template.callins.onCreated ->
-  this.get_quip_id = (event) ->
-    $(event.currentTarget).closest('*[data-bbquip]').attr('data-bbquip')
   this.subscribe 'callins'
   this.subscribe 'quips'
   return if settings.BB_SUB_ALL
@@ -30,6 +28,9 @@ Template.callins.helpers
   callins: ->
     model.CallIns.find {},
       sort: [["created","asc"]]
+      transform: (c) ->
+        c.puzzle = if c.target then model.collection(c.type).findOne(c.target)
+        c
   quips: ->
     # We may want to make this a special limited subscription
     # (rather than having to subscribe to all quips)
@@ -41,61 +42,71 @@ Template.callins.helpers
 
 Template.callins.onRendered ->
   $("title").text("Answer queue")
-  share.ensureNick()
+  this.clipboard = new Clipboard '.copy-and-go'
+
+Template.callins.onDestroyed ->
+  this.clipboard.destroy()
 
 Template.callins.events
   "click .bb-addquip-btn": (event, template) ->
      share.Router.goTo "quips", "new"
+
+Template.callins_quip.events
   "click .bb-quip-next": (event, template) ->
     Meteor.call 'useQuip',
-      id: template.get_quip_id(event)
-      who: Session.get('nick')
+      id: @_id
+      who: reactiveLocalStorage.getItem 'nick'
   "click .bb-quip-punt": (event, template) ->
     Meteor.call 'useQuip',
-      id: template.get_quip_id(event)
-      who: Session.get('nick')
+      id: @_id
+      who: reactiveLocalStorage.getItem 'nick'
       punted: true
   "click .bb-quip-remove": (event, template) ->
     Meteor.call 'removeQuip',
-      id: template.get_quip_id(event)
-      who: Session.get('nick')
-
-Template.callin_row.onCreated ->
-  this.get_callin_id = (event) ->
-    $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
+      id: @_id
+      who: reactiveLocalStorage.getItem 'nick'
 
 Template.callin_row.helpers
-  sessionNick: -> Session.get 'nick'
-  lastAttempt: (type, target) ->
-    p = if target then model.collection(type).findOne(target)
-    return null unless p? and p.incorrectAnswers?.length > 0
-    attempts = p.incorrectAnswers[..]
+  lastAttempt: ->
+    return null unless @puzzle? and @puzzle.incorrectAnswers?.length > 0
+    attempts = @puzzle.incorrectAnswers[..]
     attempts.sort (a,b) -> a.timestamp - b.timestamp
     attempts[attempts.length - 1]
-  hunt_link: (type, target) ->
-    p = if target then model.collection(type).findOne(target)
-    p?.link
+  hunt_link: -> @puzzle?.link
+  solved: -> @puzzle?.solved
+  alreadyTried: ->
+    for wrong in @puzzle?.incorrectAnswers
+      return true if wrong.answer is @answer
+    return false
 
 Template.callin_row.events
   "click .bb-callin-correct": (event, template) ->
      Meteor.call 'correctCallIn',
-       id: template.get_callin_id(event)
-       who: Session.get('nick')
+       id: @_id
+       who: reactiveLocalStorage.getItem 'nick'
 
   "click .bb-callin-incorrect": (event, template) ->
      Meteor.call 'incorrectCallIn',
-       id: template.get_callin_id(event)
-       who: Session.get('nick')
+       id: @_id
+       who: reactiveLocalStorage.getItem 'nick'
 
   "click .bb-callin-cancel": (event, template) ->
      Meteor.call 'cancelCallIn',
-       id: template.get_callin_id(event)
-       who: Session.get('nick')
+       id: @_id
+       who: reactiveLocalStorage.getItem 'nick'
 
   "change .bb-submitted-to-hq": (event, template) ->
      checked = !!event.currentTarget.checked
      Meteor.call 'setField',
        type: 'callins'
-       object: template.get_callin_id(event)
+       object: @_id
        fields: submitted_to_hq: checked
-       who: Session.get('nick')
+       who: reactiveLocalStorage.getItem 'nick'
+
+  "click .copy-and-go": (event, template) ->
+     Meteor.call 'setField',
+       type: 'callins'
+       object: @_id
+       fields: submitted_to_hq: true
+       who: reactiveLocalStorage.getItem 'nick'
+

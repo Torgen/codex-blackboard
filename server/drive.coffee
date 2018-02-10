@@ -1,6 +1,14 @@
 # helper functions to perform Google Drive operations
 
 # Credentials
+KEY = Meteor.settings.key or try
+  Assets.getBinary 'drive-key.pem.crypt'
+catch error
+  undefined
+if KEY? and Meteor.settings.password?
+  # Decrypt the JWT authentication key synchronously at startup
+  KEY = Gapi.decrypt KEY, Meteor.settings.password
+EMAIL = Meteor.settings.email or '571639156428@developer.gserviceaccount.com'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Drive folder settings
@@ -62,6 +70,37 @@ afterDelay = (ix, base, name, params, callback) ->
 
 apiThrottle = Meteor.wrapAsync (base, name, params, callback) ->
   afterDelay 0, base, name, params, callback
+
+awaitOnce = (attempts, name, parent, callback) ->
+  try
+    resp = apiThrottle drive.children, 'list',
+      folderId: parent
+      q: "title=#{quote name}"
+      maxResults: 1
+    if resp.items.length > 0
+      console.log "#{name} found"
+      callback null, resp.items[0]
+    else if attempts < 1
+      console.log "#{name} never existed"
+      callback "never existed", null
+    else
+      console.log "Waiting #{attempts} more times for #{name}"
+      later = -> awaitOnce attempts-1, name, parent, callback
+      Meteor.setTimeout later, 1000
+  catch error
+    callback error, null
+
+awaitFolder = Meteor.wrapAsync (name, parent, callback) ->
+  awaitOnce 5, name, parent, callback
+
+awaitOrEnsureFolder = (name, parent) ->
+  return ensureFolder name, parent if share.model.DO_BATCH_PROCESSING
+  try
+    return awaitFolder name, (parent or 'root')
+  catch error
+    console.log error
+    return ensureFolder name, parent if error is "never existed"
+    throw error
 
 ensureFolder = (name, parent) ->
   # check to see if the folder already exists
@@ -258,18 +297,22 @@ purge = () -> rmrfFolder(rootFolder)
 # Intialize APIs and load rootFolder
 do ->
   try
-    jwt = Meteor.wrapAsync(Gapi.apis.auth.getApplicationDefault, Gapi.apis.auth)()
-    if jwt.createScopedRequired && jwt.createScopedRequired()
-      jwt = jwt.createScoped(SCOPES)
+    if /^-----BEGIN RSA PRIVATE KEY-----/.test(KEY)
+      jwt = new Gapi.apis.auth.JWT(EMAIL, null, KEY, SCOPES)
+      jwt.credentials = Gapi.authorize(jwt);
+    else
+      jwt = Meteor.wrapAsync(Gapi.apis.auth.getApplicationDefault, Gapi.apis.auth)()
+      if jwt.createScopedRequired && jwt.createScopedRequired()
+        jwt = jwt.createScoped(SCOPES)
     # record the API and auth info
     drive = Gapi.apis.drive('v2')
     Gapi.registerAuth jwt
     # Look up the root folder
-    resource = ensureFolder ROOT_FOLDER_NAME
+    resource = awaitOrEnsureFolder ROOT_FOLDER_NAME
     console.log "Google Drive authorized and activated"
     rootFolder = resource.id
-    # Create a special folder for uploads to ringhunters chat
-    resource = ensureFolder 'Ringhunters Uploads', rootFolder
+    # Create a special folder for uploads to loopfinders chat
+    resource = awaitOrEnsureFolder 'Loopfinders Uploads', rootFolder
     ringhuntersFolder = resource.id
     # for debugging/development
     debug.drive = drive

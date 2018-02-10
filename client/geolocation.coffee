@@ -42,7 +42,7 @@ updateLocation = do ->
 Tracker.autorun ->
   return if settings.DISABLE_GEOLOCATION
   Geolocation.setPaused !share.isVisible()
-  nick = (Session.get 'nick') or null
+  nick = (reactiveLocalStorage.getItem 'nick') or null
   return unless nick?
   pos = Geolocation.latLng(enableHighAccuracy:false)
   Session.set "position", pos # always use most current location client-side
@@ -57,7 +57,7 @@ distanceTo = (nick) ->
   return distance(n.located_at, p)
 
 isNickNear = share.isNickNear = (nick) ->
-  return true if nick is Session.get('nick') # that's me!
+  return true if nick is reactiveLocalStorage.getItem 'nick' # that's me!
   dist = distanceTo(nick)
   return false unless dist?
   return dist <= GEOLOCATION_NEAR_DISTANCE
@@ -80,9 +80,9 @@ CODEXBOT_LOCATIONS = [
 
 Template.registerHelper 'nickLocation', (args) ->
   args = share.keyword_or_positional 'nick', args
-  return '' if args.nick is Session.get('nick') # that's me!
+  return '' if args.nick is reactiveLocalStorage.getItem 'nick' # that's me!
   if args.nick is 'codexbot'
-    idx = Math.floor(Session.get('currentTime') / 10*60*1000)
+    idx = Math.floor(Session.get('currentTime') / (10*60*1000))
     return " is #{CODEXBOT_LOCATIONS[idx%CODEXBOT_LOCATIONS.length]}"
   d = distanceTo(args.nick)
   return '' unless d?

@@ -135,6 +135,11 @@ for messages in [ 'messages', 'oldmessages' ]
         timestamp: cond
         $or: [ { nick: nick }, { to: nick } ]
 
+Meteor.publish 'starred-messages', (room_name) ->
+  for messages in [ model.OldMessages, model.Messages ]
+    messages.find { room_name: room_name, starred: true },
+      sort: [["timestamp", "asc"]]
+
 Meteor.publish 'callins', ->
   model.CallIns.find {},
     sort: [["created","asc"]]
