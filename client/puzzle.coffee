@@ -19,14 +19,12 @@ currentViewIs = (puzzle, view) ->
   if Session.equals 'view', view
     switch view
       when 'spreadsheet'
-        return puzzle?.spreadsheet?
+        return true if puzzle?.spreadsheet?
       when 'puzzle'
-        return puzzle?.link?
+        return true if puzzle?.link?
       when 'info'
         return true
-  if not Session.get('view')?
-    return view is defaultView puzzle
-  return false
+  return view is defaultView puzzle
 
 Template.puzzle_info.helpers
    tag: (name) -> (model.getTag this, name) or ''
