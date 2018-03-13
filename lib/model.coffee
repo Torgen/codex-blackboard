@@ -64,9 +64,9 @@ throttle = (func, wait = 0) ->
 BBCollection = Object.create(null) # create new object w/o any inherited cruft
 
 # Names is a synthetic collection created by the server which indexes
-# the names and ids of RoundGroups, Rounds, and Puzzles:
-#   _id: mongodb id (of a element in RoundGroups, Rounds, or Puzzles)
-#   type: string ("roundgroups", "rounds", "puzzles")
+# the names and ids of Rounds and Puzzles:
+#   _id: mongodb id (of a element in Rounds or Puzzles)
+#   type: string ("rounds", "puzzles")
 #   name: string
 #   canon: canonicalized version of name, for searching
 Names = BBCollection.names = \
@@ -76,12 +76,12 @@ Names = BBCollection.names = \
 # solution time of the most recently-solved puzzle.
 #    _id: random UUID
 #    solved: solution time
-#    type: string ("puzzles", "rounds", or "roundgroups")
-#    target: id of most recently solved puzzle/round/round group
+#    type: string ("puzzles" or "rounds")
+#    target: id of most recently solved puzzle/round
 LastAnswer = BBCollection.last_answer = \
   if Meteor.isClient then new Mongo.Collection 'last-answer' else null
 
-# RoundGroups are:
+# Rounds are:
 #   _id: mongodb id
 #   name: string
 #   canon: canonicalized version of name, for searching
@@ -95,79 +95,13 @@ LastAnswer = BBCollection.last_answer = \
 #   incorrectAnswers: [ { answer: "Wrong", who: "answer submitter",
 #                         backsolve: ..., provided: ..., timestamp: ... }, ... ]
 #   tags: [ { name: "Status", canon: "status", value: "stuck" }, ... ]
-#   rounds: [ array of round _ids, in order ]
-#   (next field is a bit racy, but it's fixed up by the server)
-#   round_start: integer, indicating how many rounds total are in all
-#                preceding round groups (a bit racy, but server fixes it up)
-RoundGroups = BBCollection.roundgroups = new Mongo.Collection "roundgroups"
-if DO_BATCH_PROCESSING
-  RoundGroups._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  updateRoundStart = ->
-    round_start = 0
-    RoundGroups.find({}, sort: ["created"]).forEach (rg) ->
-      if rg.round_start isnt round_start
-        RoundGroups.update rg._id, $set: round_start: round_start
-      round_start += rg.rounds.length
-  # Note that throttle uses Meteor.setTimeout here even if a call isn't
-  # yet pending -- we want to ensure that we give all the observeChanges
-  # time to fire before we do the update.
-  # In theory we could use `Tracker.afterFlush`, but see
-  # https://github.com/meteor/meteor/issues/3293
-  queueUpdateRoundStart = throttle(updateRoundStart, 100)
-  # observe changes to the rounds field and update round_start
-  queueUpdateRoundStart()
-  RoundGroups.find({}).observeChanges
-    added: (id, fields) -> queueUpdateRoundStart()
-    removed: (id, fields) -> queueUpdateRoundStart()
-    changed: (id, fields) ->
-      queueUpdateRoundStart() if 'created' of fields or 'rounds' of fields
-
-# Rounds are:
-#   _id: mongodb id
-#   name: string
-#   canon: canonicalized version of name, for searching
-#   created: timestamp
-#   created_by: canon of Nick
-#   touched: timestamp -- records edits to tag, order, group, etc.
-#   touched_by: canon of Nick with last touch
-#   solved:  timestamp -- null (not missing or zero) if not solved
-#            (actual answer is in a tag w/ name "Answer")
-#   solved_by:  timestamp of Nick who confirmed the answer
-#   incorrectAnswers: [ { answer: "Wrong", who: "answer submitter",
-#                         backsolve: ..., provided: ..., timestamp: ... }, ... ]
-#   tags: [ { name: "Status", canon: "status", value: "stuck" }, ... ]
 #   puzzles: [ array of puzzle _ids, in order ]
-#   drive: google drive url or id
+#            Preserving order is why this is a list here and not a foreign key
+#            in the puzzle.
 Rounds = BBCollection.rounds = new Mongo.Collection "rounds"
 if DO_BATCH_PROCESSING
   Rounds._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  if MIGRATE_ANSWERS
-    # migrate objects -- rename 'Meta answer' tag to 'Answer'
-    Meteor.startup ->
-      Rounds.find({}).forEach (r) ->
-        answer = getTag(r, 'Meta Answer')
-        return unless answer?
-        console.log 'Migrating round', r.name
-        tweak = (tag) ->
-          name = if tag.canon is 'meta_answer' then 'Answer' else tag.name
-          return {
-            name: name
-            canon: canonical(name)
-            value: tag.value
-            touched: tag.touched ? r.created
-            touched_by: tag.touched_by ? r.created_by
-          }
-        ntags = (tweak(tag) for tag in r.tags)
-        ntags.sort (a, b) -> (a?.canon or "").localeCompare (b?.canon or "")
-        [solved, solved_by] = [null, null]
-        ntags.forEach (tag) -> if tag.canon is canonical('Answer')
-          [solved, solved_by] = [tag.touched, tag.touched_by]
-        Rounds.update r._id, $set:
-          tags: ntags
-          incorrectAnswers: []
-          solved: solved
-          solved_by: solved_by
-
+  Rounds._ensureIndex {puzzles: 1}
 
 # Puzzles are:
 #   _id: mongodb id
@@ -183,27 +117,28 @@ if DO_BATCH_PROCESSING
 #   incorrectAnswers: [ { answer: "Wrong", who: "answer submitter",
 #                         backsolve: ..., provided: ..., timestamp: ... }, ... ]
 #   tags: [ { name: "Status", canon: "status", value: "stuck" }, ... ]
-#   drive: google drive url or id
+#   drive: optional google drive folder id
+#   spreadsheet: optional google spreadsheet id
+#   doc: optional google doc id
+#   puzzles: array of puzzle _ids for puzzles that feed into this.
+#            absent if this isn't a meta. empty if it is, but nothing feeds into
+#            it yet.
+#   feedsInto: array of puzzle ids for metapuzzles this feeds into. Can be empty.
+#   if a has b in its feedsInto, then b should have a in its puzzles.
+#   This is kept denormalized because the lack of indexes in Minimongo would
+#   make it inefficient to query on the client, and because we want to control
+#   the order within a meta.
+#   Note that this allows arbitrarily many meta puzzles. Also, there is no
+#   requirement that a meta be fed only by puzzles in the same round.
 Puzzles = BBCollection.puzzles = new Mongo.Collection "puzzles"
 if DO_BATCH_PROCESSING
   Puzzles._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  if MIGRATE_ANSWERS
-    # migrate objects -- we used to have an `answer` field in Puzzles.
-    Meteor.startup ->
-      Puzzles.find(answer: { $exists: true, $ne: null }).forEach (p) ->
-        console.log 'Migrating puzzle', p.name
-        update = {$set: {solved: p.solved}, $unset: {answer: ''}}
-        Meteor.call "setAnswer",
-          type: 'puzzles'
-          target: p._id
-          answer: p.answer
-          who: p.solved_by
-        Puzzles.update p._id, update
+  Puzzles._ensureIndex {feedsInto: 1}
+  Puzzles._ensureIndex {puzzles: 1}
 
 # CallIns are:
 #   _id: mongodb id
-#   type: string ("puzzles", "rounds", or "roundgroups")
-#   target: _id of Puzzle/Round/RoundGroup
+#   target: _id of puzzle
 #   answer: string (proposed answer to call in)
 #   created: timestamp
 #   created_by: canon of Nick
@@ -213,7 +148,7 @@ if DO_BATCH_PROCESSING
 CallIns = BBCollection.callins = new Mongo.Collection "callins"
 if DO_BATCH_PROCESSING
    CallIns._ensureIndex {created: 1}, {}
-   CallIns._ensureIndex {type: 1, target: 1, answer: 1}, {unique:true, dropDups:true}
+   CallIns._ensureIndex {target: 1, answer: 1}, {unique:true, dropDups:true}
 
 # Quips are:
 #   _id: mongodb id
@@ -466,7 +401,6 @@ collection = (type) ->
 pretty_collection = (type) ->
   switch type
     when "oplogs" then "operation log"
-    when "roundgroups" then "round group"
     when "oldmessages" then "old message"
     else type.replace(/s$/, '')
 
@@ -512,7 +446,7 @@ doc_id_to_link = (id) ->
     # this is a huge hack, it's too hard to find the correct
     # round group to use.  But this helps avoid reloading the hunt software
     # every time the hunt domain changes.
-    rg = RoundGroups.findOne({}, sort: ['created'])
+    rg = Rounds.findOne({}, sort: ['created'])
     if rg?.link
       return rg.link.replace(/\/+$/, '') + '/' + type + '/'
     else
@@ -525,10 +459,6 @@ doc_id_to_link = (id) ->
   ValidType = Match.Where (x) ->
     check x, NonEmptyString
     Object::hasOwnProperty.call(BBCollection, x)
-  # a type of an object that can have an answer
-  ValidAnswerType = Match.Where (x) ->
-    check x, ValidType
-    x == 'puzzles' || x == 'rounds' || x == 'roundgroups'
   # either an id, or an object containing an id
   IdOrObject = Match.OneOf NonEmptyString, Match.Where (o) ->
     typeof o is 'object' and ((check o._id, NonEmptyString) or true)
@@ -581,7 +511,7 @@ doc_id_to_link = (id) ->
       throw error # something went wrong, who knows what, pass it on
     unless options.suppressLog
       oplog "Added", type, object._id, args.who, \
-          if type in ['puzzles', 'rounds', 'roundgroups'] \
+          if type in ['puzzles', 'rounds'] \
               then 'new-puzzles' else ''
     return object
 
@@ -673,14 +603,13 @@ doc_id_to_link = (id) ->
       break unless Meteor.isServer and numchanged is 0
     return true
 
-  newDriveFolder = (type, id, name) ->
-    check type, NonEmptyString
+  newDriveFolder = (id, name) ->
     check id, NonEmptyString
     check name, NonEmptyString
     return unless Meteor.isServer
     res = share.drive.createPuzzle name
     return unless res?
-    collection(type).update id, { $set:
+    Puzzles.update id, { $set:
       drive: res.id
       spreadsheet: res.spreadId
       doc: res.docId
@@ -699,146 +628,51 @@ doc_id_to_link = (id) ->
     return unless Meteor.isServer
     share.drive.deletePuzzle drive
 
-  parentObject = do ->
-    lookup =
-      puzzles: (id) -> ['rounds', Rounds.findOne(puzzles: id)]
-      rounds: (id) -> ['roundgroups', RoundGroups.findOne(rounds: id)]
-      roundgroups: (id) -> [null, null]
-    (type, id) -> lookup[type]?(id)
-
-  moveObject = (type, id, direction) ->
-    check type, NonEmptyString
-    check id, NonEmptyString
-    check direction, Match.Where (x) -> x=='up' or x=='down'
-
-    adjSib = (type, id, dir, nonempty=true) ->
-      sameLevel = true
-      if type is 'roundgroups'
-        parentType = parent = null
-        sibs = RoundGroups.find({}, sort: ['created']).map (rg)->rg._id
+  moveWithinParent = (id, parentType, parentId, args) ->
+    loop
+      parent = collection(parentType).findOne(parentId)
+      ix = parent?.puzzles?.indexOf(id)
+      return false unless ix?
+      npos = ix
+      npuzzles = (p for p in parent.puzzles when p != id)
+      if args.pos?
+        npos += args.pos
+        return false if npos < 0
+      else if args.before?
+        npos = parent.puzzles.indexOf args.before
+        return false unless npos >= 0
+      else if args.after?
+        npos = 1 + parent.puzzles.indexOf args.after
+        return false unless npos > 0
       else
-        [parentType, parent] = parentObject(type, id)
-        sibs = parent[type]
-      pos = sibs.indexOf(id)
-      newPos = if dir is 'prev' then (pos-1) else (pos+1)
-      if 0 <= newPos < sibs.length
-        return [parentType, parent?._id, newPos, sibs[newPos], sameLevel]
-      # otherwise, need to go up a level.
-      upSibId = parent?._id
-      sameLevel = false
-      return [parentType, null, 0, null, sameLevel] unless upSibId
-      loop
-        [upType, upId, upPos, upSibId, _] = adjSib(parentType, upSibId, dir, true)
-        return [parentType, null, 0, null, sameLevel] unless upSibId # no more sibs
-        # check that this sibling has children (if nonempty is true)
-        prevSibs = collection(parentType).findOne(upSibId)[type]
-        newPos = if dir is 'prev' then (prevSibs.length - 1) else 0
-        if 0 <= newPos < prevSibs.length
-          return [parentType, upSibId, newPos, prevSibs[newPos], sameLevel]
-        if prevSibs.length==0 and not nonempty
-          return [parentType, upSibId, 0, null, sameLevel]
-        # crap, adjacent parent has no children, need *next* parent (loop)
+        return false
+      npuzzles.splice(npos, 0, id)
+      return true if 0 < collection(parentType).update {_id: parentId, puzzles: parent.puzzles}, $set: puzzles: npuzzles
 
-    dir = if direction is 'up' then 'prev' else 'next'
-    [parentType,newParent,newPos,adjId,sameLevel] = adjSib(type,id,dir,false)
-    args = if (direction is 'up') is sameLevel then {before:adjId} else {after:adjId}
-    # now do the move.  note that there are races, in that we're not guaranteed
-    # some other concurrent re-ordering/insertions haven't made this the
-    # 'wrong' place to insert --- but we *are* going to insert it *somewhere*
-    # regardless.  Hopefully the user will notice and forgive us if the
-    # object ends up slightly out of place.
-    switch type
-      when 'puzzles'
-        return false unless newParent # can't go further in this direction
-        [args.puzzle, args.round] = [id, newParent]
-        Meteor.call 'addPuzzleToRound', args
-      when 'rounds'
-        return false unless newParent # can't go further in this direction
-        [args.round, args.group] = [id, newParent]
-        Meteor.call 'addRoundToGroup', args
-      when 'roundgroups'
-        return false unless adjId # can't go further in this direction
-        # this is a bit of a hack!
-        thisGroup = RoundGroups.findOne(id)
-        thatGroup = RoundGroups.findOne(adjId)
-        # swap creation times! (i told you this was a hack)
-        [thisCreated,thatCreated] = [thisGroup.created, thatGroup.created]
-        RoundGroups.update thisGroup._id, $set: created: thatCreated
-        RoundGroups.update thatGroup._id, $set: created: thisCreated
-        return true # it's a hack and we know it, clap your hands
-      else
-        throw new Meteor.Error(400, "bad type: #{type}")
+# TODO(Torgen): function to move round globally.
 
   Meteor.methods
-    newRoundGroup: (args) ->
-      newObject "roundgroups", args,
-        incorrectAnswers: []
-        solved: null
-        solved_by: null
-        rounds: args.rounds or []
-        round_start: Rounds.find({}).count() # approx; server will fix up
-    renameRoundGroup: (args) ->
-      renameObject "roundgroups", args
-    deleteRoundGroup: (args) ->
-      check args, ObjectWith
-        id: NonEmptyString
-        who: NonEmptyString
-      # disallow deletion unless roundgroup.rounds is empty
-      # XXX or else move rounds to some other group(s)
-      rg = RoundGroups.findOne(args.id)
-      return false unless rg? and rg?.rounds?.length is 0
-      deleteObject "roundgroups", args
-
     newRound: (args) ->
-      round_prefix = huntPrefix 'round'
-      link = if round_prefix
-        "#{round_prefix}#{canonical(args.name)}"
-      r = newObject "rounds", args,
-        incorrectAnswers: []
-        solved: null
-        solved_by: null
-        puzzles: args.puzzles or []
-        drive: args.drive or null
-        link: args.link or link
-      newDriveFolder "rounds", r._id, r.name
-      return r
+      newObject "rounds", args,
+        puzzles: []
+      # TODO(torgen): create default meta
     renameRound: (args) ->
-      check args, ObjectWith
-        id: NonEmptyString
-        name: NonEmptyString
-        who: NonEmptyString
-      # get drive ID (racy)
-      r = Rounds.findOne(args.id)
-      drive = r?.drive
-      spreadsheet = r?.spreadsheet
-      doc = r?.doc
-      result = renameObject "rounds", args
-      # rename google drive folder
-      renameDriveFolder args.name, drive, (spreadsheet if (result and drive?)), doc if (result and drive?)
-      return result
+      renameObject "rounds", args
+      # TODO(torgen): rename default meta
     deleteRound: (args) ->
       check args, ObjectWith
         id: NonEmptyString
         who: NonEmptyString
-      rid = args.id
-      old = Rounds.findOne(rid)
       # disallow deletion unless round.puzzles is empty
-      # XXX or else move puzzles to some other round(s)
-      return false unless old? and old?.puzzles?.length is 0
-      # get drive ID (racy)
-      drive = old?.drive
-      spreadsheet = old?.spreadsheet
-      doc = old?.doc
-      # remove round itself
-      r = deleteObject "rounds", args
-      # remove from all roundgroups
-      RoundGroups.update { rounds: rid },{ $pull: rounds: rid },{ multi: true }
-      # delete google drive folder and all contents, recursively
-      deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
-      # XXX: delete chat room logs?
-      return r
+      # TODO(torgen): ...other than default meta
+      rg = Rounds.findOne(args.id)
+      return false unless rg? and rg?.puzzles?.length is 0
+      deleteObject "rounds", args
 
     newPuzzle: (args) ->
+      if args.round?
+        throw new Meteor.Error(404, "bad round") unless Rounds.findOne(args.round)?
+        # TODO(torgen): if round has a default meta, set new puzzle to feed into that meta.
       puzzle_prefix = huntPrefix 'puzzle'
       link = if puzzle_prefix
         "#{puzzle_prefix}#{canonical(args.name)}"
@@ -850,8 +684,16 @@ doc_id_to_link = (id) ->
         spreadsheet: args.spreadsheet or null
         doc: args.doc or null
         link: args.link or link
+        feedsInto: args.feedsInto or []
+        puzzles: args.puzzles or undefined
+      if args.puzzles?
+        Puzzles.update {_id: $in: args.puzzles}, {$push: feedsInto: p._id}, multi: true
+      if feedsInto.length > 0
+        Puzzles.update {_id: $in: feedsInto}, {$push: puzzles: p._id}, multi: true
+      if args.round?
+        Rounds.update args.round, $push: puzzles: p._id
       # create google drive folder (server only)
-      newDriveFolder "puzzles", p._id, p.name
+      newDriveFolder p._id, p.name
       return p
     renamePuzzle: (args) ->
       check args, ObjectWith
@@ -880,15 +722,30 @@ doc_id_to_link = (id) ->
       # remove puzzle itself
       r = deleteObject "puzzles", args
       # remove from all rounds
-      Rounds.update { puzzles: pid },{ $pull: puzzles: pid },{ multi: true }
+      Rounds.updateMany { puzzles: pid }, $pull: puzzles: pid
+      # Remove from all metas
+      Puzzles.updateMany { puzzles: pid }, $pull: puzzles: pid
+      # Remove from all feedsInto lists
+      Puzzles.updateMany { feedsInto: pid }, $pull: feedsInto: pid
       # delete google drive folder
       deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
       # XXX: delete chat room logs?
       return r
+    makeMeta: (id) ->
+      # This only fails if, for some reason, puzzles is a list containing null.
+      return 0 < (Puzzles.updateOne {_id: id, puzzles: null}, $set: puzzles: []).nModified
+    makeNotMeta: (id) ->
+      Puzzles.updateMany {feedsInto: id}, $pull: feedsInto: id
+      return 0 < (Puzzles.updateOne {_id: id, puzzles: $exists: true}, $unset: puzzles: "").nModified
+    feedMeta: (puzzleId, metaId) ->
+      Puzzles.updateOne puzzleId, $push: feedsInto: metaId
+      Puzzles.updateOne metaId, $push: puzzles: puzzleId
+    unfeedMeta: (puzzleId, metaId) ->
+      Puzzles.updateOne puzzleId, $pull: feedsInto: metaId
+      Puzzles.updateOne metaId, $pull: puzzles: puzzleId
 
     newCallIn: (args) ->
       check args, ObjectWith
-        type: ValidAnswerType
         target: IdOrObject
         answer: NonEmptyString
         who: NonEmptyString
@@ -896,12 +753,12 @@ doc_id_to_link = (id) ->
         provided: Match.Optional(Boolean)
       return if this.isSimulation # otherwise we trigger callin sound twice
       id = args.target._id or args.target
-      name = collection(args.type).findOne(args.target)?.name
-      throw new Meteor.Error(400, "bad target") unless name?
+      puzzle = Puzzles.findOne(args.target)
+      throw new Meteor.Error(404, "bad target") unless puzzle?
+      name = puzzle.name
       backsolve = if args.backsolve then " [backsolved]" else ''
       provided = if args.provided then " [provided]" else ''
       newObject "callins", {name:name+':'+args.answer, who:args.who},
-        type: args.type
         target: id
         answer: args.answer
         who: args.who
@@ -921,18 +778,16 @@ doc_id_to_link = (id) ->
         Meteor.call 'newMessage', msg
       # send to the puzzle chat
       msg.body = body(specifyPuzzle: false)
-      msg.room_name = "#{args.type}/#{id}"
+      msg.room_name = "puzzles/#{id}"
       unless args?.suppressRoom is msg.room_name
         Meteor.call 'newMessage', msg
-      # send to the round chat
-      if args.type is "puzzles"
-        round = Rounds.findOne({puzzles: id})
-        if round?
-          msg.body = body(specifyPuzzle: true)
-          msg.room_name = "rounds/#{round._id}"
-          unless args?.suppressRoom is msg.room_name
-            Meteor.call "newMessage", msg
-      oplog "New answer #{args.answer} submitted for", args.type, id, \
+      # send to the metapuzzle chat
+      puzzle.feedsMeta.forEach (meta) ->
+        msg.body = body(specifyPuzzle: true)
+        msg.room_name = "puzzles/#{meta._id}"
+        unless args?.suppressRoom is msg.room_name
+          Meteor.call "newMessage", msg
+      oplog "New answer #{args.answer} submitted for", 'puzzles', id, \
           args.who, 'callins'
 
     newQuip: (args) ->
@@ -955,7 +810,7 @@ doc_id_to_link = (id) ->
         who: NonEmptyString
         punted: Match.Optional(Boolean)
       quip = Quips.findOne args.id
-      throw new Meteor.Error(400, "bad quip id") unless quip
+      throw new Meteor.Error(404, "bad quip id") unless quip
       now = UTCNow()
       Quips.update args.id,
         $set: {last_used: now, touched: now, touched_by: canonical(args.who)}
@@ -981,7 +836,6 @@ doc_id_to_link = (id) ->
       throw new Meteor.Error(400, "bad callin") unless callin
       # call-in is cancelled as a side-effect of setAnswer
       Meteor.call "setAnswer",
-        type: callin.type
         target: callin.target
         answer: callin.answer
         backsolve: callin.backsolve
@@ -989,25 +843,25 @@ doc_id_to_link = (id) ->
         who: args.who
       backsolve = if callin.backsolve then "[backsolved] " else ''
       provided = if callin.provided then "[provided] " else ''
-      name = collection(callin.type)?.findOne(callin.target)?.name
+      puzzle = Puzzles.findOne(callin.target)
+      retunr unless puzzle?
       msg =
         body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
         action: true
         nick: args.who
-        room_name: "#{callin.type}/#{callin.target}"
+        room_name: "puzzles/#{callin.target}"
 
       # one message to the puzzle chat
       Meteor.call 'newMessage', msg
 
       # one message to the general chat
       delete msg.room_name
-      msg.body += " (#{name})" if name?
+      msg.body += " (#{name})" if puzzle.name?
       Meteor.call 'newMessage', msg
 
-      # one message to the round chat for metasolvers
-      round = Rounds.findOne({puzzles: callin.target})
-      if round?
-        msg.room_name = "rounds/#{round._id}"
+      # one message to the each metapuzzle's chat
+      puzzle.feedsMeta.forEach (meta) ->
+        msg.room_name = "puzzles/#{meta}"
         Meteor.call 'newMessage', msg
 
     incorrectCallIn: (args) ->
@@ -1018,22 +872,26 @@ doc_id_to_link = (id) ->
       throw new Meteor.Error(400, "bad callin") unless callin
       # call-in is cancelled as a side-effect of addIncorrectAnswer
       Meteor.call "addIncorrectAnswer",
-        type: callin.type
         target: callin.target
         answer: callin.answer
         backsolve: callin.backsolve
         provided: callin.provided
         who: args.who
-      name = collection(callin.type)?.findOne(callin.target)?.name
+      puzzle = Puzzles.findOne(callin.target)
+      return unless puzzle?
+      name = puzzle.name
       msg =
         body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
         action: true
         nick: args.who
-        room_name: "#{callin.type}/#{callin.target}"
+        room_name: "puzzles/#{callin.target}"
       Meteor.call 'newMessage', msg
       delete msg.room_name
       msg.body += " (#{name})" if name?
       Meteor.call 'newMessage', msg
+      puzzle.feedsMeta.forEach (meta) ->
+        msg.room_name = "puzzles/#{meta}"
+        Meteor.call 'newMessage', msg
 
     cancelCallIn: (args) ->
       check args, ObjectWith
@@ -1041,9 +899,9 @@ doc_id_to_link = (id) ->
         who: NonEmptyString
         suppressLog: Match.Optional(Boolean)
       callin = CallIns.findOne(args.id)
-      throw new Meteor.Error(400, "bad callin") unless callin
+      throw new Meteor.Error(404, "bad callin") unless callin
       unless args.suppressLog
-        oplog "Canceled call-in of #{callin.answer} for", callin.type, \
+        oplog "Canceled call-in of #{callin.answer} for", 'puzzles', \
             callin.target, args.who
       deleteObject "callins",
         id: args.id
@@ -1071,7 +929,7 @@ doc_id_to_link = (id) ->
         timestamp: Match.Optional(Number)
       return if this.isSimulation # server side only
       n = Nicks.findOne canon: canonical(args.nick)
-      throw new Meteor.Error(400, "bad nick: #{args.nick}") unless n?
+      throw new Meteor.Error(404, "bad nick: #{args.nick}") unless n?
       # the server transfers updates from priv_located* to located* at
       # a throttled rate to prevent N^2 blow up.
       # priv_located_order implements a FIFO queue for updates, but
@@ -1201,35 +1059,11 @@ doc_id_to_link = (id) ->
       check args, ObjectWith
         name: NonEmptyString
         optional_type: Match.Optional(NonEmptyString)
-      for type in ['roundgroups','rounds','puzzles','nicks']
+      for type in ['rounds','puzzles','nicks']
         continue if args.optional_type and args.optional_type isnt type
         o = collection(type).findOne canon: canonical(args.name)
         return {type:type,object:o} if o
-      # try RxPy notation
-      if /^r\d+(p\d+)?$/i.test(args.name)
-        [_,round,puzzle] = args.name.split /\D+/
-        return Meteor.call 'getByRP',
-          round: +round
-          puzzle: if puzzle? then +puzzle
       return null # no match found
-
-    # parse RxPy notation.
-    getByRP: (args) ->
-      check args, ObjectWith
-        round: Number
-        puzzle: Match.Optional(Number)
-      rg = RoundGroups.findOne({
-        round_start: $lte: (args.round-1)
-      },{
-        sort:[['round_start','desc']]
-      })
-      rid = if rg? then rg.rounds[args.round - rg.round_start - 1]
-      r = if rid? then Rounds.findOne(rid)
-      return { type: 'rounds', object: r } if r? and not args.puzzle?
-      pid = if r? then r.puzzles[args.puzzle - 1]
-      p = if pid? then Puzzles.findOne(pid)
-      return { type: 'puzzles', object: p } if p?
-      null
 
     setField: (args) ->
       check args, ObjectWith
@@ -1295,36 +1129,35 @@ doc_id_to_link = (id) ->
     summon: (args) ->
       check args, ObjectWith
         object: IdOrObject
-        type: ValidAnswerType
         who: NonEmptyString
         how: Match.Optional(NonEmptyString)
       id = args.object._id or args.object
       obj = collection(args.type).findOne id
       if not obj?
-        return "Couldn't find #{pretty_collection args.type} #{id}"
+        return "Couldn't find puzzle #{id}"
       if obj.solved
-        return "#{pretty_collection args.type} #{obj.name} is already answered"
+        return "puzzle #{obj.name} is already answered"
       wasStuck = isStuck obj
       how = args.how or 'Stuck'
       setTagInternal
         object: id
-        type: args.type
+        type: 'puzzles'
         name: 'Status'
         value: how
         who: args.who
         now: UTCNow()
       if wasStuck
         return
-      oplog "Help requested for", args.type, id, args.who, 'stuck'
+      oplog "Help requested for", 'puzzles', id, args.who, 'stuck'
       body = "has requested help: #{how}"
       Meteor.call 'newMessage',
         nick: args.who
         action: true
         body: body
-        room_name: "#{args.type}/#{id}"
+        room_name: "puzzles/#{id}"
       objUrl = # see Router.urlFor
-        Meteor._relativeToSiteRootUrl "/#{args.type}/#{id}"
-      body = "has requested help: #{UI._escape how} (#{pretty_collection args.type} <a class=\"#{UI._escape args.type}-link\" href=\"#{objUrl}\">#{UI._escape obj.name}</a>)"
+        Meteor._relativeToSiteRootUrl "/puzzles/#{id}"
+      body = "has requested help: #{UI._escape how} (puzzle <a class=\"puzzles-link\" href=\"#{objUrl}\">#{UI._escape obj.name}</a>)"
       Meteor.call 'newMessage',
         nick: args.who
         action: true
@@ -1335,19 +1168,18 @@ doc_id_to_link = (id) ->
     unsummon: (args) ->
       check args, ObjectWith
         object: IdOrObject
-        type: ValidAnswerType
         who: NonEmptyString
       id = args.object._id or args.object
-      obj = collection(args.type).findOne id
+      obj = Puzzles.findOne id
       if not obj?
-        return "Couldn't find #{pretty_collection args.type} #{id}"
+        return "Couldn't find puzzle #{id}"
       if not (isStuck obj)
-        return "#{pretty_collection args.type} #{obj.name} isn't stuck"
-      oplog "Help request cancelled for", args.type, id, args.who
+        return "puzzle #{obj.name} isn't stuck"
+      oplog "Help request cancelled for", 'puzzles', id, args.who
       sticker = (tag.touched_by for tag in obj.tags when tag.canon is 'status')?[0] or 'nobody'
       deleteTagInternal
         object: id
-        type: args.type
+        type: 'puzzles'
         name: 'status'
         who: args.who
         now: UTCNow()
@@ -1358,39 +1190,13 @@ doc_id_to_link = (id) ->
         nick: args.who
         action: true
         body: body
-        room_name: "#{args.type}/#{id}"
-      body = "#{body} in #{pretty_collection args.type} #{obj.name}"
+        room_name: "puzzles/#{id}"
+      body = "#{body} in puzzle #{obj.name}"
       Meteor.call 'newMessage',
         nick: args.who
         action: true
         body: body
       return
-
-    addRoundToGroup: (args) ->
-      check args, ObjectWith
-        round: IdOrObject
-        group: IdOrObject
-      rid = args.round._id or args.round
-      gid = args.group._id or args.group
-      rg = RoundGroups.findOne(gid)
-      throw new Meteor.Error(400, "bad group") unless rg
-      # remove round from all other groups
-      RoundGroups.update { rounds: rid },{ $pull: rounds: rid },{ multi: true }
-      # add round to the given group
-      if args.before or args.after
-        # add to a specific location
-        rounds = (r for r in rg.rounds when r != rid)
-        nrounds = rounds[..]
-        if args.before
-          npos = rounds.indexOf(args.before)
-        else
-          npos = rounds.indexOf(args.after) + 1
-        nrounds.splice(npos, 0, rid)
-        # update the collection only if there wasn't a race
-        RoundGroups.update {_id: gid, rounds: rounds}, $set: rounds: nrounds
-      # add to the end (no-op if the 'at' clause succeeded)
-      RoundGroups.update gid, $addToSet: rounds: rid
-      return true
 
     addPuzzleToRound: (args) ->
       check args, ObjectWith
@@ -1400,7 +1206,7 @@ doc_id_to_link = (id) ->
       rid = args.round._id or args.round
       check rid, NonEmptyString
       r = Rounds.findOne(rid)
-      throw new Meteor.Error(400, "bad round") unless r
+      throw new Meteor.Error(404, "bad round") unless r
       # remove puzzle from all other rounds
       Rounds.update { puzzles: pid },{ $pull: puzzles: pid },{ multi: true }
       # add puzzle to the given round
@@ -1427,10 +1233,8 @@ doc_id_to_link = (id) ->
       check id, NonEmptyString
       return Rounds.findOne(puzzles: id)
 
-    getGroupForRound: (round) ->
-      check round, IdOrObject
-      id = round._id or round
-      return RoundGroups.findOne(rounds: id)
+    # TODO(torgen): specialize moveWithinParent to puzzle within meta and puzzle within round.
+    # Meta within round is a special case--we'll always use before/after.
 
     moveUp: (args) -> moveObject(args.type, args.id, "up")
 
@@ -1438,7 +1242,6 @@ doc_id_to_link = (id) ->
 
     setAnswer: (args) ->
       check args, ObjectWith
-        type: ValidAnswerType
         target: IdOrObject
         answer: NonEmptyString
         who: NonEmptyString
@@ -1447,28 +1250,28 @@ doc_id_to_link = (id) ->
       id = args.target._id or args.target
 
       # Only perform the update and oplog if the answer is changing
-      oldAnswer = (tag for tag in collection(args.type).findOne(id).tags \
+      oldAnswer = (tag for tag in Puzzles.findOne(id).tags \
                       when tag.canon is 'answer')[0]?.value
       if oldAnswer is args.answer
         return false
 
       now = UTCNow()
       setTagInternal
-        type: args.type
+        type: 'puzzles'
         object: args.target
         name: 'Answer'
         value: args.answer
         who: args.who
         now: now
       deleteTagInternal
-        type: args.type
+        type: 'puzzles'
         object: args.target
         name: 'status'
         who: args.who
         now: now
       if args.backsolve
         setTagInternal
-          type: args.type
+          type: 'puzzles'
           object: args.target
           name: 'Backsolve'
           value: 'yes'
@@ -1476,20 +1279,20 @@ doc_id_to_link = (id) ->
           now: now
       if args.provided
         setTagInternal
-          type: args.type
+          type: 'puzzles'
           object: args.target
           name: 'Provided'
           value: 'yes'
           who: args.who
           now: now
-      collection(args.type).update id, $set:
+      Puzzles.update id, $set:
         solved: now
         solved_by: canonical(args.who)
         touched: now
         touched_by: canonical(args.who)
-      oplog "Found an answer (#{args.answer.toUpperCase()}) to", args.type, id, args.who, 'answers'
+      oplog "Found an answer (#{args.answer.toUpperCase()}) to", 'puzzles', id, args.who, 'answers'
       # cancel any entries on the call-in queue for this puzzle
-      for c in CallIns.find(type: args.type, target: id).fetch()
+      for c in CallIns.find(target: id).fetch()
         Meteor.call 'cancelCallIn',
           id: c._id
           who: args.who
@@ -1498,7 +1301,6 @@ doc_id_to_link = (id) ->
 
     addIncorrectAnswer: (args) ->
       check args, ObjectWith
-        type: ValidAnswerType
         target: IdOrObject
         answer: NonEmptyString
         who: NonEmptyString
@@ -1507,9 +1309,9 @@ doc_id_to_link = (id) ->
       id = args.target._id or args.target
       now = UTCNow()
 
-      target = collection(args.type).findOne(id)
+      target = Puzzles.findOne(id)
       throw new Meteor.Error(400, "bad target") unless target
-      collection(args.type).update id, $push:
+      Puzzles.update id, $push:
         incorrectAnswers:
           answer: args.answer
           timestamp: UTCNow()
@@ -1517,10 +1319,10 @@ doc_id_to_link = (id) ->
           backsolve: !!args.backsolve
           provided: !!args.provided
 
-      oplog "reports incorrect answer #{args.answer} for", args.type, id, args.who, \
+      oplog "reports incorrect answer #{args.answer} for", 'puzzles', id, args.who, \
           'callins'
       # cancel any matching entries on the call-in queue for this puzzle
-      for c in CallIns.find(type: args.type, target: id, answer: args.answer).fetch()
+      for c in CallIns.find(target: id, answer: args.answer).fetch()
         Meteor.call 'cancelCallIn',
           id: c._id
           who: args.who
@@ -1529,35 +1331,35 @@ doc_id_to_link = (id) ->
 
     deleteAnswer: (args) ->
       check args, ObjectWith
-        type: ValidAnswerType
         target: IdOrObject
         who: NonEmptyString
       id = args.target._id or args.target
       now = UTCNow()
+      # TODO(Torgen): Use $pullAll to remove these.
       deleteTagInternal
-        type: args.type
+        type: 'puzzles'
         object: args.target
         name: 'Answer'
         who: args.who
         now: now
       deleteTagInternal
-        type: args.type
+        type: 'puzzles'
         object: args.target
         name: 'Backsolve'
         who: args.who
         now: now
       deleteTagInternal
-        type: args.type
+        type: 'puzzles'
         object: args.target
         name: 'Provided'
         who: args.who
         now: now
-      collection(args.type).update id, $set:
+      Puzzles.update id, $set:
         solved: null
         solved_by: null
         touched: now
         touched_by: canonical(args.who)
-      oplog "Deleted answer for", args.type, id, args.who
+      oplog "Deleted answer for", 'puzzles', id, args.who
       return true
 
     getRinghuntersFolder: ->
@@ -1573,7 +1375,7 @@ doc_id_to_link = (id) ->
         object: IdOrObject
         name: NonEmptyString
       id = args.object._id or args.object
-      newDriveFolder args.type, id, args.name
+      newDriveFolder id, args.name
 )()
 
 UTCNow = -> Date.now()
@@ -1590,7 +1392,6 @@ share.model =
   Quips: Quips
   Names: Names
   LastAnswer: LastAnswer
-  RoundGroups: RoundGroups
   Rounds: Rounds
   Puzzles: Puzzles
   Nicks: Nicks

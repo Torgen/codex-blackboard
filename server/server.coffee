@@ -11,7 +11,7 @@ Meteor.publish = ((publish) ->
 )(Meteor.publish) if false # disable by default
 
 Meteor.publish 'all-roundsandpuzzles', -> [
-  model.RoundGroups.find(), model.Rounds.find(), model.Puzzles.find()
+  model.Rounds.find(), model.Puzzles.find()
 ]
 Meteor.publish 'all-nicks', ->
   model.Nicks.find {}, fields:
@@ -64,9 +64,9 @@ Meteor.publish 'last-answered-puzzle', ->
   # XXX this observe polls on 0.7.0.1
   # (but not on the meteor oplog-with-operators branch)
   handles = [
-    "puzzles", "rounds", "roundgroups"
+    "puzzles", "rounds"
   ].map (type) -> model.collection(type).find({
-    solved: { $exists: true, $ne: null }
+    solved: { $ne: null }
   }).observe
     added: (doc) -> publishIfMax(type, doc)
     changed: (doc, oldDoc) -> publishIfMax(type, doc)
@@ -87,11 +87,10 @@ Meteor.publish 'last-answered-puzzle', ->
   self.onStop -> (handle.stop() for handle in handles)
 
 # limit site traffic by only pushing out changes relevant to a certain
-# roundgroup, round, or puzzle
+# round or puzzle
 Meteor.publish 'puzzle-by-id', (id) -> model.Puzzles.find _id: id
 Meteor.publish 'round-by-id', (id) -> model.Rounds.find _id: id
 Meteor.publish 'round-for-puzzle', (id) -> model.Rounds.find puzzles: id
-Meteor.publish 'roundgroup-for-round', (id) -> model.RoundGroups.find rounds: id
 
 Meteor.publish 'my-nick', (nick) ->
   model.Nicks.find {canon: model.canonical(nick)}, fields:
@@ -151,7 +150,7 @@ Meteor.publish 'quips', ->
 # synthetic 'all-names' collection which maps ids to type/name/canon
 Meteor.publish 'all-names', ->
   self = this
-  handles = [ 'roundgroups', 'rounds', 'puzzles', 'quips' ].map (type) ->
+  handles = [ 'rounds', 'puzzles', 'quips' ].map (type) ->
     model.collection(type).find({}).observe
       added: (doc) ->
         self.added 'names', doc._id,

@@ -1,29 +1,21 @@
 # sample data for load testing
 ensureData = (cb) ->
   who = 'loadtest'
-  Meteor.call 'newRoundGroup',
-    name: 'roundgroup',
-    who: who,
-    rounds: null
-  , (err, rg) ->
+  Meteor.call 'newRound',
+    name: 'round'
+    who: who
+    puzzles: null
+  , (err, r) ->
     cb(err) if err?
-    Meteor.call 'newRound',
-      name: 'round'
-      who: who
-      puzzles: null
-    , (err, r) ->
+    Meteor.call 'newPuzzle',
+      name: 'puzzle'
+      who: 'loadtest'
+    , (err, p) ->
       cb(err) if err?
-      Meteor.call 'addRoundToGroup', {round:r, group:rg, who:who}
-      Meteor.call 'newPuzzle',
-        name: 'puzzle'
-        who: 'loadtest'
-      , (err, p) ->
-        cb(err) if err?
-        Meteor.call 'addPuzzleToRound', {puzzle:p, round:r, who:who}
-        cb null,
-          puzzle: p
-          round: r
-          roundgroup: rg
+      Meteor.call 'addPuzzleToRound', {puzzle:p, round:r, who:who}
+      cb null,
+        puzzle: p
+        round: r
 
 # different load testing tasks
 tasks = Object.create(null)
@@ -95,19 +87,7 @@ addPuzzles = (data) ->
     return if err?
     followup o, ->
       Meteor.setTimeout((-> removeit(o)), 10*1000)
-  switch Random.choice ['roundgroup', 'round', 'puzzle']
-    when 'roundgroup'
-      followup = (rg, cb) ->
-        Meteor.call 'renameRoundGroup',
-          id: rg._id
-          name: Random.hexString(16)
-          who:who
-        , cb
-      removeit = (rg) ->
-        Meteor.call 'deleteRoundGroup',
-          id: rg._id
-          who: who
-      Meteor.call 'newRoundGroup', {name:name,who:who,rounds:null}, cb
+  switch Random.choice ['round', 'puzzle']
     when 'round'
       followup = (r, cb) ->
         Meteor.call 'addRoundToGroup',
