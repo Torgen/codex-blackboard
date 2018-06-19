@@ -5,9 +5,6 @@ model = share.model
 # (useful during development; disable this before hunt)
 POPULATE_DB_WHEN_RESET = !Meteor.settings.production && !Meteor.isProduction
 
-SAMPLE_DATA = []
-# TODO(Torgen): Add sample data with interesting meta structure.
-# e.g. emotion or scifi round 2018.
 SAMPLE_CHATS = [
   nick: "cscott"
   body: "Have we found the coin yet?  Seriously."
