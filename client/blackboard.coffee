@@ -346,6 +346,7 @@ Template.blackboard_puzzle_cells.helpers
   otherMetas: ->
     parent = Template.parentData(1)
     return unless parent.puzzle
+    return if @puzzle.feedsInto.length < 2
     return model.Puzzles.find(_id: { $in: @puzzle.feedsInto, $ne: parent.puzzle._id })
 
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
