@@ -227,6 +227,16 @@
       {{#unless compactMode}}{{>blackboard_puzzle_tags}}{{/unless}}
       {{>blackboard_link}}
     {{/with}}
+    {{#if canEdit}}
+      {{! TODO(torgen): List of all fed metas with X button to unfeed }}
+      {{! TODO(torgen): dropdown of other metas to feed into }}
+    {{else if otherMetas}}
+      Also feeds: <span class="comma-list">
+        {{#each otherMetas}}
+          {{link id=_id}}
+        {{/each}}
+      </span>
+    {{/if}}
     {{! TODO(torgen): list other metas and in edit mode allow modifying. }}
   </div></td>
   <td class="puzzle-answer bb-editable"

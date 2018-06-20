@@ -342,6 +342,10 @@ Template.blackboard_puzzle_cells.helpers
   compactMode: compactMode
   nCols: nCols
   stuck: share.model.isStuck
+  otherMetas: ->
+    parent = Template.parentData(1)
+    return unless parent.puzzle
+    return model.Puzzles.find(_id: { $in: @puzzle.feedsInto, $ne: parent.puzzle._id })
 
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 
