@@ -676,7 +676,8 @@ doc_id_to_link = (id) ->
       puzzle_prefix = huntPrefix 'puzzle'
       link = if puzzle_prefix
         "#{puzzle_prefix}#{canonical(args.name)}"
-      p = newObject "puzzles", args,
+      feedsInto = args.feedsInto or []
+      extra =
         incorrectAnswers: []
         solved: null
         solved_by: null
@@ -684,8 +685,10 @@ doc_id_to_link = (id) ->
         spreadsheet: args.spreadsheet or null
         doc: args.doc or null
         link: args.link or link
-        feedsInto: args.feedsInto or []
-        puzzles: args.puzzles or undefined
+        feedsInto: feedsInto
+      if args.puzzles?
+        extra.puzzles = args.puzzles
+      p = newObject "puzzles", args, extra
       if args.puzzles?
         Puzzles.update {_id: $in: args.puzzles}, {$push: feedsInto: p._id}, multi: true
       if feedsInto.length > 0

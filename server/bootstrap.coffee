@@ -97,19 +97,19 @@ Meteor.startup ->
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/drafting_table/'
         tags: [ {name: 'Technology', value: 'Draftsmanship'}]
-      racking = Meteor.call 'newPuzzle'
+      racking = Meteor.call 'newPuzzle',
         name: 'Racking Your Brains'
         who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/racking_your_brains/'
         tags: [ {name: 'Technology', value: 'The Wheel'}]
-      chant = Meteor.call 'newPuzzle'
+      chant = Meteor.call 'newPuzzle',
         name: 'Crowd\'s Chant'
         who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/crowds_chant/'
         tags: [ {name: 'Technology', value: 'Gladatorial Combat'}]
-      hints = Meteor.call 'newPuzzle'
+      hints = Meteor.call 'newPuzzle',
         name: 'Hints, With A Bit Of Love!'
         who: WHO
         round: civ._id
@@ -127,7 +127,7 @@ Meteor.startup ->
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/this_should_be_easy/'
         tags: [ {name: 'Technology', value: 'Epic Poetry'}]
-      cute = Meteor.call 'newPuzzle'
+      cute = Meteor.call 'newPuzzle',
         name: 'Soooo Cute!'
         who: WHO
         round: civ._id
