@@ -401,35 +401,6 @@ Template.blackboard_puzzle.events
       return
     Meteor.call 'addPuzzleToRound', args
 
-Template.blackboard_round.events
-  'dragover tr.meta': (event, template) ->
-    event = event.originalEvent
-    return unless event.dataTransfer.types.includes PUZZLE_MIME_TYPE
-    return unless @round._id is (share.model.Rounds.findOne {puzzles: dragdata.id})._id
-    event.preventDefault()
-    puzzles = @round.puzzles
-    return unless puzzles.length
-    firstPuzzle = puzzles[0]
-    return if firstPuzzle is dragdata.id
-    Meteor.call 'addPuzzleToRound',
-      round: @round
-      puzzle: dragdata.id
-      before: firstPuzzle
-  'dragover tr.roundfooter': (event, template) ->
-    event = event.originalEvent
-    return unless event.dataTransfer.types.includes PUZZLE_MIME_TYPE
-    return unless @round._id is (share.model.Rounds.findOne {puzzles: dragdata.id})._id
-    event.preventDefault()
-    puzzles = @round.puzzles
-    len = puzzles.length
-    return unless len
-    lastpuzzle = puzzles[len-1]
-    return if lastpuzzle is dragdata.id
-    Meteor.call 'addPuzzleToRound',
-      round: @round
-      puzzle: dragdata.id
-      after: lastpuzzle
-
 tagHelper = (id) ->
   { id: id, name: t.name, canon: t.canon, value: t.value } \
     for t in (this?.tags or []) when not \
