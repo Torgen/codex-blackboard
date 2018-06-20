@@ -289,7 +289,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/yeah_but_it_didnt_work.html'
         feedsInto: [anger._id]
-        tags: [{name: 'temperature', value: 2}]
+        tags: [{name: 'Temperature', value: '2'}]
       Meteor.call 'newPuzzle',
         name: 'Warm And Fuzzy'
         who: WHO
@@ -308,7 +308,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/in_memoriam.html'
         feedsInto: [sadness._id]
-        tags: [{name: 'borders', value: 2}]
+        tags: [{name: 'Borders', value: '2'}]
       Meteor.call 'newPuzzle',
         name: 'Freak Out'
         who: WHO
@@ -321,7 +321,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/lets_get_ready_to_jumble.html'
         feedsInto: [anger._id]
-        tags: [{name: 'temperature', value: 11}]
+        tags: [{name: 'Temperature', value: '11'}]
       Meteor.call 'newPuzzle',
         name: 'AKA'
         who: WHO
@@ -334,7 +334,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/unfortunate_ai.html'
         feedsInto: [sadness._id]
-        tags: [{name: 'borders', value: 4}]
+        tags: [{name: 'Borders', value: '4'}]
       Meteor.call 'newPuzzle',
         name: 'A Learning Path'
         who: WHO
@@ -347,7 +347,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/cross_words.html'
         feedsInto: [anger._id]
-        tags: [{name: 'temperature', value: 1}]
+        tags: [{name: 'Temperature', value: '1'}]
       Meteor.call 'newPuzzle',
         name: 'We Are All Afraid To Die'
         who: WHO
@@ -360,14 +360,14 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/temperance.html'
         feedsInto: [anger._id, disgust._id]
-        tags: [{name: 'temperature', value: 10}]
+        tags: [{name: 'Temperature', value: '10'}]
       Meteor.call 'newPuzzle',
         name: 'Word Search'
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/word_search.html'
         feedsInto: [fear._id, sadness._id]
-        tags: [{name: 'borders', value: 4}]
+        tags: [{name: 'Borders', value: '4'}]
       Meteor.call 'newPuzzle',
         name: 'Just Keep Swiping'
         who: WHO
@@ -380,7 +380,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/caged.html'
         feedsInto: [joy._id, sadness._id]
-        tags: [{name: 'borders', value: 5}]
+        tags: [{name: 'Borders', value: '5'}]
       Meteor.call 'newPuzzle',
         name: 'Minority Report'
         who: WHO
@@ -393,14 +393,14 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/asteroids.html'
         feedsInto: [anger._id]
-        tags: [{name: 'temperature', value: 3}]
+        tags: [{name: 'Temperature', value: '3'}]
       Meteor.call 'newPuzzle',
         name: 'Good Fences Make Sad and Disgusted Neighbors'
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/good_fences_make_sad_and_disgusted_neighbors.html'
         feedsInto: [sadness._id, disgust._id]
-        tags: [{name: 'borders', value: 2}]
+        tags: [{name: 'Borders', value: '2'}]
       Meteor.call 'newPuzzle',
         name: 'Face Your Fears'
         who: WHO
@@ -413,7 +413,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/scattered_and_absurd.html'
         feedsInto: [anger._id, sadness._id]
-        tags: [{name: 'temperature', value: 8}, {name: 'borders', value: 3}]
+        tags: [{name: 'Temperature', value: '8'}, {name: 'Borders', value: '3'}]
       Meteor.call 'newPuzzle',
         name: 'Cooking a Recipe'
         who: WHO
@@ -426,7 +426,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/roadside_america.html'
         feedsInto: [fear._id, anger._id]
-        tags: [{name: 'temperature', value: 6}]
+        tags: [{name: 'Temperature', value: '6'}]
       Meteor.call 'newPuzzle',
         name: 'Crossed Paths'
         who: WHO
@@ -445,35 +445,35 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/whats_in_a_name.html'
         feedsInto: [anger._id]
-        tags: [{name: 'temperature', value: 9}]
+        tags: [{name: 'Temperature', value: '9'}]
       Meteor.call 'newPuzzle',
         name: 'Games Club'
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/games_club.html'
         feedsInto: [sadness._id]
-        tags: [{name: 'borders', value: 5}]
+        tags: [{name: 'Borders', value: '5'}]
       Meteor.call 'newPuzzle',
         name: 'Birds of a Feather'
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/birds_of_a_feather.html'
         feedsInto: [joy._id, anger._id]
-        tags: [ {name: 'temperature', value: 12}]
+        tags: [ {name: 'Temperature', value: '12'}]
       Meteor.call 'newPuzzle',
         name: 'Nobody Likes Sad Songs'
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/nobody_likes_sad_songs.html'
         feedsInto: [sadness._id]
-        tags: [{name: 'borders', value: 2}]
+        tags: [{name: 'Borders', value: '2'}]
       Meteor.call 'newPuzzle',
         name: 'Irritating Places'
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/irritating_places.html'
         feedsInto: [anger._id]
-        tags: [{name: 'temperature', value: 4}]
+        tags: [{name: 'Temperature', value: '4'}]
       Meteor.call 'newPuzzle',
         name: 'What The...'
         who: WHO
@@ -492,7 +492,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/that_time_i_somehow_felt_incomplete.html'
         feedsInto: [anger._id]
-        tags: [{name: 'temperature', value: 7}]
+        tags: [{name: 'Temperature', value: '7'}]
       Meteor.call 'newPuzzle',
         name: 'Jeopardy!'
         who: WHO
@@ -505,7 +505,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/chemistry_experimentation.html'
         feedsInto: [anger._id]
-        tags: [{name: 'temperature', value: 5}]
+        tags: [{name: 'Temperature', value: '5'}]
       Meteor.call 'newPuzzle',
         name: 'The Brainstorm'
         who: WHO
