@@ -352,6 +352,9 @@ PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 
 dragdata = null
 
+Template.blackboard_puzzle.helpers
+  stuck: share.model.isStuck
+
 Template.blackboard_puzzle.events
   'dragend tr.puzzle': (event, template) ->
     dragdata = null
