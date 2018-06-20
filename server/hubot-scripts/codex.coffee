@@ -24,7 +24,7 @@ share.hubot.codex = (robot) ->
 
 # setAnswer
   robot.commands.push 'bot the answer to <puzzle> is <answer> - Updates codex blackboard'
-  robot.respond (share.botutil.share.botutil.rejoin /The answer to /,share.botutil.thingRE,/\ is /,share.botutil.thingRE,/$/i), (msg) ->
+  robot.respond (share.botutil.rejoin /The answer to /,share.botutil.thingRE,/\ is /,share.botutil.thingRE,/$/i), (msg) ->
     name = share.botutil.strip msg.match[1]
     answer = share.botutil.strip msg.match[2]
     who = msg.envelope.user.id
