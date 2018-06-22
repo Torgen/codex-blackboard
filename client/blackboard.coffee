@@ -136,9 +136,9 @@ Template.blackboard.helpers
     return r
   unassigned: ->
     for id, index in this.puzzles
-      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}})
+      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
       continue unless puzzle?
-      puzzle
+      { puzzle: puzzle }
   stuck: share.model.isStuck
 
 Template.blackboard_status_grid.helpers
