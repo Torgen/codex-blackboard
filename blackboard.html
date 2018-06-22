@@ -228,22 +228,56 @@
       </div>
     {{/if}}
     {{#with puzzle}}
-      {{#unless compactMode}}{{>blackboard_puzzle_tags}}{{/unless}}
+      {{#unless compactMode}}
+      <table class="bb-tag-table"><tbody>
+        {{#each tags _id}}
+        <tr>
+          <td class="bb-editable"
+              data-bbedit="tags/{{id}}/{{canon}}/name">
+            {{#if editing "tags" id canon "name"}}
+              <input type="text" id="tags-{{id}}-{{canon}}-name"
+                      value="{{name}}"
+                      class="input-block-level" />
+            {{else}}
+              {{#if canEdit}}
+                <i class="bb-edit-icon icon-pencil pull-left"
+                    title="Edit the name of this tag"></i>
+              {{/if}}
+              {{name}}:
+            {{/if}}
+          </td>
+          <td class="bb-editable"
+              data-bbedit="tags/{{id}}/{{canon}}/value">
+            {{#if editing "tags" id canon "value"}}
+              <input type="text" id="tags-{{id}}-{{canon}}-value"
+                      value="{{value}}"
+                      class="input-block-level" />
+            {{else if canEdit}}
+              <i class="bb-delete-icon icon-remove pull-left"
+                  title="Delete this tag and value"></i>
+              <i class="bb-edit-icon icon-pencil pull-right"
+                  title="Change the value of this tag"></i>
+              {{value}}
+            {{else}}
+              {{linkify value}}
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+        {{#with otherMetas}}
+          {{#if this}}
+            <tr>
+              {{! TODO(torgen): if can edit, x buttons to unfeed and dropdown to feed }}
+              <td>Also feeds</td>
+              <td class="comma-list">{{#each this}}{{link id=_id}}{{/each}}</td>
+            </tr>
+          {{/if}}
+          {{! TODO(torgen): if can edit, checkbox to make meta or not. }}
+        {{/with}}
+      </tbody></table>
+        {{/unless}}
       {{>blackboard_link}}
     {{/with}}
-    {{#if canEdit}}
-      {{! TODO(torgen): List of all fed metas with X button to unfeed }}
-      {{! TODO(torgen): dropdown of other metas to feed into }}
-    {{else}}
-      {{#with otherMetas}}
-        {{#if this}}
-          Also feeds: <span class="comma-list">
-            {{#each this}}{{link id=_id}}{{/each}}
-          </span>
-        {{/if}}
-      {{/with}}
-    {{/if}}
-    {{! TODO(torgen): list other metas and in edit mode allow modifying. }}
   </div></td>
   <td class="puzzle-answer bb-editable"
       data-bbedit="tags/{{puzzle._id}}/answer/value">
@@ -386,43 +420,6 @@
       {{/if}}
     </dd>
   {{/each}}</dl>
-</template>
-
-<template name="blackboard_puzzle_tags">
-  <table class="bb-tag-table"><tbody>{{#each tags _id}}
-    <tr>
-      <td class="bb-editable"
-          data-bbedit="tags/{{id}}/{{canon}}/name">
-        {{#if editing "tags" id canon "name"}}
-          <input type="text" id="tags-{{id}}-{{canon}}-name"
-                  value="{{name}}"
-                  class="input-block-level" />
-        {{else}}
-          {{#if canEdit}}
-            <i class="bb-edit-icon icon-pencil pull-left"
-                title="Edit the name of this tag"></i>
-          {{/if}}
-          {{name}}:
-        {{/if}}
-      </td>
-      <td class="bb-editable"
-          data-bbedit="tags/{{id}}/{{canon}}/value">
-        {{#if editing "tags" id canon "value"}}
-          <input type="text" id="tags-{{id}}-{{canon}}-value"
-                  value="{{value}}"
-                  class="input-block-level" />
-        {{else if canEdit}}
-          <i class="bb-delete-icon icon-remove pull-left"
-              title="Delete this tag and value"></i>
-          <i class="bb-edit-icon icon-pencil pull-right"
-              title="Change the value of this tag"></i>
-          {{value}}
-        {{else}}
-          {{linkify value}}
-        {{/if}}
-      </td>
-    </tr>
-  {{/each}}</tbody></table>
 </template>
 
 <template name="blackboard_link">

@@ -415,7 +415,6 @@ tagHelper = (id) ->
         Session.equals('currentPage', 'puzzle')))
 
 Template.blackboard_tags.helpers { tags: tagHelper }
-Template.blackboard_puzzle_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information
