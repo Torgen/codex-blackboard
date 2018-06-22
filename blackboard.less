@@ -368,7 +368,13 @@ body.has-emojis {
   }
   .bb-puzzle {
     margin-bottom: 0;
-    th { background: #f8f8f8; }
+    th, tr.meta td { background: #f8f8f8; }
+    tr.meta td {
+      .puzzles-link {
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+    } 
     .bb-edit-icon, .bb-delete-icon {
       margin-top: 3px;
     }
