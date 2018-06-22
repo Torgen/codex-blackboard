@@ -159,7 +159,7 @@ Template.blackboard_status_grid.helpers
     p = ({
       puzzle_num: 1 + index
       puzzle: model.Puzzles.findOne(id) or { _id: id }
-    } for id, index in this.puzzles)
+    } for id, index in @puzzle.puzzles)
     return p
   stuck: share.model.isStuck
 
