@@ -331,6 +331,7 @@ Template.blackboard_meta.helpers
 Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
     return (model.getTag @puzzle, name) or ''
+  tags: tagHelper
   whos_working: ->
     return model.Presence.find
       room_name: ("puzzles/"+@puzzle?._id)
