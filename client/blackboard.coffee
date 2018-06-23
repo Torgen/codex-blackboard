@@ -336,6 +336,13 @@ Template.blackboard_meta.helpers
     p.filter (pp) -> !pp.puzzle.solved?
   stuck: share.model.isStuck
 
+Template.blackboard_puzzle_cells.events
+  'change .bb-set-is-meta': (event, template) ->
+    if event.target.checked
+      Meteor.call 'makeMeta', template.puzzle._id
+    else
+      Meteor.call 'makeNotMeta', template.puzzle._id
+
 Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
     return (model.getTag @puzzle, name) or ''
@@ -358,6 +365,11 @@ Template.blackboard_puzzle_cells.helpers
     return unless @feedsInto?
     return if @feedsInto.length < 2
     return model.Puzzles.find(_id: { $in: @feedsInto, $ne: parent.puzzle._id })
+  isMeta: -> return @puzzles?
+
+Template.blackboard_unfeed_meta.events
+  'click .bb-delete-icon': (event, template) ->
+    Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta
 
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 

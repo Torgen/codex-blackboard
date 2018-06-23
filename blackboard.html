@@ -264,16 +264,28 @@
           </td>
         </tr>
         {{/each}}
-        {{#with otherMetas}}
-          {{#if this}}
-            <tr>
-              {{! TODO(torgen): if can edit, x buttons to unfeed and dropdown to feed }}
-              <td>Also feeds:</td>
-              <td class="comma-list">{{#each this}}{{link id=_id}}{{/each}}</td>
-            </tr>
-          {{/if}}
-          {{! TODO(torgen): if can edit, checkbox to make meta or not. }}
-        {{/with}}
+        {{#if canEdit}}
+          <tr>
+            <td>is Meta:</td>
+            <td><input class="bb-set-is-meta" type="checkbox" {{#if isMeta}}checked {{#if puzzles}}disabled{{/if}}{{/if}} /></td>
+          </tr>
+          <tr>
+            <td>Feeds Into:</td>
+            <td>
+              {{#each feedsInto}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
+              {{! TODO(torgen): dropdown of all other metas. On select, feed that meta.}}
+            </td>
+          </tr>
+        {{else}}
+          {{#with otherMetas}}
+            {{#if this}}
+              <tr>
+                <td>Also feeds:</td>
+                <td class="comma-list">{{#each this}}{{link id=_id}}{{/each}}</td>
+              </tr>
+            {{/if}}
+          {{/with}}
+        {{/if}}
       </tbody></table>
         {{/unless}}
       {{>blackboard_link}}
@@ -339,6 +351,11 @@
   </td>
   {{/unless}}
   {{/unless}}
+</template>
+
+<template name="blackboard_unfeed_meta">
+  {{link _id}}
+  <i class="bb-delete-icon icon-remove" title="Stop feeding this meta"></i>
 </template>
 
 <template name="blackboard_meta">
