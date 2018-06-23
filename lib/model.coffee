@@ -655,6 +655,7 @@ doc_id_to_link = (id) ->
     newRound: (args) ->
       newObject "rounds", args,
         puzzles: []
+        link: args.link or null
       # TODO(torgen): create default meta
     renameRound: (args) ->
       renameObject "rounds", args
