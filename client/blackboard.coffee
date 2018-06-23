@@ -315,6 +315,14 @@ processBlackboardEdit =
       who: reactiveLocalStorage.getItem 'nick'
       fields: link: text
 
+tagHelper = (id) ->
+  { id: id, name: t.name, canon: t.canon, value: t.value } \
+    for t in (this?.tags or []) when not \
+      ((Session.equals('currentPage', 'blackboard') and \
+        (t.canon is 'status' or t.canon is 'answer')) or \
+        ((t.canon is 'answer' or t.canon is 'backsolve') and \
+        Session.equals('currentPage', 'puzzle')))
+
 Template.blackboard_meta.helpers
   showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolved') or (!this.puzzle?.solved?)
   # the following is a map() instead of a direct find() to preserve order
@@ -406,14 +414,6 @@ Template.blackboard_puzzle.events
     else
       return
     Meteor.call 'addPuzzleToRound', args
-
-tagHelper = (id) ->
-  { id: id, name: t.name, canon: t.canon, value: t.value } \
-    for t in (this?.tags or []) when not \
-      ((Session.equals('currentPage', 'blackboard') and \
-        (t.canon is 'status' or t.canon is 'answer')) or \
-        ((t.canon is 'answer' or t.canon is 'backsolve') and \
-        Session.equals('currentPage', 'puzzle')))
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }
