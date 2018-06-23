@@ -273,7 +273,9 @@
             <td>Feeds Into:</td>
             <td>
               {{#each feedsInto}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
-              {{! TODO(torgen): dropdown of all other metas. On select, feed that meta.}}
+              {{#with unfedMetas}}{{#if this.count}}
+                <select class="bb-feed-meta">{{#each this}}<option value="{{_id}}">{{name}}</option>{{/each}}</select>
+              {{/if}}{{/with}}
             </td>
           </tr>
         {{else}}

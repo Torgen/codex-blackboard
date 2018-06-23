@@ -342,6 +342,9 @@ Template.blackboard_puzzle_cells.events
       Meteor.call 'makeMeta', template.puzzle._id
     else
       Meteor.call 'makeNotMeta', template.puzzle._id
+  'change .bb-feed-meta': (event, template) ->
+    Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value
+
 
 Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
@@ -366,6 +369,8 @@ Template.blackboard_puzzle_cells.helpers
     return if @feedsInto.length < 2
     return model.Puzzles.find(_id: { $in: @feedsInto, $ne: parent.puzzle._id })
   isMeta: -> return @puzzles?
+  unfedMetas: ->
+    return model.Puzzles.find(puzzles: {$exists: true, $ne: @_id})
 
 Template.blackboard_unfeed_meta.events
   'click .bb-delete-icon': (event, template) ->
