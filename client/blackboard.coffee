@@ -339,9 +339,9 @@ Template.blackboard_meta.helpers
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
     if event.target.checked
-      Meteor.call 'makeMeta', template.puzzle._id
+      Meteor.call 'makeMeta', template.data.puzzle._id
     else
-      Meteor.call 'makeNotMeta', template.puzzle._id
+      Meteor.call 'makeNotMeta', template.data.puzzle._id
   'change .bb-feed-meta': (event, template) ->
     Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value
 
@@ -373,7 +373,7 @@ Template.blackboard_puzzle_cells.helpers
     return model.Puzzles.find(puzzles: {$exists: true, $ne: @_id})
 
 Template.blackboard_unfeed_meta.events
-  'click .bb-delete-icon': (event, template) ->
+  'click .bb-unfeed-icon': (event, template) ->
     Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta
 
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'

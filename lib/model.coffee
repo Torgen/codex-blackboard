@@ -726,27 +726,27 @@ doc_id_to_link = (id) ->
       # remove puzzle itself
       r = deleteObject "puzzles", args
       # remove from all rounds
-      Rounds.updateMany { puzzles: pid }, $pull: puzzles: pid
+      Rounds.update { puzzles: pid }, {$pull: puzzles: pid}, multi: true
       # Remove from all metas
-      Puzzles.updateMany { puzzles: pid }, $pull: puzzles: pid
+      Puzzles.update { puzzles: pid }, {$pull: puzzles: pid}, multi: true
       # Remove from all feedsInto lists
-      Puzzles.updateMany { feedsInto: pid }, $pull: feedsInto: pid
+      Puzzles.update { feedsInto: pid }, {$pull: feedsInto: pid}, multi: true
       # delete google drive folder
       deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
       # XXX: delete chat room logs?
       return r
     makeMeta: (id) ->
       # This only fails if, for some reason, puzzles is a list containing null.
-      return 0 < (Puzzles.updateOne {_id: id, puzzles: null}, $set: puzzles: []).nModified
+      return 0 < (Puzzles.update {_id: id, puzzles: null}, $set: puzzles: []).nModified
     makeNotMeta: (id) ->
-      Puzzles.updateMany {feedsInto: id}, $pull: feedsInto: id
-      return 0 < (Puzzles.updateOne {_id: id, puzzles: $exists: true}, $unset: puzzles: "").nModified
+      Puzzles.update {feedsInto: id}, {$pull: feedsInto: id}, multi: true
+      return 0 < (Puzzles.update {_id: id, puzzles: $exists: true}, $unset: puzzles: "").nModified
     feedMeta: (puzzleId, metaId) ->
-      Puzzles.updateOne puzzleId, $push: feedsInto: metaId
-      Puzzles.updateOne metaId, $push: puzzles: puzzleId
+      Puzzles.update puzzleId, $push: feedsInto: metaId
+      Puzzles.update metaId, $push: puzzles: puzzleId
     unfeedMeta: (puzzleId, metaId) ->
-      Puzzles.updateOne puzzleId, $pull: feedsInto: metaId
-      Puzzles.updateOne metaId, $pull: puzzles: puzzleId
+      Puzzles.update puzzleId, $pull: feedsInto: metaId
+      Puzzles.update metaId, $pull: puzzles: puzzleId
 
     newCallIn: (args) ->
       check args, ObjectWith
