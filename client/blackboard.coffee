@@ -314,6 +314,18 @@ tagHelper = (id) ->
         ((t.canon is 'answer' or t.canon is 'backsolve') and \
         Session.equals('currentPage', 'puzzle')))
 
+Template.blackboard_meta.events
+  'click tbody.meta tr.puzzle .bb-move-up': (event, template) ->
+    meta = template.data
+    Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id,
+      pos: -1
+      who: reactiveLocalStorage.getItem 'nick'
+  'click tbody.meta tr.puzzle .bb-move-down': (event, template) ->
+    meta = template.data
+    Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id,
+      pos: 1
+      who: reactiveLocalStorage.getItem 'nick'
+
 Template.blackboard_meta.helpers
   showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolved') or (!this.puzzle?.solved?)
   # the following is a map() instead of a direct find() to preserve order
@@ -335,16 +347,7 @@ Template.blackboard_puzzle_cells.events
       Meteor.call 'makeNotMeta', template.data.puzzle._id
   'change .bb-feed-meta': (event, template) ->
     Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value
-  'click tbody.meta tr.puzzle .bb-move-up': (event, template) ->
-    meta = Template.parentData(1)
-    Meteor.call 'moveWithinParent', template.data.puzzle._id, 'puzzles', 
-      pos: -1
-      who: reactiveLocalStorage.getItem 'nick'
-  'click tbody.meta tr.puzzle .bb-move-down': (event, template) ->
-    meta = Template.parentData(1)
-    moveWithinMeta template.data.puzzle._id, meta.puzzle._id,
-      pos: 1
-      who: reactiveLocalStorage.getItem 'nick'
+
 # TODO(Torgen): reordering metas, rounds, and uncategorized puzzles.
 
 Template.blackboard_puzzle_cells.helpers
@@ -398,15 +401,15 @@ Template.blackboard_puzzle.events
       fromTop: event.clientY - rect.top
       fromBottom: rect.bottom - event.clientY
     parentData = Template.parentData(1)
-    if parentData.puzzle?
-      dragdata.meta = parentData.puzzle._id
+    dragdata.meta = parentData.puzzle?._id
+    console.log "meta id #{dragdata.meta}"
     dt = event.dataTransfer
     dt.setData PUZZLE_MIME_TYPE, dragdata.id
     dt.effectAllowed = 'move'
-  'dragover tbody.meta tr.puzzle': (event, template) ->
+  'dragover tr.puzzle': (event, template) ->
     event = event.originalEvent
     return unless event.dataTransfer.types.includes PUZZLE_MIME_TYPE
-    myId = @puzzle._id
+    myId = template.data.puzzle._id
     if dragdata.id is myId
       event.preventDefault()  # Drop okay
       return  # ... but nothing to do
@@ -414,7 +417,6 @@ Template.blackboard_puzzle.events
     parentData = Template.parentData(1)
     if parentData.puzzle?
       parent = parentData.puzzle
-    console.log "its meta #{parent._id}" unless Meteor.isProduction
     # Can't drop into another round for now.
     return unless parent?._id is dragdata.meta
     event.preventDefault()
@@ -426,6 +428,7 @@ Template.blackboard_puzzle.events
     args =
       round: parent
       puzzle: dragdata.id
+      who: reactiveLocalStorage.getItem 'nick'
     if clientY - rect.top < dragdata.fromTop
       return if diff == -1
       args.before = myId
@@ -438,7 +441,7 @@ Template.blackboard_puzzle.events
       args.before = myId
     else
       return
-    Meteor.call 'moveWithinParent', myId, 'puzzles', parent._id, args
+    Meteor.call 'moveWithinMeta', dragdata.id, parent._id, args
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }

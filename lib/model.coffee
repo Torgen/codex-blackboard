@@ -647,10 +647,10 @@ doc_id_to_link = (id) ->
       else
         return false
       npuzzles.splice(npos, 0, id)
-      return true if 0 < collection(parentType).update {_id: parentId, puzzles: parent.puzzles}, $set:
+      return true if 0 < (collection(parentType).update {_id: parentId, puzzles: parent.puzzles}, $set:
         puzzles: npuzzles
         touched: UTCNow()
-        touched_by: canonical(args.who)
+        touched_by: canonical(args.who))
 
 # TODO(Torgen): function to move round globally.
 
@@ -1240,8 +1240,11 @@ doc_id_to_link = (id) ->
       check id, NonEmptyString
       return Rounds.findOne(puzzles: id)
 
-    # TODO(torgen): specialize moveWithinParent to puzzle within meta and puzzle within round.
-    # Meta within round is a special case--we'll always use before/after.
+    moveWithinMeta: (id, parentId, args) ->
+      moveWithinParent id, 'puzzles', parentId, args
+
+    moveWithinRound: (id, parentId, args) ->
+      moveWithinParent id, 'rounds', parentId, args
 
     setAnswer: (args) ->
       check args, ObjectWith
