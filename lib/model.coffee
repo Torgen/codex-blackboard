@@ -848,7 +848,7 @@ doc_id_to_link = (id) ->
       backsolve = if callin.backsolve then "[backsolved] " else ''
       provided = if callin.provided then "[provided] " else ''
       puzzle = Puzzles.findOne(callin.target)
-      retunr unless puzzle?
+      return unless puzzle?
       msg =
         body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
         action: true
