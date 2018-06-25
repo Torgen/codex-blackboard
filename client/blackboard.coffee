@@ -397,20 +397,26 @@ Template.blackboard_puzzle.events
       id: @puzzle._id
       fromTop: event.clientY - rect.top
       fromBottom: rect.bottom - event.clientY
+    parentData = Template.parentData(1)
+    if parentData.puzzle?
+      dragdata.meta = parentData.puzzle._id
     dt = event.dataTransfer
     dt.setData PUZZLE_MIME_TYPE, dragdata.id
     dt.effectAllowed = 'move'
-  'dragover tr.puzzle': (event, template) ->
+  'dragover tbody.meta tr.puzzle': (event, template) ->
     event = event.originalEvent
     return unless event.dataTransfer.types.includes PUZZLE_MIME_TYPE
     myId = @puzzle._id
     if dragdata.id is myId
       event.preventDefault()  # Drop okay
       return  # ... but nothing to do
-    parent = share.model.Rounds.findOne {puzzles: dragdata.id}
-    console.log "itsparent #{parent._id}" unless Meteor.isProduction
+    parent = undefined
+    parentData = Template.parentData(1)
+    if parentData.puzzle?
+      parent = parentData.puzzle
+    console.log "its meta #{parent._id}" unless Meteor.isProduction
     # Can't drop into another round for now.
-    return unless parent._id is (share.model.Rounds.findOne {puzzles: myId})._id
+    return unless parent?._id is dragdata.meta
     event.preventDefault()
     myIndex = parent.puzzles.indexOf myId
     itsIndex = parent.puzzles.indexOf dragdata.id
@@ -432,7 +438,7 @@ Template.blackboard_puzzle.events
       args.before = myId
     else
       return
-    Meteor.call 'addPuzzleToRound', args
+    Meteor.call 'moveWithinParent', myId, 'puzzles', parent._id, args
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }
