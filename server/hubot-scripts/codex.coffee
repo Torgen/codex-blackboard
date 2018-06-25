@@ -117,29 +117,45 @@ share.hubot.codex = (robot) ->
 ## PUZZLES
 
 # newPuzzle
-  robot.commands.push 'bot <puzzle> is a new puzzle in round <round> - Updates codex blackboard'
-  robot.respond (share.botutil.rejoin share.botutil.thingRE,/\ is a new puzzle in( round)? /,share.botutil.thingRE,/$/i), (msg) ->
+  robot.commands.push 'bot <puzzle> is a new puzzle in <round/meta> - Updates codex blackboard'
+  robot.respond (share.botutil.rejoin share.botutil.thingRE,/\ is a new puzzle in( (round|meta))? /,share.botutil.thingRE,/$/i), (msg) ->
     pname = share.botutil.strip msg.match[1]
     rname = share.botutil.strip msg.match[3]
+    tname = undefined
+    if msg.match[2] is 'round'
+      tname = 'rounds'
+    else if msg.match[2] is 'meta'
+      tname = 'puzzles'
     who = msg.envelope.user.id
     round = Meteor.call "getByName",
       name: rname
-      optional_type: "rounds"
+      optional_type: tname
     if not round
-      msg.reply useful: true, "I can't find a round called \"#{rname}\"."
+      descriptor =
+        if tname
+          "a #{share.model.pretty_collection tname}"
+        else
+          'anything'
+      msg.reply useful: true, "I can't find #{descriptor} called \"#{rname}\"."
       return
-    puzzle = Meteor.call "newPuzzle",
+    extra =
       name: pname
       who: who
-      round: round.object._id
+    if round.type is 'rounds'
+      extra.round = round.object._id
+    else if round.type is 'puzzles'
+      metaround = Meteor.call 'getRoundForPuzzle', round.object._id
+      extra.round = metaround._id
+      extra.feedsInto = [meta.object._id]
+    else
+      msg.reply useful:true, "A new puzzle can't be created in \"#{rname}\" because it's a #{share.model.pretty_collection round.type}."
+      msg.finish()
+      return
+    puzzle = Meteor.call "newPuzzle", extra
     puzz_url = Meteor._relativeToSiteRootUrl "/puzzles/#{puzzle._id}"
-    round_url = Meteor._relativeToSiteRootUrl "/rounds/#{round.object._id}"
-    msg.reply {useful: true, bodyIsHtml: true}, "Okay, I added <a class='puzzles-link' href='#{UI._escape puzz_url}'>#{UI._escape puzzle.name}</a> to <a class='rounds-link' href='#{UI._escape round_url}'>#{UI._escape round.object.name}</a>."
+    parent_url = Meteor._relativeToSiteRootUrl "/#{round.type}/#{round.object._id}"
+    msg.reply {useful: true, bodyIsHtml: true}, "Okay, I added <a class='puzzles-link' href='#{UI._escape puzz_url}'>#{UI._escape puzzle.name}</a> to <a class='#{round.type}-link' href='#{UI._escape round_url}'>#{UI._escape round.object.name}</a>."
     msg.finish()
-
-# TODO(torgen): A version of above that takes a meta instead of a round.
-# The new puzzle will be in the same round as the meta, and will feed into
-# it instead of the round's default meta (if any).
 
 # deletePuzzle
   robot.commands.push 'bot delete puzzle <puzzle> - Updates codex blackboard'
