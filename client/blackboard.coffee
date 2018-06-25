@@ -227,15 +227,6 @@ Template.blackboard.events
     alertify.prompt "Name of new tag:", (e,str) ->
       return unless e # bail if cancelled
       Meteor.call 'setTag', {type:'puzzles', object:@puzzle.id, name:str, value:'', who:who}
-  # TODO(torgen): make these work
-  "click .bb-move-up, click .bb-move-down": (event, template) ->
-    return
-    [type, id, rest...] = share.find_bbedit(event)
-    up = event.currentTarget.classList.contains('bb-move-up')
-    # flip direction if sort order is inverted
-    up = (!up) if ('true' is reactiveLocalStorage.getItem 'sortReverse') and type isnt 'puzzles'
-    method = if up then 'moveUp' else 'moveDown'
-    Meteor.call method, {type:type, id:id, who:reactiveLocalStorage.getItem 'nick'}
   "click .bb-canEdit .bb-delete-icon": (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     [type, id, rest...] = share.find_bbedit(event)
@@ -344,7 +335,17 @@ Template.blackboard_puzzle_cells.events
       Meteor.call 'makeNotMeta', template.data.puzzle._id
   'change .bb-feed-meta': (event, template) ->
     Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value
-
+  'click tbody.meta tr.puzzle .bb-move-up': (event, template) ->
+    meta = Template.parentData(1)
+    Meteor.call 'moveWithinParent', template.data.puzzle._id, 'puzzles', 
+      pos: -1
+      who: reactiveLocalStorage.getItem 'nick'
+  'click tbody.meta tr.puzzle .bb-move-down': (event, template) ->
+    meta = Template.parentData(1)
+    moveWithinMeta template.data.puzzle._id, meta.puzzle._id,
+      pos: 1
+      who: reactiveLocalStorage.getItem 'nick'
+# TODO(Torgen): reordering metas, rounds, and uncategorized puzzles.
 
 Template.blackboard_puzzle_cells.helpers
   tag: (name) ->

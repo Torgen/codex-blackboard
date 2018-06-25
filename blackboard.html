@@ -151,7 +151,7 @@
     {{/each}}
     {{#with unassigned}}
     {{#if this.length}}
-      <tbody id="unassigned{{_id}}">
+      <tbody class="unassigned" id="unassigned{{_id}}">
       <tr><th colspan="{{nCols}}">Unassigned</th></tr>
       {{#each this}}
         {{> blackboard_puzzle}}
@@ -364,7 +364,7 @@
 
 <template name="blackboard_meta">
   {{#if showMeta}}
-  <tbody id="m{{puzzle._id}}">
+  <tbody class="meta" id="m{{puzzle._id}}">
     <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}}">
       {{> blackboard_puzzle_cells}}
     </tr>
