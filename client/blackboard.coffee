@@ -314,17 +314,15 @@ tagHelper = (id) ->
         ((t.canon is 'answer' or t.canon is 'backsolve') and \
         Session.equals('currentPage', 'puzzle')))
 
+moveWithinMeta = (pos) -> (event, template) -> 
+  meta = template.data
+  Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id,
+    pos: pos
+    who: reactiveLocalStorage.getItem 'nick'
+
 Template.blackboard_meta.events
-  'click tbody.meta tr.puzzle .bb-move-up': (event, template) ->
-    meta = template.data
-    Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id,
-      pos: -1
-      who: reactiveLocalStorage.getItem 'nick'
-  'click tbody.meta tr.puzzle .bb-move-down': (event, template) ->
-    meta = template.data
-    Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id,
-      pos: 1
-      who: reactiveLocalStorage.getItem 'nick'
+  'click tbody.meta tr.puzzle .bb-move-up': moveWithinMeta -1
+  'click tbody.meta tr.puzzle .bb-move-down': moveWithinMeta 1
 
 Template.blackboard_meta.helpers
   showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolved') or (!this.puzzle?.solved?)
