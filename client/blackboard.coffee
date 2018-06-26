@@ -400,7 +400,8 @@ Template.blackboard_puzzle.events
       fromBottom: rect.bottom - event.clientY
     parentData = Template.parentData(1)
     dragdata.meta = parentData.puzzle?._id
-    console.log "meta id #{dragdata.meta}"
+    dragdata.round = parentData.round?._id
+    console.log "meta id #{dragdata.meta}, round id #{dragdata.round}"
     dt = event.dataTransfer
     dt.setData PUZZLE_MIME_TYPE, dragdata.id
     dt.effectAllowed = 'move'
@@ -411,12 +412,11 @@ Template.blackboard_puzzle.events
     if dragdata.id is myId
       event.preventDefault()  # Drop okay
       return  # ... but nothing to do
-    parent = undefined
     parentData = Template.parentData(1)
-    if parentData.puzzle?
-      parent = parentData.puzzle
-    # Can't drop into another round for now.
-    return unless parent?._id is dragdata.meta
+    meta = parentData.puzzle
+    round = parentData.round
+    return unless meta?._id is dragdata.meta
+    return unless round?._id is dragdata.round
     event.preventDefault()
     myIndex = parent.puzzles.indexOf myId
     itsIndex = parent.puzzles.indexOf dragdata.id
@@ -424,8 +424,6 @@ Template.blackboard_puzzle.events
     rect = event.target.getBoundingClientRect()
     clientY = event.clientY
     args =
-      round: parent
-      puzzle: dragdata.id
       who: reactiveLocalStorage.getItem 'nick'
     if clientY - rect.top < dragdata.fromTop
       return if diff == -1
@@ -439,7 +437,10 @@ Template.blackboard_puzzle.events
       args.before = myId
     else
       return
-    Meteor.call 'moveWithinMeta', dragdata.id, parent._id, args
+    if meta?
+      Meteor.call 'moveWithinMeta', dragdata.id, meta._id, args
+    else if round?
+      Meteor.call 'moveWithinRound', dragdata.id, round._id, args
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }
