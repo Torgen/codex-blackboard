@@ -118,7 +118,7 @@ share.hubot.codex = (robot) ->
 
 # newPuzzle
   robot.commands.push 'bot <puzzle> is a new puzzle in <round/meta> - Updates codex blackboard'
-  robot.respond (share.botutil.rejoin share.botutil.thingRE,/\ is a new puzzle in( (round|meta))? /,share.botutil.thingRE,/$/i), (msg) ->
+  robot.respond (share.botutil.rejoin share.botutil.thingRE,/\ is a new puzzle in(?: (round|meta))? /,share.botutil.thingRE,/$/i), (msg) ->
     pname = share.botutil.strip msg.match[1]
     rname = share.botutil.strip msg.match[3]
     tname = undefined
@@ -146,7 +146,7 @@ share.hubot.codex = (robot) ->
     else if round.type is 'puzzles'
       metaround = Meteor.call 'getRoundForPuzzle', round.object._id
       extra.round = metaround._id
-      extra.feedsInto = [meta.object._id]
+      extra.feedsInto = [round.object._id]
     else
       msg.reply useful:true, "A new puzzle can't be created in \"#{rname}\" because it's a #{share.model.pretty_collection round.type}."
       msg.finish()
@@ -154,7 +154,7 @@ share.hubot.codex = (robot) ->
     puzzle = Meteor.call "newPuzzle", extra
     puzz_url = Meteor._relativeToSiteRootUrl "/puzzles/#{puzzle._id}"
     parent_url = Meteor._relativeToSiteRootUrl "/#{round.type}/#{round.object._id}"
-    msg.reply {useful: true, bodyIsHtml: true}, "Okay, I added <a class='puzzles-link' href='#{UI._escape puzz_url}'>#{UI._escape puzzle.name}</a> to <a class='#{round.type}-link' href='#{UI._escape round_url}'>#{UI._escape round.object.name}</a>."
+    msg.reply {useful: true, bodyIsHtml: true}, "Okay, I added <a class='puzzles-link' href='#{UI._escape puzz_url}'>#{UI._escape puzzle.name}</a> to <a class='#{round.type}-link' href='#{UI._escape parent_url}'>#{UI._escape round.object.name}</a>."
     msg.finish()
 
 # deletePuzzle
