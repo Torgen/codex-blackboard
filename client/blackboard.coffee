@@ -398,9 +398,8 @@ Template.blackboard_puzzle.events
       id: @puzzle._id
       fromTop: event.clientY - rect.top
       fromBottom: rect.bottom - event.clientY
-    parentData = Template.parentData(1)
-    dragdata.meta = parentData.puzzle?._id
-    dragdata.round = parentData.round?._id
+    dragdata.meta = Template.parentData(1).puzzle?._id
+    dragdata.round = Template.parentData(2)?._id
     console.log "meta id #{dragdata.meta}, round id #{dragdata.round}"
     dt = event.dataTransfer
     dt.setData PUZZLE_MIME_TYPE, dragdata.id
@@ -413,11 +412,12 @@ Template.blackboard_puzzle.events
       event.preventDefault()  # Drop okay
       return  # ... but nothing to do
     parentData = Template.parentData(1)
-    meta = parentData.puzzle
-    round = parentData.round
+    meta = Template.parentData(1).puzzle
+    round = Template.parentData(2)
     return unless meta?._id is dragdata.meta
     return unless round?._id is dragdata.round
     event.preventDefault()
+    parent = meta or round
     myIndex = parent.puzzles.indexOf myId
     itsIndex = parent.puzzles.indexOf dragdata.id
     diff = itsIndex - myIndex
