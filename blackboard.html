@@ -399,7 +399,7 @@
 </template>
 
 <template name="blackboard_puzzle">
-  <tr class="puzzle {{#if stuck puzzle}}bb-status-stuck{{/if}}" draggable="{{canEdit}}">
+  <tr class="puzzle {{#if stuck puzzle}}bb-status-stuck{{/if}}" draggable="{{canEdit}}" data-puzzle-id="{{puzzle._id}}">
     {{> blackboard_puzzle_cells}}
  </tr>
 </template>

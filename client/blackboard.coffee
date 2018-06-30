@@ -245,6 +245,21 @@ Template.blackboard.events
     # note that we rely on 'blur' on old field (which triggers ok or cancel)
     # happening before 'click' on new field
     Session.set 'editing', share.find_bbedit(event).join('/')
+  'click tbody.unassigned tr.puzzle .bb-move-up': (event, template) ->
+    row = template.$(event.target).closest('tr.puzzle')
+    prevRow = row.previous('tr.puzzle')
+    return unless prevRow.length is 1
+    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData(2)._id,
+      before: prevRow[0].dataset.puzzle_id
+      who: reactiveLocalStorage.getItem 'nick'
+  'click tbody.unassigned tr.puzzle .bb-move-down': (event, template) ->
+    row = template.$(event.target).closest('tr.puzzle')
+    nextRow = row.next('tr.puzzle')
+    return unless nextRow.length is 1
+    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData(2)._id,
+      after: nextRow[0].dataset.puzzle_id
+      who: reactiveLocalStorage.getItem 'nick'
+
 Template.blackboard.events okCancelEvents('.bb-editable input',
   ok: (text, evt) ->
     # find the data-bbedit specification for this field
