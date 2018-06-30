@@ -12,11 +12,9 @@
     <li><a href="#m{{puzzle._id}}"><i class="icon-chevron-right"></i>
     {{puzzle.name}}</a></li>
     {{/each}}
-    {{#with unassigned}}
-    {{#if this.length}}
+    {{#if unassigned.length}}
     <li><a href="#unassigned{{_id}}"><i class="icon-chevron-right"></i>Unassigned</a></li>
     {{/if}}
-    {{/with}}
     {{/each}}
   </ul>
 </div>
@@ -151,7 +149,7 @@
     {{/each}}
     {{#with unassigned}}
     {{#if this.length}}
-      <tbody class="unassigned" id="unassigned{{_id}}">
+      <tbody class="unassigned" id="unassigned{{../_id}}">
       <tr><th colspan="{{nCols}}">Unassigned</th></tr>
       {{#each this}}
         {{> blackboard_puzzle}}
