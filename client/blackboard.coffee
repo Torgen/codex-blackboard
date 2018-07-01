@@ -195,6 +195,7 @@ Template.blackboard.onRendered ->
 
 doBoolean = (name, newVal) ->
   reactiveLocalStorage.setItem name, newVal
+
 Template.blackboard.events
   "click .bb-sort-order button": (event, template) ->
     reverse = $(event.currentTarget).attr('data-sortReverse') is 'true'
@@ -245,20 +246,26 @@ Template.blackboard.events
     # note that we rely on 'blur' on old field (which triggers ok or cancel)
     # happening before 'click' on new field
     Session.set 'editing', share.find_bbedit(event).join('/')
-  'click tbody.unassigned tr.puzzle .bb-move-up': (event, template) ->
-    row = template.$(event.target).closest('tr.puzzle')
-    prevRow = row.previous('tr.puzzle')
+
+moveBeforePrevious = (match, event, template) ->
+    row = template.$(event.target).closest(match)
+    prevRow = row.previous(match)
     return unless prevRow.length is 1
     Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData(2)._id,
       before: prevRow[0].dataset.puzzle_id
       who: reactiveLocalStorage.getItem 'nick'
-  'click tbody.unassigned tr.puzzle .bb-move-down': (event, template) ->
-    row = template.$(event.target).closest('tr.puzzle')
-    nextRow = row.next('tr.puzzle')
+
+moveAfterNext = (match, event, template) ->
+    row = template.$(event.target).closest(match)
+    nextRow = row.next(match)
     return unless nextRow.length is 1
     Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData(2)._id,
       after: nextRow[0].dataset.puzzle_id
       who: reactiveLocalStorage.getItem 'nick'
+
+Template.blackboard.events
+  'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle'
+  'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle'
 
 Template.blackboard.events okCancelEvents('.bb-editable input',
   ok: (text, evt) ->
@@ -338,6 +345,16 @@ moveWithinMeta = (pos) -> (event, template) ->
 Template.blackboard_meta.events
   'click tbody.meta tr.puzzle .bb-move-up': moveWithinMeta -1
   'click tbody.meta tr.puzzle .bb-move-down': moveWithinMeta 1
+  'click tbody.meta tr.meta .bb-move-up': (event, template) ->
+    if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+      moveAfterNext 'tbody.meta', event, template
+    else
+      moveBeforePrevious 'tbody.meta', event, template
+  'click tbody.meta tr.meta .bb-move-down': (event, template) ->
+    if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+      moveBeforePrevious 'tbody.meta', event, template
+    else
+      moveAfterNext 'tbody.meta', event, template
 
 Template.blackboard_meta.helpers
   showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolved') or (!this.puzzle?.solved?)

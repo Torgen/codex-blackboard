@@ -362,7 +362,7 @@
 
 <template name="blackboard_meta">
   {{#if showMeta}}
-  <tbody class="meta" id="m{{puzzle._id}}">
+  <tbody class="meta" id="m{{puzzle._id}}" data-puzzle-id="{{puzzle._id}}">
     <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}}">
       {{> blackboard_puzzle_cells}}
     </tr>
@@ -377,14 +377,6 @@
      <button class="btn btn-mini btn-inverse bb-add-puzzle">
        <i class="icon-plus icon-white"></i>
        Create new puzzle feeding this meta
-     </button>
-     <button class="btn btn-mini btn-inverse bb-move-down">
-       <i class="icon-arrow-down icon-white"></i>
-       Move meta down
-     </button>
-     <button class="btn btn-mini btn-inverse bb-move-up">
-       <i class="icon-arrow-up icon-white"></i>
-       Move meta up
      </button>
   </div>
   </td></tr>
