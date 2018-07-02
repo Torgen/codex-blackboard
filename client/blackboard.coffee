@@ -128,30 +128,12 @@ Template.blackboard.events
 Template.blackboard.helpers
   rounds: ->
     dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
-    model.Rounds.find {}, sort: [["created", dir]]
-  # the following is a map() instead of a direct find() to preserve order
-  metas: ->
-    r = for id, index in @puzzles
-      puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
-      continue unless puzzle?
-      {
-        puzzle: puzzle
-        num_puzzles: puzzle.puzzles.length
-        num_solved: model.Puzzles.find({_id: {$in: puzzle.puzzles}, solved: {$ne: null}}).length
-      }
-    r.reverse() if 'true' is reactiveLocalStorage.getItem 'sortReverse'
-    return r
-  unassigned: ->
-    for id, index in this.puzzles
-      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
-      continue unless puzzle?
-      { puzzle: puzzle }
-  stuck: share.model.isStuck
+    model.Rounds.find {}, sort: [["sort_key", dir]]
 
 Template.blackboard_status_grid.helpers
   rounds: ->
     dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
-    model.Rounds.find {}, sort: [["created", dir]]
+    model.Rounds.find {}, sort: [["sort_key", dir]]
   # the following is a map() instead of a direct find() to preserve order
   metas: ->
     r = for id, index in this.puzzles
@@ -268,6 +250,33 @@ Template.blackboard.events okCancelEvents('.bb-editable input',
     Session.set 'editing', undefined # not editing anything anymore
 )
 
+Template.blackboard_round.helpers
+  # the following is a map() instead of a direct find() to preserve order
+  metas: ->
+    r = for id, index in @puzzles
+      puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
+      continue unless puzzle?
+      {
+        puzzle: puzzle
+        num_puzzles: puzzle.puzzles.length
+        num_solved: model.Puzzles.find({_id: {$in: puzzle.puzzles}, solved: {$ne: null}}).length
+      }
+    r.reverse() if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+    return r
+  unassigned: ->
+    for id, index in this.puzzles
+      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
+      continue unless puzzle?
+      { puzzle: puzzle }
+
+Template.blackboard_round.events
+  'click .bb-round-buttons .bb-move-down': (event, template) ->
+    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then -1 else 1
+    Meteor.call 'moveRound', template.data._id, dir
+  'click .bb-round-buttons .bb-move-up': (event, template) ->
+    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 1 else -1
+    Meteor.call 'moveRound', template.data._id, dir
+
 moveBeforePrevious = (match, rel, event, template) ->
   row = template.$(event.target).closest(match)
   prevRow = row.prev(match)
@@ -284,7 +293,6 @@ moveAfterNext = (match, rel, event, template) ->
   args[rel] = nextRow[0].dataset.puzzleId
   Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
       
-
 Template.blackboard_unassigned.events
   'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle', 'before'
   'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle', 'after'

@@ -102,54 +102,7 @@
     {{/unless}}
   </thead>
   {{#each rounds}}
-    <tbody>
-    <tr><th colspan="{{nCols}}" id="round{{_id}}">
-      <h2 class="bb-editable" data-bbedit="rounds/{{_id}}/title">
-      {{#if editing "rounds" _id "title"}}
-        <input type="text" id="rounds-{{_id}}-title"
-              value="{{name}}"
-              class="input-block-level" />
-      {{else}}
-        {{#if canEdit}}
-          <i class="bb-delete-icon icon-remove pull-left"
-            title="Delete this round"></i>
-          <i class="bb-edit-icon icon-pencil pull-right"
-            title="Edit the name of this round"></i>
-        {{else}}
-          {{link id=_id title="Chat room for round" chat=true icon="icon-comment" class="pull-right bb-round-chat"}}
-        {{/if}}
-      {{name}}
-      {{/if}}
-      </h2>
-    {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
-    {{>blackboard_link}}
-    {{#if canEdit}}
-      <div class="bb-round-buttons" data-bbedit="rounds/{{_id}}">
-        <button class="btn btn-mini btn-inverse bb-add-puzzle">
-          <i class="icon-plus icon-white"></i>
-          Add new puzzle to this round
-        </button>
-        <button class="btn btn-mini btn-inverse bb-add-tag">
-          <i class="icon-tag icon-white"></i>
-          Add new tag to this round
-        </button>
-        <button class="btn btn-mini btn-inverse bb-move-down">
-          <i class="icon-arrow-down icon-white"></i>
-          Move round down
-        </button>
-        <button class="btn btn-mini btn-inverse bb-move-up">
-          <i class="icon-arrow-up icon-white"></i>
-          Move round up
-        </button>
-      </div>
-    {{/if}}
-    </th></tr></tbody>
-    {{#each metas}}
-      {{> blackboard_meta }}
-    {{/each}}
-    {{#with unassigned}}
-      {{> blackboard_unassigned }}
-    {{/with}}
+    {{> blackboard_round}}
   {{/each}}
   </table>
   </div><!-- bb-tables -->
@@ -162,6 +115,57 @@
   </div></div><!-- bb-right-sidebar -->
   {{/if}}
 </div><!-- row-fluid -->
+</template>
+
+<template name="blackboard_round">
+  <tbody>
+  <tr><th colspan="{{nCols}}" id="round{{_id}}">
+    <h2 class="bb-editable" data-bbedit="rounds/{{_id}}/title">
+    {{#if editing "rounds" _id "title"}}
+      <input type="text" id="rounds-{{_id}}-title"
+            value="{{name}}"
+            class="input-block-level" />
+    {{else}}
+      {{#if canEdit}}
+        <i class="bb-delete-icon icon-remove pull-left"
+          title="Delete this round"></i>
+        <i class="bb-edit-icon icon-pencil pull-right"
+          title="Edit the name of this round"></i>
+      {{else}}
+        {{link id=_id title="Chat room for round" chat=true icon="icon-comment" class="pull-right bb-round-chat"}}
+      {{/if}}
+    {{name}}
+    {{/if}}
+    </h2>
+  {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
+  {{>blackboard_link}}
+  {{#if canEdit}}
+    <div class="bb-round-buttons" data-bbedit="rounds/{{_id}}">
+      <button class="btn btn-mini btn-inverse bb-add-puzzle">
+        <i class="icon-plus icon-white"></i>
+        Add new puzzle to this round
+      </button>
+      <button class="btn btn-mini btn-inverse bb-add-tag">
+        <i class="icon-tag icon-white"></i>
+        Add new tag to this round
+      </button>
+      <button class="btn btn-mini btn-inverse bb-move-down">
+        <i class="icon-arrow-down icon-white"></i>
+        Move round down
+      </button>
+      <button class="btn btn-mini btn-inverse bb-move-up">
+        <i class="icon-arrow-up icon-white"></i>
+        Move round up
+      </button>
+    </div>
+  {{/if}}
+  </th></tr></tbody>
+  {{#each metas}}
+    {{> blackboard_meta }}
+  {{/each}}
+  {{#with unassigned}}
+    {{> blackboard_unassigned }}
+  {{/with}}
 </template>
 
 <template name="blackboard_unassigned">

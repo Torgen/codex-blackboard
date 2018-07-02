@@ -85,8 +85,9 @@ LastAnswer = BBCollection.last_answer = \
 #   _id: mongodb id
 #   name: string
 #   canon: canonicalized version of name, for searching
-#   created: timestamp (sort key)
+#   created: timestamp
 #   created_by: canon of Nick
+#   sort_key: timestamp. Initially created, but can be traded to other rounds.
 #   touched: timestamp -- records edits to tag, order, group, etc.
 #   touched_by: canon of Nick with last touch
 #   solved:  timestamp -- null (not missing or zero) if not solved
@@ -102,6 +103,8 @@ Rounds = BBCollection.rounds = new Mongo.Collection "rounds"
 if DO_BATCH_PROCESSING
   Rounds._ensureIndex {canon: 1}, {unique:true, dropDups:true}
   Rounds._ensureIndex {puzzles: 1}
+  Rounds._ensureIndex {sort_key: 1}
+  Rounds._ensureIndex {sort_key: -1}
 
 # Puzzles are:
 #   _id: mongodb id
@@ -446,7 +449,7 @@ doc_id_to_link = (id) ->
     # this is a huge hack, it's too hard to find the correct
     # round group to use.  But this helps avoid reloading the hunt software
     # every time the hunt domain changes.
-    rg = Rounds.findOne({}, sort: ['created'])
+    rg = Rounds.findOne({}, sort: ['sort_key'])
     if rg?.link
       return rg.link.replace(/\/+$/, '') + '/' + type + '/'
     else
@@ -652,13 +655,12 @@ doc_id_to_link = (id) ->
         touched: UTCNow()
         touched_by: canonical(args.who))
 
-# TODO(Torgen): function to move round globally.
-
   Meteor.methods
     newRound: (args) ->
       newObject "rounds", args,
         puzzles: []
         link: args.link or null
+        sort_key: UTCNow()
       # TODO(torgen): create default meta
     renameRound: (args) ->
       renameObject "rounds", args
@@ -1246,6 +1248,22 @@ doc_id_to_link = (id) ->
     moveWithinRound: (id, parentId, args) ->
       console.log id, parentId, args
       moveWithinParent id, 'rounds', parentId, args
+
+    moveRound: (id, dir) ->
+      round = Rounds.findOne(id)
+      order = 'asc'
+      op = '$gt'
+      if dir < 0
+        order = 'desc'
+        op = '$lt'
+      query = {}
+      query[op] = round.sort_key
+      cursor = Rounds.find(sort_key: query).sort(sort_key: order).limit(1)
+      arr = cursor.toArray()
+      return if arr.length is 0
+      last = arr[0]
+      Rounds.update id, $set: sort_key: last.sort_key
+      Rounds.update last._id, $set: sort_key: round.sort_key
 
     setAnswer: (args) ->
       check args, ObjectWith
