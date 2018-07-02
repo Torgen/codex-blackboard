@@ -249,7 +249,7 @@ Template.blackboard.events
 
 moveBeforePrevious = (match, event, template) ->
     row = template.$(event.target).closest(match)
-    prevRow = row.previous(match)
+    prevRow = row.prev(match)
     return unless prevRow.length is 1
     Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData()._id,
       before: prevRow[0].dataset.puzzle_id
