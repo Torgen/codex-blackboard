@@ -247,6 +247,19 @@ Template.blackboard.events
     # happening before 'click' on new field
     Session.set 'editing', share.find_bbedit(event).join('/')
 
+Template.blackboard.events okCancelEvents('.bb-editable input',
+  ok: (text, evt) ->
+    # find the data-bbedit specification for this field
+    edit = $(evt.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
+    [type, id, rest...] = edit.split('/')
+    # strip leading/trailing whitespace from text (cancel if text is empty)
+    text = text.replace /^\s+|\s+$/, ''
+    processBlackboardEdit[type]?(text, id, rest...) if text
+    Session.set 'editing', undefined # done editing this
+  cancel: (evt) ->
+    Session.set 'editing', undefined # not editing anything anymore
+)
+
 moveBeforePrevious = (match, event, template) ->
     row = template.$(event.target).closest(match)
     prevRow = row.prev(match)
@@ -263,22 +276,9 @@ moveAfterNext = (match, event, template) ->
       after: nextRow[0].dataset.puzzle_id
       who: reactiveLocalStorage.getItem 'nick'
 
-Template.blackboard.events
+Template.blackboard_unassigned.events
   'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle'
   'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle'
-
-Template.blackboard.events okCancelEvents('.bb-editable input',
-  ok: (text, evt) ->
-    # find the data-bbedit specification for this field
-    edit = $(evt.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-    [type, id, rest...] = edit.split('/')
-    # strip leading/trailing whitespace from text (cancel if text is empty)
-    text = text.replace /^\s+|\s+$/, ''
-    processBlackboardEdit[type]?(text, id, rest...) if text
-    Session.set 'editing', undefined # done editing this
-  cancel: (evt) ->
-    Session.set 'editing', undefined # not editing anything anymore
-)
 processBlackboardEdit =
   tags: (text, id, canon, field) ->
     field = 'name' if text is null # special case for delete of status tag

@@ -147,16 +147,9 @@
     {{#each metas}}
       {{> blackboard_meta }}
     {{/each}}
-    {{#let u=unassigned}}
-    {{#if u.length}}
-      <tbody class="unassigned" id="unassigned{{_id}}">
-      <tr><th colspan="{{nCols}}">Unassigned</th></tr>
-      {{#each u}}
-        {{> blackboard_puzzle}}
-      {{/each}}
-      </tbody>
-    {{/if}}
-    {{/let}}
+    {{#with unassigned}}
+      {{> blackboard_unassigned }}
+    {{/with}}
   {{/each}}
   </table>
   </div><!-- bb-tables -->
@@ -169,6 +162,17 @@
   </div></div><!-- bb-right-sidebar -->
   {{/if}}
 </div><!-- row-fluid -->
+</template>
+
+<template name="blackboard_unassigned">
+  {{#if this.length}}
+    <tbody class="unassigned" id="unassigned{{_id}}">
+    <tr><th colspan="{{nCols}}">Unassigned</th></tr>
+    {{#each this}}
+      {{> blackboard_puzzle}}
+    {{/each}}
+    </tbody>
+  {{/if}}
 </template>
 
 <template name="blackboard_status_grid">
