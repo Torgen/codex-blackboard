@@ -214,9 +214,10 @@ Template.blackboard.events
       Meteor.call 'newRound', { name: str, who: reactiveLocalStorage.getItem 'nick' }
   "click .bb-round-buttons .bb-add-puzzle": (event, template) ->
     who = reactiveLocalStorage.getItem 'nick'
-    alertify.prompt "Name of new puzzle:", (e,str) ->
+    roundId = @_id
+    alertify.prompt "Name of new puzzle:", (e,str) =>
       return unless e # bail if cancelled
-      Meteor.call 'newPuzzle', { name: str, who: who, round: @_id }, (error,r)->
+      Meteor.call 'newPuzzle', { name: str, who: who, round: roundId }, (error,r)->
         throw error if error
   "click .bb-round-buttons .bb-add-tag": (event, template) ->
     who = reactiveLocalStorage.getItem 'nick'
@@ -357,13 +358,15 @@ Template.blackboard_meta.events
       moveAfterNext 'tbody.meta', event, template
   'click .bb-meta-buttons .bb-add-puzzle': (event, template) ->
     who = reactiveLocalStorage.getItem 'nick'
-    alertify.prompt "Name of new puzzle:", (e,str) ->
+    puzzId = @puzzle._id
+    roundId = Template.parentData()._id
+    alertify.prompt "Name of new puzzle:", (e,str) =>
       return unless e # bail if cancelled
       Meteor.call 'newPuzzle',
         name: str
         who: who
-        feedsInto: [@puzzle._id]
-        round: Template.parentData()._id,
+        feedsInto: [puzzId]
+        round: roundId,
       (error,r)-> throw error if error
 
 Template.blackboard_meta.helpers
