@@ -251,7 +251,7 @@ moveBeforePrevious = (match, event, template) ->
     row = template.$(event.target).closest(match)
     prevRow = row.previous(match)
     return unless prevRow.length is 1
-    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData(2)._id,
+    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData()._id,
       before: prevRow[0].dataset.puzzle_id
       who: reactiveLocalStorage.getItem 'nick'
 
@@ -259,7 +259,7 @@ moveAfterNext = (match, event, template) ->
     row = template.$(event.target).closest(match)
     nextRow = row.next(match)
     return unless nextRow.length is 1
-    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData(2)._id,
+    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzle_id, Template.parentData()._id,
       after: nextRow[0].dataset.puzzle_id
       who: reactiveLocalStorage.getItem 'nick'
 

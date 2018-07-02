@@ -147,16 +147,16 @@
     {{#each metas}}
       {{> blackboard_meta }}
     {{/each}}
-    {{#with unassigned}}
-    {{#if this.length}}
+    {{#let u=unassigned}}
+    {{#if u.length}}
       <tbody class="unassigned" id="unassigned{{../_id}}">
       <tr><th colspan="{{nCols}}">Unassigned</th></tr>
-      {{#each this}}
+      {{#each u}}
         {{> blackboard_puzzle}}
       {{/each}}
       </tbody>
     {{/if}}
-    {{/with}}
+    {{/let}}
   {{/each}}
   </table>
   </div><!-- bb-tables -->
