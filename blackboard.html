@@ -267,10 +267,12 @@
         </tr>
         {{/each}}
         {{#if canEdit}}
+          {{#if canChangeMeta}}
           <tr>
             <td>is Meta:</td>
-            <td><input class="bb-set-is-meta" type="checkbox" checked={{isMeta}} disabled={{#if puzzles}}{{isMeta}}{{/if}} /></td>
+            <td><input class="bb-set-is-meta" type="checkbox" checked={{isMeta}} /></td>
           </tr>
+          {{/if}}
           <tr>
             <td>Feeds Into:</td>
             <td>
