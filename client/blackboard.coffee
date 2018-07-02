@@ -348,15 +348,15 @@ Template.blackboard_meta.events
   'click tbody.meta tr.puzzle .bb-move-up': moveWithinMeta -1
   'click tbody.meta tr.puzzle .bb-move-down': moveWithinMeta 1
   'click tbody.meta tr.meta .bb-move-up': (event, template) ->
+    rel = 'before'
     if 'true' is reactiveLocalStorage.getItem 'sortReverse'
-      moveAfterNext 'tbody.meta', 'before', event, template
-    else
-      moveBeforePrevious 'tbody.meta', 'before', event, template
+      rel = 'after'
+    moveBeforePrevious 'tbody.meta', rel, event, template
   'click tbody.meta tr.meta .bb-move-down': (event, template) ->
+    rel = 'after'
     if 'true' is reactiveLocalStorage.getItem 'sortReverse'
-      moveBeforePrevious 'tbody.meta', 'after', event, template
-    else
-      moveAfterNext 'tbody.meta', 'after', event, template
+      rel = 'before'
+    moveAfterNext 'tbody.meta', rel, event, template
   'click .bb-meta-buttons .bb-add-puzzle': (event, template) ->
     who = reactiveLocalStorage.getItem 'nick'
     puzzId = @puzzle._id
