@@ -392,7 +392,7 @@ Template.blackboard_puzzle_cells.events
   'change .bb-feed-meta': (event, template) ->
     Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value
 
-# TODO(Torgen): reordering metas, rounds, and uncategorized puzzles.
+# TODO(Torgen): reordering rounds
 
 Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
