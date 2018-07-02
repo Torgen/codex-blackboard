@@ -67,15 +67,22 @@ okCancelEvents = share.okCancelEvents = (selector, callbacks) ->
 compactMode = ->
   editing = (reactiveLocalStorage.getItem 'nick') and (Session.get 'canEdit')
   ('true' is reactiveLocalStorage.getItem 'compactMode') and not editing
-nCols = -> if compactMode() then 2 else \
-  (if ((reactiveLocalStorage.getItem 'nick') and (Session.get 'canEdit')) then 3 else 5)
+
+Template.registerHelper 'nCols', ->
+  if compactMode()
+    2
+  else if (reactiveLocalStorage.getItem 'nick') and (Session.get 'canEdit')
+    3
+  else
+    5
+
+Template.registerHelper 'compactMode', compactMode
+
 Template.blackboard.helpers
   sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
   hideSolved: -> 'true' is reactiveLocalStorage.getItem 'hideSolved'
   hideRoundsSolvedMeta: -> 'true' is reactiveLocalStorage.getItem 'hideRoundsSolvedMeta'
   hideStatus: -> 'true' is reactiveLocalStorage.getItem 'hideStatus'
-  compactMode: compactMode
-  nCols: nCols
 
 # Notifications
 notificationStreams = [
@@ -407,8 +414,6 @@ Template.blackboard_puzzle_cells.helpers
     model.Presence.find(room_name: ("puzzles/"+@puzzle?._id)).forEach (p) ->
       count++ if share.isNickNear(p.nick)
     count
-  compactMode: compactMode
-  nCols: nCols
   stuck: share.model.isStuck
   otherMetas: ->
     parent = Template.parentData(2)
