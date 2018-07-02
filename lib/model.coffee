@@ -639,10 +639,10 @@ doc_id_to_link = (id) ->
         npos += args.pos
         return false if npos < 0
       else if args.before?
-        npos = parent.puzzles.indexOf args.before
+        npos = npuzzles.indexOf args.before
         return false unless npos >= 0
       else if args.after?
-        npos = 1 + parent.puzzles.indexOf args.after
+        npos = 1 + npuzzles.indexOf args.after
         return false unless npos > 0
       else
         return false
@@ -1244,6 +1244,7 @@ doc_id_to_link = (id) ->
       moveWithinParent id, 'puzzles', parentId, args
 
     moveWithinRound: (id, parentId, args) ->
+      console.log id, parentId, args
       moveWithinParent id, 'rounds', parentId, args
 
     setAnswer: (args) ->
