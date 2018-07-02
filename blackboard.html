@@ -149,7 +149,7 @@
     {{/each}}
     {{#let u=unassigned}}
     {{#if u.length}}
-      <tbody class="unassigned" id="unassigned{{../_id}}">
+      <tbody class="unassigned" id="unassigned{{_id}}">
       <tr><th colspan="{{nCols}}">Unassigned</th></tr>
       {{#each u}}
         {{> blackboard_puzzle}}
