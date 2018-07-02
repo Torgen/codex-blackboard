@@ -261,25 +261,26 @@ Template.blackboard.events okCancelEvents('.bb-editable input',
     Session.set 'editing', undefined # not editing anything anymore
 )
 
-moveBeforePrevious = (match, event, template) ->
+moveBeforePrevious = (match, rel, event, template) ->
     row = template.$(event.target).closest(match)
     prevRow = row.prev(match)
     return unless prevRow.length is 1
-    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id,
-      before: prevRow[0].dataset.puzzleId
-      who: reactiveLocalStorage.getItem 'nick'
+    args = who: reactiveLocalStorage.getItem 'nick'
+    args[rel] = nextRow[0].dataset.puzzleId
+    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
 
-moveAfterNext = (match, event, template) ->
+moveAfterNext = (match, rel, event, template) ->
     row = template.$(event.target).closest(match)
     nextRow = row.next(match)
     return unless nextRow.length is 1
-    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id,
-      after: nextRow[0].dataset.puzzleId
-      who: reactiveLocalStorage.getItem 'nick'
+    args = who: reactiveLocalStorage.getItem 'nick'
+    args[rel] = nextRow[0].dataset.puzzleId
+    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
+      
 
 Template.blackboard_unassigned.events
-  'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle'
-  'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle'
+  'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle', 'before'
+  'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle', 'after'
 processBlackboardEdit =
   tags: (text, id, canon, field) ->
     field = 'name' if text is null # special case for delete of status tag
@@ -348,14 +349,14 @@ Template.blackboard_meta.events
   'click tbody.meta tr.puzzle .bb-move-down': moveWithinMeta 1
   'click tbody.meta tr.meta .bb-move-up': (event, template) ->
     if 'true' is reactiveLocalStorage.getItem 'sortReverse'
-      moveAfterNext 'tbody.meta', event, template
+      moveAfterNext 'tbody.meta', 'before', event, template
     else
-      moveBeforePrevious 'tbody.meta', event, template
+      moveBeforePrevious 'tbody.meta', 'before', event, template
   'click tbody.meta tr.meta .bb-move-down': (event, template) ->
     if 'true' is reactiveLocalStorage.getItem 'sortReverse'
-      moveBeforePrevious 'tbody.meta', event, template
+      moveBeforePrevious 'tbody.meta', 'after', event, template
     else
-      moveAfterNext 'tbody.meta', event, template
+      moveAfterNext 'tbody.meta', 'after', event, template
   'click .bb-meta-buttons .bb-add-puzzle': (event, template) ->
     who = reactiveLocalStorage.getItem 'nick'
     puzzId = @puzzle._id
