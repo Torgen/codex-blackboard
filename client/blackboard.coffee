@@ -262,20 +262,20 @@ Template.blackboard.events okCancelEvents('.bb-editable input',
 )
 
 moveBeforePrevious = (match, rel, event, template) ->
-    row = template.$(event.target).closest(match)
-    prevRow = row.prev(match)
-    return unless prevRow.length is 1
-    args = who: reactiveLocalStorage.getItem 'nick'
-    args[rel] = nextRow[0].dataset.puzzleId
-    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
+  row = template.$(event.target).closest(match)
+  prevRow = row.prev(match)
+  return unless prevRow.length is 1
+  args = who: reactiveLocalStorage.getItem 'nick'
+  args[rel] = nextRow[0].dataset.puzzleId
+  Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
 
 moveAfterNext = (match, rel, event, template) ->
-    row = template.$(event.target).closest(match)
-    nextRow = row.next(match)
-    return unless nextRow.length is 1
-    args = who: reactiveLocalStorage.getItem 'nick'
-    args[rel] = nextRow[0].dataset.puzzleId
-    Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
+  row = template.$(event.target).closest(match)
+  nextRow = row.next(match)
+  return unless nextRow.length is 1
+  args = who: reactiveLocalStorage.getItem 'nick'
+  args[rel] = nextRow[0].dataset.puzzleId
+  Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
       
 
 Template.blackboard_unassigned.events
