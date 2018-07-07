@@ -27,13 +27,14 @@ currentViewIs = (puzzle, view) ->
 
 Template.puzzle_info.helpers
    tag: (name) -> (model.getTag this, name) or ''
+   getPuzzle: -> model.Puzzles.findOne this
 
 Template.puzzle.helpers
   data: ->
     r = {}
     puzzle = r.puzzle = model.Puzzles.findOne Session.get 'id'
     round = r.round = model.Rounds.findOne puzzles: puzzle?._id
-    r.isMeta = puzzle.puzzles?
+    r.isMeta = puzzle?.puzzles?
     r.stuck = model.isStuck puzzle
     r.capType = capType puzzle
     return r
@@ -61,10 +62,9 @@ Template.puzzle.onCreated ->
     return if settings.BB_SUB_ALL
     id = Session.get 'id'
     return unless id
-    this.subscribe 'puzzle-by-id', id
-    this.subscribe 'round-for-puzzle', id
-    round = model.Rounds.findOne puzzles: id
-    return unless round
+    @subscribe 'puzzle-by-id', id
+    @subscribe 'round-for-puzzle', id
+    @subscribe 'puzzles-by-meta', id
 
 Template.puzzle.onRendered ->
   $('html').addClass('fullHeight')

@@ -25,7 +25,9 @@
 <table class="bb-round-answers table table-bordered table-condensed"><tbody>
   <tr><th>Puzzle in round</th><th>Answer</th></tr>
   {{#each puzzle.puzzles}}
+  {{#with getPuzzle}}
   <tr><td>{{link _id}}</td><td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td></tr>
+  {{/with}}
   {{/each}}
 </tbody></table>
 {{/if}}
