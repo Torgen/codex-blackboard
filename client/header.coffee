@@ -179,11 +179,11 @@ Template.header_loginmute.events
     Meteor.reconnect()
 
 fillMetas = (metas, currentid) ->
-  unless metas[currentid]?
-    metas[currentid] = currentid
-    puzzle = model.Puzzles.findOne currentid
-    if puzzle?.feedsInto?
-      for p in puzzle.feedsInto
+  puzzle = model.Puzzles.findOne currentid
+  if puzzle?.feedsInto?
+    for p in puzzle.feedsInto
+      unless metas[p]?
+        metas[p] = p
         fillMetas metas, p
 
 ############## breadcrumbs #######################
@@ -197,12 +197,8 @@ Tracker.autorun ->
   metas = {}
   if currenttype is 'puzzles'
     fillMetas metas, currentid
-    if metas.keys()
+    if Object.keys(metas).length
       base.push {page: 'metas', type: 'puzzles', id: metas}
-    else
-      round = model.Rounds.findOne puzzles: currentid
-      if round?
-        base.push {page: 'round', type: 'rounds', id: round._id}
     base.push {page: 'puzzle', type: 'puzzles', id: currentid}
   else if currenttype is 'rounds'
     base.push {page: 'round', type: 'rounds', id: currentid}
@@ -213,12 +209,17 @@ Tracker.autorun ->
     return if do ->
       for crumb, i in base
         oldcrumb = breadcrumbs[i]
+        if crumb.page is 'puzzle' and oldcrumb.page is 'metas'
+          return oldcrumb.id[crumb.id]?
+        if crumb.page is 'puzzle' and i > 0
+          prevoldcrumb = breadcrumbs[i-1]
+          return true if prevoldcrumb.page is 'metas' and prevoldcrumb.id[crumb.id]?
         if crumb.page isnt oldcrumb.page or crumb.type isnt oldcrumb.type
           return false
         if crumb.page is 'metas'
-          return false if i isnt base.length - 1 and crumb.id.size < oldcrumb.id.size
-          for k, v in crumb.id
-            return false unless oldcrumb.id[k]?
+          for k, v of crumb.id
+            return false unless oldcrumb.id[k]
+          continue
         else return false if crumb.id isnt oldcrumb.id
       return true
   Session.set 'breadcrumbs', base
@@ -254,7 +255,7 @@ Template.header_breadcrumb_metas.helpers
     if @id[id]?
       return id
   inactive_metas: ->
-    keys = @id.keys()
+    keys = Object.keys @id
     if (Session.equals('currentPage', 'puzzle') or Session.equals('currentPage', 'chat')) and \
         Session.equals('type', @type)
       id = Session.get 'id'
