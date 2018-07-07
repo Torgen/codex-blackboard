@@ -178,6 +178,14 @@ Template.header_loginmute.events
   "click .failed, click .offline": (event, template) ->
     Meteor.reconnect()
 
+fillMetas = (metas, currentid) ->
+  if not metas[currentid]?
+    metas[currentid] = currentid
+    puzzle = model.Puzzles.findOne currentid
+    if puzzle?.feedsInto?
+      for p in puzzle.feedsInto
+        fillMetas metas, p
+
 ############## breadcrumbs #######################
 Tracker.autorun ->
   breadcrumbs = Session.get 'breadcrumbs'
@@ -186,10 +194,15 @@ Tracker.autorun ->
   currentid = Session.get 'id'
   # Regenerate breadcrumbs
   base = [{page: 'blackboard', type: 'general', id: '0'}]
+  metas = {}
   if currenttype is 'puzzles'
-    round = model.Rounds.findOne puzzles: currentid
-    if round?
-      base.push {page: 'round', type: 'rounds', id: round._id}
+    fillMetas metas, currentid
+    if metas.keys()
+      base.push {page: 'metas', type: 'puzzles', id: metas}
+    else
+      round = model.Rounds.findOne puzzles: currentid
+      if round?
+        base.push {page: 'round', type: 'rounds', id: round._id}
     base.push {page: 'puzzle', type: 'puzzles', id: currentid}
   else if currenttype is 'rounds'
     base.push {page: 'round', type: 'rounds', id: currentid}
@@ -200,8 +213,13 @@ Tracker.autorun ->
     return if do ->
       for crumb, i in base
         oldcrumb = breadcrumbs[i]
-        if crumb.page isnt oldcrumb.page or crumb.type isnt oldcrumb.type or crumb.id isnt oldcrumb.id
+        if crumb.page isnt oldcrumb.page or crumb.type isnt oldcrumb.type
           return false
+        if crumb.page is 'metas'
+          return false if i isnt base.length - 1 and crumb.id.size < oldcrumb.id.size
+          for k, v in crumb.id
+            return false unless oldcrumb.id[k]?
+        else return false if crumb.id isnt oldcrumb.id
       return true
   Session.set 'breadcrumbs', base
 
@@ -228,9 +246,38 @@ Template.header_breadcrumb_round.helpers
   round: -> model.Rounds.findOne @id if @id
   active: active
 
+Template.header_breadcrumb_metas.helpers
+  active_meta: ->
+    return unless (Session.equals('currentPage', 'puzzle') or Session.equals('currentPage', 'chat')) and \
+        Session.equals('type', @type)
+    id = Session.get 'id'
+    if @id[id]?
+      return id
+  inactive_metas: ->
+    keys = @id.keys()
+    if (Session.equals('currentPage', 'puzzle') or Session.equals('currentPage', 'chat')) and \
+        Session.equals('type', @type)
+      id = Session.get 'id'
+      keys = keys.filter (x) -> x isnt id
+    if keys.length is 1
+      one: keys[0]
+    else if keys.length is 0
+      {}
+    else
+      many: keys
+
+Template.header_breadcrumb_one_meta.onCreated ->
+  @autorun =>
+    @subscribe 'puzzle-by-id', Template.currentData().id
+    @subscribe 'metas-for-puzzle', Template.currentData().id
+Template.header_breadcrumb_one_meta.helpers
+  puzzle: -> model.Puzzles.findOne @id if @id
+  active: active
+
 Template.header_breadcrumb_puzzle.onCreated ->
   @autorun =>
     @subscribe 'puzzle-by-id', Template.currentData().id
+    @subscribe 'metas-for-puzzle', Template.currentData().id
     @subscribe 'round-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_puzzle.helpers
   puzzle: -> model.Puzzles.findOne @id if @id

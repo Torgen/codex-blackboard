@@ -89,6 +89,7 @@ Meteor.publish 'last-answered-puzzle', ->
 # limit site traffic by only pushing out changes relevant to a certain
 # round or puzzle
 Meteor.publish 'puzzle-by-id', (id) -> model.Puzzles.find _id: id
+Meteor.publish 'metas-for-puzzle', (id) -> model.Puzzles.find puzzles: id
 Meteor.publish 'round-by-id', (id) -> model.Rounds.find _id: id
 Meteor.publish 'round-for-puzzle', (id) -> model.Rounds.find puzzles: id
 

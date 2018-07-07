@@ -49,10 +49,43 @@
 <template name="header_breadcrumb_round">
   <li class="{{#if active}}active{{else}}bb-omit-when-narrow{{/if}}">
     <a href="/rounds/{{id}}" class="rounds-link">
-      <i class="icon-folder-open icon-white"></i> Round: {{round.name}}
+      <i class="icon-folder-close icon-white"></i> Round: {{round.name}}
     </a>
     {{> header_breadcrumb_extra_links round}}
   </li>
+</template>
+
+<template name="header_breadcrumb_one_meta">
+  <li class="{{#if active}}active{{else}}bb-omit-when-narrow{{/if}}">
+    <a href="/puzzles/{{id}}" class="puzzles-link">
+      <i class="icon-folder-open icon-white"></i> Meta: {{puzzle.name}}
+    </a>
+    {{> header_breadcrumb_extra_links puzzle}}
+  </li>
+</template>
+
+<template name="header_breadcrumb_metas">
+  {{#let inactives=inactive_metas active=active_meta}}
+    {{#if inactives.one}}
+      {{> header_breadcrumb_one_meta type=type id=inactives.one}}
+    {{else if inactives.many}}
+      <li data-toggle="dropdown"><span class="caret"></span>
+      {{#if active}}
+        +{{inactives.many.length}}
+      {{else}}
+        {{inactives.many.length}} Metas
+      {{/if}}
+      <ul class="dropdown">
+        {{#each id in inactives.many}}
+          {{> header_breadcrum_one_meta type=type id=id}}
+        {{/each}}
+      </ul>
+      </li>
+    {{/if}}
+    {{#if active}}
+      {{> header_breadcrumb_one_meta type=type id=active}}
+    {{/if}}
+  {{/let}}
 </template>
 
 <template name="header_breadcrumb_puzzle">
