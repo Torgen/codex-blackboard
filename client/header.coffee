@@ -179,7 +179,7 @@ Template.header_loginmute.events
     Meteor.reconnect()
 
 fillMetas = (metas, currentid) ->
-  if not metas[currentid]?
+  unless metas[currentid]?
     metas[currentid] = currentid
     puzzle = model.Puzzles.findOne currentid
     if puzzle?.feedsInto?
