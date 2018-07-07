@@ -1141,7 +1141,7 @@ doc_id_to_link = (id) ->
         who: NonEmptyString
         how: Match.Optional(NonEmptyString)
       id = args.object._id or args.object
-      obj = collection(args.type).findOne id
+      obj = Puzzles.findOne id
       if not obj?
         return "Couldn't find puzzle #{id}"
       if obj.solved

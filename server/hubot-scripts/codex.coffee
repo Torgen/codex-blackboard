@@ -253,7 +253,7 @@ share.hubot.codex = (robot) ->
     if msg.match[1]?
       target = Meteor.call 'getByName',
         name: msg.match[1]
-        type: 'puzzles'
+        optional_type: 'puzzles'
       if not target?
         msg.reply useful: true, "I don't know what \"#{msg.match[1]}\" is."
         return msg.finish()
