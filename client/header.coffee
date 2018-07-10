@@ -190,7 +190,6 @@ fillMetas = (metas, currentid) ->
 
 in_crumbs = (crumbs, type, id) ->
   return false unless crumbs?
-  console.log crumbs
   for crumb in crumbs
     continue unless crumb.type is type
     if crumb.page is 'metas'
@@ -334,9 +333,7 @@ Template.header_breadcrumb_quip.onCreated ->
   @autorun => @subscribe 'quips'
 Template.header_breadcrumb_quip.helpers
   idIsNew: -> 'new' is @id
-  quip: ->
-    console.log this
-    model.Quips.findOne @id
+  quip: -> model.Quips.findOne @id
 
 Template.header_breadcrumbs.helpers
   breadcrumbs: -> Session.get 'breadcrumbs'
