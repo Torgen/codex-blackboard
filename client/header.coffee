@@ -189,12 +189,14 @@ fillMetas = (metas, currentid) ->
 ############## breadcrumbs #######################
 
 in_crumbs = (crumbs, type, id) ->
+  return false unless crumbs?
+  console.log crumbs
   for crumb in crumbs
     continue unless crumb.type is type
-    if crumb.page is 'puzzle'
+    if crumb.page is 'metas'
+      return true if crumb.id[id]?
+    else
       return true if crumb.id is id
-    else if crumb.page is 'metas'
-     return true if crumb.id[id]?
   false
 
 # One autorun to determine if the current page should be the leaf.
@@ -202,9 +204,9 @@ in_crumbs = (crumbs, type, id) ->
 # it should be the leaf.
 Tracker.autorun ->
   breadcrumbs = Session.get 'breadcrumbs'
-  currenttype = Session.get 'type'
-  currentid = Session.get 'id'
-  unless in_crumbs breadcrumbs, currenttype, currentid
+  type = Session.get 'type'
+  id = Session.get 'id'
+  unless in_crumbs breadcrumbs, type, id
     Session.set
       breadcrumbs_leaf_type: type
       breadcrumbs_leaf_id: id
@@ -219,14 +221,14 @@ min_meta_paths = (root) ->
   trail = []
   loop
     for id in current
-      puzzle = Puzzles.findOne id
+      puzzle = model.Puzzles.findOne id
       continue unless puzzle?
       for meta in puzzle.feedsInto
         unless depths[meta]?
           depths[meta] = depth
           next[meta] = depth
     current = Object.keys next
-    unless current
+    unless current.length
       return trail
     trail.push next
     depth++
@@ -238,7 +240,7 @@ generate_crumbs = (leaf_type, leaf_id) ->
   leaf_id = Session.get 'breadcrumbs_leaf_id'
   return crumbs unless leaf_type? and leaf_id?
   if leaf_type is 'puzzles'
-    metas = min_meta_paths breadcrumbs_leaf_id
+    metas = min_meta_paths leaf_id
     # Deepest are last here, so...
     metas.reverse()
     # One breadcrumb for each level of meta.
@@ -248,8 +250,11 @@ generate_crumbs = (leaf_type, leaf_id) ->
     crumbs.push {page: 'puzzle', type: 'puzzles', id: leaf_id}
   else if leaf_type is 'rounds'
     crumbs.push {page: 'round', type: 'rounds', id: leaf_id}
-  else if currentpage isnt 'chat' and currentpage isnt 'blackboard'
-    crumbs.push {page: currentpage, type: currenttype, id: currentid}
+  else if leaf_type is 'quips'
+    crumbs.push {page: 'quip', type: 'quips', id: leaf_id}
+  else
+    unless leaf_type is 'general'
+      crumbs.push {page: leaf_type, type: leaf_type, id: leaf_id}
   crumbs
 
 # A second autorun to determine what should be in the crumbs. 
@@ -329,7 +334,9 @@ Template.header_breadcrumb_quip.onCreated ->
   @autorun => @subscribe 'quips'
 Template.header_breadcrumb_quip.helpers
   idIsNew: -> 'new' is @id
-  quip: ->  model.Quips.findOne @id unless @id is 'new'
+  quip: ->
+    console.log this
+    model.Quips.findOne @id
 
 Template.header_breadcrumbs.helpers
   breadcrumbs: -> Session.get 'breadcrumbs'
