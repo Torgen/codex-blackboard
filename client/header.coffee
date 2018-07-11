@@ -210,7 +210,7 @@ Tracker.autorun ->
       breadcrumbs_leaf_type: type
       breadcrumbs_leaf_id: id
 
-# Because our graphs is unweighted, BFS suffices--we don't need something fancy
+# Because our graph is unweighted, BFS suffices--we don't need something fancy
 # like Dijkstra.
 min_meta_paths = (root) ->
   depth = 0
@@ -218,6 +218,7 @@ min_meta_paths = (root) ->
   next = {}
   depths = {}
   trail = []
+  depths[root] = -1
   loop
     for id in current
       puzzle = model.Puzzles.findOne id
