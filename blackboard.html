@@ -279,11 +279,15 @@
           {{/if}}
           <tr>
             <td>Feeds Into:</td>
-            <td>
-              {{#each feedsInto}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
-              {{#with unfedMetas}}{{#if this.count}}
-                <select class="bb-feed-meta">{{#each this}}<option value="{{_id}}">{{name}}</option>{{/each}}</select>
-              {{/if}}{{/with}}
+            <td class="bb-editable" data-bbedit="feedsInto/{{id}}">
+              {{#if editing "feedsInto" id}}
+                {{#each feedsInto}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
+                {{#with unfedMetas}}{{#if this.count}}
+                  <select class="bb-feed-meta">{{#each this}}<option value="{{_id}}">{{name}}</option>{{/each}}</select>
+                {{/if}}{{/with}}
+              {{else}}
+                <span class="comma-list">{{#each feedsInto}}{{link id=this}}{{/each}}</span>
+              {{/if}}
             </td>
           </tr>
         {{else}}
