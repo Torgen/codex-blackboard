@@ -170,7 +170,7 @@
 
 <template name="blackboard_unassigned">
   {{#if this.length}}
-    <tbody class="unassigned" id="unassigned{{_id}}">
+    <tbody class="unassigned" id="unassigned{{../_id}}">
     <tr><th colspan="{{nCols}}">Unassigned</th></tr>
     {{#each this}}
       {{> blackboard_puzzle}}

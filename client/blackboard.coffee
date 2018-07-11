@@ -129,6 +129,21 @@ Template.blackboard.helpers
   rounds: ->
     dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
     model.Rounds.find {}, sort: [["sort_key", dir]]
+  # the following is a map() instead of a direct find() to preserve order
+  metas: ->
+    r = for id, index in this.puzzles
+      puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
+      continue unless puzzle?
+      {
+        puzzle: puzzle
+        num_puzzles: puzzle.puzzles.length
+      }
+    return r
+  unassigned: ->
+    for id, index in this.puzzles
+      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
+      continue unless puzzle?
+      { puzzle: puzzle }
 
 Template.blackboard_status_grid.helpers
   rounds: ->
