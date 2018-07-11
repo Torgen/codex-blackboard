@@ -430,7 +430,7 @@ Template.blackboard_puzzle_cells.helpers
     return if @feedsInto.length < 2
     return model.Puzzles.find(_id: { $in: @feedsInto, $ne: parent.puzzle._id })
   isMeta: -> return @puzzles?
-  canChangeMeta: -> not @puzzles
+  canChangeMeta: -> not @puzzles or @puzzles.length is 0
   unfedMetas: ->
     return model.Puzzles.find(puzzles: {$exists: true, $ne: @_id})
 
