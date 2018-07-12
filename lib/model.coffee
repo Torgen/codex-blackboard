@@ -696,11 +696,11 @@ doc_id_to_link = (id) ->
         extra.puzzles = args.puzzles
       p = newObject "puzzles", args, extra
       if args.puzzles?
-        Puzzles.update {_id: $in: args.puzzles}, {$push: feedsInto: p._id}, multi: true
+        Puzzles.update {_id: $in: args.puzzles}, {$addToSet: feedsInto: p._id}, multi: true
       if feedsInto.length > 0
-        Puzzles.update {_id: $in: feedsInto}, {$push: puzzles: p._id}, multi: true
+        Puzzles.update {_id: $in: feedsInto}, {$addToSet: puzzles: p._id}, multi: true
       if args.round?
-        Rounds.update args.round, $push: puzzles: p._id
+        Rounds.update args.round, $addToSet: puzzles: p._id
       # create google drive folder (server only)
       newDriveFolder p._id, p.name
       return p
@@ -747,8 +747,8 @@ doc_id_to_link = (id) ->
       Puzzles.update {feedsInto: id}, {$pull: feedsInto: id}, multi: true
       return 0 < (Puzzles.update {_id: id, puzzles: $exists: true}, $unset: puzzles: "").nModified
     feedMeta: (puzzleId, metaId) ->
-      Puzzles.update puzzleId, $push: feedsInto: metaId
-      Puzzles.update metaId, $push: puzzles: puzzleId
+      Puzzles.update puzzleId, $addToSet: feedsInto: metaId
+      Puzzles.update metaId, $addToSet: puzzles: puzzleId
     unfeedMeta: (puzzleId, metaId) ->
       Puzzles.update puzzleId, $pull: feedsInto: metaId
       Puzzles.update metaId, $pull: puzzles: puzzleId
