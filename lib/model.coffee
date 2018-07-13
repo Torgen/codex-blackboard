@@ -1207,35 +1207,6 @@ doc_id_to_link = (id) ->
         body: body
       return
 
-    addPuzzleToRound: (args) ->
-      check args, ObjectWith
-        puzzle: IdOrObject
-        round: IdOrObject
-      pid = args.puzzle._id or args.puzzle
-      rid = args.round._id or args.round
-      check rid, NonEmptyString
-      r = Rounds.findOne(rid)
-      throw new Meteor.Error(404, "bad round") unless r
-      # remove puzzle from all other rounds
-      Rounds.update { puzzles: pid },{ $pull: puzzles: pid },{ multi: true }
-      # add puzzle to the given round
-      if args.before or args.after
-        # add to a specific location
-        puzzles = (p for p in r.puzzles when p != pid)
-        npuzzles = puzzles[..]
-        if puzzles.length == 0
-          npos = 0
-        else if args.before
-          npos = puzzles.indexOf(args.before)
-        else
-          npos = puzzles.indexOf(args.after) + 1
-        npuzzles.splice(npos, 0, pid)
-        # update the collection only if there wasn't a race
-        Rounds.update {_id: rid, puzzles: puzzles}, $set: puzzles: npuzzles
-      # add to the end (no-op if the 'at' clause succeeded)
-      Rounds.update rid, $addToSet: puzzles: pid
-      return true
-
     getRoundForPuzzle: (puzzle) ->
       check puzzle, IdOrObject
       id = puzzle._id or puzzle

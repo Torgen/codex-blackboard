@@ -9,13 +9,8 @@ ensureData = (cb) ->
     cb(err) if err?
     Meteor.call 'newPuzzle',
       name: 'puzzle'
+      round: r
       who: 'loadtest'
-    , (err, p) ->
-      cb(err) if err?
-      Meteor.call 'addPuzzleToRound', {puzzle:p, round:r, who:who}
-      cb null,
-        puzzle: p
-        round: r
 
 # different load testing tasks
 tasks = Object.create(null)
@@ -90,15 +85,11 @@ addPuzzles = (data) ->
   switch Random.choice ['round', 'puzzle']
     when 'round'
       followup = (r, cb) ->
-        Meteor.call 'addRoundToGroup',
-          round: r._id
-          group: data.roundgroup._id
-        , ->
-          Meteor.call 'renameRound',
-            id: r._id
-            name: Random.hexString(16)
-            who: who
-          , cb
+        Meteor.call 'renameRound',
+          id: r._id
+          name: Random.hexString(16)
+          who: who
+        , cb
       removeit = (r) ->
         Meteor.call 'deleteRound',
           id: r._id
@@ -106,26 +97,22 @@ addPuzzles = (data) ->
       Meteor.call 'newRound', {name:name,who:who,puzzles:null}, cb
     when 'puzzle'
       followup = (p, cb) ->
-        Meteor.call 'addPuzzleToRound',
-          puzzle: p._id
-          round: data.round._id
+        Meteor.call 'renamePuzzle',
+          id: p._id
+          name: Random.hexString(16)
+          who: who
         , ->
-          Meteor.call 'renamePuzzle',
-            id: p._id
-            name: Random.hexString(16)
+          Meteor.call 'setAnswer',
+            type: "puzzles"
+            target: p._id
+            answer: Random.choice ['root beer', 'watermelon', 'ice cream']
             who: who
-          , ->
-            Meteor.call 'setAnswer',
-              type: "puzzles"
-              target: p._id
-              answer: Random.choice ['root beer', 'watermelon', 'ice cream']
-              who: who
-            , cb
+          , cb
       removeit = (p) ->
         Meteor.call 'deletePuzzle',
           id: p._id
           who: who
-      Meteor.call 'newPuzzle', {name:name,who:who}, cb
+      Meteor.call 'newPuzzle', {name:name, who:who, round: data.round._id}, cb
 
 # -- tasks --
 
