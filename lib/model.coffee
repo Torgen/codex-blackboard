@@ -676,9 +676,8 @@ doc_id_to_link = (id) ->
       deleteObject "rounds", args
 
     newPuzzle: (args) ->
-      if args.round?
-        throw new Meteor.Error(404, "bad round") unless Rounds.findOne(args.round)?
-        # TODO(torgen): if round has a default meta, set new puzzle to feed into that meta.
+      throw new Meteor.Error(404, "bad round") unless args.round? and Rounds.findOne(args.round)?
+      # TODO(torgen): if round has a default meta, set new puzzle to feed into that meta.
       puzzle_prefix = huntPrefix 'puzzle'
       link = if puzzle_prefix
         "#{puzzle_prefix}#{canonical(args.name)}"
@@ -696,11 +695,25 @@ doc_id_to_link = (id) ->
         extra.puzzles = args.puzzles
       p = newObject "puzzles", args, extra
       if args.puzzles?
-        Puzzles.update {_id: $in: args.puzzles}, {$addToSet: feedsInto: p._id}, multi: true
+        Puzzles.update {_id: $in: args.puzzles},
+          $addToSet: feedsInto: p._id
+          $set:
+            touched_by: p.touched_by
+            touched: p.touched
+        , multi: true
       if feedsInto.length > 0
-        Puzzles.update {_id: $in: feedsInto}, {$addToSet: puzzles: p._id}, multi: true
+        Puzzles.update {_id: $in: feedsInto},
+          $addToSet: puzzles: p._id
+          $set:
+            touched_by: p.touched_by
+            touched: p.touched
+        , multi: true
       if args.round?
-        Rounds.update args.round, $addToSet: puzzles: p._id
+        Rounds.update args.round,
+          $addToSet: puzzles: p._id
+          $set:
+            touched_by: p.touched_by
+            touched: p.touched
       # create google drive folder (server only)
       newDriveFolder p._id, p.name
       return p
@@ -725,17 +738,33 @@ doc_id_to_link = (id) ->
       pid = args.id
       # get drive ID (racy)
       old = Puzzles.findOne(args.id)
+      now = UTCNow()
       drive = old?.drive
       spreadsheet = old?.spreadsheet
       doc = old?.doc
       # remove puzzle itself
       r = deleteObject "puzzles", args
       # remove from all rounds
-      Rounds.update { puzzles: pid }, {$pull: puzzles: pid}, multi: true
+      Rounds.update { puzzles: pid },
+        $pull: puzzles: pid
+        $set:
+          touched: now
+          touched_by: canonical args.who
+      , multi: true
       # Remove from all metas
-      Puzzles.update { puzzles: pid }, {$pull: puzzles: pid}, multi: true
+      Puzzles.update { puzzles: pid },
+        $pull: puzzles: pid
+        $set:
+          touched: now
+          touched_by: canonical args.who
+      , multi: true
       # Remove from all feedsInto lists
-      Puzzles.update { feedsInto: pid }, {$pull: feedsInto: pid}, multi: true
+      Puzzles.update { feedsInto: pid },
+        $pull: feedsInto: pid
+        $set:
+          touched: now
+          touched_by: canonical args.who
+      , multi: true
       # delete google drive folder
       deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
       # XXX: delete chat room logs?
