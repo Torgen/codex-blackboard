@@ -415,12 +415,16 @@ Template.blackboard_meta.helpers
 
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
+    who = reactiveLocalStorage.getItem 'nick'
+    return unless who?
     if event.target.checked
-      Meteor.call 'makeMeta', template.data.puzzle._id
+      Meteor.call 'makeMeta', template.data.puzzle._id, who
     else
-      Meteor.call 'makeNotMeta', template.data.puzzle._id
+      Meteor.call 'makeNotMeta', template.data.puzzle._id, who
   'change .bb-feed-meta': (event, template) ->
-    Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value
+    who = reactiveLocalStorage.getItem 'nick'
+    return unless who?
+    Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value, who
 
 # TODO(Torgen): reordering rounds
 
@@ -451,7 +455,9 @@ Template.blackboard_puzzle_cells.helpers
 
 Template.blackboard_unfeed_meta.events
   'click .bb-unfeed-icon': (event, template) ->
-    Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta
+    who = reactiveLocalStorage.getItem 'nick'
+    return unless who?
+    Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta, who
 
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 

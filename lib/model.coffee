@@ -769,18 +769,50 @@ doc_id_to_link = (id) ->
       deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
       # XXX: delete chat room logs?
       return r
-    makeMeta: (id) ->
+    makeMeta: (id, who) ->
+      now = UTCNow()
       # This only fails if, for some reason, puzzles is a list containing null.
-      return 0 < (Puzzles.update {_id: id, puzzles: null}, $set: puzzles: []).nModified
-    makeNotMeta: (id) ->
-      Puzzles.update {feedsInto: id}, {$pull: feedsInto: id}, multi: true
-      return 0 < (Puzzles.update {_id: id, puzzles: $exists: true}, $unset: puzzles: "").nModified
-    feedMeta: (puzzleId, metaId) ->
-      Puzzles.update puzzleId, $addToSet: feedsInto: metaId
-      Puzzles.update metaId, $addToSet: puzzles: puzzleId
-    unfeedMeta: (puzzleId, metaId) ->
-      Puzzles.update puzzleId, $pull: feedsInto: metaId
-      Puzzles.update metaId, $pull: puzzles: puzzleId
+      return 0 < (Puzzles.update {_id: id, puzzles: null}, $set:
+        puzzles: []
+        touched: now
+        touched_by: canonical who).nModified
+    makeNotMeta: (id, who) ->
+      now = UTCNow()
+      Puzzles.update {feedsInto: id},
+        $pull: feedsInto: id
+        $set:
+          touched: now
+          touched_by: canonical who
+      , multi: true
+      return 0 < (Puzzles.update {_id: id, puzzles: $exists: true},
+        $unset: puzzles: ""
+        $set:
+          touched: now
+          touched_by: canonical who).nModified
+    feedMeta: (puzzleId, metaId, who) ->
+      now = UTCNow()
+      Puzzles.update puzzleId,
+        $addToSet: feedsInto: metaId
+        $set: 
+          touched: now
+          touched_by: canonical who
+      Puzzles.update metaId,
+        $addToSet: puzzles: puzzleId
+        $set: 
+          touched: now
+          touched_by: canonical who
+    unfeedMeta: (puzzleId, metaId, who) ->
+      now = UTCNow()
+      Puzzles.update puzzleId,
+        $pull: feedsInto: metaId
+        $set: 
+          touched: now
+          touched_by: canonical who
+      Puzzles.update metaId,
+        $pull: puzzles: puzzleId
+        $set: 
+          touched: now
+          touched_by: canonical who
 
     newCallIn: (args) ->
       check args, ObjectWith
