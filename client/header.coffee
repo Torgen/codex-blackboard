@@ -223,7 +223,6 @@ Tracker.autorun ->
   type = Session.get 'type'
   id = Session.get 'id'
   unless in_crumbs breadcrumbs, type, id
-    console.log "setting to #{type}/#{id}"
     Session.set
       breadcrumbs_leaf_type: type
       breadcrumbs_leaf_id: id
@@ -289,7 +288,6 @@ Tracker.autorun ->
   id = Session.get 'id'
   unless type is leaf_type and id is leaf_id
     return unless in_crumbs crumbs, type, id
-  console.log crumbs...
   breadcrumbs_var.set crumbs
 
 Template.header_breadcrumb_chat.helpers
