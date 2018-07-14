@@ -358,43 +358,29 @@ Template.header_breadcrumbs.helpers
   crumb_template: -> "header_breadcrumb_#{@page}"
   active: active
   round: ->
-    if Session.equals('type', 'puzzles')
-      model.Rounds.findOne puzzles: Session.get("id")
-    else if Session.equals('type', 'rounds')
-      model.Rounds.findOne Session.get('id')
+    if Session.equals 'type', 'puzzles'
+      model.Rounds.findOne puzzles: Session.get 'id'
+    else if Session.equals 'type', 'rounds'
+      model.Rounds.findOne Session.get 'id'
     else null
   puzzle: ->
-    if Session.equals('type', 'puzzles')
-      model.Puzzles.findOne Session.get('id')
+    if Session.equals 'type', 'puzzles'
+      model.Puzzles.findOne Session.get 'id'
     else null
-  quip: ->
-    if Session.equals('type', 'quips')
-      model.Quips.findOne Session.get('id')
-    else null
-  type: -> Session.get('type')
-  id: -> Session.get('id')
-  idIsNew: -> Session.equals('id', 'new')
   picker: -> settings.PICKER_CLIENT_ID? and settings.PICKER_APP_ID? and settings.PICKER_DEVELOPER_KEY?
-  drive: -> switch Session.get('type')
+  drive: -> switch Session.get 'type'
     when 'general'
       Session.get 'RINGHUNTERS_FOLDER'
     when 'rounds', 'puzzles'
-      model.collection(Session.get('type'))?.findOne(Session.get('id'))?.drive
+      model.collection(Session.get 'type')?.findOne(Session.get 'id')?.drive
 
 Template.header_breadcrumbs.events
-  "mouseup .fake-link[data-href]": (event, template) ->
-    # we work hard to try to make middle-click, shift-click, etc still work.
-    a = $(event.currentTarget).closest('a')
-    href = $(event.currentTarget).attr('data-href')
-    oldhref = a.attr('href')
-    a.attr('href', href)
-    Meteor.setTimeout (-> a.attr('href', oldhref)), 100
   "click .bb-upload-file": (event, template) ->
-    folder = switch Session.get('type')
+    folder = switch Session.get 'type'
       when 'general'
         Session.get 'RINGHUNTERS_FOLDER'
       when 'rounds', 'puzzles'
-        model.collection(Session.get('type'))?.findOne(Session.get('id'))?.drive
+        model.collection(Session.get 'type')?.findOne(Session.get 'id')?.drive
     return unless folder
     uploadToDriveFolder folder, (docs) ->
       message = "uploaded "+(for doc in docs
