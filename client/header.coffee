@@ -188,6 +188,23 @@ fillMetas = (metas, currentid) ->
 
 ############## breadcrumbs #######################
 
+crumbs_equal = (x, y) ->
+  return false unless x.length is y.length
+  for xi, i in x
+    yi = y[i]
+    return false unless xi.type is yi.type
+    return false unless xi.page is yi.page
+    continue if xi.id is yi.id
+    return false unless 'object' is typeof xi.id
+    return false unless 'object' is typeof yi.id
+    return false unless Object.keys(xi.id).length is Object.keys(yi.id).length
+    for k, v of xi.id
+      return false unless yi.id[k]?
+      return false unless yi.id[k] is v
+  true
+
+breadcrumbs_var = new ReactiveVar [{page: 'blackboard', type: 'general', id: '0'}], crumbs_equal
+
 in_crumbs = (crumbs, type, id) ->
   return false unless crumbs?
   for crumb in crumbs
@@ -202,10 +219,11 @@ in_crumbs = (crumbs, type, id) ->
 # Basically, if the current page isn't in the current breadcrumb trail,
 # it should be the leaf.
 Tracker.autorun ->
-  breadcrumbs = Session.get 'breadcrumbs'
+  breadcrumbs = breadcrumbs_var.get()
   type = Session.get 'type'
   id = Session.get 'id'
   unless in_crumbs breadcrumbs, type, id
+    console.log "setting to #{type}/#{id}"
     Session.set
       breadcrumbs_leaf_type: type
       breadcrumbs_leaf_id: id
@@ -271,7 +289,8 @@ Tracker.autorun ->
   id = Session.get 'id'
   unless type is leaf_type and id is leaf_id
     return unless in_crumbs crumbs, type, id
-  Session.set 'breadcrumbs', crumbs
+  console.log crumbs...
+  breadcrumbs_var.set crumbs
 
 Template.header_breadcrumb_chat.helpers
   inThisRoom: ->
@@ -337,7 +356,7 @@ Template.header_breadcrumb_quip.helpers
   quip: -> model.Quips.findOne @id
 
 Template.header_breadcrumbs.helpers
-  breadcrumbs: -> Session.get 'breadcrumbs'
+  breadcrumbs: -> breadcrumbs_var.get()
   crumb_template: -> "header_breadcrumb_#{@page}"
   active: active
   round: ->
