@@ -357,12 +357,6 @@ Template.header_breadcrumbs.helpers
   breadcrumbs: -> breadcrumbs_var.get()
   crumb_template: -> "header_breadcrumb_#{@page}"
   active: active
-  round: ->
-    if Session.equals 'type', 'puzzles'
-      model.Rounds.findOne puzzles: Session.get 'id'
-    else if Session.equals 'type', 'rounds'
-      model.Rounds.findOne Session.get 'id'
-    else null
   puzzle: ->
     if Session.equals 'type', 'puzzles'
       model.Puzzles.findOne Session.get 'id'
@@ -371,16 +365,16 @@ Template.header_breadcrumbs.helpers
   drive: -> switch Session.get 'type'
     when 'general'
       Session.get 'RINGHUNTERS_FOLDER'
-    when 'rounds', 'puzzles'
-      model.collection(Session.get 'type')?.findOne(Session.get 'id')?.drive
+    when 'puzzles'
+      model.Puzzles.findOne(Session.get 'id')?.drive
 
 Template.header_breadcrumbs.events
   "click .bb-upload-file": (event, template) ->
     folder = switch Session.get 'type'
       when 'general'
         Session.get 'RINGHUNTERS_FOLDER'
-      when 'rounds', 'puzzles'
-        model.collection(Session.get 'type')?.findOne(Session.get 'id')?.drive
+      when 'puzzles'
+        model.Puzzles.findOne(Session.get 'id')?.drive
     return unless folder
     uploadToDriveFolder folder, (docs) ->
       message = "uploaded "+(for doc in docs
