@@ -769,13 +769,15 @@ doc_id_to_link = (id) ->
       deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
       # XXX: delete chat room logs?
       return r
+
     makeMeta: (id, who) ->
       now = UTCNow()
       # This only fails if, for some reason, puzzles is a list containing null.
-      return 0 < (Puzzles.update {_id: id, puzzles: null}, $set:
+      return 0 < Puzzles.update {_id: id, puzzles: null}, $set:
         puzzles: []
         touched: now
-        touched_by: canonical who).nModified
+        touched_by: canonical who
+
     makeNotMeta: (id, who) ->
       now = UTCNow()
       Puzzles.update {feedsInto: id},
@@ -784,11 +786,12 @@ doc_id_to_link = (id) ->
           touched: now
           touched_by: canonical who
       , multi: true
-      return 0 < (Puzzles.update {_id: id, puzzles: $exists: true},
+      return 0 < Puzzles.update {_id: id, puzzles: $exists: true},
         $unset: puzzles: ""
         $set:
           touched: now
-          touched_by: canonical who).nModified
+          touched_by: canonical who
+
     feedMeta: (puzzleId, metaId, who) ->
       now = UTCNow()
       Puzzles.update puzzleId,
@@ -801,6 +804,7 @@ doc_id_to_link = (id) ->
         $set: 
           touched: now
           touched_by: canonical who
+
     unfeedMeta: (puzzleId, metaId, who) ->
       now = UTCNow()
       Puzzles.update puzzleId,
