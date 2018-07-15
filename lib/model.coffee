@@ -856,7 +856,7 @@ doc_id_to_link = (id) ->
       unless args?.suppressRoom is msg.room_name
         Meteor.call 'newMessage', msg
       # send to the metapuzzle chat
-      puzzle.feedsMeta.forEach (meta) ->
+      puzzle.feedsInto.forEach (meta) ->
         msg.body = body(specifyPuzzle: true)
         msg.room_name = "puzzles/#{meta._id}"
         unless args?.suppressRoom is msg.room_name
@@ -934,7 +934,7 @@ doc_id_to_link = (id) ->
       Meteor.call 'newMessage', msg
 
       # one message to the each metapuzzle's chat
-      puzzle.feedsMeta.forEach (meta) ->
+      puzzle.feedsInto.forEach (meta) ->
         msg.room_name = "puzzles/#{meta}"
         Meteor.call 'newMessage', msg
 
@@ -963,7 +963,7 @@ doc_id_to_link = (id) ->
       delete msg.room_name
       msg.body += " (#{name})" if name?
       Meteor.call 'newMessage', msg
-      puzzle.feedsMeta.forEach (meta) ->
+      puzzle.feedsInto.forEach (meta) ->
         msg.room_name = "puzzles/#{meta}"
         Meteor.call 'newMessage', msg
 
