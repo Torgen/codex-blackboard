@@ -45,15 +45,15 @@ Meteor.publish 'last-answered-puzzle', ->
   recent = null
   initializing = true
 
-  max = (type, doc) ->
+  max = (doc) ->
     if doc.solved?
       if (not recent?.target) or (doc.solved > recent.solved)
-        recent = {solved:doc.solved, type:type, target:doc._id}
+        recent = {solved:doc.solved, target:doc._id}
         return true
     return false
 
-  publishIfMax = (type, doc) ->
-    return unless max(type, doc)
+  publishIfMax = (doc) ->
+    return unless max(doc)
     self.changed collection, uuid, recent \
       unless initializing
   publishNone = ->
@@ -61,15 +61,11 @@ Meteor.publish 'last-answered-puzzle', ->
     self.changed collection, uuid, recent \
       unless initializing
 
-  # XXX this observe polls on 0.7.0.1
-  # (but not on the meteor oplog-with-operators branch)
-  handles = [
-    "puzzles", "rounds"
-  ].map (type) -> model.collection(type).find({
-    solved: { $ne: null }
-  }).observe
-    added: (doc) -> publishIfMax(type, doc)
-    changed: (doc, oldDoc) -> publishIfMax(type, doc)
+  handle = model.Puzzles.find(
+    solved: $ne: null
+  ).observe
+    added: (doc) -> publishIfMax(doc)
+    changed: (doc, oldDoc) -> publishIfMax(doc)
     removed: (doc) ->
       publishNone() if doc._id is recent?.target
 
@@ -84,7 +80,7 @@ Meteor.publish 'last-answered-puzzle', ->
   # Stop observing the cursor when client unsubs.
   # Stopping a subscription automatically takes care of sending the
   # client any 'removed' messages
-  self.onStop -> (handle.stop() for handle in handles)
+  self.onStop -> handle.stop()
 
 # limit site traffic by only pushing out changes relevant to a certain
 # round or puzzle
