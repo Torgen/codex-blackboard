@@ -170,7 +170,7 @@ Template.blackboard_status_grid.helpers
 Template.blackboard.events
   "click .bb-menu-button .btn": (event, template) ->
     template.$('.bb-menu-drawer').modal 'show'
-  "click a[href^=#]": (event, template) ->
+  "click a[href^='#']": (event, template) ->
     event.preventDefault()
     template.$('.bb-menu-drawer').modal 'hide'
     $.scrollTo (event.target.getAttribute 'href'),
