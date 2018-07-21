@@ -1,4 +1,7 @@
 'use strict'
+
+import canonical from './imports/canonical.coffee'
+
 # Blackboard -- data model
 # Loaded on both the client and the server
 
@@ -476,15 +479,6 @@ getTag = (object, name) ->
 
 isStuck = (object) ->
   object? and /^stuck\b/i.test(getTag(object, 'Status') or '')
-
-# canonical names: lowercases, all non-alphanumerics replaced with '_'
-canonical = (s) ->
-  s = s.toLowerCase().replace(/^\s+/, '').replace(/\s+$/, '') # lower, strip
-  # suppress 's and 't
-  s = s.replace(/[\'\u2019]([st])\b/g, "$1")
-  # replace all non-alphanumeric with _
-  s = s.replace(/[^a-z0-9]+/g, '_').replace(/^_/,'').replace(/_$/,'')
-  return s
 
 drive_id_to_link = (id) ->
   "https://docs.google.com/folder/d/#{id}/edit"
