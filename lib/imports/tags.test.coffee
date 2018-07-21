@@ -65,6 +65,5 @@ describe 'canonicalTags', ->
       [{name: 'Foo', canon: 'foo', value: 'bar', touched: pre, touched_by: 'torgen'}])
 
   it 'preserves touched_by', ->
-    chai.assert.deepInclude(
-      tags.canonicalTags([{name: 'Foo', value: 'bar', touched_by: 'cscott'}], 'torgen'),
-      {name: 'Foo', canon: 'foo', value: 'bar',  touched_by: 'cscott'})
+    [tag] = tags.canonicalTags [{name: 'Foo', value: 'bar', touched_by: 'cscott'}], 'torgen'
+    chai.assert.include tag, {name: 'Foo', canon: 'foo', value: 'bar',  touched_by: 'cscott'}
