@@ -1,3 +1,5 @@
+'use strict'
+
 # canonical names: lowercases, all non-alphanumerics replaced with '_'
 export default canonical = (s) ->
   s = s.toLowerCase().replace(/^\s+/, '').replace(/\s+$/, '') # lower, strip

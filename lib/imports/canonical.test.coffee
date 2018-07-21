@@ -1,3 +1,5 @@
+'use strict'
+
 import canonical from './canonical.coffee'
 import chai from 'chai'
 
