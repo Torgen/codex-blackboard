@@ -11,63 +11,13 @@ import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 # client/server load.
 PRESENCE_KEEPALIVE_MINUTES = 2
 
-# how many chats in a page?
-MESSAGE_PAGE = 100
-
 # this is used to yield "zero results" in collections which index by timestamp
 NOT_A_TIMESTAMP = -9999
-
-# migrate old documents with different 'answer' representation
-MIGRATE_ANSWERS = false
-
-# move pages of messages to oldmessages collection
-MOVE_OLD_PAGES = true
-
-# In order to use all threads of the machine and preserve session stickiness,
-# we need to run one instance of the app per CPU and use source hashing to
-# distribute load between them. (If we didn't need stickiness, we could use
-# the 'cluster' node.js addon, if there was a way to insert starting the
-# children into the startup code, which I haven't fonud yet.)
-# Since the app does batch processing, we need to disable it in all but one
-# instance. (Or we run N+1 instances, one of which doesn't serve user traffic,
-# which is what we'll actually do.) We won't be able to detect that any
-# particular instance is doing the batch processing, so we will use an
-# environment variable / setting from json to configure it. Batch processing
-# has to be enabled by default, since many users will just run meteor in dev
-# mode and won't even know it's an option.
-DO_BATCH_PROCESSING = do ->
-  return false if Meteor.isClient
-  return !(Meteor.settings.disableBatch ? process.env.DISABLE_BATCH_PROCESSING)
 
 if Meteor.isServer
   import emojify from '../server/imports/emoji.coffee'
 else
   emojify = (s) -> s
-
-# helper function: like _.throttle, but always ensures `wait` of idle time
-# between invocations.  This ensures that we stay chill even if a single
-# execution of the function starts to exceed `wait`.
-throttle = (func, wait = 0) ->
-  [context, args, running, pending] = [null, null, false, false]
-  later = ->
-    if pending
-      run()
-    else
-      running = false
-  run = ->
-    [running, pending] = [true, false]
-    try
-      func.apply(context, args)
-    # Note that the timeout doesn't start until the function has completed.
-    Meteor.setTimeout(later, wait)
-  (a...) ->
-    return if pending
-    [context, args] = [this, a]
-    if running
-      pending = true
-    else
-      running = true
-      Meteor.setTimeout(run, 0)
 
 BBCollection = Object.create(null) # create new object w/o any inherited cruft
 
@@ -108,27 +58,6 @@ LastAnswer = BBCollection.last_answer = \
 #   round_start: integer, indicating how many rounds total are in all
 #                preceding round groups (a bit racy, but server fixes it up)
 RoundGroups = BBCollection.roundgroups = new Mongo.Collection "roundgroups"
-if DO_BATCH_PROCESSING
-  RoundGroups._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  updateRoundStart = ->
-    round_start = 0
-    RoundGroups.find({}, sort: ["created"]).forEach (rg) ->
-      if rg.round_start isnt round_start
-        RoundGroups.update rg._id, $set: round_start: round_start
-      round_start += rg.rounds.length
-  # Note that throttle uses Meteor.setTimeout here even if a call isn't
-  # yet pending -- we want to ensure that we give all the observeChanges
-  # time to fire before we do the update.
-  # In theory we could use `Tracker.afterFlush`, but see
-  # https://github.com/meteor/meteor/issues/3293
-  queueUpdateRoundStart = throttle(updateRoundStart, 100)
-  # observe changes to the rounds field and update round_start
-  queueUpdateRoundStart()
-  RoundGroups.find({}).observeChanges
-    added: (id, fields) -> queueUpdateRoundStart()
-    removed: (id, fields) -> queueUpdateRoundStart()
-    changed: (id, fields) ->
-      queueUpdateRoundStart() if 'created' of fields or 'rounds' of fields
 
 # Rounds are:
 #   _id: mongodb id
@@ -147,35 +76,6 @@ if DO_BATCH_PROCESSING
 #   puzzles: [ array of puzzle _ids, in order ]
 #   drive: google drive url or id
 Rounds = BBCollection.rounds = new Mongo.Collection "rounds"
-if DO_BATCH_PROCESSING
-  Rounds._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  if MIGRATE_ANSWERS
-    # migrate objects -- rename 'Meta answer' tag to 'Answer'
-    Meteor.startup ->
-      Rounds.find({}).forEach (r) ->
-        answer = getTag(r, 'Meta Answer')
-        return unless answer?
-        console.log 'Migrating round', r.name
-        tweak = (tag) ->
-          name = if tag.canon is 'meta_answer' then 'Answer' else tag.name
-          return {
-            name: name
-            canon: canonical(name)
-            value: tag.value
-            touched: tag.touched ? r.created
-            touched_by: tag.touched_by ? r.created_by
-          }
-        ntags = (tweak(tag) for tag in r.tags)
-        ntags.sort (a, b) -> (a?.canon or "").localeCompare (b?.canon or "")
-        [solved, solved_by] = [null, null]
-        ntags.forEach (tag) -> if tag.canon is canonical('Answer')
-          [solved, solved_by] = [tag.touched, tag.touched_by]
-        Rounds.update r._id, $set:
-          tags: ntags
-          incorrectAnswers: []
-          solved: solved
-          solved_by: solved_by
-
 
 # Puzzles are:
 #   _id: mongodb id
@@ -193,20 +93,6 @@ if DO_BATCH_PROCESSING
 #   tags: [ { name: "Status", canon: "status", value: "stuck" }, ... ]
 #   drive: google drive url or id
 Puzzles = BBCollection.puzzles = new Mongo.Collection "puzzles"
-if DO_BATCH_PROCESSING
-  Puzzles._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  if MIGRATE_ANSWERS
-    # migrate objects -- we used to have an `answer` field in Puzzles.
-    Meteor.startup ->
-      Puzzles.find(answer: { $exists: true, $ne: null }).forEach (p) ->
-        console.log 'Migrating puzzle', p.name
-        update = {$set: {solved: p.solved}, $unset: {answer: ''}}
-        Meteor.call "setAnswer",
-          type: 'puzzles'
-          target: p._id
-          answer: p.answer
-          who: p.solved_by
-        Puzzles.update p._id, update
 
 # CallIns are:
 #   _id: mongodb id
@@ -219,9 +105,6 @@ if DO_BATCH_PROCESSING
 #   backsolve: true/false
 #   provided: true/false
 CallIns = BBCollection.callins = new Mongo.Collection "callins"
-if DO_BATCH_PROCESSING
-   CallIns._ensureIndex {created: 1}, {}
-   CallIns._ensureIndex {type: 1, target: 1, answer: 1}, {unique:true, dropDups:true}
 
 # Quips are:
 #   _id: mongodb id
@@ -231,8 +114,6 @@ if DO_BATCH_PROCESSING
 #   last_used: timestamp (0 if never used)
 #   use_count: integer
 Quips = BBCollection.quips = new Mongo.Collection "quips"
-if DO_BATCH_PROCESSING
-  Quips._ensureIndex {last_used: 1}, {}
 
 # Nicks are:
 #   _id: mongodb id
@@ -248,38 +129,6 @@ if DO_BATCH_PROCESSING
 #   tags: [ { name: "Real Name", canon: "real_name", value: "C. Scott Ananian" }, ... ]
 # valid tags include "Real Name", "Gravatar" (email address to use for photos)
 Nicks = BBCollection.nicks = new Mongo.Collection "nicks"
-if DO_BATCH_PROCESSING
-  Nicks._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  Nicks._ensureIndex {priv_located_order: 1}, {}
-  # synchronize priv_located* with located* at a throttled rate.
-  # order by priv_located_order, which we'll clear when we apply the update
-  # this ensures nobody gets starved for updates
-  do ->
-    # limit to 10 location updates/minute
-    LOCATION_BATCH_SIZE = 10
-    LOCATION_THROTTLE = 60*1000
-    runBatch = ->
-      Nicks.find({
-        priv_located_order: { $exists: true, $ne: null }
-      }, {
-        sort: [['priv_located_order','asc']]
-        limit: LOCATION_BATCH_SIZE
-      }).forEach (n, i) ->
-        console.log "Updating location for #{n.name} (#{i})"
-        Nicks.update n._id,
-          $set:
-            located: n.priv_located
-            located_at: n.priv_located_at
-          $unset: priv_located_order: ''
-    maybeRunBatch = throttle(runBatch, LOCATION_THROTTLE)
-    Nicks.find({
-      priv_located_order: { $exists: true, $ne: null }
-    }, {
-      fields: priv_located_order: 1
-    }).observeChanges
-      added: (id, fields) -> maybeRunBatch()
-      # also run batch on removed: batch size might not have been big enough
-      removed: (id) -> maybeRunBatch()
 
 # Messages
 #   body: string
@@ -309,13 +158,6 @@ if DO_BATCH_PROCESSING
 # JS Notification API 'tag' for deduping and selective muting.
 Messages = BBCollection.messages = new Mongo.Collection "messages"
 OldMessages = BBCollection.oldmessages = new Mongo.Collection "oldmessages"
-if DO_BATCH_PROCESSING
-  for M in [ Messages, OldMessages ]
-    M._ensureIndex {to:1, room_name:1, timestamp:-1}, {}
-    M._ensureIndex {nick:1, room_name:1, timestamp:-1}, {}
-    M._ensureIndex {room_name:1, timestamp:-1}, {}
-    M._ensureIndex {room_name:1, timestamp:1}, {}
-    M._ensureIndex {room_name:1, starred: -1, timestamp: 1}, {}
 
 # Pages -- paging metadata for Messages collection
 #   from: timestamp (first page has from==0)
@@ -326,81 +168,12 @@ if DO_BATCH_PROCESSING
 #   archived: boolean (true iff this page is in oldmessages)
 # Messages with from <= timestamp < to are included in a specific page.
 Pages = BBCollection.pages = new Mongo.Collection "pages"
-if DO_BATCH_PROCESSING
-  # used in the server observe code below
-  Pages._ensureIndex {room_name:1, to:-1}, {unique:true}
-  # used in the publish method
-  Pages._ensureIndex {next: 1, room_name:1}, {}
-  # used for archiving
-  Pages._ensureIndex {archived:1, next:1, to:1}, {}
-  # ensure old pages have the `archived` field
-  Meteor.startup ->
-    Pages.find(archived: $exists: false).forEach (p) ->
-      Pages.update p._id, $set: archived: false
-  # move messages to oldmessages collection
-  queueMessageArchive = throttle ->
-    p = Pages.findOne({archived: false, next: $ne: null}, {sort:[['to','asc']]})
-    return unless p?
-    limit = 2 * MESSAGE_PAGE
-    loop
-      msgs = Messages.find({room_name: p.room_name, timestamp: $lt: p.to}, \
-        {sort:[['to','asc']], limit: limit, reactive: false}).fetch()
-      OldMessages.upsert(m._id, m) for m in msgs
-      Pages.update(p._id, $set: archived: true) if msgs.length < limit
-      Messages.remove(m._id) for m in msgs
-      break if msgs.length < limit
-    queueMessageArchive()
-  , 60*1000 # no more than once a minute
-  # watch messages collection and create pages as necessary
-  do ->
-    unpaged = Object.create(null)
-    Messages.find({}, sort:[['timestamp','asc']]).observe
-      added: (msg) ->
-        room_name = msg.room_name
-        # don't count pms (so we don't end up with a blank 'page')
-        return if msg.to
-        # add to (conservative) count of unpaged messages
-        # (this message might already be in a page, but we'll catch that below)
-        unpaged[room_name] = (unpaged[room_name] or 0) + 1
-        return if unpaged[room_name] < MESSAGE_PAGE
-        # recompute page parameters before adding a new page
-        # (be safe in case we had out-of-order observations)
-        # find highest existing page
-        p = Pages.findOne({room_name: room_name}, {sort:[['to','desc']]})\
-          or { _id: null, room_name: room_name, from: -1, to: 0 }
-        # count the number of unpaged messages
-        m = Messages.find(\
-          {room_name: room_name, to: null, timestamp: $gte: p.to}, \
-          {sort:[['timestamp','asc']], limit: MESSAGE_PAGE}).fetch()
-        if m.length < MESSAGE_PAGE
-          # false alarm: reset unpaged message count and continue
-          unpaged[room_name] = m.length
-          return
-        # ok, let's make a new page.  this will include at least all the
-        # messages in m, possibly more (if there are additional messages
-        # added with timestamp == m[m.length-1].timestamp)
-        pid = Pages.insert
-          room_name: room_name
-          from: p.to
-          to: 1 + m[m.length-1].timestamp
-          prev: p._id
-          next: null
-          archived: false
-        if p._id?
-          Pages.update p._id, $set: next: pid
-        unpaged[room_name] = 0
-        queueMessageArchive() if MOVE_OLD_PAGES
-  # migrate messages to old messages collection
-  (Meteor.startup queueMessageArchive) if MOVE_OLD_PAGES
 
 # Last read message for a user in a particular chat room
 #   nick: canonicalized string, as in Messages
 #   room_name: string, as in Messages
 #   timestamp: timestamp of last read message
 LastRead = BBCollection.lastread = new Mongo.Collection "lastread"
-if DO_BATCH_PROCESSING
-  LastRead._ensureIndex {nick:1, room_name:1}, {unique:true, dropDups:true}
-  LastRead._ensureIndex {nick:1}, {} # be safe
 
 # Chat room presence
 #   nick: canonicalized string, as in Messages
@@ -410,57 +183,6 @@ if DO_BATCH_PROCESSING
 #   foreground_uuid: identity of client with tab in foreground
 #   present: boolean (true if user is present, false if not)
 Presence = BBCollection.presence = new Mongo.Collection "presence"
-if DO_BATCH_PROCESSING
-  Presence._ensureIndex {nick: 1, room_name:1}, {unique:true, dropDups:true}
-  Presence._ensureIndex {timestamp:-1}, {}
-  Presence._ensureIndex {present:1, room_name:1}, {}
-  # ensure old entries are timed out after 2*PRESENCE_KEEPALIVE_MINUTES
-  # some leeway here to account for client/server time drift
-  Meteor.setInterval ->
-    #console.log "Removing entries older than", (UTCNow() - 5*60*1000)
-    removeBefore = UTCNow() - (2*PRESENCE_KEEPALIVE_MINUTES*60*1000)
-    Presence.remove timestamp: $lt: removeBefore
-  , 60*1000
-  # generate automatic "<nick> entered <room>" and <nick> left room" messages
-  # as the presence set changes
-  initiallySuppressPresence = true
-  Presence.find(present: true).observe
-    added: (presence) ->
-      return if initiallySuppressPresence
-      # look up a real name, if there is one
-      n = Nicks.findOne canon: canonical(presence.nick)
-      name = getTag(n, 'Real Name') or presence.nick
-      #console.log "#{name} entered #{presence.room_name}"
-      return if presence.room_name is 'oplog/0'
-      Messages.insert
-        system: true
-        nick: presence.nick
-        to: null
-        presence: 'join'
-        body: "#{name} joined the room."
-        bodyIsHtml: false
-        room_name: presence.room_name
-        timestamp: UTCNow()
-    removed: (presence) ->
-      return if initiallySuppressPresence
-      # look up a real name, if there is one
-      n = Nicks.findOne canon: canonical(presence.nick)
-      name = getTag(n, 'Real Name') or presence.nick
-      #console.log "#{name} left #{presence.room_name}"
-      return if presence.room_name is 'oplog/0'
-      Messages.insert
-        system: true
-        nick: presence.nick
-        to: null
-        presence: 'part'
-        body: "#{name} left the room."
-        bodyIsHtml: false
-        room_name: presence.room_name
-        timestamp: UTCNow()
-  # turn on presence notifications once initial observation set has been
-  # processed. (observe doesn't return on server until initial observation
-  # is complete.)
-  initiallySuppressPresence = false
 
 # this reverses the name given to Mongo.Collection; that is the
 # 'type' argument is the name of a server-side Mongo collection.
@@ -1549,9 +1271,7 @@ UTCNow = -> Date.now()
 share.model =
   # constants
   PRESENCE_KEEPALIVE_MINUTES: PRESENCE_KEEPALIVE_MINUTES
-  MESSAGE_PAGE: MESSAGE_PAGE
   NOT_A_TIMESTAMP: NOT_A_TIMESTAMP
-  DO_BATCH_PROCESSING: DO_BATCH_PROCESSING
   # collection types
   CallIns: CallIns
   Quips: Quips
