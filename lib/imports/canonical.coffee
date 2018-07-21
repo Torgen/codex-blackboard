@@ -1,5 +1,5 @@
 # canonical names: lowercases, all non-alphanumerics replaced with '_'
-export canonical = (s) ->
+export default canonical = (s) ->
   s = s.toLowerCase().replace(/^\s+/, '').replace(/\s+$/, '') # lower, strip
   # suppress 's and 't
   s = s.replace(/[\'\u2019]([st])\b/g, "$1")
