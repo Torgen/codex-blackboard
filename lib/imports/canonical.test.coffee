@@ -20,6 +20,6 @@ describe 'canonical', ->
     chai.assert.equal canonical('command.com'), 'command_com'
     chai.assert.equal canonical('2chainz'), '2chainz'
 
-  it 'deletes possessive and contraction apostrophes'
+  it 'deletes possessive and contraction apostrophes', ->
     chai.assert.equal canonical("bill's"), 'bills'
     chai.assert.equal canonical("don't"), 'dont'
