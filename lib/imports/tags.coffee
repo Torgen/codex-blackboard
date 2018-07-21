@@ -1,7 +1,7 @@
 'use strict'
 
-import canonical from 'canonical.coffee'
-import { ObjectWith, NonEmptyString } from 'match.coffee'
+import canonical from './canonical.coffee'
+import { ObjectWith, NonEmptyString } from './match.coffee'
 
 export getTag = (object, name) ->
   (tag.value for tag in (object?.tags or []) when tag.canon is canonical(name))[0]
