@@ -1,6 +1,8 @@
 'use strict'
 
 import canonical from './imports/canonical.coffee'
+import { NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
+import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 
 # Blackboard -- data model
 # Loaded on both the client and the server
@@ -473,13 +475,6 @@ pretty_collection = (type) ->
     when "oldmessages" then "old message"
     else type.replace(/s$/, '')
 
-getTag = (object, name) ->
-  (tag.value for tag in (object?.tags or []) when tag.canon is canonical(name))[0]
-
-
-isStuck = (object) ->
-  object? and /^stuck\b/i.test(getTag(object, 'Status') or '')
-
 drive_id_to_link = (id) ->
   "https://docs.google.com/folder/d/#{id}/edit"
 spread_id_to_link = (id) ->
@@ -491,17 +486,6 @@ doc_id_to_link = (id) ->
   # private helpers, not exported
   unimplemented = -> throw new Meteor.Error(500, "Unimplemented")
 
-  canonicalTags = (tags, who) ->
-    check tags, [ObjectWith(name:NonEmptyString,value:Match.Any)]
-    now = UTCNow()
-    ({
-      name: tag.name
-      canon: canonical(tag.name)
-      value: tag.value
-      touched: tag.touched ? now
-      touched_by: tag.touched_by ? canonical(who)
-    } for tag in tags)
-
   huntPrefix = (type) ->
     # this is a huge hack, it's too hard to find the correct
     # round group to use.  But this helps avoid reloading the hunt software
@@ -512,9 +496,6 @@ doc_id_to_link = (id) ->
     else
       return Meteor.settings?[type+'_prefix']
 
-  NonEmptyString = Match.Where (x) ->
-    check x, String
-    return x.length > 0
   # a key of BBCollection
   ValidType = Match.Where (x) ->
     check x, NonEmptyString
@@ -523,17 +504,6 @@ doc_id_to_link = (id) ->
   ValidAnswerType = Match.Where (x) ->
     check x, ValidType
     x == 'puzzles' || x == 'rounds' || x == 'roundgroups'
-  # either an id, or an object containing an id
-  IdOrObject = Match.OneOf NonEmptyString, Match.Where (o) ->
-    typeof o is 'object' and ((check o._id, NonEmptyString) or true)
-  # This is like Match.ObjectIncluding, but we don't require `o` to be
-  # a plain object
-  ObjectWith = (pattern) ->
-    Match.Where (o) ->
-      return false if typeof(o) is not 'object'
-      Object.keys(pattern).forEach (k) ->
-        check o[k], pattern[k]
-      true
 
   oplog = (message, type="", id="", who="", stream="") ->
     Messages.insert
