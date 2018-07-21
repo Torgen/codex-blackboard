@@ -36,11 +36,11 @@ describe 'isStuck', ->
   it 'ignores nonstuck status', ->
     chai.assert.isFalse tags.isStuck {tags: [{name: 'Status', canon: 'status', value: 'making progress'}]}
 
-  it 'matchs stuck status', ->
-    chai.assert.isFalse tags.isStuck {tags: [{name: 'Status', canon: 'status', value: 'stuck'}]}
+  it 'matches stuck status', ->
+    chai.assert.isTrue tags.isStuck {tags: [{name: 'Status', canon: 'status', value: 'stuck'}]}
 
-  it 'matchs verbose stuck status', ->
-    chai.assert.isFalse tags.isStuck {tags: [{name: 'Status', canon: 'status', value: 'Stuck to the wall'}]}
+  it 'matches verbose stuck status', ->
+    chai.assert.isTrue tags.isStuck {tags: [{name: 'Status', canon: 'status', value: 'Stuck to the wall'}]}
 
 describe 'canonicalTags', ->
   it 'requires list', ->
@@ -62,9 +62,9 @@ describe 'canonicalTags', ->
     pre = Date.now() - 5
     chai.assert.deepEqual(
       tags.canonicalTags([{name: 'Foo', value: 'bar', touched: pre}], 'torgen'),
-      {name: 'Foo', canon: 'foo', value: 'bar', touched: pre, touched_by: 'torgen'})
+      [{name: 'Foo', canon: 'foo', value: 'bar', touched: pre, touched_by: 'torgen'}])
 
   it 'preserves touched_by', ->
-    chai.assert.include(
+    chai.assert.deepInclude(
       tags.canonicalTags([{name: 'Foo', value: 'bar', touched_by: 'cscott'}], 'torgen'),
       {name: 'Foo', canon: 'foo', value: 'bar',  touched_by: 'cscott'})

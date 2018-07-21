@@ -51,14 +51,14 @@ describe 'ObjectWith', ->
 
   it 'matches parts', ->
     chai.assert.doesNotThrow ->
-      check {foo: 'bar', baz: 3}, match.ObjectWith
+      check {foo: 'bar', bar: 3}, match.ObjectWith
         foo: match.NonEmptyString
         bar: Number
     , Match.Error
 
   it 'fails on any submatch failure', ->
     chai.assert.throws ->
-      check {foo: '', baz: 3}, match.ObjectWith
+      check {foo: '', bar: 3}, match.ObjectWith
         foo: match.NonEmptyString
         bar: Number
     , Match.Error
