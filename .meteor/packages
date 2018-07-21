@@ -39,3 +39,4 @@ dynamic-import@0.2.0
 ecmascript
 mdj:reactive-storage
 zenorocha:clipboard
+meteortesting:mocha
