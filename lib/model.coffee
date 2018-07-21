@@ -39,7 +39,10 @@ DO_BATCH_PROCESSING = do ->
   return false if Meteor.isClient
   return !(Meteor.settings.disableBatch ? process.env.DISABLE_BATCH_PROCESSING)
 
-emojify = (s) -> share.emojify?(s) or s
+if Meteor.isServer
+  import emojify from '../server/imports/emoji.coffee'
+else
+  emojify = (s) -> s
 
 # helper function: like _.throttle, but always ensures `wait` of idle time
 # between invocations.  This ensures that we stay chill even if a single
