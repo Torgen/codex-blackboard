@@ -1,6 +1,8 @@
 codex-blackboard
 ================
 
+[![Build Status](https://travis-ci.org/Torgen/codex-blackboard.svg?branch=master)](https://travis-ci.org/Torgen/codex-blackboard)
+
 Meteor app for coordinating solving for our MIT Mystery Hunt team. To run in
 production mode on a freshly installed linux box (Ubuntu 16.04LTS preferred),
 point DNS at the public IP for your machine, clone this repo into a directory,
