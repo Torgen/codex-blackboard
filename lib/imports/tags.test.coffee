@@ -1,5 +1,3 @@
-'use strict'
-
 import * as tags from './tags.coffee'
 import chai from 'chai'
 

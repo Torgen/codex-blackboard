@@ -1,5 +1,3 @@
-'use strict'
-
 import * as match from './match.coffee'
 import chai from 'chai'
 
