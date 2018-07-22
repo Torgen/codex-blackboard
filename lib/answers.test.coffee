@@ -21,7 +21,7 @@ describe 'answer methods', ->
     resetDatabase()
 
   describe 'deleteAnswer', ->
-    ['roundgroups', 'rounds', 'puzzles'].forEach (type) ->
+    ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
       describe "on #{type}", ->
         it 'works when unanswered', ->
           id = model.collection(type).insert
