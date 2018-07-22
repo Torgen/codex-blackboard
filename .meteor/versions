@@ -36,6 +36,7 @@ ecmascript-runtime@0.5.0
 ecmascript-runtime-client@0.5.0
 ecmascript-runtime-server@0.5.0
 ejson@1.1.0
+fds:coffeescript-share@1.0.0
 geojson-utils@1.0.10
 hot-code-push@1.0.4
 html-tools@1.0.11
