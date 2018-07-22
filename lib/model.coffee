@@ -14,10 +14,10 @@ PRESENCE_KEEPALIVE_MINUTES = 2
 # this is used to yield "zero results" in collections which index by timestamp
 NOT_A_TIMESTAMP = -9999
 
-if Meteor.isServer
-  import emojify from '../server/imports/emoji.coffee'
+emojify = if Meteor.isServer
+  require '../server/imports/emoji.coffee'
 else
-  emojify = (s) -> s
+  (s) -> s
 
 BBCollection = Object.create(null) # create new object w/o any inherited cruft
 
