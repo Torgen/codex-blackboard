@@ -11,13 +11,13 @@ model = share.model
 describe 'answer methods', ->
   clock = null
 
-  beforeEach 'fake timer', ->
+  beforeEach ->
     clock = sinon.useFakeTimers(7)
 
-  afterEach 'restore timer', ->
+  afterEach ->
     clock.restore()
 
-  beforeEach 'reset database', ->
+  beforeEach ->
     resetDatabase()
 
   describe 'deleteAnswer', ->
@@ -38,8 +38,9 @@ describe 'answer methods', ->
             type: type
             target: id,
             who: 'cjb'
-          doc = model.collection(type).find id
-          chai.assert.deepEquals doc,
+          doc = model.collection(type).findOne id
+          chai.assert.deepEqual doc,
+            _id: id
             name: 'Foo'
             canon: 'foo'
             created: 1
@@ -67,8 +68,9 @@ describe 'answer methods', ->
             type: type
             target: id,
             who: 'cjb'
-          doc = model.collection(type).find id
-          chai.assert.deepEquals doc,
+          doc = model.collection(type).findOne id
+          chai.assert.deepEqual doc,
+            _id: id
             name: 'Foo'
             canon: 'foo'
             created: 1
@@ -97,8 +99,9 @@ describe 'answer methods', ->
             type: type
             target: id,
             who: 'cjb'
-          doc = model.collection(type).find id
-          chai.assert.deepEquals doc,
+          doc = model.collection(type).findOne id
+          chai.assert.deepEqual doc,
+            _id: id
             name: 'Foo'
             canon: 'foo'
             created: 1
