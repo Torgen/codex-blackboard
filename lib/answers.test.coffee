@@ -53,10 +53,13 @@ describe 'answer methods', ->
             answer: 'bar'
           doc = model.collection(type).findOne id
           chai.assert.deepEqual doc,
+            _id: id
             name: 'Foo'
             canon: 'foo'
             created: 1
             created_by: 'cscott'
+            touched: 7
+            touched_by: 'cjb'
             solved: 7
             solved_by: 'cjb'
             tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
@@ -96,10 +99,13 @@ describe 'answer methods', ->
             answer: 'bar'
           doc = model.collection(type).findOne id
           chai.assert.deepEqual doc,
+            _id: id
             name: 'Foo'
             canon: 'foo'
             created: 1
             created_by: 'cscott'
+            touched: 7
+            touched_by: 'cjb'
             solved: 7
             solved_by: 'cjb'
             tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
@@ -139,10 +145,13 @@ describe 'answer methods', ->
             answer: 'bar'
           doc = model.collection(type).findOne id
           chai.assert.deepEqual doc,
+            _id: id
             name: 'Foo'
             canon: 'foo'
             created: 1
             created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
             solved: 2
             solved_by: 'torgen'
             tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
@@ -170,10 +179,13 @@ describe 'answer methods', ->
             provided: true
           doc = model.collection(type).findOne id
           chai.assert.deepEqual doc,
+            _id: id
             name: 'Foo'
             canon: 'foo'
             created: 1
             created_by: 'cscott'
+            touched: 7
+            touched_by: 'cjb'
             solved: 7
             solved_by: 'cjb'
             tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
@@ -191,7 +203,7 @@ describe 'answer methods', ->
             solved: null
             solved_by: null
             tags: []
-          cid1 = model.Callins.insert
+          cid1 = model.CallIns.insert
             type: type
             target: id
             answer: 'bar'
@@ -200,7 +212,7 @@ describe 'answer methods', ->
             submitted_to_hq: true
             backsolve: false
             provided: false
-          cid2 = model.Callins.insert
+          cid2 = model.CallIns.insert
             type: type
             target: id
             answer: 'qux'
@@ -214,7 +226,7 @@ describe 'answer methods', ->
             target: id
             who: 'cjb'
             answer: 'bar'
-          chai.assert.equal 0, model.Callins.find().fetch().length
+          chai.assert.equal 0, model.CallIns.find().fetch().length
           chai.assert.equal 0, model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid1}).fetch().length
           chai.assert.equal 1, model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid2}).fetch().length
 
