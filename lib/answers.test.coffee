@@ -8,7 +8,7 @@ import { resetDatabase } from 'meteor/xolvio:cleaner'
 
 model = share.model
 
-describe 'answer methods', ->
+describe 'answer method', ->
   clock = null
 
   beforeEach ->
