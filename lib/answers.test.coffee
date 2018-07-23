@@ -21,6 +21,18 @@ describe 'answer methods', ->
     resetDatabase()
 
   describe 'deleteAnswer', ->
+    it 'fails on non-puzzle', ->
+      id = model.Nicks.insert
+        name: 'Torgen'
+        canon: 'torgen'
+        tags: [{name: 'Answer', canon: 'answer', value: 'knock knock', touched: 1, touched_by: 'torgen'}]
+      chai.assert.throws ->
+        Meteor.call 'deleteAnswer',
+          type: 'nicks'
+          target: id
+          who: 'cjb'
+      , Match.Error
+      
     ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
       describe "on #{type}", ->
         it 'works when unanswered', ->
