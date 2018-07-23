@@ -229,9 +229,8 @@ describe 'answer methods', ->
             who: 'cjb'
             answer: 'bar'
           chai.assert.equal model.CallIns.find().fetch().length, 0
-          chai.assert.equal model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid1}).fetch().length, 0
-          chai.assert.equal model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid2}).fetch().length, 1
-
+          chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'callins'}).fetch(), 0
+          chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: type, id: id}).fetch(), 2
 
   describe 'deleteAnswer', ->
     it 'fails on non-puzzle', ->
