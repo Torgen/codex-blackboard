@@ -50,7 +50,21 @@ describe 'answer methods', ->
             solved: null
             solved_by: null
             tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'torgen'}]
-          # TODO(torgen): check for oplog
+          oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.equal oplogs.length, 1
+          chai.assert.include oplogs[0],
+            nick: 'cjb'
+            timestamp: 7
+            body: 'Deleted answer for'
+            bodyIsHtml: false
+            type: type
+            id: id
+            oplog: true
+            followup: true
+            action: true
+            system: false
+            to: null
+            stream: ''
 
         it 'removes answer', ->
           id = model.collection(type).insert
@@ -80,7 +94,21 @@ describe 'answer methods', ->
             solved: null
             solved_by: null
             tags: [{name: 'Temperature', canon: 'temperature', value: '12', touched: 2, touched_by: 'torgen'}]
-          # TODO(torgen): check for oplog
+          oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.equal oplogs.length, 1
+          chai.assert.include oplogs[0],
+            nick: 'cjb'
+            timestamp: 7
+            body: 'Deleted answer for'
+            bodyIsHtml: false
+            type: type
+            id: id
+            oplog: true
+            followup: true
+            action: true
+            system: false
+            to: null
+            stream: ''
 
         it 'removes backsolve and provided', ->
           id = model.collection(type).insert
@@ -111,4 +139,18 @@ describe 'answer methods', ->
             solved: null
             solved_by: null
             tags: []
-          # TODO(torgen): check for oplog
+          oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.equal oplogs.length, 1
+          chai.assert.include oplogs[0],
+            nick: 'cjb'
+            timestamp: 7
+            body: 'Deleted answer for'
+            bodyIsHtml: false
+            type: type
+            id: id
+            oplog: true
+            followup: true
+            action: true
+            system: false
+            to: null
+            stream: ''
