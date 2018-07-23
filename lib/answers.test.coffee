@@ -206,6 +206,7 @@ describe 'answer methods', ->
           cid1 = model.CallIns.insert
             type: type
             target: id
+            name: 'Foo'
             answer: 'bar'
             created: 5
             created_by: 'codexbot'
@@ -215,6 +216,7 @@ describe 'answer methods', ->
           cid2 = model.CallIns.insert
             type: type
             target: id
+            name: 'Foo'
             answer: 'qux'
             created: 5
             created_by: 'codexbot'
@@ -226,9 +228,9 @@ describe 'answer methods', ->
             target: id
             who: 'cjb'
             answer: 'bar'
-          chai.assert.equal 0, model.CallIns.find().fetch().length
-          chai.assert.equal 0, model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid1}).fetch().length
-          chai.assert.equal 1, model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid2}).fetch().length
+          chai.assert.equal model.CallIns.find().fetch().length, 0
+          chai.assert.equal model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid1}).fetch().length, 0
+          chai.assert.equal model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid2}).fetch().length, 1
 
 
   describe 'deleteAnswer', ->
