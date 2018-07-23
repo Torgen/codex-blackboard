@@ -20,6 +20,205 @@ describe 'answer methods', ->
   beforeEach ->
     resetDatabase()
 
+  describe 'setAnswer', ->
+    it 'fails on non-puzzle', ->
+      id = model.Nicks.insert
+        name: 'Torgen'
+        canon: 'torgen'
+        tags: [{name: 'Real Name', canon: 'real_name', value: 'Dan Rosart', touched: 1, touched_by: 'torgen'}]
+      chai.assert.throws ->
+        Meteor.call 'setAnswer',
+          type: 'nicks'
+          target: id
+          who: 'cjb'
+      , Match.Error
+
+    ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
+      describe "on #{type}", ->
+        it 'adds answer', ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: null
+            solved_by: null
+            tags: [{name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          chai.assert.isTrue Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
+          doc = model.collection(type).findOne id
+          chai.assert.deepEqual doc,
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            solved: 7
+            solved_by: 'cjb'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
+                   {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.equal oplogs.length, 1
+          chai.assert.include oplogs[0],
+            nick: 'cjb'
+            timestamp: 7
+            body: 'Found an answer (BAR) to'
+            bodyIsHtml: false
+            type: type
+            id: id
+            oplog: true
+            followup: true
+            action: true
+            system: false
+            to: null
+            stream: 'answers'
+
+        it 'changes answer', ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: 2
+            solved_by: 'torgen'
+            tags: [{name: 'Answer', canon: 'answer', value: 'qux', touched: 2, touched_by: 'torgen'},
+                   {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          chai.assert.isTrue Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
+          doc = model.collection(type).findOne id
+          chai.assert.deepEqual doc,
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            solved: 7
+            solved_by: 'cjb'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
+                   {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.equal oplogs.length, 1
+          chai.assert.include oplogs[0],
+            nick: 'cjb'
+            timestamp: 7
+            body: 'Found an answer (BAR) to'
+            bodyIsHtml: false
+            type: type
+            id: id
+            oplog: true
+            followup: true
+            action: true
+            system: false
+            to: null
+            stream: 'answers'
+
+        it 'preserves same answer', ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: 2
+            solved_by: 'torgen'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
+                   {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          chai.assert.isFalse Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
+          doc = model.collection(type).findOne id
+          chai.assert.deepEqual doc,
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            solved: 2
+            solved_by: 'torgen'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
+                   {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.equal oplogs.length, 0
+
+        it 'modifies tags', ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: null
+            solved_by: null
+            tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'torgen'}]
+          chai.assert.isTrue Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
+            backsolve: true
+            provided: true
+          doc = model.collection(type).findOne id
+          chai.assert.deepEqual doc,
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            solved: 7
+            solved_by: 'cjb'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
+                   {name: 'Backsolve', canon: 'backsolve', value: 'yes', touched: 7, touched_by: 'cjb'},
+                   {name: 'Provided', canon: 'provided', value: 'yes', touched: 7, touched_by: 'cjb'}]
+
+        it 'cancels callins', ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: null
+            solved_by: null
+            tags: []
+          cid1 = model.Callins.insert
+            type: type
+            target: id
+            answer: 'bar'
+            created: 5
+            created_by: 'codexbot'
+            submitted_to_hq: true
+            backsolve: false
+            provided: false
+          cid2 = model.Callins.insert
+            type: type
+            target: id
+            answer: 'qux'
+            created: 5
+            created_by: 'codexbot'
+            submitted_to_hq: false
+            backsolve: false
+            provided: false
+          chai.assert.isTrue Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
+          chai.assert.equal 0, model.Callins.find().fetch().length
+          chai.assert.equal 0, model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid1}).fetch().length
+          chai.assert.equal 1, model.Messages.find({room_name: 'oplog/0', type: 'callins', id: cid2}).fetch().length
+
+
   describe 'deleteAnswer', ->
     it 'fails on non-puzzle', ->
       id = model.Nicks.insert
@@ -32,7 +231,7 @@ describe 'answer methods', ->
           target: id
           who: 'cjb'
       , Match.Error
-      
+
     ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
       describe "on #{type}", ->
         it 'works when unanswered', ->
