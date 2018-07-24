@@ -29,6 +29,9 @@ describe 'puzzle method', ->
 
   beforeEach ->
     resetDatabase()
+
+  it 'runs tests in server mode', ->
+    chai.assert.isTrue Meteor.isServer
   
   it 'newRound', ->
     round = Meteor.call 'newRound',
