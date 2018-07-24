@@ -7,7 +7,6 @@ import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 
 describe 'puzzle method', ->
-  driveStub = null
   driveMethods = null
   clock = null
   beforeEach ->
@@ -18,10 +17,10 @@ describe 'puzzle method', ->
         spreadId: 'sid'
         docId: 'did'
       renamePuzzle: sinon.spy()
-    driveStub = (if share.drive?
-      sinon.stub share, 'drive'
+    if share.drive?
+      sinon.stub(share, 'drive').value(driveMethods)
     else
-      sinon.stub()).value(driveMethods)
+      share.drive = driveMethods
 
   afterEach ->
     sinon.restore()
