@@ -17,6 +17,7 @@ describe 'puzzle method', ->
         driveId: 'fid' # f for folder
         spreadId: 'sid'
         docId: 'did'
+      renamePuzzle = sinon.spy()
     driveStub = (if share.drive?
       sinon.stub share, 'drive'
     else
@@ -29,14 +30,12 @@ describe 'puzzle method', ->
     resetDatabase()
   
   it 'newRound', ->
-    id = Meteor.call 'newRound',
+    round = Meteor.call 'newRound',
       name: 'Foo'
       who: 'torgen'
       link: 'https://puzzlehunt.mit.edu/foo'
       puzzles: ['yoy']
-    doc = model.Rounds.findOne id
-    chai.assert.deepEquals doc,
-      _id: id
+    chai.assert.includes round,
       name: 'Foo'
       canon: 'foo'
       created: 7
@@ -52,15 +51,16 @@ describe 'puzzle method', ->
       spreadsheet: 'sid'
       doc: 'did'
       tags: []
+
+  it 'renameRound', ->
+    id = 
   
   it 'newPuzzle', ->
-    id = Meteor.call 'newPuzzle',
+    puzzle = Meteor.call 'newPuzzle',
       name: 'Foo'
       who: 'torgen'
       link: 'https://puzzlehunt.mit.edu/foo'
-    doc = model.Puzzles.findOne id
-    chai.assert.deepEquals doc,
-      _id: id
+    chai.assert.includes puzzle,
       name: 'Foo'
       canon: 'foo'
       created: 7
