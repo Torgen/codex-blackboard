@@ -15,7 +15,7 @@ describe 'puzzle method', ->
     clock = sinon.useFakeTimers(7)
     driveMethods =
       createPuzzle: sinon.fake.returns
-        driveId: 'fid' # f for folder
+        id: 'fid' # f for folder
         spreadId: 'sid'
         docId: 'did'
       renamePuzzle: sinon.spy()
