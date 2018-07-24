@@ -6,6 +6,8 @@ import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 
+model = share.model
+
 describe 'puzzle method', ->
   driveMethods = null
   clock = null
@@ -34,7 +36,7 @@ describe 'puzzle method', ->
       who: 'torgen'
       link: 'https://puzzlehunt.mit.edu/foo'
       puzzles: ['yoy']
-    chai.assert.includes round,
+    chai.assert.include round,
       name: 'Foo'
       canon: 'foo'
       created: 7
@@ -75,7 +77,7 @@ describe 'puzzle method', ->
       name: 'Bar'
       who: 'cjb'
     round = model.Rounds.findOne id
-    chai.assert.includes round,
+    chai.assert.include round,
       name: 'Bar'
       canon: 'bar'
       touched: 7
@@ -89,7 +91,7 @@ describe 'puzzle method', ->
       name: 'Foo'
       who: 'torgen'
       link: 'https://puzzlehunt.mit.edu/foo'
-    chai.assert.includes puzzle,
+    chai.assert.include puzzle,
       name: 'Foo'
       canon: 'foo'
       created: 7
@@ -128,7 +130,7 @@ describe 'puzzle method', ->
       name: 'Bar'
       who: 'cjb'
     puzzle = model.Puzzles.findOne id
-    chai.assert.includes puzzle,
+    chai.assert.include puzzle,
       name: 'Bar'
       canon: 'bar'
       touched: 7
