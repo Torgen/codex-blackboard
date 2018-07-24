@@ -29,6 +29,7 @@ describe 'puzzle method', ->
 
   beforeEach ->
     resetDatabase()
+
   
   it 'newRound', ->
     round = Meteor.call 'newRound',
@@ -36,6 +37,8 @@ describe 'puzzle method', ->
       who: 'torgen'
       link: 'https://puzzlehunt.mit.edu/foo'
       puzzles: ['yoy']
+    # Round is created, then drive et al are added
+    round = model.Rounds.findOne round._id
     chai.assert.deepInclude round,
       name: 'Foo'
       canon: 'foo'
@@ -48,9 +51,9 @@ describe 'puzzle method', ->
       puzzles: ['yoy']
       incorrectAnswers: []
       link: 'https://puzzlehunt.mit.edu/foo'
+      drive: 'fid'
       spreadsheet: 'sid'
       doc: 'did'
-      drive: 'fid'
       tags: []
     chai.assert.lengthOf model.Rounds.find(round._id).fetch(), 1, 'round created'
     chai.assert.lengthOf model.Messages.find({id: round._id, type: 'rounds'}).fetch(), 1, 'oplogs'
@@ -90,6 +93,8 @@ describe 'puzzle method', ->
       name: 'Foo'
       who: 'torgen'
       link: 'https://puzzlehunt.mit.edu/foo'
+    # Puzzle is created, then drive et al are added.
+    puzzle = model.Puzzles.findOne puzzle._id
     chai.assert.deepInclude puzzle,
       name: 'Foo'
       canon: 'foo'
