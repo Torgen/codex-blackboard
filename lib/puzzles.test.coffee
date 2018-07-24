@@ -82,8 +82,7 @@ describe 'puzzle method', ->
       canon: 'bar'
       touched: 7
       touched_by: 'cjb'
-    chai.assert.equal driveMethods.renamePuzzle.callCount, 1, 'rename calls'
-    chai.assert.equal driveMethods.renamePuzzle.withArgs(id, 'fid', 'sid', 'did').callCount, 1, 'matching rename calls'
+    chai.assert.deepEqual driveMethods.renamePuzzle.getCall(0).args, ['Bar', 'fid', 'sid', 'did']
     chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1, 'oplogs'
   
   it 'newPuzzle', ->
@@ -135,6 +134,5 @@ describe 'puzzle method', ->
       canon: 'bar'
       touched: 7
       touched_by: 'cjb'
-    chai.assert.equal driveMethods.renamePuzzle.callCount, 1, 'rename calls'
-    chai.assert.equal driveMethods.renamePuzzle.withArgs(id, 'fid', 'sid', 'did').callCount, 1, 'matching rename calls'
+    chai.assert.deepEqual driveMethods.renamePuzzle.getCall(0).args, ['Bar', 'fid', 'sid', 'did']
     chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1, 'oplogs'
