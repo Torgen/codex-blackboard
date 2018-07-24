@@ -29,9 +29,6 @@ describe 'puzzle method', ->
 
   beforeEach ->
     resetDatabase()
-
-  it 'runs tests in server mode', ->
-    chai.assert.isTrue Meteor.isServer
   
   it 'newRound', ->
     round = Meteor.call 'newRound',
@@ -51,9 +48,9 @@ describe 'puzzle method', ->
       puzzles: ['yoy']
       incorrectAnswers: []
       link: 'https://puzzlehunt.mit.edu/foo'
-      drive: 'fid'
       spreadsheet: 'sid'
       doc: 'did'
+      drive: 'fid'
       tags: []
     chai.assert.lengthOf model.Rounds.find(round._id).fetch(), 1, 'round created'
     chai.assert.lengthOf model.Messages.find({id: round._id, type: 'rounds'}).fetch(), 1, 'oplogs'
