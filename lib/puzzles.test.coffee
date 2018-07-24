@@ -51,9 +51,7 @@ describe 'puzzle method', ->
       spreadsheet: 'sid'
       doc: 'did'
       tags: []
-
-  it 'renameRound', ->
-    id = 
+    chai.assert.lengthOf model.Rounds.find(round._id).fetch(), 1
   
   it 'newPuzzle', ->
     puzzle = Meteor.call 'newPuzzle',
@@ -75,3 +73,4 @@ describe 'puzzle method', ->
       spreadsheet: 'sid'
       doc: 'did'
       tags: []
+    chai.assert.lengthOf model.Puzzles.find(puzzle._id).fetch(), 1
