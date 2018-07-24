@@ -53,7 +53,7 @@ describe 'puzzle method', ->
       doc: 'did'
       tags: []
     chai.assert.lengthOf model.Rounds.find(round._id).fetch(), 1
-    chai.assert.lengthOf model.Messages.find({target: round._id, type: 'rounds'}).fetch(), 1
+    chai.assert.lengthOf model.Messages.find({id: round._id, type: 'rounds'}).fetch(), 1
 
   it 'renameRound', ->
     id = model.Rounds.insert
@@ -84,7 +84,7 @@ describe 'puzzle method', ->
       touched_by: 'cjb'
     chai.assert.equal driveMethods.renamePuzzle.callCount, 1
     chai.assert.equal driveMethods.renamePuzzle.withArgs(id, 'fid', 'sid', 'did').callCount, 1
-    chai.assert.lengthOf model.Messages.find({target: id, type: 'rounds'}).fetch(), 1
+    chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
   
   it 'newPuzzle', ->
     puzzle = Meteor.call 'newPuzzle',
@@ -107,7 +107,7 @@ describe 'puzzle method', ->
       doc: 'did'
       tags: []
     chai.assert.lengthOf model.Puzzles.find(puzzle._id).fetch(), 1
-    chai.assert.lengthOf model.Messages.find({target: puzzle._id, type: 'puzzles'}).fetch(), 1
+    chai.assert.lengthOf model.Messages.find({id: puzzle._id, type: 'puzzles'}).fetch(), 1
 
   it 'renamePuzzle', ->
     id = model.Puzzles.insert
@@ -137,4 +137,4 @@ describe 'puzzle method', ->
       touched_by: 'cjb'
     chai.assert.equal driveMethods.renamePuzzle.callCount, 1
     chai.assert.equal driveMethods.renamePuzzle.withArgs(id, 'fid', 'sid', 'did').callCount, 1
-    chai.assert.lengthOf model.Messages.find({target: id, type: 'puzzles'}).fetch(), 1
+    chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
