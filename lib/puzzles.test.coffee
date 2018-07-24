@@ -107,3 +107,33 @@ describe 'puzzle method', ->
       tags: []
     chai.assert.lengthOf model.Puzzles.find(puzzle._id).fetch(), 1
     # TODO(torgen): check oplog
+
+  it 'renamePuzzle', ->
+    id = model.Puzzles.insert
+      name: 'Foo'
+      canon: 'foo'
+      created: 1
+      created_by: 'torgen'
+      touched: 1
+      touched_by: 'torgen'
+      solved: null
+      solved_by: null
+      incorrectAnswers: []
+      link: 'https://puzzlehunt.mit.edu/foo'
+      drive: 'fid'
+      spreadsheet: 'sid'
+      doc: 'did'
+      tags: []
+    chai.assert.isTrue Meteor.call 'renamePuzzle',
+      id: id
+      name: 'Bar'
+      who: 'cjb'
+    puzzle = model.Puzzles.findOne id
+    chai.assert.includes puzzle,
+      name: 'Bar'
+      canon: 'bar'
+      touched: 7
+      touched_by: 'cjb'
+    chai.assert.equal driveMethods.renamePuzzle.callCount, 1
+    chai.assert.equal driveMethods.renamePuzzle.withArgs(id, 'fid', 'sid', 'did').callCount, 1
+    # TODO(torgen): check oplog
