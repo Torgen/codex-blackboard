@@ -246,6 +246,8 @@ doc_id_to_link = (id) ->
   # private helpers, not exported
   unimplemented = -> throw new Meteor.Error(500, "Unimplemented")
 
+  isDuplicateError = (error) -> error?.name is 'MongoError' and error?.code==11000
+
   huntPrefix = (type) ->
     # this is a huge hack, it's too hard to find the correct
     # round group to use.  But this helps avoid reloading the hunt software
@@ -299,7 +301,7 @@ doc_id_to_link = (id) ->
     try
       object._id = collection(type).insert object
     catch error
-      if Meteor.isServer and error?.name is 'MongoError' and error?.code==11000
+      if Meteor.isServer and isDupilcateError error
         # duplicate key, fetch the real thing
         return collection(type).findOne({canon:canonical(args.name)})
       throw error # something went wrong, who knows what, pass it on
@@ -329,7 +331,7 @@ doc_id_to_link = (id) ->
         touched_by: canonical(args.who)
     catch error
       # duplicate name--bail out
-      if Meteor.isServer and error?.name is 'MongoError' and error?.code==11000
+      if Meteor.isServer and isDupilcateError error
         return false
       throw error
     unless options.suppressLog
