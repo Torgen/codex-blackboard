@@ -291,6 +291,7 @@ describe 'puzzle method', ->
         name: 'Bar'
         who: 'cjb'
       chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'rounds'}).fetch(), 0, 'oplogs'
+      chai.assert.equal driveMethods.renamePuzzle.callCount, 0, 'rename calls'
   
   describe 'deleteRound', ->
     it 'deletes empty round', ->
@@ -480,6 +481,7 @@ describe 'puzzle method', ->
         name: 'Bar'
         who: 'cjb'
       chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'puzzles'}).fetch(), 0, 'oplogs'
+      chai.assert.equal driveMethods.renamePuzzle.callCount, 0, 'rename calls'
   
   describe 'deletePuzzle', ->
     it 'deletes puzzle', ->

@@ -594,11 +594,12 @@ doc_id_to_link = (id) ->
       # get drive ID (racy)
       p = Puzzles.findOne(args.id)
       drive = p?.drive
-      spreadsheet = p?.spreadsheet
-      doc = p?.doc
+      spreadsheet = p?.spreadsheet if drive?
+      doc = p?.doc if drive?
       result = renameObject "puzzles", args
       # rename google drive folder
-      renameDriveFolder args.name, drive, (spreadsheet if (result and drive?)), doc if (result and drive?)
+      if result and drive?
+        renameDriveFolder args.name, drive, spreadsheet, doc
       return result
     deletePuzzle: (args) ->
       check args, ObjectWith
@@ -608,14 +609,15 @@ doc_id_to_link = (id) ->
       # get drive ID (racy)
       old = Puzzles.findOne(args.id)
       drive = old?.drive
-      spreadsheet = old?.spreadsheet
-      doc = old?.doc
+      spreadsheet = old?.spreadsheet if drive?
+      doc = old?.doc if drive?
       # remove puzzle itself
       r = deleteObject "puzzles", args
       # remove from all rounds
       Rounds.update { puzzles: pid },{ $pull: puzzles: pid },{ multi: true }
       # delete google drive folder
-      deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
+      if drive?
+        deleteDriveFolder drive, spreadsheet, doc
       # XXX: delete chat room logs?
       return r
 
