@@ -547,7 +547,7 @@ doc_id_to_link = (id) ->
       doc = r?.doc if drive?
       result = renameObject "rounds", args
       # rename google drive folder
-      renameDriveFolder args.name, drive, spreadsheet, doc if (result aand drive?)
+      renameDriveFolder args.name, drive, spreadsheet, doc if (result and drive?)
       return result
     deleteRound: (args) ->
       check args, ObjectWith
