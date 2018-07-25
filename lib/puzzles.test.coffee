@@ -19,6 +19,7 @@ describe 'puzzle method', ->
         spreadId: 'sid'
         docId: 'did'
       renamePuzzle: sinon.spy()
+      deletePuzzle: sinon.spy()
     if share.drive?
       sinon.stub(share, 'drive').value(driveMethods)
     else
@@ -126,6 +127,46 @@ describe 'puzzle method', ->
         name: 'Bar'
         who: 'cjb'
       chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'roundgroups'}).fetch(), 0, 'oplogs'
+  
+  describe 'deleteRoundGroup', ->
+    it 'deletes empty round group', ->
+      id = model.RoundGroups.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: []
+        incorrectAnswers: []
+        tags: []
+      chai.assert.isTrue Meteor.call 'deleteRoundGroup',
+        id: id
+        who: 'cjb'
+      chai.assert.isNull model.RoundGroups.findOne id
+      chai.assert.equal driveMethods.deletePuzzle.callCount, 0, 'delete drive calls'
+      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'roundgroups', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
+
+    it 'doesn\'t delete non-empty round group', ->
+      id = model.RoundGroups.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: ['foo1', 'foo2']
+        incorrectAnswers: []
+        tags: []
+      chai.assert.isFalse Meteor.call 'deleteRoundGroup',
+        id: id
+        who: 'cjb'
+      chai.assert.isNotNull model.RoundGroups.findOne id
+      chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'
 
   describe 'newRound', ->
     it 'creates new round', ->
@@ -251,6 +292,74 @@ describe 'puzzle method', ->
         who: 'cjb'
       chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'rounds'}).fetch(), 0, 'oplogs'
   
+  describe 'deleteRound', ->
+    it 'deletes empty round', ->
+      id = model.Rounds.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        puzzles: []
+        incorrectAnswers: []
+        tags: []
+        drive: 'ffoo'
+        spreadsheet: 'sfoo'
+        doc: 'dfoo'
+      rgid = model.RoundGroups.insert
+        name: 'Bar'
+        canon: 'bar'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: [id, 'another_round']
+        incorrectAnswers: []
+        tags: []
+      chai.assert.isTrue Meteor.call 'deleteRound',
+        id: id
+        who: 'cjb'
+      chai.assert.isNull model.Rounds.findOne id
+      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'rounds', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
+      chai.assert.deepEqual model.RoundGroups.findOne(rgid),
+        _id: rgid
+        name: 'Bar'
+        canon: 'bar'
+        created: 1
+        created_by: 'torgen'
+        touched: 7
+        touched_by: 'cjb'
+        solved: null
+        solved_by: null
+        rounds: ['another_round']
+        incorrectAnswers: []
+        tags: []
+      chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo', 'sfoo', 'dfoo']
+
+    it 'doesn\'t delete non-empty round', ->
+      id = model.Rounds.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        puzzles: ['foo1', 'foo2']
+        incorrectAnswers: []
+        tags: []
+      chai.assert.isFalse Meteor.call 'deleteRound',
+        id: id
+        who: 'cjb'
+      chai.assert.isNotNull model.Rounds.findOne id
+      chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'
+  
   describe 'newPuzzle', ->
     it 'creates puzzle', ->
       puzzle = Meteor.call 'newPuzzle',
@@ -370,3 +479,51 @@ describe 'puzzle method', ->
         name: 'Bar'
         who: 'cjb'
       chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'puzzles'}).fetch(), 0, 'oplogs'
+  
+  describe 'deletePuzzle', ->
+    it 'deletes puzzle', ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        incorrectAnswers: []
+        tags: []
+        drive: 'ffoo'
+        spreadsheet: 'sfoo'
+        doc: 'dfoo'
+      rid = model.Rounds.insert
+        name: 'Bar'
+        canon: 'bar'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        puzzles: [id, 'another_puzzle']
+        incorrectAnswers: []
+        tags: []
+      chai.assert.isTrue Meteor.call 'deletePuzzle',
+        id: id
+        who: 'cjb'
+      chai.assert.isNull model.Rounds.findOne id
+      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'puzzles', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
+      chai.assert.deepEqual model.Rounds.findOne(rid),
+        _id: rid
+        name: 'Bar'
+        canon: 'bar'
+        created: 1
+        created_by: 'torgen'
+        touched: 7
+        touched_by: 'cjb'
+        solved: null
+        solved_by: null
+        puzzles: ['another_puzzle']
+        incorrectAnswers: []
+        tags: []
+      chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo', 'sfoo', 'dfoo']
