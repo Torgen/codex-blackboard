@@ -512,7 +512,7 @@ describe 'puzzle method', ->
       chai.assert.isTrue Meteor.call 'deletePuzzle',
         id: id
         who: 'cjb'
-      chai.assert.isUndefined model.Rounds.findOne(), 'no puzzles after deletion'
+      chai.assert.isUndefined model.Puzzles.findOne(), 'no puzzles after deletion'
       chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'puzzles', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
       chai.assert.deepEqual model.Rounds.findOne(rid),
         _id: rid
