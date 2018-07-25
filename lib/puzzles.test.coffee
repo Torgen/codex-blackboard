@@ -145,7 +145,7 @@ describe 'puzzle method', ->
       chai.assert.isTrue Meteor.call 'deleteRoundGroup',
         id: id
         who: 'cjb'
-      chai.assert.isNull model.RoundGroups.findOne id
+      chai.assert.isUndefined model.RoundGroups.findOne(), 'no round groups after deletion'
       chai.assert.equal driveMethods.deletePuzzle.callCount, 0, 'delete drive calls'
       chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'roundgroups', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
 
@@ -324,7 +324,7 @@ describe 'puzzle method', ->
       chai.assert.isTrue Meteor.call 'deleteRound',
         id: id
         who: 'cjb'
-      chai.assert.isNull model.Rounds.findOne id
+      chai.assert.isUndefined model.Rounds.findOne(), 'no rounds after deletion'
       chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'rounds', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
       chai.assert.deepEqual model.RoundGroups.findOne(rgid),
         _id: rgid
@@ -511,7 +511,7 @@ describe 'puzzle method', ->
       chai.assert.isTrue Meteor.call 'deletePuzzle',
         id: id
         who: 'cjb'
-      chai.assert.isNull model.Rounds.findOne id
+      chai.assert.isUndefined model.Rounds.findOne(), 'no puzzles after deletion'
       chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'puzzles', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
       chai.assert.deepEqual model.Rounds.findOne(rid),
         _id: rid
