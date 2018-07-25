@@ -332,8 +332,9 @@ describe 'puzzle method', ->
         canon: 'bar'
         created: 1
         created_by: 'torgen'
-        touched: 7
-        touched_by: 'cjb'
+        # Removing round doesn't count as touching, apparently.
+        touched: 1
+        touched_by: 'torgen'
         solved: null
         solved_by: null
         rounds: ['another_round']
@@ -519,8 +520,9 @@ describe 'puzzle method', ->
         canon: 'bar'
         created: 1
         created_by: 'torgen'
-        touched: 7
-        touched_by: 'cjb'
+        # Removing puzzle doesn't count as touching, apparently.
+        touched: 1
+        touched_by: 'torgen'
         solved: null
         solved_by: null
         puzzles: ['another_puzzle']
