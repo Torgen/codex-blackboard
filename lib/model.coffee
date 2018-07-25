@@ -321,11 +321,17 @@ doc_id_to_link = (id) ->
     if collection(type).findOne(args.id).name is args.name
       return false
 
-    collection(type).update args.id, $set:
-      name: args.name
-      canon: canonical(args.name)
-      touched: now
-      touched_by: canonical(args.who)
+    try
+      collection(type).update args.id, $set:
+        name: args.name
+        canon: canonical(args.name)
+        touched: now
+        touched_by: canonical(args.who)
+    catch error
+      # duplicate name--bail out
+      if Meteor.isServer and error?.name is 'MongoError' and error?.code==11000
+        return false
+      throw error
     unless options.suppressLog
       oplog "Renamed", type, args.id, args.who
     return true
