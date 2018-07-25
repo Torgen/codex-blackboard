@@ -58,6 +58,8 @@ LastAnswer = BBCollection.last_answer = \
 #   round_start: integer, indicating how many rounds total are in all
 #                preceding round groups (a bit racy, but server fixes it up)
 RoundGroups = BBCollection.roundgroups = new Mongo.Collection "roundgroups"
+if Meteor.isServer
+  RoundGroups._ensureIndex {canon: 1}, {unique:true, dropDups:true}
 
 # Rounds are:
 #   _id: mongodb id
@@ -76,6 +78,8 @@ RoundGroups = BBCollection.roundgroups = new Mongo.Collection "roundgroups"
 #   puzzles: [ array of puzzle _ids, in order ]
 #   drive: google drive url or id
 Rounds = BBCollection.rounds = new Mongo.Collection "rounds"
+if Meteor.isServer
+  Rounds._ensureIndex {canon: 1}, {unique:true, dropDups:true}
 
 # Puzzles are:
 #   _id: mongodb id
@@ -93,6 +97,8 @@ Rounds = BBCollection.rounds = new Mongo.Collection "rounds"
 #   tags: [ { name: "Status", canon: "status", value: "stuck" }, ... ]
 #   drive: google drive url or id
 Puzzles = BBCollection.puzzles = new Mongo.Collection "puzzles"
+if Meteor.isServer
+  Puzzles._ensureIndex {canon: 1}, {unique:true, dropDups:true}
 
 # CallIns are:
 #   _id: mongodb id
@@ -105,6 +111,9 @@ Puzzles = BBCollection.puzzles = new Mongo.Collection "puzzles"
 #   backsolve: true/false
 #   provided: true/false
 CallIns = BBCollection.callins = new Mongo.Collection "callins"
+if Meteor.isServer
+  CallIns._ensureIndex {created: 1}, {}
+  CallIns._ensureIndex {type: 1, target: 1, answer: 1}, {unique:true, dropDups:true}
 
 # Quips are:
 #   _id: mongodb id
@@ -114,6 +123,8 @@ CallIns = BBCollection.callins = new Mongo.Collection "callins"
 #   last_used: timestamp (0 if never used)
 #   use_count: integer
 Quips = BBCollection.quips = new Mongo.Collection "quips"
+if Meteor.isServer
+  Quips._ensureIndex {last_used: 1}, {}
 
 # Nicks are:
 #   _id: mongodb id
@@ -129,6 +140,9 @@ Quips = BBCollection.quips = new Mongo.Collection "quips"
 #   tags: [ { name: "Real Name", canon: "real_name", value: "C. Scott Ananian" }, ... ]
 # valid tags include "Real Name", "Gravatar" (email address to use for photos)
 Nicks = BBCollection.nicks = new Mongo.Collection "nicks"
+if Meteor.isServer
+  Nicks._ensureIndex {canon: 1}, {unique:true, dropDups:true}
+  Nicks._ensureIndex {priv_located_order: 1}, {}
 
 # Messages
 #   body: string
@@ -158,6 +172,13 @@ Nicks = BBCollection.nicks = new Mongo.Collection "nicks"
 # JS Notification API 'tag' for deduping and selective muting.
 Messages = BBCollection.messages = new Mongo.Collection "messages"
 OldMessages = BBCollection.oldmessages = new Mongo.Collection "oldmessages"
+if Meteor.isServer
+  for M in [ Messages, OldMessages ]
+    M._ensureIndex {to:1, room_name:1, timestamp:-1}, {}
+    M._ensureIndex {nick:1, room_name:1, timestamp:-1}, {}
+    M._ensureIndex {room_name:1, timestamp:-1}, {}
+    M._ensureIndex {room_name:1, timestamp:1}, {}
+    M._ensureIndex {room_name:1, starred: -1, timestamp: 1}, {}
 
 # Pages -- paging metadata for Messages collection
 #   from: timestamp (first page has from==0)
@@ -168,12 +189,22 @@ OldMessages = BBCollection.oldmessages = new Mongo.Collection "oldmessages"
 #   archived: boolean (true iff this page is in oldmessages)
 # Messages with from <= timestamp < to are included in a specific page.
 Pages = BBCollection.pages = new Mongo.Collection "pages"
+if Meteor.isServer
+  # used in the observe code in server/batch.coffee
+  Pages._ensureIndex {room_name:1, to:-1}, {unique:true}
+  # used in the publish method
+  Pages._ensureIndex {next: 1, room_name:1}, {}
+  # used for archiving
+  Pages._ensureIndex {archived:1, next:1, to:1}, {}
 
 # Last read message for a user in a particular chat room
 #   nick: canonicalized string, as in Messages
 #   room_name: string, as in Messages
 #   timestamp: timestamp of last read message
 LastRead = BBCollection.lastread = new Mongo.Collection "lastread"
+if Meteor.isServer
+  LastRead._ensureIndex {nick:1, room_name:1}, {unique:true, dropDups:true}
+  LastRead._ensureIndex {nick:1}, {} # be safe
 
 # Chat room presence
 #   nick: canonicalized string, as in Messages
@@ -183,6 +214,10 @@ LastRead = BBCollection.lastread = new Mongo.Collection "lastread"
 #   foreground_uuid: identity of client with tab in foreground
 #   present: boolean (true if user is present, false if not)
 Presence = BBCollection.presence = new Mongo.Collection "presence"
+if Meteor.isServer
+  Presence._ensureIndex {nick: 1, room_name:1}, {unique:true, dropDups:true}
+  Presence._ensureIndex {timestamp:-1}, {}
+  Presence._ensureIndex {present:1, room_name:1}, {}
 
 # this reverses the name given to Mongo.Collection; that is the
 # 'type' argument is the name of a server-side Mongo collection.

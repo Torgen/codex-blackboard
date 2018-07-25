@@ -45,7 +45,6 @@ throttle = (func, wait = 0) ->
       Meteor.setTimeout(run, 0)
 
 # Round groups
-model.RoundGroups._ensureIndex {canon: 1}, {unique:true, dropDups:true}
 updateRoundStart = ->
   round_start = 0
   model.RoundGroups.find({}, sort: ["created"]).forEach (rg) ->
@@ -67,7 +66,6 @@ model.RoundGroups.find({}).observeChanges
     queueUpdateRoundStart() if 'created' of fields or 'rounds' of fields
 
 # Rounds
-model.Rounds._ensureIndex {canon: 1}, {unique:true, dropDups:true}
 if MIGRATE_ANSWERS
   # migrate objects -- rename 'Meta answer' tag to 'Answer'
   Meteor.startup ->
@@ -96,7 +94,6 @@ if MIGRATE_ANSWERS
         solved_by: solved_by
 
 # Puzzles
-model.Puzzles._ensureIndex {canon: 1}, {unique:true, dropDups:true}
 if MIGRATE_ANSWERS
   # migrate objects -- we used to have an `answer` field in Puzzles.
   Meteor.startup ->
@@ -110,17 +107,7 @@ if MIGRATE_ANSWERS
         who: p.solved_by
       model.Puzzles.update p._id, update
 
-# Callins
-model.CallIns._ensureIndex {created: 1}, {}
-model.CallIns._ensureIndex {type: 1, target: 1, answer: 1}, {unique:true, dropDups:true}
-
-# Quips
-model.Quips._ensureIndex {last_used: 1}, {}
-
-# Nicks
-model.Nicks._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-model.Nicks._ensureIndex {priv_located_order: 1}, {}
-# synchronize priv_located* with located* at a throttled rate.
+# Nicks: synchronize priv_located* with located* at a throttled rate.
 # order by priv_located_order, which we'll clear when we apply the update
 # this ensures nobody gets starved for updates
 do ->
@@ -150,21 +137,7 @@ do ->
     # also run batch on removed: batch size might not have been big enough
     removed: (id) -> maybeRunBatch()
 
-# Messages/OldMessages
-for M in [ model.Messages, modelOldMessages ]
-  M._ensureIndex {to:1, room_name:1, timestamp:-1}, {}
-  M._ensureIndex {nick:1, room_name:1, timestamp:-1}, {}
-  M._ensureIndex {room_name:1, timestamp:-1}, {}
-  M._ensureIndex {room_name:1, timestamp:1}, {}
-  M._ensureIndex {room_name:1, starred: -1, timestamp: 1}, {}
-
 # Pages
-# used in the server observe code below
-model.Pages._ensureIndex {room_name:1, to:-1}, {unique:true}
-# used in the publish method
-model.Pages._ensureIndex {next: 1, room_name:1}, {}
-# used for archiving
-model.Pages._ensureIndex {archived:1, next:1, to:1}, {}
 # ensure old pages have the `archived` field
 Meteor.startup ->
   model.Pages.find(archived: $exists: false).forEach (p) ->
@@ -225,14 +198,7 @@ do ->
 # migrate messages to old messages collection
 (Meteor.startup queueMessageArchive) if MOVE_OLD_PAGES
 
-# LastRead
-model.LastRead._ensureIndex {nick:1, room_name:1}, {unique:true, dropDups:true}
-model.LastRead._ensureIndex {nick:1}, {} # be safe
-
 # Presence
-model.Presence._ensureIndex {nick: 1, room_name:1}, {unique:true, dropDups:true}
-model.Presence._ensureIndex {timestamp:-1}, {}
-model.Presence._ensureIndex {present:1, room_name:1}, {}
 # ensure old entries are timed out after 2*PRESENCE_KEEPALIVE_MINUTES
 # some leeway here to account for client/server time drift
 Meteor.setInterval ->
