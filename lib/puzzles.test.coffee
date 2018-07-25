@@ -110,7 +110,7 @@ describe 'puzzle method', ->
         solved_by: null
         incorrectAnswers: []
         tags: []
-      id2 = model.Rounds.insert
+      id2 = model.RoundGroups.insert
         name: 'Bar'
         canon: 'bar'
         created: 2
