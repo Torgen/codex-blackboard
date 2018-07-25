@@ -341,7 +341,7 @@ describe 'puzzle method', ->
         rounds: ['another_round']
         incorrectAnswers: []
         tags: []
-      chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo', 'sfoo', 'dfoo']
+      chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']
 
     it 'doesn\'t delete non-empty round', ->
       id = model.Rounds.insert
@@ -530,4 +530,4 @@ describe 'puzzle method', ->
         puzzles: ['another_puzzle']
         incorrectAnswers: []
         tags: []
-      chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo', 'sfoo', 'dfoo']
+      chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']

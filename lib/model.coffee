@@ -543,11 +543,11 @@ doc_id_to_link = (id) ->
       # get drive ID (racy)
       r = Rounds.findOne(args.id)
       drive = r?.drive
-      spreadsheet = r?.spreadsheet
-      doc = r?.doc
+      spreadsheet = r?.spreadsheet if drive?
+      doc = r?.doc if drive?
       result = renameObject "rounds", args
       # rename google drive folder
-      renameDriveFolder args.name, drive, (spreadsheet if (result and drive?)), doc if (result and drive?)
+      renameDriveFolder args.name, drive, spreadsheet, doc if (result aand drive?)
       return result
     deleteRound: (args) ->
       check args, ObjectWith
@@ -560,14 +560,12 @@ doc_id_to_link = (id) ->
       return false unless old? and old?.puzzles?.length is 0
       # get drive ID (racy)
       drive = old?.drive
-      spreadsheet = old?.spreadsheet
-      doc = old?.doc
       # remove round itself
       r = deleteObject "rounds", args
       # remove from all roundgroups
       RoundGroups.update { rounds: rid },{ $pull: rounds: rid },{ multi: true }
       # delete google drive folder and all contents, recursively
-      deleteDriveFolder drive, (spreadsheet if drive?), doc if drive?
+      deleteDriveFolder drive if drive?
       # XXX: delete chat room logs?
       return r
 
@@ -598,8 +596,7 @@ doc_id_to_link = (id) ->
       doc = p?.doc if drive?
       result = renameObject "puzzles", args
       # rename google drive folder
-      if result and drive?
-        renameDriveFolder args.name, drive, spreadsheet, doc
+      renameDriveFolder args.name, drive, spreadsheet, doc if result and drive?
       return result
     deletePuzzle: (args) ->
       check args, ObjectWith
@@ -609,15 +606,12 @@ doc_id_to_link = (id) ->
       # get drive ID (racy)
       old = Puzzles.findOne(args.id)
       drive = old?.drive
-      spreadsheet = old?.spreadsheet if drive?
-      doc = old?.doc if drive?
       # remove puzzle itself
       r = deleteObject "puzzles", args
       # remove from all rounds
       Rounds.update { puzzles: pid },{ $pull: puzzles: pid },{ multi: true }
       # delete google drive folder
-      if drive?
-        deleteDriveFolder drive, spreadsheet, doc
+      deleteDriveFolder drive if drive?
       # XXX: delete chat room logs?
       return r
 
