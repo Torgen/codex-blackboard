@@ -85,6 +85,7 @@ describe 'puzzle method', ->
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
+      chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 0, 'oplogs'
 
   describe 'renameRound', ->
     it 'renames round', ->
@@ -152,6 +153,7 @@ describe 'puzzle method', ->
         id: id1
         name: 'Bar'
         who: 'cjb'
+      chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 0, 'oplogs'
   
   describe 'newPuzzle', ->
     it 'creates puzzle', ->
@@ -204,6 +206,7 @@ describe 'puzzle method', ->
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
+      chai.assert.lengthOf model.Messages.find({id: puzzle._id, type: 'puzzles'}).fetch(), 0, 'oplogs'
 
   describe 'renamePuzzle', ->
     it 'renames puzzle', ->
@@ -270,3 +273,4 @@ describe 'puzzle method', ->
         id: id1
         name: 'Bar'
         who: 'cjb'
+      chai.assert.lengthOf model.Messages.find({id: puzzle._id, type: 'puzzles'}).fetch(), 0, 'oplogs'
