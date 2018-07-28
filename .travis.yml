@@ -11,6 +11,3 @@ cache:
 
 before_install:
   - curl https://install.meteor.com | /bin/sh
-
-script:
-  - meteor test --once --driver-package meteortesting:mocha

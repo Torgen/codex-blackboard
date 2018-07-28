@@ -11,7 +11,7 @@
     "sinon": "^6.1.4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "meteor test --once --driver-package meteortesting:mocha"
   },
   "repository": {
     "type": "git",
