@@ -34,7 +34,7 @@ describe 'answer method', ->
       , Match.Error
 
     ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
-      describe "on #{type}", ->
+      describe "on #{model.pretty_collection(type)}", ->
         it 'adds answer', ->
           id = model.collection(type).insert
             name: 'Foo'
@@ -246,7 +246,7 @@ describe 'answer method', ->
       , Match.Error
 
     ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
-      describe "on #{type}", ->
+      describe "on #{model.pretty_collection(type)}", ->
         it 'works when unanswered', ->
           id = model.collection(type).insert
             name: 'Foo'
@@ -393,7 +393,7 @@ describe 'answer method', ->
       , Match.Error
 
     ['puzzles', 'rounds', 'roundgroups'].forEach (type) =>
-      describe "for #{type}", ->
+      describe "for #{model.pretty_collection(type)}", ->
         it 'fails when it doesn\'t exist', ->
           chai.assert.throws ->
             Meteor.call 'newCallIn',
