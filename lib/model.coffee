@@ -15,7 +15,7 @@ PRESENCE_KEEPALIVE_MINUTES = 2
 NOT_A_TIMESTAMP = -9999
 
 emojify = if Meteor.isServer
-  require '../server/imports/emoji.coffee'
+  require('../server/imports/emoji.coffee').default
 else
   (s) -> s
 
