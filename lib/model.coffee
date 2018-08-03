@@ -876,8 +876,7 @@ doc_id_to_link = (id) ->
       catch e
         # ignore duplicate key errors; they are harmless and occur when we
         # try to move the LastRead.timestamp backwards.
-        if Meteor.isServer and e?.name is 'MongoError' and e?.code==11000
-          return false
+        return false if isDuplicateError e
         throw e
 
     setPresence: (args) ->
