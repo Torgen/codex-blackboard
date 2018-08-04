@@ -114,4 +114,3 @@ describe 'renameRoundGroup', ->
 
     it 'doesn\'t oplog', ->
       chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'roundgroups'}).fetch(), 0, 'oplogs'
-  

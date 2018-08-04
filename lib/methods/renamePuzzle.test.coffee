@@ -97,4 +97,3 @@ describe 'renamePuzzle', ->
       who: 'cjb'
     chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'puzzles'}).fetch(), 0, 'oplogs'
     chai.assert.equal driveMethods.renamePuzzle.callCount, 0, 'rename calls'
-  

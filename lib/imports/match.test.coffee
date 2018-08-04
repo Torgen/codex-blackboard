@@ -62,4 +62,3 @@ describe 'ObjectWith', ->
         foo: match.NonEmptyString
         bar: Number
     , Match.Error
-  

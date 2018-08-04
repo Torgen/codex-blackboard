@@ -126,4 +126,3 @@ describe 'deleteRound', ->
     
     it 'doesn\'t oplog', ->
       chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'
-  

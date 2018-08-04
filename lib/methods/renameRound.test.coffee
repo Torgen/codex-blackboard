@@ -128,4 +128,3 @@ describe 'renameRound', ->
 
     it 'doesn\'t oplog', ->
       chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'rounds'}).fetch(), 0
-  
