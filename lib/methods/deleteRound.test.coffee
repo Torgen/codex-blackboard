@@ -63,7 +63,7 @@ describe 'deleteRound', ->
         rounds: [id, 'another_round']
         incorrectAnswers: []
         tags: []
-       ret = Meteor.call 'deleteRound',
+      ret = Meteor.call 'deleteRound',
         id: id
         who: 'cjb'
 
