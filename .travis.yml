@@ -2,8 +2,6 @@ language: node_js
 node_js:
  - 8
 
-sudo: required
-
 cache:
   directories:
     - node_modules
@@ -11,3 +9,6 @@ cache:
 
 before_install:
   - curl https://install.meteor.com | /bin/sh
+
+script:
+  - ~/.meteor/meteor test --once  --driver-package meteortesting:mocha
