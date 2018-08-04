@@ -30,43 +30,60 @@ describe 'newRoundGroup', ->
 
   beforeEach ->
     resetDatabase()
-    
-  it 'creates new round group', ->
-    group = Meteor.call 'newRoundGroup',
-      name: 'Foo'
-      who: 'torgen'
-      rounds: ['rd1']
-    group = model.RoundGroups.findOne group._id
-    chai.assert.deepInclude group,
-      name: 'Foo'
-      canon: 'foo'
-      created: 7
-      created_by: 'torgen'
-      touched: 7
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      rounds: ['rd1']
-      incorrectAnswers: []
-      tags: []
-    chai.assert.doesNotHaveAnyKeys group, ['drive', 'spreadsheet', 'doc', 'link']
-    chai.assert.lengthOf model.Messages.find({id: group._id, type: 'roundgroups'}).fetch(), 1, 'oplogs'
 
-  it 'returns existing group of same name', ->
-    id = model.RoundGroups.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      tags: []
-      solved: null
-      solved_by: null
-      incorrectAnswers: []
-      rounds: ['rd1', 'rd2']
-    group = Meteor.call 'newRoundGroup',
-      name: 'Foo'
-      who: 'cjb'
-    chai.assert.equal group._id, id
-    chai.assert.lengthOf model.Messages.find({id: id, type: 'roundgroups'}).fetch(), 0, 'oplogs'
+  describe 'when none exists with that name', ->
+    id = null
+    beforeEach ->
+      id = Meteor.call 'newRoundGroup',
+        name: 'Foo'
+        who: 'torgen'
+        rounds: ['rd1']
+      ._id
+
+    it 'creates new round group', ->
+      group = model.RoundGroups.findOne id 
+      chai.assert.deepInclude group,
+        name: 'Foo'
+        canon: 'foo'
+        created: 7
+        created_by: 'torgen'
+        touched: 7
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: ['rd1']
+        incorrectAnswers: []
+        tags: []
+    
+    it 'has no drive', ->
+      group = model.RoundGroups.findOne id 
+      chai.assert.doesNotHaveAnyKeys group, ['drive', 'spreadsheet', 'doc', 'link']
+    
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({id: id, type: 'roundgroups'}).fetch(), 1, 'oplogs'
+
+  describe 'when one has that name', ->
+    id = null
+    group = null
+    beforeEach ->
+      id = model.RoundGroups.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        tags: []
+        solved: null
+        solved_by: null
+        incorrectAnswers: []
+        rounds: ['rd1', 'rd2']
+      group = Meteor.call 'newRoundGroup',
+        name: 'Foo'
+        who: 'cjb'
+        
+    it 'returns the existing group', ->
+      chai.assert.equal group._id, id
+    
+    it 'doesn\'t oplog', ->
+      chai.assert.lengthOf model.Messages.find({id: id, type: 'roundgroups'}).fetch(), 0, 'oplogs'
