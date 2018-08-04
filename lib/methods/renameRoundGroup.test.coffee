@@ -31,58 +31,87 @@ describe 'renameRoundGroup', ->
   beforeEach ->
     resetDatabase()
 
-  it 'renames round group', ->
-    id = model.RoundGroups.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      rounds: ['yoy']
-      incorrectAnswers: []
-      tags: []
-    chai.assert.isTrue Meteor.call 'renameRoundGroup',
-      id: id
-      name: 'Bar'
-      who: 'cjb'
-    group = model.RoundGroups.findOne id
-    chai.assert.include group,
-      name: 'Bar'
-      canon: 'bar'
-      touched: 7
-      touched_by: 'cjb'
-    chai.assert.equal driveMethods.renamePuzzle.callCount, 0, 'rename drive calls'
-    chai.assert.lengthOf model.Messages.find({id: id, type: 'roundgroups'}).fetch(), 1, 'oplogs'
+  describe 'when new name is unique', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.RoundGroups.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: ['yoy']
+        incorrectAnswers: []
+        tags: []
+      ret = Meteor.call 'renameRoundGroup',
+        id: id
+        name: 'Bar'
+        who: 'cjb'
 
-  it 'doesn\'t clobber round group with same name', ->
-    id1 = model.RoundGroups.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      incorrectAnswers: []
-      tags: []
-    id2 = model.RoundGroups.insert
-      name: 'Bar'
-      canon: 'bar'
-      created: 2
-      created_by: 'cscott'
-      touched: 2
-      touched_by: 'cscott'
-      solved: null
-      solved_by: null
-      incorrectAnswers: []
-      tags: []
-    chai.assert.isFalse Meteor.call 'renameRoundGroup',
-      id: id1
-      name: 'Bar'
-      who: 'cjb'
-    chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'roundgroups'}).fetch(), 0, 'oplogs'
+    it 'returns true', ->
+      chai.assert.isTrue ret
+
+    it 'renames round group', ->
+      group = model.RoundGroups.findOne id
+      chai.assert.include group,
+        name: 'Bar'
+        canon: 'bar'
+        touched: 7
+        touched_by: 'cjb'
+    
+    it 'doesn\'t rename a drive', ->
+      chai.assert.equal driveMethods.renamePuzzle.callCount, 0, 'rename drive calls'
+    
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({id: id, type: 'roundgroups'}).fetch(), 1, 'oplogs'
+
+  describe 'when another round group has same name', ->
+    id1 = null
+    id2 = null
+    ret = null
+    beforeEach ->
+      id1 = model.RoundGroups.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        incorrectAnswers: []
+        tags: []
+      id2 = model.RoundGroups.insert
+        name: 'Bar'
+        canon: 'bar'
+        created: 2
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'cscott'
+        solved: null
+        solved_by: null
+        incorrectAnswers: []
+        tags: []
+      ret = Meteor.call 'renameRoundGroup',
+        id: id1
+        name: 'Bar'
+        who: 'cjb'
+
+    it 'returns false', ->
+      chai.assert.isFalse ret
+      
+    it 'leaves round group alone', ->
+      group = model.RoundGroups.findOne id1
+      chai.assert.include group,
+        name: 'Foo'
+        canon: 'foo'
+        touched: 1
+        touched_by: 'torgen'
+
+    it 'doesn\'t oplog', ->
+      chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'roundgroups'}).fetch(), 0, 'oplogs'
   
