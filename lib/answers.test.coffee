@@ -511,6 +511,7 @@ describe 'answer method', ->
             it 'creates document', ->
               c = model.CallIns.findOne()
               chai.assert.include c,
+                name: 'Foo:precipitate'
                 type: type
                 target: id
                 answer: 'precipitate'
