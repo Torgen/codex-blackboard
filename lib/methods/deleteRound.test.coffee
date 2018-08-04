@@ -31,71 +31,99 @@ describe 'deleteRound', ->
   beforeEach ->
     resetDatabase()
 
-  it 'deletes empty round', ->
-    id = model.Rounds.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      puzzles: []
-      incorrectAnswers: []
-      tags: []
-      drive: 'ffoo'
-      spreadsheet: 'sfoo'
-      doc: 'dfoo'
-    rgid = model.RoundGroups.insert
-      name: 'Bar'
-      canon: 'bar'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      rounds: [id, 'another_round']
-      incorrectAnswers: []
-      tags: []
-    chai.assert.isTrue Meteor.call 'deleteRound',
-      id: id
-      who: 'cjb'
-    chai.assert.isUndefined model.Rounds.findOne(), 'no rounds after deletion'
-    chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'rounds', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
-    chai.assert.deepEqual model.RoundGroups.findOne(rgid),
-      _id: rgid
-      name: 'Bar'
-      canon: 'bar'
-      created: 1
-      created_by: 'torgen'
-      # Removing round doesn't count as touching, apparently.
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      rounds: ['another_round']
-      incorrectAnswers: []
-      tags: []
-    chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']
+  describe 'when it is empty', ->
+    id = null
+    rgid = null
+    ret = null
+    beforeEach ->
+      id = model.Rounds.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        puzzles: []
+        incorrectAnswers: []
+        tags: []
+        drive: 'ffoo'
+        spreadsheet: 'sfoo'
+        doc: 'dfoo'
+      rgid = model.RoundGroups.insert
+        name: 'Bar'
+        canon: 'bar'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: [id, 'another_round']
+        incorrectAnswers: []
+        tags: []
+       ret = Meteor.call 'deleteRound',
+        id: id
+        who: 'cjb'
 
-  it 'doesn\'t delete non-empty round', ->
-    id = model.Rounds.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      puzzles: ['foo1', 'foo2']
-      incorrectAnswers: []
-      tags: []
-    chai.assert.isFalse Meteor.call 'deleteRound',
-      id: id
-      who: 'cjb'
-    chai.assert.isNotNull model.Rounds.findOne id
-    chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'
+    it 'returns true', ->
+       chai.assert.isTrue ret
+
+    it 'deletes the round', ->
+      chai.assert.isUndefined model.Rounds.findOne(), 'no rounds after deletion'
+
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'rounds', room_name: 'oplog/0'}).fetch(), 1
+
+    it 'removes round from round group', ->
+      chai.assert.deepEqual model.RoundGroups.findOne(rgid),
+        _id: rgid
+        name: 'Bar'
+        canon: 'bar'
+        created: 1
+        created_by: 'torgen'
+        # Removing round doesn't count as touching, apparently.
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: ['another_round']
+        incorrectAnswers: []
+        tags: []
+
+    it 'deletes drive', ->
+      chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']
+
+  describe 'when round isn\'t empty', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.Rounds.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        puzzles: ['foo1', 'foo2']
+        incorrectAnswers: []
+        tags: []
+      ret = Meteor.call 'deleteRound',
+        id: id
+        who: 'cjb'
+    
+    it 'returns false', ->
+      chai.assert.isFalse ret
+
+    it 'leaves round', ->
+      chai.assert.isNotNull model.Rounds.findOne id
+
+    it 'leaves drive', ->
+      chai.assert.equal driveMethods.deletePuzzle.callCount, 0
+    
+    it 'doesn\'t oplog', ->
+      chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'
   
