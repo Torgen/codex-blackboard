@@ -30,58 +30,74 @@ describe 'newRound', ->
 
   beforeEach ->
     resetDatabase()
+  
+  describe 'when none exists with that name', ->
+    id = null
+    beforeEach ->
+      id = Meteor.call 'newRound',
+        name: 'Foo'
+        who: 'torgen'
+        link: 'https://puzzlehunt.mit.edu/foo'
+        puzzles: ['yoy']
+      ._id
 
-  it 'creates new round', ->
-    round = Meteor.call 'newRound',
-      name: 'Foo'
-      who: 'torgen'
-      link: 'https://puzzlehunt.mit.edu/foo'
-      puzzles: ['yoy']
-    # Round is created, then drive et al are added
-    round = model.Rounds.findOne round._id
-    chai.assert.deepInclude round,
-      name: 'Foo'
-      canon: 'foo'
-      created: 7
-      created_by: 'torgen'
-      touched: 7
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      puzzles: ['yoy']
-      incorrectAnswers: []
-      link: 'https://puzzlehunt.mit.edu/foo'
-      drive: 'fid'
-      spreadsheet: 'sid'
-      doc: 'did'
-      tags: []
-    chai.assert.lengthOf model.Rounds.find(round._id).fetch(), 1, 'round created'
-    chai.assert.lengthOf model.Messages.find({id: round._id, type: 'rounds'}).fetch(), 1, 'oplogs'
+    it 'creates round', ->
+      # Round is created, then drive et al are added
+      round = model.Rounds.findOne id
+      chai.assert.deepInclude round,
+        name: 'Foo'
+        canon: 'foo'
+        created: 7
+        created_by: 'torgen'
+        touched: 7
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        puzzles: ['yoy']
+        incorrectAnswers: []
+        link: 'https://puzzlehunt.mit.edu/foo'
+        drive: 'fid'
+        spreadsheet: 'sid'
+        doc: 'did'
+        tags: []
 
-  it 'returns existing round of same name', ->
-    id = model.Rounds.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      puzzles: ['yoy']
-      incorrectAnswers: []
-      link: 'https://puzzlehunt.mit.edu/foo'
-      drive: 'fid'
-      spreadsheet: 'sid'
-      doc: 'did'
-      tags: []
-    r = Meteor.call 'newRound',
-      name: 'Foo'
-      who: 'cjb'
-    chai.assert.equal r._id, id
-    chai.assert.include r,
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-    chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 0, 'oplogs'
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
+
+  describe 'when one has that name', ->
+    id1 = null
+    id2 = null
+    beforeEach ->
+      id1 = model.Rounds.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        puzzles: ['yoy']
+        incorrectAnswers: []
+        link: 'https://puzzlehunt.mit.edu/foo'
+        drive: 'fid'
+        spreadsheet: 'sid'
+        doc: 'did'
+        tags: []
+      id2 = Meteor.call 'newRound',
+        name: 'Foo'
+        who: 'cjb'
+      ._id
+
+    it 'returns existing round', ->
+      chai.assert.equal id1, id2
+
+    it 'doesn\'t touch', ->
+      chai.assert.include model.Rounds.findOne(id2),
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+
+    it 'doesn\'t oplog', ->
+      chai.assert.lengthOf model.Messages.find({id: id2, type: 'rounds'}).fetch(), 0
