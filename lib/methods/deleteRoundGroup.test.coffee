@@ -31,41 +31,62 @@ describe 'deleteRoundGroup', ->
   beforeEach ->
     resetDatabase()
 
-  it 'deletes empty round group', ->
-    id = model.RoundGroups.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      rounds: []
-      incorrectAnswers: []
-      tags: []
-    chai.assert.isTrue Meteor.call 'deleteRoundGroup',
-      id: id
-      who: 'cjb'
-    chai.assert.isUndefined model.RoundGroups.findOne(), 'no round groups after deletion'
-    chai.assert.equal driveMethods.deletePuzzle.callCount, 0, 'delete drive calls'
-    chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'roundgroups', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
+  describe 'when it is empty', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.RoundGroups.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: []
+        incorrectAnswers: []
+        tags: []
+      ret = Meteor.call 'deleteRoundGroup',
+        id: id
+        who: 'cjb'
 
-  it 'doesn\'t delete non-empty round group', ->
-    id = model.RoundGroups.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'torgen'
-      touched: 1
-      touched_by: 'torgen'
-      solved: null
-      solved_by: null
-      rounds: ['foo1', 'foo2']
-      incorrectAnswers: []
-      tags: []
-    chai.assert.isFalse Meteor.call 'deleteRoundGroup',
-      id: id
-      who: 'cjb'
-    chai.assert.isNotNull model.RoundGroups.findOne id
-    chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'
+    it 'returns true', ->
+      chai.assert.isTrue ret
+
+    it 'deletes the round group', ->
+      chai.assert.isUndefined model.RoundGroups.findOne()
+    
+    it 'makes no drive calls', ->
+      chai.assert.equal driveMethods.deletePuzzle.callCount, 0
+
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'roundgroups', room_name: 'oplog/0'}).fetch(), 1
+
+  describe 'when it contains rounds', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.RoundGroups.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'torgen'
+        touched: 1
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        rounds: ['foo1', 'foo2']
+        incorrectAnswers: []
+        tags: []
+      ret = Meteor.call 'deleteRoundGroup',
+        id: id
+        who: 'cjb'
+    it 'returns false', ->
+      chai.assert.isFalse ret
+
+    it 'leads round group alone', ->
+      chai.assert.isNotNull model.RoundGroups.findOne id
+
+    it 'doesn\'t oplog', ->
+      chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'
