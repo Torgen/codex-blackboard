@@ -28,10 +28,11 @@ describe 'deletePuzzle', ->
   afterEach ->
     sinon.restore()
 
+  id = null
+  rid = null
+  ret = null
   beforeEach ->
     resetDatabase()
-    
-  it 'deletes puzzle', ->
     id = model.Puzzles.insert
       name: 'Foo'
       canon: 'foo'
@@ -58,11 +59,20 @@ describe 'deletePuzzle', ->
       puzzles: [id, 'another_puzzle']
       incorrectAnswers: []
       tags: []
-    chai.assert.isTrue Meteor.call 'deletePuzzle',
+    ret = Meteor.call 'deletePuzzle',
       id: id
       who: 'cjb'
-    chai.assert.isUndefined model.Puzzles.findOne(), 'no puzzles after deletion'
-    chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'puzzles', room_name: 'oplog/0'}).fetch(), 1, 'oplogs'
+
+  it 'returns true', ->
+    chai.assert.isTrue ret
+    
+  it 'deletes puzzle', ->
+    chai.assert.isUndefined model.Puzzles.findOne()
+
+  it 'oplogs', ->
+    chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'puzzles', room_name: 'oplog/0'}).fetch(), 1
+
+  it 'removes puzzle from round', ->
     chai.assert.deepEqual model.Rounds.findOne(rid),
       _id: rid
       name: 'Bar'
@@ -77,4 +87,6 @@ describe 'deletePuzzle', ->
       puzzles: ['another_puzzle']
       incorrectAnswers: []
       tags: []
+
+  it 'deletes drive', ->
     chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']
