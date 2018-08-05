@@ -34,129 +34,146 @@ describe 'setAnswer', ->
 
   ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
     describe "on #{model.pretty_collection(type)}", ->
-      it 'adds answer', ->
-        id = model.collection(type).insert
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 2
-          touched_by: 'torgen'
-          solved: null
-          solved_by: null
-          tags: [{name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
-        chai.assert.isTrue Meteor.call 'setAnswer',
-          type: type
-          target: id
-          who: 'cjb'
-          answer: 'bar'
-        doc = model.collection(type).findOne id
-        chai.assert.deepEqual doc,
-          _id: id
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 7
-          touched_by: 'cjb'
-          solved: 7
-          solved_by: 'cjb'
-          tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
-                  {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
-        oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
-        chai.assert.equal oplogs.length, 1
-        chai.assert.include oplogs[0],
-          nick: 'cjb'
-          timestamp: 7
-          body: 'Found an answer (BAR) to'
-          bodyIsHtml: false
-          type: type
-          id: id
-          oplog: true
-          followup: true
-          action: true
-          system: false
-          to: null
-          stream: 'answers'
+      describe 'without answer', ->
+        id = null
+        ret = null
+        beforeEach ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: null
+            solved_by: null
+            tags: [{name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          ret = Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
 
-      it 'changes answer', ->
-        id = model.collection(type).insert
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 2
-          touched_by: 'torgen'
-          solved: 2
-          solved_by: 'torgen'
-          tags: [{name: 'Answer', canon: 'answer', value: 'qux', touched: 2, touched_by: 'torgen'},
-                  {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
-        chai.assert.isTrue Meteor.call 'setAnswer',
-          type: type
-          target: id
-          who: 'cjb'
-          answer: 'bar'
-        doc = model.collection(type).findOne id
-        chai.assert.deepEqual doc,
-          _id: id
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 7
-          touched_by: 'cjb'
-          solved: 7
-          solved_by: 'cjb'
-          tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
-                  {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
-        oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
-        chai.assert.equal oplogs.length, 1
-        chai.assert.include oplogs[0],
-          nick: 'cjb'
-          timestamp: 7
-          body: 'Found an answer (BAR) to'
-          bodyIsHtml: false
-          type: type
-          id: id
-          oplog: true
-          followup: true
-          action: true
-          system: false
-          to: null
-          stream: 'answers'
+        it 'returns true', ->
+          chai.assert.isTrue ret
 
-      it 'preserves same answer', ->
-        id = model.collection(type).insert
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 2
-          touched_by: 'torgen'
-          solved: 2
-          solved_by: 'torgen'
-          tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
-                  {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
-        chai.assert.isFalse Meteor.call 'setAnswer',
-          type: type
-          target: id
-          who: 'cjb'
-          answer: 'bar'
-        doc = model.collection(type).findOne id
-        chai.assert.deepEqual doc,
-          _id: id
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 2
-          touched_by: 'torgen'
-          solved: 2
-          solved_by: 'torgen'
-          tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
-                  {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
-        oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
-        chai.assert.equal oplogs.length, 0
+        it 'modifies document', ->
+          chai.assert.deepEqual model.collection(type).findOne(id),
+            _id: id
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 7
+            touched_by: 'cjb'
+            solved: 7
+            solved_by: 'cjb'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
+                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+        
+        it 'oplogs', ->
+          oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.equal oplogs.length, 1
+          chai.assert.include oplogs[0],
+            nick: 'cjb'
+            timestamp: 7
+            type: type
+            id: id
+            oplog: true
+            action: true
+            stream: 'answers'
+
+      describe 'with answer', ->
+        id = null
+        ret = null
+        beforeEach ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: 2
+            solved_by: 'torgen'
+            tags: [{name: 'Answer', canon: 'answer', value: 'qux', touched: 2, touched_by: 'torgen'},
+                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          ret = Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
+        
+        it 'returns true', ->
+          chai.assert.isTrue ret
+
+        it 'modifies document', ->
+          chai.assert.deepEqual model.collection(type).findOne(id),
+            _id: id
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 7
+            touched_by: 'cjb'
+            solved: 7
+            solved_by: 'cjb'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
+                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+        
+        it 'oplogs', ->
+          oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.equal oplogs.length, 1
+          chai.assert.include oplogs[0],
+            nick: 'cjb'
+            timestamp: 7
+            bodyIsHtml: false
+            type: type
+            id: id
+            oplog: true
+            action: true
+            stream: 'answers'
+
+      describe 'with same answer', ->
+        id = null
+        ret = null
+        beforeEach ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: 2
+            solved_by: 'torgen'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
+                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+          ret = Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
+
+        it 'returns false', ->
+          chai.assert.isFalse ret
+
+        it 'leaves document alone', ->
+          chai.assert.deepEqual model.collection(type).findOne(id),
+            _id: id
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: 2
+            solved_by: 'torgen'
+            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
+                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+
+        it 'doesn\'t oplog', ->
+          chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0
 
       it 'modifies tags', ->
         id = model.collection(type).insert
@@ -176,57 +193,56 @@ describe 'setAnswer', ->
           answer: 'bar'
           backsolve: true
           provided: true
-        doc = model.collection(type).findOne id
-        chai.assert.deepEqual doc,
-          _id: id
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 7
-          touched_by: 'cjb'
-          solved: 7
-          solved_by: 'cjb'
+        chai.assert.deepInclude model.collection(type).findOne(id),
           tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
                   {name: 'Backsolve', canon: 'backsolve', value: 'yes', touched: 7, touched_by: 'cjb'},
                   {name: 'Provided', canon: 'provided', value: 'yes', touched: 7, touched_by: 'cjb'}]
 
-      it 'cancels callins', ->
-        id = model.collection(type).insert
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 2
-          touched_by: 'torgen'
-          solved: null
-          solved_by: null
-          tags: []
-        cid1 = model.CallIns.insert
-          type: type
-          target: id
-          name: 'Foo'
-          answer: 'bar'
-          created: 5
-          created_by: 'codexbot'
-          submitted_to_hq: true
-          backsolve: false
-          provided: false
-        cid2 = model.CallIns.insert
-          type: type
-          target: id
-          name: 'Foo'
-          answer: 'qux'
-          created: 5
-          created_by: 'codexbot'
-          submitted_to_hq: false
-          backsolve: false
-          provided: false
-        chai.assert.isTrue Meteor.call 'setAnswer',
-          type: type
-          target: id
-          who: 'cjb'
-          answer: 'bar'
-        chai.assert.lengthOf model.CallIns.find().fetch(), 0, 'all callins deleted'
-        chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'callins'}).fetch(), 0, 'no oplogs for callins'
-        chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: type, id: id}).fetch(), 2, 'oplog for solution and cancelled callin'
+      describe 'with matching callins', ->
+        id = null
+        cid1 = null
+        cid2 = null
+        beforeEach ->
+          id = model.collection(type).insert
+            name: 'Foo'
+            canon: 'foo'
+            created: 1
+            created_by: 'cscott'
+            touched: 2
+            touched_by: 'torgen'
+            solved: null
+            solved_by: null
+            tags: []
+          cid1 = model.CallIns.insert
+            type: type
+            target: id
+            name: 'Foo'
+            answer: 'bar'
+            created: 5
+            created_by: 'codexbot'
+            submitted_to_hq: true
+            backsolve: false
+            provided: false
+          cid2 = model.CallIns.insert
+            type: type
+            target: id
+            name: 'Foo'
+            answer: 'qux'
+            created: 5
+            created_by: 'codexbot'
+            submitted_to_hq: false
+            backsolve: false
+            provided: false
+          Meteor.call 'setAnswer',
+            type: type
+            target: id
+            who: 'cjb'
+            answer: 'bar'
+        it 'deletes callins', ->
+          chai.assert.lengthOf model.CallIns.find().fetch(), 0
+
+        it 'doesn\'t oplog for callins', ->
+          chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'callins'}).fetch(), 0
+
+        it "oplogs for #{model.pretty_collection(type)}", ->
+          chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: type, id: id}).fetch(), 2
