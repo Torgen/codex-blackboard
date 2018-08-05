@@ -94,7 +94,7 @@ awaitFolder = Meteor.wrapAsync (name, parent, callback) ->
   awaitOnce 5, name, parent, callback
 
 awaitOrEnsureFolder = (name, parent) ->
-  return ensureFolder name, parent if share.model.DO_BATCH_PROCESSING
+  return ensureFolder name, parent if share.DO_BATCH_PROCESSING
   try
     return awaitFolder name, (parent or 'root')
   catch error

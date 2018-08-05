@@ -9,7 +9,7 @@
 #     "access_token_secret": "wwwwwwwwwwwwwwwwwwwwww"
 #   }
 # }
-return unless share.model.DO_BATCH_PROCESSING
+return unless share.DO_BATCH_PROCESSING
 settings = Meteor.settings?.twitter ? {}
 settings.consumer_key ?= process.env.TWITTER_CONSUMER_KEY
 settings.consumer_secret ?= process.env.TWITTER_CONSUMER_SECRET

@@ -414,7 +414,7 @@ SAMPLE_QUIPS = [
 ]
 
 Meteor.startup ->
-  if model.DO_BATCH_PROCESSING and POPULATE_DB_WHEN_RESET and model.RoundGroups.find().count() is 0
+  if share.DO_BATCH_PROCESSING and POPULATE_DB_WHEN_RESET and model.RoundGroups.find().count() is 0
     # Meteor.call is sync on server!
     console.log 'Populating initial puzzle database...'
     console.log '(use production:true in settings.json to disable this)'
