@@ -988,12 +988,6 @@ doc_id_to_link = (id) ->
           target: args.object
           answer: args.value
           who: args.who
-      if canonical(args.name) is 'status'
-        return Meteor.call (if args.value then "summon" else "unsummon"),
-          type: args.type
-          object: args.object
-          value: args.value
-          who: args.who
       if canonical(args.name) is 'link'
         args.fields = { link: args.value }
         return Meteor.call 'setField', args
@@ -1008,11 +1002,6 @@ doc_id_to_link = (id) ->
         return Meteor.call "deleteAnswer",
           type: args.type
           target: args.object
-          who: args.who
-      if canonical(args.name) is 'status'
-        return Meteor.call 'unsummon',
-          type: args.type
-          object: args.object
           who: args.who
       if canonical(args.name) is 'link'
         args.fields = { link: null }
