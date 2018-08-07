@@ -342,7 +342,7 @@ share.hubot.codex = (robot) ->
     result = Meteor.call 'summon',
       type: target.type
       object: target.object._id
-      value: msg.match[2]
+      how: "Stuck: #{msg.match[2]}"
       who: msg.envelope.user.id
     if result?
       msg.reply useful: true, result
