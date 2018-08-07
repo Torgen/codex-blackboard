@@ -1022,7 +1022,8 @@ doc_id_to_link = (id) ->
       if obj.solved
         return "#{pretty_collection args.type} #{obj.name} is already answered"
       wasStuck = isStuck obj
-      how = args.how or 'Stuck'
+      rawhow = args.how or 'Stuck'
+      how = if rawhow.toLowerCase().startsWith('stuck') then rawhow else "Stuck: #{rawhow}"
       setTagInternal
         object: id
         type: args.type
@@ -1033,7 +1034,7 @@ doc_id_to_link = (id) ->
       if wasStuck
         return
       oplog "Help requested for", args.type, id, args.who, 'stuck'
-      body = "has requested help: #{how}"
+      body = "has requested help: #{rawhow}"
       Meteor.call 'newMessage',
         nick: args.who
         action: true
@@ -1041,7 +1042,7 @@ doc_id_to_link = (id) ->
         room_name: "#{args.type}/#{id}"
       objUrl = # see Router.urlFor
         Meteor._relativeToSiteRootUrl "/#{args.type}/#{id}"
-      body = "has requested help: #{UI._escape how} (#{pretty_collection args.type} <a class=\"#{UI._escape args.type}-link\" href=\"#{objUrl}\">#{UI._escape obj.name}</a>)"
+      body = "has requested help: #{UI._escape rawhow} (#{pretty_collection args.type} <a class=\"#{UI._escape args.type}-link\" href=\"#{objUrl}\">#{UI._escape obj.name}</a>)"
       Meteor.call 'newMessage',
         nick: args.who
         action: true
