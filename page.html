@@ -34,30 +34,7 @@ function onGoogleApiLoad() {
   {{> header }}
 
 <!-- page contents -->
-  {{#if currentPageEquals "blackboard"}}
-    {{> blackboard }}
-  {{/if}}
-  {{#if currentPageEquals "round"}}
-    {{> puzzle }}
-  {{/if}}
-  {{#if currentPageEquals "puzzle"}}
-    {{> puzzle }}
-  {{/if}}
-  {{#if currentPageEquals "chat"}}
-    {{> chat }}
-  {{/if}}
-  {{#if currentPageEquals "oplog"}}
-    {{> oplog }}
-  {{/if}}
-  {{#if currentPageEquals "callins"}}
-    {{> callins }}
-  {{/if}}
-  {{#if currentPageEquals "quip"}}
-    {{> quip }}
-  {{/if}}
-  {{#if currentPageEquals "facts"}}
-    {{> facts }}
-  {{/if}}
+  {{> Template.dynamic template=currentPage}}
 
 <!-- add footer here? -->
 </div>
