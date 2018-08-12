@@ -203,7 +203,7 @@ do ->
 # some leeway here to account for client/server time drift
 Meteor.setInterval ->
   #console.log "Removing entries older than", (UTCNow() - 5*60*1000)
-  removeBefore = model.UTCNow() - (2*PRESENCE_KEEPALIVE_MINUTES*60*1000)
+  removeBefore = model.UTCNow() - (2*model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
   model.Presence.remove timestamp: $lt: removeBefore
 , 60*1000
 # generate automatic "<nick> entered <room>" and <nick> left room" messages
