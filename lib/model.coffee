@@ -937,7 +937,7 @@ doc_id_to_link = (id) ->
       now = UTCNow()
       # disallow modifications to the following fields; use other APIs for these
       for f in ['name','canon','created','created_by','solved','solved_by',
-               'tags','rounds','round_start','puzzles','incorrectAnswers',
+               'tags','puzzles','incorrectAnswers', 'feedsInto',
                'located','located_at',
                'priv_located','priv_located_at','priv_located_order']
         delete args.fields[f]
