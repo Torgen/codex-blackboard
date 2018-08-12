@@ -24,7 +24,7 @@ describe 'setAnswer', ->
     id = model.Nicks.insert
       name: 'Torgen'
       canon: 'torgen'
-      tags: [{name: 'Real Name', canon: 'real_name', value: 'Dan Rosart', touched: 1, touched_by: 'torgen'}]
+      tags: real_name: {name: 'Real Name', value: 'Dan Rosart', touched: 1, touched_by: 'torgen'}
     chai.assert.throws ->
       Meteor.call 'setAnswer',
         type: 'nicks'
@@ -47,7 +47,7 @@ describe 'setAnswer', ->
             touched_by: 'torgen'
             solved: null
             solved_by: null
-            tags: [{name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+            tags: technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
           ret = Meteor.call 'setAnswer',
             type: type
             target: id
@@ -68,8 +68,9 @@ describe 'setAnswer', ->
             touched_by: 'cjb'
             solved: 7
             solved_by: 'cjb'
-            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
-                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+            tags:
+              answer: {name: 'Answer', value: 'bar', touched: 7, touched_by: 'cjb'}
+              technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
         
         it 'oplogs', ->
           oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
@@ -96,8 +97,9 @@ describe 'setAnswer', ->
             touched_by: 'torgen'
             solved: 2
             solved_by: 'torgen'
-            tags: [{name: 'Answer', canon: 'answer', value: 'qux', touched: 2, touched_by: 'torgen'},
-                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+            tags:
+              answer: {name: 'Answer', value: 'qux', touched: 2, touched_by: 'torgen'}
+              technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
           ret = Meteor.call 'setAnswer',
             type: type
             target: id
@@ -118,8 +120,9 @@ describe 'setAnswer', ->
             touched_by: 'cjb'
             solved: 7
             solved_by: 'cjb'
-            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
-                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+            tags:
+              answer: {name: 'Answer', value: 'bar', touched: 7, touched_by: 'cjb'}
+              technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
         
         it 'oplogs', ->
           oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
@@ -147,8 +150,9 @@ describe 'setAnswer', ->
             touched_by: 'torgen'
             solved: 2
             solved_by: 'torgen'
-            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
-                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+            tags:
+              answer: {name: 'Answer', value: 'bar', touched: 2, touched_by: 'torgen'}
+              technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
           ret = Meteor.call 'setAnswer',
             type: type
             target: id
@@ -169,8 +173,9 @@ describe 'setAnswer', ->
             touched_by: 'torgen'
             solved: 2
             solved_by: 'torgen'
-            tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
-                    {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+            tags:
+              answer: {name: 'Answer', value: 'bar', touched: 2, touched_by: 'torgen'}
+              technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
 
         it 'doesn\'t oplog', ->
           chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0
@@ -185,7 +190,7 @@ describe 'setAnswer', ->
           touched_by: 'torgen'
           solved: null
           solved_by: null
-          tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'torgen'}]
+          tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
         chai.assert.isTrue Meteor.call 'setAnswer',
           type: type
           target: id
@@ -194,9 +199,10 @@ describe 'setAnswer', ->
           backsolve: true
           provided: true
         chai.assert.deepInclude model.collection(type).findOne(id),
-          tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
-                  {name: 'Backsolve', canon: 'backsolve', value: 'yes', touched: 7, touched_by: 'cjb'},
-                  {name: 'Provided', canon: 'provided', value: 'yes', touched: 7, touched_by: 'cjb'}]
+          tags:
+            answer: {name: 'Answer', value: 'bar', touched: 7, touched_by: 'cjb'}
+            backsolve: {name: 'Backsolve', value: 'yes', touched: 7, touched_by: 'cjb'}
+            provided: {name: 'Provided', value: 'yes', touched: 7, touched_by: 'cjb'}
 
       describe 'with matching callins', ->
         id = null
@@ -212,7 +218,7 @@ describe 'setAnswer', ->
             touched_by: 'torgen'
             solved: null
             solved_by: null
-            tags: []
+            tags: {}
           cid1 = model.CallIns.insert
             type: type
             target: id

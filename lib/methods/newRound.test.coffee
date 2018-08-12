@@ -59,7 +59,7 @@ describe 'newRound', ->
         drive: 'fid'
         spreadsheet: 'sid'
         doc: 'did'
-        tags: []
+        tags: {}
 
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
@@ -83,7 +83,7 @@ describe 'newRound', ->
         drive: 'fid'
         spreadsheet: 'sid'
         doc: 'did'
-        tags: []
+        tags: {}
       id2 = Meteor.call 'newRound',
         name: 'Foo'
         who: 'cjb'

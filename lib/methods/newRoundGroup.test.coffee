@@ -53,7 +53,7 @@ describe 'newRoundGroup', ->
         solved_by: null
         rounds: ['rd1']
         incorrectAnswers: []
-        tags: []
+        tags: {}
     
     it 'has no drive', ->
       group = model.RoundGroups.findOne id 
@@ -73,7 +73,7 @@ describe 'newRoundGroup', ->
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
-        tags: []
+        tags: {}
         solved: null
         solved_by: null
         incorrectAnswers: []

@@ -461,14 +461,17 @@ Template.blackboard_round.events
 
 tagHelper = (id) ->
   isRoundGroup = ('rounds' of this)
-  { id: id, name: t.name, canon: t.canon, value: t.value } \
-    for t in (this?.tags or []) when not \
-        ((Session.equals('currentPage', 'blackboard') and \
-         (t.canon is 'status' or \
-             (!isRoundGroup and t.canon is 'answer'))) or \
-         ((t.canon is 'answer' or t.canon is 'backsolve') and \
-          (Session.equals('currentPage', 'puzzle') or \
-           Session.equals('currentPage', 'round'))))
+  tags = this?.tags or {}
+  (
+    t = tags[canon]
+    { id, name: t.name, canon, value: t.value }
+  ) for canon in Object.keys(tags).sort() when not \
+    ((Session.equals('currentPage', 'blackboard') and \
+      (canon is 'status' or \
+          (!isRoundGroup and canon is 'answer'))) or \
+      ((canon is 'answer' or canon is 'backsolve') and \
+      (Session.equals('currentPage', 'puzzle') or \
+        Session.equals('currentPage', 'round'))))
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.blackboard_puzzle_tags.helpers { tags: tagHelper }

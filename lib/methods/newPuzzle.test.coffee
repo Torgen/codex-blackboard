@@ -55,7 +55,7 @@ describe 'newPuzzle', ->
         drive: 'fid'
         spreadsheet: 'sid'
         doc: 'did'
-        tags: []
+        tags: {}
     
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
@@ -78,7 +78,7 @@ describe 'newPuzzle', ->
         drive: 'fid'
         spreadsheet: 'sid'
         doc: 'did'
-        tags: []
+        tags: {}
       id2 = Meteor.call 'newPuzzle',
         name: 'Foo'
         who: 'cjb'

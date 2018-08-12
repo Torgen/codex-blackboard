@@ -24,7 +24,7 @@ describe 'addIncorrectAnswer', ->
     id = model.Nicks.insert
       name: 'Torgen'
       canon: 'torgen'
-      tags: [{name: 'Answer', canon: 'answer', value: 'knock knock', touched: 1, touched_by: 'torgen'}]
+      tags: answer: {name: 'Answer', value: 'knock knock', touched: 1, touched_by: 'torgen'}
     chai.assert.throws ->
       Meteor.call 'addIncorrectAnswer',
         type: 'nicks'
@@ -56,7 +56,7 @@ describe 'addIncorrectAnswer', ->
             touched_by: 'torgen'
             solved: null
             solved_by: null
-            tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'torgen'}]
+            tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
             incorrectAnswers: [{answer: 'qux', who: 'torgen', timestamp: 2, backsolve: false, provided: false}]
           model.CallIns.insert
             type: type

@@ -34,7 +34,7 @@ describe 'correctCallIn', ->
           touched_by: 'cscott'
           solved: null
           solved_by: null
-          tags: []
+          tags: {}
         callin = model.CallIns.insert
           name: 'Foo:precipitate'
           type: type
@@ -51,18 +51,16 @@ describe 'correctCallIn', ->
 
       it "updates #{model.pretty_collection(type)}", ->
         doc = model.collection(type).findOne puzzle
-        chai.assert.include doc,
+        chai.assert.deepInclude doc,
           touched: 7
           touched_by: 'cjb'
           solved: 7
           solved_by: 'cjb'
-        chai.assert.lengthOf doc.tags, 1
-        chai.assert.deepInclude doc.tags[0],
-          name: 'Answer'
-          canon: 'answer'
-          value: 'precipitate'
-          touched: 7
-          touched_by: 'cjb'
+          tags: answer:
+            name: 'Answer'
+            value: 'precipitate'
+            touched: 7
+            touched_by: 'cjb'
       
       it 'removes callin', ->
         chai.assert.isUndefined model.CallIns.findOne callin
@@ -105,7 +103,7 @@ describe 'correctCallIn', ->
       touched_by: 'cscott'
       solved: null
       solved_by: null
-      tags: []
+      tags: {}
       incorrectAnswers: []
     r = model.Rounds.insert
       name: 'Bar'
@@ -117,7 +115,7 @@ describe 'correctCallIn', ->
       solved: null
       solved_by: null
       puzzles: [p]
-      tags: []
+      tags: {}
       incorrectAnswers: []
     callin = model.CallIns.insert
       name: 'Foo:precipitate'

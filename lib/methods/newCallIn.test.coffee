@@ -55,7 +55,7 @@ describe 'newCallIn', ->
             touched_by: 'cscott'
             solved: null
             solved_by: null
-            tags: []
+            tags: {}
             incorrectAnswers: []
 
         describe 'with simple callin', ->
@@ -151,7 +151,7 @@ describe 'newCallIn', ->
       touched_by: 'cscott'
       solved: null
       solved_by: null
-      tags: []
+      tags: {}
       incorrectAnswers: []
     r = model.Rounds.insert
       name: 'Bar'
@@ -163,7 +163,7 @@ describe 'newCallIn', ->
       solved: null
       solved_by: null
       puzzles: [p]
-      tags: []
+      tags: {}
       incorrectAnswers: []
     Meteor.call 'newCallIn',
       type: 'puzzles'

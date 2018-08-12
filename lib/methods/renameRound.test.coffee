@@ -50,7 +50,7 @@ describe 'renameRound', ->
         drive: 'fid'
         spreadsheet: 'sid'
         doc: 'did'
-        tags: []
+        tags: {}
       ret = Meteor.call 'renameRound',
         id: id
         name: 'Bar'
@@ -92,7 +92,7 @@ describe 'renameRound', ->
         drive: 'f1'
         spreadsheet: 's1'
         doc: 'd1'
-        tags: []
+        tags: {}
       id2 = model.Rounds.insert
         name: 'Bar'
         canon: 'bar'
@@ -107,7 +107,7 @@ describe 'renameRound', ->
         drive: 'f2'
         spreadsheet: 's2'
         doc: 'd2'
-        tags: []
+        tags: {}
       ret = Meteor.call 'renameRound',
         id: id1
         name: 'Bar'

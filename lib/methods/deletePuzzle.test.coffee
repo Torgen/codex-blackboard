@@ -43,7 +43,7 @@ describe 'deletePuzzle', ->
       solved: null
       solved_by: null
       incorrectAnswers: []
-      tags: []
+      tags: {}
       drive: 'ffoo'
       spreadsheet: 'sfoo'
       doc: 'dfoo'
@@ -58,7 +58,7 @@ describe 'deletePuzzle', ->
       solved_by: null
       puzzles: [id, 'another_puzzle']
       incorrectAnswers: []
-      tags: []
+      tags: {}
     ret = Meteor.call 'deletePuzzle',
       id: id
       who: 'cjb'
@@ -86,7 +86,7 @@ describe 'deletePuzzle', ->
       solved_by: null
       puzzles: ['another_puzzle']
       incorrectAnswers: []
-      tags: []
+      tags: {}
 
   it 'deletes drive', ->
     chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']

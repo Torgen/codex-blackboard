@@ -35,7 +35,7 @@ describe 'unsummon', ->
             touched_by: 'cjb'
             solved: null
             solved_by: null
-            tags: [{name: 'Status', canon: 'status', value: 'precipitate', touched: 2, touched_by: 'cjb'}]
+            tags: status: {name: 'Status', value: 'precipitate', touched: 2, touched_by: 'cjb'}
           ret = Meteor.call 'unsummon',
             who: 'torgen'
             type: type
@@ -48,7 +48,7 @@ describe 'unsummon', ->
           chai.assert.deepInclude model.collection(type).findOne(id),
             touched: 2
             touched_by: 'cjb'
-            tags: [{name: 'Status', canon: 'status', value: 'precipitate', touched: 2, touched_by: 'cjb'}]
+            tags: status: {name: 'Status', value: 'precipitate', touched: 2, touched_by: 'cjb'}
 
         it 'doesn\'t chat', ->
           chai.assert.lengthOf model.Messages.find(room_name: $ne: 'oplog/0').fetch(), 0
@@ -69,7 +69,7 @@ describe 'unsummon', ->
             touched_by: 'cjb'
             solved: null
             solved_by: null
-            tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'cjb'}]
+            tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'cjb'}
           ret = Meteor.call 'unsummon',
             who: 'torgen'
             type: type
@@ -82,7 +82,7 @@ describe 'unsummon', ->
           chai.assert.deepInclude model.collection(type).findOne(id),
             touched: 7
             touched_by: 'torgen'
-            tags: []
+            tags: {}
 
         it 'oplogs', ->
           chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: type, id: id}).fetch(), 1
@@ -112,7 +112,7 @@ describe 'unsummon', ->
             touched_by: 'cjb'
             solved: null
             solved_by: null
-            tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'cjb'}]
+            tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'cjb'}
           ret = Meteor.call 'unsummon',
             who: 'cjb'
             type: type
@@ -125,7 +125,7 @@ describe 'unsummon', ->
           chai.assert.deepInclude model.collection(type).findOne(id),
             touched: 7
             touched_by: 'cjb'
-            tags: []
+            tags: {}
 
         it 'oplogs', ->
           chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: type, id: id}).fetch(), 1

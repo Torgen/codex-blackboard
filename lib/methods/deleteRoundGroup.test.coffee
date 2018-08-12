@@ -46,7 +46,7 @@ describe 'deleteRoundGroup', ->
         solved_by: null
         rounds: []
         incorrectAnswers: []
-        tags: []
+        tags: {}
       ret = Meteor.call 'deleteRoundGroup',
         id: id
         who: 'cjb'
@@ -78,7 +78,7 @@ describe 'deleteRoundGroup', ->
         solved_by: null
         rounds: ['foo1', 'foo2']
         incorrectAnswers: []
-        tags: []
+        tags: {}
       ret = Meteor.call 'deleteRoundGroup',
         id: id
         who: 'cjb'

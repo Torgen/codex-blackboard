@@ -46,7 +46,7 @@ describe 'renameRoundGroup', ->
         solved_by: null
         rounds: ['yoy']
         incorrectAnswers: []
-        tags: []
+        tags: {}
       ret = Meteor.call 'renameRoundGroup',
         id: id
         name: 'Bar'
@@ -84,7 +84,7 @@ describe 'renameRoundGroup', ->
         solved: null
         solved_by: null
         incorrectAnswers: []
-        tags: []
+        tags: {}
       id2 = model.RoundGroups.insert
         name: 'Bar'
         canon: 'bar'
@@ -95,7 +95,7 @@ describe 'renameRoundGroup', ->
         solved: null
         solved_by: null
         incorrectAnswers: []
-        tags: []
+        tags: {}
       ret = Meteor.call 'renameRoundGroup',
         id: id1
         name: 'Bar'

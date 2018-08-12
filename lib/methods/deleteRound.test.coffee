@@ -47,7 +47,7 @@ describe 'deleteRound', ->
         solved_by: null
         puzzles: []
         incorrectAnswers: []
-        tags: []
+        tags: {}
         drive: 'ffoo'
         spreadsheet: 'sfoo'
         doc: 'dfoo'
@@ -62,7 +62,7 @@ describe 'deleteRound', ->
         solved_by: null
         rounds: [id, 'another_round']
         incorrectAnswers: []
-        tags: []
+        tags: {}
       ret = Meteor.call 'deleteRound',
         id: id
         who: 'cjb'
@@ -90,7 +90,7 @@ describe 'deleteRound', ->
         solved_by: null
         rounds: ['another_round']
         incorrectAnswers: []
-        tags: []
+        tags: {}
 
     it 'deletes drive', ->
       chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']
@@ -110,7 +110,7 @@ describe 'deleteRound', ->
         solved_by: null
         puzzles: ['foo1', 'foo2']
         incorrectAnswers: []
-        tags: []
+        tags: {}
       ret = Meteor.call 'deleteRound',
         id: id
         who: 'cjb'
