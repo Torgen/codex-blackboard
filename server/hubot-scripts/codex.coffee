@@ -122,22 +122,27 @@ share.hubot.codex = (robot) ->
     pname = share.botutil.strip msg.match[1]
     rname = share.botutil.strip msg.match[3]
     tname = undefined
-    if msg.match[2] is 'round'
-      tname = 'rounds'
-    else if msg.match[2] is 'meta'
-      tname = 'puzzles'
+    round = undefined
+    if rname is 'this' and not msg.match[2]
+      round = share.botutil.objectFromRoom msg
+      return unless round?
+    else
+      if msg.match[2] is 'round'
+        tname = 'rounds'
+      else if msg.match[2] is 'meta'
+        tname = 'puzzles'
+      round = Meteor.call "getByName",
+        name: rname
+        optional_type: tname
+      if not round
+        descriptor =
+          if tname
+            "a #{share.model.pretty_collection tname}"
+          else
+            'anything'
+        msg.reply useful: true, "I can't find #{descriptor} called \"#{rname}\"."
+        return
     who = msg.envelope.user.id
-    round = Meteor.call "getByName",
-      name: rname
-      optional_type: tname
-    if not round
-      descriptor =
-        if tname
-          "a #{share.model.pretty_collection tname}"
-        else
-          'anything'
-      msg.reply useful: true, "I can't find #{descriptor} called \"#{rname}\"."
-      return
     extra =
       name: pname
       who: who
@@ -260,9 +265,9 @@ share.hubot.codex = (robot) ->
     else
       target = share.botutil.objectFromRoom msg
       return unless target?
-      if target.type isnt 'puzzles'
-        msg.reply useful: true, "You need to tell me which puzzle is stuck."
-        return msg.finish()
+    unless target.type is 'puzzles'
+      msg.reply useful: true, 'Only puzzles can be stuck'
+      return msg.finish()
     result = Meteor.call 'summon',
       object: target.object._id
       how: msg.match[2]
@@ -278,22 +283,26 @@ share.hubot.codex = (robot) ->
   robot.commands.push 'but unstuck[ on <puzzle>] - marks puzzle no longer stuck on the blackboard'
   robot.respond (share.botutil.rejoin 'unstuck(?: on ',share.botutil.thingRE,')?',/$/i), (msg) ->
     if msg.match[1]?
-      target = Meteor.call 'getByName', name: msg.match[1]
+      target = Meteor.call 'getByName',
+        name: msg.match[1]
+        optional_type: 'puzzles'
       if not target?
         msg.reply useful: true, "I don't know what \"#{msg.match[1]}\" is."
         return msg.finish()
     else
       target = share.botutil.objectFromRoom msg
       return unless target?
+    unless target.type is 'puzzles'
+      msg.reply useful: true, 'Only puzzles can be stuck'
+      return msg.finish()
     result = Meteor.call 'unsummon',
-      type: target.type
       object: target.object._id
       who: msg.envelope.user.id
     if result?
       msg.reply useful: true, result
       return msg.finish()
     if msg.envelope.room isnt "general/0" and \
-       msg.envelope.room isnt "#{target.type}/#{target.object._id}"
+       msg.envelope.room isnt "puzzles/#{target.object._id}"
       msg.reply useful: true, "Call for help cancelled"
     msg.finish()
 
