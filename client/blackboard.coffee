@@ -124,46 +124,40 @@ Template.blackboard.events
   "change .bb-notification-controls [data-notification-stream]": (event, template) ->
     share.notification.set event.target.dataset.notificationStream, event.target.checked
 
+round_helper = ->
+  dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
+  model.Rounds.find {}, sort: [["sort_key", dir]]
+meta_helper = ->
+  # the following is a map() instead of a direct find() to preserve order
+  r = for id, index in this.puzzles
+    puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
+    continue unless puzzle?
+    {
+      puzzle: puzzle
+      num_puzzles: puzzle.puzzles.length
+    }
+  return r
+unassigned_helper = ->
+  for id, index in this.puzzles
+    puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
+    continue unless puzzle?
+    { puzzle: puzzle }
+
 ############## groups, rounds, and puzzles ####################
 Template.blackboard.helpers
-  rounds: ->
-    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
-    model.Rounds.find {}, sort: [["sort_key", dir]]
-  # the following is a map() instead of a direct find() to preserve order
-  metas: ->
-    r = for id, index in this.puzzles
-      puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
-      continue unless puzzle?
-      {
-        puzzle: puzzle
-        num_puzzles: puzzle.puzzles.length
-      }
-    return r
-  unassigned: ->
-    for id, index in this.puzzles
-      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
-      continue unless puzzle?
-      { puzzle: puzzle }
+  rounds: round_helper
+  metas: meta_helper
+  unassigned: unassigned_helper
 
 Template.blackboard_status_grid.helpers
-  rounds: ->
-    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
-    model.Rounds.find {}, sort: [["sort_key", dir]]
-  # the following is a map() instead of a direct find() to preserve order
-  metas: ->
-    r = for id, index in this.puzzles
-      puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
-      continue unless puzzle?
-      {
-        puzzle: puzzle
-        num_puzzles: puzzle.puzzles.length
-      }
-    return r
-  puzzles: ->
+  rounds: round_helper
+  metas: meta_helper
+  unassigned: unassigned_helper
+  puzzles: (ps) ->
     p = ({
       puzzle_num: 1 + index
       puzzle: model.Puzzles.findOne(id) or { _id: id }
-    } for id, index in @puzzle.puzzles)
+    } for id, index in ps)
     return p
   stuck: share.model.isStuck
 

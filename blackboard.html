@@ -191,11 +191,22 @@
         <td class="bb-status-grid-meta bb-status-{{#if puzzle.solved}}solved{{else if stuck round}}stuck{{else}}unsolved{{/if}}">
             {{link id=puzzle._id title="meta" text=puzzle.name}}
         </td><td class="bb-status-grid-puzzles">
-        {{#each puzzles}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+        {{#each puzzles puzzle.puzzles}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
             {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
         </div>{{/each}}</td>
       </tr>
       {{/each}}
+      {{#with unassigned}}
+        {{#if this.length}}
+        <tr>
+          <td class="bb-status-grid-meta bb-status-unsolved">Unassigned</td>
+          <td class="bb-status-grid-puzzles">
+          {{#each puzzles this}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+            {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
+          </div>{{/each}}</td>
+        </tr>
+        {{/if}}
+      {{/with}}
     {{/each}}
   </tbody>
   </table></div><!-- bb-status-grid -->
