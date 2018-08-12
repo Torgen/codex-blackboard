@@ -1,0 +1,227 @@
+'use strict'
+
+# Will access contents via share
+import '../model.coffee'
+import chai from 'chai'
+import sinon from 'sinon'
+import { resetDatabase } from 'meteor/xolvio:cleaner'
+
+model = share.model
+
+describe 'setAnswer', ->
+  clock = null
+
+  beforeEach ->
+    clock = sinon.useFakeTimers(7)
+
+  afterEach ->
+    clock.restore()
+
+  beforeEach ->
+    resetDatabase()
+
+  describe 'without answer', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        tags: [{name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+      ret = Meteor.call 'setAnswer',
+        target: id
+        who: 'cjb'
+        answer: 'bar'
+
+    it 'returns true', ->
+      chai.assert.isTrue ret
+
+    it 'modifies document', ->
+      chai.assert.deepEqual model.Puzzles.findOne(id),
+        _id: id
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 7
+        touched_by: 'cjb'
+        solved: 7
+        solved_by: 'cjb'
+        tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
+                {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+    
+    it 'oplogs', ->
+      oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+      chai.assert.equal oplogs.length, 1
+      chai.assert.include oplogs[0],
+        nick: 'cjb'
+        timestamp: 7
+        type: 'puzzles'
+        id: id
+        oplog: true
+        action: true
+        stream: 'answers'
+
+  describe 'with answer', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'torgen'
+        solved: 2
+        solved_by: 'torgen'
+        tags: [{name: 'Answer', canon: 'answer', value: 'qux', touched: 2, touched_by: 'torgen'},
+                {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+      ret = Meteor.call 'setAnswer',
+        target: id
+        who: 'cjb'
+        answer: 'bar'
+    
+    it 'returns true', ->
+      chai.assert.isTrue ret
+
+    it 'modifies document', ->
+      chai.assert.deepEqual model.Puzzles.findOne(id),
+        _id: id
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 7
+        touched_by: 'cjb'
+        solved: 7
+        solved_by: 'cjb'
+        tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
+                {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+    
+    it 'oplogs', ->
+      oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+      chai.assert.equal oplogs.length, 1
+      chai.assert.include oplogs[0],
+        nick: 'cjb'
+        timestamp: 7
+        bodyIsHtml: false
+        type: 'puzzles'
+        id: id
+        oplog: true
+        action: true
+        stream: 'answers'
+
+  describe 'with same answer', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'torgen'
+        solved: 2
+        solved_by: 'torgen'
+        tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
+                {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+      ret = Meteor.call 'setAnswer',
+        target: id
+        who: 'cjb'
+        answer: 'bar'
+
+    it 'returns false', ->
+      chai.assert.isFalse ret
+
+    it 'leaves document alone', ->
+      chai.assert.deepEqual model.Puzzles.findOne(id),
+        _id: id
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'torgen'
+        solved: 2
+        solved_by: 'torgen'
+        tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 2, touched_by: 'torgen'},
+               {name: 'Technology', canon: 'technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}]
+
+    it 'doesn\'t oplog', ->
+      chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0
+
+  it 'modifies tags', ->
+    id = model.Puzzles.insert
+      name: 'Foo'
+      canon: 'foo'
+      created: 1
+      created_by: 'cscott'
+      touched: 2
+      touched_by: 'torgen'
+      solved: null
+      solved_by: null
+      tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'torgen'}]
+    chai.assert.isTrue Meteor.call 'setAnswer',
+      target: id
+      who: 'cjb'
+      answer: 'bar'
+      backsolve: true
+      provided: true
+    chai.assert.deepInclude model.Puzzles.findOne(id),
+      tags: [{name: 'Answer', canon: 'answer', value: 'bar', touched: 7, touched_by: 'cjb'},
+             {name: 'Backsolve', canon: 'backsolve', value: 'yes', touched: 7, touched_by: 'cjb'},
+             {name: 'Provided', canon: 'provided', value: 'yes', touched: 7, touched_by: 'cjb'}]
+
+  describe 'with matching callins', ->
+    id = null
+    cid1 = null
+    cid2 = null
+    beforeEach ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'torgen'
+        solved: null
+        solved_by: null
+        tags: []
+      cid1 = model.CallIns.insert
+        target: id
+        name: 'Foo'
+        answer: 'bar'
+        created: 5
+        created_by: 'codexbot'
+        submitted_to_hq: true
+        backsolve: false
+        provided: false
+      cid2 = model.CallIns.insert
+        target: id
+        name: 'Foo'
+        answer: 'qux'
+        created: 5
+        created_by: 'codexbot'
+        submitted_to_hq: false
+        backsolve: false
+        provided: false
+      Meteor.call 'setAnswer',
+        target: id
+        who: 'cjb'
+        answer: 'bar'
+    it 'deletes callins', ->
+      chai.assert.lengthOf model.CallIns.find().fetch(), 0
+
+    it 'doesn\'t oplog for callins', ->
+      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'callins'}).fetch(), 0
+
+    it "oplogs for puzzle", ->
+      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 2

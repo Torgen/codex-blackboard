@@ -24,7 +24,7 @@ watch.mailbox ?= process.env.MAILWATCH_MAILBOX ? 'INBOX'
 watch.markSeen ?= process.env.MAILWATCH_MARK_SEEN ? true
 watch.mailParserOptions = if (mailparser_options_env = process.env.MAILWATCH_MAILPARSER_OPTIONS)? then EJSON.parse(mailparser_options_env) else { streamAttachments: true }
 
-return unless share.model.DO_BATCH_PROCESSING and watch.username and watch.password
+return unless share.DO_BATCH_PROCESSING and watch.username and watch.password
 mailListener = new MailListener
   username: watch.username
   password: watch.password

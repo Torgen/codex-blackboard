@@ -14,6 +14,6 @@ db.default.forEach (entry) ->
 # on client-side to render these?  But for server-side storage
 # and chat bandwidth, definitely better to have direct unicode
 # stored in the DB.
-share.emojify = (s) ->
+export default emojify = (s) ->
   s.replace /:([+]?[-a-z0-9_]+):/g, (full, name) ->
    emojiMap.get(name) or full

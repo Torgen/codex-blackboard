@@ -157,7 +157,7 @@ class BlackboardAdapter extends Hubot.Adapter
   # Returns nothing.
   close: ->
 
-return unless model.DO_BATCH_PROCESSING
+return unless share.DO_BATCH_PROCESSING
 IGNORED_NICKS =
   'codexbot': true
   '': true

@@ -265,7 +265,7 @@ share.hubot.codex = (robot) ->
         return msg.finish()
     result = Meteor.call 'summon',
       object: target.object._id
-      value: msg.match[2]
+      how: msg.match[2]
       who: msg.envelope.user.id
     if result?
       msg.reply useful: true, result
