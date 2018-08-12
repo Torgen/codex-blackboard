@@ -41,7 +41,11 @@ describe 'drive', ->
   afterEach ->
     sinon.verifyAndRestore()
 
-  # TODO(torgen): test (indirectly) apiThrottle
+  it 'propagates errors', ->
+    sinon.replace share, 'DO_BATCH_PROCESSING', false
+    gapi.expects('exec').once().throws code: 400
+    chai.assert.throws ->
+      new Drive api
 
   it 'creates folder when batch is enabled', ->
     sinon.replace share, 'DO_BATCH_PROCESSING', true
@@ -111,6 +115,22 @@ describe 'drive', ->
         parents: [id: 'hunt']
       ]
       drive = new Drive api
+
+    it 'retries on throttle', ->
+      gapi.expects('exec').withArgs api.children, 'list', sinon.match
+        folderId: 'hunt'
+        q: 'title=\'New Puzzle\''
+        maxResults: 1
+      .exactly(8).callsFake ->
+        process.nextTick -> clock.next()
+        throw
+          code: 403
+          errors: [
+            domain: 'usageLimits'
+            reason: 'userRateLimitExceeded'
+          ]
+      chai.assert.throws ->
+        drive.createPuzzle 'New Puzzle'
 
     describe 'createPuzzle', ->
       it 'creates', ->
