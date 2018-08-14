@@ -42,10 +42,11 @@ throttle = (func, wait = 0) ->
       Meteor.setTimeout(run, 0)
 
 if Meteor.settings.migrateTags
-  Meteor.startup ->
-    ['roundgroups', 'rounds', 'puzzles', 'nicks'].forEach (c) ->
-      model.collection(c).find(tags: $type: 4).forEach (o) ->
-        model.collection(c).update o._id, tags: $set: canonicalTags(o.tags, 'codexbot')
+  ['roundgroups', 'rounds', 'puzzles', 'nicks'].forEach (c) ->
+    model.collection(c).find().forEach (o) ->
+      return unless o.tags instanceof Array
+      console.log 'migrating', model.pretty_collection(c), o._id
+      model.collection(c).update o._id, $set: tags: canonicalTags(o.tags, 'codexbot')
 
 
 # Round groups
