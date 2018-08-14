@@ -752,7 +752,7 @@ doc_id_to_link = (id) ->
       newObject "nicks",
         name: args.name
         who: args.name
-        tags: canonicalTags(args.tags or [], args.name)
+        tags: args.tags
       , {}, {suppressLog:true}
     renameNick: (args) ->
       renameObject "nicks", args, {suppressLog:true}
