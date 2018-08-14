@@ -2,7 +2,7 @@
 return unless share.DO_BATCH_PROCESSING
 
 import canonical from '../lib/imports/canonical.coffee'
-import { getTag } from '../lib/imports/tags.coffee'
+import { canonicalTags, getTag } from '../lib/imports/tags.coffee'
 
 model = share.model
 
@@ -40,6 +40,13 @@ throttle = (func, wait = 0) ->
     else
       running = true
       Meteor.setTimeout(run, 0)
+
+if Meteor.settings.migrateTags
+  Meteor.startup ->
+    ['roundgroups', 'rounds', 'puzzles', 'nicks'].forEach (c) ->
+      model.collection(c).find(tags: $type: 4).forEach (o) ->
+        model.collection(c).update o._id, tags: $set: canonicalTags(o.tags, 'codexbot')
+
 
 # Round groups
 updateRoundStart = ->
