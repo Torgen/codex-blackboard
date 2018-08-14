@@ -58,7 +58,7 @@ describe 'deletePuzzle', ->
       solved: null
       solved_by: null
       incorrectAnswers: []
-      tags: []
+      tags: {}
       puzzles: [id]
       drive: 'fmeta'
       spreadsheet: 'smeta'
@@ -99,7 +99,7 @@ describe 'deletePuzzle', ->
       solved: null
       solved_by: null
       puzzles: [meta]
-      tags: []
+      tags: {}
 
   it 'removes puzzle from meta', ->
     chai.assert.deepEqual model.Puzzles.findOne(meta),

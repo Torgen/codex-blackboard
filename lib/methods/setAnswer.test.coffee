@@ -200,7 +200,7 @@ describe 'setAnswer', ->
         touched_by: 'torgen'
         solved: null
         solved_by: null
-        tags: []
+        tags: {}
       cid1 = model.CallIns.insert
         target: id
         name: 'Foo'

@@ -49,18 +49,16 @@ describe 'correctCallIn', ->
 
   it "updates puzzle", ->
     doc = model.Puzzles.findOne puzzle
-    chai.assert.include doc,
+    chai.assert.deepInclude doc,
       touched: 7
       touched_by: 'cjb'
       solved: 7
       solved_by: 'cjb'
-    chai.assert.lengthOf doc.tags, 1
-    chai.assert.deepInclude doc.tags[0],
-      name: 'Answer'
-      canon: 'answer'
-      value: 'precipitate'
-      touched: 7
-      touched_by: 'cjb'
+      tags: answer: 
+        name: 'Answer'
+        value: 'precipitate'
+        touched: 7
+        touched_by: 'cjb'
   
   it 'removes callin', ->
     chai.assert.isUndefined model.CallIns.findOne callin
