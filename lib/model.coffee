@@ -53,7 +53,7 @@ LastAnswer = BBCollection.last_answer = \
 #   solved_by:  timestamp of Nick who confirmed the answer
 #   incorrectAnswers: [ { answer: "Wrong", who: "answer submitter",
 #                         backsolve: ..., provided: ..., timestamp: ... }, ... ]
-#   tags: [ { name: "Status", canon: "status", value: "stuck" }, ... ]
+#   tags: status: { name: "Status", value: "stuck" }, ... 
 #   puzzles: [ array of puzzle _ids, in order ]
 #            Preserving order is why this is a list here and not a foreign key
 #            in the puzzle.
@@ -77,7 +77,7 @@ if Meteor.isServer
 #   solved_by:  timestamp of Nick who confirmed the answer
 #   incorrectAnswers: [ { answer: "Wrong", who: "answer submitter",
 #                         backsolve: ..., provided: ..., timestamp: ... }, ... ]
-#   tags: [ { name: "Status", canon: "status", value: "stuck" }, ... ]
+#   tags: status: { name: "Status", value: "stuck" }, ... 
 #   drive: optional google drive folder id
 #   spreadsheet: optional google spreadsheet id
 #   doc: optional google doc id
@@ -133,7 +133,7 @@ if Meteor.isServer
 #     The server throttles the updates from priv_located* to located* to
 #     prevent a N^2 blowup as everyone gets updates from everyone else
 #   priv_located_order: FIFO queue for location updates
-#   tags: [ { name: "Real Name", canon: "real_name", value: "C. Scott Ananian" }, ... ]
+#   tags: real_name: { name: "Real Name", value: "C. Scott Ananian" }, ... 
 # valid tags include "Real Name", "Gravatar" (email address to use for photos)
 Nicks = BBCollection.nicks = new Mongo.Collection "nicks"
 if Meteor.isServer
@@ -343,59 +343,25 @@ doc_id_to_link = (id) ->
     collection(type).remove(args.id)
     return true
 
-  setTagInternal = (args) ->
+  setTagInternal = (updateDoc, args) ->
     check args, ObjectWith
-      type: ValidType
-      object: IdOrObject
       name: NonEmptyString
       value: Match.Any
       who: NonEmptyString
       now: Number
-    id = args.object._id or args.object
-    now = args.now
-    canon = canonical(args.name)
-    loop
-      tags = collection(args.type).findOne(id).tags
-      # remove existing value for tag, if present
-      ntags = (tag for tag in tags when tag.canon isnt canon)
-      # add new tag, but keep tags sorted
-      ntags.push
-        name:args.name
-        canon:canon
-        value:args.value
-        touched: now
-        touched_by: canonical(args.who)
-      ntags.sort (a, b) -> (a?.canon or "").localeCompare (b?.canon or "")
-      # update the tag set only if there wasn't a race
-      numchanged = collection(args.type).update { _id: id, tags: tags }, $set:
-        tags: ntags
-        touched: now
-        touched_by: canonical(args.who)
-      # try again if this update failed due to a race (server only)
-      break unless Meteor.isServer and numchanged is 0
-    return true
+    updateDoc.$set ?= {}
+    updateDoc.$set["tags.#{canonical(args.name)}"] = 
+      name: args.name
+      value: args.value
+      touched: args.now
+      touched_by: canonical(args.who)
+    true
 
-  deleteTagInternal = (args) ->
-    check args, ObjectWith
-      type: ValidType
-      object: IdOrObject
-      name: NonEmptyString
-      who: NonEmptyString
-      now: Number
-    id = args.object._id or args.object
-    now = args.now
-    canon = canonical(args.name)
-    loop
-      tags = collection(args.type).findOne(id).tags
-      ntags = (tag for tag in tags when tag.canon isnt canon)
-      # update the tag set only if there wasn't a race
-      numchanged = collection(args.type).update { _id: id, tags: tags }, $set:
-        tags: ntags
-        touched: now
-        touched_by: canonical(args.who)
-      # try again if this update failed due to a race (server only)
-      break unless Meteor.isServer and numchanged is 0
-    return true
+  deleteTagInternal = (updateDoc, name) ->
+    check name, NonEmptyString
+    updateDoc.$unset ?= {}
+    updateDoc.$unset["tags.#{canonical(name)}"] = ''
+    true
 
   newDriveFolder = (id, name) ->
     check id, NonEmptyString
@@ -778,7 +744,7 @@ doc_id_to_link = (id) ->
       newObject "nicks",
         name: args.name
         who: args.name
-        tags: canonicalTags(args.tags or [], args.name)
+        tags: args.tags
       , {}, {suppressLog:true}
     renameNick: (args) ->
       renameObject "nicks", args, {suppressLog:true}
@@ -949,6 +915,10 @@ doc_id_to_link = (id) ->
     setTag: (args) ->
       check args, ObjectWith
         name: NonEmptyString
+        type: ValidType
+        object: IdOrObject
+        value: NonEmptyString
+        who: NonEmptyString
       # bail to setAnswer/deleteAnswer if this is the 'answer' tag.
       if canonical(args.name) is 'answer'
         return Meteor.call (if args.value then "setAnswer" else "deleteAnswer"),
@@ -960,11 +930,20 @@ doc_id_to_link = (id) ->
         args.fields = { link: args.value }
         return Meteor.call 'setField', args
       args.now = UTCNow() # don't let caller lie about the time
-      return setTagInternal args
+      updateDoc = $set:
+        touched: args.now
+        touched_by: canonical(args.who)
+      id = args.object._id or args.object
+      setTagInternal updateDoc, args
+      0 < collection(args.type).update id, updateDoc
 
     deleteTag: (args) ->
       check args, ObjectWith
         name: NonEmptyString
+        type: ValidType
+        object: IdOrObject
+        who: NonEmptyString
+      id = args.object._id or args.object
       # bail to deleteAnswer if this is the 'answer' tag.
       if canonical(args.name) is 'answer'
         return Meteor.call "deleteAnswer",
@@ -975,7 +954,11 @@ doc_id_to_link = (id) ->
         args.fields = { link: null }
         return Meteor.call 'setField', args
       args.now = UTCNow() # don't let caller lie about the time
-      return deleteTagInternal args
+      updateDoc = $set:
+        touched: args.now
+        touched_by: canonical(args.who)
+      deleteTagInternal updateDoc, args.name
+      0 < collection(args.type).update id, updateDoc
 
     summon: (args) ->
       check args, ObjectWith
@@ -991,14 +974,14 @@ doc_id_to_link = (id) ->
       wasStuck = isStuck obj
       rawhow = args.how or 'Stuck'
       how = if rawhow.toLowerCase().startsWith('stuck') then rawhow else "Stuck: #{rawhow}"
-      setTagInternal
+      Meteor.call 'setTag',
         object: id
         type: 'puzzles'
         name: 'Status'
         value: how
         who: args.who
         now: UTCNow()
-      if wasStuck
+      if isStuck obj
         return
       oplog "Help requested for", 'puzzles', id, args.who, 'stuck'
       body = "has requested help: #{rawhow}"
@@ -1028,8 +1011,8 @@ doc_id_to_link = (id) ->
       if not (isStuck obj)
         return "puzzle #{obj.name} isn't stuck"
       oplog "Help request cancelled for", 'puzzles', id, args.who
-      sticker = (tag.touched_by for tag in obj.tags when tag.canon is 'status')?[0] or 'nobody'
-      deleteTagInternal
+      sticker = obj.tags.status?.touched_by
+      Meteor.call 'deleteTag',
         object: id
         type: 'puzzles'
         name: 'status'
@@ -1089,46 +1072,43 @@ doc_id_to_link = (id) ->
       id = args.target._id or args.target
 
       # Only perform the update and oplog if the answer is changing
-      oldAnswer = (tag for tag in Puzzles.findOne(id).tags \
-                      when tag.canon is 'answer')[0]?.value
+      oldAnswer = Puzzles.findOne(id)?.tags.answer?.value
       if oldAnswer is args.answer
         return false
 
       now = UTCNow()
-      setTagInternal
-        type: 'puzzles'
-        object: args.target
-        name: 'Answer'
-        value: args.answer
-        who: args.who
-        now: now
-      deleteTagInternal
-        type: 'puzzles'
-        object: args.target
-        name: 'status'
-        who: args.who
-        now: now
-      if args.backsolve
-        setTagInternal
-          type: 'puzzles'
-          object: args.target
-          name: 'Backsolve'
-          value: 'yes'
-          who: args.who
-          now: now
-      if args.provided
-        setTagInternal
-          type: 'puzzles'
-          object: args.target
-          name: 'Provided'
-          value: 'yes'
-          who: args.who
-          now: now
-      Puzzles.update id, $set:
+      updateDoc = $set:
         solved: now
         solved_by: canonical(args.who)
         touched: now
         touched_by: canonical(args.who)
+      setTagInternal updateDoc,
+        name: 'Answer'
+        value: args.answer
+        who: args.who
+        now: now
+      deleteTagInternal updateDoc, 'status'
+      if args.backsolve
+        setTagInternal updateDoc,
+          name: 'Backsolve'
+          value: 'yes'
+          who: args.who
+          now: now
+      else
+        deleteTagInternal updateDoc, 'Backsolve'
+      if args.provided
+        setTagInternal updateDoc,
+          name: 'Provided'
+          value: 'yes'
+          who: args.who
+          now: now
+      else
+        deleteTagInternal updateDoc, 'Provided'
+      updated = Puzzles.update
+        _id: id
+        'tags.answer.value': $ne: args.answer
+      , updateDoc
+      return false if updated is 0
       oplog "Found an answer (#{args.answer.toUpperCase()}) to", 'puzzles', id, args.who, 'answers'
       # cancel any entries on the call-in queue for this puzzle
       for c in CallIns.find(target: id).fetch()
@@ -1174,30 +1154,15 @@ doc_id_to_link = (id) ->
         who: NonEmptyString
       id = args.target._id or args.target
       now = UTCNow()
-      # TODO(Torgen): Use $pullAll to remove these.
-      deleteTagInternal
-        type: 'puzzles'
-        object: args.target
-        name: 'Answer'
-        who: args.who
-        now: now
-      deleteTagInternal
-        type: 'puzzles'
-        object: args.target
-        name: 'Backsolve'
-        who: args.who
-        now: now
-      deleteTagInternal
-        type: 'puzzles'
-        object: args.target
-        name: 'Provided'
-        who: args.who
-        now: now
-      Puzzles.update id, $set:
+      updateDoc = $set:
         solved: null
         solved_by: null
         touched: now
         touched_by: canonical(args.who)
+      deleteTagInternal updateDoc, 'answer'
+      deleteTagInternal updateDoc, 'backsolve'
+      deleteTagInternal updateDoc, 'provided'
+      Puzzles.update id, updateDoc
       oplog "Deleted answer for", 'puzzles', id, args.who
       return true
 

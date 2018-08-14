@@ -33,7 +33,7 @@ describe 'summon', ->
         touched_by: 'cjb'
         solved: 2
         solved_by: 'cjb'
-        tags: [{name: 'Answer', canon: 'answer', value: 'precipitate', touched: 2, touched_by: 'cjb'}]
+        tags: answer: {name: 'Answer', value: 'precipitate', touched: 2, touched_by: 'cjb'}
       ret = Meteor.call 'summon',
         who: 'torgen'
         object: id
@@ -47,7 +47,7 @@ describe 'summon', ->
         touched_by: 'cjb'
         solved: 2
         solved_by: 'cjb'
-        tags: [{name: 'Answer', canon: 'answer', value: 'precipitate', touched: 2, touched_by: 'cjb'}]
+        tags: answer: {name: 'Answer', value: 'precipitate', touched: 2, touched_by: 'cjb'}
 
     it 'doesn\'t chat', ->
       chai.assert.lengthOf model.Messages.find(room_name: $ne: 'oplog/0').fetch(), 0
@@ -68,7 +68,7 @@ describe 'summon', ->
         touched_by: 'cjb'
         solved: null
         solved_by: null
-        tags: [{name: 'Status', canon: 'status', value: 'Stuck on you', touched: 2, touched_by: 'cjb'}]
+        tags: status: {name: 'Status', value: 'Stuck on you', touched: 2, touched_by: 'cjb'}
       ret = Meteor.call 'summon',
         who: 'torgen'
         object: id
@@ -80,7 +80,7 @@ describe 'summon', ->
       chai.assert.deepInclude model.Puzzles.findOne(id),
         touched: 7
         touched_by: 'torgen'
-        tags: [{name: 'Status', canon: 'status', value: 'Stuck like glue', touched: 7, touched_by: 'torgen'}]
+        tags: status: {name: 'Status', value: 'Stuck like glue', touched: 7, touched_by: 'torgen'}
 
     it 'doesn\'t chat', ->
       chai.assert.lengthOf model.Messages.find(room_name: $ne: 'oplog/0').fetch(), 0
@@ -101,7 +101,7 @@ describe 'summon', ->
         touched_by: 'cjb'
         solved: null
         solved_by: null
-        tags: [{name: 'Status', canon: 'status', value: 'everything is fine', touched: 2, touched_by: 'cjb'}]
+        tags: status: {name: 'Status', value: 'everything is fine', touched: 2, touched_by: 'cjb'}
       ret = Meteor.call 'summon',
         who: 'torgen'
         object: id
@@ -113,7 +113,7 @@ describe 'summon', ->
       chai.assert.deepInclude model.Puzzles.findOne(id),
         touched: 7
         touched_by: 'torgen'
-        tags: [{name: 'Status', canon: 'status', value: 'Stuck like glue', touched: 7, touched_by: 'torgen'}]
+        tags: status: {name: 'Status', value: 'Stuck like glue', touched: 7, touched_by: 'torgen'}
 
     it 'notifies main chat', ->
       msgs = model.Messages.find(room_name: 'general/0').fetch()
@@ -121,7 +121,7 @@ describe 'summon', ->
       chai.assert.include msgs[0].body, ': Stuck like glue ('
       chai.assert.include msgs[0].body, 'Foo'
 
-    it "notifies #{model.pretty_Puzzles} chat", ->
+    it "notifies puzzle chat", ->
       msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
       chai.assert.lengthOf msgs, 1
       chai.assert.include msgs[0].body, ': Stuck like glue'
@@ -141,7 +141,7 @@ describe 'summon', ->
         touched_by: 'cjb'
         solved: null
         solved_by: null
-        tags: []
+        tags: {}
     describe 'empty how', ->
       ret = null
       beforeEach ->
@@ -156,7 +156,7 @@ describe 'summon', ->
         chai.assert.deepInclude model.Puzzles.findOne(id),
           touched: 7
           touched_by: 'torgen'
-          tags: [{name: 'Status', canon: 'status', value: 'Stuck', touched: 7, touched_by: 'torgen'}]
+          tags: status: {name: 'Status', value: 'Stuck', touched: 7, touched_by: 'torgen'}
 
       it 'notifies main chat', ->
         msgs = model.Messages.find(room_name: 'general/0').fetch()
@@ -164,7 +164,7 @@ describe 'summon', ->
         chai.assert.include msgs[0].body, ': Stuck ('
         chai.assert.include msgs[0].body, 'Foo'
 
-      it "notifies #{model.pretty_Puzzles} chat", ->
+      it "notifies puzzle chat", ->
         msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': Stuck'
@@ -188,7 +188,7 @@ describe 'summon', ->
         chai.assert.deepInclude model.Puzzles.findOne(id),
           touched: 7
           touched_by: 'torgen'
-          tags: [{name: 'Status', canon: 'status', value: 'stucK like glue', touched: 7, touched_by: 'torgen'}]
+          tags: status: {name: 'Status', value: 'stucK like glue', touched: 7, touched_by: 'torgen'}
 
       it 'notifies main chat', ->
         msgs = model.Messages.find(room_name: 'general/0').fetch()
@@ -196,7 +196,7 @@ describe 'summon', ->
         chai.assert.include msgs[0].body, ': stucK like glue ('
         chai.assert.include msgs[0].body, 'Foo'
 
-      it "notifies #{model.pretty_Puzzles} chat", ->
+      it "notifies puzzle chat", ->
         msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': stucK like glue'
@@ -220,7 +220,7 @@ describe 'summon', ->
         chai.assert.deepInclude model.Puzzles.findOne(id),
           touched: 7
           touched_by: 'torgen'
-          tags: [{name: 'Status', canon: 'status', value: 'Stuck: no idea', touched: 7, touched_by: 'torgen'}]
+          tags: status: {name: 'Status', value: 'Stuck: no idea', touched: 7, touched_by: 'torgen'}
 
       it 'notifies main chat', ->
         msgs = model.Messages.find(room_name: 'general/0').fetch()
@@ -229,7 +229,7 @@ describe 'summon', ->
         chai.assert.notInclude msgs[0].body, 'Stuck'
         chai.assert.include msgs[0].body, 'Foo'
 
-      it "notifies #{model.pretty_Puzzles} chat", ->
+      it "notifies puzzle chat", ->
         msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': no idea'

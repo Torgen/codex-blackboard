@@ -40,7 +40,7 @@ describe 'addIncorrectAnswer', ->
         touched_by: 'torgen'
         solved: null
         solved_by: null
-        tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'torgen'}]
+        tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
         incorrectAnswers: [{answer: 'qux', who: 'torgen', timestamp: 2, backsolve: false, provided: false}]
       model.CallIns.insert
         target: id

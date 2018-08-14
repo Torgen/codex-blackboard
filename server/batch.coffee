@@ -2,7 +2,7 @@
 return unless share.DO_BATCH_PROCESSING
 
 import canonical from '../lib/imports/canonical.coffee'
-import { getTag } from '../lib/imports/tags.coffee'
+import { canonicalTags, getTag } from '../lib/imports/tags.coffee'
 
 model = share.model
 
@@ -12,9 +12,6 @@ model = share.model
 
 # how many chats in a page?
 MESSAGE_PAGE = 100
-
-# migrate old documents with different 'answer' representation
-MIGRATE_ANSWERS = false
 
 # move pages of messages to oldmessages collection
 MOVE_OLD_PAGES = true
@@ -44,6 +41,14 @@ throttle = (func, wait = 0) ->
       running = true
       Meteor.setTimeout(run, 0)
 
+if Meteor.settings.migrateTags
+  ['roundgroups', 'rounds', 'puzzles', 'nicks'].forEach (c) ->
+    model.collection(c).find().forEach (o) ->
+      return unless o.tags instanceof Array
+      console.log 'migrating', model.pretty_collection(c), o._id
+      model.collection(c).update o._id, $set: tags: canonicalTags(o.tags, 'codexbot')
+
+
 # Round groups
 updateRoundStart = ->
   round_start = 0
@@ -64,48 +69,6 @@ model.RoundGroups.find({}).observeChanges
   removed: (id, fields) -> queueUpdateRoundStart()
   changed: (id, fields) ->
     queueUpdateRoundStart() if 'created' of fields or 'rounds' of fields
-
-# Rounds
-if MIGRATE_ANSWERS
-  # migrate objects -- rename 'Meta answer' tag to 'Answer'
-  Meteor.startup ->
-    model.Rounds.find({}).forEach (r) ->
-      answer = getTag(r, 'Meta Answer')
-      return unless answer?
-      console.log 'Migrating round', r.name
-      tweak = (tag) ->
-        name = if tag.canon is 'meta_answer' then 'Answer' else tag.name
-        return {
-          name: name
-          canon: canonical(name)
-          value: tag.value
-          touched: tag.touched ? r.created
-          touched_by: tag.touched_by ? r.created_by
-        }
-      ntags = (tweak(tag) for tag in r.tags)
-      ntags.sort (a, b) -> (a?.canon or "").localeCompare (b?.canon or "")
-      [solved, solved_by] = [null, null]
-      ntags.forEach (tag) -> if tag.canon is canonical('Answer')
-        [solved, solved_by] = [tag.touched, tag.touched_by]
-      model.Rounds.update r._id, $set:
-        tags: ntags
-        incorrectAnswers: []
-        solved: solved
-        solved_by: solved_by
-
-# Puzzles
-if MIGRATE_ANSWERS
-  # migrate objects -- we used to have an `answer` field in Puzzles.
-  Meteor.startup ->
-    model.Puzzles.find(answer: { $exists: true, $ne: null }).forEach (p) ->
-      console.log 'Migrating puzzle', p.name
-      update = {$set: {solved: p.solved}, $unset: {answer: ''}}
-      Meteor.call "setAnswer",
-        type: 'puzzles'
-        target: p._id
-        answer: p.answer
-        who: p.solved_by
-      model.Puzzles.update p._id, update
 
 # Nicks: synchronize priv_located* with located* at a throttled rate.
 # order by priv_located_order, which we'll clear when we apply the update

@@ -45,8 +45,7 @@ describe 'deleteRound', ->
         solved: null
         solved_by: null
         puzzles: []
-        incorrectAnswers: []
-        tags: []
+        tags: {}
       ret = Meteor.call 'deleteRound',
         id: id
         who: 'cjb'
@@ -74,8 +73,7 @@ describe 'deleteRound', ->
         solved: null
         solved_by: null
         puzzles: ['foo1', 'foo2']
-        incorrectAnswers: []
-        tags: []
+        tags: {}
       ret = Meteor.call 'deleteRound',
         id: id
         who: 'cjb'

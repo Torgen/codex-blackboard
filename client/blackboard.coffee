@@ -328,15 +328,13 @@ processBlackboardEdit =
     n = model.Names.findOne(id)
     if text is null # delete tag
       return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon, who:who}
-    tags = model.collection(n.type).findOne(id).tags
-    t = (tag for tag in tags when tag.canon is canon)[0]
+    t = model.collection(n.type).findOne(id).tags[canon]
     Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value, who:who}, (error,result) ->
-      if (t.canon isnt model.canonical(text)) and (not error)
+      if (canon isnt model.canonical(text)) and (not error)
         Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name, who:who}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)
-    tags = model.collection(n.type).findOne(id).tags
-    t = (tag for tag in tags when tag.canon is canon)[0]
+    t = model.collection(n.type).findOne(id).tags[canon]
     # special case for 'status' tag, which might not previously exist
     for special in ['Status', 'Answer']
       if (not t) and canon is model.canonical(special)
@@ -516,6 +514,20 @@ Template.blackboard_puzzle.events
       Meteor.call 'moveWithinMeta', dragdata.id, meta._id, args
     else if round?
       Meteor.call 'moveWithinRound', dragdata.id, round._id, args
+
+tagHelper = (id) ->
+  isRoundGroup = ('rounds' of this)
+  tags = this?.tags or {}
+  (
+    t = tags[canon]
+    { id, name: t.name, canon, value: t.value }
+  ) for canon in Object.keys(tags).sort() when not \
+    ((Session.equals('currentPage', 'blackboard') and \
+      (canon is 'status' or \
+          (!isRoundGroup and canon is 'answer'))) or \
+      ((canon is 'answer' or canon is 'backsolve') and \
+      (Session.equals('currentPage', 'puzzle') or \
+        Session.equals('currentPage', 'round'))))
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }

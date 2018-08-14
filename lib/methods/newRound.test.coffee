@@ -52,7 +52,7 @@ describe 'newRound', ->
         touched_by: 'torgen'
         puzzles: []
         link: 'https://puzzlehunt.mit.edu/foo'
-        tags: []
+        tags: {}
       ['solved', 'solved_by', 'incorrectAnswers', 'drive', 'spreadsheet', 'doc'].forEach (prop) =>
         chai.assert.notProperty round, prop
 
@@ -72,7 +72,7 @@ describe 'newRound', ->
         touched_by: 'torgen'
         puzzles: ['yoy']
         link: 'https://puzzlehunt.mit.edu/foo'
-        tags: []
+        tags: {}
       id2 = Meteor.call 'newRound',
         name: 'Foo'
         who: 'cjb'

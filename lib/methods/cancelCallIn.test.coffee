@@ -32,7 +32,7 @@ describe 'cancelCallIn', ->
       touched_by: 'cscott'
       solved: null
       solved_by: null
-      tags: []
+      tags: {}
     callin = model.CallIns.insert
       name: 'Foo:precipitate'
       target: puzzle

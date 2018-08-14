@@ -65,7 +65,7 @@ describe 'newPuzzle', ->
         drive: 'fid'
         spreadsheet: 'sid'
         doc: 'did'
-        tags: []
+        tags: {}
 
     it 'adds puzzle to round', ->
       chai.assert.deepInclude model.Rounds.findOne(round),
@@ -95,7 +95,7 @@ describe 'newPuzzle', ->
         drive: 'fid'
         spreadsheet: 'sid'
         doc: 'did'
-        tags: []
+        tags: {}
       round = model.Rounds.insert
         name: 'Round'
         canon: 'round'

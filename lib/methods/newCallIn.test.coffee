@@ -40,7 +40,7 @@ describe 'newCallIn', ->
         touched_by: 'cscott'
         solved: null
         solved_by: null
-        tags: []
+        tags: {}
         incorrectAnswers: []
         feedsInto: []
 
@@ -131,7 +131,7 @@ describe 'newCallIn', ->
       touched_by: 'cscott'
       solved: null
       solved_by: null
-      tags: []
+      tags: {}
       incorrectAnswers: []
       feedsInto: []
     p = model.Puzzles.insert
@@ -143,7 +143,7 @@ describe 'newCallIn', ->
       touched_by: 'cscott'
       solved: null
       solved_by: null
-      tags: []
+      tags: {}
       incorrectAnswers: []
       feedsInto: [meta]
     model.Puzzles.update meta, $push: puzzles: p
@@ -155,7 +155,7 @@ describe 'newCallIn', ->
       touched: 2
       touched_by: 'cscott'
       puzzles: [meta, p]
-      tags: []
+      tags: {}
     Meteor.call 'newCallIn',
       target: p
       answer: 'precipitate'

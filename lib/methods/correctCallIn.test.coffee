@@ -32,7 +32,7 @@ describe 'correctCallIn', ->
       touched_by: 'cscott'
       solved: null
       solved_by: null
-      tags: []
+      tags: {}
       feedsInto: []
     callin = model.CallIns.insert
       name: 'Foo:precipitate'
@@ -103,7 +103,7 @@ describe 'correctCallIn', ->
       touched_by: 'cscott'
       solved: null
       solved_by: null
-      tags: []
+      tags: {}
       incorrectAnswers: []
       feedsInto: []
       puzzles: [puzzle]

@@ -44,7 +44,7 @@ describe 'deletePuzzle', ->
       solved: null
       solved_by: null
       incorrectAnswers: []
-      tags: []
+      tags: {}
       drive: 'ffoo'
       spreadsheet: 'sfoo'
       doc: 'dfoo'
@@ -73,7 +73,7 @@ describe 'deletePuzzle', ->
       solved: null
       solved_by: null
       puzzles: [id, meta]
-      tags: []
+      tags: {}
     ret = Meteor.call 'deletePuzzle',
       id: id
       who: 'cjb'
@@ -114,7 +114,7 @@ describe 'deletePuzzle', ->
       solved_by: null
       incorrectAnswers: []
       puzzles: []
-      tags: []
+      tags: {}
       drive: 'fmeta'
       spreadsheet: 'smeta'
       doc: 'dmeta'

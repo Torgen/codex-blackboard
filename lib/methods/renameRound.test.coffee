@@ -32,7 +32,7 @@ describe 'renameRound', ->
         touched_by: 'torgen'
         puzzles: ['yoy']
         link: 'https://puzzlehunt.mit.edu/foo'
-        tags: []
+        tags: {}
       ret = Meteor.call 'renameRound',
         id: id
         name: 'Bar'
@@ -65,7 +65,7 @@ describe 'renameRound', ->
         touched: 1
         touched_by: 'torgen'
         link: 'https://puzzlehunt.mit.edu/foo'
-        tags: []
+        tags: {}
       id2 = model.Rounds.insert
         name: 'Bar'
         canon: 'bar'
@@ -74,7 +74,7 @@ describe 'renameRound', ->
         touched: 2
         touched_by: 'cscott'
         link: 'https://puzzlehunt.mit.edu/foo'
-        tags: []
+        tags: {}
       ret = Meteor.call 'renameRound',
         id: id1
         name: 'Bar'

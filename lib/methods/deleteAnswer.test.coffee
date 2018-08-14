@@ -30,7 +30,7 @@ describe 'deleteAnswer', ->
       touched_by: 'torgen'
       solved: null
       solved_by: null
-      tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'torgen'}]
+      tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
     Meteor.call 'deleteAnswer',
       target: id,
       who: 'cjb'
@@ -45,7 +45,7 @@ describe 'deleteAnswer', ->
       touched_by: 'cjb'
       solved: null
       solved_by: null
-      tags: [{name: 'Status', canon: 'status', value: 'stuck', touched: 2, touched_by: 'torgen'}]
+      tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
     oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
     chai.assert.equal oplogs.length, 1
     chai.assert.include oplogs[0],
@@ -72,8 +72,9 @@ describe 'deleteAnswer', ->
       touched_by: 'torgen'
       solved: 2
       solved_by: 'torgen'
-      tags: [{name: 'Answer', canon: 'answer', value: 'foo', touched: 2, touched_by: 'torgen'},
-            {name: 'Temperature', canon: 'temperature', value: '12', touched: 2, touched_by: 'torgen'}]
+      tags:
+        answer: {name: 'Answer', value: 'foo', touched: 2, touched_by: 'torgen'}
+        temperature: {name: 'Temperature', value: '12', touched: 2, touched_by: 'torgen'}
     Meteor.call 'deleteAnswer',
       target: id,
       who: 'cjb'
@@ -88,7 +89,7 @@ describe 'deleteAnswer', ->
       touched_by: 'cjb'
       solved: null
       solved_by: null
-      tags: [{name: 'Temperature', canon: 'temperature', value: '12', touched: 2, touched_by: 'torgen'}]
+      tags: temperature: {name: 'Temperature', value: '12', touched: 2, touched_by: 'torgen'}
     oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
     chai.assert.equal oplogs.length, 1
     chai.assert.include oplogs[0],
@@ -115,9 +116,10 @@ describe 'deleteAnswer', ->
       touched_by: 'torgen'
       solved: 2
       solved_by: 'torgen'
-      tags: [{name: 'Answer', canon: 'answer', value: 'foo', touched: 2, touched_by: 'torgen'},
-            {name: 'Backsolve', canon: 'backsolve', value: 'yes', touched: 2, touched_by: 'torgen'},
-            {name: 'Provided', canon: 'provided', value: 'yes', touched: 2, touched_by: 'torgen'}]
+      tags:
+        answer: {name: 'Answer', value: 'foo', touched: 2, touched_by: 'torgen'}
+        backsolve: {name: 'Backsolve', value: 'yes', touched: 2, touched_by: 'torgen'}
+        provided: {name: 'Provided', value: 'yes', touched: 2, touched_by: 'torgen'}
     Meteor.call 'deleteAnswer',
       target: id,
       who: 'cjb'
@@ -132,7 +134,7 @@ describe 'deleteAnswer', ->
       touched_by: 'cjb'
       solved: null
       solved_by: null
-      tags: []
+      tags: {}
     oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
     chai.assert.equal oplogs.length, 1
     chai.assert.include oplogs[0],
