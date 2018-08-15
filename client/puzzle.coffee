@@ -79,10 +79,10 @@ Template.puzzle.onCreated ->
       this.subscribe 'round-for-puzzle', id
       round = model.Rounds.findOne puzzles: id
     else if Session.equals("type", "rounds")
-      this.subscribe 'round-by-id', _id
-      this.subscribe 'roundgroup-for-round', round_id
-      round = model.Rounds.findOne round_id
-      for p in round?.puzzles
+      this.subscribe 'round-by-id', id
+      this.subscribe 'roundgroup-for-round', id
+      round = model.Rounds.findOne id
+      for p in round?.puzzles or []
         this.subscribe 'puzzle-by-id', p
     return unless round
     this.subscribe 'roundgroup-for-round', round._id
