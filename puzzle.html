@@ -23,10 +23,16 @@
 {{> starred_messages canModify=mynick}}
 {{#if puzzles}}
 <table class="bb-round-answers table table-bordered table-condensed"><tbody>
-  <tr><th>Puzzle in round</th><th>Answer</th></tr>
+  {{#let cares=caresabout}}
+  <tr><th>Puzzle in round</th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
   {{#each puzzles}}
-  <tr><td>{{link _id}}</td><td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td></tr>
+  <tr><td>{{link _id}}</td><td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+  {{#each t in cares}}
+  <td>{{tag t.name}}</td>
   {{/each}}
+  </tr>
+  {{/each}}
+  {{/let}}
 </tbody></table>
 {{/if}}
 </template>

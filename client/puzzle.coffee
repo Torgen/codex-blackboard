@@ -26,7 +26,12 @@ currentViewIs = (puzzle, view) ->
   return view is possible[0]
 
 Template.puzzle_info.helpers
-   tag: (name) -> (model.getTag this, name) or ''
+  tag: (name) -> (model.getTag this, name) or ''
+  caresAbout: ->
+    cared = model.getTag this, "Cares About"
+    cared?.split(',').forEach (tag) ->
+      name: tag
+      canon: model.canonical tag
 
 Template.puzzle.helpers
   data: ->
