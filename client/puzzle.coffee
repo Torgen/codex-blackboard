@@ -27,11 +27,12 @@ currentViewIs = (puzzle, view) ->
 
 Template.puzzle_info.helpers
   tag: (name) -> (model.getTag this, name) or ''
-  caresAbout: ->
-    cared = model.getTag this, "Cares About"
-    cared?.split(',').forEach (tag) ->
+  caresabout: ->
+    cared = model.getTag @puzzle, "Cares About"
+    (
       name: tag
       canon: model.canonical tag
+    ) for tag in cared?.split(',') or []
 
 Template.puzzle.helpers
   data: ->
