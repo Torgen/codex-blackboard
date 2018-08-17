@@ -942,7 +942,7 @@ doc_id_to_link = (id) ->
         name: NonEmptyString
         type: ValidType
         object: IdOrObject
-        value: NonEmptyString
+        value: String
         who: NonEmptyString
       # bail to setAnswer/deleteAnswer if this is the 'answer' tag.
       if canonical(args.name) is 'answer'
