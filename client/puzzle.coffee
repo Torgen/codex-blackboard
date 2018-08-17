@@ -33,6 +33,13 @@ Template.puzzle_info.helpers
       name: tag
       canon: model.canonical tag
     ) for tag in cared?.split(',') or []
+  unsetcaredabout: ->
+    return [] if @type is 'rounds'
+    (
+      continue if model.getTag @puzzle, tag
+      tag
+    ) for tag in @round?.tags.cares_about?.value.split(',') or []
+
 
 Template.puzzle.helpers
   data: ->
