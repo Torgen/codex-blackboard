@@ -36,6 +36,9 @@ Template.puzzle_info.helpers
   unsetcaredabout: ->
     return [] if @type is 'rounds'
     tag for tag in @round?.tags.cares_about?.value.split(',') or [] when not model.getTag @puzzle, tag
+  metapattern: ->
+    return [] if @type is 'rounds'
+    @round?.tags.pattern?.value
 
 
 Template.puzzle.helpers
