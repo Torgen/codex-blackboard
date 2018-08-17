@@ -32,7 +32,7 @@ You can get an advance idea of what you may configure from reading
   Google Picker credentials. Get some from
   https://console.developers.google.com/start/api?id=picker&credential=client_key
   and add a `picker` key to the `METEOR_SETTINGS` json object in
-  `/etc/codex-common.env`. Note that new applicatinos are marked as risky unless
+  `/etc/codex-common.env`. Note that new applications are marked as risky unless
   their privacy policy gets manually reviewed, and since we're behind basic auth,
   that's unlikely to happen. If you don't get the picker credentials, users will
   still be able to upload files by following the drive folder link.
