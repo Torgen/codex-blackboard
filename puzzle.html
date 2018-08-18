@@ -19,10 +19,8 @@
 {{#each cares in unsetcaredabout}}
   <tr><td>{{cares}}:</td><td class="wanted">(wanted by {{round.name}})</td></tr>
 {{/each}}
-{{#let pattern=metapattern}}
-  {{#if pattern}}
-    <tr><td>Pattern<br><i>(from {{round.name}})</i></td><td>{{pattern}}</td></tr>
-  {{/if}}
+{{#each mtag in metatags}}
+  <tr><td>{{mtag.name}}<br><i>(from {{round.name}})</i></td><td>{{mtag.value}}</td></tr>
 {{/let}}
 {{#with puzzle}}
   {{#each tags _id}}
