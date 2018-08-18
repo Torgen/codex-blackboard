@@ -21,7 +21,7 @@
 {{/each}}
 {{#each mtag in metatags}}
   <tr><td>{{mtag.name}}<br><i>(from {{round.name}})</i></td><td>{{mtag.value}}</td></tr>
-{{/let}}
+{{/each}}
 {{#with puzzle}}
   {{#each tags _id}}
     <tr><td class="tagname">{{name}}:</td><td class="tagvalue">{{value}}</td></tr>
