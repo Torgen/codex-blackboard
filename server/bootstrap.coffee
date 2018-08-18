@@ -263,16 +263,19 @@ Meteor.startup ->
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/joy.html'
+        tags: [{name: 'Meta Pattern', value: '"Joy Of" books'}]
       sadness = Meteor.call 'newPuzzle',
         name: 'Sadness'
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/sadness.html'
+        tags: [{name: 'Cares About', value: 'Borders'}]
       fear = Meteor.call 'newPuzzle',
         name: 'Fear'
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/fear.html'
+        tags: [{name: 'Meta Pattern', value: 'Unique on health and safety page'}]
       disgust = Meteor.call 'newPuzzle',
         name: 'Disgust'
         who: WHO
@@ -283,6 +286,7 @@ Meteor.startup ->
         who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/anger.html'
+        tags: [{name: 'Cares About', value: 'Temperature'}]
       Meteor.call 'newPuzzle',
         name: 'Yeah, But It Didn\'t Work!'
         who: WHO

@@ -5,8 +5,8 @@
     {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">link<i class="icon-share-alt"></i></a>){{/if}}
   </h2>
 </div>
+<table><tbody>
 {{#with puzzle}}
-  <table><tbody>
   {{#if solved}}
     <tr><td class="rightanswer">Answer:</td><td class="answer">{{tag "answer"}}</td></tr>
     <tr><td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts solved}}</td></tr>
@@ -15,22 +15,34 @@
     <tr><td class="wronganswer">IncorrectAnswer:</td><td class="answer">{{answer}}</td></tr>
     <tr><td class="backsolve">{{#if backsolve}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts timestamp}}</td></tr>
   {{/each}}
+{{/with}}
+{{#each cares in unsetcaredabout}}
+  <tr><td>{{cares.name}}:</td><td class="wanted">(wanted by {{cares.meta}})</td></tr>
+{{/each}}
+{{#each mtag in metatags}}
+  <tr><td>{{mtag.name}}:<br><i>(from {{mtag.meta}})</i></td><td>{{mtag.value}}</td></tr>
+{{/each}}
+{{#with puzzle}}
   {{#each tags _id}}
     <tr><td class="tagname">{{name}}:</td><td class="tagvalue">{{value}}</td></tr>
   {{/each}}
-  </tbody></table>
 {{/with}}
-{{> starred_messages canModify=mynick}}
-{{#if puzzle.puzzles}}
-<table class="bb-round-answers table table-bordered table-condensed"><tbody>
-  <tr><th>Puzzle in round</th><th>Answer</th></tr>
-  {{#each puzzle.puzzles}}
-  {{#with getPuzzle}}
-  <tr><td>{{link _id}}</td><td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td></tr>
-  {{/with}}
-  {{/each}}
 </tbody></table>
-{{/if}}
+{{> starred_messages canModify=mynick}}
+{{#if puzzle.puzzles}}{{#let cares=caresabout}}
+<table class="bb-round-answers table table-bordered table-condensed"><tbody>
+  <tr><th>Puzzle in round</th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
+  {{#each puzzle.puzzles}}{{#with getPuzzle}}
+    <tr>
+      <td>{{link _id}}</td>
+      <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+      {{#each t in cares}}
+        <td>{{tag t.name}}</td>
+      {{/each}}
+    </tr>
+  {{/with}}{{/each}}
+</tbody></table>
+{{/let}}{{/if}}
 </template>
 
 <template name="puzzle">
