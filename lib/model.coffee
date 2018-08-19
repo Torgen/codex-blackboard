@@ -433,6 +433,10 @@ doc_id_to_link = (id) ->
       deleteObject "rounds", args
 
     newPuzzle: (args) ->
+      check args, ObjectWith
+        round: NonEmptyString
+        feedsInto: Match.Optional [NonEmptyString]
+        puzzles: Match.Optional [NonEmptyString]
       throw new Meteor.Error(404, "bad round") unless args.round? and Rounds.findOne(args.round)?
       # TODO(torgen): if round has a default meta, set new puzzle to feed into that meta.
       puzzle_prefix = huntPrefix 'puzzle'
