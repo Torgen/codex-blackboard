@@ -389,6 +389,9 @@ doc_id_to_link = (id) ->
     share.drive.deletePuzzle drive
 
   moveWithinParent = (id, parentType, parentId, args) ->
+    check id, NonEmptyString
+    check parentType, ValidType
+    check parentId, NonEmptyString
     loop
       parent = collection(parentType).findOne(parentId)
       ix = parent?.puzzles?.indexOf(id)
