@@ -530,6 +530,8 @@ doc_id_to_link = (id) ->
       return r
 
     makeMeta: (id, who) ->
+      check id, NonEmptyString
+      check who, NonEmptyString
       now = UTCNow()
       # This only fails if, for some reason, puzzles is a list containing null.
       return 0 < Puzzles.update {_id: id, puzzles: null}, $set:
@@ -538,6 +540,8 @@ doc_id_to_link = (id) ->
         touched_by: canonical who
 
     makeNotMeta: (id, who) ->
+      check id, NonEmptyString
+      check who, NonEmptyString
       now = UTCNow()
       Puzzles.update {feedsInto: id},
         $pull: feedsInto: id
@@ -552,6 +556,9 @@ doc_id_to_link = (id) ->
           touched_by: canonical who
 
     feedMeta: (puzzleId, metaId, who) ->
+      check puzzleId, NonEmptyString
+      check metaId, NonEmptyString
+      check who, NonEmptyString
       now = UTCNow()
       Puzzles.update puzzleId,
         $addToSet: feedsInto: metaId
@@ -565,6 +572,9 @@ doc_id_to_link = (id) ->
           touched_by: canonical who
 
     unfeedMeta: (puzzleId, metaId, who) ->
+      check puzzleId, NonEmptyString
+      check metaId, NonEmptyString
+      check who, NonEmptyString
       now = UTCNow()
       Puzzles.update puzzleId,
         $pull: feedsInto: metaId
