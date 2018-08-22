@@ -34,15 +34,22 @@ Template.puzzle_info.helpers
       name: tag
       canon: model.canonical tag
     ) for tag in cared?.split(',') or []
+
   unsetcaredabout: ->
     return unless @puzzle
-    ({tag: tag, meta: meta.name } for tag in meta.tags.cares_about?.value.split(',') or [] when not model.getTag @puzzle, tag) \
-      for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto) when meta?
+    for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+      continue unless meta?
+      for tag in meta.tags.cares_about?.value.split(',') or []
+        continue if model.getTag @puzzle, tag)
+        yield { tag, meta: meta.name }
     
   metatags: ->
     return unless @puzzle?
-    ({name: tag.name, value: tag.value, meta: meta.name} for canon, tag of meta.tags when /^meta /i.test tag.name) \
-      for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto) when meta?
+    for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+      continue unless meta?
+      for canon, tag of meta.tags
+        continue unless /^meta /i.test tag.name
+        yield {name: tag.name, value: tag.value, meta: meta.name}
 
 
 Template.puzzle.helpers
