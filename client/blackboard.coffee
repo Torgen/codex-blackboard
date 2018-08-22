@@ -152,7 +152,11 @@ Template.blackboard.helpers
 Template.blackboard_status_grid.helpers
   rounds: round_helper
   metas: meta_helper
-  unassigned: unassigned_helper
+  unassigned: -> 
+    for id, index in this.puzzles
+      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
+      continue unless puzzle?
+      puzzle
   puzzles: (ps) ->
     p = ({
       puzzle_num: 1 + index
@@ -272,11 +276,7 @@ Template.blackboard_round.helpers
       }
     r.reverse() if 'true' is reactiveLocalStorage.getItem 'sortReverse'
     return r
-  unassigned: ->
-    for id, index in this.puzzles
-      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
-      continue unless puzzle?
-      { puzzle: puzzle }
+  unassigned: unassigned_helper
 
 Template.blackboard_round.events
   'click .bb-round-buttons .bb-move-down': (event, template) ->
