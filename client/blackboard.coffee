@@ -423,8 +423,7 @@ tagHelper = ->
       (canon is 'status' or \
           (!isRound and canon is 'answer'))) or \
       ((canon is 'answer' or canon is 'backsolve') and \
-      (Session.equals('currentPage', 'puzzle') or \
-        Session.equals('currentPage', 'round'))))
+      (Session.equals('currentPage', 'puzzle'))))
 
 Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
