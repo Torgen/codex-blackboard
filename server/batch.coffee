@@ -42,7 +42,7 @@ throttle = (func, wait = 0) ->
       Meteor.setTimeout(run, 0)
 
 if Meteor.settings.migrateTags
-  ['roundgroups', 'rounds', 'puzzles', 'nicks'].forEach (c) ->
+  ['rounds', 'puzzles', 'nicks'].forEach (c) ->
     model.collection(c).find().forEach (o) ->
       return unless o.tags instanceof Array
       console.log 'migrating', model.pretty_collection(c), o._id
