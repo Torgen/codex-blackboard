@@ -37,19 +37,21 @@ Template.puzzle_info.helpers
 
   unsetcaredabout: ->
     return unless @puzzle
-    for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
       continue unless meta?
       for tag in meta.tags.cares_about?.value.split(',') or []
-        continue if model.getTag @puzzle, tag)
-        yield { tag, meta: meta.name }
+        continue if model.getTag @puzzle, tag
+        { name: tag, meta: meta.name }
+    [].concat r...
     
   metatags: ->
     return unless @puzzle?
-    for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
       continue unless meta?
       for canon, tag of meta.tags
         continue unless /^meta /i.test tag.name
-        yield {name: tag.name, value: tag.value, meta: meta.name}
+        {name: tag.name, value: tag.value, meta: meta.name}
+    [].concat r...
 
 
 Template.puzzle.helpers
