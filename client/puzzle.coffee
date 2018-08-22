@@ -67,9 +67,8 @@ Template.puzzle.onCreated ->
   share.chat.startupChat()
   this.autorun =>
     # set page title
-    type = Session.get 'type'
     id = Session.get 'id'
-    puzzle = model.collection(type)?.findOne id
+    puzzle = model.Puzzles.findOne id
     name = puzzle?.name or id
     $("title").text("#{capType puzzle}: #{name}")
   # presumably we also want to subscribe to the puzzle's chat room
