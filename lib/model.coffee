@@ -1057,6 +1057,7 @@ doc_id_to_link = (id) ->
       moveWithinParent id, 'rounds', parentId, args
 
     moveRound: (id, dir) ->
+      check id, NonEmptyString
       round = Rounds.findOne(id)
       order = 'asc'
       op = '$gt'
