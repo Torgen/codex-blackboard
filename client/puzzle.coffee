@@ -35,10 +35,12 @@ Template.puzzle_info.helpers
       canon: model.canonical tag
     ) for tag in cared?.split(',') or []
   unsetcaredabout: ->
+    return unless @puzzle
     ({tag: tag, meta: meta.name } for tag in meta.tags.cares_about?.value.split(',') or [] when not model.getTag @puzzle, tag) \
       for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto) when meta?
     
   metatags: ->
+    return unless @puzzle?
     ({name: tag.name, value: tag.value, meta: meta.name} for canon, tag of meta.tags when /^meta /i.test tag.name) \
       for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto) when meta?
 
