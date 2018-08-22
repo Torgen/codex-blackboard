@@ -417,7 +417,7 @@ tagHelper = ->
   tags = this?.tags or {}
   (
     t = tags[canon]
-    { @_id, name: t.name, canon, value: t.value }
+    { id: @_id, name: t.name, canon, value: t.value }
   ) for canon in Object.keys(tags).sort() when not \
     ((Session.equals('currentPage', 'blackboard') and \
       (canon is 'status' or \
