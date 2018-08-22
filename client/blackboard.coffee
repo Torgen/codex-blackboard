@@ -352,14 +352,6 @@ processBlackboardEdit =
       who: reactiveLocalStorage.getItem 'nick'
       fields: link: text
 
-tagHelper = (id) ->
-  { id: id, name: t.name, canon: t.canon, value: t.value } \
-    for t in (this?.tags or []) when not \
-      ((Session.equals('currentPage', 'blackboard') and \
-        (t.canon is 'status' or t.canon is 'answer')) or \
-        ((t.canon is 'answer' or t.canon is 'backsolve') and \
-        Session.equals('currentPage', 'puzzle')))
-
 moveWithinMeta = (pos) -> (event, template) -> 
   meta = template.data
   Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id,
@@ -419,6 +411,20 @@ Template.blackboard_puzzle_cells.events
     Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value, who
 
 # TODO(Torgen): reordering rounds
+
+tagHelper = ->
+  isRound = not ('feedsInto' of this)
+  tags = this?.tags or {}
+  (
+    t = tags[canon]
+    { @_id, name: t.name, canon, value: t.value }
+  ) for canon in Object.keys(tags).sort() when not \
+    ((Session.equals('currentPage', 'blackboard') and \
+      (canon is 'status' or \
+          (!isRound and canon is 'answer'))) or \
+      ((canon is 'answer' or canon is 'backsolve') and \
+      (Session.equals('currentPage', 'puzzle') or \
+        Session.equals('currentPage', 'round'))))
 
 Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
@@ -514,20 +520,6 @@ Template.blackboard_puzzle.events
       Meteor.call 'moveWithinMeta', dragdata.id, meta._id, args
     else if round?
       Meteor.call 'moveWithinRound', dragdata.id, round._id, args
-
-tagHelper = (id) ->
-  isRoundGroup = ('rounds' of this)
-  tags = this?.tags or {}
-  (
-    t = tags[canon]
-    { id, name: t.name, canon, value: t.value }
-  ) for canon in Object.keys(tags).sort() when not \
-    ((Session.equals('currentPage', 'blackboard') and \
-      (canon is 'status' or \
-          (!isRoundGroup and canon is 'answer'))) or \
-      ((canon is 'answer' or canon is 'backsolve') and \
-      (Session.equals('currentPage', 'puzzle') or \
-        Session.equals('currentPage', 'round'))))
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }

@@ -248,7 +248,7 @@
     {{#with puzzle}}
       {{#unless compactMode}}
       <table class="bb-tag-table"><tbody>
-        {{#each tags _id}}
+        {{#each tags}}
         <tr>
           <td class="bb-editable"
               data-bbedit="tags/{{id}}/{{canon}}/name">
@@ -426,7 +426,7 @@
 </template>
 
 <template name="blackboard_tags">
-  <dl class="dl-horizontal">{{#each tags _id}}
+  <dl class="dl-horizontal">{{#each tags}}
     <dt class="bb-editable"
         data-bbedit="tags/{{id}}/{{canon}}/name">
       {{#if editing "tags" id canon "name"}}
