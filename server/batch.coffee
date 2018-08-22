@@ -48,28 +48,6 @@ if Meteor.settings.migrateTags
       console.log 'migrating', model.pretty_collection(c), o._id
       model.collection(c).update o._id, $set: tags: canonicalTags(o.tags, 'codexbot')
 
-
-# Round groups
-updateRoundStart = ->
-  round_start = 0
-  model.RoundGroups.find({}, sort: ["created"]).forEach (rg) ->
-    if rg.round_start isnt round_start
-      model.RoundGroups.update rg._id, $set: round_start: round_start
-    round_start += rg.rounds.length
-# Note that throttle uses Meteor.setTimeout here even if a call isn't
-# yet pending -- we want to ensure that we give all the observeChanges
-# time to fire before we do the update.
-# In theory we could use `Tracker.afterFlush`, but see
-# https://github.com/meteor/meteor/issues/3293
-queueUpdateRoundStart = throttle(updateRoundStart, 100)
-# observe changes to the rounds field and update round_start
-queueUpdateRoundStart()
-model.RoundGroups.find({}).observeChanges
-  added: (id, fields) -> queueUpdateRoundStart()
-  removed: (id, fields) -> queueUpdateRoundStart()
-  changed: (id, fields) ->
-    queueUpdateRoundStart() if 'created' of fields or 'rounds' of fields
-
 # Nicks: synchronize priv_located* with located* at a throttled rate.
 # order by priv_located_order, which we'll clear when we apply the update
 # this ensures nobody gets starved for updates
