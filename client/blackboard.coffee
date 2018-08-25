@@ -402,7 +402,6 @@ Template.blackboard_meta.helpers
       room_name: ("rounds/"+this.round?._id)
     , sort: ["nick"]
   compactMode: compactMode
-  nCols: nCols
   stuck: share.model.isStuck 
 
 Template.blackboard_puzzle_cells.events
@@ -442,7 +441,6 @@ Template.blackboard_puzzle_cells.helpers
       room_name: ("puzzles/"+@puzzle?._id)
     , sort: ["nick"]
   compactMode: compactMode
-  nCols: nCols
   stuck: share.model.isStuck
   otherMetas: ->
     parent = Template.parentData(2)
