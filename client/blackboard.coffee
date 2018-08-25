@@ -395,7 +395,15 @@ Template.blackboard_meta.helpers
     hideSolved = 'true' is reactiveLocalStorage.getItem 'hideSolved'
     return p if editing or !hideSolved
     p.filter (pp) -> !pp.puzzle.solved?
-  stuck: share.model.isStuck
+  tag: (name) ->
+    return (model.getTag this.round, name) or ''
+  whos_working: ->
+    return model.Presence.find
+      room_name: ("rounds/"+this.round?._id)
+    , sort: ["nick"]
+  compactMode: compactMode
+  nCols: nCols
+  stuck: share.model.isStuck 
 
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
@@ -433,11 +441,8 @@ Template.blackboard_puzzle_cells.helpers
     return model.Presence.find
       room_name: ("puzzles/"+@puzzle?._id)
     , sort: ["nick"]
-  local_working: ->
-    count = 0
-    model.Presence.find(room_name: ("puzzles/"+@puzzle?._id)).forEach (p) ->
-      count++ if share.isNickNear(p.nick)
-    count
+  compactMode: compactMode
+  nCols: nCols
   stuck: share.model.isStuck
   otherMetas: ->
     parent = Template.parentData(2)

@@ -341,44 +341,36 @@
     {{/if}}
   </td>
   {{#unless compactMode}}
-  <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
-      data-bbedit="tags/{{puzzle._id}}/status/value">
-    {{#if editing "tags" puzzle._id "status" "value"}}
-      <input type="text" id="tags-{{puzzle._id}}-status-value"
-              value="{{tag "status"}}"
-              class="input-block-level" />
-    {{else}}
-      {{#unless puzzle.solved}}
-      {{#if canEdit}}
-        <i class="bb-edit-icon icon-pencil pull-right"
-            title="Change the status of this puzzle"></i>
-        {{#if tag "status"}}
-          <i class="bb-delete-icon icon-remove pull-left"
-              title="Delete the status message for this puzzle"></i>
+    <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
+        data-bbedit="tags/{{puzzle._id}}/status/value">
+      {{#if editing "tags" puzzle._id "status" "value"}}
+        <input type="text" id="tags-{{puzzle._id}}-status-value"
+                value="{{tag "status"}}"
+                class="input-block-level" />
+      {{else}}
+        {{#unless puzzle.solved}}
+        {{#if canEdit}}
+          <i class="bb-edit-icon icon-pencil pull-right"
+              title="Change the status of this puzzle"></i>
+          {{#if tag "status"}}
+            <i class="bb-delete-icon icon-remove pull-left"
+                title="Delete the status message for this puzzle"></i>
+          {{/if}}
         {{/if}}
+        {{/unless}}
+        {{tag "status"}}
       {{/if}}
-      {{/unless}}
-      {{tag "status"}}
-    {{/if}}
-  </td>
-  {{#unless canEdit}}
-  <td class="puzzle-working">
-    <div class="{{#if lotsOfPeople whos_working.count}}bb-lots{{/if}}">
-    <span class="bb-short">
-    {{ whos_working.count }} people
-    ({{local_working}}<i class="icon-map-marker"></i>)
-    </span>
-    <span class="bb-long">
-    {{#each whos_working}}{{> nick_presence }} {{/each}}
-    </span>
-    </div>
-  </td>
-  <td class="puzzle-update">
-    {{#if puzzle.solved}}solved {{pretty_ts timestamp=puzzle.solved style="brief duration"}}
-    {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
-    {{/if}}
-  </td>
-  {{/unless}}
+    </td>
+    {{#unless canEdit}}
+      <td class="puzzle-working">
+        {{#each whos_working}}{{> nick_presence }} {{/each}}
+      </td>
+      <td class="puzzle-update">
+        {{#if puzzle.solved}}solved {{pretty_ts timestamp=puzzle.solved style="brief duration"}}
+        {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
+        {{/if}}
+      </td>
+    {{/unless}}
   {{/unless}}
 </template>
 
