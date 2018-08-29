@@ -81,7 +81,7 @@ Template.registerHelper 'compactMode', compactMode
 Template.blackboard.helpers
   sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
   hideSolved: -> 'true' is reactiveLocalStorage.getItem 'hideSolved'
-  hideRoundsSolvedMeta: -> 'true' is reactiveLocalStorage.getItem 'hideRoundsSolvedMeta'
+  hideSolvedMeta: -> 'true' is reactiveLocalStorage.getItem 'hideSolvedMeta'
   hideStatus: -> 'true' is reactiveLocalStorage.getItem 'hideStatus'
 
 # Notifications
@@ -204,8 +204,8 @@ Template.blackboard.events
     doBoolean 'sortReverse', reverse
   "change .bb-hide-solved input": (event, template) ->
     doBoolean 'hideSolved', event.target.checked
-  "change .bb-hide-rounds-solved-meta input": (event, template) ->
-    doBoolean 'hideRoundsSolvedMeta', event.target.checked
+  "change .bb-hide-solved-meta input": (event, template) ->
+    doBoolean 'hideSolvedMeta', event.target.checked
   "change .bb-compact-mode input": (event, template) ->
     doBoolean 'compactMode', event.target.checked
   "click .bb-hide-status": (event, template) ->
