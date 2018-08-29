@@ -385,7 +385,7 @@ Template.blackboard_meta.events
       (error,r)-> throw error if error
 
 Template.blackboard_meta.helpers
-  showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolved') or (!this.puzzle?.solved?)
+  showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolvedMeta') or (!this.puzzle?.solved?)
   # the following is a map() instead of a direct find() to preserve order
   puzzles: ->
     p = ({
