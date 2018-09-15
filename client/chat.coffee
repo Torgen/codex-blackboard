@@ -166,7 +166,7 @@ Template.messages.helpers
   usefulEnough: (m) ->
     # test Session.get('nobot') last to get a fine-grained dependency
     # on the `nobot` session variable only for 'useless' messages
-    myNick = reactiveLocalStorage.getItem 'nick'
+    myNick = Meteor.userId()
     m.nick is myNick or m.to is myNick or \
         m.useful or \
         (m.nick isnt 'via twitter' and m.nick isnt 'codexbot' and \
@@ -188,7 +188,7 @@ Template.messages.helpers
     # I will go out on a limb and say we need this because transform uses
     # doesMentionNick and transforms aren't usually reactive, so we need to
     # recompute them if you log in as someone else.
-    reactiveLocalStorage.getItem 'nick'
+    Meteor.userId()
     p = pageForTimestamp room_name, +Session.get('timestamp')
     return messagesForPage p,
       sort: [['timestamp','asc']]
@@ -218,10 +218,10 @@ Template.messages.onCreated ->
     room_name = Session.get 'room_name'
     return unless room_name
     this.subscribe 'presence-for-room', room_name
-    nick = if settings.BB_DISABLE_PM then null else (reactiveLocalStorage.getItem 'nick') or null
+    nick = if settings.BB_DISABLE_PM then null else Meteor.userId() or null
     # re-enable private messages, but just in loopfinders (for codexbot)
     if settings.BB_DISABLE_PM and room_name is "general/0"
-      nick = (reactiveLocalStorage.getItem 'nick') or null
+      nick = Meteor.userId() or null
     timestamp = (+Session.get('timestamp'))
     p = pageForTimestamp room_name, timestamp, {subscribe: this}
     return unless p? # wait until page information is loaded
@@ -268,7 +268,7 @@ Template.chat_header.helpers
 
 regex_escape = (s) -> s.replace /[$-\/?[-^{|}]/g, '\\$&'
 
-doesMentionNick = (doc, raw_nick=(reactiveLocalStorage.getItem 'nick')) ->
+doesMentionNick = (doc, raw_nick=Meteor.userId()) ->
   return false unless raw_nick
   return false unless doc.body?
   return false if doc.system # system messages don't count as mentions
@@ -276,8 +276,8 @@ doesMentionNick = (doc, raw_nick=(reactiveLocalStorage.getItem 'nick')) ->
   nick = model.canonical raw_nick
   return false if nick is doc.nick # messages from yourself don't count
   return true if doc.to is nick # PMs to you count
-  n = model.Nicks.findOne(canon: nick)
-  realname = if n then model.getTag(n, 'Real Name')
+  n = Meteor.users.findOne nick
+  realname = n?.real_name
   return false if doc.bodyIsHtml # XXX we could fix this
   # case-insensitive match of canonical nick
   (new RegExp (regex_escape model.canonical nick), "i").test(doc.body) or \
@@ -431,7 +431,7 @@ $(document).on 'submit', '#joinRoom', ->
 Template.messages_input.submit = (message) ->
   return unless message
   args =
-    nick: reactiveLocalStorage.getItem 'nick'
+    nick: Meteor.userId()
     room_name: Session.get 'room_name'
     body: message
   [word1, rest] = message.split(/\s+([^]*)/, 2)
@@ -477,7 +477,7 @@ Template.messages_input.submit = (message) ->
       [to, rest] = rest.split(/\s+([^]*)/, 2)
       missingMessage = (not rest)
       while rest
-        n = model.Nicks.findOne canon: model.canonical(to)
+        n = Meteor.users.findOne model.canonical to
         break if n
         if to is 'bot' # allow 'bot' as a shorthand for 'codexbot'
           to = 'codexbot'
@@ -513,8 +513,8 @@ Template.messages_input.events
       if message
         re = new RegExp "^#{regex_escape message}", "i"
         for present in whos_here_helper().fetch()
-          n = model.Nicks.findOne(canon: present.nick)
-          realname = if n then model.getTag(n, 'Real Name')
+          n = Meteor.users.findOne present.nick
+          realname = n?.real_name
           if re.test present.nick
             return $message.val "#{present.nick}: "
           else if realname and re.test realname
@@ -558,7 +558,7 @@ updateLastRead = ->
     room_name: Session.get 'room_name'
   ,
     sort: [['timestamp','desc']]
-  nick = reactiveLocalStorage.getItem 'nick'
+  nick = Meteor.userId()
   return unless lastMessage and nick
   Meteor.call 'updateLastRead',
     nick: nick
@@ -577,7 +577,7 @@ Template.chat.onCreated ->
 Template.chat.onRendered ->
   $(window).resize()
   @autorun ->
-    nick = reactiveLocalStorage.getItem 'nick'
+    nick = Meteor.userId()
     return unless nick
     type = Session.get('type')
     id = Session.get('id')
@@ -586,7 +586,7 @@ Template.chat.onRendered ->
 startupChat = ->
   return if instachat.keepaliveInterval?
   instachat.keepalive = ->
-    nick = reactiveLocalStorage.getItem 'nick'
+    nick = Meteor.userId()
     return unless nick
     Meteor.call "setPresence",
       nick: nick
@@ -607,7 +607,7 @@ cleanupChat = ->
   if instachat.keepaliveInterval?
     Meteor.clearInterval instachat.keepaliveInterval
     instachat.keepalive = instachat.keepaliveInterval = undefined
-  nick = reactiveLocalStorage.getItem 'nick'
+  nick = Meteor.userId()
   if nick and false # causes bouncing. just let it time out.
     Meteor.call "setPresence",
       nick: nick
@@ -640,14 +640,14 @@ updateNotice = do ->
 
 Tracker.autorun ->
   pageWithChat = /^(chat|puzzle|round)$/.test Session.get('currentPage')
-  nick = model.canonical((reactiveLocalStorage.getItem 'nick') or '')
+  nick = Meteor.userId() or ''
   room_name = Session.get 'room_name'
   unless pageWithChat and nick and room_name
     Session.set 'lastread', undefined
     return hideMessageAlert()
   # watch the last read and update the session (even if we're paged back)
-  Meteor.subscribe 'lastread-for-nick', nick
-  lastread = model.LastRead.findOne(nick: nick, room_name: room_name)
+  Meteor.subscribe 'lastread'
+  lastread = model.LastRead.findOne {nick, room_name}
   unless lastread
     Session.set 'lastread', undefined
     return hideMessageAlert()

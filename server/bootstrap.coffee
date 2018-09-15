@@ -388,22 +388,19 @@ SAMPLE_CHATS = [
   body: "This is a very very long line which should hopefully wrap and that will show that we're doing all this correctly. Let's keep going here. More and more stuff! Wow."
 ]
 SAMPLE_NICKS = [
-  name: "cscott"
-  tags: [
-    { name: "Real Name", value: "C. Scott" }
-    { name: "Gravatar", value: "user@host.org" }
-  ]
+  _id: 'cscott'
+  nickname: 'cscott'
+  real_name: 'C. Scott'
+  gravatar: 'user@host.org'
 ,
-  name: "zachary"
-  tags: [
-    { name: "Gravatar", value: "z@x.org" }
-  ]
+  _id: 'zachary'
+  nickname: 'zachary'
+  gravatar: 'z@x.org'
 ,
-  name: "kwal"
-  tags: [
-    { name: "Real Name", value: "Kevin Wallace" }
-    { name: "Gravatar", value: "kevin@pentabarf.net" }
-  ]
+  _id: 'kwal'
+  nickname: 'kwal'
+  real_name: 'Kevin Wallace'
+  gravatar: 'kevin@pentabarf.net'
 ]
 SAMPLE_QUIPS = [
   text: "A codex is a book made up of a number of sheets of paper, vellum, papyrus, or similar, with hand-written content"
@@ -453,7 +450,7 @@ Meteor.startup ->
       Meteor.call "newMessage", chat
     # add some user ids
     for nick in SAMPLE_NICKS
-      Meteor.call "newNick", nick
+      Meteor.users.insert nick
     # add some quips
     for quip in SAMPLE_QUIPS
       Meteor.call "newQuip", quip

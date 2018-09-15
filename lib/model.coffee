@@ -126,10 +126,8 @@ Quips = BBCollection.quips = new Mongo.Collection "quips"
 if Meteor.isServer
   Quips._ensureIndex {last_used: 1}, {}
 
-# Nicks are:
-#   _id: mongodb id
-#   name: string
-#   canon: canonicalized version of name, for searching
+# Users are:
+#   _id: canonical nickname
 #   located: timestamp
 #   located_at: object with numeric lat/lng properties
 #   priv_located, priv_located_at: these are the same as the
@@ -137,12 +135,12 @@ if Meteor.isServer
 #     The server throttles the updates from priv_located* to located* to
 #     prevent a N^2 blowup as everyone gets updates from everyone else
 #   priv_located_order: FIFO queue for location updates
-#   tags: real_name: { name: "Real Name", value: "C. Scott Ananian" }, ... 
-# valid tags include "Real Name", "Gravatar" (email address to use for photos)
-Nicks = BBCollection.nicks = new Mongo.Collection "nicks"
+#   nickname (non-canonical form of _id)
+#   real_name (optional)
+#   gravatar (optional email address for avatar)
+#   services: map of provider-specific stuff; hidden on client
 if Meteor.isServer
-  Nicks._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  Nicks._ensureIndex {priv_located_order: 1}, {}
+  Meteor.users._ensureIndex {priv_located_order: 1}, {}
 
 # Messages
 #   body: string
@@ -745,19 +743,6 @@ doc_id_to_link = (id) ->
         who: args.who
       , {suppressLog:true}
 
-    newNick: (args) ->
-      check args, ObjectWith
-        name: NonEmptyString
-      # a bit of a stretch but let's reuse the object type
-      newObject "nicks",
-        name: args.name
-        who: args.name
-        tags: args.tags
-      , {}, {suppressLog:true}
-    renameNick: (args) ->
-      renameObject "nicks", args, {suppressLog:true}
-    deleteNick: (args) ->
-      deleteObject "nicks", args, {suppressLog:true}
     locateNick: (args) ->
       check args, ObjectWith
         nick: NonEmptyString
@@ -770,7 +755,7 @@ doc_id_to_link = (id) ->
       # priv_located_order implements a FIFO queue for updates, but
       # you don't lose your place if you're already in the queue
       timestamp = UTCNow()
-      n = Nicks.update {canon: canonical args.nick},
+      n = Meteor.users.update canonical(args.nick),
         $set:
           priv_located: args.timestamp ? timestamp
           priv_located_at: { lat: args.lat, lng: args.lng }
@@ -888,10 +873,13 @@ doc_id_to_link = (id) ->
       check args, ObjectWith
         name: NonEmptyString
         optional_type: Match.Optional(NonEmptyString)
-      for type in ['roundgroups','rounds','puzzles','nicks']
+      for type in ['roundgroups','rounds','puzzles']
         continue if args.optional_type and args.optional_type isnt type
         o = collection(type).findOne canon: canonical(args.name)
         return {type:type,object:o} if o
+      unless args.optional_type and args.optional_type isnt 'nicks'
+        o = Meteor.users.findOne canonical args.name
+        return {type: 'nicks', object: o} if o
       # try RxPy notation
       if /^r\d+(p\d+)?$/i.test(args.name)
         [_,round,puzzle] = args.name.split /\D+/
@@ -1268,7 +1256,6 @@ share.model =
   RoundGroups: RoundGroups
   Rounds: Rounds
   Puzzles: Puzzles
-  Nicks: Nicks
   Messages: Messages
   OldMessages: OldMessages
   Pages: Pages

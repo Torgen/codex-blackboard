@@ -41,16 +41,11 @@ randomNick = ->
     'alice','bob','charlie','del','eve','frank','georgia','mallory','tom','zeke'
   ]
 
-# login
-login = (nick=randomNick()) ->
-  reactiveLocalStorage.setItem 'nick', nick
-  Meteor.call 'newNick', {name:nick}
-
 # say something every 10s or so
 saySomething = (room_name) ->
   Meteor.setTimeout saySomething.bind(null, room_name), \
     (5 + 10*Random.fraction()) * 1000 # 5-15 seconds
-  who = (reactiveLocalStorage.getItem 'nick') or 'loadtest'
+  who = Meteor.userId()
   friend = randomNick()
   m = switch Random.choice ['system','action','pm','text','text','text']
     when 'system'

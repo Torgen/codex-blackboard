@@ -1,5 +1,6 @@
 'use strict'
 
+import canonical from '../lib/imports/canonical.coffee'
 import { emailFromNickObject } from './imports/nickEmail.coffee'
 
 model = share.model # import
@@ -67,8 +68,8 @@ Template.registerHelper 'doc_link', (args) ->
 # nicks
 Template.registerHelper 'nickOrName', (args) ->
   nick = (keyword_or_positional 'nick', args).nick
-  n = model.Nicks.findOne canon: model.canonical(nick)
-  return model.getTag(n, 'Real Name') or nick
+  n = Meteor.users.findOne canonical nick
+  return n?.real_name or nick
 
 Template.registerHelper 'lotsOfPeople', (args) ->
   count = (keyword_or_positional 'count', args).count
@@ -145,16 +146,14 @@ Template.header_loginmute.helpers
       "Codexbot promises not to bother you"
     else
       "Codexbot is feeling chatty!"
-  sessionNick: ->
-    nick = reactiveLocalStorage.getItem 'nick'
-    return nick unless nick
-    n = model.Nicks.findOne canon: model.canonical(nick)
-    cn = n?.canon or model.canonical(nick)
-    return {
-      name: n?.name or nick
-      canon: cn
-      realname: model.getTag n, 'Real Name'
-      gravatar: emailFromNickObject n
+  sessionNick: -> # TODO(torgen): replace with currentUser
+    user = Meteor.user()
+    return unless user?
+    {
+      name: user.nickname
+      canon: user._id
+      realname: user.real_name or user.nickname
+      gravatar: emailFromNickObject user
     }
 
 Template.header_loginmute.onRendered ->
@@ -164,16 +163,11 @@ Template.header_loginmute.onRendered ->
     container: '.bb-buttonbar'
 
 Template.header_loginmute.events
-  "click .bb-login": (event, template) ->
-    event.preventDefault()
-    ensureNick()
   "click .bb-logout": (event, template) ->
     event.preventDefault()
-    share.chat.cleanupChat() if Session.equals('currentPage', 'chat')
-    reactiveLocalStorage.removeItem 'nick'
+    Meteor.logout()
   "click .bb-unprotect": (event, template) ->
-    ensureNick ->
-      share.Router.navigate "/edit", {trigger: true}
+    share.Router.navigate "/edit", {trigger: true}
   "click .bb-protect": (event, template) ->
     share.Router.navigate "/", {trigger: true}
   "click .connected, click .connecting, click .waiting": (event, template) ->
@@ -281,7 +275,7 @@ Template.header_breadcrumbs.events
       Meteor.call 'newMessage',
         body: message
         bodyIsHtml: true
-        nick: reactiveLocalStorage.getItem 'nick'
+        nick: Meteor.userId()
         action: true
         room_name: Session.get('type')+'/'+Session.get('id')
 
@@ -329,38 +323,19 @@ uploadToDriveFolder = share.uploadToDriveFolder = (folder, callback) ->
 
 
 ############## nick selection ####################
-Template.header_nickmodal.helpers
-  nickModalVisible: -> Session.get 'nickModalVisible'
 
-dismissable = ->
-  return false if Session.equals 'currentPage', 'chat'
-  return false is Session.equals 'currentPage', 'callins'
-  not ((Session.equals 'currentPage', 'blackboard') and Session.get 'canEdit')
-
-Template.header_nickmodal.onCreated ->
-  @autorun ->
-    hasNick = (reactiveLocalStorage.getItem 'nick')?
-    if hasNick
-      $('#nickPickModal').modal 'hide'
-    else if not dismissable() and not Session.equals 'nickModalVisible', true
-      Session.set 'nickModalVisible', true
-
-Template.header_nickmodal_contents.helpers
-  dismissable: dismissable
 Template.header_nickmodal_contents.onCreated ->
   # we'd need to subscribe to 'all-nicks' here if we didn't have a permanent
   # subscription to it (in main.coffee)
   this.typeaheadSource = (query,process) =>
     this.update(query)
-    (n.name for n in model.Nicks.find({}).fetch())
+    (n.nickname for n in Meteor.users.find({}).fetch())
   this.update = (query, options) =>
     # can we find an existing nick matching this?
-    n = if query \
-        then model.Nicks.findOne canon: model.canonical(query) \
-        else undefined
+    n = if query then Meteor.users.findOne canonical query else undefined
     if (n or options?.force)
-      realname = model.getTag n, 'Real Name'
-      gravatar = model.getTag n, 'Gravatar'
+      realname = n?.real_name
+      gravatar = n?.gravatar
       $('#nickRealname').val(realname or '')
       $('#nickEmail').val(gravatar or '')
     this.updateGravatar()
@@ -375,13 +350,16 @@ Template.header_nickmodal_contents.onCreated ->
       container.find('img').attr('src', gravatar.attr('src'))
     else
       container.append(gravatar)
+nickInput = new Tracker.Dependency
+Template.header_nickmodal_contents.helpers
+  disabled: ->
+    nickInput.depend()
+    Meteor.loggingIn() or not $('#nickInput').val()
 Template.header_nickmodal_contents.onRendered ->
-  $('#nickPickModal').one 'hide', ->
-    Session.set 'nickModalVisible', undefined
   $('#nickSuccess').val('false')
   $('#nickPickModal').modal keyboard: false, backdrop:"static"
   $('#nickInput').select()
-  firstNick = (reactiveLocalStorage.getItem 'nick') or ''
+  firstNick = Meteor.userId() or ''
   $('#nickInput').val firstNick
   this.update firstNick, force:true
   $('#nickInput').typeahead
@@ -392,6 +370,8 @@ Template.header_nickmodal_contents.onRendered ->
 Template.header_nickmodal_contents.events
   "click .bb-submit": (event, template) ->
     $('#nickPick').submit()
+  'input #nickInput': (event, template) ->
+    nickInput.changed()
   "keydown #nickInput": (event, template) ->
     # implicit submit on <enter> if typeahead isn't shown
     if event.which is 13 and not $('#nickInput').data('typeahead').shown
@@ -404,44 +384,14 @@ Template.header_nickmodal_contents.events
     template.updateGravatar()
 
 $(document).on 'submit', '#nickPick', ->
-  $warningGroup = $(this).find '#nickInputGroup'
-  $warning = $(this).find "#nickInputGroup .help-inline"
   nick = $("#nickInput").val().replace(/^\s+|\s+$/g,"") #trim
-  $warning.html ""
-  $warningGroup.removeClass('error')
-  if not nick || nick.length > 20
-    $warning.html("Nickname must be between 1 and 20 characters long!")
-    $warningGroup.addClass('error')
-  else
-    reactiveLocalStorage.setItem 'nick', nick
-    realname = $('#nickRealname').val()
-    gravatar = $('#nickEmail').val()
-    Meteor.call 'newNick', {name: nick}, (error,n) ->
-      tagsetter = (value, tagname, cb=(->)) ->
-        value = value.replace(/^\s+|\s+$/g,"") # strip
-        if model.getTag(n, tagname) is value
-          cb()
-        else
-          Meteor.call 'setTag', {type:'nicks', object:n._id, name:tagname, value:value, who:n.canon}, ->
-            cb()
-      tagsetter realname, 'Real Name', ->
-        tagsetter gravatar, 'Gravatar'
-    $('#nickSuccess').val('true')
-    $('#nickPickModal').modal 'hide'
-
-  share.chat.hideMessageAlert()
+  return false unless nick
+  Meteor.loginWithCodex nick, $('#nickRealname').val(), $('#nickEmail').val(), $('#passwordInput').val(), (err, res) ->
+    if err?
+      le = $("#loginError")
+      if err.reason?
+        le.text err.reason
   return false
-
-changeNick = (cb) ->
-  $('#nickPickModal').one 'hide', ->
-    cb?() if $('#nickSuccess').val() is 'true'
-  Session.set 'nickModalVisible', true
-
-ensureNick = share.ensureNick = (cb=(->)) ->
-  if reactiveLocalStorage.getItem 'nick'
-    cb()
-  else
-    changeNick cb
 
 ############## confirmation dialog ########################
 Template.header_confirmmodal.helpers
@@ -527,7 +477,7 @@ Template.header_lastchats.onCreated ->
     return unless p? # wait until page info is loaded
     messages = if p.archived then "oldmessages" else "messages"
     # use autorun to ensure subscription changes if/when nick does
-    nick = (reactiveLocalStorage.getItem 'nick') or null
+    nick = Meteor.userId() or null
     if nick? and not settings.BB_DISABLE_PM
       this.subscribe "#{messages}-in-range-nick", nick, p.room_name, p.from, p.to
     this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to

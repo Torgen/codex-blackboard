@@ -20,18 +20,6 @@ describe 'newCallIn', ->
   beforeEach ->
     resetDatabase()
 
-  it 'fails for non-puzzle type', ->
-    chai.assert.throws ->
-      id = model.Nicks.insert 
-        name: 'Torgen'
-        canon: 'torgen'
-      Meteor.call 'newCallIn',
-        type: 'nicks'
-        target: id
-        answer: 'precipitate'
-        who: 'torgen'
-    , Match.Error
-
   ['puzzles', 'rounds', 'roundgroups'].forEach (type) =>
     describe "for #{model.pretty_collection(type)}", ->
       it 'fails when it doesn\'t exist', ->

@@ -42,7 +42,7 @@ throttle = (func, wait = 0) ->
       Meteor.setTimeout(run, 0)
 
 if Meteor.settings.migrateTags
-  ['roundgroups', 'rounds', 'puzzles', 'nicks'].forEach (c) ->
+  ['roundgroups', 'rounds', 'puzzles'].forEach (c) ->
     model.collection(c).find().forEach (o) ->
       return unless o.tags instanceof Array
       console.log 'migrating', model.pretty_collection(c), o._id
@@ -78,20 +78,20 @@ do ->
   LOCATION_BATCH_SIZE = 10
   LOCATION_THROTTLE = 60*1000
   runBatch = ->
-    model.Nicks.find({
+    Meteor.userss.find({
       priv_located_order: { $exists: true, $ne: null }
     }, {
       sort: [['priv_located_order','asc']]
       limit: LOCATION_BATCH_SIZE
     }).forEach (n, i) ->
-      console.log "Updating location for #{n.name} (#{i})"
-      model.Nicks.update n._id,
+      console.log "Updating location for #{n._id} (#{i})"
+      Meteor.users.update n._id,
         $set:
           located: n.priv_located
           located_at: n.priv_located_at
         $unset: priv_located_order: ''
   maybeRunBatch = throttle(runBatch, LOCATION_THROTTLE)
-  model.Nicks.find({
+  Meteor.users.find({
     priv_located_order: { $exists: true, $ne: null }
   }, {
     fields: priv_located_order: 1
@@ -177,8 +177,8 @@ model.Presence.find(present: true).observe
     return if initiallySuppressPresence
     return if presence.room_name is 'oplog/0'
     # look up a real name, if there is one
-    n = model.Nicks.findOne canon: canonical(presence.nick)
-    name = getTag(n, 'Real Name') or presence.nick
+    n = Meteor.users.findOne canonical presence.nick
+    name = n?.real_name or presence.nick
     model.Messages.insert
       system: true
       nick: presence.nick
@@ -192,8 +192,8 @@ model.Presence.find(present: true).observe
     return if initiallySuppressPresence
     return if presence.room_name is 'oplog/0'
     # look up a real name, if there is one
-    n = model.Nicks.findOne canon: canonical(presence.nick)
-    name = getTag(n, 'Real Name') or presence.nick
+    n = Meteor.users.findOne canonical presence.nick
+    name = n?.real_name or presence.nick
     model.Messages.insert
       system: true
       nick: presence.nick

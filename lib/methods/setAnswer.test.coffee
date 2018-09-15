@@ -20,18 +20,6 @@ describe 'setAnswer', ->
   beforeEach ->
     resetDatabase()
 
-  it 'fails on non-puzzle', ->
-    id = model.Nicks.insert
-      name: 'Torgen'
-      canon: 'torgen'
-      tags: real_name: {name: 'Real Name', value: 'Dan Rosart', touched: 1, touched_by: 'torgen'}
-    chai.assert.throws ->
-      Meteor.call 'setAnswer',
-        type: 'nicks'
-        target: id
-        who: 'cjb'
-    , Match.Error
-
   ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
     describe "on #{model.pretty_collection(type)}", ->
       describe 'without answer', ->

@@ -14,10 +14,11 @@ Meteor.publish 'all-roundsandpuzzles', -> [
   model.RoundGroups.find(), model.Rounds.find(), model.Puzzles.find()
 ]
 Meteor.publish 'all-nicks', ->
-  model.Nicks.find {}, fields:
+  Meteor.users.find {}, fields:
     priv_located: 0
     priv_located_at: 0
     priv_located_order: 0
+    services: 0
 Meteor.publish 'all-presence', ->
   # strip out unnecessary fields from presence (esp timestamp) to avoid wasted
   # updates to clients
@@ -31,9 +32,7 @@ Meteor.publish 'presence-for-room', (room_name) ->
     foreground_uuid: 0
     present: 0
 
-Meteor.publish 'lastread-for-nick', (nick) ->
-  nick = model.canonical(nick or '') or null
-  model.LastRead.find {nick: nick}
+Meteor.publish 'lastread', -> model.LastRead.find nick: @userId
 
 # this is for the "that was easy" sound effect
 # everyone is subscribed to this all the time
@@ -92,12 +91,6 @@ Meteor.publish 'puzzle-by-id', (id) -> model.Puzzles.find _id: id
 Meteor.publish 'round-by-id', (id) -> model.Rounds.find _id: id
 Meteor.publish 'round-for-puzzle', (id) -> model.Rounds.find puzzles: id
 Meteor.publish 'roundgroup-for-round', (id) -> model.RoundGroups.find rounds: id
-
-Meteor.publish 'my-nick', (nick) ->
-  model.Nicks.find {canon: model.canonical(nick)}, fields:
-    priv_located: 0
-    priv_located_at: 0
-    priv_located_order: 0
 
 # get recent messages
 

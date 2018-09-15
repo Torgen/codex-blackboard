@@ -175,8 +175,11 @@ Meteor.startup ->
     share.hubot[scriptName](robot)
   robot.brain.emit('loaded')
   # register our nick
-  n = Meteor.call 'newNick', {name: 'codexbot'}
-  Meteor.call 'setTag', {type:'nicks', object:n._id, name:'Gravatar', value:'codex@printf.net', who:n.canon}
+  Meteor.users.upsert 'codexbot',
+    $set:
+      nickname: 'codexbot'
+      gravatar: 'codex@printf.net'
+    $unset: services: ''
   # register our presence in general chat
   keepalive = -> Meteor.call 'setPresence',
     nick: 'codexbot'

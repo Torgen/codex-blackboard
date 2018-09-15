@@ -256,67 +256,62 @@
   </div>
 </template>
 
-<template name="header_nickmodal">
-  <div class="modal" id="nickPickModal">
-    {{! only insert contents if visible; this lets us manage
-        dependencies so we're not updating invisible content }}
-    {{#if nickModalVisible}}{{> header_nickmodal_contents }}{{/if}}
-  </div>
-</template>
-
 <template name="header_nickmodal_contents">
-    <div class="modal-header">
-      {{#if dismissable}}
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-      {{/if}}
-      <h3>Pick a Nick Name</h3>
-    </div>
-    <div class="modal-body">
-      <form id="nickPick" class="form-horizontal">
-        <div class="control-group" id="nickInputGroup">
-          <label class="control-label" for="nickInput">Nick</label>
-          <div class="controls">
-            <div class="input-prepend">
-              <span class="add-on">@</span>
-              <input type="text" id="nickInput" autocomplete="nickname"
-                     inputmode="verbatim"
-                     placeholder="nick" autofocus />
-            </div>
-            <span class="help-inline"></span>
-          </div>
+  <div class="modal-header">
+    <h3>Login</h3>
+  </div>
+  <div class="modal-body">
+    <form id="nickPick" class="form-horizontal">
+      <div class="control-group" id="passwordInputGroup">
+        <label class="control-label" for="passwordInput">Team Password</label>
+        <div class="controls">
+          <input type="password" id="passwordInput" autocomplete="password"
+                 inputmode="verbatim" autofocus
+                 placeholder="from listserv or whiteboard" />
+          <span class="help-inline">(same for everyone)</span>
         </div>
-        <div class="control-group">
-          <label class="control-label" for="nickRealname">Real Name</label>
-          <div class="controls">
-            <input type="text" id="nickRealname" autocomplete="name"
-                   inputmode="latin-name"
-                   placeholder="J. Random Codexian" />
-            <span class="help-inline">(optional)</span>
+      </div>
+      <div class="control-group" id="nickInputGroup">
+        <label class="control-label" for="nickInput">Nick</label>
+        <div class="controls">
+          <div class="input-prepend">
+            <span class="add-on">@</span>
+            <input type="text" id="nickInput" autocomplete="nickname"
+                    inputmode="verbatim" required
+                    placeholder="nick" maxlength=20/>
           </div>
+          <span class="help-inline">(1-20 characters)</span>
         </div>
-        <div class="pull-right gravatar"></div>
-        <div class="control-group">
-          <label class="control-label" for="nickEmail">Email</label>
-          <div class="controls">
-            <input type="email" id="nickEmail" autocomplete="email"
-                   placeholder="user@host.org" />
-            <span class="help-inline">(optional)</span>
-            <span class="help-block">Only used to look up
-            <a href="https://gravatar.com" target="_blank">Gravatar</a></span>
-          </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="nickRealname">Real Name</label>
+        <div class="controls">
+          <input type="text" id="nickRealname" autocomplete="name"
+                  inputmode="latin-name" maxlength=100
+                  placeholder="J. Random Codexian" />
+          <span class="help-inline">(optional)</span>
         </div>
-      <input type="hidden" id="nickSuccess" value="false" />
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-primary bb-submit">
-      {{#if currentPageEquals "chat"}}
-      Start Chatting
-      {{else}}
-      Log in
-      {{/if}}
-      </button>
-    </div>
+      </div>
+      <div class="pull-right gravatar"></div>
+      <div class="control-group">
+        <label class="control-label" for="nickEmail">Email</label>
+        <div class="controls">
+          <input type="email" id="nickEmail" autocomplete="email"
+                  placeholder="user@host.org" maxlength=100 />
+          <span class="help-inline">(optional)</span>
+          <span class="help-block">Only used to look up
+          <a href="https://gravatar.com" target="_blank">Gravatar</a></span>
+        </div>
+      </div>
+    <input type="hidden" id="nickSuccess" value="false" />
+    </form>
+  </div>
+  <div class="modal-footer">
+    <span id="loginError" class="warning"></span>
+    <button type="button" class="btn btn-primary bb-submit" disabled="{{disabled}}">
+      {{#if loggingIn}}Logging in...{{else}}Log in{{/if}}
+    </button>
+  </div>
 </template>
 
 <template name="header_confirmmodal">

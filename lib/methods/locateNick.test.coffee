@@ -23,9 +23,8 @@ describe 'locateNick', ->
   describe 'without queue position', ->
     id = null
     beforeEach ->
-      id = model.Nicks.insert
-        name: 'Torgen'
-        canon: 'torgen'
+      id = Meteor.users.insert
+        _id: 'torgen'
         located_at:  # Mountain View, CA
           lat: 37.419857
           lng: -122.078827
@@ -38,13 +37,13 @@ describe 'locateNick', ->
         timestamp: 5
 
     it 'leaves public location', ->
-      chai.assert.deepInclude model.Nicks.findOne(id),
+      chai.assert.deepInclude Meteor.users.findOne(id),
         located_at:
           lat: 37.419857
           lng: -122.078827
 
     it 'sets private location fields', ->
-      chai.assert.deepInclude model.Nicks.findOne(id),
+      chai.assert.deepInclude Meteor.users.findOne(id),
         priv_located: 5
         priv_located_at:
           lat: 37.368832
@@ -52,9 +51,8 @@ describe 'locateNick', ->
         priv_located_order: 7
 
   it 'leaves existing queue position', ->
-    id = model.Nicks.insert
-      name: 'Torgen'
-      canon: 'torgen'
+    id = Meteor.users.insert
+      _id: 'torgen'
       located_at:  # Mountain View, CA
         lat: 37.419857
         lng: -122.078827
@@ -66,7 +64,7 @@ describe 'locateNick', ->
       lat: 37.368832
       lng: -122.036346
 
-    chai.assert.deepInclude model.Nicks.findOne(id),
+    chai.assert.deepInclude Meteor.users.findOne(id),
       priv_located: 7
       priv_located_order: 4
 

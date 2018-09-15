@@ -109,23 +109,21 @@ Template.puzzle_summon_button.helpers
 
 Template.puzzle_summon_button.events
   "click .bb-summon-btn.stuck": (event, template) ->
-    share.ensureNick =>
-      share.confirmationDialog
-        message: 'Are you sure you want to cancel this request for help?'
-        ok_button: "Yes, this #{model.pretty_collection(Session.get 'type')} is no longer stuck"
-        no_button: 'Nevermind, this is still STUCK'
-        ok: ->
-          Meteor.call 'unsummon',
-            who: reactiveLocalStorage.getItem 'nick'
-            type: Session.get 'type'
-            object: Session.get 'id'
+    share.confirmationDialog
+      message: 'Are you sure you want to cancel this request for help?'
+      ok_button: "Yes, this #{model.pretty_collection(Session.get 'type')} is no longer stuck"
+      no_button: 'Nevermind, this is still STUCK'
+      ok: ->
+        Meteor.call 'unsummon',
+          who: Meteor.userId()
+          type: Session.get 'type'
+          object: Session.get 'id'
   "click .bb-summon-btn.unstuck": (event, template) ->
-    share.ensureNick =>
-      $('#summon_modal .stuck-at').val('at start')
-      $('#summon_modal .stuck-need').val('ideas')
-      $('#summon_modal .stuck-other').val('')
-      $('#summon_modal .bb-callin-submit').focus()
-      $('#summon_modal').modal show: true
+    $('#summon_modal .stuck-at').val('at start')
+    $('#summon_modal .stuck-need').val('ideas')
+    $('#summon_modal .stuck-other').val('')
+    $('#summon_modal .bb-callin-submit').focus()
+    $('#summon_modal').modal show: true
 
 Template.puzzle_summon_modal.events
   "click .bb-summon-submit, submit form": (event, template) ->
@@ -139,7 +137,7 @@ Template.puzzle_summon_modal.events
     if other isnt ''
         how += ": #{other}"
     Meteor.call 'summon',
-      who: reactiveLocalStorage.getItem 'nick'
+      who: Meteor.userId()
       type: Session.get 'type'
       object: Session.get 'id'
       how: how
@@ -147,11 +145,10 @@ Template.puzzle_summon_modal.events
 
 Template.puzzle_callin_button.events
   "click .bb-callin-btn": (event, template) ->
-    share.ensureNick =>
-      $('#callin_modal input:text').val('')
-      $('#callin_modal input:checked').val([])
-      $('#callin_modal').modal show: true
-      $('#callin_mdal input:text').focus()
+    $('#callin_modal input:text').val('')
+    $('#callin_modal input:checked').val([])
+    $('#callin_modal').modal show: true
+    $('#callin_mdal input:text').focus()
 
 Template.puzzle_callin_modal.events
   "click .bb-callin-submit, submit form": (event, template) ->
@@ -169,6 +166,6 @@ Template.puzzle_callin_modal.events
       answer = '"' + answer.replace(/\"/g,'\\"') + '"'
     Meteor.call "newMessage",
       body: "bot: call in #{backsolve}#{answer.toUpperCase()}"
-      nick: reactiveLocalStorage.getItem 'nick'
+      nick: Meteor.userId()
       room_name: "#{Session.get 'type'}/#{Session.get 'id'}"
     template.$('.modal').modal 'hide'
