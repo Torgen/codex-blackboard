@@ -59,7 +59,7 @@ distanceTo = (nick) ->
   return distance(n.located_at, p)
 
 isNickNear = share.isNickNear = (nick) ->
-  return true if nick is Meteor.userId() # that's me!
+  return true if canonical(nick) is Meteor.userId() # that's me!
   dist = distanceTo(nick)
   return false unless dist?
   return dist <= GEOLOCATION_NEAR_DISTANCE
@@ -82,7 +82,7 @@ CODEXBOT_LOCATIONS = [
 
 Template.registerHelper 'nickLocation', (args) ->
   args = share.keyword_or_positional 'nick', args
-  return '' if args.nick is Meteor.userId() # that's me!
+  return '' if canonical(args.nick) is Meteor.userId() # that's me!
   if args.nick is 'codexbot'
     idx = Math.floor(Session.get('currentTime') / (10*60*1000))
     return " is #{CODEXBOT_LOCATIONS[idx%CODEXBOT_LOCATIONS.length]}"

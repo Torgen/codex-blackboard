@@ -124,15 +124,13 @@ for messages in [ 'messages', 'oldmessages' ]
 
     # same thing, but nick-specific.  This allows us to share the big query;
     # paged-messages-nick should be small/light-weight.
-    Meteor.publish "#{messages}-in-range-nick", loginRequired (nick, room_name, from, to=0) ->
-      nick = model.canonical(nick or '') or null
+    Meteor.publish "#{messages}-in-range-to-me", loginRequired (room_name, from, to=0) ->
       cond = $gte: +from, $lt: +to
       delete cond.$lt if cond.$lt is 0
-      cond = model.NOT_A_TIMESTAMP unless nick? # force 0 results
       model.collection(messages).find
         room_name: room_name
         timestamp: cond
-        $or: [ { nick: nick }, { to: nick } ]
+        $or: [ { nick: @userId }, { to: @userId } ]
 
 Meteor.publish 'starred-messages', loginRequired (room_name) ->
   for messages in [ model.OldMessages, model.Messages ]

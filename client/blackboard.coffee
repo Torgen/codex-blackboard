@@ -295,7 +295,6 @@ processBlackboardEdit =
     else
       Meteor.call 'renameRoundGroup', {id:id,name:text}
   tags_name: (text, id, canon) ->
-    who = Meteor.userId()
     n = model.Names.findOne(id)
     if text is null # delete tag
       return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon}

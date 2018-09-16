@@ -235,7 +235,7 @@ Template.messages.onCreated ->
         instachat.ready = true
         Session.set 'chatReady', true
     if nick?
-      this.subscribe "#{messages}-in-range-nick", nick, p.room_name, p.from, p.to,
+      this.subscribe "#{messages}-in-range-to-me", p.room_name, p.from, p.to,
         onReady: onReady
     else
       onReady()
