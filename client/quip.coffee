@@ -14,10 +14,7 @@ Template.quip.events
   "click .bb-addquip-btn": (event, template) ->
     share.Router.goTo "quips", "new"
   "click .bb-quip-delete-btn": (event, template) ->
-    Meteor.call "removeQuip", {
-      id: Session.get 'id'
-      who: Meteor.userId()
-    }, (error, result) ->
+    Meteor.call "removeQuip", Session.get('id'), (error, result) ->
       unless error?
         share.Router.goTo "quips", "new"
 
@@ -31,10 +28,7 @@ Template.quip.events
     $textarea = $('textarea', event.currentTarget)
     text = $textarea.val()
     $textarea.val ''
-    q = Meteor.call 'newQuip', {
-      text: text
-      who: Meteor.userId()
-    }, (error, result) ->
+    q = Meteor.call 'newQuip', text, (error, result) ->
       unless error?
         share.Router.goTo "quips", result._id
 
@@ -63,7 +57,6 @@ processQuipEdit =
     Meteor.call 'setField',
       type: 'quips'
       object: id
-      who: Meteor.userId()
       fields: text: text
 
 Template.quip.onCreated -> this.autorun =>

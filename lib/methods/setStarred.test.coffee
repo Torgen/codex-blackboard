@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -26,16 +28,23 @@ describe 'setStarred', ->
         describe "starred was #{was_starred}", ->
           [false, true].forEach (set_starred) =>
             describe "set to #{set_starred}", ->
-              it 'succeeds', ->
+              id = null
+              beforeEach ->
                 id = model.collection(collection).insert
                   nick: 'torgen'
                   body: 'nobody star this'
                   timestamp: 5
                   room_name: 'general/0'
                   starred: was_starred
-                Meteor.call 'setStarred', id, set_starred
-                chai.assert.include model.collection(collection).findOne(id),
-                  starred: set_starred or null
+              it 'fails without login', ->
+                chai.assert.throws ->
+                  Meteor.call 'setStarred', id, set_starred
+                , Match.Error
+              describe 'when logged in', ->
+                it 'succeeds', ->
+                  Meteor.callAs 'setStarred', 'cjb', id, set_starred
+                  chai.assert.include model.collection(collection).findOne(id),
+                    starred: set_starred or null
       it 'fails on unstarrable', ->
         id = model.collection(collection).insert
           nick: 'torgen'
@@ -43,7 +52,7 @@ describe 'setStarred', ->
           action: true
           timestamp: 5
           room_name: 'general/0'
-        Meteor.call 'setStarred', id, true
+        Meteor.callAs 'setStarred', 'cjb', id, true
         chai.assert.notInclude model.collection(collection).findOne(id),
           starred: null
             

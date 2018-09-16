@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -31,12 +33,18 @@ describe 'newRoundGroup', ->
   beforeEach ->
     resetDatabase()
 
+  it 'fails without login', ->
+    chai.assert.throws ->
+      Meteor.call 'newRoundGroup',
+        name: 'Foo'
+        rounds: ['rd1']
+    , Match.Error
+
   describe 'when none exists with that name', ->
     id = null
     beforeEach ->
-      id = Meteor.call 'newRoundGroup',
+      id = Meteor.callAs 'newRoundGroup', 'torgen',
         name: 'Foo'
-        who: 'torgen'
         rounds: ['rd1']
       ._id
 
@@ -78,9 +86,8 @@ describe 'newRoundGroup', ->
         solved_by: null
         incorrectAnswers: []
         rounds: ['rd1', 'rd2']
-      group = Meteor.call 'newRoundGroup',
+      group = Meteor.callAs 'newRoundGroup', 'cjb',
         name: 'Foo'
-        who: 'cjb'
         
     it 'returns the existing group', ->
       chai.assert.equal group._id, id

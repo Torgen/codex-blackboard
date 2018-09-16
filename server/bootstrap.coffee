@@ -416,42 +416,35 @@ Meteor.startup ->
     console.log 'Populating initial puzzle database...'
     console.log '(use production:true in settings.json to disable this)'
     WHO='cscott'
-    extend = (a,b) ->
-      r = Object.create(null)
-      for own key, value of a
-        r[key] = value
-      for own key, value of b
-        r[key] = value
-      return r
     for roundgroup in SAMPLE_DATA
       console.log ' Round Group:', roundgroup.name
-      rg = Meteor.call "newRoundGroup", extend(roundgroup,{who:WHO,rounds:null})
+      rg = Meteor.callAs "newRoundGroup", WHO, {roundgroup..., rounds:null}
       for round in roundgroup.rounds
         console.log '  Round:', round.name
-        r = Meteor.call "newRound", extend(round,{who:WHO,puzzles:null})
-        Meteor.call "addRoundToGroup", {round:r, group:rg, who:WHO}
+        r = Meteor.callAs "newRound", WHO, {round..., puzzles:null}
+        Meteor.callAs "addRoundToGroup", WHO, {round:r, group:rg}
         if round.answer
-          Meteor.call "setAnswer", {type:'rounds', target:r._id, answer:round.answer, who:WHO}
+          Meteor.callAs "setAnswer", WHO, {type:'rounds', target:r._id, answer:round.answer}
         for chat in (round.chats or [])
           chat.room_name = "rounds/" + r._id
-          Meteor.call "newMessage", chat
+          Meteor.callAs "newMessage", chat.nick, chat
         for puzzle in round.puzzles
           console.log '   Puzzle:', puzzle.name
-          p = Meteor.call "newPuzzle", extend(puzzle,{who:WHO})
-          Meteor.call "addPuzzleToRound", {puzzle:p, round:r, who:WHO}
+          p = Meteor.callAs "newPuzzle", WHO, puzzle
+          Meteor.callAs "addPuzzleToRound", WHO, {puzzle:p, round:r}
           if puzzle.answer
-            Meteor.call "setAnswer", {type:'puzzles', target:p._id, answer:puzzle.answer, who:WHO}
+            Meteor.callAs "setAnswer", WHO, {type:'puzzles', target:p._id, answer:puzzle.answer}
           for chat in (puzzle.chats or [])
             chat.room_name = "puzzles/" + p._id
-            Meteor.call "newMessage", chat
+            Meteor.callAs "newMessage", chat.nick, chat
     # add some general chats
     for chat in SAMPLE_CHATS
       chat.room_name = "general/0"
-      Meteor.call "newMessage", chat
+      Meteor.callAs "newMessage", chat.nick, chat
     # add some user ids
     for nick in SAMPLE_NICKS
       Meteor.users.insert nick
     # add some quips
     for quip in SAMPLE_QUIPS
-      Meteor.call "newQuip", quip
+      Meteor.callAs "newQuip", quip.who, quip.text
     console.log 'Done populating initial database.'

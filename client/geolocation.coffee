@@ -30,14 +30,13 @@ distance = (one, two) ->
 
 updateLocation = do ->
   last = null
-  (nick, pos) ->
+  (pos) ->
     return unless pos?
     if last?
       return if pos.lat == last.lat and pos.lng == last.lng
       return if distance(last, pos) < GEOLOCATION_DISTANCE_THRESHOLD
     Tracker.nonreactive ->
       Meteor.call 'locateNick',
-        nick: nick
         lat: pos.lat
         lng: pos.lng
 
@@ -49,7 +48,7 @@ Tracker.autorun ->
   return unless nick?
   pos = Geolocation.latLng(enableHighAccuracy:false)
   Session.set "position", pos # always use most current location client-side
-  updateLocation nick, pos
+  updateLocation pos
 
 distanceTo = (nick) ->
   return null unless nick

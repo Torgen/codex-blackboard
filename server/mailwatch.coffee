@@ -52,13 +52,11 @@ mailListener.on 'mail', (mail) ->
   #  to -- same as from
   #  attachements -- an array of objects with various fields
   console.log 'Mail from HQ arrived:', mail.subject
-  Meteor.call 'newMessage',
-    nick: 'thehunt'
+  Meteor.callAs 'newMessage', 'thehunt',
     action: true
     body: "sent mail: #{mail.subject}"
     bot_ignore: true
-  Meteor.call 'newMessage',
-    nick: 'thehunt'
+  Meteor.callAs 'newMessage', 'thehunt',
     body: mail.html ? mail.text
     bodyIsHtml: mail.html?
     bot_ignore: true

@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -45,53 +47,59 @@ describe 'correctCallIn', ->
           submitted_to_hq: true
           backsolve: false
           provided: false
-        Meteor.call 'correctCallIn',
-          id: callin
-          who: 'cjb'
+      
+      it 'fails without login', ->
+        chai.assert.throws ->
+          Meteor.call 'correctCallIn', callin
+        , Match.Error
 
-      it "updates #{model.pretty_collection(type)}", ->
-        doc = model.collection(type).findOne puzzle
-        chai.assert.deepInclude doc,
-          touched: 7
-          touched_by: 'cjb'
-          solved: 7
-          solved_by: 'cjb'
-          tags: answer:
-            name: 'Answer'
-            value: 'precipitate'
+      describe 'when logged in', ->
+        beforeEach ->
+          Meteor.callAs 'correctCallIn', 'cjb', callin
+
+        it "updates #{model.pretty_collection(type)}", ->
+          doc = model.collection(type).findOne puzzle
+          chai.assert.deepInclude doc,
             touched: 7
             touched_by: 'cjb'
-      
-      it 'removes callin', ->
-        chai.assert.isUndefined model.CallIns.findOne callin
+            solved: 7
+            solved_by: 'cjb'
+            tags: answer:
+              name: 'Answer'
+              value: 'precipitate'
+              touched: 7
+              touched_by: 'cjb'
+        
+        it 'removes callin', ->
+          chai.assert.isUndefined model.CallIns.findOne callin
 
-      it 'oplogs', ->
-        o = model.Messages.find(room_name: 'oplog/0').fetch()
-        chai.assert.lengthOf o, 1
-        chai.assert.include o[0],
-          type: type
-          id: puzzle
-          stream: 'answers'
-          nick: 'cjb'
-        chai.assert.include o[0].body, '(PRECIPITATE)', 'message'
+        it 'oplogs', ->
+          o = model.Messages.find(room_name: 'oplog/0').fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            type: type
+            id: puzzle
+            stream: 'answers'
+            nick: 'cjb'
+          chai.assert.include o[0].body, '(PRECIPITATE)', 'message'
 
-      it "notifies #{model.pretty_collection(type)} chat", ->
-        o = model.Messages.find(room_name: "#{type}/#{puzzle}").fetch()
-        chai.assert.lengthOf o, 1
-        chai.assert.include o[0],
-          nick: 'cjb'
-          action: true
-        chai.assert.include o[0].body, 'PRECIPITATE', 'message'
-        chai.assert.notInclude o[0].body, '(Foo)', 'message'
+        it "notifies #{model.pretty_collection(type)} chat", ->
+          o = model.Messages.find(room_name: "#{type}/#{puzzle}").fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'cjb'
+            action: true
+          chai.assert.include o[0].body, 'PRECIPITATE', 'message'
+          chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
-      it 'notifies general chat', ->
-        o = model.Messages.find(room_name: "general/0").fetch()
-        chai.assert.lengthOf o, 1
-        chai.assert.include o[0],
-          nick: 'cjb'
-          action: true
-        chai.assert.include o[0].body, 'PRECIPITATE', 'message'
-        chai.assert.include o[0].body, '(Foo)', 'message'
+        it 'notifies general chat', ->
+          o = model.Messages.find(room_name: "general/0").fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'cjb'
+            action: true
+          chai.assert.include o[0].body, 'PRECIPITATE', 'message'
+          chai.assert.include o[0].body, '(Foo)', 'message'
 
   it 'notifies round chat for puzzle', ->
     p = model.Puzzles.insert
@@ -127,9 +135,7 @@ describe 'correctCallIn', ->
       submitted_to_hq: true
       backsolve: false
       provided: false
-    Meteor.call 'correctCallIn',
-      id: callin
-      who: 'cjb'
+    Meteor.callAs 'correctCallIn', 'cjb', callin
     m = model.Messages.find(room_name: "rounds/#{r}").fetch()
     chai.assert.lengthOf m, 1
     chai.assert.include m[0],

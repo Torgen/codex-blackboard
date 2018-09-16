@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -33,7 +35,6 @@ describe 'deleteRoundGroup', ->
 
   describe 'when it is empty', ->
     id = null
-    ret = null
     beforeEach ->
       id = model.RoundGroups.insert
         name: 'Foo'
@@ -47,21 +48,28 @@ describe 'deleteRoundGroup', ->
         rounds: []
         incorrectAnswers: []
         tags: {}
-      ret = Meteor.call 'deleteRoundGroup',
-        id: id
-        who: 'cjb'
 
-    it 'returns true', ->
-      chai.assert.isTrue ret
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'deleteRoundGroup', id
+      , Match.Error
 
-    it 'deletes the round group', ->
-      chai.assert.isUndefined model.RoundGroups.findOne()
-    
-    it 'makes no drive calls', ->
-      chai.assert.equal driveMethods.deletePuzzle.callCount, 0
+    describe 'when logged in', ->
+      ret = null
+      beforeEach ->
+        ret = Meteor.callAs 'deleteRoundGroup', 'cjb', id
 
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'roundgroups', room_name: 'oplog/0'}).fetch(), 1
+      it 'returns true', ->
+        chai.assert.isTrue ret
+
+      it 'deletes the round group', ->
+        chai.assert.isUndefined model.RoundGroups.findOne()
+      
+      it 'makes no drive calls', ->
+        chai.assert.equal driveMethods.deletePuzzle.callCount, 0
+
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'roundgroups', room_name: 'oplog/0'}).fetch(), 1
 
   describe 'when it contains rounds', ->
     id = null
@@ -79,9 +87,8 @@ describe 'deleteRoundGroup', ->
         rounds: ['foo1', 'foo2']
         incorrectAnswers: []
         tags: {}
-      ret = Meteor.call 'deleteRoundGroup',
-        id: id
-        who: 'cjb'
+      ret = Meteor.callAs 'deleteRoundGroup', 'cjb', id
+
     it 'returns false', ->
       chai.assert.isFalse ret
 

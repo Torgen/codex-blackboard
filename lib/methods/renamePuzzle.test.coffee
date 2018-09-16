@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -33,7 +35,6 @@ describe 'renamePuzzle', ->
 
   describe 'when new name is unique', ->
     id = null
-    ret = null
     beforeEach ->
       id = model.Puzzles.insert
         name: 'Foo'
@@ -50,27 +51,37 @@ describe 'renamePuzzle', ->
         spreadsheet: 'sid'
         doc: 'did'
         tags: {}
-      ret = Meteor.call 'renamePuzzle',
-        id: id
-        name: 'Bar'
-        who: 'cjb'
 
-    it 'returns true', ->
-      chai.assert.isTrue ret
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'renamePuzzle',
+          id: id
+          name: 'Bar'
+      , Match.Error
 
-    it 'renames puzzle', ->
-      puzzle = model.Puzzles.findOne id
-      chai.assert.include puzzle,
-        name: 'Bar'
-        canon: 'bar'
-        touched: 7
-        touched_by: 'cjb'
-    
-    it 'renames drive', ->
-      chai.assert.deepEqual driveMethods.renamePuzzle.getCall(0).args, ['Bar', 'fid', 'sid', 'did']
+    describe 'when logged in', ->
+      ret = null
+      beforeEach ->
+        ret = Meteor.callAs 'renamePuzzle', 'cjb',
+          id: id
+          name: 'Bar'
 
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
+      it 'returns true', ->
+        chai.assert.isTrue ret
+
+      it 'renames puzzle', ->
+        puzzle = model.Puzzles.findOne id
+        chai.assert.include puzzle,
+          name: 'Bar'
+          canon: 'bar'
+          touched: 7
+          touched_by: 'cjb'
+      
+      it 'renames drive', ->
+        chai.assert.deepEqual driveMethods.renamePuzzle.getCall(0).args, ['Bar', 'fid', 'sid', 'did']
+
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
 
   describe 'when puzzle with that name exists', ->
     id1 = null
@@ -107,10 +118,9 @@ describe 'renamePuzzle', ->
         spreadsheet: 's2'
         doc: 'd2'
         tags: {}
-      ret = Meteor.call 'renamePuzzle',
+      ret = Meteor.callAs 'renamePuzzle', 'cjb',
         id: id1
         name: 'Bar'
-        who: 'cjb'
 
     it 'returns false', ->
       chai.assert.isFalse ret

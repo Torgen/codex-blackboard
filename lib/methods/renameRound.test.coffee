@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -33,7 +35,6 @@ describe 'renameRound', ->
     
   describe 'when new name is unique', ->
     id = null
-    ret = null
     beforeEach ->
       id = model.Rounds.insert
         name: 'Foo'
@@ -51,27 +52,37 @@ describe 'renameRound', ->
         spreadsheet: 'sid'
         doc: 'did'
         tags: {}
-      ret = Meteor.call 'renameRound',
-        id: id
-        name: 'Bar'
-        who: 'cjb'
+        
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'renameRound',
+          id: id
+          name: 'Bar'
+      , Match.Error
+
+    describe 'when logged in', ->
+      ret = null
+      beforeEach ->
+        ret = Meteor.callAs 'renameRound', 'cjb',
+          id: id
+          name: 'Bar'
     
-    it 'returns true', ->
-      chai.assert.isTrue ret
+      it 'returns true', ->
+        chai.assert.isTrue ret
 
-    it 'renames round', ->
-      round = model.Rounds.findOne id
-      chai.assert.include round,
-        name: 'Bar'
-        canon: 'bar'
-        touched: 7
-        touched_by: 'cjb'
+      it 'renames round', ->
+        round = model.Rounds.findOne id
+        chai.assert.include round,
+          name: 'Bar'
+          canon: 'bar'
+          touched: 7
+          touched_by: 'cjb'
 
-    it 'renames drive', ->
-      chai.assert.deepEqual driveMethods.renamePuzzle.getCall(0).args, ['Bar', 'fid', 'sid', 'did']
+      it 'renames drive', ->
+        chai.assert.deepEqual driveMethods.renamePuzzle.getCall(0).args, ['Bar', 'fid', 'sid', 'did']
 
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1, 'oplogs'
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1, 'oplogs'
 
   describe 'when a round exists with that name', ->
     id1 = null
@@ -108,10 +119,9 @@ describe 'renameRound', ->
         spreadsheet: 's2'
         doc: 'd2'
         tags: {}
-      ret = Meteor.call 'renameRound',
+      ret = Meteor.callAs 'renameRound', 'cjb',
         id: id1
         name: 'Bar'
-        who: 'cjb'
 
     it 'returns false', ->
       chai.assert.isFalse ret

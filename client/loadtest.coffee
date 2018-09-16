@@ -3,23 +3,20 @@ ensureData = (cb) ->
   who = 'loadtest'
   Meteor.call 'newRoundGroup',
     name: 'roundgroup',
-    who: who,
     rounds: null
   , (err, rg) ->
     cb(err) if err?
     Meteor.call 'newRound',
       name: 'round'
-      who: who
       puzzles: null
     , (err, r) ->
       cb(err) if err?
-      Meteor.call 'addRoundToGroup', {round:r, group:rg, who:who}
+      Meteor.call 'addRoundToGroup', {round:r, group:rg}
       Meteor.call 'newPuzzle',
         name: 'puzzle'
-        who: 'loadtest'
       , (err, p) ->
         cb(err) if err?
-        Meteor.call 'addPuzzleToRound', {puzzle:p, round:r, who:who}
+        Meteor.call 'addPuzzleToRound', {puzzle:p, round:r}
         cb null,
           puzzle: p
           round: r
@@ -45,15 +42,12 @@ randomNick = ->
 saySomething = (room_name) ->
   Meteor.setTimeout saySomething.bind(null, room_name), \
     (5 + 10*Random.fraction()) * 1000 # 5-15 seconds
-  who = Meteor.userId()
   friend = randomNick()
   m = switch Random.choice ['system','action','pm','text','text','text']
     when 'system'
       system: true
       body: "system message from #{who}"
-      nick: ''
     when 'action'
-      nick: who
       body: Random.choice [
         "does something nice for #{friend}",
         "has a crush on #{friend}",
@@ -62,7 +56,6 @@ saySomething = (room_name) ->
       ]
       action: true
     when 'pm'
-      nick: who
       to: friend
       body: Random.choice [
         "Isn't #{randomNick()} totally hot?",
@@ -70,7 +63,6 @@ saySomething = (room_name) ->
         "This puzzle is hard!",
       ]
     when 'text'
-      nick: who
       body: Random.choice [
         "I don't care who knows it --- I love #{friend}!!!",
         "I think we're finally getting someplace with this puzzle",
@@ -84,7 +76,7 @@ saySomething = (room_name) ->
 addPuzzles = (data) ->
   Meteor.setTimeout addPuzzles.bind(null, data),
     (15 + 10*Random.fraction()) * 1000 # 15-25 seconds
-  [who,name] = [reactiveLocalStorage.getItem('nick'), Random.hexString(16)]
+  name = Random.hexString(16)
   [followup,removeit] = [null,null]
   cb = (err,o) ->
     return if err?
@@ -96,13 +88,10 @@ addPuzzles = (data) ->
         Meteor.call 'renameRoundGroup',
           id: rg._id
           name: Random.hexString(16)
-          who:who
         , cb
       removeit = (rg) ->
-        Meteor.call 'deleteRoundGroup',
-          id: rg._id
-          who: who
-      Meteor.call 'newRoundGroup', {name:name,who:who,rounds:null}, cb
+        Meteor.call 'deleteRoundGroup', rg._id
+      Meteor.call 'newRoundGroup', {name:name,rounds:null}, cb
     when 'round'
       followup = (r, cb) ->
         Meteor.call 'addRoundToGroup',
@@ -112,13 +101,10 @@ addPuzzles = (data) ->
           Meteor.call 'renameRound',
             id: r._id
             name: Random.hexString(16)
-            who: who
           , cb
       removeit = (r) ->
-        Meteor.call 'deleteRound',
-          id: r._id
-          who: who
-      Meteor.call 'newRound', {name:name,who:who,puzzles:null}, cb
+        Meteor.call 'deleteRound', r._id
+      Meteor.call 'newRound', {name:name,puzzles:null}, cb
     when 'puzzle'
       followup = (p, cb) ->
         Meteor.call 'addPuzzleToRound',
@@ -128,19 +114,15 @@ addPuzzles = (data) ->
           Meteor.call 'renamePuzzle',
             id: p._id
             name: Random.hexString(16)
-            who: who
           , ->
             Meteor.call 'setAnswer',
               type: "puzzles"
               target: p._id
               answer: Random.choice ['root beer', 'watermelon', 'ice cream']
-              who: who
             , cb
       removeit = (p) ->
-        Meteor.call 'deletePuzzle',
-          id: p._id
-          who: who
-      Meteor.call 'newPuzzle', {name:name,who:who}, cb
+        Meteor.call 'deletePuzzle', p._id
+      Meteor.call 'newPuzzle', {name:name}, cb
 
 # -- tasks --
 

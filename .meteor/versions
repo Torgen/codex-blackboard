@@ -16,8 +16,8 @@ caching-html-compiler@1.1.2
 callback-hook@1.0.10
 check@1.2.5
 codex-blackboard-hubot-scripts@2.1.2
-coffeescript@1.12.7_3
-coffeescript-compiler@1.12.7_3
+coffeescript@2.0.3_4
+coffeescript-compiler@2.0.3_4
 cscottnet:alertify-bootstrap@0.3.11
 cscottnet:geolocation@1.0.4
 cscottnet:googleapis@2.1.7_1

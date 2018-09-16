@@ -209,36 +209,36 @@ Template.blackboard.events
   "click .bb-add-round-group": (event, template) ->
     alertify.prompt "Name of new round group:", (e,str) ->
       return unless e # bail if cancelled
-      Meteor.call 'newRoundGroup', { name: str, who: Meteor.userId() }
+      Meteor.call 'newRoundGroup', name: str
   "click .bb-roundgroup-buttons .bb-add-round": (event, template) ->
     [type, id, rest...] = share.find_bbedit(event)
     who = Meteor.userId()
     alertify.prompt "Name of new round:", (e,str) ->
       return unless e # bail if cancelled
-      Meteor.call 'newRound', { name: str, who: who }, (error,r)->
+      Meteor.call 'newRound', { name: str }, (error,r)->
         throw error if error
-        Meteor.call 'addRoundToGroup', {round: r._id, group: id, who: who}
+        Meteor.call 'addRoundToGroup', {round: r._id, group: id}
   "click .bb-round-buttons .bb-add-puzzle": (event, template) ->
     [type, id, rest...] = share.find_bbedit(event)
     who = Meteor.userId()
     alertify.prompt "Name of new puzzle:", (e,str) ->
       return unless e # bail if cancelled
-      Meteor.call 'newPuzzle', { name: str, who: who }, (error,p)->
+      Meteor.call 'newPuzzle', { name: str }, (error,p)->
         throw error if error
-        Meteor.call 'addPuzzleToRound', {puzzle: p._id, round: id, who: who}
+        Meteor.call 'addPuzzleToRound', {puzzle: p._id, round: id}
   "click .bb-add-tag": (event, template) ->
     [type, id, rest...] = share.find_bbedit(event)
     who = Meteor.userId()
     alertify.prompt "Name of new tag:", (e,str) ->
       return unless e # bail if cancelled
-      Meteor.call 'setTag', {type:type, object:id, name:str, value:'', who:who}
+      Meteor.call 'setTag', {type:type, object:id, name:str, value:''}
   "click .bb-move-up, click .bb-move-down": (event, template) ->
     [type, id, rest...] = share.find_bbedit(event)
     up = event.currentTarget.classList.contains('bb-move-up')
     # flip direction if sort order is inverted
     up = (!up) if ('true' is reactiveLocalStorage.getItem 'sortReverse') and type isnt 'puzzles'
     method = if up then 'moveUp' else 'moveDown'
-    Meteor.call method, {type:type, id:id, who: Meteor.userId()}
+    Meteor.call method, {type:type, id:id}
   "click .bb-canEdit .bb-delete-icon": (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     [type, id, rest...] = share.find_bbedit(event)
@@ -281,28 +281,28 @@ processBlackboardEdit =
     processBlackboardEdit["roundgroups_#{field}"]?(text, id)
   puzzles_title: (text, id) ->
     if text is null # delete puzzle
-      Meteor.call 'deletePuzzle', {id:id, who: Meteor.userId()}
+      Meteor.call 'deletePuzzle', id
     else
-      Meteor.call 'renamePuzzle', {id:id, name:text, who: Meteor.userId()}
+      Meteor.call 'renamePuzzle', {id:id, name:text}
   rounds_title: (text, id) ->
     if text is null # delete round
-      Meteor.call 'deleteRound', {id:id, who: Meteor.userId()}
+      Meteor.call 'deleteRound', id
     else
-      Meteor.call 'renameRound', {id:id, name:text, who: Meteor.userId()}
+      Meteor.call 'renameRound', {id:id, name:text}
   roundgroups_title: (text, id) ->
     if text is null # delete roundgroup
-      Meteor.call 'deleteRoundGroup', {id:id, who: Meteor.userId()}
+      Meteor.call 'deleteRoundGroup', id
     else
-      Meteor.call 'renameRoundGroup', {id:id,name:text,who: Meteor.userId()}
+      Meteor.call 'renameRoundGroup', {id:id,name:text}
   tags_name: (text, id, canon) ->
     who = Meteor.userId()
     n = model.Names.findOne(id)
     if text is null # delete tag
-      return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon, who:who}
+      return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon}
     t = model.collection(n.type).findOne(id).tags[canon]
-    Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value, who:who}, (error,result) ->
+    Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value}, (error,result) ->
       if (canon isnt model.canonical(text)) and (not error)
-        Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name, who:who}
+        Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)
     t = model.collection(n.type).findOne(id).tags[canon]
@@ -314,13 +314,12 @@ processBlackboardEdit =
           canon: model.canonical(special)
           value: ''
     # set tag (overwriting previous value)
-    Meteor.call 'setTag', {type:n.type, object:id, name:t.name, value:text, who: Meteor.userId()}
+    Meteor.call 'setTag', {type:n.type, object:id, name:t.name, value:text}
   link: (text, id) ->
     n = model.Names.findOne(id)
     Meteor.call 'setField',
       type: n.type
       object: id
-      who: Meteor.userId()
       fields: link: text
 
 Template.blackboard_round.helpers

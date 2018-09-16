@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -34,7 +36,6 @@ describe 'deleteRound', ->
   describe 'when it is empty', ->
     id = null
     rgid = null
-    ret = null
     beforeEach ->
       id = model.Rounds.insert
         name: 'Foo'
@@ -63,37 +64,44 @@ describe 'deleteRound', ->
         rounds: [id, 'another_round']
         incorrectAnswers: []
         tags: {}
-      ret = Meteor.call 'deleteRound',
-        id: id
-        who: 'cjb'
 
-    it 'returns true', ->
-       chai.assert.isTrue ret
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'deleteRound', id
+      , Match.Error
+    
+    describe 'when logged in', ->
+      ret = null
+      beforeEach ->
+        ret = Meteor.callAs 'deleteRound', 'cjb', id
 
-    it 'deletes the round', ->
-      chai.assert.isUndefined model.Rounds.findOne(), 'no rounds after deletion'
+      it 'returns true', ->
+        chai.assert.isTrue ret
 
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'rounds', room_name: 'oplog/0'}).fetch(), 1
+      it 'deletes the round', ->
+        chai.assert.isUndefined model.Rounds.findOne(), 'no rounds after deletion'
 
-    it 'removes round from round group', ->
-      chai.assert.deepEqual model.RoundGroups.findOne(rgid),
-        _id: rgid
-        name: 'Bar'
-        canon: 'bar'
-        created: 1
-        created_by: 'torgen'
-        # Removing round doesn't count as touching, apparently.
-        touched: 1
-        touched_by: 'torgen'
-        solved: null
-        solved_by: null
-        rounds: ['another_round']
-        incorrectAnswers: []
-        tags: {}
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'rounds', room_name: 'oplog/0'}).fetch(), 1
 
-    it 'deletes drive', ->
-      chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']
+      it 'removes round from round group', ->
+        chai.assert.deepEqual model.RoundGroups.findOne(rgid),
+          _id: rgid
+          name: 'Bar'
+          canon: 'bar'
+          created: 1
+          created_by: 'torgen'
+          # Removing round doesn't count as touching, apparently.
+          touched: 1
+          touched_by: 'torgen'
+          solved: null
+          solved_by: null
+          rounds: ['another_round']
+          incorrectAnswers: []
+          tags: {}
+
+      it 'deletes drive', ->
+        chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']
 
   describe 'when round isn\'t empty', ->
     id = null
@@ -111,9 +119,7 @@ describe 'deleteRound', ->
         puzzles: ['foo1', 'foo2']
         incorrectAnswers: []
         tags: {}
-      ret = Meteor.call 'deleteRound',
-        id: id
-        who: 'cjb'
+      ret = Meteor.callAs 'deleteRound', 'cjb', id
     
     it 'returns false', ->
       chai.assert.isFalse ret

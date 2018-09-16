@@ -115,7 +115,6 @@ Template.puzzle_summon_button.events
       no_button: 'Nevermind, this is still STUCK'
       ok: ->
         Meteor.call 'unsummon',
-          who: Meteor.userId()
           type: Session.get 'type'
           object: Session.get 'id'
   "click .bb-summon-btn.unstuck": (event, template) ->
@@ -137,7 +136,6 @@ Template.puzzle_summon_modal.events
     if other isnt ''
         how += ": #{other}"
     Meteor.call 'summon',
-      who: Meteor.userId()
       type: Session.get 'type'
       object: Session.get 'id'
       how: how
@@ -166,6 +164,5 @@ Template.puzzle_callin_modal.events
       answer = '"' + answer.replace(/\"/g,'\\"') + '"'
     Meteor.call "newMessage",
       body: "bot: call in #{backsolve}#{answer.toUpperCase()}"
-      nick: Meteor.userId()
       room_name: "#{Session.get 'type'}/#{Session.get 'id'}"
     template.$('.modal').modal 'hide'

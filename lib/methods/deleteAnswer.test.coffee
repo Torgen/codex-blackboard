@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -22,6 +24,23 @@ describe 'deleteAnswer', ->
 
   ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
     describe "on #{model.pretty_collection(type)}", ->
+      it 'fails without login', ->
+        id = model.collection(type).insert
+          name: 'Foo'
+          canon: 'foo'
+          created: 1
+          created_by: 'cscott'
+          touched: 2
+          touched_by: 'torgen'
+          solved: null
+          solved_by: null
+          tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
+        chai.assert.throws ->
+          Meteor.call 'deleteAnswer',
+            type: type
+            target: id
+        , Match.Error
+        
       it 'works when unanswered', ->
         id = model.collection(type).insert
           name: 'Foo'
@@ -33,10 +52,9 @@ describe 'deleteAnswer', ->
           solved: null
           solved_by: null
           tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
-        Meteor.call 'deleteAnswer',
+        Meteor.callAs 'deleteAnswer', 'cjb',
           type: type
-          target: id,
-          who: 'cjb'
+          target: id
         doc = model.collection(type).findOne id
         chai.assert.deepEqual doc,
           _id: id
@@ -78,10 +96,9 @@ describe 'deleteAnswer', ->
           tags:
             answer: {name: 'Answer', value: 'foo', touched: 2, touched_by: 'torgen'}
             temperature: {name: 'Temperature', value: '12', touched: 2, touched_by: 'torgen'}
-        Meteor.call 'deleteAnswer',
+        Meteor.callAs 'deleteAnswer', 'cjb',
           type: type
-          target: id,
-          who: 'cjb'
+          target: id
         doc = model.collection(type).findOne id
         chai.assert.deepEqual doc,
           _id: id
@@ -124,10 +141,9 @@ describe 'deleteAnswer', ->
             answer: {name: 'Answer', value: 'foo', touched: 2, touched_by: 'torgen'}
             backsolve: {name: 'Backsolve', value: 'yes', touched: 2, touched_by: 'torgen'}
             provided: {name: 'Provided', value: 'yes', touched: 2, touched_by: 'torgen'}
-        Meteor.call 'deleteAnswer',
+        Meteor.callAs 'deleteAnswer', 'cjb',
           type: type
-          target: id,
-          who: 'cjb'
+          target: id
         doc = model.collection(type).findOne id
         chai.assert.deepEqual doc,
           _id: id

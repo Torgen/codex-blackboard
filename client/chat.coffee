@@ -431,7 +431,6 @@ $(document).on 'submit', '#joinRoom', ->
 Template.messages_input.submit = (message) ->
   return unless message
   args =
-    nick: Meteor.userId()
     room_name: Session.get 'room_name'
     body: message
   [word1, rest] = message.split(/\s+([^]*)/, 2)
@@ -457,11 +456,11 @@ Template.messages_input.submit = (message) ->
         whos_here = whos_here.join(', ')
       args.body = "looks around and sees: #{whos_here}"
     when "/nick"
-      args.to = args.nick
+      args.to = @userId
       args.action = true
       args.body = "needs to log out and log in again to change nicks"
     when "/join"
-      args.to = args.nick
+      args.to = @userId
       args.action = true
       return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
         if (not result?) and /^loopfinders$/i.test(rest.trim())
@@ -490,7 +489,7 @@ Template.messages_input.submit = (message) ->
       else
         # error: unknown user
         # record this attempt as a PM to yourself
-        args.to = args.nick
+        args.to = @userId
         args.body = "tried to /msg an UNKNOWN USER: #{message}"
         args.body = "tried to say nothing: #{message}" if missingMessage
         args.action = true
@@ -558,10 +557,8 @@ updateLastRead = ->
     room_name: Session.get 'room_name'
   ,
     sort: [['timestamp','desc']]
-  nick = Meteor.userId()
-  return unless lastMessage and nick
+  return unless lastMessage
   Meteor.call 'updateLastRead',
-    nick: nick
     room_name: Session.get 'room_name'
     timestamp: lastMessage.timestamp
 
@@ -586,10 +583,7 @@ Template.chat.onRendered ->
 startupChat = ->
   return if instachat.keepaliveInterval?
   instachat.keepalive = ->
-    nick = Meteor.userId()
-    return unless nick
     Meteor.call "setPresence",
-      nick: nick
       room_name: Session.get "room_name"
       present: true
       foreground: isVisible() # foreground/background tab status
@@ -607,10 +601,8 @@ cleanupChat = ->
   if instachat.keepaliveInterval?
     Meteor.clearInterval instachat.keepaliveInterval
     instachat.keepalive = instachat.keepaliveInterval = undefined
-  nick = Meteor.userId()
-  if nick and false # causes bouncing. just let it time out.
+  if false # causes bouncing. just let it time out.
     Meteor.call "setPresence",
-      nick: nick
       room_name: Session.get "room_name"
       present: false
 

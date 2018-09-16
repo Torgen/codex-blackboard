@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -38,8 +40,7 @@ describe 'summon', ->
             solved: 2
             solved_by: 'cjb'
             tags: answer: {name: 'Answer', value: 'precipitate', touched: 2, touched_by: 'cjb'}
-          ret = Meteor.call 'summon',
-            who: 'torgen'
+          ret = Meteor.callAs 'summon', 'torgen',
             type: type
             object: id
 
@@ -74,8 +75,7 @@ describe 'summon', ->
             solved: null
             solved_by: null
             tags: status: {name: 'Status', value: 'Stuck on you', touched: 2, touched_by: 'cjb'}
-          ret = Meteor.call 'summon',
-            who: 'torgen'
+          ret = Meteor.callAs 'summon', 'torgen',
             type: type
             object: id
             how: 'Stuck like glue'
@@ -96,7 +96,6 @@ describe 'summon', ->
 
       describe 'with other status', ->
         id = null
-        ret = null
         beforeEach ->
           id = model.collection(type).insert
             name: 'Foo'
@@ -108,34 +107,44 @@ describe 'summon', ->
             solved: null
             solved_by: null
             tags: status: {name: 'Status', value: 'everything is fine', touched: 2, touched_by: 'cjb'}
-          ret = Meteor.call 'summon',
-            who: 'torgen'
-            type: type
-            object: id
-            how: 'Stuck like glue'
-        it 'returns nothing', ->
-          chai.assert.isUndefined ret
+        it 'fails without login', ->
+          chai.assert.throws ->
+            Meteor.call 'summon',
+              type: type
+              object: id
+              how: 'Stuck like glue'
+          , Match.Error
+        describe 'when logged in', ->
+          ret = null
+          beforeEach ->
+            ret = Meteor.callAs 'summon', 'torgen',
+              type: type
+              object: id
+              how: 'Stuck like glue'
+          it 'returns nothing', ->
+            chai.assert.isUndefined ret
 
-        it 'updates document', ->
-          chai.assert.deepInclude model.collection(type).findOne(id),
-            touched: 7
-            touched_by: 'torgen'
-            tags: status: {name: 'Status', value: 'Stuck like glue', touched: 7, touched_by: 'torgen'}
+          it 'updates document', ->
+            chai.assert.deepInclude model.collection(type).findOne(id),
+              touched: 7
+              touched_by: 'torgen'
+              tags: status: {name: 'Status', value: 'Stuck like glue', touched: 7, touched_by: 'torgen'}
 
-        it 'notifies main chat', ->
-          msgs = model.Messages.find(room_name: 'general/0').fetch()
-          chai.assert.lengthOf msgs, 1
-          chai.assert.include msgs[0].body, ': Stuck like glue ('
-          chai.assert.include msgs[0].body, 'Foo'
+          it 'notifies main chat', ->
+            msgs = model.Messages.find(room_name: 'general/0').fetch()
+            chai.assert.lengthOf msgs, 1
+            chai.assert.include msgs[0].body, ': Stuck like glue ('
+            chai.assert.include msgs[0].body, 'Foo'
 
-        it "notifies #{model.pretty_collection(type)} chat", ->
-          msgs = model.Messages.find(room_name: "#{type}/#{id}").fetch()
-          chai.assert.lengthOf msgs, 1
-          chai.assert.include msgs[0].body, ': Stuck like glue'
-          chai.assert.notInclude msgs[0].body, 'Foo'
+          it "notifies #{model.pretty_collection(type)} chat", ->
+            msgs = model.Messages.find(room_name: "#{type}/#{id}").fetch()
+            chai.assert.lengthOf msgs, 1
+            chai.assert.include msgs[0].body, ': Stuck like glue'
+            chai.assert.notInclude msgs[0].body, 'Foo'
 
-        it 'oplogs', ->
-          chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', stream: 'stuck', type: type, id: id}).fetch(), 1
+          it 'oplogs', ->
+            chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', stream: 'stuck', type: type, id: id}).fetch(), 1
+
       describe 'with no status', ->
         id = null
         beforeEach ->
@@ -152,8 +161,7 @@ describe 'summon', ->
         describe 'empty how', ->
           ret = null
           beforeEach ->
-            ret = Meteor.call 'summon',
-              who: 'torgen',
+            ret = Meteor.callAs 'summon', 'torgen',
               type: type
               object: id
 
@@ -184,8 +192,7 @@ describe 'summon', ->
         describe 'how starts with stuck', ->
           ret = null
           beforeEach ->
-            ret = Meteor.call 'summon',
-              who: 'torgen',
+            ret = Meteor.callAs 'summon', 'torgen',
               type: type
               object: id
               how: 'stucK like glue'
@@ -217,8 +224,7 @@ describe 'summon', ->
         describe 'how starts with other', ->
           ret = null
           beforeEach ->
-            ret = Meteor.call 'summon',
-              who: 'torgen',
+            ret = Meteor.callAs 'summon', 'torgen',
               type: type
               object: id
               how: 'no idea'

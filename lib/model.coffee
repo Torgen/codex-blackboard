@@ -468,29 +468,31 @@ doc_id_to_link = (id) ->
 
   Meteor.methods
     newRoundGroup: (args) ->
-      newObject "roundgroups", args,
+      check @userId, NonEmptyString
+      newObject "roundgroups", {args..., who: @userId},
         incorrectAnswers: []
         solved: null
         solved_by: null
         rounds: args.rounds or []
         round_start: Rounds.find({}).count() # approx; server will fix up
     renameRoundGroup: (args) ->
-      renameObject "roundgroups", args
-    deleteRoundGroup: (args) ->
-      check args, ObjectWith
-        id: NonEmptyString
-        who: NonEmptyString
+      check @userId, NonEmptyString
+      renameObject "roundgroups", {args..., who: @userId}
+    deleteRoundGroup: (id) ->
+      check @userId, NonEmptyString
+      check id, NonEmptyString
       # disallow deletion unless roundgroup.rounds is empty
       # XXX or else move rounds to some other group(s)
-      rg = RoundGroups.findOne(args.id)
+      rg = RoundGroups.findOne(id)
       return false unless rg? and rg?.rounds?.length is 0
-      deleteObject "roundgroups", args
+      deleteObject "roundgroups", {id, who: @userId}
 
     newRound: (args) ->
+      check @userId, NonEmptyString
       round_prefix = huntPrefix 'round'
       link = if round_prefix
         "#{round_prefix}#{canonical(args.name)}"
-      r = newObject "rounds", args,
+      r = newObject "rounds", {args..., who: @userId},
         incorrectAnswers: []
         solved: null
         solved_by: null
@@ -500,24 +502,22 @@ doc_id_to_link = (id) ->
       newDriveFolder "rounds", r._id, r.name
       return r
     renameRound: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         id: NonEmptyString
         name: NonEmptyString
-        who: NonEmptyString
       # get drive ID (racy)
       r = Rounds.findOne(args.id)
       drive = r?.drive
       spreadsheet = r?.spreadsheet if drive?
       doc = r?.doc if drive?
-      result = renameObject "rounds", args
+      result = renameObject "rounds", {args..., who: @userId}
       # rename google drive folder
       renameDriveFolder args.name, drive, spreadsheet, doc if (result and drive?)
       return result
-    deleteRound: (args) ->
-      check args, ObjectWith
-        id: NonEmptyString
-        who: NonEmptyString
-      rid = args.id
+    deleteRound: (rid) ->
+      check @userId, NonEmptyString
+      check rid, NonEmptyString
       old = Rounds.findOne(rid)
       # disallow deletion unless round.puzzles is empty
       # XXX or else move puzzles to some other round(s)
@@ -525,7 +525,7 @@ doc_id_to_link = (id) ->
       # get drive ID (racy)
       drive = old?.drive
       # remove round itself
-      r = deleteObject "rounds", args
+      r = deleteObject "rounds", {id: rid, who: @userId}
       # remove from all roundgroups
       RoundGroups.update { rounds: rid },{ $pull: rounds: rid },{ multi: true }
       # delete google drive folder and all contents, recursively
@@ -534,10 +534,11 @@ doc_id_to_link = (id) ->
       return r
 
     newPuzzle: (args) ->
+      check @userId, NonEmptyString
       puzzle_prefix = huntPrefix 'puzzle'
       link = if puzzle_prefix
         "#{puzzle_prefix}#{canonical(args.name)}"
-      p = newObject "puzzles", args,
+      p = newObject "puzzles", {args..., who: @userId},
         incorrectAnswers: []
         solved: null
         solved_by: null
@@ -549,29 +550,27 @@ doc_id_to_link = (id) ->
       newDriveFolder "puzzles", p._id, p.name
       return p
     renamePuzzle: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         id: NonEmptyString
         name: NonEmptyString
-        who: NonEmptyString
       # get drive ID (racy)
-      p = Puzzles.findOne(args.id)
+      p = Puzzles.findOne args.id
       drive = p?.drive
       spreadsheet = p?.spreadsheet if drive?
       doc = p?.doc if drive?
-      result = renameObject "puzzles", args
+      result = renameObject "puzzles", {args..., who: @userId}
       # rename google drive folder
       renameDriveFolder args.name, drive, spreadsheet, doc if result and drive?
       return result
-    deletePuzzle: (args) ->
-      check args, ObjectWith
-        id: NonEmptyString
-        who: NonEmptyString
-      pid = args.id
+    deletePuzzle: (pid) ->
+      check @userId, NonEmptyString
+      check pid, NonEmptyString
       # get drive ID (racy)
-      old = Puzzles.findOne(args.id)
+      old = Puzzles.findOne pid
       drive = old?.drive
       # remove puzzle itself
-      r = deleteObject "puzzles", args
+      r = deleteObject "puzzles", {id: pid, who: @userId}
       # remove from all rounds
       Rounds.update { puzzles: pid },{ $pull: puzzles: pid },{ multi: true }
       # delete google drive folder
@@ -580,11 +579,11 @@ doc_id_to_link = (id) ->
       return r
 
     newCallIn: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidAnswerType
         target: IdOrObject
         answer: NonEmptyString
-        who: NonEmptyString
         backsolve: Match.Optional(Boolean)
         provided: Match.Optional(Boolean)
       return if this.isSimulation # otherwise we trigger callin sound twice
@@ -593,11 +592,11 @@ doc_id_to_link = (id) ->
       throw new Meteor.Error(400, "bad target") unless name?
       backsolve = if args.backsolve then " [backsolved]" else ''
       provided = if args.provided then " [provided]" else ''
-      newObject "callins", {name:name+':'+args.answer, who:args.who},
+      newObject "callins", {name:name+':'+args.answer, who:@userId},
         type: args.type
         target: id
         answer: args.answer
-        who: args.who
+        who: @userId
         submitted_to_hq: false
         backsolve: !!args.backsolve
         provided: !!args.provided
@@ -607,7 +606,7 @@ doc_id_to_link = (id) ->
         (if opts?.specifyPuzzle then " (#{name})" else "") + provided + backsolve
       msg =
         action: true
-        nick: args.who
+        nick: @userId
       # send to the general chat
       msg.body = body(specifyPuzzle: true)
       unless args?.suppressRoom is "general/0"
@@ -619,39 +618,39 @@ doc_id_to_link = (id) ->
         Meteor.call 'newMessage', msg
       # send to the round chat
       if args.type is "puzzles"
-        round = Rounds.findOne({puzzles: id})
+        round = Rounds.findOne puzzles: id
         if round?
           msg.body = body(specifyPuzzle: true)
           msg.room_name = "rounds/#{round._id}"
           unless args?.suppressRoom is msg.room_name
             Meteor.call "newMessage", msg
       oplog "New answer #{args.answer} submitted for", args.type, id, \
-          args.who, 'callins'
+          @userId, 'callins'
 
-    newQuip: (args) ->
-      check args, ObjectWith
-        text: NonEmptyString
+    newQuip: (text) ->
+      check @userId, NonEmptyString
+      check text, NonEmptyString
       # "Name" of a quip is a random name based on its hash, so the
       # oplogs don't spoil the quips.
       name = if Meteor.isSimulation
-        args.text.slice(0, 16) # placeholder
+        text.slice(0, 16) # placeholder
       else
-        RandomName(seed: args.text)
-      newObject "quips", {name:name, who:args.who},
-        text: args.text
+        RandomName(seed: text)
+      newObject "quips", {name:name, who:@userId},
+        text: text
         last_used: 0 # not yet used
         use_count: 0 # not yet used
 
     useQuip: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         id: NonEmptyString
-        who: NonEmptyString
         punted: Match.Optional(Boolean)
       quip = Quips.findOne args.id
       throw new Meteor.Error(400, "bad quip id") unless quip
       now = UTCNow()
       Quips.update args.id,
-        $set: {last_used: now, touched: now, touched_by: canonical(args.who)}
+        $set: {last_used: now, touched: now, touched_by: @userId}
         $inc: use_count: (if args.punted then 0 else 1)
       return if args.punted
       quipAddUrl = # see Router.urlFor
@@ -660,17 +659,16 @@ doc_id_to_link = (id) ->
       Meteor.call 'newMessage',
         body: "<span class=\"bb-quip-action\">#{UI._escape(quip.text)} <a class='quips-link' href=\"#{quipAddUrl}\"></a></span>"
         action: true
-        nick: args.who
         bodyIsHtml: true
 
-    removeQuip: (args) ->
-      deleteObject "quips", args
+    removeQuip: (id) ->
+      check @userId, NonEmptyString
+      deleteObject "quips", {id, who: @userId}
 
-    correctCallIn: (args) ->
-      check args, ObjectWith
-        id: NonEmptyString
-        who: NonEmptyString
-      callin = CallIns.findOne(args.id)
+    correctCallIn: (id) ->
+      check @userId, NonEmptyString
+      check id, NonEmptyString
+      callin = CallIns.findOne id
       throw new Meteor.Error(400, "bad callin") unless callin
       # call-in is cancelled as a side-effect of setAnswer
       Meteor.call "setAnswer",
@@ -679,14 +677,12 @@ doc_id_to_link = (id) ->
         answer: callin.answer
         backsolve: callin.backsolve
         provided: callin.provided
-        who: args.who
       backsolve = if callin.backsolve then "[backsolved] " else ''
       provided = if callin.provided then "[provided] " else ''
       name = collection(callin.type)?.findOne(callin.target)?.name
       msg =
         body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
         action: true
-        nick: args.who
         room_name: "#{callin.type}/#{callin.target}"
 
       # one message to the puzzle chat
@@ -698,16 +694,15 @@ doc_id_to_link = (id) ->
       Meteor.call 'newMessage', msg
 
       # one message to the round chat for metasolvers
-      round = Rounds.findOne({puzzles: callin.target})
+      round = Rounds.findOne puzzles: callin.target
       if round?
         msg.room_name = "rounds/#{round._id}"
         Meteor.call 'newMessage', msg
 
-    incorrectCallIn: (args) ->
-      check args, ObjectWith
-        id: NonEmptyString
-        who: NonEmptyString
-      callin = CallIns.findOne(args.id)
+    incorrectCallIn: (id) ->
+      check @userId, NonEmptyString
+      check id, NonEmptyString
+      callin = CallIns.findOne id
       throw new Meteor.Error(400, "bad callin") unless callin
       # call-in is cancelled as a side-effect of addIncorrectAnswer
       Meteor.call "addIncorrectAnswer",
@@ -716,12 +711,10 @@ doc_id_to_link = (id) ->
         answer: callin.answer
         backsolve: callin.backsolve
         provided: callin.provided
-        who: args.who
       name = collection(callin.type)?.findOne(callin.target)?.name
       msg =
         body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
         action: true
-        nick: args.who
         room_name: "#{callin.type}/#{callin.target}"
       Meteor.call 'newMessage', msg
       delete msg.room_name
@@ -729,23 +722,23 @@ doc_id_to_link = (id) ->
       Meteor.call 'newMessage', msg
 
     cancelCallIn: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         id: NonEmptyString
-        who: NonEmptyString
         suppressLog: Match.Optional(Boolean)
       callin = CallIns.findOne(args.id)
       throw new Meteor.Error(400, "bad callin") unless callin
       unless args.suppressLog
         oplog "Canceled call-in of #{callin.answer} for", callin.type, \
-            callin.target, args.who
+            callin.target, @userId
       deleteObject "callins",
         id: args.id
-        who: args.who
+        who: @userId
       , {suppressLog:true}
 
     locateNick: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
-        nick: NonEmptyString
         lat: Number
         lng: Number
         timestamp: Match.Optional(Number)
@@ -755,20 +748,21 @@ doc_id_to_link = (id) ->
       # priv_located_order implements a FIFO queue for updates, but
       # you don't lose your place if you're already in the queue
       timestamp = UTCNow()
-      n = Meteor.users.update canonical(args.nick),
+      n = Meteor.users.update @userId,
         $set:
           priv_located: args.timestamp ? timestamp
           priv_located_at: { lat: args.lat, lng: args.lng }
         $min: priv_located_order: timestamp
-      throw new Meteor.Error(400, "bad nick: #{args.nick}") unless n > 0
+      throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
 
     newMessage: (args) ->
+      check @userId, NonEmptyString
       check args, Object
       return if this.isSimulation # suppress flicker
       newMsg =
         body: args.body or ""
         bodyIsHtml: args.bodyIsHtml or false
-        nick: canonical(args.nick or "")
+        nick: @userId
         system: args.system or false
         action: args.action or false
         to: canonical(args.to or "") or null
@@ -784,15 +778,15 @@ doc_id_to_link = (id) ->
       newMsg.body = emojify newMsg.body unless newMsg.bodyIsHtml
       # update the user's 'last read' message to include this one
       # (doing it here allows us to use server timestamp on message)
-      unless (args.suppressLastRead or newMsg.system or newMsg.oplog or (not newMsg.nick))
+      unless (args.suppressLastRead or newMsg.system or newMsg.oplog)
         Meteor.call 'updateLastRead',
-          nick: newMsg.nick
           room_name: newMsg.room_name
           timestamp: newMsg.timestamp
       newMsg._id = Messages.insert newMsg
       return newMsg
 
     setStarred: (id, starred) ->
+      check @userId, NonEmptyString
       check id, NonEmptyString
       check starred, Boolean
       # Entirely premature optimization: if starring a message, assume it's
@@ -813,20 +807,23 @@ doc_id_to_link = (id) ->
         return if num > 0
 
     updateLastRead: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
-        nick: NonEmptyString
         room_name: NonEmptyString
         timestamp: Number
       LastRead.upsert
-        nick: canonical args.nick
+        nick: @userId
         room_name: args.room_name
       , $max:
         timestamp: args.timestamp
 
     setPresence: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
-        nick: NonEmptyString
         room_name: NonEmptyString
+        present: Match.Optional Boolean
+        foreground: Match.Optional Boolean
+        uuid: Match.Optional NonEmptyString
       # we're going to do the db operation only on the server, so that we
       # can safely use mongo's 'upsert' functionality.  otherwise
       # Meteor seems to get a little confused as it creates presence
@@ -839,7 +836,7 @@ doc_id_to_link = (id) ->
       # try to do this on both sides now.
       #return unless Meteor.isServer
       Presence.upsert
-        nick: canonical(args.nick)
+        nick: @userId
         room_name: args.room_name
       , $set:
           timestamp: UTCNow()
@@ -850,14 +847,14 @@ doc_id_to_link = (id) ->
       # and the other is not.
       if args.foreground
         Presence.update
-          nick: canonical(args.nick)
+          nick: @userId
           room_name: args.room_name
         , $set:
           foreground: true
           foreground_uuid: args.uuid
       else # only update 'foreground' if uuid matches
         Presence.update
-          nick: canonical(args.nick)
+          nick: @userId
           room_name: args.room_name
           foreground_uuid: args.uuid
         , $set:
@@ -865,11 +862,13 @@ doc_id_to_link = (id) ->
       return
 
     get: (type, id) ->
+      check @userId, NonEmptyString
       check type, NonEmptyString
       check id, NonEmptyString
       return collection(type).findOne(id)
 
     getByName: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         name: NonEmptyString
         optional_type: Match.Optional(NonEmptyString)
@@ -890,6 +889,7 @@ doc_id_to_link = (id) ->
 
     # parse RxPy notation.
     getByRP: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         round: Number
         puzzle: Match.Optional(Number)
@@ -907,11 +907,11 @@ doc_id_to_link = (id) ->
       null
 
     setField: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidType
         object: IdOrObject
         fields: Object
-        who: NonEmptyString
       id = args.object._id or args.object
       now = UTCNow()
       # disallow modifications to the following fields; use other APIs for these
@@ -921,63 +921,61 @@ doc_id_to_link = (id) ->
                'priv_located','priv_located_at','priv_located_order']
         delete args.fields[f]
       args.fields.touched = now
-      args.fields.touched_by = canonical(args.who)
+      args.fields.touched_by = @userId
       collection(args.type).update id, $set: args.fields
       return true
 
     setTag: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         name: NonEmptyString
         type: ValidType
         object: IdOrObject
         value: String
-        who: NonEmptyString
       # bail to setAnswer/deleteAnswer if this is the 'answer' tag.
       if canonical(args.name) is 'answer'
         return Meteor.call (if args.value then "setAnswer" else "deleteAnswer"),
           type: args.type
           target: args.object
           answer: args.value
-          who: args.who
       if canonical(args.name) is 'link'
         args.fields = { link: args.value }
         return Meteor.call 'setField', args
       args.now = UTCNow() # don't let caller lie about the time
       updateDoc = $set:
         touched: args.now
-        touched_by: canonical(args.who)
+        touched_by: @userId
       id = args.object._id or args.object
-      setTagInternal updateDoc, args
+      setTagInternal updateDoc, {args..., who: @userId}
       0 < collection(args.type).update id, updateDoc
 
     deleteTag: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         name: NonEmptyString
         type: ValidType
         object: IdOrObject
-        who: NonEmptyString
       id = args.object._id or args.object
       # bail to deleteAnswer if this is the 'answer' tag.
       if canonical(args.name) is 'answer'
         return Meteor.call "deleteAnswer",
           type: args.type
           target: args.object
-          who: args.who
       if canonical(args.name) is 'link'
         args.fields = { link: null }
         return Meteor.call 'setField', args
       args.now = UTCNow() # don't let caller lie about the time
       updateDoc = $set:
         touched: args.now
-        touched_by: canonical(args.who)
+        touched_by: @userId
       deleteTagInternal updateDoc, args.name
       0 < collection(args.type).update id, updateDoc
 
     summon: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         object: IdOrObject
         type: ValidAnswerType
-        who: NonEmptyString
         how: Match.Optional(NonEmptyString)
       id = args.object._id or args.object
       obj = collection(args.type).findOne id
@@ -993,14 +991,12 @@ doc_id_to_link = (id) ->
         type: args.type
         name: 'Status'
         value: how
-        who: args.who
         now: UTCNow()
       if isStuck obj
         return
-      oplog "Help requested for", args.type, id, args.who, 'stuck'
+      oplog "Help requested for", args.type, id, @userid, 'stuck'
       body = "has requested help: #{rawhow}"
       Meteor.call 'newMessage',
-        nick: args.who
         action: true
         body: body
         room_name: "#{args.type}/#{id}"
@@ -1008,47 +1004,44 @@ doc_id_to_link = (id) ->
         Meteor._relativeToSiteRootUrl "/#{args.type}/#{id}"
       body = "has requested help: #{UI._escape rawhow} (#{pretty_collection args.type} <a class=\"#{UI._escape args.type}-link\" href=\"#{objUrl}\">#{UI._escape obj.name}</a>)"
       Meteor.call 'newMessage',
-        nick: args.who
         action: true
         bodyIsHtml: true
         body: body
       return
 
     unsummon: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         object: IdOrObject
         type: ValidAnswerType
-        who: NonEmptyString
       id = args.object._id or args.object
       obj = collection(args.type).findOne id
       if not obj?
         return "Couldn't find #{pretty_collection args.type} #{id}"
       if not (isStuck obj)
         return "#{pretty_collection args.type} #{obj.name} isn't stuck"
-      oplog "Help request cancelled for", args.type, id, args.who
+      oplog "Help request cancelled for", args.type, id, @userId
       sticker = obj.tags.status?.touched_by
       Meteor.call 'deleteTag',
         object: id
         type: args.type
         name: 'status'
-        who: args.who
         now: UTCNow()
       body = "has arrived to help"
-      if canonical(args.who) is sticker
+      if @userId is sticker
         body = "no longer needs help getting unstuck"
       Meteor.call 'newMessage',
-        nick: args.who
         action: true
         body: body
         room_name: "#{args.type}/#{id}"
       body = "#{body} in #{pretty_collection args.type} #{obj.name}"
       Meteor.call 'newMessage',
-        nick: args.who
         action: true
         body: body
       return
 
     addRoundToGroup: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         round: IdOrObject
         group: IdOrObject
@@ -1075,6 +1068,7 @@ doc_id_to_link = (id) ->
       return true
 
     addPuzzleToRound: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         puzzle: IdOrObject
         round: IdOrObject
@@ -1104,26 +1098,32 @@ doc_id_to_link = (id) ->
       return true
 
     getRoundForPuzzle: (puzzle) ->
+      check @userId, NonEmptyString
       check puzzle, IdOrObject
       id = puzzle._id or puzzle
       check id, NonEmptyString
       return Rounds.findOne(puzzles: id)
 
     getGroupForRound: (round) ->
+      check @userId, NonEmptyString
       check round, IdOrObject
       id = round._id or round
       return RoundGroups.findOne(rounds: id)
 
-    moveUp: (args) -> moveObject(args.type, args.id, "up")
+    moveUp: (args) ->
+      check @userId, NonEmptyString
+      moveObject(args.type, args.id, "up")
 
-    moveDown: (args) -> moveObject(args.type, args.id, "down")
+    moveDown: (args) ->
+      check @userId, NonEmptyString
+      moveObject(args.type, args.id, "down")
 
     setAnswer: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidAnswerType
         target: IdOrObject
         answer: NonEmptyString
-        who: NonEmptyString
         backsolve: Match.Optional(Boolean)
         provided: Match.Optional(Boolean)
       id = args.target._id or args.target
@@ -1136,20 +1136,20 @@ doc_id_to_link = (id) ->
       now = UTCNow()
       updateDoc = $set:
         solved: now
-        solved_by: canonical(args.who)
+        solved_by: @userId
         touched: now
-        touched_by: canonical(args.who)
+        touched_by: @userId
       setTagInternal updateDoc,
         name: 'Answer'
         value: args.answer
-        who: args.who
+        who: @userId
         now: now
       deleteTagInternal updateDoc, 'status'
       if args.backsolve
         setTagInternal updateDoc,
           name: 'Backsolve'
           value: 'yes'
-          who: args.who
+          who: @userId
           now: now
       else
         deleteTagInternal updateDoc, 'Backsolve'
@@ -1157,7 +1157,7 @@ doc_id_to_link = (id) ->
         setTagInternal updateDoc,
           name: 'Provided'
           value: 'yes'
-          who: args.who
+          who: @userId
           now: now
       else
         deleteTagInternal updateDoc, 'Provided'
@@ -1166,21 +1166,20 @@ doc_id_to_link = (id) ->
         'tags.answer.value': $ne: args.answer
       , updateDoc
       return false if updated is 0
-      oplog "Found an answer (#{args.answer.toUpperCase()}) to", args.type, id, args.who, 'answers'
+      oplog "Found an answer (#{args.answer.toUpperCase()}) to", args.type, id, @userId, 'answers'
       # cancel any entries on the call-in queue for this puzzle
       for c in CallIns.find(type: args.type, target: id).fetch()
         Meteor.call 'cancelCallIn',
           id: c._id
-          who: args.who
           suppressLog: (c.answer is args.answer)
       return true
 
     addIncorrectAnswer: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidAnswerType
         target: IdOrObject
         answer: NonEmptyString
-        who: NonEmptyString
         backsolve: Match.Optional(Boolean)
         provided: Match.Optional(Boolean)
       id = args.target._id or args.target
@@ -1192,40 +1191,40 @@ doc_id_to_link = (id) ->
         incorrectAnswers:
           answer: args.answer
           timestamp: UTCNow()
-          who: args.who
+          who: @userId
           backsolve: !!args.backsolve
           provided: !!args.provided
 
-      oplog "reports incorrect answer #{args.answer} for", args.type, id, args.who, \
+      oplog "reports incorrect answer #{args.answer} for", args.type, id, @userId, \
           'callins'
       # cancel any matching entries on the call-in queue for this puzzle
       for c in CallIns.find(type: args.type, target: id, answer: args.answer).fetch()
         Meteor.call 'cancelCallIn',
           id: c._id
-          who: args.who
           suppressLog: true
       return true
 
     deleteAnswer: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidAnswerType
         target: IdOrObject
-        who: NonEmptyString
       id = args.target._id or args.target
       now = UTCNow()
       updateDoc = $set:
         solved: null
         solved_by: null
         touched: now
-        touched_by: canonical(args.who)
+        touched_by: @userId
       deleteTagInternal updateDoc, 'answer'
       deleteTagInternal updateDoc, 'backsolve'
       deleteTagInternal updateDoc, 'provided'
       collection(args.type).update id, updateDoc
-      oplog "Deleted answer for", args.type, id, args.who
+      oplog "Deleted answer for", args.type, id, @userId
       return true
 
     getRinghuntersFolder: ->
+      check @userId, NonEmptyString
       return unless Meteor.isServer
       # Return special folder used for uploads to general Ringhunters chat
       return share.drive.ringhuntersFolder
@@ -1233,6 +1232,7 @@ doc_id_to_link = (id) ->
     # if a round/puzzle folder gets accidentally deleted, this can be used to
     # manually re-create it.
     fixPuzzleFolder: (args) ->
+      check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidType
         object: IdOrObject

@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -31,13 +33,16 @@ describe 'useQuip', ->
       text: msg
       last_used: 3
       use_count: 2
+
+  it 'fails without login', ->
+    chai.assert.throws ->
+      Meteor.call 'useQuip', id: id
+    , Match.Error
   
   describe 'not punted', ->
     quip = null
     beforeEach ->
-      Meteor.call 'useQuip',
-        id: id
-        who:'cjb'
+      Meteor.callAs 'useQuip', 'cjb', id: id
       quip = model.Quips.findOne id
     
     it 'updates document', ->
@@ -55,9 +60,8 @@ describe 'useQuip', ->
   describe 'punted', ->
     quip = null
     beforeEach ->
-      Meteor.call 'useQuip',
+      Meteor.callAs 'useQuip', 'cjb',
         id: id
-        who:'cjb'
         punted: true
       quip = model.Quips.findOne id
     

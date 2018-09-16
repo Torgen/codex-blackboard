@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -20,11 +22,19 @@ describe 'setPresence', ->
   beforeEach ->
     resetDatabase()
 
+  it 'fails without login', ->
+    chai.assert.throws ->
+      Meteor.call 'setPresence', 
+        room_name: 'general/0'
+        present: true
+        foreground: false
+        uuid: '12345'
+    , Match.Error
+
   describe 'create', ->
     describe 'when present', ->
       it 'sets foreground false', ->
-        Meteor.call 'setPresence',
-          nick: 'torgen'
+        Meteor.callAs 'setPresence', 'torgen',
           room_name: 'general/0'
           present: true
           foreground: false
@@ -35,8 +45,7 @@ describe 'setPresence', ->
           foreground_uuid: null
 
       it 'sets foreground true', ->
-        Meteor.call 'setPresence',
-          nick: 'torgen'
+        Meteor.callAs 'setPresence', 'torgen',
           room_name: 'general/0'
           present: true
           foreground: true
@@ -47,8 +56,7 @@ describe 'setPresence', ->
     describe 'when absent', ->
       [false, true].forEach (foreground) =>
         it "ignores foreground when #{foreground}", ->
-          Meteor.call 'setPresence',
-            nick: 'torgen'
+          Meteor.callAs 'setPresence', 'torgen',
             room_name: 'general/0'
             present: false
             foreground: foreground
@@ -65,8 +73,7 @@ describe 'setPresence', ->
         present: true
         foreground: true
         foreground_uuid: '23456'
-      Meteor.call 'setPresence',
-        nick: 'torgen'
+      Meteor.callAs 'setPresence', 'torgen',
         room_name: 'general/0'
         present: false
         foreground: true
@@ -84,8 +91,7 @@ describe 'setPresence', ->
         present: true
         foreground: true
         foreground_uuid: '23456'
-      Meteor.call 'setPresence',
-        nick: 'torgen'
+      Meteor.callAs 'setPresence', 'torgen',
         room_name: 'general/0'
         present: true
         foreground: true
@@ -103,8 +109,7 @@ describe 'setPresence', ->
         present: true
         foreground: true
         foreground_uuid: '23456'
-      Meteor.call 'setPresence',
-        nick: 'torgen'
+      Meteor.callAs 'setPresence', 'torgen',
         room_name: 'general/0'
         present: true
         foreground: false
@@ -121,8 +126,7 @@ describe 'setPresence', ->
         present: true
         foreground: true
         foreground_uuid: '23456'
-      Meteor.call 'setPresence',
-        nick: 'torgen'
+      Meteor.callAs 'setPresence', 'torgen',
         room_name: 'general/0'
         present: true
         foreground: false

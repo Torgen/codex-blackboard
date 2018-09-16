@@ -9,11 +9,6 @@ settings = share.settings # import
 # templates, event handlers, and subscriptions for the site-wide
 # header bar, including the login modals and general Spacebars helpers
 
-Meteor.startup ->
-  Meteor.call 'getRinghuntersFolder', (error, f) ->
-    unless error?
-      Session.set 'RINGHUNTERS_FOLDER', (f or undefined)
-
 keyword_or_positional = share.keyword_or_positional = (name, args) ->
   return args.hash unless (not args?) or \
     (typeof(args) is 'string') or (typeof(args) is 'number')
@@ -239,6 +234,12 @@ Template.header_breadcrumb_quip.helpers
   idIsNew: -> 'new' is @id
   quip: ->  model.Quips.findOne @id unless @id is 'new'
 
+Template.header_breadcrumbs.onCreated ->
+  @autorun =>
+    Meteor.call 'getRinghuntersFolder', (error, f) ->
+      unless error?
+        Session.set 'RINGHUNTERS_FOLDER', (f or undefined)
+
 Template.header_breadcrumbs.helpers
   breadcrumbs: -> Session.get 'breadcrumbs'
   crumb_template: -> "header_breadcrumb_#{this.page}"
@@ -275,7 +276,6 @@ Template.header_breadcrumbs.events
       Meteor.call 'newMessage',
         body: message
         bodyIsHtml: true
-        nick: Meteor.userId()
         action: true
         room_name: Session.get('type')+'/'+Session.get('id')
 

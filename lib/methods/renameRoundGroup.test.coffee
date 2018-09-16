@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -33,7 +35,6 @@ describe 'renameRoundGroup', ->
 
   describe 'when new name is unique', ->
     id = null
-    ret = null
     beforeEach ->
       id = model.RoundGroups.insert
         name: 'Foo'
@@ -47,27 +48,37 @@ describe 'renameRoundGroup', ->
         rounds: ['yoy']
         incorrectAnswers: []
         tags: {}
-      ret = Meteor.call 'renameRoundGroup',
-        id: id
-        name: 'Bar'
-        who: 'cjb'
-
-    it 'returns true', ->
-      chai.assert.isTrue ret
-
-    it 'renames round group', ->
-      group = model.RoundGroups.findOne id
-      chai.assert.include group,
-        name: 'Bar'
-        canon: 'bar'
-        touched: 7
-        touched_by: 'cjb'
     
-    it 'doesn\'t rename a drive', ->
-      chai.assert.equal driveMethods.renamePuzzle.callCount, 0, 'rename drive calls'
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'renameRoundGroup',
+          id: id
+          name: 'Bar'
+      , Match.Error
     
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({id: id, type: 'roundgroups'}).fetch(), 1, 'oplogs'
+    describe 'when logged in', ->
+      ret = null
+      beforeEach ->
+        ret = Meteor.callAs 'renameRoundGroup', 'cjb',
+          id: id
+          name: 'Bar'
+
+      it 'returns true', ->
+        chai.assert.isTrue ret
+
+      it 'renames round group', ->
+        group = model.RoundGroups.findOne id
+        chai.assert.include group,
+          name: 'Bar'
+          canon: 'bar'
+          touched: 7
+          touched_by: 'cjb'
+      
+      it 'doesn\'t rename a drive', ->
+        chai.assert.equal driveMethods.renamePuzzle.callCount, 0, 'rename drive calls'
+      
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({id: id, type: 'roundgroups'}).fetch(), 1, 'oplogs'
 
   describe 'when another round group has same name', ->
     id1 = null
@@ -96,10 +107,9 @@ describe 'renameRoundGroup', ->
         solved_by: null
         incorrectAnswers: []
         tags: {}
-      ret = Meteor.call 'renameRoundGroup',
+      ret = Meteor.callAs 'renameRoundGroup', 'cjb',
         id: id1
         name: 'Bar'
-        who: 'cjb'
 
     it 'returns false', ->
       chai.assert.isFalse ret
