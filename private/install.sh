@@ -95,18 +95,6 @@ handlebars < $scriptroot/installtemplates/etc/nginx/sites-available/codex.handle
 sudo ln -s /etc/nginx/sites-{available,enabled}/codex
 sudo rm /etc/nginx/sites-enabled/default
   
-login=$2
-while [ -z "$login" ] ; do
-  read -p "Need a user name for basic authentication" login
-done
-printf "${login}:$(openssl passwd -apr1)\n" | sudo bash -c "cat > /etc/nginx/.htpasswd"
-  
 sudo systemctl enable codex.target
 sudo systemctl start codex.target
 sudo systemctl reload nginx.service
-  
-
-
-
-
-
