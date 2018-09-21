@@ -8,44 +8,35 @@ Template.quip.helpers
     if id is 'new' then null else model.Quips.findOne id
   recentQuips: ->
     model.Quips.find({},{sort:[['created','desc']], limit: 10})
-  canEdit: -> reactiveLocalStorage.getItem 'nick'
+  canEdit: -> Meteor.userId()?
 
 Template.quip.events
   "click .bb-addquip-btn": (event, template) ->
-     share.Router.goTo "quips", "new"
+    share.Router.goTo "quips", "new"
   "click .bb-quip-delete-btn": (event, template) ->
-     share.ensureNick =>
-       Meteor.call "removeQuip", {
-         id: Session.get 'id'
-         who: reactiveLocalStorage.getItem 'nick'
-       }, (error, result) ->
-         unless error?
-           share.Router.goTo "quips", "new"
+    Meteor.call "removeQuip", Session.get('id'), (error, result) ->
+      unless error?
+        share.Router.goTo "quips", "new"
 
   "keydown form.bb-add-new-quip": (event, template) ->
-     # implicit submit on enter.
-     return unless event.which is 13 and not (event.shiftKey or event.ctrlKey)
-     event.preventDefault() # prevent insertion of enter
-     $(event.currentTarget).submit()
+    # implicit submit on enter.
+    return unless event.which is 13 and not (event.shiftKey or event.ctrlKey)
+    event.preventDefault() # prevent insertion of enter
+    $(event.currentTarget).submit()
   "submit form.bb-add-new-quip": (event, template) ->
-     event.preventDefault() # ensure we don't actually navigate
-     share.ensureNick =>
-       $textarea = $('textarea', event.currentTarget)
-       text = $textarea.val()
-       $textarea.val ''
-       q = Meteor.call 'newQuip', {
-         text: text
-         who: reactiveLocalStorage.getItem 'nick'
-       }, (error, result) ->
-         unless error?
-           share.Router.goTo "quips", result._id
+    event.preventDefault() # ensure we don't actually navigate
+    $textarea = $('textarea', event.currentTarget)
+    text = $textarea.val()
+    $textarea.val ''
+    q = Meteor.call 'newQuip', text, (error, result) ->
+      unless error?
+        share.Router.goTo "quips", result._id
 
   "click .bb-editable": (event, template) ->
     value = share.find_bbedit(event).join('/')
-    share.ensureNick =>
-      # note that we rely on 'blur' on old field (which triggers ok or cancel)
-      # happening before 'click' on new field
-      Session.set 'editing', value
+    # note that we rely on 'blur' on old field (which triggers ok or cancel)
+    # happening before 'click' on new field
+    Session.set 'editing', value
 Template.quip.events share.okCancelEvents('.bb-editable input',
   ok: (text, evt) ->
     # find the data-bbedit specification for this field
@@ -66,7 +57,6 @@ processQuipEdit =
     Meteor.call 'setField',
       type: 'quips'
       object: id
-      who: reactiveLocalStorage.getItem 'nick'
       fields: text: text
 
 Template.quip.onCreated -> this.autorun =>

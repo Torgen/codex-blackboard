@@ -1,6 +1,7 @@
 puzzleOrThis = (s, msg) ->
   return share.botutil.objectFromRoom(msg) if s is 'this'
-  p = Meteor.call "getByName",
+  who = msg.envelope.user.id
+  p = Meteor.callAs "getByName", who,
     name: s
     optional_type: 'puzzles'
   return p if p?
@@ -10,7 +11,6 @@ puzzleOrThis = (s, msg) ->
   
 
 makeMeta = (msg) ->
-  who = msg.envelope.user.id
   name = msg.match[1]
   p = puzzleOrThis(name, msg)
   if not p
@@ -18,18 +18,19 @@ makeMeta = (msg) ->
     msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
     msg.finish()
     return
-  if Meteor.call 'makeMeta', p.object._id, who
+  who = msg.envelope.user.id
+  if Meteor.callAs 'makeMeta', who, p.object._id
     msg.reply useful: true, "OK, #{name} is now a meta."
   else
     msg.reply useful: true, "#{name} was already a meta."
   msg.finish()
 
 makeNotMeta = (msg) ->
-  who = msg.envelope.user.id
   name = msg.match[1]
   p = puzzleOrThis(name, msg)
   return unless p?
-  if Meteor.call 'makeNotMeta', p.object._id, who
+  who = msg.envelope.user.id
+  if Meteor.callAs 'makeNotMeta', who, p.object._id
     msg.reply useful: true, "OK, #{name} is no longer a meta."
   else
     msg.reply useful: true, "#{name} already wasn't a meta."
@@ -47,14 +48,14 @@ share.hubot.metas = (robot) ->
 
   robot.commands.push 'bot <puzzle|this> feeds into <puzzle|this> - Update codex blackboard'
   robot.respond (share.botutil.rejoin share.botutil.thingRE, / feeds into /, share.botutil.thingRE, /$/i), (msg) ->
-    who = msg.envelope.user.id
     puzzName = msg.match[1]
     metaName = msg.match[2]
     p = puzzleOrThis(puzzName, msg)
     return unless p?
     m = puzzleOrThis(metaName, msg)
     return unless m?
-    if Meteor.call 'feedMeta', p.object._id, m.object._id, who
+    who = msg.envelope.user.id
+    if Meteor.callAs 'feedMeta', who, p.object._id, m.object._id
       msg.reply useful: true, "OK, #{puzzName} now feeds into #{metaName}."
     else
       msg.reply useful:true, "#{puzzName} already fed into #{metaName}."
@@ -62,14 +63,14 @@ share.hubot.metas = (robot) ->
 
   robot.commands.push 'bot <puzzle|this> doesn\'t feed into <puzzle|this> - Update codex blackboard'
   robot.respond (share.botutil.rejoin share.botutil.thingRE, / does(n't| not) feed into /, share.botutil.thingRE, /$/i), (msg) ->
-    who = msg.envelope.user.id
     puzzName = msg.match[1]
     metaName = msg.match[3]
     p = puzzleOrThis(puzzName, msg)
     return unless p?
     m = puzzleOrThis(metaName, msg)
     return unless m?
-    if Meteor.call 'unfeedMeta', p.object._id, m.object._id, who
+    who = msg.envelope.user.id
+    if Meteor.callAs 'unfeedMeta', who, p.object._id, m.object._id
       msg.reply useful: true, "OK, #{puzzName} no longer feeds into #{metaName}."
     else
       msg.reply useful:true, "#{puzzName} already didn't feed into #{metaName}."

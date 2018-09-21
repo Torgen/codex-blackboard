@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -30,6 +32,13 @@ describe 'newPuzzle', ->
 
   beforeEach ->
     resetDatabase()
+
+  it 'fails without login', ->
+    chai.assert.throws ->
+      Meteor.call 'newPuzzle',
+        name: 'Foo'
+        link: 'https://puzzlehunt.mit.edu/foo'
+    , Match.Error
     
   describe 'when none exists with that name', ->
     round = null
@@ -43,9 +52,8 @@ describe 'newPuzzle', ->
         touched: 1
         touched_by: 'cjb'
         puzzles: []
-      id = Meteor.call 'newPuzzle',
+      id = Meteor.callAs 'newPuzzle', 'torgen',
         name: 'Foo'
-        who: 'torgen'
         link: 'https://puzzlehunt.mit.edu/foo'
         round: round
       ._id
@@ -104,9 +112,8 @@ describe 'newPuzzle', ->
         touched: 1
         touched_by: 'cjb'
         puzzles: [id1]
-      id2 = Meteor.call 'newPuzzle',
+      id2 = Meteor.callAs 'newPuzzle', 'cjb',
         name: 'Foo'
-        who: 'cjb'
         round: round
       ._id
     

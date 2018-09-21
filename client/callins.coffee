@@ -53,18 +53,13 @@ Template.callins.events
 
 Template.callins_quip.events
   "click .bb-quip-next": (event, template) ->
-    Meteor.call 'useQuip',
-      id: @_id
-      who: reactiveLocalStorage.getItem 'nick'
+    Meteor.call 'useQuip', id: @_id
   "click .bb-quip-punt": (event, template) ->
     Meteor.call 'useQuip',
       id: @_id
-      who: reactiveLocalStorage.getItem 'nick'
       punted: true
   "click .bb-quip-remove": (event, template) ->
-    Meteor.call 'removeQuip',
-      id: @_id
-      who: reactiveLocalStorage.getItem 'nick'
+    Meteor.call 'removeQuip', @_id
 
 Template.callin_row.helpers
   lastAttempt: ->
@@ -81,19 +76,13 @@ Template.callin_row.helpers
 
 Template.callin_row.events
   "click .bb-callin-correct": (event, template) ->
-     Meteor.call 'correctCallIn',
-       id: @_id
-       who: reactiveLocalStorage.getItem 'nick'
+     Meteor.call 'correctCallIn', @_id
 
   "click .bb-callin-incorrect": (event, template) ->
-     Meteor.call 'incorrectCallIn',
-       id: @_id
-       who: reactiveLocalStorage.getItem 'nick'
+     Meteor.call 'incorrectCallIn', @_id
 
   "click .bb-callin-cancel": (event, template) ->
-     Meteor.call 'cancelCallIn',
-       id: @_id
-       who: reactiveLocalStorage.getItem 'nick'
+     Meteor.call 'cancelCallIn', id: @_id
 
   "change .bb-submitted-to-hq": (event, template) ->
      checked = !!event.currentTarget.checked
@@ -101,12 +90,10 @@ Template.callin_row.events
        type: 'callins'
        object: @_id
        fields: submitted_to_hq: checked
-       who: reactiveLocalStorage.getItem 'nick'
 
   "click .copy-and-go": (event, template) ->
      Meteor.call 'setField',
        type: 'callins'
        object: @_id
        fields: submitted_to_hq: true
-       who: reactiveLocalStorage.getItem 'nick'
 

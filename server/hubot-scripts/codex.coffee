@@ -28,20 +28,19 @@ share.hubot.codex = (robot) ->
     name = share.botutil.strip msg.match[1]
     answer = share.botutil.strip msg.match[2]
     who = msg.envelope.user.id
-    target = Meteor.call "getByName",
+    target = Meteor.callAs "getByName", who,
       name: name
       optional_type: "puzzles"
     if not target
-      target = Meteor.call "getByName",
+      target = Meteor.callAs "getByName", who,
         name: name
     if not target
       msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
       return msg.finish()
-    res = Meteor.call "setAnswer",
+    res = Meteor.callAs "setAnswer", who,
       type: target.type
       target: target.object._id
       answer: answer
-      who: who
     unless res
       msg.reply useful: true, msg.random ["I knew that!","Not news to me.","Already known.", "It is known.", "So say we all."]
       return
@@ -69,23 +68,21 @@ share.hubot.codex = (robot) ->
     name = if msg.match[5]? then share.botutil.strip msg.match[5]
     who = msg.envelope.user.id
     if name?
-      target = Meteor.call "getByName",
+      target = Meteor.callAs "getByName", who,
         name: name
         optional_type: type ? "puzzles"
       if not target and not type?
-        target = Meteor.call "getByName",
-          name: name
+        target = Meteor.callAs "getByName", who, name: name
       if not target
         msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
         return msg.finish()
     else
       target = share.botutil.objectFromRoom msg
       return unless target?
-    Meteor.call "newCallIn",
+    Meteor.callAs "newCallIn", who,
       type: target.type
       target: target.object._id
       answer: answer
-      who: who
       backsolve: backsolve
       provided: provided
       # I don't mind a little redundancy, but if it bothers you uncomment this:
@@ -98,19 +95,17 @@ share.hubot.codex = (robot) ->
   robot.respond (share.botutil.rejoin /Delete( the)? answer (to|for)( puzzle)? /,share.botutil.thingRE,/$/i), (msg) ->
     name = share.botutil.strip msg.match[4]
     who = msg.envelope.user.id
-    target = Meteor.call "getByName",
+    target = Meteor.callAs "getByName", who,
       name: name
       optional_type: "puzzles"
     if not target
-      target = Meteor.call "getByName",
-        name: name
+      target = Meteor.callAs "getByName", who, name: name
     if not target
       msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
       return
-    Meteor.call "deleteAnswer",
+    Meteor.callAs "deleteAnswer", who,
       type: target.type
       target: target.object._id
-      who: who
     msg.reply useful: true, "Okay, I deleted the answer to \"#{target.object.name}\"."
     msg.finish()
 
@@ -149,14 +144,14 @@ share.hubot.codex = (robot) ->
     if round.type is 'rounds'
       extra.round = round.object._id
     else if round.type is 'puzzles'
-      metaround = Meteor.call 'getRoundForPuzzle', round.object._id
+      metaround = Meteor.callAs 'getRoundForPuzzle', who, round.object._id
       extra.round = metaround._id
       extra.feedsInto = [round.object._id]
     else
       msg.reply useful:true, "A new puzzle can't be created in \"#{rname}\" because it's a #{share.model.pretty_collection round.type}."
       msg.finish()
       return
-    puzzle = Meteor.call "newPuzzle", extra
+    puzzle = Meteor.callAs "newPuzzle", who, extra
     puzz_url = Meteor._relativeToSiteRootUrl "/puzzles/#{puzzle._id}"
     parent_url = Meteor._relativeToSiteRootUrl "/#{round.type}/#{round.object._id}"
     msg.reply {useful: true, bodyIsHtml: true}, "Okay, I added <a class='puzzles-link' href='#{UI._escape puzz_url}'>#{UI._escape puzzle.name}</a> to <a class='#{round.type}-link' href='#{UI._escape parent_url}'>#{UI._escape round.object.name}</a>."
@@ -167,15 +162,13 @@ share.hubot.codex = (robot) ->
   robot.respond (share.botutil.rejoin /Delete puzzle /,share.botutil.thingRE,/$/i), (msg) ->
     name = share.botutil.strip msg.match[1]
     who = msg.envelope.user.id
-    puzzle = Meteor.call "getByName",
+    puzzle = Meteor.callAs "getByName", who,
       name: name
       optional_type: "puzzles"
     if not puzzle
       msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
       return
-    res = Meteor.call "deletePuzzle",
-      id: puzzle.object._id
-      who: who
+    res = Meteor.callAs "deletePuzzle", who, puzzle.object._id
     if res
       msg.reply useful: true, "Okay, I deleted \"#{puzzle.object.name}\"."
     else
@@ -188,9 +181,8 @@ share.hubot.codex = (robot) ->
   robot.commands.push 'bot <round> is a new round - Updates codex blackboard'
   robot.respond (share.botutil.rejoin share.botutil.thingRE,/\ is a new round$/i), (msg) ->
     rname = share.botutil.strip msg.match[1]
-    round = Meteor.call "newRound",
-      name: rname
-      who: "codexbot"
+    who = msg.envelope.user.id
+    round = Meteor.callAs "newRound", who, name: rname
     round_url = Meteor._relativeToSiteRootUrl "/rounds/#{round._id}"
     msg.reply {useful: true, bodyIsHtml: true}, "Okay, I created round <a class='rounds-link' href='#{UI._escape round_url}'>#{UI._escape rname}</a>."
     msg.finish()
@@ -200,15 +192,13 @@ share.hubot.codex = (robot) ->
   robot.respond (share.botutil.rejoin /Delete round /,share.botutil.thingRE,/$/i), (msg) ->
     rname = share.botutil.strip msg.match[1]
     who = msg.envelope.user.id
-    round = Meteor.call "getByName",
+    round = Meteor.callAs "getByName", who,
       name: rname
       optional_type: "rounds"
     unless round
       msg.reply useful: true, "I can't find a round called \"#{rname}\"."
       return
-    res = Meteor.call "deleteRound",
-      id: round.object._id
-      who: who
+    res = Meteor.callAs "deleteRound", who, round.object._id
     unless res
       msg.reply useful: true, "Couldn't delete round. (Are there still puzzles in it?)"
       return
@@ -220,9 +210,7 @@ share.hubot.codex = (robot) ->
   robot.respond (share.botutil.rejoin /new quip:? /,share.botutil.thingRE,/$/i), (msg) ->
     text = share.botutil.strip msg.match[1]
     who = msg.envelope.user.id
-    quip = Meteor.call "newQuip",
-      text: text
-      who: who
+    quip = Meteor.callAs "newQuip", who, text
     msg.reply "Okay, added quip.  I'm naming this one \"#{quip.name}\"."
     msg.finish()
 
@@ -234,7 +222,7 @@ share.hubot.codex = (robot) ->
     who = msg.envelope.user.id
     if msg.match[2]?
       type = if msg.match[3]? then msg.match[3].replace(/\s+/g,'')+'s'
-      target = Meteor.call 'getByName',
+      target = Meteor.callAs 'getByName', who,
         name: share.botutil.strip msg.match[4]
         optional_type: type
       if not target?
@@ -243,20 +231,20 @@ share.hubot.codex = (robot) ->
     else
       target = share.botutil.objectFromRoom msg
       return unless target?
-    Meteor.call 'setTag',
+    Meteor.callAs 'setTag', who,
       type: target.type
       object: target.object._id
       name: tag_name
       value: tag_value
-      who: who
     msg.reply useful: true, "The #{tag_name} for #{target.object.name} is now \"#{tag_value}\"."
     msg.finish()
 
 # Stuck
   robot.commands.push 'bot stuck[ on <puzzle>][ because <reason>] - summons help and marks puzzle as stuck on the blackboard'
   robot.respond (share.botutil.rejoin 'stuck(?: on ',share.botutil.thingRE,')?(?: because ',share.botutil.thingRE,')?',/$/i), (msg) ->
+    who = msg.envelope.user.id
     if msg.match[1]?
-      target = Meteor.call 'getByName',
+      target = Meteor.callAs 'getByName', who,
         name: msg.match[1]
         optional_type: 'puzzles'
       if not target?
@@ -268,10 +256,9 @@ share.hubot.codex = (robot) ->
     unless target.type is 'puzzles'
       msg.reply useful: true, 'Only puzzles can be stuck'
       return msg.finish()
-    result = Meteor.call 'summon',
+    result = Meteor.callAs 'summon', who,
       object: target.object._id
       how: msg.match[2]
-      who: msg.envelope.user.id
     if result?
       msg.reply useful: true, result
       return msg.finish()
@@ -282,8 +269,9 @@ share.hubot.codex = (robot) ->
 
   robot.commands.push 'but unstuck[ on <puzzle>] - marks puzzle no longer stuck on the blackboard'
   robot.respond (share.botutil.rejoin 'unstuck(?: on ',share.botutil.thingRE,')?',/$/i), (msg) ->
+    who = msg.envelope.user.id
     if msg.match[1]?
-      target = Meteor.call 'getByName',
+      target = Meteor.callAs 'getByName', who,
         name: msg.match[1]
         optional_type: 'puzzles'
       if not target?
@@ -295,9 +283,8 @@ share.hubot.codex = (robot) ->
     unless target.type is 'puzzles'
       msg.reply useful: true, 'Only puzzles can be stuck'
       return msg.finish()
-    result = Meteor.call 'unsummon',
+    result = Meteor.callAs 'unsummon', who,
       object: target.object._id
-      who: msg.envelope.user.id
     if result?
       msg.reply useful: true, result
       return msg.finish()
@@ -308,9 +295,8 @@ share.hubot.codex = (robot) ->
 
   robot.commands.push 'bot announce <message>'
   robot.respond /announce (.*)$/i, (msg) ->
-    Meteor.call 'newMessage',
+    Meteor.callAs 'newMessage', msg.envelope.user.id
       oplog: true
-      nick: msg.envelope.user.id
       body: "Announcement: #{msg.match[1]}"
       stream: 'announcements'
     msg.finish()

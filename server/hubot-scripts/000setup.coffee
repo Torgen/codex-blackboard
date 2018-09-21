@@ -24,22 +24,24 @@ share.botutil =
     \S(?:.*?\S)?
     ) ///
   strip: (s) ->
-    (try return JSON.parse(s)) if (/^[\"\']/.test s) and s[0] == s[s.length-1]
+    if (/^[\"\']/.test s) and s[0] == s[s.length-1]
+      try return JSON.parse(s)
     s
   # helper function
   objectFromRoom: (msg) ->
     # get puzzle id from room name
     room = msg.envelope.room
+    who = msg.envelope.user.id
     [type,id] = room.split('/', 2)
     if type is "general"
       msg.reply useful: true, "You need to tell me which puzzle this is for."
       msg.finish()
       return
-    unless type is 'puzzles' or type is 'rounds'
+    unless type is 'puzzles' or type is 'rounds' or type is 'roundgroups'
       msg.reply useful: true, "I don't understand the type: #{type}."
       msg.finish()
       return
-    object = Meteor.call "get", type, id
+    object = Meteor.callAs "get", who, type, id
     unless object
       msg.reply useful: true, "Something went wrong.  I can't look up #{room}."
       msg.finish()

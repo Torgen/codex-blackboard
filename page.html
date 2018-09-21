@@ -19,11 +19,16 @@ function onGoogleApiLoad() {
 </head>
 
 <body>
-  <div id="bb-body">
-      {{> page }}
-  </div>
-  {{> header_nickmodal}}
-  {{> header_confirmmodal}}
+  {{#if currentUser}}
+    <div id="bb-body">
+        {{> page }}
+    </div>
+    {{> header_confirmmodal}}
+  {{else}}
+    <div class="modal show">
+      {{> header_nickmodal_contents}}
+    </div>
+  {{/if}}
 </body>
 
 <template name="page">

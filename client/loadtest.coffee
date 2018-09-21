@@ -1,16 +1,13 @@
 # sample data for load testing
 ensureData = (cb) ->
-  who = 'loadtest'
   Meteor.call 'newRound',
     name: 'round'
-    who: who
     puzzles: null
   , (err, r) ->
     cb(err) if err?
     Meteor.call 'newPuzzle',
       name: 'puzzle'
       round: r
-      who: 'loadtest'
 
 # different load testing tasks
 tasks = Object.create(null)
@@ -28,24 +25,16 @@ randomNick = ->
     'alice','bob','charlie','del','eve','frank','georgia','mallory','tom','zeke'
   ]
 
-# login
-login = (nick=randomNick()) ->
-  reactiveLocalStorage.setItem 'nick', nick
-  Meteor.call 'newNick', {name:nick}
-
 # say something every 10s or so
 saySomething = (room_name) ->
   Meteor.setTimeout saySomething.bind(null, room_name), \
     (5 + 10*Random.fraction()) * 1000 # 5-15 seconds
-  who = (reactiveLocalStorage.getItem 'nick') or 'loadtest'
   friend = randomNick()
   m = switch Random.choice ['system','action','pm','text','text','text']
     when 'system'
       system: true
       body: "system message from #{who}"
-      nick: ''
     when 'action'
-      nick: who
       body: Random.choice [
         "does something nice for #{friend}",
         "has a crush on #{friend}",
@@ -54,7 +43,6 @@ saySomething = (room_name) ->
       ]
       action: true
     when 'pm'
-      nick: who
       to: friend
       body: Random.choice [
         "Isn't #{randomNick()} totally hot?",
@@ -62,7 +50,6 @@ saySomething = (room_name) ->
         "This puzzle is hard!",
       ]
     when 'text'
-      nick: who
       body: Random.choice [
         "I don't care who knows it --- I love #{friend}!!!",
         "I think we're finally getting someplace with this puzzle",
@@ -76,7 +63,7 @@ saySomething = (room_name) ->
 addPuzzles = (data) ->
   Meteor.setTimeout addPuzzles.bind(null, data),
     (15 + 10*Random.fraction()) * 1000 # 15-25 seconds
-  [who,name] = [reactiveLocalStorage.getItem('nick'), Random.hexString(16)]
+  name = Random.hexString(16)
   [followup,removeit] = [null,null]
   cb = (err,o) ->
     return if err?
@@ -88,31 +75,23 @@ addPuzzles = (data) ->
         Meteor.call 'renameRound',
           id: r._id
           name: Random.hexString(16)
-          who: who
         , cb
       removeit = (r) ->
-        Meteor.call 'deleteRound',
-          id: r._id
-          who: who
-      Meteor.call 'newRound', {name:name,who:who,puzzles:null}, cb
+        Meteor.call 'deleteRound', r._id
+      Meteor.call 'newRound', {name:name,puzzles:null}, cb
     when 'puzzle'
       followup = (p, cb) ->
         Meteor.call 'renamePuzzle',
           id: p._id
           name: Random.hexString(16)
-          who: who
         , ->
           Meteor.call 'setAnswer',
-            type: "puzzles"
             target: p._id
             answer: Random.choice ['root beer', 'watermelon', 'ice cream']
-            who: who
           , cb
       removeit = (p) ->
-        Meteor.call 'deletePuzzle',
-          id: p._id
-          who: who
-      Meteor.call 'newPuzzle', {name:name, who:who, round: data.round._id}, cb
+        Meteor.call 'deletePuzzle', p._id
+      Meteor.call 'newPuzzle', {name:name, round: data.round._id}, cb
 
 # -- tasks --
 

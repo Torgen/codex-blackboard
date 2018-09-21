@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -43,22 +45,28 @@ describe 'incorrectCallIn', ->
       submitted_to_hq: true
       backsolve: false
       provided: false
-    Meteor.call 'incorrectCallIn',
-      id: callin
-      who: 'cjb'
 
-  it 'deletes callin', ->
-    chai.assert.isUndefined model.CallIns.findOne()
+  it 'fails without login', ->
+    chai.assert.throws ->
+      Meteor.call 'incorrectCallIn', callin
+    , Match.Error
 
-  it 'addsIncorrectAnswer', ->
-    chai.assert.deepInclude model.Puzzles.findOne(puzzle),
-      incorrectAnswers: [{answer: 'precipitate', who: 'cjb', timestamp: 7, backsolve: false, provided: false}]
+  describe 'when logged in', ->
+    beforeEach ->
+      Meteor.callAs 'incorrectCallIn', 'cjb', callin
 
-  it 'oplogs', ->
-    chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
+    it 'deletes callin', ->
+      chai.assert.isUndefined model.CallIns.findOne()
 
-  it "notifies puzzle chat", ->
-    chai.assert.lengthOf model.Messages.find(room_name: "puzzles/#{puzzle}").fetch(), 1
+    it 'addsIncorrectAnswer', ->
+      chai.assert.deepInclude model.Puzzles.findOne(puzzle),
+        incorrectAnswers: [{answer: 'precipitate', who: 'cjb', timestamp: 7, backsolve: false, provided: false}]
 
-  it "notifies general chat", ->
-    chai.assert.lengthOf model.Messages.find(room_name: 'general/0').fetch(), 1
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
+
+    it "notifies puzzle chat", ->
+      chai.assert.lengthOf model.Messages.find(room_name: "puzzles/#{puzzle}").fetch(), 1
+
+    it "notifies general chat", ->
+      chai.assert.lengthOf model.Messages.find(room_name: 'general/0').fetch(), 1

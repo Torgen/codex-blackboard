@@ -1,4 +1,7 @@
 'use strict'
+
+import { nickEmail } from './imports/nickEmail.coffee'
+
 model = share.model # import
 settings = share.settings # import
 
@@ -65,13 +68,13 @@ okCancelEvents = share.okCancelEvents = (selector, callbacks) ->
 
 ######### general properties of the blackboard page ###########
 compactMode = ->
-  editing = (reactiveLocalStorage.getItem 'nick') and (Session.get 'canEdit')
+  editing = Meteor.userId() and Session.get 'canEdit'
   ('true' is reactiveLocalStorage.getItem 'compactMode') and not editing
 
 Template.registerHelper 'nCols', ->
   if compactMode()
     2
-  else if (reactiveLocalStorage.getItem 'nick') and (Session.get 'canEdit')
+  else if Meteor.userId() and (Session.get 'canEdit')
     3
   else
     5
@@ -176,10 +179,7 @@ Template.blackboard.events
       offset: { top: -110 }
 
 Template.nick_presence.helpers
-  email: ->
-    cn = share.model.canonical(this.nick)
-    n = share.model.Nicks.findOne canon: cn
-    return share.model.getTag(n, 'Gravatar') or "#{cn}@#{settings.DEFAULT_HOST}"
+  email: -> nickEmail @nick
 
 share.find_bbedit = (event) ->
   edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
@@ -213,24 +213,21 @@ Template.blackboard.events
   "click .bb-add-round": (event, template) ->
     alertify.prompt "Name of new round:", (e,str) ->
       return unless e # bail if cancelled
-      Meteor.call 'newRound', { name: str, who: reactiveLocalStorage.getItem 'nick' }
+      Meteor.call 'newRound', name: str
   "click .bb-round-buttons .bb-add-puzzle": (event, template) ->
-    who = reactiveLocalStorage.getItem 'nick'
     roundId = @_id
     alertify.prompt "Name of new puzzle:", (e,str) =>
       return unless e # bail if cancelled
-      Meteor.call 'newPuzzle', { name: str, who: who, round: roundId }, (error,r)->
+      Meteor.call 'newPuzzle', { name: str, round: roundId }, (error,r)->
         throw error if error
   "click .bb-round-buttons .bb-add-tag": (event, template) ->
-    who = reactiveLocalStorage.getItem 'nick'
     alertify.prompt "Name of new tag:", (e,str) ->
       return unless e # bail if cancelled
-      Meteor.call 'setTag', {type:'rounds', object:@id, name:str, value:'', who:who}
+      Meteor.call 'setTag', {type:'rounds', object:@id, name:str, value:''}
   "click .bb-puzzle-add-move .bb-add-tag": (event, template) ->
-    who = reactiveLocalStorage.getItem 'nick'
     alertify.prompt "Name of new tag:", (e,str) ->
       return unless e # bail if cancelled
-      Meteor.call 'setTag', {type:'puzzles', object:@puzzle.id, name:str, value:'', who:who}
+      Meteor.call 'setTag', {type:'puzzles', object:@puzzle.id, name:str, value:''}
   "click .bb-canEdit .bb-delete-icon": (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     [type, id, rest...] = share.find_bbedit(event)
@@ -290,7 +287,7 @@ moveBeforePrevious = (match, rel, event, template) ->
   row = template.$(event.target).closest(match)
   prevRow = row.prev(match)
   return unless prevRow.length is 1
-  args = who: reactiveLocalStorage.getItem 'nick'
+  args = {}
   args[rel] = nextRow[0].dataset.puzzleId
   Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
 
@@ -298,7 +295,7 @@ moveAfterNext = (match, rel, event, template) ->
   row = template.$(event.target).closest(match)
   nextRow = row.next(match)
   return unless nextRow.length is 1
-  args = who: reactiveLocalStorage.getItem 'nick'
+  args = {}
   args[rel] = nextRow[0].dataset.puzzleId
   Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
       
@@ -315,23 +312,22 @@ processBlackboardEdit =
     processBlackboardEdit["rounds_#{field}"]?(text, id)
   puzzles_title: (text, id) ->
     if text is null # delete puzzle
-      Meteor.call 'deletePuzzle', {id:id, who:reactiveLocalStorage.getItem 'nick'}
+      Meteor.call 'deletePuzzle', id
     else
-      Meteor.call 'renamePuzzle', {id:id, name:text, who:reactiveLocalStorage.getItem 'nick'}
+      Meteor.call 'renamePuzzle', {id:id, name:text}
   rounds_title: (text, id) ->
     if text is null # delete round
-      Meteor.call 'deleteRound', {id:id, who:reactiveLocalStorage.getItem 'nick'}
+      Meteor.call 'deleteRound', id
     else
-      Meteor.call 'renameRound', {id:id, name:text, who:reactiveLocalStorage.getItem 'nick'}
+      Meteor.call 'renameRound', {id:id, name:text}
   tags_name: (text, id, canon) ->
-    who = reactiveLocalStorage.getItem 'nick'
     n = model.Names.findOne(id)
     if text is null # delete tag
-      return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon, who:who}
+      return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon}
     t = model.collection(n.type).findOne(id).tags[canon]
-    Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value, who:who}, (error,result) ->
+    Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value}, (error,result) ->
       if (canon isnt model.canonical(text)) and (not error)
-        Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name, who:who}
+        Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)
     t = model.collection(n.type).findOne(id).tags[canon]
@@ -343,20 +339,17 @@ processBlackboardEdit =
           canon: model.canonical(special)
           value: ''
     # set tag (overwriting previous value)
-    Meteor.call 'setTag', {type:n.type, object:id, name:t.name, value:text, who:reactiveLocalStorage.getItem 'nick'}
+    Meteor.call 'setTag', {type:n.type, object:id, name:t.name, value:text}
   link: (text, id) ->
     n = model.Names.findOne(id)
     Meteor.call 'setField',
       type: n.type
       object: id
-      who: reactiveLocalStorage.getItem 'nick'
       fields: link: text
 
 moveWithinMeta = (pos) -> (event, template) -> 
   meta = template.data
-  Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id,
-    pos: pos
-    who: reactiveLocalStorage.getItem 'nick'
+  Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id, pos: pos
 
 Template.blackboard_meta.events
   'click tbody.meta tr.puzzle .bb-move-up': moveWithinMeta -1
@@ -372,14 +365,12 @@ Template.blackboard_meta.events
       rel = 'before'
     moveAfterNext 'tbody.meta', rel, event, template
   'click .bb-meta-buttons .bb-add-puzzle': (event, template) ->
-    who = reactiveLocalStorage.getItem 'nick'
     puzzId = @puzzle._id
     roundId = Template.parentData()._id
     alertify.prompt "Name of new puzzle:", (e,str) =>
       return unless e # bail if cancelled
       Meteor.call 'newPuzzle',
         name: str
-        who: who
         feedsInto: [puzzId]
         round: roundId,
       (error,r)-> throw error if error
@@ -391,7 +382,7 @@ Template.blackboard_meta.helpers
     p = ({
       puzzle: model.Puzzles.findOne(id) or { _id: id }
     } for id, index in this.puzzle.puzzles)
-    editing = (reactiveLocalStorage.getItem 'nick') and (Session.get 'canEdit')
+    editing = Meteor.userId() and (Session.get 'canEdit')
     hideSolved = 'true' is reactiveLocalStorage.getItem 'hideSolved'
     return p if editing or !hideSolved
     p.filter (pp) -> !pp.puzzle.solved?
@@ -406,16 +397,12 @@ Template.blackboard_meta.helpers
 
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
-    who = reactiveLocalStorage.getItem 'nick'
-    return unless who?
     if event.target.checked
-      Meteor.call 'makeMeta', template.data.puzzle._id, who
+      Meteor.call 'makeMeta', template.data.puzzle._id
     else
-      Meteor.call 'makeNotMeta', template.data.puzzle._id, who
+      Meteor.call 'makeNotMeta', template.data.puzzle._id
   'change .bb-feed-meta': (event, template) ->
-    who = reactiveLocalStorage.getItem 'nick'
-    return unless who?
-    Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value, who
+    Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value
 
 # TODO(Torgen): reordering rounds
 
@@ -455,9 +442,7 @@ Template.blackboard_puzzle_cells.helpers
 
 Template.blackboard_unfeed_meta.events
   'click .bb-unfeed-icon': (event, template) ->
-    who = reactiveLocalStorage.getItem 'nick'
-    return unless who?
-    Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta, who
+    Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta
 
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 
@@ -504,18 +489,17 @@ Template.blackboard_puzzle.events
     diff = itsIndex - myIndex
     rect = event.target.getBoundingClientRect()
     clientY = event.clientY
-    args =
-      who: reactiveLocalStorage.getItem 'nick'
+    args = null
     if clientY - rect.top < dragdata.fromTop
       return if diff == -1
-      args.before = myId
+      args = before: myId
     else if rect.bottom - clientY < dragdata.fromBottom
       return if diff == 1
-      args.after = myId
+      args = after: myId
     else if diff > 1
-      args.after = myId
+      args = after: myId
     else if diff < -1
-      args.before = myId
+      args = before: myId
     else
       return
     if meta?

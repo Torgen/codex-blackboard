@@ -13,22 +13,19 @@ SAMPLE_CHATS = [
   body: "This is a very very long line which should hopefully wrap and that will show that we're doing all this correctly. Let's keep going here. More and more stuff! Wow."
 ]
 SAMPLE_NICKS = [
-  name: "cscott"
-  tags: [
-    { name: "Real Name", value: "C. Scott" }
-    { name: "Gravatar", value: "user@host.org" }
-  ]
+  _id: 'cscott'
+  nickname: 'cscott'
+  real_name: 'C. Scott'
+  gravatar: 'user@host.org'
 ,
-  name: "zachary"
-  tags: [
-    { name: "Gravatar", value: "z@x.org" }
-  ]
+  _id: 'zachary'
+  nickname: 'zachary'
+  gravatar: 'z@x.org'
 ,
-  name: "kwal"
-  tags: [
-    { name: "Real Name", value: "Kevin Wallace" }
-    { name: "Gravatar", value: "kevin@pentabarf.net" }
-  ]
+  _id: 'kwal'
+  nickname: 'kwal'
+  real_name: 'Kevin Wallace'
+  gravatar: 'kevin@pentabarf.net'
 ]
 SAMPLE_QUIPS = [
   text: "A codex is a book made up of a number of sheets of paper, vellum, papyrus, or similar, with hand-written content"
@@ -44,475 +41,398 @@ Meteor.startup ->
     console.log 'Populating initial puzzle database...'
     console.log '(use production:true in settings.json to disable this)'
     WHO='cscott'
-    extend = (a,b) ->
-      r = Object.create(null)
-      for own key, value of a
-        r[key] = value
-      for own key, value of b
-        r[key] = value
-      return r
     # add some general chats
     for chat in SAMPLE_CHATS
       chat.room_name = "general/0"
-      Meteor.call "newMessage", chat
+      Meteor.callAs "newMessage", chat.nick, chat
     # add some user ids
     for nick in SAMPLE_NICKS
-      Meteor.call "newNick", nick
+      Meteor.users.insert nick
     # add some quips
     for quip in SAMPLE_QUIPS
-      Meteor.call "newQuip", quip
+      Meteor.callAs "newQuip", quip.who, quip.text
 
+    ca = (m, a...) -> Meteor.callAs m, WHO, a...
     # Civilization Round, 2011
     do ->
-      civ = Meteor.call 'newRound', {name: 'Civilization', who: WHO},
+      civ = ca 'newRound', {name: 'Civilization'},
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/'
       # TODO(torgen): when default meta exists, remvoe/rename it.
-      palimpsest = Meteor.call 'newPuzzle',
+      palimpsest = ca 'newPuzzle',
         name: 'A Modern Palimpsest'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/a_modern_palimpsest/'
         tags: [ {name: 'Technology', value: 'The Scroll'}]
-      shikakuro = Meteor.call 'newPuzzle',
+      shikakuro = ca 'newPuzzle',
         name: 'Technological Crisis at Shikakuro Farms'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/technological_crisis_at_shikakuro_farms/'
         tags: [ {name: 'Technology', value: 'Agriculture'}]
-      charm = Meteor.call 'newPuzzle',
+      charm = ca 'newPuzzle',
         name: 'Charm School'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/charm_school/'
         tags: [ {name: 'Technology', value: 'Exogamy'}]
-      showcase = Meteor.call 'newPuzzle',
+      showcase = ca 'newPuzzle',
         name: 'Showcase'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/showcase/'
         tags: [ {name: 'Technology', value: 'Mathematics'}]
-      drafting = Meteor.call 'newPuzzle',
+      drafting = ca 'newPuzzle',
         name: 'Drafting Table'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/drafting_table/'
         tags: [ {name: 'Technology', value: 'Draftsmanship'}]
-      racking = Meteor.call 'newPuzzle',
+      racking = ca 'newPuzzle',
         name: 'Racking Your Brains'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/racking_your_brains/'
         tags: [ {name: 'Technology', value: 'The Wheel'}]
-      chant = Meteor.call 'newPuzzle',
+      chant = ca 'newPuzzle',
         name: 'Crowd\'s Chant'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/crowds_chant/'
         tags: [ {name: 'Technology', value: 'Gladatorial Combat'}]
-      hints = Meteor.call 'newPuzzle',
+      hints = ca 'newPuzzle',
         name: 'Hints, With A Bit Of Love!'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/hints_with_a_bit_of_love/'
         tags: [ {name: 'Technology', value: '...and Literature'}]
-      bank = Meteor.call 'newPuzzle',
+      bank = ca 'newPuzzle',
         name: 'Letter Bank'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/letter_bank/'
         tags: [ {name: 'Technology', value: 'Plant-Based Ink'}]
-      easy = Meteor.call 'newPuzzle',
+      easy = ca 'newPuzzle',
         name: 'This SHOULD Be Easy'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/this_should_be_easy/'
         tags: [ {name: 'Technology', value: 'Epic Poetry'}]
-      cute = Meteor.call 'newPuzzle',
+      cute = ca 'newPuzzle',
         name: 'Soooo Cute!'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/soooo_cute/'
         tags: [ {name: 'Technology', value: 'Procrastinating'}]
-      maths = Meteor.call 'newPuzzle',
+      maths = ca 'newPuzzle',
         name: 'Advanced Maths'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/advanced_maths/'
         tags: [ {name: 'Technology', value: 'Philosophy'}]
-      potsherds = Meteor.call 'newPuzzle',
+      potsherds = ca 'newPuzzle',
         name: 'Painted Potsherds'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/painted_potsherds/'
         tags: [ {name: 'Technology', value: 'Stoneware'}]
-      cheaters = Meteor.call 'newPuzzle',
+      cheaters = ca 'newPuzzle',
         name: 'Cheaters Never Prosper'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/cheaters_never_prosper/'
         tags: [ {name: 'Technology', value: 'Legal System'}]
-      doors = Meteor.call 'newPuzzle',
+      doors = ca 'newPuzzle',
         name: 'The Doors Of Cambridge'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/the_doors_of_cambridge/'
         tags: [ {name: 'Technology', value: 'Doors'}]
-      literary = Meteor.call 'newPuzzle',
+      literary = ca 'newPuzzle',
         name: 'Literary Collection'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/literary_collection/'
         tags: [ {name: 'Technology', value: 'Literacy'}]
-      amateur = Meteor.call 'newPuzzle',
+      amateur = ca 'newPuzzle',
         name: 'Amateur Hour'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/amateur_hour/'
         tags: [ {name: 'Technology', value: 'Alchemy'}]
-      box = Meteor.call 'newPuzzle',
+      box = ca 'newPuzzle',
         name: 'Puzzle Box'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/puzzle_box/'
         tags: [ {name: 'Technology', value: 'Invention'}]
-      magic = Meteor.call 'newPuzzle',
+      magic = ca 'newPuzzle',
         name: 'Sufficiently Advanced Technology'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/sufficiently_advanced_technology/'
         tags: [ {name: 'Technology', value: 'Trading'}]
-      speech = Meteor.call 'newPuzzle',
+      speech = ca 'newPuzzle',
         name: 'Part Of Speech'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/part_of_speech/'
         tags: [ {name: 'Technology', value: 'Oratory'}]
-      inventory = Meteor.call 'newPuzzle',
+      inventory = ca 'newPuzzle',
         name: 'Inventory Quest'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/inventory_query/'
         tags: [ {name: 'Technology', value: 'Private Property'}]
-      laureate = Meteor.call 'newPuzzle',
+      laureate = ca 'newPuzzle',
         name: 'Laureate'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/laureate/'
         tags: [ {name: 'Technology', value: 'Carbon Nanotubules'}]
-      princesses = Meteor.call 'newPuzzle',
+      princesses = ca 'newPuzzle',
         name: 'The Sport Of Princesses'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/the_sport_of_princesses/'
         tags: [ {name: 'Technology', value: 'Monarchy'}]
-      kids = Meteor.call 'newPuzzle',
+      kids = ca 'newPuzzle',
         name: 'Fascinating Kids'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/fascinating_kids/'
         tags: [ {name: 'Technology', value: 'Social Clubs'}]
-      granary = Meteor.call 'newPuzzle',
+      granary = ca 'newPuzzle',
         name: 'Granary Of Ur'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/granary_of_ur/'
         puzzles: [palimpsest._id, shikakuro._id, charm._id, bank._id, easy._id, literary._id]
-      workshop = Meteor.call 'newPuzzle',
+      workshop = ca 'newPuzzle',
         name: 'Da Vinci\'s Workshop'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/da_vincis_workshop/'
         puzzles: [palimpsest._id, drafting._id, racking._id, cute._id, maths._id, potsherds._id, box._id]
-      wall_street = Meteor.call 'newPuzzle',
+      wall_street = ca 'newPuzzle',
         name: 'Wall Street'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/wall_street/'
         puzzles: [shikakuro._id, charm._id, drafting._id, racking._id, chant._id, hints._id, easy._id, maths._id, cheaters._id, magic._id]
-      elevator = Meteor.call 'newPuzzle',
+      elevator = ca 'newPuzzle',
         name: 'Space Elevator'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/space_elevator/'
         puzzles: [palimpsest._id, shikakuro._id, showcase._id, chant._id, hints._id, bank._id, cheaters._id, doors._id, amateur._id, speech._id, laureate._id]
-      palace = Meteor.call 'newPuzzle',
+      palace = ca 'newPuzzle',
         name: 'Palace of Versailles'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/palace_of_versailles/'
         puzzles: [shikakuro._id, showcase._id, drafting._id, bank._id, cute._id, doors._id, amateur._id, inventory._id, princesses._id]
-      links = Meteor.call 'newPuzzle',
+      links = ca 'newPuzzle',
         name: 'St. Andrew\'s Links'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/st_andrews_links/'
         puzzles: [chant._id, hints._id, potsherds._id, cheaters._id, doors._id, speech._id, inventory._id, kids._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Interstellar Spaceship'
-        who: WHO
         round: civ._id
         link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/interstellar_spaceship/'
         puzzles: [elevator._id, wall_street._id, palace._id, links._id, workshop._id, granary._id]
 
     # Emotion round, 2018
     do ->
-      emotions = Meteor.call 'newRound', {name: 'Emotions and Memories', who: WHO},
+      emotions = ca 'newRound', {name: 'Emotions and Memories'},
         link: 'http://web.mit.edu/puzzle/www/2018/full/island/index.html'
-      joy = Meteor.call 'newPuzzle',
+      joy = ca 'newPuzzle',
         name: 'Joy'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/joy.html'
         tags: [{name: 'Meta Pattern', value: '"Joy Of" books'}]
-      sadness = Meteor.call 'newPuzzle',
+      sadness = ca 'newPuzzle',
         name: 'Sadness'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/sadness.html'
         tags: [{name: 'Cares About', value: 'Borders'}]
-      fear = Meteor.call 'newPuzzle',
+      fear = ca 'newPuzzle',
         name: 'Fear'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/fear.html'
         tags: [{name: 'Meta Pattern', value: 'Unique on health and safety page'}]
-      disgust = Meteor.call 'newPuzzle',
+      disgust = ca 'newPuzzle',
         name: 'Disgust'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/disgust.html'
-      anger = Meteor.call 'newPuzzle',
+      anger = ca 'newPuzzle',
         name: 'Anger'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/anger.html'
         tags: [{name: 'Cares About', value: 'Temperature'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Yeah, But It Didn\'t Work!'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/yeah_but_it_didnt_work.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '2'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Warm And Fuzzy'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/warm_and_fuzzy.html'
         feedsInto: [joy._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Clueless'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/clueless.html'
         feedsInto: [disgust._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'In Memoriam'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/in_memoriam.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '2'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Freak Out'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/freak_out.html'
         feedsInto: [fear._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Let\'s Get Ready To Jumble'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/lets_get_ready_to_jumble.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '11'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'AKA'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/aka.html'
         feedsInto: [disgust._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Unfortunate AI'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/unfortunate_ai.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '4'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'A Learning Path'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/a_learning_path.html'
         feedsInto: [disgust._id, fear._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Cross Words'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/cross_words.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '1'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'We Are All Afraid To Die'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/we_are_all_afraid_to_die.html'
         feedsInto: [fear._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Temperance'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/temperance.html'
         feedsInto: [anger._id, disgust._id]
         tags: [{name: 'Temperature', value: '10'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Word Search'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/word_search.html'
         feedsInto: [fear._id, sadness._id]
         tags: [{name: 'Borders', value: '4'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Just Keep Swiping'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/just_keep_swiping.html'
         feedsInto: [disgust._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Caged'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/caged.html'
         feedsInto: [joy._id, sadness._id]
         tags: [{name: 'Borders', value: '5'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Minority Report'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/minority_report.html'
         feedsInto: [disgust._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Asteroids'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/asteroids.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '3'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Good Fences Make Sad and Disgusted Neighbors'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/good_fences_make_sad_and_disgusted_neighbors.html'
         feedsInto: [sadness._id, disgust._id]
         tags: [{name: 'Borders', value: '2'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Face Your Fears'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/face_your_fears.html'
         feedsInto: [fear._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Scattered and Absurd'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/scattered_and_absurd.html'
         feedsInto: [anger._id, sadness._id]
         tags: [{name: 'Temperature', value: '8'}, {name: 'Borders', value: '3'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Cooking a Recipe'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/cooking_a_recipe.html'
         feedsInto: [joy._id, disgust._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Roadside America'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/roadside_america.html'
         feedsInto: [fear._id, anger._id]
         tags: [{name: 'Temperature', value: '6'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Crossed Paths'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/crossed_paths.html'
         feedsInto: [joy._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'On the A Line'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/clueless.html'
         feedsInto: [disgust._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'What\'s In a Name?'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/whats_in_a_name.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '9'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Games Club'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/games_club.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '5'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Birds of a Feather'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/birds_of_a_feather.html'
         feedsInto: [joy._id, anger._id]
         tags: [ {name: 'Temperature', value: '12'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Nobody Likes Sad Songs'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/nobody_likes_sad_songs.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '2'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Irritating Places'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/irritating_places.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '4'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'What The...'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/what_the.html'
         feedsInto: [joy._id, fear._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Beast Workshop'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/beast_workshop.html'
         feedsInto: [disgust._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'That Time I Somehow Felt Incomplete'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/that_time_i_somehow_felt_incomplete.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '7'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Jeopardy!'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/jeopardy.html'
         feedsInto: [fear._id]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'Chemistry Experimentation'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/chemistry_experimentation.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '5'}]
-      Meteor.call 'newPuzzle',
+      ca 'newPuzzle',
         name: 'The Brainstorm'
-        who: WHO
         round: emotions._id
         link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/the_brainstorm.html'
       

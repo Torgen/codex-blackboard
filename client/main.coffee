@@ -1,4 +1,7 @@
 'use strict'
+
+import { nickEmail } from './imports/nickEmail.coffee'
+
 settings = share.settings # import
 chat = share.chat # import
 
@@ -23,11 +26,11 @@ Template.registerHelper 'typeEquals', (arg) ->
   # register a more precise dependency on the value of type
   Session.equals 'type', arg
 Template.registerHelper 'canEdit', () ->
-  (reactiveLocalStorage.getItem 'nick') and (Session.get 'canEdit') and \
+  Meteor.userId() and (Session.get 'canEdit') and \
   (Session.equals 'currentPage', 'blackboard')
 Template.registerHelper 'editing', (args..., options) ->
   canEdit = options?.hash?.canEdit or (Session.get 'canEdit')
-  return false unless (reactiveLocalStorage.getItem 'nick') and canEdit
+  return false unless Meteor.userId() and canEdit
   return Session.equals 'editing', args.join('/')
 
 Template.registerHelper 'linkify', (contents) ->
@@ -37,7 +40,7 @@ Template.registerHelper 'linkify', (contents) ->
 Template.registerHelper 'compactHeader', () ->
   (Session.equals 'currentPage', 'chat')
 
-Template.registerHelper 'mynick', -> reactiveLocalStorage.getItem 'nick'
+Template.registerHelper 'mynick', -> Meteor.user()?.nickname
 
 # subscribe to the all-names feed all the time
 Meteor.subscribe 'all-names'
@@ -119,7 +122,7 @@ Meteor.startup ->
     added: (id, msg) ->
       return unless Notification.permission is 'granted'
       return unless share.notification.get(msg.stream)
-      gravatar = $.gravatar chat.nickEmail(msg.nick),
+      gravatar = $.gravatar nickEmail(msg.nick),
         image: 'wavatar'
         size: 192
         secure: true

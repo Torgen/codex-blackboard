@@ -1,8 +1,14 @@
 'use strict'
 
-export NonEmptyString = Match.Where (x) ->
+export StringWithLength = (args) -> Match.Where (x) ->
   check x, String
-  return x.length > 0
+  if args.min?
+    return false if x.length < args.min
+  if args.max?
+    return false if x.length > args.max
+  true
+
+export NonEmptyString = StringWithLength min: 1
 
 # either an id, or an object containing an id
 export IdOrObject = Match.OneOf NonEmptyString, Match.Where (o) ->

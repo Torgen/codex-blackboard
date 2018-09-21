@@ -1,4 +1,7 @@
 'use strict'
+
+import { nickEmail } from './imports/nickEmail.coffee'
+
 model = share.model # import
 settings = share.settings # import
 
@@ -114,11 +117,6 @@ Template.chat.helpers
     type isnt 'general' and \
       (model.collection(type)?.findOne Session.get("id"))?.solved
 
-nickEmail = (nick) ->
-  cn = model.canonical(nick)
-  n = model.Nicks.findOne canon: cn
-  return model.getTag(n, 'Gravatar') or "#{cn}@#{settings.DEFAULT_HOST}"  
-
 Template.starred_messages.onCreated ->
   this.autorun =>
     this.subscribe 'starred-messages', Session.get 'room_name'
@@ -168,7 +166,7 @@ Template.messages.helpers
   usefulEnough: (m) ->
     # test Session.get('nobot') last to get a fine-grained dependency
     # on the `nobot` session variable only for 'useless' messages
-    myNick = reactiveLocalStorage.getItem 'nick'
+    myNick = Meteor.userId()
     m.nick is myNick or m.to is myNick or \
         m.useful or \
         (m.nick isnt 'via twitter' and m.nick isnt 'codexbot' and \
@@ -190,7 +188,7 @@ Template.messages.helpers
     # I will go out on a limb and say we need this because transform uses
     # doesMentionNick and transforms aren't usually reactive, so we need to
     # recompute them if you log in as someone else.
-    reactiveLocalStorage.getItem 'nick'
+    Meteor.userId()
     p = pageForTimestamp room_name, +Session.get('timestamp')
     return messagesForPage p,
       sort: [['timestamp','asc']]
@@ -220,10 +218,10 @@ Template.messages.onCreated ->
     room_name = Session.get 'room_name'
     return unless room_name
     this.subscribe 'presence-for-room', room_name
-    nick = if settings.BB_DISABLE_PM then null else (reactiveLocalStorage.getItem 'nick') or null
+    nick = if settings.BB_DISABLE_PM then null else Meteor.userId() or null
     # re-enable private messages, but just in loopfinders (for codexbot)
     if settings.BB_DISABLE_PM and room_name is "general/0"
-      nick = (reactiveLocalStorage.getItem 'nick') or null
+      nick = Meteor.userId() or null
     timestamp = (+Session.get('timestamp'))
     p = pageForTimestamp room_name, timestamp, {subscribe: this}
     return unless p? # wait until page information is loaded
@@ -237,7 +235,7 @@ Template.messages.onCreated ->
         instachat.ready = true
         Session.set 'chatReady', true
     if nick?
-      this.subscribe "#{messages}-in-range-nick", nick, p.room_name, p.from, p.to,
+      this.subscribe "#{messages}-in-range-to-me", p.room_name, p.from, p.to,
         onReady: onReady
     else
       onReady()
@@ -270,7 +268,7 @@ Template.chat_header.helpers
 
 regex_escape = (s) -> s.replace /[$-\/?[-^{|}]/g, '\\$&'
 
-doesMentionNick = (doc, raw_nick=(reactiveLocalStorage.getItem 'nick')) ->
+doesMentionNick = (doc, raw_nick=Meteor.userId()) ->
   return false unless raw_nick
   return false unless doc.body?
   return false if doc.system # system messages don't count as mentions
@@ -278,8 +276,8 @@ doesMentionNick = (doc, raw_nick=(reactiveLocalStorage.getItem 'nick')) ->
   nick = model.canonical raw_nick
   return false if nick is doc.nick # messages from yourself don't count
   return true if doc.to is nick # PMs to you count
-  n = model.Nicks.findOne(canon: nick)
-  realname = if n then model.getTag(n, 'Real Name')
+  n = Meteor.users.findOne nick
+  realname = n?.real_name
   return false if doc.bodyIsHtml # XXX we could fix this
   # case-insensitive match of canonical nick
   (new RegExp (regex_escape model.canonical nick), "i").test(doc.body) or \
@@ -433,7 +431,6 @@ $(document).on 'submit', '#joinRoom', ->
 Template.messages_input.submit = (message) ->
   return unless message
   args =
-    nick: reactiveLocalStorage.getItem 'nick'
     room_name: Session.get 'room_name'
     body: message
   [word1, rest] = message.split(/\s+([^]*)/, 2)
@@ -459,11 +456,11 @@ Template.messages_input.submit = (message) ->
         whos_here = whos_here.join(', ')
       args.body = "looks around and sees: #{whos_here}"
     when "/nick"
-      args.to = args.nick
+      args.to = @userId
       args.action = true
       args.body = "needs to log out and log in again to change nicks"
     when "/join"
-      args.to = args.nick
+      args.to = @userId
       args.action = true
       return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
         if (not result?) and /^loopfinders$/i.test(rest.trim())
@@ -479,7 +476,7 @@ Template.messages_input.submit = (message) ->
       [to, rest] = rest.split(/\s+([^]*)/, 2)
       missingMessage = (not rest)
       while rest
-        n = model.Nicks.findOne canon: model.canonical(to)
+        n = Meteor.users.findOne model.canonical to
         break if n
         if to is 'bot' # allow 'bot' as a shorthand for 'codexbot'
           to = 'codexbot'
@@ -492,7 +489,7 @@ Template.messages_input.submit = (message) ->
       else
         # error: unknown user
         # record this attempt as a PM to yourself
-        args.to = args.nick
+        args.to = @userId
         args.body = "tried to /msg an UNKNOWN USER: #{message}"
         args.body = "tried to say nothing: #{message}" if missingMessage
         args.action = true
@@ -515,8 +512,8 @@ Template.messages_input.events
       if message
         re = new RegExp "^#{regex_escape message}", "i"
         for present in whos_here_helper().fetch()
-          n = model.Nicks.findOne(canon: present.nick)
-          realname = if n then model.getTag(n, 'Real Name')
+          n = Meteor.users.findOne present.nick
+          realname = n?.real_name
           if re.test present.nick
             return $message.val "#{present.nick}: "
           else if realname and re.test realname
@@ -560,10 +557,8 @@ updateLastRead = ->
     room_name: Session.get 'room_name'
   ,
     sort: [['timestamp','desc']]
-  nick = reactiveLocalStorage.getItem 'nick'
-  return unless lastMessage and nick
+  return unless lastMessage
   Meteor.call 'updateLastRead',
-    nick: nick
     room_name: Session.get 'room_name'
     timestamp: lastMessage.timestamp
 
@@ -579,7 +574,7 @@ Template.chat.onCreated ->
 Template.chat.onRendered ->
   $(window).resize()
   @autorun ->
-    nick = reactiveLocalStorage.getItem 'nick'
+    nick = Meteor.userId()
     return unless nick
     type = Session.get('type')
     id = Session.get('id')
@@ -588,10 +583,7 @@ Template.chat.onRendered ->
 startupChat = ->
   return if instachat.keepaliveInterval?
   instachat.keepalive = ->
-    nick = reactiveLocalStorage.getItem 'nick'
-    return unless nick
     Meteor.call "setPresence",
-      nick: nick
       room_name: Session.get "room_name"
       present: true
       foreground: isVisible() # foreground/background tab status
@@ -609,10 +601,8 @@ cleanupChat = ->
   if instachat.keepaliveInterval?
     Meteor.clearInterval instachat.keepaliveInterval
     instachat.keepalive = instachat.keepaliveInterval = undefined
-  nick = reactiveLocalStorage.getItem 'nick'
-  if nick and false # causes bouncing. just let it time out.
+  if false # causes bouncing. just let it time out.
     Meteor.call "setPresence",
-      nick: nick
       room_name: Session.get "room_name"
       present: false
 
@@ -642,14 +632,14 @@ updateNotice = do ->
 
 Tracker.autorun ->
   pageWithChat = /^(chat|puzzle|round)$/.test Session.get('currentPage')
-  nick = model.canonical((reactiveLocalStorage.getItem 'nick') or '')
+  nick = Meteor.userId() or ''
   room_name = Session.get 'room_name'
   unless pageWithChat and nick and room_name
     Session.set 'lastread', undefined
     return hideMessageAlert()
   # watch the last read and update the session (even if we're paged back)
-  Meteor.subscribe 'lastread-for-nick', nick
-  lastread = model.LastRead.findOne(nick: nick, room_name: room_name)
+  Meteor.subscribe 'lastread'
+  lastread = model.LastRead.findOne {nick, room_name}
   unless lastread
     Session.set 'lastread', undefined
     return hideMessageAlert()
@@ -701,7 +691,6 @@ share.chat =
   cleanupChat: cleanupChat
   hideMessageAlert: hideMessageAlert
   joinRoom: joinRoom
-  nickEmail: nickEmail
   # pagination helpers
   pageForTimestamp: pageForTimestamp
   messagesForPage: messagesForPage

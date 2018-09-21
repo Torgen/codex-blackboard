@@ -40,8 +40,7 @@ class Robot extends Hubot.Robot
 sendHelper = Meteor.bindEnvironment (robot, envelope, strings, map) ->
   # be present in the room
   try
-    Meteor.call 'setPresence',
-      nick: 'codexbot'
+    Meteor.callAs 'setPresence', 'codexbot',
       room_name: envelope.room
       present: true
       foreground: true
@@ -83,8 +82,7 @@ class BlackboardAdapter extends Hubot.Adapter
       if envelope.message.direct and (not props.useful)
         unless string.startsWith(envelope.user.id)
           string = "#{envelope.user.id}: #{string}"
-      Meteor.call "newMessage", Object.assign {}, props,
-        nick: "codexbot"
+      Meteor.callAs "newMessage", 'codexbot', Object.assign {}, props,
         body: string
         room_name: envelope.room
         bot_ignore: true
@@ -100,8 +98,7 @@ class BlackboardAdapter extends Hubot.Adapter
         return @priv envelope, tweakStrings(strings, (s) -> "*** #{s} ***")...
     sendHelper @robot, envelope, strings, (string, props) ->
       console.log "emote #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      Meteor.call "newMessage", Object.assign {}, props,
-        nick: "codexbot"
+      Meteor.callAs "newMessage", 'codexbot', Object.assign {}, props,
         body: string
         room_name: envelope.room
         action: true
@@ -111,8 +108,7 @@ class BlackboardAdapter extends Hubot.Adapter
   priv: (envelope, strings...) ->
     sendHelper @robot, envelope, strings, (string, props) ->
       console.log "priv #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      Meteor.call "newMessage", Object.assign {}, props,
-        nick: "codexbot"
+      Meteor.callAs "newMessage", 'codexbot', Object.assign {}, props,
         to: "#{envelope.user.id}"
         body: string
         room_name: envelope.room
@@ -175,11 +171,13 @@ Meteor.startup ->
     share.hubot[scriptName](robot)
   robot.brain.emit('loaded')
   # register our nick
-  n = Meteor.call 'newNick', {name: 'codexbot'}
-  Meteor.call 'setTag', {type:'nicks', object:n._id, name:'Gravatar', value:'codex@printf.net', who:n.canon}
+  Meteor.users.upsert 'codexbot',
+    $set:
+      nickname: 'codexbot'
+      gravatar: 'codex@printf.net'
+    $unset: services: ''
   # register our presence in general chat
-  keepalive = -> Meteor.call 'setPresence',
-    nick: 'codexbot'
+  keepalive = -> Meteor.callAs 'setPresence', 'codexbot',
     room_name: 'general/0'
     present: true
     foreground: true
@@ -204,8 +202,7 @@ Meteor.startup ->
       tm.direct = mynameRE.test(tm.text)
       adapter.receive tm
   startup = false
-  Meteor.call "newMessage",
-    nick: "codexbot"
+  Meteor.callAs "newMessage", 'codexbot',
     body: 'wakes up'
     room_name: 'general/0'
     action: true

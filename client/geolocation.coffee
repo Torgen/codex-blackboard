@@ -1,4 +1,7 @@
 'use strict'
+
+import canonical from '../lib/imports/canonical.coffee'
+
 model = share.model # import
 settings = share.settings # import
 
@@ -27,14 +30,13 @@ distance = (one, two) ->
 
 updateLocation = do ->
   last = null
-  (nick, pos) ->
+  (pos) ->
     return unless pos?
     if last?
       return if pos.lat == last.lat and pos.lng == last.lng
       return if distance(last, pos) < GEOLOCATION_DISTANCE_THRESHOLD
     Tracker.nonreactive ->
       Meteor.call 'locateNick',
-        nick: nick
         lat: pos.lat
         lng: pos.lng
 
@@ -42,22 +44,22 @@ updateLocation = do ->
 Tracker.autorun ->
   return if settings.DISABLE_GEOLOCATION
   Geolocation.setPaused !share.isVisible()
-  nick = (reactiveLocalStorage.getItem 'nick') or null
+  nick = Meteor.userId()
   return unless nick?
   pos = Geolocation.latLng(enableHighAccuracy:false)
   Session.set "position", pos # always use most current location client-side
-  updateLocation nick, pos
+  updateLocation pos
 
 distanceTo = (nick) ->
   return null unless nick
-  p = Session.get('position')
+  p = Session.get 'position'
   return null unless p?
-  n = model.Nicks.findOne canon: model.canonical(nick)
+  n = Meteor.users.findOne canonical nick
   return null unless n? and n.located_at?
   return distance(n.located_at, p)
 
 isNickNear = share.isNickNear = (nick) ->
-  return true if nick is reactiveLocalStorage.getItem 'nick' # that's me!
+  return true if canonical(nick) is Meteor.userId() # that's me!
   dist = distanceTo(nick)
   return false unless dist?
   return dist <= GEOLOCATION_NEAR_DISTANCE
@@ -74,13 +76,13 @@ CODEXBOT_LOCATIONS = [
   'having fun!'
   "Your Plastic Pal Who's Fun to Be With."
   'fond of memes'
-  'waiting for you humans to find to coin already'
+  'waiting for you humans to find the coin already'
   'muttering about his precious'
 ]
 
 Template.registerHelper 'nickLocation', (args) ->
   args = share.keyword_or_positional 'nick', args
-  return '' if args.nick is reactiveLocalStorage.getItem 'nick' # that's me!
+  return '' if canonical(args.nick) is Meteor.userId() # that's me!
   if args.nick is 'codexbot'
     idx = Math.floor(Session.get('currentTime') / (10*60*1000))
     return " is #{CODEXBOT_LOCATIONS[idx%CODEXBOT_LOCATIONS.length]}"

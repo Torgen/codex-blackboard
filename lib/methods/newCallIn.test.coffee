@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -22,10 +24,9 @@ describe 'newCallIn', ->
 
   it 'fails when it doesn\'t exist', ->
     chai.assert.throws ->
-      Meteor.call 'newCallIn',
+      Meteor.callAs 'newCallIn', 'torgen',
         target: 'something'
         answer: 'precipitate'
-        who: 'torgen'
     , Meteor.Error
 
   describe 'which exists', ->
@@ -44,12 +45,18 @@ describe 'newCallIn', ->
         incorrectAnswers: []
         feedsInto: []
 
-    describe 'with simple callin', ->
-      beforeEach ->
+    it 'fails without login', ->
+      chai.assert.throws ->
         Meteor.call 'newCallIn',
           target: id
           answer: 'precipitate'
-          who: 'torgen'
+      , Match.Error
+
+    describe 'with simple callin', ->
+      beforeEach ->
+        Meteor.callAs 'newCallIn', 'torgen',
+          target: id
+          answer: 'precipitate'
 
       it 'creates document', ->
         c = model.CallIns.findOne()
@@ -92,10 +99,9 @@ describe 'newCallIn', ->
         chai.assert.include o[0].body, '(Foo)', 'message'
   
     it 'sets backsolve', ->
-      Meteor.call 'newCallIn',
+      Meteor.callAs 'newCallIn', 'torgen',
         target: id
         answer: 'precipitate'
-        who: 'torgen'
         backsolve: true
       c = model.CallIns.findOne()
       chai.assert.include c,
@@ -107,10 +113,9 @@ describe 'newCallIn', ->
         provided: false
     
     it 'sets provided', ->
-      Meteor.call 'newCallIn',
+      Meteor.callAs 'newCallIn', 'torgen',
         target: id
         answer: 'precipitate'
-        who: 'torgen'
         provided: true
       c = model.CallIns.findOne()
       chai.assert.include c,
@@ -156,10 +161,9 @@ describe 'newCallIn', ->
       touched_by: 'cscott'
       puzzles: [meta, p]
       tags: {}
-    Meteor.call 'newCallIn',
+    Meteor.callAs 'newCallIn', 'torgen',
       target: p
       answer: 'precipitate'
-      who: 'torgen'
     m = model.Messages.find(room_name: "puzzles/#{meta}").fetch()
     chai.assert.lengthOf m, 1
     chai.assert.include m[0],

@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -33,7 +35,6 @@ describe 'deleteRound', ->
 
   describe 'when it is empty', ->
     id = null
-    ret = null
     beforeEach ->
       id = model.Rounds.insert
         name: 'Foo'
@@ -46,18 +47,22 @@ describe 'deleteRound', ->
         solved_by: null
         puzzles: []
         tags: {}
-      ret = Meteor.call 'deleteRound',
-        id: id
-        who: 'cjb'
 
-    it 'returns true', ->
-       chai.assert.isTrue ret
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'deleteRound', id
+      , Match.Error
+    
+    describe 'when logged in', ->
+      ret = null
+      beforeEach ->
+        ret = Meteor.callAs 'deleteRound', 'cjb', id
 
-    it 'deletes the round', ->
-      chai.assert.isUndefined model.Rounds.findOne(), 'no rounds after deletion'
+      it 'returns true', ->
+        chai.assert.isTrue ret
 
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'rounds', room_name: 'oplog/0'}).fetch(), 1
+      it 'deletes the round', ->
+        chai.assert.isUndefined model.Rounds.findOne(), 'no rounds after deletion'
 
   describe 'when round isn\'t empty', ->
     id = null
@@ -74,9 +79,7 @@ describe 'deleteRound', ->
         solved_by: null
         puzzles: ['foo1', 'foo2']
         tags: {}
-      ret = Meteor.call 'deleteRound',
-        id: id
-        who: 'cjb'
+      ret = Meteor.callAs 'deleteRound', 'cjb', id
     
     it 'returns false', ->
       chai.assert.isFalse ret

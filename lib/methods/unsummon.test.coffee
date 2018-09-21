@@ -2,6 +2,8 @@
 
 # Will access contents via share
 import '../model.coffee'
+# Test only works on server side; move to /server if you add client tests.
+import '../../server/000servercall.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -34,9 +36,7 @@ describe 'unsummon', ->
         solved: null
         solved_by: null
         tags: status: {name: 'Status', value: 'precipitate', touched: 2, touched_by: 'cjb'}
-      ret = Meteor.call 'unsummon',
-        who: 'torgen'
-        object: id
+      ret = Meteor.callAs 'unsummon', 'torgen', object: id
 
     it 'returns an error', ->
       chai.assert.isString ret
@@ -55,7 +55,6 @@ describe 'unsummon', ->
 
   describe 'which someone else made stuck', ->
     id = null
-    ret = null
     beforeEach ->
       id = model.Puzzles.insert
         name: 'Foo'
@@ -67,33 +66,40 @@ describe 'unsummon', ->
         solved: null
         solved_by: null
         tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'cjb'}
-      ret = Meteor.call 'unsummon',
-        who: 'torgen'
-        object: id
 
-    it 'returns nothing', ->
-      chai.assert.isUndefined ret
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'unsummon', object: id
+      , Match.Error
 
-    it 'updates document', ->
-      chai.assert.deepInclude model.Puzzles.findOne(id),
-        touched: 7
-        touched_by: 'torgen'
-        tags: {}
+    describe 'when logged in', ->
+      ret = null
+      beforeEach ->
+        ret = Meteor.callAs 'unsummon', 'torgen', object: id
 
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
+      it 'returns nothing', ->
+        chai.assert.isUndefined ret
 
-    it 'notifies main chat', ->
-      msgs = model.Messages.find(room_name: 'general/0').fetch()
-      chai.assert.lengthOf msgs, 1
-      chai.assert.include msgs[0].body, 'has arrived'
-      chai.assert.include msgs[0].body, "puzzle Foo"
+      it 'updates document', ->
+        chai.assert.deepInclude model.Puzzles.findOne(id),
+          touched: 7
+          touched_by: 'torgen'
+          tags: {}
 
-    it "notifies puzzle chat", ->
-      msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
-      chai.assert.lengthOf msgs, 1
-      chai.assert.include msgs[0].body, 'has arrived'
-      chai.assert.notInclude msgs[0].body, "puzzle Foo"
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
+
+      it 'notifies main chat', ->
+        msgs = model.Messages.find(room_name: 'general/0').fetch()
+        chai.assert.lengthOf msgs, 1
+        chai.assert.include msgs[0].body, 'has arrived'
+        chai.assert.include msgs[0].body, "puzzle Foo"
+
+      it "notifies puzzle chat", ->
+        msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+        chai.assert.lengthOf msgs, 1
+        chai.assert.include msgs[0].body, 'has arrived'
+        chai.assert.notInclude msgs[0].body, "puzzle Foo"
 
   describe 'which they made stuck', ->
     id = null
@@ -109,9 +115,7 @@ describe 'unsummon', ->
         solved: null
         solved_by: null
         tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'cjb'}
-      ret = Meteor.call 'unsummon',
-        who: 'cjb'
-        object: id
+      ret = Meteor.callAs 'unsummon', 'cjb', object: id
 
     it 'returns nothing', ->
       chai.assert.isUndefined ret

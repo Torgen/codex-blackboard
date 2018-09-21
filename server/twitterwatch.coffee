@@ -56,8 +56,7 @@ twit.stream 'statuses/filter', {track: HASHTAGS}, (stream) ->
       return
     console.log "Twitter! @#{data.user.screen_name} #{data.text}"
     text = linkify data.text
-    Meteor.call 'newMessage',
-      nick: 'via twitter'
+    Meteor.callAs 'newMessage', 'via twitter',
       action: 'true'
       body: "<a href='https://twitter.com/#{data.user.screen_name}'>@#{data.user.screen_name}</a> <a href='https://twitter.com/#{data.user.screen_name}/status/#{data.id_str}' target='_blank'>says:</a> #{text}"
       bodyIsHtml: true
