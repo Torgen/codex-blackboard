@@ -62,4 +62,3 @@ describe 'cancelCallIn', ->
         
         it 'oplogs', ->
           chai.assert.lengthOf model.Messages.find({type: type, id: puzzle}).fetch(), 1
-    
