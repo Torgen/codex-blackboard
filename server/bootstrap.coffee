@@ -56,385 +56,385 @@ Meteor.startup ->
     # Civilization Round, 2011
     do ->
       civ = ca 'newRound', {name: 'Civilization'},
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/'
       # TODO(torgen): when default meta exists, remvoe/rename it.
       palimpsest = ca 'newPuzzle',
         name: 'A Modern Palimpsest'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/a_modern_palimpsest/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/a_modern_palimpsest/'
         tags: [ {name: 'Technology', value: 'The Scroll'}]
       shikakuro = ca 'newPuzzle',
         name: 'Technological Crisis at Shikakuro Farms'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/technological_crisis_at_shikakuro_farms/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/technological_crisis_at_shikakuro_farms/'
         tags: [ {name: 'Technology', value: 'Agriculture'}]
       charm = ca 'newPuzzle',
         name: 'Charm School'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/charm_school/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/charm_school/'
         tags: [ {name: 'Technology', value: 'Exogamy'}]
       showcase = ca 'newPuzzle',
         name: 'Showcase'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/showcase/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/showcase/'
         tags: [ {name: 'Technology', value: 'Mathematics'}]
       drafting = ca 'newPuzzle',
         name: 'Drafting Table'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/drafting_table/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/drafting_table/'
         tags: [ {name: 'Technology', value: 'Draftsmanship'}]
       racking = ca 'newPuzzle',
         name: 'Racking Your Brains'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/racking_your_brains/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/racking_your_brains/'
         tags: [ {name: 'Technology', value: 'The Wheel'}]
       chant = ca 'newPuzzle',
         name: 'Crowd\'s Chant'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/crowds_chant/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/crowds_chant/'
         tags: [ {name: 'Technology', value: 'Gladatorial Combat'}]
       hints = ca 'newPuzzle',
         name: 'Hints, With A Bit Of Love!'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/hints_with_a_bit_of_love/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/hints_with_a_bit_of_love/'
         tags: [ {name: 'Technology', value: '...and Literature'}]
       bank = ca 'newPuzzle',
         name: 'Letter Bank'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/letter_bank/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/letter_bank/'
         tags: [ {name: 'Technology', value: 'Plant-Based Ink'}]
       easy = ca 'newPuzzle',
         name: 'This SHOULD Be Easy'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/this_should_be_easy/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/this_should_be_easy/'
         tags: [ {name: 'Technology', value: 'Epic Poetry'}]
       cute = ca 'newPuzzle',
         name: 'Soooo Cute!'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/soooo_cute/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/soooo_cute/'
         tags: [ {name: 'Technology', value: 'Procrastinating'}]
       maths = ca 'newPuzzle',
         name: 'Advanced Maths'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/advanced_maths/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/advanced_maths/'
         tags: [ {name: 'Technology', value: 'Philosophy'}]
       potsherds = ca 'newPuzzle',
         name: 'Painted Potsherds'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/painted_potsherds/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/painted_potsherds/'
         tags: [ {name: 'Technology', value: 'Stoneware'}]
       cheaters = ca 'newPuzzle',
         name: 'Cheaters Never Prosper'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/cheaters_never_prosper/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/cheaters_never_prosper/'
         tags: [ {name: 'Technology', value: 'Legal System'}]
       doors = ca 'newPuzzle',
         name: 'The Doors Of Cambridge'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/the_doors_of_cambridge/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/the_doors_of_cambridge/'
         tags: [ {name: 'Technology', value: 'Doors'}]
       literary = ca 'newPuzzle',
         name: 'Literary Collection'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/literary_collection/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/literary_collection/'
         tags: [ {name: 'Technology', value: 'Literacy'}]
       amateur = ca 'newPuzzle',
         name: 'Amateur Hour'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/amateur_hour/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/amateur_hour/'
         tags: [ {name: 'Technology', value: 'Alchemy'}]
       box = ca 'newPuzzle',
         name: 'Puzzle Box'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/puzzle_box/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/puzzle_box/'
         tags: [ {name: 'Technology', value: 'Invention'}]
       magic = ca 'newPuzzle',
         name: 'Sufficiently Advanced Technology'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/sufficiently_advanced_technology/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/sufficiently_advanced_technology/'
         tags: [ {name: 'Technology', value: 'Trading'}]
       speech = ca 'newPuzzle',
         name: 'Part Of Speech'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/part_of_speech/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/part_of_speech/'
         tags: [ {name: 'Technology', value: 'Oratory'}]
       inventory = ca 'newPuzzle',
         name: 'Inventory Quest'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/inventory_query/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/inventory_query/'
         tags: [ {name: 'Technology', value: 'Private Property'}]
       laureate = ca 'newPuzzle',
         name: 'Laureate'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/laureate/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/laureate/'
         tags: [ {name: 'Technology', value: 'Carbon Nanotubules'}]
       princesses = ca 'newPuzzle',
         name: 'The Sport Of Princesses'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/the_sport_of_princesses/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/the_sport_of_princesses/'
         tags: [ {name: 'Technology', value: 'Monarchy'}]
       kids = ca 'newPuzzle',
         name: 'Fascinating Kids'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/fascinating_kids/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/fascinating_kids/'
         tags: [ {name: 'Technology', value: 'Social Clubs'}]
       granary = ca 'newPuzzle',
         name: 'Granary Of Ur'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/granary_of_ur/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/granary_of_ur/'
         puzzles: [palimpsest._id, shikakuro._id, charm._id, bank._id, easy._id, literary._id]
       workshop = ca 'newPuzzle',
         name: 'Da Vinci\'s Workshop'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/da_vincis_workshop/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/da_vincis_workshop/'
         puzzles: [palimpsest._id, drafting._id, racking._id, cute._id, maths._id, potsherds._id, box._id]
       wall_street = ca 'newPuzzle',
         name: 'Wall Street'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/wall_street/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/wall_street/'
         puzzles: [shikakuro._id, charm._id, drafting._id, racking._id, chant._id, hints._id, easy._id, maths._id, cheaters._id, magic._id]
       elevator = ca 'newPuzzle',
         name: 'Space Elevator'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/space_elevator/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/space_elevator/'
         puzzles: [palimpsest._id, shikakuro._id, showcase._id, chant._id, hints._id, bank._id, cheaters._id, doors._id, amateur._id, speech._id, laureate._id]
       palace = ca 'newPuzzle',
         name: 'Palace of Versailles'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/palace_of_versailles/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/palace_of_versailles/'
         puzzles: [shikakuro._id, showcase._id, drafting._id, bank._id, cute._id, doors._id, amateur._id, inventory._id, princesses._id]
       links = ca 'newPuzzle',
         name: 'St. Andrew\'s Links'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/st_andrews_links/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/st_andrews_links/'
         puzzles: [chant._id, hints._id, potsherds._id, cheaters._id, doors._id, speech._id, inventory._id, kids._id]
       ca 'newPuzzle',
         name: 'Interstellar Spaceship'
         round: civ._id
-        link: 'http://www.mit.edu/~puzzle/2011/puzzles/civilization/interstellar_spaceship/'
+        link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/interstellar_spaceship/'
         puzzles: [elevator._id, wall_street._id, palace._id, links._id, workshop._id, granary._id]
 
     # Emotion round, 2018
     do ->
       emotions = ca 'newRound', {name: 'Emotions and Memories'},
-        link: 'http://web.mit.edu/puzzle/www/2018/full/island/index.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/island/index.html'
       joy = ca 'newPuzzle',
         name: 'Joy'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/joy.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/joy.html'
         tags: [{name: 'Meta Pattern', value: '"Joy Of" books'}]
       sadness = ca 'newPuzzle',
         name: 'Sadness'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/sadness.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/sadness.html'
         tags: [{name: 'Cares About', value: 'Borders'}]
       fear = ca 'newPuzzle',
         name: 'Fear'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/fear.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/fear.html'
         tags: [{name: 'Meta Pattern', value: 'Unique on health and safety page'}]
       disgust = ca 'newPuzzle',
         name: 'Disgust'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/disgust.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/disgust.html'
       anger = ca 'newPuzzle',
         name: 'Anger'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/anger.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/anger.html'
         tags: [{name: 'Cares About', value: 'Temperature'}]
       ca 'newPuzzle',
         name: 'Yeah, But It Didn\'t Work!'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/yeah_but_it_didnt_work.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/yeah_but_it_didnt_work.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '2'}]
       ca 'newPuzzle',
         name: 'Warm And Fuzzy'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/warm_and_fuzzy.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/warm_and_fuzzy.html'
         feedsInto: [joy._id]
       ca 'newPuzzle',
         name: 'Clueless'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/clueless.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/clueless.html'
         feedsInto: [disgust._id]
       ca 'newPuzzle',
         name: 'In Memoriam'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/in_memoriam.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/in_memoriam.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '2'}]
       ca 'newPuzzle',
         name: 'Freak Out'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/freak_out.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/freak_out.html'
         feedsInto: [fear._id]
       ca 'newPuzzle',
         name: 'Let\'s Get Ready To Jumble'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/lets_get_ready_to_jumble.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/lets_get_ready_to_jumble.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '11'}]
       ca 'newPuzzle',
         name: 'AKA'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/aka.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/aka.html'
         feedsInto: [disgust._id]
       ca 'newPuzzle',
         name: 'Unfortunate AI'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/unfortunate_ai.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/unfortunate_ai.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '4'}]
       ca 'newPuzzle',
         name: 'A Learning Path'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/a_learning_path.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/a_learning_path.html'
         feedsInto: [disgust._id, fear._id]
       ca 'newPuzzle',
         name: 'Cross Words'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/cross_words.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/cross_words.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '1'}]
       ca 'newPuzzle',
         name: 'We Are All Afraid To Die'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/we_are_all_afraid_to_die.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/we_are_all_afraid_to_die.html'
         feedsInto: [fear._id]
       ca 'newPuzzle',
         name: 'Temperance'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/temperance.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/temperance.html'
         feedsInto: [anger._id, disgust._id]
         tags: [{name: 'Temperature', value: '10'}]
       ca 'newPuzzle',
         name: 'Word Search'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/word_search.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/word_search.html'
         feedsInto: [fear._id, sadness._id]
         tags: [{name: 'Borders', value: '4'}]
       ca 'newPuzzle',
         name: 'Just Keep Swiping'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/just_keep_swiping.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/just_keep_swiping.html'
         feedsInto: [disgust._id]
       ca 'newPuzzle',
         name: 'Caged'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/caged.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/caged.html'
         feedsInto: [joy._id, sadness._id]
         tags: [{name: 'Borders', value: '5'}]
       ca 'newPuzzle',
         name: 'Minority Report'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/minority_report.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/minority_report.html'
         feedsInto: [disgust._id]
       ca 'newPuzzle',
         name: 'Asteroids'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/asteroids.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/asteroids.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '3'}]
       ca 'newPuzzle',
         name: 'Good Fences Make Sad and Disgusted Neighbors'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/good_fences_make_sad_and_disgusted_neighbors.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/good_fences_make_sad_and_disgusted_neighbors.html'
         feedsInto: [sadness._id, disgust._id]
         tags: [{name: 'Borders', value: '2'}]
       ca 'newPuzzle',
         name: 'Face Your Fears'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/face_your_fears.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/face_your_fears.html'
         feedsInto: [fear._id]
       ca 'newPuzzle',
         name: 'Scattered and Absurd'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/scattered_and_absurd.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/scattered_and_absurd.html'
         feedsInto: [anger._id, sadness._id]
         tags: [{name: 'Temperature', value: '8'}, {name: 'Borders', value: '3'}]
       ca 'newPuzzle',
         name: 'Cooking a Recipe'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/cooking_a_recipe.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/cooking_a_recipe.html'
         feedsInto: [joy._id, disgust._id]
       ca 'newPuzzle',
         name: 'Roadside America'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/roadside_america.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/roadside_america.html'
         feedsInto: [fear._id, anger._id]
         tags: [{name: 'Temperature', value: '6'}]
       ca 'newPuzzle',
         name: 'Crossed Paths'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/crossed_paths.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/crossed_paths.html'
         feedsInto: [joy._id]
       ca 'newPuzzle',
         name: 'On the A Line'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/clueless.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/clueless.html'
         feedsInto: [disgust._id]
       ca 'newPuzzle',
         name: 'What\'s In a Name?'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/whats_in_a_name.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/whats_in_a_name.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '9'}]
       ca 'newPuzzle',
         name: 'Games Club'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/games_club.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/games_club.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '5'}]
       ca 'newPuzzle',
         name: 'Birds of a Feather'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/birds_of_a_feather.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/birds_of_a_feather.html'
         feedsInto: [joy._id, anger._id]
         tags: [ {name: 'Temperature', value: '12'}]
       ca 'newPuzzle',
         name: 'Nobody Likes Sad Songs'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/nobody_likes_sad_songs.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/nobody_likes_sad_songs.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '2'}]
       ca 'newPuzzle',
         name: 'Irritating Places'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/irritating_places.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/irritating_places.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '4'}]
       ca 'newPuzzle',
         name: 'What The...'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/what_the.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/what_the.html'
         feedsInto: [joy._id, fear._id]
       ca 'newPuzzle',
         name: 'Beast Workshop'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/beast_workshop.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/beast_workshop.html'
         feedsInto: [disgust._id]
       ca 'newPuzzle',
         name: 'That Time I Somehow Felt Incomplete'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/that_time_i_somehow_felt_incomplete.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/that_time_i_somehow_felt_incomplete.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '7'}]
       ca 'newPuzzle',
         name: 'Jeopardy!'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/jeopardy.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/jeopardy.html'
         feedsInto: [fear._id]
       ca 'newPuzzle',
         name: 'Chemistry Experimentation'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/chemistry_experimentation.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/chemistry_experimentation.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '5'}]
       ca 'newPuzzle',
         name: 'The Brainstorm'
         round: emotions._id
-        link: 'http://web.mit.edu/puzzle/www/2018/full/puzzle/the_brainstorm.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/the_brainstorm.html'
       
 
     console.log 'Done populating initial database.'
