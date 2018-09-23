@@ -64,7 +64,7 @@ Template.registerHelper 'doc_link', (args) ->
 Template.registerHelper 'nickOrName', (args) ->
   nick = (keyword_or_positional 'nick', args).nick
   n = Meteor.users.findOne canonical nick
-  return n?.real_name or nick
+  return n?.real_name or n?.nickname or nick
 
 Template.registerHelper 'lotsOfPeople', (args) ->
   count = (keyword_or_positional 'count', args).count
