@@ -180,7 +180,7 @@
 
 <template name="blackboard_round">
   {{#if showRound }}
-  <tbody id="r{{round._id}}">
+  <tbody id="r{{round._id}}" style="background-color: {{color}}">
   <tr><th colspan="{{nCols}}">
   <h3 class="bb-editable" data-bbedit="rounds/{{round._id}}/title">
   {{#if editing "rounds" round._id "title"}}

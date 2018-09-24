@@ -1,6 +1,7 @@
 'use strict'
 
 import { nickEmail } from './imports/nickEmail.coffee'
+import puzzleColor from './imports/objectColor.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -323,6 +324,7 @@ processBlackboardEdit =
 
 Template.blackboard_round.helpers
   hasPuzzles: -> (this.round?.puzzles?.length > 0)
+  color: -> puzzleColor @round if @round?
   showRound: ->
     return false if ('true' is reactiveLocalStorage.getItem 'hideRoundsSolvedMeta') and (this.round?.solved?)
     return ('true' isnt reactiveLocalStorage.getItem 'hideSolved') or (!this.round?.solved?) or

@@ -369,7 +369,11 @@ body.has-emojis {
   }
   .bb-puzzle {
     margin-bottom: 0;
-    th { background: #f8f8f8; }
+    th { background: rgba(255,255,255,0.75); }
+    tr.meta, tr.puzzle {
+      background: rgba(255,255,255,0.85);
+      &.bb-status-stuck { background-color: #FF0; }
+    }
     .bb-edit-icon, .bb-delete-icon {
       margin-top: 3px;
     }
