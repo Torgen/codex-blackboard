@@ -371,8 +371,9 @@ body.has-emojis {
     margin-bottom: 0;
     th { background: rgba(255,255,255,0.75); }
     tr.meta, tr.puzzle {
-      background: rgba(255,255,255,0.85);
-      &.bb-status-stuck { background-color: #FF0; }
+      @bg: rgba(255,255,255,0.85);
+      background: @bg;
+      &.bb-status-stuck { background: repeating-linear-gradient(45deg, #FF0, #FF0 10px, @bg 10px, @bg 20px); }
     }
     .bb-edit-icon, .bb-delete-icon {
       margin-top: 3px;
