@@ -20,7 +20,7 @@ function onGoogleApiLoad() {
 
 <body>
   {{#if currentUser}}
-    <div id="bb-body">
+    <div id="bb-body" class="{{#if boringMode}}boring{{/if}}">
         {{> page }}
     </div>
     {{> header_confirmmodal}}

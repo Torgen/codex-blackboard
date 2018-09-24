@@ -205,6 +205,8 @@ Template.blackboard.events
     doBoolean 'hideRoundsSolvedMeta', event.target.checked
   "change .bb-compact-mode input": (event, template) ->
     doBoolean 'compactMode', event.target.checked
+  "change .bb-boring-mode input": (event, template) ->
+    doBoolean 'boringMode', event.target.checked
   "click .bb-hide-status": (event, template) ->
     doBoolean 'hideStatus', ('true' isnt reactiveLocalStorage.getItem 'hideStatus')
   "click .bb-add-round-group": (event, template) ->

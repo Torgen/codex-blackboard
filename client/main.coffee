@@ -42,6 +42,8 @@ Template.registerHelper 'compactHeader', () ->
 
 Template.registerHelper 'mynick', -> Meteor.user()?.nickname
 
+Template.registerHelper 'boringMode', -> 'true' is reactiveLocalStorage.getItem 'boringMode'
+
 # subscribe to the all-names feed all the time
 Meteor.subscribe 'all-names'
 # subscribe to all nicks all the time

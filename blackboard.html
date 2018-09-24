@@ -75,6 +75,10 @@
     <input type="checkbox" id="bb-compact-mode" checked="{{compactMode}}">
     Compact mode
   </label>
+  <label class="checkbox bb-boring-mode">
+    <input type="checkbox" id="bb-boring-mode" checked="{{boringMode}}">
+    Less Colorful
+  </label>
 </div>
 {{/unless}}
 </div>
@@ -180,7 +184,7 @@
 
 <template name="blackboard_round">
   {{#if showRound }}
-  <tbody id="r{{round._id}}" style="background-color: {{color}}">
+  <tbody id="r{{round._id}}" style="{{#unless boringMode}}background-color: {{color}}{{/unless}}">
   <tr><th colspan="{{nCols}}">
   <h3 class="bb-editable" data-bbedit="rounds/{{round._id}}/title">
   {{#if editing "rounds" round._id "title"}}
