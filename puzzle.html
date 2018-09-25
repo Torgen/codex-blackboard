@@ -49,7 +49,7 @@
 <div class="row-fluid bb-puzzleround">
  <!-- this is a puzzle page -->
 {{#with data}}
-<div class="bb-splitter" style="padding-right: {{hsize}}px">
+<div class="bb-splitter" style="padding-right: {{hsize}}px; {{#unless boringMode}}background: {{color}}{{/unless}}">
   <div class="bb-left-content">{{! start left of splitter }}
   {{#if puzzle.spreadsheet}}
     <div class="bb-left-header" style="{{#unless currentViewIs "spreadsheet"}}display: none;{{/unless}}">

@@ -126,8 +126,13 @@ body.has-emojis {
   .bb-addquip-btn {
     float: right; margin-top: 4px; margin-right: 3px;
   }
-  .bb-status-stuck {
-    background-color: #FF0;
+  .bb-left-content, .bb-top-right-content {
+    background: rgba(255,255,255,0.85);
+    .bb-status-stuck { background: repeating-linear-gradient(45deg, #FF0, #FF0 20px, rgba(0,0,0,0) 20px, rgba(0,0,0,0) 40px); }
+    .boring & {
+      background: white;
+      .bb-status-stuck { background: #FF0; }
+    }
   }
 }
 .bb-chat-messages {

@@ -1,4 +1,7 @@
 'use strict'
+
+import color from './imports/objectColor.coffee'
+
 model = share.model # import
 settings = share.settings # import
 
@@ -63,6 +66,7 @@ Template.puzzle.helpers
   vsizePlusHandle: -> +share.Splitter.vsize.get() + 6
   hsize: -> share.Splitter.hsize.get()
   currentViewIs: (view) -> currentViewIs @puzzle, view
+  color: -> color @puzzle
 
 Template.header_breadcrumb_extra_links.helpers
   currentViewIs: (view) -> currentViewIs this, view
