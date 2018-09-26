@@ -463,6 +463,14 @@
           </td>
           <td class="bb-editable"
               data-bbedit="tags/{{id}}/{{canon}}/value">
+            {{#if equal canon "color"}}
+              {{#if canEdit}}
+                <input type="color" id="tags-{{id}}-{{canon}}-color"
+                       value="{{hexify value}}" />
+              {{else}}
+                <span class="bb-colorbox" style="background-color: {{value}}"></span>
+              {{/if}}
+            {{/if}}
             {{#if editing "tags" id canon "value"}}
               <input type="text" id="tags-{{id}}-{{canon}}-value"
                      value="{{value}}"

@@ -1,7 +1,7 @@
 'use strict'
 
 import { nickEmail } from './imports/nickEmail.coffee'
-import puzzleColor from './imports/objectColor.coffee'
+import puzzleColor, { cssColorToHex } from './imports/objectColor.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -260,8 +260,17 @@ Template.blackboard.events
     # note that we rely on 'blur' on old field (which triggers ok or cancel)
     # happening before 'click' on new field
     Session.set 'editing', share.find_bbedit(event).join('/')
-Template.blackboard.events okCancelEvents('.bb-editable input',
+  'click input[type=color]': (event, template) ->
+    event.stopPropagation()
+  'input input[type=color]': (event, template) ->
+    edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
+    [type, id, rest...] = edit.split('/')
+    # strip leading/trailing whitespace from text (cancel if text is empty)
+    text = event.currentTarget.value.replace /^\s+|\s+$/, ''
+    processBlackboardEdit[type]?(text, id, rest...) if text
+Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
   ok: (text, evt) ->
+    console.log 'ok fired'
     # find the data-bbedit specification for this field
     edit = $(evt.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
     [type, id, rest...] = edit.split('/')
@@ -315,6 +324,7 @@ processBlackboardEdit =
           name: special
           canon: model.canonical(special)
           value: ''
+    # TODO(torgen): convert well known color hex codes to names
     # set tag (overwriting previous value)
     Meteor.call 'setTag', {type:n.type, object:id, name:t.name, value:text}
   link: (text, id) ->
@@ -463,8 +473,10 @@ tagHelper = (id) ->
       (Session.equals('currentPage', 'puzzle') or \
         Session.equals('currentPage', 'round'))))
 
-Template.blackboard_tags.helpers { tags: tagHelper }
-Template.blackboard_puzzle_tags.helpers { tags: tagHelper }
+Template.blackboard_tags.helpers tags: tagHelper
+Template.blackboard_puzzle_tags.helpers
+  tags: tagHelper
+  hexify: (v) -> cssColorToHex v
 Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information

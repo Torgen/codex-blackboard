@@ -211,6 +211,19 @@ body.has-emojis {
   .answer {
     text-transform: uppercase;
   }
+  .bb-colorbox {
+    display: inline-block;
+    width: 14px;
+    height:14px;
+    border: 1px white;
+    margin-right: 0.5em;
+  }
+  input[type=color] {
+    width: 14px;
+    height: 14px;
+    padding: 0px 0px;
+    margin-right: 0.5em;
+  }
 }
 
 #bb-right-sidebar {
@@ -374,7 +387,7 @@ body.has-emojis {
   }
   .bb-puzzle {
     margin-bottom: 0;
-    th {
+    th, tr.roundfooter {
       background: rgba(255,255,255,0.75);
       .boring & { background: #f8f8f8; }
     }
