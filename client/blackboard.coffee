@@ -1,7 +1,7 @@
 'use strict'
 
 import { nickEmail } from './imports/nickEmail.coffee'
-import puzzleColor, { cssColorToHex } from './imports/objectColor.coffee'
+import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -266,7 +266,7 @@ Template.blackboard.events
     edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
     [type, id, rest...] = edit.split('/')
     # strip leading/trailing whitespace from text (cancel if text is empty)
-    text = event.currentTarget.value.replace /^\s+|\s+$/, ''
+    text = hexToCssColor event.currentTarget.value.replace /^\s+|\s+$/, ''
     processBlackboardEdit[type]?(text, id, rest...) if text
 Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
   ok: (text, evt) ->
@@ -324,7 +324,6 @@ processBlackboardEdit =
           name: special
           canon: model.canonical(special)
           value: ''
-    # TODO(torgen): convert well known color hex codes to names
     # set tag (overwriting previous value)
     Meteor.call 'setTag', {type:n.type, object:id, name:t.name, value:text}
   link: (text, id) ->

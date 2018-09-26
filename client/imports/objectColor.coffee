@@ -1,6 +1,7 @@
 'use strict'
 
 import { getTag } from '../../lib/imports/tags.coffee'
+import colornames from 'css-color-names'
 
 export default colorFromThingWithTags = (thing) ->
   getTag(thing, 'color') or "##{SHA256(thing._id).substring(0,6)}"
@@ -20,3 +21,8 @@ export cssColorToHex = (color) ->
   ctx.fillRect 0, 0, 1, 1
   [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data
   "##{numToHex r}#{numToHex g}#{numToHex b}"
+
+reversecolornames = {}
+for name, color of colornames
+  reversecolornames[color] = name
+export hexToCssColor = (hex) -> reversecolornames[hex] or hex
