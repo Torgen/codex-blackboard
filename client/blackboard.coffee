@@ -218,19 +218,18 @@ Template.blackboard.events
       return unless e # bail if cancelled
       Meteor.call 'newRound', name: str
   "click .bb-round-buttons .bb-add-puzzle": (event, template) ->
-    roundId = @_id
     alertify.prompt "Name of new puzzle:", (e,str) =>
       return unless e # bail if cancelled
-      Meteor.call 'newPuzzle', { name: str, round: roundId }, (error,r)->
+      Meteor.call 'newPuzzle', { name: str, round: @_id }, (error,r)->
         throw error if error
   "click .bb-round-buttons .bb-add-tag": (event, template) ->
-    alertify.prompt "Name of new tag:", (e,str) ->
+    alertify.prompt "Name of new tag:", (e,str) =>
       return unless e # bail if cancelled
-      Meteor.call 'setTag', {type:'rounds', object:@id, name:str, value:''}
+      Meteor.call 'setTag', {type:'rounds', object: @_id, name:str, value:''}
   "click .bb-puzzle-add-move .bb-add-tag": (event, template) ->
-    alertify.prompt "Name of new tag:", (e,str) ->
+    alertify.prompt "Name of new tag:", (e,str) =>
       return unless e # bail if cancelled
-      Meteor.call 'setTag', {type:'puzzles', object:@puzzle.id, name:str, value:''}
+      Meteor.call 'setTag', {type:'puzzles', object: @puzzle._id, name:str, value:''}
   "click .bb-canEdit .bb-delete-icon": (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     [type, id, rest...] = share.find_bbedit(event)
