@@ -8,13 +8,14 @@ export default colorFromThingWithTags = (thing) ->
 
 numToHex = (num) -> ('0' + num.toString 16).slice -2
 
+canvas = document.createElement 'canvas'
+[canvas.height, canvas.width] = [1, 1]
+ctx = canvas.getContext '2d'
+
 export cssColorToHex = (color) ->
   return color if /^#[0-9a-fA-F]{6}$/.test color
   if m = color.match /^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/
     return "##{r}#{r}#{g}#{g}#{b}#{b}" if [x, r, g, b] = m
-  canvas = document.createElement 'canvas'
-  [canvas.height, canvas.width] = [1, 1]
-  ctx = canvas.getContext '2d'
   ctx.fillStyle = 'white'
   ctx.fillRect 0, 0, 1, 1
   ctx.fillStyle = color
