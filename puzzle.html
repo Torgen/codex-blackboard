@@ -24,7 +24,13 @@
 {{/each}}
 {{#with puzzle}}
   {{#each tags}}
-    <tr><td class="tagname">{{name}}:</td><td class="tagvalue">{{value}}</td></tr>
+    <tr>
+      <td class="tagname">{{name}}:</td>
+      <td class="tagvalue">
+        {{#if equal canon "color"}}<span class="bb-colorbox" style="background-color: {{value}}"></span>{{/if}}
+        {{value}}
+      </td>
+    </tr>
   {{/each}}
 {{/with}}
 </tbody></table>
@@ -49,7 +55,7 @@
 <div class="row-fluid bb-puzzleround">
  <!-- this is a puzzle page -->
 {{#with data}}
-<div class="bb-splitter" style="padding-right: {{hsize}}px">
+<div class="bb-splitter" style="padding-right: {{hsize}}px; {{#unless boringMode}}background: {{color}}{{/unless}}">
   <div class="bb-left-content">{{! start left of splitter }}
   {{#if puzzle.spreadsheet}}
     <div class="bb-left-header" style="{{#unless currentViewIs "spreadsheet"}}display: none;{{/unless}}">

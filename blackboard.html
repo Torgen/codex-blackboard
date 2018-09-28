@@ -78,6 +78,10 @@
     <input type="checkbox" id="bb-compact-mode" checked="{{compactMode}}">
     Compact mode
   </label>
+  <label class="checkbox bb-boring-mode">
+    <input type="checkbox" id="bb-boring-mode" checked="{{boringMode}}">
+    Less Colorful
+  </label>
 </div>
 {{/unless}}
 </div>
@@ -266,6 +270,14 @@
           </td>
           <td class="bb-editable"
               data-bbedit="tags/{{id}}/{{canon}}/value">
+            {{#if equal canon "color"}}
+              {{#if canEdit}}
+                <input type="color" id="tags-{{id}}-{{canon}}-color"
+                       value="{{hexify value}}" />
+              {{else}}
+                <span class="bb-colorbox" style="background-color: {{value}}"></span>
+              {{/if}}
+            {{/if}}
             {{#if editing "tags" id canon "value"}}
               <input type="text" id="tags-{{id}}-{{canon}}-value"
                       value="{{value}}"
@@ -383,7 +395,8 @@
 
 <template name="blackboard_meta">
   {{#if showMeta}}
-  <tbody class="meta" id="m{{puzzle._id}}" data-puzzle-id="{{puzzle._id}}">
+  <tbody class="meta" id="m{{puzzle._id}}" data-puzzle-id="{{puzzle._id}}"
+         style="{{#unless boringMode}}background-color: {{color}}{{/unless}}">
     <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}}">
       {{> blackboard_puzzle_cells}}
     </tr>

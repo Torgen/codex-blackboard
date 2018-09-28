@@ -43,3 +43,4 @@ meteortesting:mocha
 fds:coffeescript-share
 xolvio:cleaner
 accounts-base
+sha

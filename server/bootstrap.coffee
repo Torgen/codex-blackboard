@@ -222,26 +222,27 @@ Meteor.startup ->
         name: 'Joy'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/joy.html'
-        tags: [{name: 'Meta Pattern', value: '"Joy Of" books'}]
+        tags: [{name: 'Meta Pattern', value: '"Joy Of" books'}, {name: 'Color', value: 'yellow'}]
       sadness = ca 'newPuzzle',
         name: 'Sadness'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/sadness.html'
-        tags: [{name: 'Cares About', value: 'Borders'}]
+        tags: [{name: 'Cares About', value: 'Borders'}, {name: 'Color', value: 'blue'}]
       fear = ca 'newPuzzle',
         name: 'Fear'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/fear.html'
-        tags: [{name: 'Meta Pattern', value: 'Unique on health and safety page'}]
+        tags: [{name: 'Meta Pattern', value: 'Unique on health and safety page'}, {name: 'Color', value: 'purple'}]
       disgust = ca 'newPuzzle',
         name: 'Disgust'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/disgust.html'
+        tags: [{name: 'Color', value: 'lime'}]
       anger = ca 'newPuzzle',
         name: 'Anger'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/anger.html'
-        tags: [{name: 'Cares About', value: 'Temperature'}]
+        tags: [{name: 'Cares About', value: 'Temperature'}, {name: 'Color', value: 'red'}]
       ca 'newPuzzle',
         name: 'Yeah, But It Didn\'t Work!'
         round: emotions._id

@@ -1,6 +1,7 @@
 'use strict'
 
 import { nickEmail } from './imports/nickEmail.coffee'
+import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -208,6 +209,8 @@ Template.blackboard.events
     doBoolean 'hideSolvedMeta', event.target.checked
   "change .bb-compact-mode input": (event, template) ->
     doBoolean 'compactMode', event.target.checked
+  "change .bb-boring-mode input": (event, template) ->
+    doBoolean 'boringMode', event.target.checked
   "click .bb-hide-status": (event, template) ->
     doBoolean 'hideStatus', ('true' isnt reactiveLocalStorage.getItem 'hideStatus')
   "click .bb-add-round": (event, template) ->
@@ -246,8 +249,15 @@ Template.blackboard.events
     # note that we rely on 'blur' on old field (which triggers ok or cancel)
     # happening before 'click' on new field
     Session.set 'editing', share.find_bbedit(event).join('/')
-
-Template.blackboard.events okCancelEvents('.bb-editable input',
+  'click input[type=color]': (event, template) ->
+    event.stopPropagation()
+  'input input[type=color]': (event, template) ->
+    edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
+    [type, id, rest...] = edit.split('/')
+    # strip leading/trailing whitespace from text (cancel if text is empty)
+    text = hexToCssColor event.currentTarget.value.replace /^\s+|\s+$/, ''
+    processBlackboardEdit[type]?(text, id, rest...) if text
+Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
   ok: (text, evt) ->
     # find the data-bbedit specification for this field
     edit = $(evt.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
@@ -376,6 +386,7 @@ Template.blackboard_meta.events
       (error,r)-> throw error if error
 
 Template.blackboard_meta.helpers
+  color: -> puzzleColor @puzzle if @puzzle?
   showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolvedMeta') or (!this.puzzle?.solved?)
   # the following is a map() instead of a direct find() to preserve order
   puzzles: ->
@@ -423,6 +434,7 @@ Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
     return (model.getTag @puzzle, name) or ''
   tags: tagHelper
+  hexify: (v) -> cssColorToHex v
   whos_working: ->
     return model.Presence.find
       room_name: ("puzzles/"+@puzzle?._id)

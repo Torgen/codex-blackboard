@@ -126,8 +126,13 @@ body.has-emojis {
   .bb-addquip-btn {
     float: right; margin-top: 4px; margin-right: 3px;
   }
-  .bb-status-stuck {
-    background-color: #FF0;
+  .bb-left-content, .bb-top-right-content {
+    background: rgba(255,255,255,0.85);
+    .bb-status-stuck { background: repeating-linear-gradient(45deg, #FF0, #FF0 20px, rgba(0,0,0,0) 20px, rgba(0,0,0,0) 40px); }
+    .boring & {
+      background: white;
+      .bb-status-stuck { background: #FF0; }
+    }
   }
 }
 .bb-chat-messages {
@@ -205,6 +210,18 @@ body.has-emojis {
 
   .answer {
     text-transform: uppercase;
+  }
+  .bb-colorbox {
+    display: inline-block;
+    width: 12px;
+    height:12px;
+    border: 1px solid black;
+  }
+  input[type=color] {
+    width: 14px;
+    height: 14px;
+    padding: 0px 0px;
+    margin-right: 0.25em;
   }
 }
 
@@ -369,13 +386,28 @@ body.has-emojis {
   }
   .bb-puzzle {
     margin-bottom: 0;
-    th, tr.meta td { background: #f8f8f8; }
-    tr.meta td {
+    tr.meta, tr.metafooter {
+      --tr-bg: rgba(255,255,255,0.75);
+      .boring & {
+        background: #f8f8f8;
+        &.bb-status-stuck { background: #CC0; }
+      }
       .bb-puzzle-title {
         font-weight: bold;
         text-transform: uppercase;
       }
-    } 
+    }
+    tr.puzzle {
+      --tr-bg: rgba(255,255,255,0.85);
+      .boring & {
+        background: white;
+        &.bb-status-stuck { background: #FF0; }
+      }
+    }
+    tr.meta, tr.puzzle, tr.metafooter {
+      &.bb-status-stuck { background: repeating-linear-gradient(45deg, #FF0, #FF0 10px, var(--tr-bg) 10px, var(--tr-bg) 20px); }
+      background: var(--tr-bg);
+    }
     .bb-edit-icon, .bb-delete-icon {
       margin-top: 3px;
     }

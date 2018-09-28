@@ -14,6 +14,11 @@ You can get an advance idea of what you may configure from reading
 `private/installtemplates/etc/codex-common.env.handlebars` and
 `private/installfiles/etc/codex-batch.env`. A summary:
 
+* Set a team password with the TEAM_PASSWORD variable in /etc/codex-common.env 
+  or the password will be the empty string. There is no notion of account
+  creation other than having the team password, which should be written on a
+  whiteboard, sent to the team mailing list, or otherwise shared
+  with everyone who should have access.
 * MongoDB wants to store its data in an XFS partition. If you have
   unpartitioned space on your hard drive, you may want to create an xfs
   partition and mount it at /var/lib/mongodb. If you haven't done this, the
@@ -42,6 +47,13 @@ You can get an advance idea of what you may configure from reading
   use the streaming API. These credentials go in `/etc/codex-batch.env`.
 * Scraping email requires putting a login and password in
   `/env/codex-batch.env`. The other settings are documented there.
+
+You can also run on Galaxy, Meteor's PaaS. In that case you will configure all
+these settings in a settings.json file which you will give when you deploy the
+app. Look through the code for Meteor.settings for the most up-to-date list of
+them. Also be aware that if you run multiple instances, batch processing must
+be disabled on all but one of them. This is not how we run the app, so you will
+be somewhat on your own here.
   
 Developing
 ==========
