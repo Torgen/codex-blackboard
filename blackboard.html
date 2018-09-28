@@ -216,6 +216,11 @@
   </table></div><!-- bb-status-grid -->
 </template>
 
+<template name="blackboard_othermeta_link">
+  <span class="bb-othermeta">{{#with color}}<span class="bb-colorbox" style="background-color: {{this}}"></span>{{/with}}
+  {{link _id}}</span>
+</template>
+
 <template name="blackboard_puzzle_cells">
 <td class="puzzle-name"><div>{{! div needed to establish relative pos }}
   <div class="bb-editable bb-puzzle-title" data-bbedit="puzzles/{{puzzle._id}}/title">
@@ -305,14 +310,19 @@
             <td>Feeds Into:</td>
             <td class="bb-editable" data-bbedit="feedsInto/{{_id}}">
               {{#if editing "feedsInto" _id}}
-                {{#each feedsInto}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
+                {{#each allMetas}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
                 {{#with unfedMetas}}{{#if this.count}}
-                  <select class="bb-feed-meta">
-                    {{#each this}}<option value="{{_id}}">{{name}}</option>{{/each}}
-                  </select>
+                  <div class="btn-group bb-feed-meta">
+                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    Feed Meta<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                      {{#each this}}<li>{{> blackboard_addmeta_entry}}</li>{{/each}}
+                    </ul>
+                  </div>
                 {{/if}}{{/with}}
               {{else}}
-                <span class="comma-list">{{#each feedsInto}}{{link id=this}}{{else}}(none){{/each}}</span>
+                <span class="comma-list">{{#each allMetas}}{{> blackboard_othermeta_link}} {{else}}(none){{/each}}</span>
                 <i class="bb-edit-icon icon-pencil"></i>
               {{/if}}
             </td>
@@ -322,7 +332,7 @@
             {{#if this}}
               <tr>
                 <td>Also feeds:</td>
-                <td class="comma-list">{{#each this}}{{link id=_id}}{{/each}}</td>
+                <td class="comma-list">{{#each this}}{{> blackboard_othermeta_link}} {{/each}}</td>
               </tr>
             {{/if}}
           {{/with}}
@@ -386,10 +396,17 @@
   {{/unless}}
 </template>
 
+<template name="blackboard_addmeta_entry">
+  <a href="#" data-puzzle-id="{{_id}}">
+    {{#with color}}<span class="bb-colorbox" style="background-color: {{this}}"></span>{{/with}}
+    {{name}}
+  </a>
+</template>
+
 <template name="blackboard_unfeed_meta">
   <div>
     <i class="bb-unfeed-icon icon-remove" title="Stop feeding this meta"></i>
-    {{link meta}}
+    {{> blackboard_othermeta_link meta}}
   </div>
 </template>
 

@@ -411,8 +411,9 @@ Template.blackboard_puzzle_cells.events
       Meteor.call 'makeMeta', template.data.puzzle._id
     else
       Meteor.call 'makeNotMeta', template.data.puzzle._id
-  'change .bb-feed-meta': (event, template) ->
-    Meteor.call 'feedMeta', template.data.puzzle._id, event.target.value
+  'click .bb-feed-meta a[data-puzzle-id]': (event, template) ->
+    Meteor.call 'feedMeta', template.data.puzzle._id, event.target.dataset.puzzleId
+    event.preventDefault()
 
 # TODO(Torgen): reordering rounds
 
@@ -440,6 +441,7 @@ Template.blackboard_puzzle_cells.helpers
     , sort: ["nick"]
   compactMode: compactMode
   stuck: share.model.isStuck
+  allMetas: -> (model.Puzzles.findOne x) for x in @feedsInto
   otherMetas: ->
     parent = Template.parentData(2)
     return unless parent.puzzle
@@ -451,9 +453,14 @@ Template.blackboard_puzzle_cells.helpers
   unfedMetas: ->
     return model.Puzzles.find(puzzles: {$exists: true, $ne: @_id})
 
+colorHelper = -> model.getTag @, 'color'
+
+Template.blackboard_othermeta_link.helpers color: colorHelper
+Template.blackboard_addmeta_entry.helpers color: colorHelper
+
 Template.blackboard_unfeed_meta.events
   'click .bb-unfeed-icon': (event, template) ->
-    Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta
+    Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta._id
 
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 
