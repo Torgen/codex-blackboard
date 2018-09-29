@@ -4,7 +4,12 @@ import { getTag } from '../../lib/imports/tags.coffee'
 import colornames from 'css-color-names'
 
 export default colorFromThingWithTags = (thing) ->
-  getTag(thing, 'color') or "##{SHA256(thing._id).substring(0,6)}"
+  getTag(thing, 'color') or do ->
+    hash = SHA256 thing._id
+    hue = parseInt(hash.substring(0, 4), 16) % 360
+    saturation = ((parseInt(hash.substring(4, 6), 16)/ 255.0) ** 0.5) * 100
+    lightness = ((parseInt(hash.substring(6, 8), 16) / 255.0) ** 0.5) * 50
+    "hsl(#{hue}, #{saturation}%, #{lightness}%)"
 
 numToHex = (num) -> ('0' + num.toString 16).slice -2
 
