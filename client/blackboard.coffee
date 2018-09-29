@@ -415,8 +415,6 @@ Template.blackboard_puzzle_cells.events
     Meteor.call 'feedMeta', template.data.puzzle._id, event.target.dataset.puzzleId
     event.preventDefault()
 
-# TODO(Torgen): reordering rounds
-
 tagHelper = ->
   isRound = not ('feedsInto' of this)
   tags = this?.tags or {}

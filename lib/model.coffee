@@ -1040,19 +1040,18 @@ doc_id_to_link = (id) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
       round = Rounds.findOne(id)
-      order = 'asc'
+      order = 1
       op = '$gt'
       if dir < 0
-        order = 'desc'
+        order = -1
         op = '$lt'
       query = {}
       query[op] = round.sort_key
-      cursor = Rounds.find(sort_key: query).sort(sort_key: order).limit(1)
-      arr = cursor.toArray()
-      return if arr.length is 0
-      last = arr[0]
+      last = Rounds.findOne {sort_key: query}, sort: {sort_key: order}
+      return unless last?
       Rounds.update id, $set: sort_key: last.sort_key
       Rounds.update last._id, $set: sort_key: round.sort_key
+      return
 
     setAnswer: (args) ->
       check @userId, NonEmptyString
