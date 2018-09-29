@@ -313,9 +313,9 @@
                 {{#each allMetas}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
                 {{#with unfedMetas}}{{#if this.count}}
                   <div class="btn-group bb-feed-meta">
-                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                    Feed Meta<span class="caret"></span>
-                    </a>
+                    <button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
+                    Feed Meta <span class="caret"></span>
+                    </button>
                     <ul class="dropdown-menu">
                       {{#each this}}<li>{{> blackboard_addmeta_entry}}</li>{{/each}}
                     </ul>
@@ -327,15 +327,11 @@
               {{/if}}
             </td>
           </tr>
-        {{else}}
-          {{#with otherMetas}}
-            {{#if this}}
-              <tr>
-                <td>Also feeds:</td>
-                <td class="comma-list">{{#each this}}{{> blackboard_othermeta_link}} {{/each}}</td>
-              </tr>
-            {{/if}}
-          {{/with}}
+        {{else with otherMetas}}
+          <tr>
+            <td>Also feeds:</td>
+            <td class="comma-list">{{#each this}}{{> blackboard_othermeta_link}} {{/each}}</td>
+          </tr>
         {{/if}}
       </tbody></table>
         {{/unless}}
