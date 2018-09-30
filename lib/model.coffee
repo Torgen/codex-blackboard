@@ -585,13 +585,21 @@ doc_id_to_link = (id) ->
       check @userId, NonEmptyString
       check puzzleId, NonEmptyString
       check metaId, NonEmptyString
+      throw new Meteor.Error(404, 'No such meta') unless Puzzles.findOne(metaId)?
+      throw new Meteor.Error(404, 'No such puzzle') unless Puzzles.findOne(puzzleId)?
       now = UTCNow()
-      Puzzles.update puzzleId,
+      Puzzles.update
+        _id: puzzleId
+        feedsInto: metaId
+      ,
         $pull: feedsInto: metaId
         $set: 
           touched: now
           touched_by: @userId
-      Puzzles.update metaId,
+      Puzzles.update
+        _id: metaId
+        puzzles: puzzleId
+      ,
         $pull: puzzles: puzzleId
         $set: 
           touched: now
