@@ -192,7 +192,7 @@
     <tr><th colspan=2 class="bb-status-grid-round bb-status-{{#if solved}}solved{{else if stuck this}}stuck{{else}}unsolved{{/if}}">{{link id=_id}}</th></tr>
       {{#each metas}}
       <tr>
-        <td class="bb-status-grid-meta bb-status-{{#if puzzle.solved}}solved{{else if stuck round}}stuck{{else}}unsolved{{/if}}">
+        <td class="bb-status-grid-meta bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
             {{link id=puzzle._id title="meta" text=puzzle.name}}
         </td><td class="bb-status-grid-puzzles">
         {{#each puzzles puzzle.puzzles}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
