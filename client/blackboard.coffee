@@ -439,7 +439,9 @@ Template.blackboard_puzzle_cells.helpers
     , sort: ["nick"]
   compactMode: compactMode
   stuck: share.model.isStuck
-  allMetas: -> (model.Puzzles.findOne x) for x in @feedsInto
+  allMetas: ->
+    return [] unless @
+    (model.Puzzles.findOne x) for x in @feedsInto
   otherMetas: ->
     parent = Template.parentData(2)
     return unless parent.puzzle
