@@ -173,6 +173,7 @@ if Meteor.isServer
     M._ensureIndex {room_name:1, timestamp:-1}, {}
     M._ensureIndex {room_name:1, timestamp:1}, {}
     M._ensureIndex {room_name:1, starred: -1, timestamp: 1}, {}
+    M._ensureIndex {timestamp: 1}, {}
 
 # Pages -- paging metadata for Messages collection
 #   from: timestamp (first page has from==0)

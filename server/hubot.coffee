@@ -185,7 +185,7 @@ Meteor.startup ->
   Meteor.setInterval keepalive, 30*1000 # every 30s refresh presence
   # listen to the chat room, ignoring messages sent before we startup
   startup = true
-  model.Messages.find({}).observeChanges
+  model.Messages.find(timestamp: $gt: model.UTCNow()).observeChanges
     added: (id, msg) ->
       return if startup
       return if msg.bot_ignore
