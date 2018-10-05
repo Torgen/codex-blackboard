@@ -443,9 +443,9 @@ Template.header_nickmodal_contents.onCreated ->
       gravatar = n?.gravatar
       $('#nickRealname').val(realname or '')
       $('#nickEmail').val(gravatar or '')
-    this.updateGravatar()
-  this.updateGravatar = () =>
-    email = $('#nickEmail').val() or "#{model.canonical($('#nickInput').val())}@#{settings.DEFAULT_HOST}"
+    this.updateGravatar(query)
+  this.updateGravatar = (q) =>
+    email = $('#nickEmail').val() or "#{q or model.canonical($('#nickInput').val())}@#{settings.DEFAULT_HOST}"
     gravatar = $.gravatar email,
       image: 'wavatar' # 'monsterid'
       classes: 'img-polaroid'
