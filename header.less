@@ -94,6 +94,19 @@
   .modal-header { display: none }
 }
 
+#nickPick {
+  .gravatar {
+    float: left;
+    @media(max-width: 480px) {
+      float: right;
+      img {
+        width:60px;
+        height:60px;
+      }
+    }
+  }
+}
+
 form#joinRoom {
   margin: 6px 6px 0 0; /* properly center search field */
   .input-prepend {
