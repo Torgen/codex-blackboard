@@ -90,6 +90,10 @@
   .timestamp { font-size: .65em; }
 }
 
+@media(max-width:480px) {
+  .modal-header { display: none }
+}
+
 form#joinRoom {
   margin: 6px 6px 0 0; /* properly center search field */
   .input-prepend {
@@ -102,21 +106,6 @@ form#joinRoom {
   }
 }
 
-form#nickPick {
-  @label-spacing: 130px;
-  &.form-horizontal {
-    .control-label {
-      width: @label-spacing - 20px;
-    }
-    .controls {
-      margin-left: @label-spacing;
-    }
-    .form-actions {
-      padding-left: @label-spacing;
-    }
-  }
-  .gravatar { margin-top: -52px; }
-}
 /* ensure typeahead is shown over modals */
 ul.typeahead { z-index: 1099; }
 
