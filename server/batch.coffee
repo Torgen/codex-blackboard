@@ -56,7 +56,7 @@ do ->
   LOCATION_BATCH_SIZE = 10
   LOCATION_THROTTLE = 60*1000
   runBatch = ->
-    Meteor.userss.find({
+    Meteor.users.find({
       priv_located_order: { $exists: true, $ne: null }
     }, {
       sort: [['priv_located_order','asc']]
