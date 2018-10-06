@@ -573,13 +573,9 @@ Template.chat.onCreated ->
 
 Template.chat.onRendered ->
   $(window).resize()
-  @autorun ->
-    nick = Meteor.userId()
-    return unless nick
-    return unless Session.get('page') is 'chat'
-    type = Session.get('type')
-    id = Session.get('id')
-    joinRoom type, id
+  type = Session.get('type')
+  id = Session.get('id')
+  joinRoom type, id
 
 startupChat = ->
   return if instachat.keepaliveInterval?
