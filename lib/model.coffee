@@ -1,7 +1,7 @@
 'use strict'
 
 import canonical from './imports/canonical.coffee'
-import { NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
+import { ArrayMembers, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 
 # Blackboard -- data model
@@ -137,6 +137,9 @@ if Meteor.isServer
 #   services: map of provider-specific stuff; hidden on client
 if Meteor.isServer
   Meteor.users._ensureIndex {priv_located_order: 1}, {}
+  # We don't push the index to the client, so it's okay to have it update
+  # frequently.
+  Meteor.users._ensureIndex {priv_located_at: '2dsphere'}, {}
 
 # Messages
 #   body: string
@@ -766,8 +769,9 @@ doc_id_to_link = (id) ->
     locateNick: (args) ->
       check @userId, NonEmptyString
       check args, ObjectWith
-        lat: Number
-        lng: Number
+        location:
+          type: 'Point'
+          coordinates: ArrayMembers [NumberInRange(min: -180, max:180), NumberInRange(min: -90, max: 90)]
         timestamp: Match.Optional(Number)
       return if this.isSimulation # server side only
       # the server transfers updates from priv_located* to located* at
@@ -778,7 +782,7 @@ doc_id_to_link = (id) ->
       n = Meteor.users.update @userId,
         $set:
           priv_located: args.timestamp ? timestamp
-          priv_located_at: { lat: args.lat, lng: args.lng }
+          priv_located_at: args.location
         $min: priv_located_order: timestamp
       throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
 

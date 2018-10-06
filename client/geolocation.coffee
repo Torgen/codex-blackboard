@@ -13,8 +13,11 @@ GEOLOCATION_NEAR_DISTANCE = 1 # folks within a mile of you are "near"
 deg2rad = (deg) ->
   deg * Math.PI / 180
 
+lng = (geojson) -> geojson.coordinates[0]
+lat = (geojson) -> geojson.coordinates[1]
+
 distance = (one, two) ->
-  [lat1,lon1,lat2,lon2] = [one.lat,one.lng,two.lat,two.lng]
+  [lat1,lon1,lat2,lon2] = [lat(one),lng(one),lat(two),lng(two)]
   R = 6371.009 # Radius of the earth in km
   Rmi = 3958.761 # Radius of the earth in miles
   dLat = deg2rad(lat2 - lat1) # deg2rad below
@@ -33,12 +36,11 @@ updateLocation = do ->
   (pos) ->
     return unless pos?
     if last?
-      return if pos.lat == last.lat and pos.lng == last.lng
+      return if lat(pos) == lat(last) and lng(pos) == lng(last)
       return if distance(last, pos) < GEOLOCATION_DISTANCE_THRESHOLD
+    last = pos
     Tracker.nonreactive ->
-      Meteor.call 'locateNick',
-        lat: pos.lat
-        lng: pos.lng
+      Meteor.call 'locateNick', location: pos
 
 # As long as the user is logged in, stream position updates to server
 Tracker.autorun ->
@@ -47,8 +49,12 @@ Tracker.autorun ->
   nick = Meteor.userId()
   return unless nick?
   pos = Geolocation.latLng(enableHighAccuracy:false)
-  Session.set "position", pos # always use most current location client-side
-  updateLocation pos
+  return unless pos?
+  geojson =
+    type: 'Point'
+    coordinates: [pos.lng, pos.lat]
+  Session.set "position", geojson # always use most current location client-side
+  updateLocation geojson
 
 distanceTo = (nick) ->
   return null unless nick

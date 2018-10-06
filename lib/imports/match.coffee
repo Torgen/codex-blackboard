@@ -1,14 +1,25 @@
 'use strict'
 
+export NumberInRange = (args) -> Match.Where (x) ->
+  check x, Number
+  if args.min?
+    return false if x < args.min
+  if args.max?
+    return false if x > args.max
+  true
+
 export StringWithLength = (args) -> Match.Where (x) ->
   check x, String
-  if args.min?
-    return false if x.length < args.min
-  if args.max?
-    return false if x.length > args.max
+  check x.length, NumberInRange args
   true
 
 export NonEmptyString = StringWithLength min: 1
+
+export ArrayMembers = (arr) -> Match.Where (x) ->
+  return false unless arr.length is x.length
+  for m, i in arr
+    check x[i], m
+  true
 
 # either an id, or an object containing an id
 export IdOrObject = Match.OneOf NonEmptyString, Match.Where (o) ->

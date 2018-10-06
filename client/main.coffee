@@ -142,6 +142,30 @@ Meteor.startup ->
   Session.set 'notifications', Notification.permission
   setupNotifications() if Notification.permission is 'granted'
 
+distToTop = (x) -> Math.abs(x.getBoundingClientRect().top - 110)
+
+closestToTop = ->
+  return unless Session.equals 'currentPage', 'blackboard'
+  nearTop = $('#bb-tables')[0]
+  return unless nearTop
+  minDist = distToTop nearTop
+  $('#bb-tables table [id]').each (i, e) ->
+    dist = distToTop e
+    if dist < minDist
+      nearTop = e
+      minDist = dist
+  nearTop
+
+scrollAfter = (x) ->
+  nearTop = closestToTop()
+  offset = nearTop?.getBoundingClientRect().top
+  x()
+  if nearTop?
+    Tracker.afterFlush ->
+      $.scrollTo "##{nearTop.id}",
+        duration: 100
+        offset: {top: -offset}
+
 # Router
 BlackboardRouter = Backbone.Router.extend
   routes:
@@ -159,16 +183,18 @@ BlackboardRouter = Backbone.Router.extend
     "loadtest/:which": "LoadTestPage"
 
   BlackboardPage: ->
-    this.Page("blackboard", "general", "0")
-    Session.set
-      canEdit: undefined
-      editing: undefined
+    scrollAfter =>
+      this.Page("blackboard", "general", "0")
+      Session.set
+        canEdit: undefined
+        editing: undefined
 
   EditPage: ->
-    this.Page("blackboard", "general", "0")
-    Session.set
-      canEdit: true
-      editing: undefined
+    scrollAfter =>
+      this.Page("blackboard", "general", "0")
+      Session.set
+        canEdit: true
+        editing: undefined
 
   PuzzlePage: (id, view=null) ->
     this.Page("puzzle", "puzzles", id)

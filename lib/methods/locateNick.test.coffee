@@ -25,8 +25,26 @@ describe 'locateNick', ->
   it 'fails without login', ->
     chai.assert.throws ->
       Meteor.call 'locateNick',
+        location:
+          type: 'Point'
+          coordinates: [-122.036346,  37.368832]
+        timestamp: 5
+    , Match.Error
+
+  it 'fails with old params', ->
+    chai.assert.throws ->
+      Meteor.callAs 'locateNick', 'torgen',
         lat: 37.368832
         lng: -122.036346
+        timestamp: 5
+    , Match.Error
+
+  it 'fails with non-point', ->
+    chai.assert.throws ->
+      Meteor.callAs 'locateNick', 'torgen',
+        location:
+          type: 'LineString'
+          coordinates: [[-122.036346,  37.368832], [-122.078827, 37.419857]]
         timestamp: 5
     , Match.Error
 
@@ -36,41 +54,43 @@ describe 'locateNick', ->
       id = Meteor.users.insert
         _id: 'torgen'
         located_at:  # Mountain View, CA
-          lat: 37.419857
-          lng: -122.078827
+          type: 'Point'
+          coordinates: [-122.078827, 37.419857]
     
       Meteor.callAs 'locateNick', 'torgen',
+        location:
         # Sunnyvale, CA
-        lat: 37.368832
-        lng: -122.036346
+          type: 'Point'
+          coordinates: [-122.036346, 37.368832]
         timestamp: 5
 
     it 'leaves public location', ->
       chai.assert.deepInclude Meteor.users.findOne(id),
         located_at:
-          lat: 37.419857
-          lng: -122.078827
+          type: 'Point'
+          coordinates: [-122.078827, 37.419857]
 
     it 'sets private location fields', ->
       chai.assert.deepInclude Meteor.users.findOne(id),
         priv_located: 5
         priv_located_at:
-          lat: 37.368832
-          lng: -122.036346
+          type: 'Point'
+          coordinates: [-122.036346, 37.368832]
         priv_located_order: 7
 
   it 'leaves existing queue position', ->
     id = Meteor.users.insert
       _id: 'torgen'
       located_at:  # Mountain View, CA
-        lat: 37.419857
-        lng: -122.078827
+        type: 'Point'
+        coordinates: [-122.078827, 37.419857]
       priv_located_order: 4
   
     Meteor.callAs 'locateNick', 'torgen',
+      location:
       # Sunnyvale, CA
-      lat: 37.368832
-      lng: -122.036346
+        type: 'Point'
+        coordinates: [-122.036346, 37.368832]
 
     chai.assert.deepInclude Meteor.users.findOne(id),
       priv_located: 7
