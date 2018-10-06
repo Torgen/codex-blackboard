@@ -576,6 +576,7 @@ Template.chat.onRendered ->
   @autorun ->
     nick = Meteor.userId()
     return unless nick
+    return unless Session.get('page') is 'chat'
     type = Session.get('type')
     id = Session.get('id')
     joinRoom type, id
