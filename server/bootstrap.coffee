@@ -284,7 +284,7 @@ Meteor.startup ->
       ca 'newPuzzle',
         name: 'Unfortunate AI'
         round: emotions._id
-        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/unfortunate_ai.html'
+        link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/unfortunate_al.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '4'}]
       ca 'newPuzzle',
