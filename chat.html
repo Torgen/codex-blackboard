@@ -108,7 +108,7 @@
         {{# if message.action}}
 <div class="bb-message-action" data-nick="{{message.nick}}">
    <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
-     <i class="icon-hand-right"></i>
+     <i class="fas fa-hand-point-right"></i>
      <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{body}}
 </div>
         {{else}}

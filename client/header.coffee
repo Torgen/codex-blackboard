@@ -130,7 +130,7 @@ Template.registerHelper 'pretty_ts', (args) ->
 ############## log in/protect/mute panel ####################
 Template.header_loginmute.helpers
   volumeIcon: ->
-    if 'true' is reactiveLocalStorage.getItem 'mute' then 'icon-volume-off' else 'icon-volume-up'
+    if 'true' is reactiveLocalStorage.getItem 'mute' then 'fa-volume-off' else 'fa-volume-up'
   volumeTitle: ->
     if 'true' is reactiveLocalStorage.getItem 'mute' then 'Muted' else 'Click to mute'
   botIcon: ->

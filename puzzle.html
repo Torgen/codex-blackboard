@@ -2,7 +2,7 @@
 <div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
   <h1>{{puzzle.name}}</h1>
   <h2>{{capType}}
-    {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">link<i class="icon-share-alt"></i></a>){{/if}}
+    {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">link<i class="fas fa-expand-arrows-alt"></i></a>){{/if}}
   </h2>
 </div>
 <table><tbody>
@@ -60,7 +60,7 @@
   {{#if puzzle.spreadsheet}}
     <div class="bb-left-header" style="{{#unless currentViewIs "spreadsheet"}}display: none;{{/unless}}">
       <a align="center" href="{{spread_link puzzle.spreadsheet}}"
-         target="_blank"><i class='icon-fullscreen'></i>
+         target="_blank"><i class='fas fa-expand-arrows-alt'></i>
       Open spreadsheet in new window</a>
     </div>
     {{! hide iframe when not current view for faster tab change }}
@@ -70,7 +70,7 @@
   {{#if puzzle.doc}}
     <div class="bb-left-header" style="{{#unless currentViewIs "doc"}}display: none;{{/unless}}">
       <a align="center" href="{{doc_link puzzle.doc}}"
-         target="_blank"><i class='icon-fullscreen'></i>
+         target="_blank"><i class='fas fa-expand-arrows-alt'></i>
       Open document in new window</a>
     </div>
     {{! hide iframe when not current view for faster tab change }}
@@ -80,7 +80,7 @@
   {{#if puzzle.link}}
     <div class="bb-left-header" style="{{#unless currentViewIs "puzzle"}}display: none;{{/unless}}">
       <a align="center" href="{{puzzle.link}}"
-         target="_blank"><i class='icon-fullscreen'></i>
+         target="_blank"><i class='fas fa-expand-arrows-alt'></i>
       Open puzzle in new window</a>
     </div>
     {{! hide iframe when not current view for faster tab change }}
@@ -108,7 +108,7 @@
       </div>
       <div class="bb-chat-pop-out {{#if currentViewIs "info"}}in-margin{{/if}}">
         <a href="/chat/{{type}}/{{puzzle._id}}" class="chat-link bb-pop-out"
-           target="chat{{puzzle._id}}"><i class="icon-share-alt"></i>
+           target="chat{{puzzle._id}}"><i class="fas fa-expand-arrows-alt"></i>
       Pop out</a>
       </div>
     </div>
@@ -124,7 +124,7 @@
 
 <template name="puzzle_summon_button">
 <button class="btn {{#if currentPageEquals "chat"}}btn-small{{/if}} bb-summon-btn {{#if stuck}}stuck{{else}}unstuck{{/if}} btn-inverse">
-{{#unless currentPageEquals "chat"}}<i class="icon-white icon-{{#if stuck}}exclama{{else}}ques{{/if}}tion-sign"></i>{{/unless}}
+{{#unless currentPageEquals "chat"}}<i class="fas fa-{{#if stuck}}exclama{{else}}ques{{/if}}tion-circle"></i>{{/unless}}
 {{#if stuck}}Clear STUCK status{{else}}Flag as STUCK{{/if}}
 </button>
 </template>
@@ -194,7 +194,7 @@
 <template name="puzzle_callin_button">
 <button class="btn {{#if currentPageEquals "chat"}}btn-small{{/if}} bb-callin-btn btn-inverse">
 {{! TODO: after bootstrap upgrade, change icon to earphone }}
-{{#unless currentPageEquals "chat"}}<i class="icon-white icon-share"></i>{{/unless}}
+{{#unless currentPageEquals "chat"}}<i class="fas fa-phone"></i>{{/unless}}
 Request Call-In
 </button>
 </template>
