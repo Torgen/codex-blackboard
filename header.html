@@ -13,13 +13,13 @@
 </template>
 
 <template name="header_breadcrumb_chat">
-  <a href="/chat/{{type}}/{{id}}" class="chat-link{{#if inThisRoom}} current{{/if}}" title="Chat"><i class="icon-comment icon-white"></i></a>
+  <a href="/chat/{{type}}/{{id}}" class="chat-link{{#if inThisRoom}} current{{/if}}" title="Chat"><i class="fas fa-comments"></i></a>
 </template>
 
 <template name="header_breadcrumb_blackboard">
   <li class="{{#if active}}active{{/if}}">
-    <a href="/" class="home-link"><i class="icon-home icon-white"></i> Blackboard
-    <i class="icon-th-list icon-white {{#if currentPageEquals "blackboard"}}current{{/if}}"></i></a>
+    <a href="/" class="home-link"><i class="fas fa-chalkboard"></i> Blackboard
+    <i class="fas fa-th-list {{#if currentPageEquals "blackboard"}}current{{/if}}"></i></a>
     {{> header_breadcrumb_chat}}
   </li>
 </template>
@@ -27,21 +27,21 @@
 <template name="header_breadcrumb_extra_links">
   {{#if this.link}}
     <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "puzzle"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/puzzle" title="Puzzle">
-      <i class="icon-globe icon-white"></i>
+      <i class="fas fa-puzzle"></i>
     </a>
   {{/if}}
   {{#if spreadsheet}}
     <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "spreadsheet"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/spreadsheet" title="Spreadsheet">
-      <i class="icon-th icon-white"></i>
+      <i class="fas fa-th"></i>
     </a>
   {{/if}}
   {{#if doc}}
     <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "doc"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/doc" title="Document">
-      <i class="icon-file icon-white"></i>
+      <i class="fas fa-file"></i>
     </a>
   {{/if}}
     <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "info"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/info"  title="Info">
-      <i class="icon-info-sign icon-white"></i>
+      <i class="fas fa-info-circle"></i>
     </a>
   {{> header_breadcrumb_chat ..}}
 </template>
@@ -49,7 +49,7 @@
 <template name="header_breadcrumb_round">
   <li class="{{#if active}}active{{else}}bb-omit-when-narrow{{/if}}">
     <a href="/rounds/{{id}}" class="rounds-link">
-      <i class="icon-folder-open icon-white"></i> Round: {{round.name}}
+      <i class="fas fa-folder-open"></i> Round: {{round.name}}
     </a>
     {{> header_breadcrumb_extra_links round}}
   </li>
@@ -58,7 +58,7 @@
 <template name="header_breadcrumb_puzzle">
   <li class="{{#if active}}active{{else}}bb-omit-when-narrow{{/if}}">
     <a href="/puzzles/{{id}}" class="puzzles-link">
-      <i class="icon-book icon-white"></i> Puzzle: {{puzzle.name}}
+      <i class="fas fa-book"></i> Puzzle: {{puzzle.name}}
     </a>
     {{> header_breadcrumb_extra_links puzzle}}
   </li>
@@ -67,7 +67,7 @@
 <template name="header_breadcrumb_quip">
   <li class="{{#if currentPageEquals "quip"}}active{{/if}}">
     <a href="/quips/{{id}}" class="quips-link">
-      <i class="icon-check icon-white"></i> {{#if idIsNew}}Add New Quip{{else}}Quip: {{quip.name}}{{/if}}
+      <i class="fas fa-comment-dots"></i> {{#if idIsNew}}Add New Quip{{else}}Quip: {{quip.name}}{{/if}}
     </a>
   </li>
 </template>
@@ -75,7 +75,7 @@
 <template name="header_breadcrumb_oplog">
   <li class="{{#if currentPageEquals "oplog"}}active{{/if}}">
     <a href="/oplogs/0" class="oplogs-link">
-      <i class="icon-time icon-white"></i> Operation Logs
+      <i class="fas fa-clock"></i> Operation Logs
     </a>
   </li>
 </template>
@@ -83,7 +83,7 @@
 <template name="header_breadcrumb_facts">
   <li class="{{#if currentPageEquals "facts"}}active{{/if}}">
     <a href="/facts" class="facts-link">
-      <i class="icon-wrench icon-white"></i> Server Facts
+      <i class="fas fa-wrench"></i> Server Facts
     </a>
   </li>
 </template>
@@ -91,7 +91,7 @@
 <template name="header_breadcrumb_callins">
   <li class="{{#if currentPageEquals "callins"}}active{{/if}}">
     <a href="/callins" class="callins-link">
-      <i class="icon-check icon-white"></i> Answer Queue
+      <i class="fas fa-phone"></i> Answer Queue
     </a>
   </li>
 </template>
@@ -117,7 +117,7 @@
 <li class="bb-drive-buttons">
   <button type="button"
           class="bb-upload-file btn btn-inverse">
-    <i class="icon-upload icon-white"></i> Upload file
+    <i class="fas fa-file-upload"></i> Upload file
   </button>
 </li>
     {{/if}}
@@ -126,7 +126,7 @@
   <a class="bb-drive-link btn btn-inverse"
      title="Open Drive Folder"
      target="_blank"
-     href="{{drive_link drive}}"><i class="icon-inbox icon-white"></i></a></span>
+     href="{{drive_link drive}}"><i class="fas fa-inbox"></i></a></span>
 </li>
   {{/if}}
 </ul>
@@ -152,7 +152,7 @@
        {{#if sessionNick.gravatar}}
        {{gravatar id=sessionNick.gravatar size=20 image="wavatar"}}
        {{else}}
-       <i class="icon-user icon-white"></i>
+       <i class="fas fa-user"></i>
        {{/if}}
        {{#if sessionNick.realname}}
          {{sessionNick.realname}}
@@ -162,12 +162,12 @@
        <span class="caret"></span>
       </a>
       <ul class="dropdown-menu pull-right">
-       <li><a href="#" class="bb-logout"><i class="icon-off"></i> Log out</a></li>
+       <li><a href="#" class="bb-logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
       </ul>
      </div>
     {{else}}
     <button class="btn btn-small btn-inverse bb-login">
-     <i class="icon-user icon-white"></i>
+     <i class="fas fa-user"></i>
      Log in to {{#if currentPageEquals "chat"}}chat{{else}}edit{{/if}}
     </button>
     {{/if}}
@@ -177,24 +177,24 @@
     <div class="btn-group">
      <button title="Protect page" data-canEdit="false"
              class="bb-protect btn btn-small btn-inverse {{#unless canEdit}}active{{/unless}}">
-      <i class="icon-lock icon-white"></i>
+      <i class="fas fa-lock"></i>
      </button>
      <button title="Allow edits to puzzles" data-canEdit="true"
              class="bb-unprotect btn btn-small btn-inverse {{#if canEdit}}active{{/if}} {{#unless sessionNick}}disabled{{/unless}}">
-      <i class="icon-pencil icon-white"></i>
+      <i class="fas fa-lock-open"></i>
      </button>
     </div>
 {{/if}}
 {{#if currentPageEquals "chat"}}
     <div class="btn-group">
      <button title="{{botTitle}}" class="nobot btn btn-small btn-inverse">
-      <span class="{{botIcon}} icon-white"></span>
+      <span class="{{botIcon}}"></span>
      </button>
     </div>
 {{/if}}
     <div class="btn-group">
      <button title="{{volumeTitle}}" class="mute btn btn-small btn-inverse">
-      <span class="{{volumeIcon}} icon-white"></span>
+      <span class="fas {{volumeIcon}}"></span>
      </button>
      <button data-original-title="{{connectStatus.status}}{{#if connectStatus.retryTime}} until {{pretty_ts connectStatus.retryTime}}{{/if}}"
              title="connecting" class="{{connectStatus.status}} btn btn-small btn-inverse">
@@ -234,7 +234,7 @@
          title="Complete loopfinders chat">more...</a><br/>
       <a href="/chat/general/0" class="chat-link bb-pop-out"
          title="Pop out loopfinders chat"
-         target="chat0">pop out <i class="icon-share-alt icon-white"></i></a>
+         target="chat0">pop out <i class="fas fa-expand-arrows-alt"></i></a>
     </div>
     <span class="left pull-left label label-inverse">
       Loopfinders:
