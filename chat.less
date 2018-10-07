@@ -56,29 +56,26 @@
   }
   .bb-message-star {
     display: inline-block;
-    width: 14px; height: 14px; margin-top: 1px; line-height: 14px;
-    vertical-align: text-top;
-    @mask_image: url("/packages/bootstrap/img/glyphicons-halflings.png");
-    -webkit-mask-image: @mask_image;
-    mask-image: @mask_image;
     float: right;
+    padding-right: 0.3em;
+    &:before {
+      font-family: "Font Awesome 5 Free";
+      content: "\f005 ";
+    }
     &.starred {
-      -webkit-mask-position: -120px 0;
-      mask-position: -120px 0;
-      background: palegoldenrod;
+      color: palegoldenrod;
+      font-weight: 900;
     } 
     &:not(.starred) {
-      -webkit-mask-position: -144px 0;
-      mask-position: -144px 0;
-      background: lightgrey;
+      color: lightgrey;
     } 
   } 
   &.can-modify-star .bb-message-star {
     &.starred {
-      background: gold;
+      color: gold;
     }
     &:not(.starred) {
-      background: black;
+      color: black;
     }
   }
   .media {
@@ -127,13 +124,12 @@
     padding-right: 10px;
     &:before {
       .glyphicon;
-      content: " ";
     }
     &.join:before {
-      background-position: -408px -96px;
+      content: "\f067"
     }
     &.part:before {
-      background-position: -433px -96px;
+      content: "\f068"
     }
     & > img {
       padding-right: 3px;
@@ -187,23 +183,19 @@
 
 .glyphicon {
   display: inline-block;
-  width: 14px; height: 14px; margin-top: 1px; line-height: 14px;
-  vertical-align: text-top;
-  background-image: url("/packages/bootstrap/img/glyphicons-halflings.png");
-  background-repeat: no-repeat;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
 }
 .glyphicon-white {
   .glyphicon;
-  background-image: url("/packages/bootstrap/img/glyphicons-halflings-white.png");
+  color: white;
 }
 .bb-message-body, .bb-chat-presence, .bb-puzzle {
   .near {
     /*border: 1px dashed #cc0;*/
     &:before {
-      /* copied from bootstrap icon-map-marker, a bit of a hack */
       .glyphicon;
-      background-position: -24px -72px;
-      content: " ";
+      content: "\f3c5";
       opacity: 0.6;
       margin-right: 2px;
     }

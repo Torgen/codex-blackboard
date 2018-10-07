@@ -88,7 +88,7 @@ body.has-emojis {
         &.bb-wiki { text-align: center; }
       }
       /* Chevrons */
-      .icon-chevron-right {
+      .fa-chevron-right {
         float: right;
         margin-top: 2px;
         margin-right: -6px;
@@ -370,6 +370,7 @@ body.has-emojis {
     font-size: 50%;
     margin-top: 7px;
   }
+  a i.fas { color: black; }
   dl {
     margin: 0;
     &:empty { display: none; }
@@ -419,17 +420,17 @@ body.has-emojis {
       display: block; width: 14px*3; height: 14px;
       position: absolute; right: -2px; top: 3px;
       .bb-add-tag, .bb-move-up, .bb-move-down {
+        display: inline-block; width: 14px; height: 14px;
+        position: relative;
         float: left;
-        i { margin-top: 0px; }
+        i { position: absolute; top: 0; left: 0; margin-top: 0px; }
+        &:hover { cursor: pointer; }
       }
       button {
         padding: 0; margin: 0; border: none; text-shadow: none;
         line-height: 14px; height: 14px;
       }
       .bb-add-tag {
-        display: inline-block; width: 14px; height: 14px;
-        position: relative;
-        i { position: absolute; top: 0; left: 0; }
         i + i {
          top: 3px;
          -webkit-transform-origin: bottom left;
@@ -485,6 +486,8 @@ body.has-emojis {
   -webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.065);
      -moz-box-shadow: 0 1px 4px rgba(0,0,0,0.065);
           box-shadow: 0 1px 4px rgba(0,0,0,0.065);
+  &:hover { cursor: pointer; }
+  i { width: 14px; height: 14px; }
 }
 
 /* special hack for 100% height layout w/ vertical slider,

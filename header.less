@@ -48,29 +48,33 @@
       border-radius: 5px;
     }
   }
-  .icon-bot-on, .icon-bot-off {
+  .bot {
     background-position: 0 0;
     margin-top: -2px;
     height: 20px;
   }
   .icon-bot-on {
+    .bot;
     background-image: url('/img/robot-on.png');
   }
   .icon-bot-off {
+    .bot;
     background-image: url('/img/robot-off.png');
   }
 }
-.statuslight {
-  height: 14px;
-  width: 14px;
+.bb-statuslight {
+  line-height: 1;
   display: inline-block;
-  border-radius: 50%;
   vertical-align: middle;
-  .connected & { background-color: #0F0; }
-  .connecting & { background-color: #FF0; }
-  .failed & { background-color: #F00; }
-  .waiting & { background-color: #F80; }
-  .offline & { background-color: #000; }
+  &:before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: var(--glyph);
+  }
+  .connected & { --glyph: "\f111"; color: #0F0; }
+  .connecting & { --glyph: "\f1ce"; animation: fa-spin 2s infinite linear; color: #FF0; }
+  .failed &, .offline & { --glyph: "\f057"; color: #F00; }
+  .waiting & { --glyph: "\f110"; animation: fa-spin 2s infinite steps(8); color: #F80; }
 }
 #bb-body {
   .timestamp { font-size: .65em; }

@@ -1,7 +1,7 @@
 <template name="blackboard">
 <div class="bb-menu-button">
 <button class="btn btn-inverse btn-small">
-<i class="icon-white icon-list"></i>
+<i class="fas fa-list"></i>
 </button>
 </div>
 <div class="bb-menu-drawer fade">
@@ -9,7 +9,7 @@
     {{#each roundgroups}}
     <li class="nav-header">{{name}}</li>
     {{#each rounds}}
-    <li><a title="r{{round_num}}" href="#r{{round._id}}"><i class="icon-chevron-right"></i>
+    <li><a title="r{{round_num}}" href="#r{{round._id}}"><i class="fas fa-chevron-right"></i>
     {{round.name}}</a></li>
     {{/each}}
     {{/each}}
@@ -23,7 +23,7 @@
     {{#if canEdit}}
      <div class="btn-group">
      <button class="btn btn-mini btn-inverse bb-add-round-group">
-       <i class="bb-add-icon icon-plus icon-white"></i>
+       <i class="bb-add-icon fas fa-plus"></i>
        Add new round group
      </button>
      </div>
@@ -31,7 +31,7 @@
      <div class="btn-group text-left">
      {{#if notificationsEnabled}}
      <button class="btn btn-small bb-notification-enabled{{#if anyNotificationsEnabled}} btn-inverse{{/if}}">
-       <i class="{{#if anyNotificationsEnabled}}icon-bullhorn icon-white{{else}}icon-off{{/if}}"></i>
+       <i class="fas {{#if anyNotificationsEnabled}}fa-bullhorn{{else}}fa-power-off{{/if}}"></i>
        Notifications
      </button>
      <button class="btn btn-small dropdown-toggle{{#if anyNotificationsEnabled}} btn-inverse{{/if}}" data-toggle="dropdown">
@@ -49,7 +49,7 @@
      </ul>
      {{else if notificationsAsk}}
      <button class="btn btn-small bb-notification-ask">
-       <i class="icon-off"></i>
+       <i class="fas fa-power-off"></i>
        Enable notifications
      </button>
      {{/if}}
@@ -111,12 +111,12 @@
              class="input-block-level" />
     {{else}}
       {{#if canEdit}}
-        <i class="bb-delete-icon icon-remove pull-left"
+        <i class="bb-delete-icon fas fa-times pull-left"
            title="Delete this round group"></i>
-        <i class="bb-edit-icon icon-pencil pull-right"
+        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
            title="Edit the name of this round group"></i>
       {{else}}
-        {{link id=_id title="Chat room for round group" chat=true icon="icon-comment" class="pull-right bb-rg-chat"}}
+        {{link id=_id title="Chat room for round group" chat=true icon="fas fa-comments" class="pull-right bb-rg-chat"}}
       {{/if}}
       {{name}}
     {{/if}}
@@ -126,19 +126,19 @@
   {{#if canEdit}}
   <div class="bb-roundgroup-buttons" data-bbedit="roundgroups/{{_id}}">
      <button class="btn btn-mini btn-inverse bb-add-round">
-       <i class="icon-plus icon-white"></i>
+       <i class="fas fa-plus"></i>
        Add new round to this group
      </button>
      <button class="btn btn-mini btn-inverse bb-add-tag">
-       <i class="icon-tag icon-white"></i>
+       <i class="fas fa-tag"></i>
        Add new tag to this group
      </button>
      <button class="btn btn-mini btn-inverse bb-move-down">
-       <i class="icon-arrow-down icon-white"></i>
+       <i class="fas fa-arrow-down"></i>
        Move group down
      </button>
      <button class="btn btn-mini btn-inverse bb-move-up">
-       <i class="icon-arrow-up icon-white"></i>
+       <i class="fas fa-arrow-up"></i>
        Move group up
      </button>
    </div>
@@ -151,10 +151,10 @@
   </table>
   </div><!-- bb-tables -->
   {{#if hideStatus}}
-  <div class="bb-hide-status"><i class='icon-chevron-left'></i></div>
+  <div class="bb-hide-status"><i class='fas fa-chevron-left'></i></div>
   {{else}}
   <div id="bb-right-sidebar" class="span3"><div>
-    <div class="bb-hide-status"><i class='icon-chevron-right'></i></div>
+    <div class="bb-hide-status"><i class='fas fa-chevron-right'></i></div>
     {{> blackboard_status_grid}}
   </div></div><!-- bb-right-sidebar -->
   {{/if}}
@@ -193,9 +193,9 @@
              class="input-block-level" />
   {{else}}
     {{#if canEdit}}
-      <i class="bb-delete-icon icon-remove pull-left"
+      <i class="bb-delete-icon fas fa-times pull-left"
          title="Delete this round"></i>
-      <i class="bb-edit-icon icon-pencil pull-right"
+      <i class="bb-edit-icon fas fa-pencil-alt pull-right"
          title="Edit the name of this round"></i>
     {{/if}}
     {{link id=round._id title=rX editing=canEdit}}
@@ -208,19 +208,19 @@
     <tr class="meta {{#if stuck round}}bb-status-stuck{{/if}}">
       <td class="puzzle-name"><div>
         {{#unless canEdit}}
-          {{#if round.spreadsheet}}<a href="{{spread_link round.spreadsheet}}" target="_blank" title="Spreadsheet for round" class="pull-right"><i class="icon-th"></i></a>{{/if}}
-          {{#if round.doc}}<a href="{{doc_link round.doc}}" target="_blank" title="Doc for round" class="pull-right"><i class="icon-file"></i></a>{{/if}}
-          {{link id=round._id title="Chat room for round" chat=true class="pull-right" icon="icon-comment"}}
-          {{#if round.link}}<a class="pull-right" href="{{round.link}}" title="Link to hunt site"><i class="icon-share-alt"></i></a>{{/if}}
+          {{#if round.spreadsheet}}<a href="{{spread_link round.spreadsheet}}" target="_blank" title="Spreadsheet for round" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
+          {{#if round.doc}}<a href="{{doc_link round.doc}}" target="_blank" title="Doc for round" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
+          {{link id=round._id title="Chat room for round" chat=true class="pull-right" icon="fas fa-comments"}}
+          {{#if round.link}}<a class="pull-right" href="{{round.link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
         {{/unless}}
         <b>{{link id=round._id title=rX text="ROUND/META" editing=canEdit}}</b>
         {{#if canEdit}}
         <div class="bb-puzzle-add-move" data-bbedit="rounds/{{round._id}}">
-        <button class="btn btn-link bb-add-tag"
+        <span class="bb-add-tag"
              title="Add tag to puzzle">
-          <i class="icon-tags"></i>
-          <i class="icon-plus"></i>
-        </button>
+          <i class="fas fa-tags"></i>
+          <i class="fas fa-plus"></i>
+        </span>
         </div>
         {{/if}}
         {{#unless compactMode}}
@@ -236,10 +236,10 @@
                class="input-block-level" />
       {{else}}
         {{#if canEdit}}
-          <i class="bb-edit-icon icon-pencil pull-right"
+          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
              title="Change the meta answer for this round"></i>
           {{#if tag "answer"}}
-            <i class="bb-delete-icon icon-remove pull-left"
+            <i class="bb-delete-icon fas fa-times pull-left"
                title="Delete the meta answer for this round"></i>
           {{/if}}
         {{/if}}
@@ -256,10 +256,10 @@
       {{else}}
         {{#unless round.solved}}
         {{#if canEdit}}
-          <i class="bb-edit-icon icon-pencil pull-right"
+          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
              title="Change the status of this round meta"></i>
           {{#if tag "status"}}
-            <i class="bb-delete-icon icon-remove pull-left"
+            <i class="bb-delete-icon fas fa-times pull-left"
                title="Delete the status message for this round meta"></i>
           {{/if}}
         {{/if}}
@@ -291,15 +291,15 @@
   <tr class="roundfooter"><td colspan="{{nCols}}">
   <div class="bb-round-buttons" data-bbedit="rounds/{{round._id}}">
      <button class="btn btn-mini btn-inverse bb-add-puzzle">
-       <i class="icon-plus icon-white"></i>
+       <i class="fas fa-plus"></i>
        Add new puzzle to this round
      </button>
      <button class="btn btn-mini btn-inverse bb-move-down">
-       <i class="icon-arrow-down icon-white"></i>
+       <i class="fas fa-arrow-down"></i>
        Move round down
      </button>
      <button class="btn btn-mini btn-inverse bb-move-up">
-       <i class="icon-arrow-up icon-white"></i>
+       <i class="fas fa-arrow-up"></i>
        Move round up
      </button>
   </div>
@@ -323,28 +323,28 @@
                class="input-block-level" />
       {{else}}
         {{#if canEdit}}
-          <i class="bb-delete-icon icon-remove pull-left"
+          <i class="bb-delete-icon fas fa-times pull-left"
              title="Delete this puzzle"></i>
-          <i class="bb-edit-icon icon-pencil pull-right"
+          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
              title="Edit the name of this puzzle"></i>
         {{else}}
-          {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="icon-th"></i></a>{{/if}}
-          {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="icon-file"></i></a>{{/if}}
-          {{link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="icon-comment"}}
-          {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" title="Link to hunt site"><i class="icon-share-alt"></i></a>{{/if}}
+          {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
+          {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
+          {{link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="fas fa-comments"}}
+          {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
         {{/if}}
         {{link id=puzzle._id title=rXpY editing=canEdit}}
       {{/if}}
       </div>
       {{#if canEdit}}
         <div class="bb-puzzle-add-move" data-bbedit="puzzles/{{puzzle._id}}">
-        <button class="btn btn-link bb-add-tag"
+        <span class="bb-add-tag"
              title="Add tag to puzzle">
-          <i class="icon-tags"></i>
-          <i class="icon-plus"></i>
-        </button>
-        <button class="btn btn-link bb-move-down"><i class="icon-arrow-down"></i></button>
-        <button class="btn btn-link bb-move-up"><i class="icon-arrow-up"></i></button>
+          <i class="fas fa-tags"></i>
+          <i class="fas fa-plus"></i>
+        </span>
+        <span class="bb-move-down"><i class="fas fa-arrow-down"></i></span>
+        <span class="bb-move-up"><i class="fas fa-arrow-up"></i></span>
         </div>
       {{/if}}
       {{#unless compactMode}}
@@ -360,12 +360,12 @@
                class="input-block-level" />
       {{else}}
         {{#if canEdit}}
-          <i class="bb-edit-icon icon-pencil pull-right"
+          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
              title="Change the answer of this puzzle"></i>
         {{/if}}
         {{#if tag "answer"}}
           {{#if canEdit}}
-            <i class="bb-delete-icon icon-remove pull-left"
+            <i class="bb-delete-icon fas fa-times pull-left"
                title="Delete the answer to this puzzle"></i>
           {{/if}}
           <span class="answer">{{tag "answer"}}</span>
@@ -382,10 +382,10 @@
       {{else}}
         {{#unless puzzle.solved}}
         {{#if canEdit}}
-          <i class="bb-edit-icon icon-pencil pull-right"
+          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
              title="Change the status of this puzzle"></i>
           {{#if tag "status"}}
-            <i class="bb-delete-icon icon-remove pull-left"
+            <i class="bb-delete-icon fas fa-times pull-left"
                title="Delete the status message for this puzzle"></i>
           {{/if}}
         {{/if}}
@@ -417,7 +417,7 @@
                class="input-block-level" />
       {{else}}
         {{#if canEdit}}
-          <i class="bb-edit-icon icon-pencil pull-left"
+          <i class="bb-edit-icon fas fa-pencil-alt pull-left"
              title="Edit the name of this tag"></i>
         {{/if}}
         {{name}}:
@@ -430,9 +430,9 @@
                value="{{value}}"
                class="input-block-level" />
       {{else if canEdit}}
-        <i class="bb-delete-icon icon-remove pull-left"
+        <i class="bb-delete-icon fas fa-times pull-left"
            title="Delete this tag and value"></i>
-        <i class="bb-edit-icon icon-pencil pull-right"
+        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
            title="Edit the value of this tag"></i>
         {{value}}
       {{else if value}}
@@ -455,7 +455,7 @@
                      class="input-block-level" />
             {{else}}
               {{#if canEdit}}
-                <i class="bb-edit-icon icon-pencil pull-left"
+                <i class="bb-edit-icon fas fa-pencil-alt pull-left"
                    title="Edit the name of this tag"></i>
               {{/if}}
               {{name}}:
@@ -476,9 +476,9 @@
                      value="{{value}}"
                      class="input-block-level" />
             {{else if canEdit}}
-              <i class="bb-delete-icon icon-remove pull-left"
+              <i class="bb-delete-icon fas fa-times pull-left"
                  title="Delete this tag and value"></i>
-              <i class="bb-edit-icon icon-pencil pull-right"
+              <i class="bb-edit-icon fas fa-pencil-alt pull-right"
                  title="Change the value of this tag"></i>
               {{value}}
             {{else}}
@@ -501,7 +501,7 @@
                      value="{{./link}}"
                      class="input-block-level" />
             {{else if canEdit}}
-              <i class="bb-edit-icon icon-pencil pull-right"
+              <i class="bb-edit-icon fas fa-pencil-alt pull-right"
                  title="Change the value of the hunt site link"></i>
               <a href="{{./link}}">{{./link}}</a>
             {{/if}}

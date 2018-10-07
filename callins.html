@@ -38,12 +38,12 @@
 
 <template name="callin_row">
         <tr data-bbedit="{{_id}}">
-            <td>{{link id=target title="Chat room" chat=true icon="icon-comment" class="pull-right"}}{{link target}}{{#if hunt_link}}
+            <td>{{link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{link target}}{{#if hunt_link}}
             <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
                     target="_blank">on&nbsp;hunt&nbsp;site
             {{#if mynick}}
               <span class="copy-and-go" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
-              <i class="icon icon-file"></i><i class="icon icon-check"></i><i class="icon icon-share-alt"></i>
+              <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
               </span>
             {{/if}}
             </a></small>
