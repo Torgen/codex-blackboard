@@ -12,7 +12,9 @@
       flex-flow: row nowrap;
       justify-content: stretch;
       float: none;
-      overflow-x: auto;
+      @media (max-width: 767px) {
+        overflow-x: auto;
+      }
       li {
         display: flex;
         flex-grow: 0;
