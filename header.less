@@ -5,10 +5,8 @@
   pointer-events: none;
   box-shadow: unset;
   align-items: stretch;
-  & > * {
-    pointer-events: auto;
-  }
   .navbar-inner, .bb-breadcrumbs .nav {
+    pointer-events: auto;
     background: url('/img/irongrip.png');
     color: #c4c4c4;
     strong,b {  color: #f5f5f5; }
@@ -25,11 +23,9 @@
     flex-grow: 1;
     flex-shrink: 1;
     .fill {
-      pointer-events: none;
       flex-grow: 1;
       flex-shrink: 1;
     }
-    * { pointer-events: auto; }
     .nav {
       &.bb-omit-when-narrow {
         @media (max-width: 767px) {
