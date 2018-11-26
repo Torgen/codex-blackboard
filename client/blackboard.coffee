@@ -137,6 +137,7 @@ meta_helper = ->
     puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
     continue unless puzzle?
     {
+      _id: id
       puzzle: puzzle
       num_puzzles: puzzle.puzzles.length
     }
@@ -145,7 +146,7 @@ unassigned_helper = ->
   for id, index in this.puzzles
     puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
     continue unless puzzle?
-    { puzzle: puzzle }
+    { _id: id, puzzle: puzzle }
 
 ############## groups, rounds, and puzzles ####################
 Template.blackboard.helpers
@@ -163,6 +164,7 @@ Template.blackboard_status_grid.helpers
       puzzle
   puzzles: (ps) ->
     p = ({
+      _id: id
       puzzle_num: 1 + index
       puzzle: model.Puzzles.findOne(id) or { _id: id }
     } for id, index in ps)
@@ -276,6 +278,7 @@ Template.blackboard_round.helpers
       puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
       continue unless puzzle?
       {
+        _id: id
         puzzle: puzzle
         num_puzzles: puzzle.puzzles.length
         num_solved: model.Puzzles.find({_id: {$in: puzzle.puzzles}, solved: {$ne: null}}).length
@@ -390,6 +393,7 @@ Template.blackboard_meta.helpers
   # the following is a map() instead of a direct find() to preserve order
   puzzles: ->
     p = ({
+      _id: id
       puzzle: model.Puzzles.findOne(id) or { _id: id }
     } for id, index in this.puzzle.puzzles)
     editing = Meteor.userId() and (Session.get 'canEdit')
@@ -420,7 +424,7 @@ tagHelper = ->
   tags = this?.tags or {}
   (
     t = tags[canon]
-    { id: @_id, name: t.name, canon, value: t.value }
+    { _id: "${@_id}/${canon}", id: @_id, name: t.name, canon, value: t.value }
   ) for canon in Object.keys(tags).sort() when not \
     ((Session.equals('currentPage', 'blackboard') and \
       (canon is 'status' or \
