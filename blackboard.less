@@ -412,14 +412,14 @@ body.has-emojis {
         text-transform: uppercase;
       }
     }
-    tr.puzzle {
+    tr.puzzle, tr.round-empty {
       --tr-bg: rgba(255,255,255,0.85);
       .boring & {
         background: white;
         &.bb-status-stuck { background: #FF0; }
       }
     }
-    tr.meta, tr.puzzle, tr.metafooter {
+    tr.meta, tr.puzzle, tr.metafooter, tr.round-empty {
       &.bb-status-stuck { background: repeating-linear-gradient(45deg, #FF0, #FF0 10px, var(--tr-bg) 10px, var(--tr-bg) 20px); }
       background: var(--tr-bg);
     }
