@@ -1052,11 +1052,12 @@ doc_id_to_link = (id) ->
 
     moveWithinMeta: (id, parentId, args) ->
       check @userId, NonEmptyString
+      args.who = @userId
       moveWithinParent id, 'puzzles', parentId, args
 
     moveWithinRound: (id, parentId, args) ->
       check @userId, NonEmptyString
-      console.log id, parentId, args
+      args.who = @userId
       moveWithinParent id, 'rounds', parentId, args
 
     moveRound: (id, dir) ->
