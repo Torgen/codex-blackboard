@@ -17,7 +17,7 @@ settings.DEFAULT_HOST = server.defaultHost ? 'codexian.us'
 settings.BB_DISABLE_RINGHUNTERS_HEADER = server.disableRinghunters ? false
 
 # subscribe to all rounds/all puzzles, or try to be more granular?
-settings.BB_SUB_ALL = server.subAll ? false
+settings.BB_SUB_ALL = server.subAll ? true
 
 # disable PMs (more efficient queries if PMs are disabled)
 # (PMs are always allows in ringhunters)
