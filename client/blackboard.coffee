@@ -161,7 +161,7 @@ Template.blackboard_status_grid.helpers
     for id, index in this.puzzles
       puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
       continue unless puzzle?
-      puzzle
+      puzzle._id
   puzzles: (ps) ->
     p = ({
       _id: id
@@ -424,7 +424,7 @@ tagHelper = ->
   tags = this?.tags or {}
   (
     t = tags[canon]
-    { _id: "${@_id}/${canon}", id: @_id, name: t.name, canon, value: t.value }
+    { _id: "#{@_id}/#{canon}", id: @_id, name: t.name, canon, value: t.value }
   ) for canon in Object.keys(tags).sort() when not \
     ((Session.equals('currentPage', 'blackboard') and \
       (canon is 'status' or \
