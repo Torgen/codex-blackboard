@@ -118,6 +118,7 @@ share.hubot.codex = (robot) ->
     rname = share.botutil.strip msg.match[3]
     tname = undefined
     round = undefined
+    who = msg.envelope.user.id
     if rname is 'this' and not msg.match[2]
       round = share.botutil.objectFromRoom msg
       return unless round?
@@ -126,7 +127,7 @@ share.hubot.codex = (robot) ->
         tname = 'rounds'
       else if msg.match[2] is 'meta'
         tname = 'puzzles'
-      round = Meteor.call "getByName",
+      round = Meteor.callAs "getByName", who,
         name: rname
         optional_type: tname
       if not round
@@ -137,7 +138,6 @@ share.hubot.codex = (robot) ->
             'anything'
         msg.reply useful: true, "I can't find #{descriptor} called \"#{rname}\"."
         return
-    who = msg.envelope.user.id
     extra =
       name: pname
       who: who
