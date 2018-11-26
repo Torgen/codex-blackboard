@@ -112,20 +112,21 @@ share.hubot.codex = (robot) ->
 ## PUZZLES
 
 # newPuzzle
-  robot.commands.push 'bot <puzzle> is a new puzzle in <round/meta> - Updates codex blackboard'
-  robot.respond (share.botutil.rejoin share.botutil.thingRE,/\ is a new puzzle in(?: (round|meta))? /,share.botutil.thingRE,/$/i), (msg) ->
+  robot.commands.push 'bot <puzzle> is a new [meta]puzzle in <round/meta> - Updates codex blackboard'
+  robot.respond (share.botutil.rejoin share.botutil.thingRE,/\ is a new (meta|puzzle|metapuzzle) in(?: (round|meta))? /,share.botutil.thingRE,/$/i), (msg) ->
     pname = share.botutil.strip msg.match[1]
-    rname = share.botutil.strip msg.match[3]
+    ptype = msg.match[2]
+    rname = share.botutil.strip msg.match[4]
     tname = undefined
     round = undefined
     who = msg.envelope.user.id
-    if rname is 'this' and not msg.match[2]
+    if rname is 'this' and not msg.match[3]
       round = share.botutil.objectFromRoom msg
       return unless round?
     else
-      if msg.match[2] is 'round'
+      if msg.match[3] is 'round'
         tname = 'rounds'
-      else if msg.match[2] is 'meta'
+      else if msg.match[3] is 'meta'
         tname = 'puzzles'
       round = Meteor.callAs "getByName", who,
         name: rname
@@ -151,6 +152,8 @@ share.hubot.codex = (robot) ->
       msg.reply useful:true, "A new puzzle can't be created in \"#{rname}\" because it's a #{share.model.pretty_collection round.type}."
       msg.finish()
       return
+    if ptype isnt 'puzzle'
+      extra.puzzles = []
     puzzle = Meteor.callAs "newPuzzle", who, extra
     puzz_url = Meteor._relativeToSiteRootUrl "/puzzles/#{puzzle._id}"
     parent_url = Meteor._relativeToSiteRootUrl "/#{round.type}/#{round.object._id}"
