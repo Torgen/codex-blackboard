@@ -665,7 +665,11 @@ html.fullHeight {
   .container-fluid > .navbar-fixed-top {
     position: absolute;
   }
-  #messages { padding-top: @navbar-height - 20px; }
+  #messages {
+    padding-top: @navbar-height - 20px;
+    /* Need this amount of specificity to override .row-fluid rule. */
+    #bb-body .bb-splitter & { padding-top: 0px; }
+  }
   .bb-puzzle-round { padding-top: 0 !important; }
   .bb-chat-footer { margin-left: -20px; margin-right: -20px; }
   #bb-body {
