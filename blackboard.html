@@ -146,10 +146,18 @@
   {{>blackboard_link}}
   {{#if canEdit}}
     <div class="bb-round-buttons" data-bbedit="rounds/{{_id}}">
-      <button class="btn btn-mini btn-inverse bb-add-puzzle">
-        <i class="fas fa-plus"></i>
-        Add new puzzle to this round
-      </button>
+      <div class="btn-group">
+        <button class="btn btn-mini btn-inverse bb-add-meta">
+          <i class="fas fa-plus"></i>
+          Add new meta to this round
+        </button>
+        <button class="btn btn-mini btn-inverse dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="bb-add-puzzle">Add unassigned puzzle</a></li>
+        </ul>
+      </div>
       <button class="btn btn-mini btn-inverse bb-add-tag">
         <i class="fas fa-tag"></i>
         Add new tag to this round

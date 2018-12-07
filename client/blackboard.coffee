@@ -224,6 +224,11 @@ Template.blackboard.events
       return unless e # bail if cancelled
       Meteor.call 'newPuzzle', { name: str, round: @_id }, (error,r)->
         throw error if error
+  "click .bb-round-buttons .bb-add-meta": (event, template) ->
+    alertify.prompt "Name of new metapuzzle:", (e,str) =>
+      return unless e # bail if cancelled
+      Meteor.call 'newPuzzle', { name: str, round: @_id, puzzles: [] }, (error,r)->
+        throw error if error
   "click .bb-round-buttons .bb-add-tag": (event, template) ->
     alertify.prompt "Name of new tag:", (e,str) =>
       return unless e # bail if cancelled
