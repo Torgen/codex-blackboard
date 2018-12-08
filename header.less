@@ -26,6 +26,11 @@
     overflow-x: auto;
     flex-grow: 1;
     flex-shrink: 1;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
     .fill {
       flex-grow: 1;
       flex-shrink: 1;
