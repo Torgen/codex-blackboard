@@ -40,6 +40,8 @@ Template.registerHelper 'linkify', (contents) ->
 Template.registerHelper 'compactHeader', () ->
   (Session.equals 'currentPage', 'chat')
 
+Template.registerHelper 'teamName', -> settings.TEAM_NAME
+
 Template.registerHelper 'mynick', -> Meteor.user()?.nickname
 
 Template.registerHelper 'boringMode', -> 'true' is reactiveLocalStorage.getItem 'boringMode'

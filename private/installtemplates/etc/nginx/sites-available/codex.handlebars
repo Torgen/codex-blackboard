@@ -1,6 +1,7 @@
 upstream codex {
-  ip_hash;{{#each port}}
-  server localhost:{{this}};{{/each}}
+  {{#each port}}server localhost:{{this}};
+  {{else}}server localhost:{{port}};
+  {{/each}}
 }
 
 server {

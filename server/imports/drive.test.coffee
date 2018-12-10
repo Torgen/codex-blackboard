@@ -71,16 +71,16 @@ describe 'drive', ->
         resource: perm
     gapi.expects('exec').withArgs api.children, 'list', sinon.match
       folderId: 'hunt'
-      q: 'title=\'Loopfinders Uploads\''
+      q: 'title=\'Ringhunters Uploads\''
       maxResults: 1
     .returns items: []
     gapi.expects('exec').withArgs api.files, 'insert', sinon.match
       resource:
-        title: 'Loopfinders Uploads'
+        title: 'Ringhunters Uploads'
         mimeType: 'application/vnd.google-apps.folder'
     .returns
       id: 'uploads'
-      title: 'Loopfinders Uploads'
+      title: 'Ringhunters Uploads'
       mimeType: 'application/vnd.google-apps.folder'
     gapi.expects('exec').withArgs api.permissions, 'list', sinon.match
       fileId: 'uploads'
@@ -106,11 +106,11 @@ describe 'drive', ->
       ]
       gapi.expects('exec').withArgs api.children, 'list', sinon.match
         folderId: 'hunt'
-        q: 'title=\'Loopfinders Uploads\''
+        q: 'title=\'Ringhunters Uploads\''
         maxResults: 1
       .returns items: [
         id: 'uploads'
-        title: 'Loopfinders Uploads'
+        title: 'Ringhunters Uploads'
         mimeType: 'application/vnd.google-apps.folder'
         parents: [id: 'hunt']
       ]

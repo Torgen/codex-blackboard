@@ -11,6 +11,8 @@ settings.CLIENT_UUID = Random.id()
 # used to create gravatars from nicks
 settings.DEFAULT_HOST = server.defaultHost ? 'codexian.us'
 
+settings.TEAM_NAME = server.teamName ? 'Codex'
+
 # -- Performance settings --
 
 # make fewer people subscribe to ringhunters chat.

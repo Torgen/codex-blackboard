@@ -190,7 +190,7 @@ share.find_bbedit = (event) ->
 
 Template.blackboard.onRendered ->
   #  page title
-  $("title").text("Codex Ogg Puzzle Blackboard")
+  $("title").text("#{settings.TEAM_NAME} Puzzle Blackboard")
   $('#bb-tables .bb-puzzle .puzzle-name > a').tooltip placement: 'left'
   @autorun () ->
     editing = Session.get 'editing'

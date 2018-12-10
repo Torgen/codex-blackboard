@@ -5,7 +5,7 @@ import { nickEmail } from './imports/nickEmail.coffee'
 model = share.model # import
 settings = share.settings # import
 
-GENERAL_ROOM = 'Loopfinders'
+GENERAL_ROOM = 'Ringhunters'
 
 Session.setDefault
   room_name: 'general/0'
@@ -219,7 +219,7 @@ Template.messages.onCreated ->
     return unless room_name
     this.subscribe 'presence-for-room', room_name
     nick = if settings.BB_DISABLE_PM then null else Meteor.userId() or null
-    # re-enable private messages, but just in loopfinders (for codexbot)
+    # re-enable private messages, but just in ringhunters (for codexbot)
     if settings.BB_DISABLE_PM and room_name is "general/0"
       nick = Meteor.userId() or null
     timestamp = (+Session.get('timestamp'))
@@ -463,7 +463,7 @@ Template.messages_input.submit = (message) ->
       args.to = @userId
       args.action = true
       return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
-        if (not result?) and /^loopfinders$/i.test(rest.trim())
+        if (not result?) and /^ringhunters$/i.test(rest.trim())
           result = {type:'general',object:_id:'0'}
         if error? or not result?
           args.body = "tried to join an unknown chat room"

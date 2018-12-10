@@ -64,7 +64,7 @@
       Open spreadsheet in new window</a>
     </div>
     {{! hide iframe when not current view for faster tab change }}
-    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{spread_link puzzle.spreadsheet}}?widget=true&chrome=false'
+    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{spread_link puzzle.spreadsheet}}?widget=true&chrome=false&rm=embedded'
             style="{{#unless currentViewIs "spreadsheet"}}display:none{{/unless}}"></iframe>
   {{/if}}
   {{#if puzzle.doc}}
@@ -74,7 +74,7 @@
       Open document in new window</a>
     </div>
     {{! hide iframe when not current view for faster tab change }}
-    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{doc_link puzzle.doc}}?widget=true&chrome=false'
+    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{doc_link puzzle.doc}}?widget=true&chrome=false&rm=embedded'
             style="{{#unless currentViewIs "doc"}}display:none{{/unless}}"></iframe>
   {{/if}}
   {{#if puzzle.link}}
