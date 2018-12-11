@@ -1,14 +1,5 @@
-puzzleOrThis = (s, msg) ->
-  return share.botutil.objectFromRoom(msg) if s is 'this'
-  who = msg.envelope.user.id
-  p = Meteor.callAs "getByName", who,
-    name: s
-    optional_type: 'puzzles'
-  return p if p?
-  msg.reply useful: true, "I can't find a puzzle called \"#{s}\"."
-  msg.finish()
-  return null
-  
+
+import {rejoin, strip, thingRE, objectFromRoom, puzzleOrThis } from '../imports/botutil.coffee'
 
 makeMeta = (msg) ->
   name = msg.match[1]
@@ -38,16 +29,16 @@ makeNotMeta = (msg) ->
 
 share.hubot.metas = (robot) ->
   robot.commands.push 'bot <puzzle|this> is a meta[puzzle] - Updates codex blackboard'
-  robot.respond (share.botutil.rejoin share.botutil.thingRE, / is a meta(puzzle)?$/i), makeMeta
+  robot.respond (rejoin thingRE, / is a meta(puzzle)?$/i), makeMeta
 
   robot.commands.push 'bot make <puzzle|this> a meta[puzzle] - Updates codex blackboard'
-  robot.respond (share.botutil.rejoin /make /, share.botutil.thingRE, / a meta(puzzle)?$/i), makeMeta
+  robot.respond (rejoin /make /, thingRE, / a meta(puzzle)?$/i), makeMeta
 
   robot.commands.push 'bot <puzzle|this> isn\'t a meta[puzzle] - Updates codex blackboard'
-  robot.respond (share.botutil.rejoin share.botutil.thingRE, / is(n't| not) a meta(puzzle)?$/i), makeNotMeta
+  robot.respond (rejoin thingRE, / is(n't| not) a meta(puzzle)?$/i), makeNotMeta
 
   robot.commands.push 'bot <puzzle|this> feeds into <puzzle|this> - Update codex blackboard'
-  robot.respond (share.botutil.rejoin share.botutil.thingRE, / feeds into /, share.botutil.thingRE, /$/i), (msg) ->
+  robot.respond (rejoin thingRE, / feeds into /, thingRE, /$/i), (msg) ->
     puzzName = msg.match[1]
     metaName = msg.match[2]
     p = puzzleOrThis(puzzName, msg)
@@ -62,7 +53,7 @@ share.hubot.metas = (robot) ->
     msg.finish()
 
   robot.commands.push 'bot <puzzle|this> doesn\'t feed into <puzzle|this> - Update codex blackboard'
-  robot.respond (share.botutil.rejoin share.botutil.thingRE, / does(n't| not) feed into /, share.botutil.thingRE, /$/i), (msg) ->
+  robot.respond (rejoin thingRE, / does(n't| not) feed into /, thingRE, /$/i), (msg) ->
     puzzName = msg.match[1]
     metaName = msg.match[3]
     p = puzzleOrThis(puzzName, msg)
