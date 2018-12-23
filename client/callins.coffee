@@ -29,7 +29,7 @@ Template.callins.helpers
     model.CallIns.find {},
       sort: [["created","asc"]]
       transform: (c) ->
-        c.puzzle = if c.target then model.collection(c.type).findOne(c.target)
+        c.puzzle = if c.target then model.Puzzles.findOne(_id: c.target)
         c
   quips: ->
     # We may want to make this a special limited subscription
