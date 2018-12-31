@@ -58,7 +58,7 @@ gcloud compute instances set-service-account --zone ZONE INSTANCE_NAME \
 7. SSH into the instance and run `git clone https://github.com/Torgen/codex-blackboard`. Change to the codex-blackboard
    directory. If you want to use the Multi-Meta version of the blackboard and
    [this pull request](https://github.com/Torgen/codex-blackboard/pull/74) hasn't been merged yet, run
-   `git checkout -b multimeta`. Note that regardless of which features you want in your version of the blackboard,
+   `git checkout multimeta`. Note that regardless of which features you want in your version of the blackboard,
    [the upstream repo](http://github.com/cjb/codex-blackboard) doesn't support application default credentials yet.
  8. Run `private/install.sh`. It will have the following interactive steps:
    * Giving you a chance to abort so you can create an XFS partition for MongoDB. I added this step because MongoDB complains
