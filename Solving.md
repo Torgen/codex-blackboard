@@ -68,7 +68,7 @@ answers, and whoever is answering the phone needs to know that a callback is com
 if the team is calling in too many wrong answers to discourage blind guessing. Instead use the callin queue:
 `bot call in answer` in the puzzle's chat room. Whoever is oncall will enter the answer and mark your attempt as correct or
 not. This also lets them know when they need to check for new puzzles to input. You can mark that an answer was provided
-(e.g. because you were given it following a creative exercise) or a backsolve by appending the word "provided" or "backsolve"
+(e.g. because you were given it following a creative exercise) or a backsolve by appending the word "provided" or "backsolved"
 to the bot command. If a puzzle answer ends with one of those words, quote the whole answer.
 
 There is also a dialog that calls in an answer, but all it does is enter the appropriate command in the chat room.
