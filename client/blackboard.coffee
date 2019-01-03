@@ -174,12 +174,14 @@ Template.blackboard_status_grid.helpers
 Template.blackboard.events
   "click .bb-menu-button .btn": (event, template) ->
     template.$('.bb-menu-drawer').modal 'show'
-  "click a[href^='#']": (event, template) ->
-    event.preventDefault()
+  'click .bb-menu-drawer a': (event, template) ->
     template.$('.bb-menu-drawer').modal 'hide'
-    $.scrollTo (event.target.getAttribute 'href'),
-      duration: 400
-      offset: { top: -110 }
+    href = event.target.getAttribute 'href'
+    if href.match /^#/
+      event.preventDefault()
+      $.scrollTo href,
+        duration: 400
+        offset: { top: -110 }
 
 Template.nick_presence.helpers
   email: -> nickEmail @nick
