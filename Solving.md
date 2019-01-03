@@ -26,6 +26,26 @@ you wish to receive notifications for:
 * New Puzzles: A puzzle was unlocked. Enabled by default.
 * Stuck Puzzles: A puzzle was marked as stuck. Disabled by default.
 
+Main Chat
+=========
+The header on almost every page includes a mini summary of the main chat room. The "more" link will expand that room to fill your 
+window; there is also a link to pop out the chat, which may be preferable if you have a large enough screen. The dialogue icon in the
+Blackboard breadcrumb will also take you to the main chat room. If you're not sure what you should be doing, this is a good place to 
+ask.
+
+Shut up, Bot!
+-------------
+The bot has some just-for-fun plugins installed, like a meme generator. If you would rather not see these messages, the robot icon in 
+the header lets you mute them. You will still see important bot messages, such as announcing solved puzzles.
+
+Quips
+-----
+Quips are funny things to say when we answer phone calls from HQ, so that they like us and don't delay our callbacks too much if we
+call in a bunch of wrong answers. Or just generally because the team running the hunt should have fun too. You can add a quip to the
+queue at the `/quips/new` route relative to the root of the blackboard, but the easier way is to ask the bot to do it. For example,
+`bot new quip Codex is my co-dump stat`. Whoever is manning the call-in queue will be given a selection of not-recently-used quips to 
+choose from.
+
 The Puzzle Page
 ===============
 The default view for every puzzle is three panes: a Google Spreadsheet on the left, some puzzle info on the top right,
