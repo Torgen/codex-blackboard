@@ -6,6 +6,7 @@ model = share.model # import
 DEBUG = !Meteor.isProduction
 
 BOTNAME = Meteor.settings?.botname or process.env.BOTNAME or 'Codexbot'
+BOT_GRAVATAR = Meteor.settings?.botgravatar or process.env.BOTGRAVATAR or 'codex@printf.net'
 
 # Monkey-patch Hubot to support private messages
 Hubot.Response::priv = (strings...) ->
@@ -172,7 +173,7 @@ Meteor.startup ->
   Meteor.users.upsert model.canonical(BOTNAME),
     $set:
       nickname: BOTNAME
-      gravatar: 'codex@printf.net'
+      gravatar: BOT_GRAVATAR
       bot_wakeup: model.UTCNow()
     $unset: services: ''
   # register our presence in general chat
