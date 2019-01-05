@@ -6,6 +6,7 @@ model = share.model # import
 DEBUG = !Meteor.isProduction
 
 BOTNAME = Meteor.settings?.botname or process.env.BOTNAME or 'Codexbot'
+CANON_BOTNAME = model.canonical(BOTNAME)
 BOT_GRAVATAR = Meteor.settings?.botgravatar or process.env.BOTGRAVATAR or 'codex@printf.net'
 
 # Monkey-patch Hubot to support private messages
@@ -41,7 +42,7 @@ class Robot extends Hubot.Robot
 sendHelper = Meteor.bindEnvironment (robot, envelope, strings, map) ->
   # be present in the room
   try
-    Meteor.callAs 'setPresence', model.canonical(BOTNAME),
+    Meteor.callAs 'setPresence', CANON_BOTNAME,
       room_name: envelope.room
       present: true
       foreground: true
@@ -83,7 +84,7 @@ class BlackboardAdapter extends Hubot.Adapter
       if envelope.message.direct and (not props.useful)
         unless string.startsWith(envelope.user.id)
           string = "#{envelope.user.id}: #{string}"
-      Meteor.callAs "newMessage", model.canonical(BOTNAME), Object.assign {}, props,
+      Meteor.callAs "newMessage", CANON_BOTNAME, Object.assign {}, props,
         body: string
         room_name: envelope.room
         bot_ignore: true
@@ -99,7 +100,7 @@ class BlackboardAdapter extends Hubot.Adapter
         return @priv envelope, tweakStrings(strings, (s) -> "*** #{s} ***")...
     sendHelper @robot, envelope, strings, (string, props) ->
       console.log "emote #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      Meteor.callAs "newMessage", model.canonical(BOTNAME), Object.assign {}, props,
+      Meteor.callAs "newMessage", CANON_BOTNAME, Object.assign {}, props,
         body: string
         room_name: envelope.room
         action: true
@@ -109,7 +110,7 @@ class BlackboardAdapter extends Hubot.Adapter
   priv: (envelope, strings...) ->
     sendHelper @robot, envelope, strings, (string, props) ->
       console.log "priv #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      Meteor.callAs "newMessage", model.canonical(BOTNAME), Object.assign {}, props,
+      Meteor.callAs "newMessage", CANON_BOTNAME, Object.assign {}, props,
         to: "#{envelope.user.id}"
         body: string
         room_name: envelope.room
@@ -155,7 +156,7 @@ class BlackboardAdapter extends Hubot.Adapter
   close: ->
 
 return unless share.DO_BATCH_PROCESSING
-IGNORED_NICKS = new Set ['', model.canonical(BOTNAME)]
+IGNORED_NICKS = new Set ['', CANON_BOTNAME]
 Meteor.startup ->
   robot = new Robot null, null, false, BOTNAME
   robot.alias = 'bot'
@@ -170,14 +171,14 @@ Meteor.startup ->
     share.hubot[scriptName](robot)
   robot.brain.emit('loaded')
   # register our nick
-  Meteor.users.upsert model.canonical(BOTNAME),
+  Meteor.users.upsert CANON_BOTNAME,
     $set:
       nickname: BOTNAME
       gravatar: BOT_GRAVATAR
       bot_wakeup: model.UTCNow()
     $unset: services: ''
   # register our presence in general chat
-  keepalive = -> Meteor.callAs 'setPresence', model.canonical(BOTNAME),
+  keepalive = -> Meteor.callAs 'setPresence', CANON_BOTNAME,
     room_name: 'general/0'
     present: true
     foreground: true
@@ -202,7 +203,7 @@ Meteor.startup ->
       tm.direct = mynameRE.test(tm.text)
       adapter.receive tm
   startup = false
-  Meteor.callAs "newMessage", model.canonical(BOTNAME),
+  Meteor.callAs "newMessage", CANON_BOTNAME,
     body: 'wakes up'
     room_name: 'general/0'
     action: true
