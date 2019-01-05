@@ -2,6 +2,7 @@
 
 import canonical from '../lib/imports/canonical.coffee'
 import { emailFromNickObject } from './imports/nickEmail.coffee'
+import botuser from './imports/botuser.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -138,9 +139,9 @@ Template.header_loginmute.helpers
   connectStatus: Meteor.status
   botTitle: ->
     if 'true' is reactiveLocalStorage.getItem 'nobot'
-      "Codexbot promises not to bother you"
+      "#{botuser().nickname} promises not to bother you"
     else
-      "Codexbot is feeling chatty!"
+      "#{botuser().nickname} is feeling chatty!"
   sessionNick: -> # TODO(torgen): replace with currentUser
     user = Meteor.user()
     return unless user?
@@ -434,7 +435,7 @@ Template.header_nickmodal_contents.onCreated ->
   # subscription to it (in main.coffee)
   this.typeaheadSource = (query,process) =>
     this.update(query)
-    (n.nickname for n in Meteor.users.find({}).fetch())
+    (n.nickname for n in Meteor.users.find(bot_wakeup: $exists: false).fetch())
   this.update = (query, options) =>
     # can we find an existing nick matching this?
     n = if query then Meteor.users.findOne canonical query else undefined
