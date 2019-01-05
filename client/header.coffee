@@ -329,7 +329,7 @@ Template.header_nickmodal_contents.onCreated ->
   # subscription to it (in main.coffee)
   this.typeaheadSource = (query,process) =>
     this.update(query)
-    (n.nickname for n in Meteor.users.find({}).fetch())
+    (n.nickname for n in Meteor.users.find(bot_wakeup: $exists: false).fetch())
   this.update = (query, options) =>
     # can we find an existing nick matching this?
     n = if query then Meteor.users.findOne canonical query else undefined
