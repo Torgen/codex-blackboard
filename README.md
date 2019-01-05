@@ -3,57 +3,10 @@ codex-blackboard
 
 [![Build Status](https://travis-ci.org/Torgen/codex-blackboard.svg?branch=master)](https://travis-ci.org/Torgen/codex-blackboard)
 
-Meteor app for coordinating solving for our MIT Mystery Hunt team. To run in
-production mode on a freshly installed linux box (Ubuntu 16.04LTS preferred),
-point DNS at the public IP for your machine, clone this repo into a directory,
-then run `private/install.sh $domainname` from that directory. This will install
-NGinx, Node.js, Meteor, and MongoDB, build the app, configure systemd to start
-everything on boot, and install an SSL certificate from Lets Encrypt. It will
-also give you a chance to modify the configuration before everything starts.
-You can get an advance idea of what you may configure from reading
-`private/installtemplates/etc/codex-common.env.handlebars` and
-`private/installfiles/etc/codex-batch.env`. A summary:
-
-* Set a team password with the TEAM_PASSWORD variable in /etc/codex-common.env 
-  or the password will be the empty string. There is no notion of account
-  creation other than having the team password, which should be written on a
-  whiteboard, sent to the team mailing list, or otherwise shared
-  with everyone who should have access.
-* MongoDB wants to store its data in an XFS partition. If you have
-  unpartitioned space on your hard drive, you may want to create an xfs
-  partition and mount it at /var/lib/mongodb. If you haven't done this, the
-  install script will pause at the start and give you a chance, but you can
-  always not do it--our database probably won't be big enough for it to matter.
-* Google Drive integration requires an application default credential. If
-  you're running on Compute Engine, this will be set up, but the Google Drive
-  scope won't be configured; you have to do this while the VM is stopped.
-  On any other kind of machine, download the service account key json file,
-  put it somewhere nobody:nogroup can read it, and set
-  `GOOGLE_APPLICATION_CREDENTIALS=${path_to_file}` in `/etc/codex-common.env`.
-  If this is a shared machine, you can change the user the blackboard runs as
-  by editing `/etc/systemd/system/codex@.service` and
-  `/etc/systemd/system/codex-batch.service` so the file can be owned by root.
-* Letting users upload files to the drive folders from the blackboard requires
-  Google Picker credentials. Get some from
-  https://console.developers.google.com/start/api?id=picker&credential=client_key
-  and add a `picker` key to the `METEOR_SETTINGS` json object in
-  `/etc/codex-common.env`. Note that new applications are marked as risky unless
-  their privacy policy gets manually reviewed, and since we're behind basic auth,
-  that's unlikely to happen. If you don't get the picker credentials, users will
-  still be able to upload files by following the drive folder link.
-* Scraping twitter requires creating a twitter application at
-  https://app.twitter.com. You may want to create a burner twitter account,
-  since you have to give the app read/write access to the twitter account to
-  use the streaming API. These credentials go in `/etc/codex-batch.env`.
-* Scraping email requires putting a login and password in
-  `/env/codex-batch.env`. The other settings are documented there.
-
-You can also run on Galaxy, Meteor's PaaS. In that case you will configure all
-these settings in a settings.json file which you will give when you deploy the
-app. Look through the code for Meteor.settings for the most up-to-date list of
-them. Also be aware that if you run multiple instances, batch processing must
-be disabled on all but one of them. This is not how we run the app, so you will
-be somewhat on your own here.
+Meteor app for coordinating solving for our MIT Mystery Hunt team. See the wiki for instructions on:
+* [Building and managing a server](https://github.com/Torgen/codex-blackboard/wiki/Operations)
+* [Using the server as a solver](https://github.com/Torgen/codex-blackboard/wiki/Solving)
+* [Updating data on the server as an on-call](https://github.com/Torgen/codex-blackboard/wiki/Oncall)
   
 Developing
 ==========
@@ -71,7 +24,8 @@ Drive as that account, but the default settings will share any documents you
 create with me. This will annoy us both. You can prevent this by setting
 DRIVE_OWNER_ADDRESS and DRIVE_OWNER_NAME environment variables, or setting
 driveowner and drivehumanname in the meteor settings json file. (i.e. make a
-json file with those keys, then pass the filename to meteor with the --settings flag.)
+json file with those keys, then pass the filename to meteor with the --settings
+flag.)
 
 Your code is pushed live to the server as you make changes, so
 you can just leave `meteor` running. You can reset the internal database with:
@@ -80,6 +34,12 @@ you can just leave `meteor` running. You can reset the internal database with:
     $ meteor --settings private/settings.json
 
 but note that this won't delete any Google Drive files.
+
+If you're running under Windows Subsystem for Linux, and you want to use your
+Windows partition for the git repo (e.g. so you can use the native GitHub
+client and/or graphical editors) you will need to mount a directory on the
+virtual Linux filesystem as .meteor/local. You will also need to store your
+settings.json file on the virtual Linux filesystem.
 
 ## Installing Meteor
 
