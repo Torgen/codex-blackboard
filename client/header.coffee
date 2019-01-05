@@ -138,9 +138,9 @@ Template.header_loginmute.helpers
   connectStatus: Meteor.status
   botTitle: ->
     if 'true' is reactiveLocalStorage.getItem 'nobot'
-      "Codexbot promises not to bother you"
+      "#{botuser().nickname} promises not to bother you"
     else
-      "Codexbot is feeling chatty!"
+      "#{botuser().nickname} is feeling chatty!"
   sessionNick: -> # TODO(torgen): replace with currentUser
     user = Meteor.user()
     return unless user?

@@ -1,6 +1,7 @@
 'use strict'
 
 import { nickEmail } from './imports/nickEmail.coffee'
+import botuser from './imports/botuser.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -167,9 +168,10 @@ Template.messages.helpers
     # test Session.get('nobot') last to get a fine-grained dependency
     # on the `nobot` session variable only for 'useless' messages
     myNick = Meteor.userId()
+    botnick = botuser()._id
     m.nick is myNick or m.to is myNick or \
         m.useful or \
-        (m.nick isnt 'via twitter' and m.nick isnt 'codexbot' and \
+        (m.nick isnt 'via twitter' and m.nick isnt botnick and \
             not m.useless_cmd) or \
         doesMentionNick(m) or \
         ('true' isnt reactiveLocalStorage.getItem 'nobot')
@@ -479,7 +481,7 @@ Template.messages_input.submit = (message) ->
         n = Meteor.users.findOne model.canonical to
         break if n
         if to is 'bot' # allow 'bot' as a shorthand for 'codexbot'
-          to = 'codexbot'
+          to = botuser()._id
           continue
         [extra, rest] = rest.split(/\s+([^]*)/, 2)
         to += ' ' + extra
@@ -528,9 +530,9 @@ Template.messages_input.events
                                 re.test("/msg #{realname}"))
             return $message.val "/msg #{present.nick} "
         if re.test('bot')
-          return $message.val 'codexbot '
+          return $message.val "#{botuser()._id} "
         if re.test('/m bot') or re.test('/msg bot')
-          return $message.val '/msg codexbot '
+          return $message.val "/msg #{botuser()._id} "
 
     # implicit submit on enter (but not shift-enter or ctrl-enter)
     return unless event.which is 13 and not (event.shiftKey or event.ctrlKey)

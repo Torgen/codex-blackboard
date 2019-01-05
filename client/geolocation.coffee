@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from '../lib/imports/canonical.coffee'
+import botuser from './imports/botuser.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -89,7 +90,7 @@ CODEXBOT_LOCATIONS = [
 Template.registerHelper 'nickLocation', (args) ->
   args = share.keyword_or_positional 'nick', args
   return '' if canonical(args.nick) is Meteor.userId() # that's me!
-  if args.nick is 'codexbot'
+  if args.nick is botuser()._id
     idx = Math.floor(Session.get('currentTime') / (10*60*1000))
     return " is #{CODEXBOT_LOCATIONS[idx%CODEXBOT_LOCATIONS.length]}"
   d = distanceTo(args.nick)
