@@ -6,7 +6,8 @@ import botuser from './imports/botuser.coffee'
 model = share.model # import
 settings = share.settings # import
 
-GENERAL_ROOM = 'Ringhunters'
+GENERAL_ROOM = settings.GENERAL_ROOM_NAME
+GENERAL_ROOM_REGEX = new RegExp "^#{GENERAL_ROOM}$", 'i'
 
 Session.setDefault
   room_name: 'general/0'
@@ -465,7 +466,7 @@ Template.messages_input.submit = (message) ->
       args.to = @userId
       args.action = true
       return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
-        if (not result?) and /^ringhunters$/i.test(rest.trim())
+        if (not result?) and GENERAL_ROOM_REGEX.test(rest.trim())
           result = {type:'general',object:_id:'0'}
         if error? or not result?
           args.body = "tried to join an unknown chat room"

@@ -574,6 +574,7 @@ Template.header_lastchats.helpers
     return m
   msgbody: ->
     if this.bodyIsHtml then new Spacebars.SafeString(this.body) else this.body
+  roomname: -> settings.GENERAL_ROOM_NAME
 
 # subscribe when this template is in use/unsubscribe when it is destroyed
 Template.header_lastchats.onCreated ->
