@@ -11,7 +11,7 @@ if [[ -z $1 ]]; then
 fi
 
 sudo mkdir /opt/codex2
-sudo tar -X /opt/codex2 -xz < $1
+sudo tar -C /opt/codex2 -xz < $1
 cd /opt/codex2/bundle/programs/server
 sudo npm install
 cd -
