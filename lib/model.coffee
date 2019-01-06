@@ -244,7 +244,7 @@ doc_id_to_link = (id) ->
   unimplemented = -> throw new Meteor.Error(500, "Unimplemented")
 
   isDuplicateError = (error) ->
-    Meteor.isServer and error?.name is 'MongoError' and error?.code==11000
+    Meteor.isServer and error?.name in ['MongoError', 'BulkWriteError'] and error?.code==11000
 
   huntPrefix = (type) ->
     # this is a huge hack, it's too hard to find the correct
