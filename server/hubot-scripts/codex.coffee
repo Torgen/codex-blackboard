@@ -300,7 +300,7 @@ share.hubot.codex = (robot) ->
 
   robot.commands.push 'bot announce <message>'
   robot.respond /announce (.*)$/i, (msg) ->
-    Meteor.callAs 'newMessage', msg.envelope.user.id
+    Meteor.callAs 'newMessage', msg.envelope.user.id,
       oplog: true
       body: "Announcement: #{msg.match[1]}"
       stream: 'announcements'
