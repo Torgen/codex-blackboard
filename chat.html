@@ -81,8 +81,29 @@
           {{/if}}
     </h5>
     {{body}}
+    {{#if message.poll}}{{> poll message.poll}}{{/if}}
   </div> 
 </div>  
+</template>
+
+<template name="poll">
+  <table class="poll">
+    <tbody>
+      {{#each options}}
+        <tr>
+          <td class="option"><button class="btn btn-mini {{#if yours}}active{{/if}}" data-option="{{_id}}">{{text}}</button></td>
+          <td class="results">
+            {{#if show_votes}}
+              {{#each votes}}{{gravatar id=email image="wavatar" size=20 title=(nickOrName _id)}}{{/each}}
+            {{else}}
+              <div class="progress"><div class="bar {{#if leading}}bar-success{{/if}}" style="width: {{width}}%">{{votes.length}}</div></div>
+            {{/if}}
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <button class="btn btn-link btn-small toggle-votes">{{#if show_votes}}Hide{{else}}Show{{/if}} Votes</button>
 </template>
 
 <template name="messages">

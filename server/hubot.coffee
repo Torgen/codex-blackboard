@@ -191,7 +191,7 @@ Meteor.startup ->
       return if startup
       return if msg.bot_ignore
       return if IGNORED_NICKS.has msg.nick
-      return if msg.system or msg.action or msg.oplog or msg.bodyIsHtml
+      return if msg.system or msg.action or msg.oplog or msg.bodyIsHtml or msg.poll
       console.log "Received from #{msg.nick} in #{msg.room_name}: #{msg.body}"\
         if DEBUG
       user = new Hubot.User(msg.nick, room: msg.room_name)

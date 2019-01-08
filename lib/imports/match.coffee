@@ -13,6 +13,11 @@ export StringWithLength = (args) -> Match.Where (x) ->
   check x.length, NumberInRange args
   true
 
+export ArrayWithLength = (matcher, args) -> Match.Where (x) ->
+  check x, [matcher]
+  check x.length, NumberInRange args
+  true
+
 export NonEmptyString = StringWithLength min: 1
 
 export ArrayMembers = (arr) -> Match.Where (x) ->

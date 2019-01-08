@@ -143,6 +143,42 @@ Template.media_message.events
     return unless $(event.target).closest('.can-modify-star').size() > 0
     Meteor.call 'setStarred', this._id, true
 
+Template.poll.onCreated ->
+  @show_votes = new ReactiveVar false
+  @autorun =>
+    @subscribe 'poll', Template.currentData()
+
+Template.poll.helpers
+  show_votes: -> Template.instance().show_votes.get()
+  email: -> nickEmail @_id
+  options: ->
+    poll = model.Polls.findOne @
+    return unless poll?
+    votes = {}
+    myVote = poll.votes[Meteor.userId()]?.canon
+    for p in poll.options
+      votes[p.canon] = []
+    for voter, vote of poll.votes
+      votes[vote.canon].push {_id: voter, timestamp: vote.timestamp}
+    max = 1
+    for canon, voters of votes
+      max = voters.length if voters.length > max
+    (
+      votes[p.canon].sort (a, b) -> a.timestamp - b.timestamp
+      _id: p.canon
+      text: p.option
+      votes: votes[p.canon]
+      width: 100 * votes[p.canon].length / max
+      yours: myVote is p.canon
+      leading: votes[p.canon].length >= max
+    ) for p in poll.options
+
+Template.poll.events
+  'click button[data-option]': (event, template) ->
+    Meteor.call 'vote', template.data, event.target.dataset.option
+  'click button.toggle-votes': (event, template) ->
+    template.show_votes.set(not template.show_votes.get())
+
 
 messageTransform = (m) ->
   _id: m._id

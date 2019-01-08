@@ -166,5 +166,8 @@ Meteor.publish 'all-names', loginRequired ->
   self.onStop ->
     handles.map (h) -> h.stop()
 
+Meteor.publish 'poll', loginRequired (id) ->
+  model.Polls.find _id: id
+
 ## Publish the 'facts' collection to all users
 #Facts.setUserIdFilter -> true

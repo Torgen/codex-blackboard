@@ -305,3 +305,14 @@ share.hubot.codex = (robot) ->
       body: "Announcement: #{msg.match[1]}"
       stream: 'announcements'
     msg.finish()
+
+  wordOrQuote = /([^\"\'\s]+|\"[^\"]+\"|\'[^\']+\')/
+
+  robot.commands.push 'bot poll "Your question" "option 1" "option 2"...'
+  robot.respond (rejoin 'poll ', wordOrQuote, '((?: ', wordOrQuote, ')+)', /$/i), (msg) ->
+    optsRe = new RegExp rejoin(' ', wordOrQuote), 'g'
+    console.log msg.match[2]
+    opts = while m = optsRe.exec msg.match[2]
+      strip m[1]
+    Meteor.callAs 'newPoll', msg.envelope.user.id, msg.envelope.room, strip(msg.match[1]), opts
+
