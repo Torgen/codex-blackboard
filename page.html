@@ -40,7 +40,30 @@ function onGoogleApiLoad() {
   {{> header }}
 
 <!-- page contents -->
-  {{> Template.dynamic template=currentPage}}
+  {{#if currentPageEquals "blackboard"}}
+    {{> blackboard }}
+  {{/if}}
+  {{#if currentPageEquals "round"}}
+    {{> puzzle }}
+  {{/if}}
+  {{#if currentPageEquals "puzzle"}}
+    {{> puzzle }}
+  {{/if}}
+  {{#if currentPageEquals "chat"}}
+    {{> chat }}
+  {{/if}}
+  {{#if currentPageEquals "oplog"}}
+    {{> oplog }}
+  {{/if}}
+  {{#if currentPageEquals "callins"}}
+    {{> callins }}
+  {{/if}}
+  {{#if currentPageEquals "quip"}}
+    {{> quip }}
+  {{/if}}
+  {{#if currentPageEquals "facts"}}
+    {{> facts }}
+  {{/if}}
 
 <!-- add footer here? -->
 </div>
