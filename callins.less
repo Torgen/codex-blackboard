@@ -3,6 +3,21 @@
   margin-right: 10px;
   h1 { font-size: 150%; }
 }
+.bb-callins .bb-left-content {
+  overflow-y: auto;
+  table#bb-callin-table td {
+    text-align: initial;
+    &.btn-group {
+      display: flex; flex-direction: row;
+    }
+  }
+}
+.bb-quip-stars {
+  display: flex;
+  flex-direction: row;
+  * { flex-shrink: 1; flex-grow: 1; flex-basis: 0 }
+  .bb-starred-messages h3 { font-size: 150% }
+}
 .bb-quips {
   table, .bb-quiptext, blockquote {
     margin-bottom: 0;

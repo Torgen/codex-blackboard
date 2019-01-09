@@ -19,6 +19,8 @@ Meteor.startup ->
     initial = false
 
 Template.callins.onCreated ->
+  $('html').addClass('fullHeight')
+  share.chat.startupChat()
   this.subscribe 'callins'
   this.subscribe 'quips'
   return if settings.BB_SUB_ALL
@@ -39,17 +41,24 @@ Template.callins.helpers
       limit: 5
   quipAddUrl: ->
     share.Router.urlFor 'quips', 'new'
+  vsize: -> share.Splitter.vsize.get()
+  vsizePlusHandle: -> +share.Splitter.vsize.get() + 6
+  hsize: -> share.Splitter.hsize.get()
 
 Template.callins.onRendered ->
+  $('html').addClass('fullHeight')
   $("title").text("Answer queue")
   this.clipboard = new Clipboard '.copy-and-go'
 
 Template.callins.onDestroyed ->
+  $('html').removeClass('fullHeight')
+  share.chat.cleanupChat()
   this.clipboard.destroy()
 
 Template.callins.events
   "click .bb-addquip-btn": (event, template) ->
      share.Router.goTo "quips", "new"
+  "mousedown .bb-splitter-handle": (e,t) -> share.Splitter.handleEvent(e,t)
 
 Template.callins_quip.events
   "click .bb-quip-next": (event, template) ->

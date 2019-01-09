@@ -257,10 +257,6 @@ Template.messages.onCreated ->
     room_name = Session.get 'room_name'
     return unless room_name
     this.subscribe 'presence-for-room', room_name
-    nick = if settings.BB_DISABLE_PM then null else Meteor.userId() or null
-    # re-enable private messages, but just in ringhunters (for codexbot)
-    if settings.BB_DISABLE_PM and room_name is "general/0"
-      nick = Meteor.userId() or null
     timestamp = (+Session.get('timestamp'))
     p = pageForTimestamp room_name, timestamp, {subscribe: this}
     return unless p? # wait until page information is loaded
@@ -268,16 +264,9 @@ Template.messages.onCreated ->
     if p.next? # subscribe to the 'next' page
       this.subscribe 'page-by-id', p.next
     # load messages for this page
-    ready = 0
     onReady = ->
-      if (++ready) is 2
-        instachat.ready = true
-        Session.set 'chatReady', true
-    if nick?
-      this.subscribe "#{messages}-in-range-to-me", p.room_name, p.from, p.to,
-        onReady: onReady
-    else
-      onReady()
+      instachat.ready = true
+      Session.set 'chatReady', true
     this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to,
       onReady: onReady
     Tracker.onInvalidate invalidator
@@ -399,7 +388,7 @@ scrollMessagesView = ->
   touchSelfScroll()
   instachat.scrolledToBottom = true
   # first try using html5, then fallback to jquery
-  last = document?.querySelector?('.bb-chat-messages > *:last-child')
+  last = document?.querySelector?('#messages > *:last-child')
   if last?.scrollIntoView?
     last.scrollIntoView()
   else
@@ -667,7 +656,7 @@ updateNotice = do ->
     [lastUnread, lastMention] = [unread, mention]
 
 Tracker.autorun ->
-  pageWithChat = /^(chat|puzzle|round)$/.test Session.get('currentPage')
+  pageWithChat = /^(chat|puzzle|round|callins)$/.test Session.get('currentPage')
   nick = Meteor.userId() or ''
   room_name = Session.get 'room_name'
   unless pageWithChat and nick and room_name

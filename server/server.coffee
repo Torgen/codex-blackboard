@@ -110,24 +110,12 @@ for messages in [ 'messages', 'oldmessages' ]
     # range, which is a bit of an issue.  Once limit is supported in oplog
     # we could probably add a limit here to be a little safer.
     Meteor.publish "#{messages}-in-range", loginRequired (room_name, from, to=0) ->
-      # XXX this observe polls on 0.7.0.1
-      # (but not on the meteor oplog-with-operators branch)
       cond = $gte: +from, $lt: +to
       delete cond.$lt if cond.$lt is 0
       model.collection(messages).find
         room_name: room_name
         timestamp: cond
-        to: null # no pms
-
-    # same thing, but nick-specific.  This allows us to share the big query;
-    # paged-messages-nick should be small/light-weight.
-    Meteor.publish "#{messages}-in-range-to-me", loginRequired (room_name, from, to=0) ->
-      cond = $gte: +from, $lt: +to
-      delete cond.$lt if cond.$lt is 0
-      model.collection(messages).find
-        room_name: room_name
-        timestamp: cond
-        $or: [ { nick: @userId }, { to: @userId } ]
+        $or: [ {to: $in: [null, @userId]}, {nick: @userId }]
 
 Meteor.publish 'starred-messages', loginRequired (room_name) ->
   for messages in [ model.OldMessages, model.Messages ]

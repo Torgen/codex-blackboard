@@ -583,7 +583,4 @@ Template.header_lastchats.onCreated ->
     p = share.chat.pageForTimestamp 'general/0', 0, {subscribe:this}
     return unless p? # wait until page info is loaded
     messages = if p.archived then "oldmessages" else "messages"
-    # use autorun to ensure subscription changes if/when nick does
-    if Meteor.userId()? and not settings.BB_DISABLE_PM
-      this.subscribe "#{messages}-in-range-to-me", p.room_name, p.from, p.to
     this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to
