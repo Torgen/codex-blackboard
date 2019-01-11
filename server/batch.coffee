@@ -90,7 +90,7 @@ queueMessageArchive = throttle ->
   limit = 2 * MESSAGE_PAGE
   loop
     msgs = model.Messages.find({room_name: p.room_name, timestamp: $lt: p.to}, \
-      {sort:[['to','asc']], limit: limit, reactive: false}).fetch()
+      {sort:[['timestamp','asc']], limit: limit, reactive: false}).fetch()
     model.OldMessages.upsert(m._id, m) for m in msgs
     model.Pages.update(p._id, $set: archived: true) if msgs.length < limit
     model.Messages.remove(m._id) for m in msgs

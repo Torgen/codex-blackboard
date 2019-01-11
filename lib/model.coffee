@@ -145,7 +145,9 @@ Polls = BBCollection.polls = new Mongo.Collection "polls"
 #   gravatar (optional email address for avatar)
 #   services: map of provider-specific stuff; hidden on client
 if Meteor.isServer
-  Meteor.users._ensureIndex {priv_located_order: 1}, {}
+  Meteor.users._ensureIndex {priv_located_order: 1},
+    partialFilterExpression:
+      priv_located_order: { $exists: true }
   # We don't push the index to the client, so it's okay to have it update
   # frequently.
   Meteor.users._ensureIndex {priv_located_at: '2dsphere'}, {}
