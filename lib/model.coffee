@@ -1194,7 +1194,6 @@ doc_id_to_link = (id) ->
       return true
 
     newPoll: (room, question, options) ->
-      console.log arguments
       check @userId, NonEmptyString
       check room, NonEmptyString
       check question, NonEmptyString
