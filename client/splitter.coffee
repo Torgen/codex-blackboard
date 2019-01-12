@@ -1,6 +1,8 @@
 # cscott's very simple splitter widget
 'use strict'
 
+import { reactiveLocalStorage } from './imports/storage.coffee'
+
 Splitter = share.Splitter =
   vsize:
     dragging: new ReactiveVar false

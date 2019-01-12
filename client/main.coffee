@@ -1,6 +1,7 @@
 'use strict'
 
 import { nickEmail } from './imports/nickEmail.coffee'
+import { reactiveLocalStorage } from './imports/storage.coffee'
 
 settings = share.settings # import
 chat = share.chat # import
