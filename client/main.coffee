@@ -117,16 +117,20 @@ finishSetupNotifications = ->
 
 Meteor.startup ->
   now = share.model.UTCNow() + 3
+  suppress = true
   Tracker.autorun ->
     return if share.notification.count() is 0 # unsubscribes
     p = share.chat.pageForTimestamp 'oplog/0', 0, {subscribe:true}
     return unless p? # wait until page info is loaded
     messages = if p.archived then "oldmessages" else "messages"
-    Meteor.subscribe "#{messages}-in-range", p.room_name, p.from, p.to
+    Meteor.subscribe "#{messages}-in-range", p.room_name, p.from, p.to,
+      onStop: -> suppress = true
+      onReady: -> suppress = false
   share.model.Messages.find({room_name: 'oplog/0', timestamp: $gte: now}).observeChanges
     added: (id, msg) ->
       return unless Notification.permission is 'granted'
       return unless share.notification.get(msg.stream)
+      return if suppress
       gravatar = $.gravatar nickEmail(msg.nick),
         image: 'wavatar'
         size: 192
