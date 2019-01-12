@@ -113,21 +113,9 @@ for messages in [ 'messages', 'oldmessages' ]
       cond = $gte: +from, $lt: +to
       delete cond.$lt if cond.$lt is 0
       model.collection(messages).find
-        # Don't factor the common query parameters out of this $or without
-        # profiling the query. It's done this way because MongoDB didn't
-        # understand the distributive property.
-        $or: [
-          {
-            room_name: room_name
-            timestamp: cond
-            to: $in: [null, @userId]
-          },
-          {
-            room_name: room_name
-            timestamp: cond
-            nick: @userId
-          }
-        ]
+        room_name: room_name
+        timestamp: cond
+        $or: [ {to: $in: [null, @userId]}, {nick: @userId }]
 
 Meteor.publish 'starred-messages', loginRequired (room_name) ->
   for messages in [ model.OldMessages, model.Messages ]
