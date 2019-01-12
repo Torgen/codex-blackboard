@@ -56,7 +56,6 @@ livedata@1.0.18
 lmieulet:meteor-coverage@3.1.1
 localstorage@1.2.0
 logging@1.1.20
-mdj:reactive-storage@1.0.1
 meteor@1.9.2
 meteor-base@1.4.0
 meteortesting:browser-tests@1.2.0

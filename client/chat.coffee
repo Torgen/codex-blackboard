@@ -2,6 +2,7 @@
 
 import { nickEmail } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
+import { reactiveLocalStorage } from './imports/storage.coffee'
 
 model = share.model # import
 settings = share.settings # import
