@@ -582,7 +582,7 @@ doc_id_to_link = (id) ->
         $set: 
           touched: now
           touched_by: @userId
-      Puzzles.update
+      return 0 < Puzzles.update
         _id: metaId
         puzzles: $ne: puzzleId
       ,
@@ -590,7 +590,6 @@ doc_id_to_link = (id) ->
         $set: 
           touched: now
           touched_by: @userId
-      return
 
     unfeedMeta: (puzzleId, metaId) ->
       check @userId, NonEmptyString
@@ -607,7 +606,7 @@ doc_id_to_link = (id) ->
         $set: 
           touched: now
           touched_by: @userId
-      Puzzles.update
+      return 0 < Puzzles.update
         _id: metaId
         puzzles: puzzleId
       ,
@@ -615,7 +614,6 @@ doc_id_to_link = (id) ->
         $set: 
           touched: now
           touched_by: @userId
-      return
 
     newCallIn: (args) ->
       check @userId, NonEmptyString
