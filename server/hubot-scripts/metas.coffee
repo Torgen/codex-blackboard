@@ -24,8 +24,9 @@ makeNotMeta = (msg) ->
     msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
     msg.finish()
     return
-  if p.object.puzzles?.length
-    msg.reply useful: true, "#{p.object.puzzles.length} puzzles feed into #{p.object.name}. It must be a meta."
+  l = p.object.puzzles?.length
+  if l
+    msg.reply useful: true, "#{l} puzzle#{if l isnt 1 then 's' else ''} feed#{if l is 1 then 's' else ''} into #{p.object.name}. It must be a meta."
     msg.finish()
     return
   who = msg.envelope.user.id
