@@ -19,7 +19,15 @@ makeMeta = (msg) ->
 makeNotMeta = (msg) ->
   name = msg.match[1]
   p = puzzleOrThis(name, msg)
-  return unless p?
+  if not p
+    return if msg.done
+    msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
+    msg.finish()
+    return
+  if p.object.puzzles?.length
+    msg.reply useful: true, "#{p.object.puzzles.length} puzzles feed into #{p.object.name}. It must be a meta."
+    msg.finish()
+    return
   who = msg.envelope.user.id
   if Meteor.callAs 'makeNotMeta', who, p.object._id
     msg.reply useful: true, "OK, #{name} is no longer a meta."

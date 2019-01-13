@@ -561,13 +561,7 @@ doc_id_to_link = (id) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
       now = UTCNow()
-      Puzzles.update {feedsInto: id},
-        $pull: feedsInto: id
-        $set:
-          touched: now
-          touched_by: @userId
-      , multi: true
-      return 0 < Puzzles.update {_id: id, puzzles: $exists: true},
+      return 0 < Puzzles.update {_id: id, puzzles: []},
         $unset: puzzles: ""
         $set:
           touched: now
