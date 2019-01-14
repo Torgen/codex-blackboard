@@ -55,7 +55,7 @@
 <div class="row-fluid bb-puzzleround">
  <!-- this is a puzzle page -->
 {{#with data}}
-<div class="bb-splitter" style="padding-right: {{hsize}}px; {{#unless boringMode}}background: {{color}}{{/unless}}">
+<div class="bb-splitter" style="--right-column: {{hsize}}px; {{#unless boringMode}}background: {{color}}{{/unless}}">
   <div class="bb-left-content">{{! start left of splitter }}
   {{#if puzzle.spreadsheet}}
     <div class="bb-left-header" style="{{#unless currentViewIs "spreadsheet"}}display: none;{{/unless}}">
@@ -91,8 +91,8 @@
     <div class="bb-puzzle-frame">{{> puzzle_info}}</div>
   {{/if}}
   </div>{{! end left of splitter }}
-  <div class="bb-splitter-handle" style="right: {{hsize}}px"></div>
-  <div class="bb-right-content" style="width: {{hsize}}px; {{#unless currentViewIs "info"}}padding-bottom: {{vsizePlusHandle}}px{{/unless}}">{{! start right of splitter }}
+  <div class="bb-splitter-handle"></div>
+  <div class="bb-right-content" style="{{#unless currentViewIs "info"}}padding-bottom: {{vsizePlusHandle}}px{{/unless}}">{{! start right of splitter }}
     {{#unless currentViewIs "info"}}
     <div class="bb-top-right-content">{{! start top right splitter }}
       {{> puzzle_info }}

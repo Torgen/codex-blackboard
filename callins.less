@@ -5,18 +5,80 @@
 }
 .bb-callins .bb-left-content {
   overflow-y: auto;
-  table#bb-callin-table td {
-    text-align: initial;
-    &.btn-group {
-      display: flex; flex-direction: row;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  @media (max-width: 767px) {
+    grid-template-columns: 100%;
+    .btn { font-size: 11.9px; padding: 2px 10px }
+  }
+  @media (max-width: 640px) {
+    .btn { font-size: 10.5px; padding: 0px 6px }
+  }
+  @media (max-width: 480px) {
+    .btn-group {
+      display: inline-block;
+      .btn {
+        --br: 0;
+        display: block;
+        float: none;
+        width: 100%;
+        border-radius: var(--br);
+        -webkit-border-radius: var(--br);
+        -moz-border-radius: var(--br);
+        & + .btn {
+          margin-top: -1px;
+          margin-left: 0;
+        }
+      }
+      a.btn { width: initial;}
+      .btn:first-child { --br: 4px 4px 0 0; }
+      .btn:last-child { --br: 0 0 4px 4px }
+    }
+  }
+  .bb-starred-messages {
+    h3 { font-size: 150%; margin-left: 10px }
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 2;
+    @media (max-width: 767px) {
+      grid-column-start: 1;
+      grid-column-end: 2;
+    }
+    & + .bb-quips {
+      grid-column-end: 2;
+    }
+  }
+  .bb-quips {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 2;
+    @media (max-width: 767px) {
+      grid-row-start: 3;
+      grid-row-end: 4;
+      grid-column-end: 2;
+    }
+  }
+  .bb-callin-queue {
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    @media (max-width: 767px) {
+      grid-column-end: 2;
+    }
+    table#bb-callin-table td {
+      text-align: initial;
     }
   }
 }
-.bb-quip-stars {
-  display: flex;
-  flex-direction: row;
-  * { flex-shrink: 1; flex-grow: 1; flex-basis: 0 }
-  .bb-starred-messages h3 { font-size: 150% }
+#bb-callin-table {
+  th, td {
+    @media (max-width: 767px) { font-size: 75%; padding: 6px }
+    @media (max-width: 640px) { font-size: 60%; padding: 4px }
+    @media (max-width: 480px) { font-size: 50%; padding: 2px }
+  }
 }
 .bb-quips {
   table, .bb-quiptext, blockquote {

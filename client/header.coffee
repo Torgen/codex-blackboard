@@ -296,8 +296,11 @@ active = ->
 Template.header_breadcrumb_blackboard.helpers
   active: active
 
+Template.header_breadcrumb_callins.helpers
+  active: active
+
 Template.header_breadcrumb_extra_links.helpers
-  active: -> active.bind(Template.parentData(1))()
+  active: -> active.call(Template.parentData(1))
 
 Template.header_breadcrumb_round.onCreated ->
   @autorun =>

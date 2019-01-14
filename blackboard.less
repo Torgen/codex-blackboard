@@ -532,10 +532,11 @@ html.fullHeight {
        position: relative;
        display: flex;
        flex-direction: row;
+       padding-right: var(--right-column);
+       @media (max-width: 767px) {
+         padding-right: initial;
+       }
        &, & > div { height:100%; }
-       /* top padding here also anchors the margin in the embedded <h1>
-          element and fixes an odd-looking 10px shift */
-       padding-right: 300px; /* for right pane */
        .bb-left-header {
          padding-left: 2px; padding-right: 2px;
        }
@@ -546,6 +547,10 @@ html.fullHeight {
        & > .bb-splitter-handle {
          width: 6px;
          cursor: ew-resize;
+         right: var(--right-column);
+         @media (max-width: 767px) {
+           display: none;
+         }
        }
        &.active {
          & > .bb-splitter-handle { background-color: #e88; }
@@ -569,6 +574,10 @@ html.fullHeight {
        & > .bb-right-content {
          position: absolute;
          right: 0px;
+         width: var(--right-column);
+         @media (max-width: 767px) {
+           display: none;
+         }
          & > .bb-top-right-content, & > .bb-bottom-right-content {
            width: 100%;
            height: 100%;

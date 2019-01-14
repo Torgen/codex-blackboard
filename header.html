@@ -130,10 +130,12 @@
 </template>
 
 <template name="header_breadcrumb_callins">
-  <li class="{{#if currentPageEquals "callins"}}active{{/if}}">
+  <li class="{{#if active}}active{{/if}}">
     <a href="/callins" class="callins-link">
       <i class="fas fa-phone"></i> Answer Queue
+      <i class="fas fa-th-list {{#if currentPageEquals "callins"}}current{{/if}}"></i>
     </a>
+    {{> header_breadcrumb_chat}}
   </li>
 </template>
 
