@@ -32,6 +32,13 @@
   white-space: nowrap;
 }
 
+.bb-abbrev-when-narrow::before {
+  content: attr(data-full);
+  @media (max-width: 767px)  {
+    content: attr(data-abbrev);
+  }
+}
+
 .border-radius(@radius: 5px) {
   -webkit-border-radius: @radius;
      -moz-border-radius: @radius;

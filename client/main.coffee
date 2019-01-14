@@ -1,6 +1,7 @@
 'use strict'
 
 import { nickEmail } from './imports/nickEmail.coffee'
+import abbrev from '../lib/imports/abbrev.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
 settings = share.settings # import
@@ -20,6 +21,7 @@ Template.registerHelper "equal", (a, b) -> a is b
 # session variables we want to make available from all templates
 do -> for v in ['currentPage']
   Template.registerHelper v, () -> Session.get(v)
+Template.registerHelper 'abbrev', abbrev
 Template.registerHelper 'currentPageEquals', (arg) ->
   # register a more precise dependency on the value of currentPage
   Session.equals 'currentPage', arg
