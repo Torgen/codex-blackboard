@@ -58,9 +58,18 @@
         display: flex;
         flex-grow: 0;
         flex-shrink: 0;
+        @media (max-width: 767px) {
+          & > a {
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
         & > a + a {
           padding-left: 0px;
           margin-left: -10px;
+          @media (max-width: 767px) {
+            margin-left: -5px;
+          }
         }
         i.current, .current i {
           border-bottom: 2px solid white;

@@ -85,7 +85,7 @@
     </div>
     {{! hide iframe when not current view for faster tab change }}
     <iframe class="bb-puzzle-frame" frameborder='0' src='{{puzzle.link}}'
-            style="{{#unless currentViewIs "puzzle"}}display:none{{/unless}}"></iframe>
+            style="{{#unless currentViewIs "puzzle"}}display:none;{{/unless}}"></iframe>
   {{/if}}
   {{#if currentViewIs "info"}}
     <div class="bb-puzzle-frame">{{> puzzle_info}}</div>

@@ -563,13 +563,15 @@ html.fullHeight {
          & > .bb-splitter-handle { background-color: #e88; }
          .bb-left-content, .bb-right-content { pointer-events: none; }
        }
-       & > .bb-left-content {
+       & > .bb-left-content { 
+         overflow-y: auto;
          left: 0; top: 0;
          .bb-left-header {
            position: absolute; right: 100%; writing-mode: vertical-lr; top:10px;
          }
          iframe {
            padding-top: 5px; /* was 26px, but we're chosing to overlap header */
+           margin-bottom: -5px;
            border-top: none;
          }
        }
