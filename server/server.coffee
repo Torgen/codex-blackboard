@@ -15,7 +15,7 @@ Meteor.publish = ((publish) ->
 )(Meteor.publish) if false # disable by default
 
 Meteor.publish 'all-roundsandpuzzles', loginRequired -> [
-  model.RoundGroups.find(), model.Rounds.find(), model.Puzzles.find()
+  model.Rounds.find(), model.Puzzles.find()
 ]
 
 # Login not required for this because it's needed for nick autocomplete.
@@ -50,15 +50,15 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
   recent = null
   initializing = true
 
-  max = (type, doc) ->
+  max = (doc) ->
     if doc.solved?
       if (not recent?.target) or (doc.solved > recent.solved)
-        recent = {solved:doc.solved, type:type, target:doc._id}
+        recent = {solved:doc.solved, target:doc._id}
         return true
     return false
 
-  publishIfMax = (type, doc) ->
-    return unless max(type, doc)
+  publishIfMax = (doc) ->
+    return unless max(doc)
     self.changed collection, uuid, recent \
       unless initializing
   publishNone = ->
@@ -66,15 +66,11 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
     self.changed collection, uuid, recent \
       unless initializing
 
-  # XXX this observe polls on 0.7.0.1
-  # (but not on the meteor oplog-with-operators branch)
-  handles = [
-    "puzzles", "rounds", "roundgroups"
-  ].map (type) -> model.collection(type).find({
-    solved: { $exists: true, $ne: null }
-  }).observe
-    added: (doc) -> publishIfMax(type, doc)
-    changed: (doc, oldDoc) -> publishIfMax(type, doc)
+  handle = model.Puzzles.find(
+    solved: $ne: null
+  ).observe
+    added: (doc) -> publishIfMax(doc)
+    changed: (doc, oldDoc) -> publishIfMax(doc)
     removed: (doc) ->
       publishNone() if doc._id is recent?.target
 
@@ -89,14 +85,15 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
   # Stop observing the cursor when client unsubs.
   # Stopping a subscription automatically takes care of sending the
   # client any 'removed' messages
-  self.onStop -> (handle.stop() for handle in handles)
+  self.onStop -> handle.stop()
 
 # limit site traffic by only pushing out changes relevant to a certain
-# roundgroup, round, or puzzle
+# round or puzzle
 Meteor.publish 'puzzle-by-id', loginRequired (id) -> model.Puzzles.find _id: id
+Meteor.publish 'metas-for-puzzle', loginRequired (id) -> model.Puzzles.find puzzles: id
 Meteor.publish 'round-by-id', loginRequired (id) -> model.Rounds.find _id: id
 Meteor.publish 'round-for-puzzle', loginRequired (id) -> model.Rounds.find puzzles: id
-Meteor.publish 'roundgroup-for-round', loginRequired (id) -> model.RoundGroups.find rounds: id
+Meteor.publish 'puzzles-by-meta', loginRequired (id) -> model.Puzzles.find feedsInto: id
 
 # get recent messages
 
@@ -113,24 +110,12 @@ for messages in [ 'messages', 'oldmessages' ]
     # range, which is a bit of an issue.  Once limit is supported in oplog
     # we could probably add a limit here to be a little safer.
     Meteor.publish "#{messages}-in-range", loginRequired (room_name, from, to=0) ->
-      # XXX this observe polls on 0.7.0.1
-      # (but not on the meteor oplog-with-operators branch)
       cond = $gte: +from, $lt: +to
       delete cond.$lt if cond.$lt is 0
       model.collection(messages).find
         room_name: room_name
         timestamp: cond
-        to: null # no pms
-
-    # same thing, but nick-specific.  This allows us to share the big query;
-    # paged-messages-nick should be small/light-weight.
-    Meteor.publish "#{messages}-in-range-to-me", loginRequired (room_name, from, to=0) ->
-      cond = $gte: +from, $lt: +to
-      delete cond.$lt if cond.$lt is 0
-      model.collection(messages).find
-        room_name: room_name
-        timestamp: cond
-        $or: [ { nick: @userId }, { to: @userId } ]
+        $or: [ {to: $in: [null, @userId]}, {nick: @userId }]
 
 Meteor.publish 'starred-messages', loginRequired (room_name) ->
   for messages in [ model.OldMessages, model.Messages ]
@@ -148,7 +133,7 @@ Meteor.publish 'quips', loginRequired ->
 # synthetic 'all-names' collection which maps ids to type/name/canon
 Meteor.publish 'all-names', loginRequired ->
   self = this
-  handles = [ 'roundgroups', 'rounds', 'puzzles', 'quips' ].map (type) ->
+  handles = [ 'rounds', 'puzzles', 'quips' ].map (type) ->
     model.collection(type).find({}).observe
       added: (doc) ->
         self.added 'names', doc._id,
@@ -168,6 +153,9 @@ Meteor.publish 'all-names', loginRequired ->
   # stop observing the various cursors when client unsubs
   self.onStop ->
     handles.map (h) -> h.stop()
+
+Meteor.publish 'poll', loginRequired (id) ->
+  model.Polls.find _id: id
 
 ## Publish the 'facts' collection to all users
 #Facts.setUserIdFilter -> true

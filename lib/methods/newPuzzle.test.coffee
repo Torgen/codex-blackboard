@@ -41,11 +41,21 @@ describe 'newPuzzle', ->
     , Match.Error
     
   describe 'when none exists with that name', ->
+    round = null
     id = null
     beforeEach ->
+      round = model.Rounds.insert
+        name: 'Round'
+        canon: 'round'
+        created: 1
+        created_by: 'cjb'
+        touched: 1
+        touched_by: 'cjb'
+        puzzles: []
       id = Meteor.callAs 'newPuzzle', 'torgen',
         name: 'Foo'
         link: 'https://puzzlehunt.mit.edu/foo'
+        round: round
       ._id
 
     it 'creates puzzle', ->
@@ -64,11 +74,18 @@ describe 'newPuzzle', ->
         spreadsheet: 'sid'
         doc: 'did'
         tags: {}
+
+    it 'adds puzzle to round', ->
+      chai.assert.deepInclude model.Rounds.findOne(round),
+        touched: 7
+        touched_by: 'torgen'
+        puzzles: [id]
     
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
 
   describe 'when one exists with that name', ->
+    round = round
     id1 = null
     id2 = null
     beforeEach ->
@@ -87,8 +104,17 @@ describe 'newPuzzle', ->
         spreadsheet: 'sid'
         doc: 'did'
         tags: {}
+      round = model.Rounds.insert
+        name: 'Round'
+        canon: 'round'
+        created: 1
+        created_by: 'cjb'
+        touched: 1
+        touched_by: 'cjb'
+        puzzles: [id1]
       id2 = Meteor.callAs 'newPuzzle', 'cjb',
         name: 'Foo'
+        round: round
       ._id
     
     it 'returns existing puzzle', ->

@@ -1,11 +1,14 @@
 'use strict'
 
 import { nickEmail } from './imports/nickEmail.coffee'
+import botuser from './imports/botuser.coffee'
+import { reactiveLocalStorage } from './imports/storage.coffee'
 
 model = share.model # import
 settings = share.settings # import
 
-GENERAL_ROOM = 'Ringhunters'
+GENERAL_ROOM = settings.GENERAL_ROOM_NAME
+GENERAL_ROOM_REGEX = new RegExp "^#{GENERAL_ROOM}$", 'i'
 
 Session.setDefault
   room_name: 'general/0'
@@ -141,6 +144,42 @@ Template.media_message.events
     return unless $(event.target).closest('.can-modify-star').size() > 0
     Meteor.call 'setStarred', this._id, true
 
+Template.poll.onCreated ->
+  @show_votes = new ReactiveVar false
+  @autorun =>
+    @subscribe 'poll', Template.currentData()
+
+Template.poll.helpers
+  show_votes: -> Template.instance().show_votes.get()
+  email: -> nickEmail @_id
+  options: ->
+    poll = model.Polls.findOne @
+    return unless poll?
+    votes = {}
+    myVote = poll.votes[Meteor.userId()]?.canon
+    for p in poll.options
+      votes[p.canon] = []
+    for voter, vote of poll.votes
+      votes[vote.canon].push {_id: voter, timestamp: vote.timestamp}
+    max = 1
+    for canon, voters of votes
+      max = voters.length if voters.length > max
+    (
+      votes[p.canon].sort (a, b) -> a.timestamp - b.timestamp
+      _id: p.canon
+      text: p.option
+      votes: votes[p.canon]
+      width: 100 * votes[p.canon].length / max
+      yours: myVote is p.canon
+      leading: votes[p.canon].length >= max
+    ) for p in poll.options
+
+Template.poll.events
+  'click button[data-option]': (event, template) ->
+    Meteor.call 'vote', template.data, event.target.dataset.option
+  'click button.toggle-votes': (event, template) ->
+    template.show_votes.set(not template.show_votes.get())
+
 
 messageTransform = (m) ->
   _id: m._id
@@ -167,9 +206,10 @@ Template.messages.helpers
     # test Session.get('nobot') last to get a fine-grained dependency
     # on the `nobot` session variable only for 'useless' messages
     myNick = Meteor.userId()
+    botnick = botuser()._id
     m.nick is myNick or m.to is myNick or \
         m.useful or \
-        (m.nick isnt 'via twitter' and m.nick isnt 'codexbot' and \
+        (m.nick isnt 'via twitter' and m.nick isnt botnick and \
             not m.useless_cmd) or \
         doesMentionNick(m) or \
         ('true' isnt reactiveLocalStorage.getItem 'nobot')
@@ -218,10 +258,6 @@ Template.messages.onCreated ->
     room_name = Session.get 'room_name'
     return unless room_name
     this.subscribe 'presence-for-room', room_name
-    nick = if settings.BB_DISABLE_PM then null else Meteor.userId() or null
-    # re-enable private messages, but just in ringhunters (for codexbot)
-    if settings.BB_DISABLE_PM and room_name is "general/0"
-      nick = Meteor.userId() or null
     timestamp = (+Session.get('timestamp'))
     p = pageForTimestamp room_name, timestamp, {subscribe: this}
     return unless p? # wait until page information is loaded
@@ -229,16 +265,9 @@ Template.messages.onCreated ->
     if p.next? # subscribe to the 'next' page
       this.subscribe 'page-by-id', p.next
     # load messages for this page
-    ready = 0
     onReady = ->
-      if (++ready) is 2
-        instachat.ready = true
-        Session.set 'chatReady', true
-    if nick?
-      this.subscribe "#{messages}-in-range-to-me", p.room_name, p.from, p.to,
-        onReady: onReady
-    else
-      onReady()
+      instachat.ready = true
+      Session.set 'chatReady', true
     this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to,
       onReady: onReady
     Tracker.onInvalidate invalidator
@@ -360,7 +389,7 @@ scrollMessagesView = ->
   touchSelfScroll()
   instachat.scrolledToBottom = true
   # first try using html5, then fallback to jquery
-  last = document?.querySelector?('.bb-chat-messages > *:last-child')
+  last = document?.querySelector?('#messages > *:last-child')
   if last?.scrollIntoView?
     last.scrollIntoView()
   else
@@ -463,7 +492,7 @@ Template.messages_input.submit = (message) ->
       args.to = @userId
       args.action = true
       return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
-        if (not result?) and /^ringhunters$/i.test(rest.trim())
+        if (not result?) and GENERAL_ROOM_REGEX.test(rest.trim())
           result = {type:'general',object:_id:'0'}
         if error? or not result?
           args.body = "tried to join an unknown chat room"
@@ -479,7 +508,7 @@ Template.messages_input.submit = (message) ->
         n = Meteor.users.findOne model.canonical to
         break if n
         if to is 'bot' # allow 'bot' as a shorthand for 'codexbot'
-          to = 'codexbot'
+          to = botuser()._id
           continue
         [extra, rest] = rest.split(/\s+([^]*)/, 2)
         to += ' ' + extra
@@ -528,9 +557,9 @@ Template.messages_input.events
                                 re.test("/msg #{realname}"))
             return $message.val "/msg #{present.nick} "
         if re.test('bot')
-          return $message.val 'codexbot '
+          return $message.val "#{botuser()._id} "
         if re.test('/m bot') or re.test('/msg bot')
-          return $message.val '/msg codexbot '
+          return $message.val "/msg #{botuser()._id} "
 
     # implicit submit on enter (but not shift-enter or ctrl-enter)
     return unless event.which is 13 and not (event.shiftKey or event.ctrlKey)
@@ -628,7 +657,7 @@ updateNotice = do ->
     [lastUnread, lastMention] = [unread, mention]
 
 Tracker.autorun ->
-  pageWithChat = /^(chat|puzzle|round)$/.test Session.get('currentPage')
+  pageWithChat = /^(chat|puzzle|round|callins)$/.test Session.get('currentPage')
   nick = Meteor.userId() or ''
   room_name = Session.get 'room_name'
   unless pageWithChat and nick and room_name

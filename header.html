@@ -7,8 +7,8 @@
     {{> header_lastupdates}}
     {{> header_lastchats}}
     {{/unless}}
-    {{> header_breadcrumbs}}
   </div>
+  {{> header_breadcrumbs}}
 </div>
 </template>
 
@@ -18,8 +18,8 @@
 
 <template name="header_breadcrumb_blackboard">
   <li class="{{#if active}}active{{/if}}">
-    <a href="/" class="home-link"><i class="fas fa-chalkboard"></i> Blackboard
-    <i class="fas fa-th-list {{#if currentPageEquals "blackboard"}}current{{/if}}"></i></a>
+    <a href="/" class="home-link"><i class="fas fa-chalkboard"></i><span class="bb-omit-when-narrow"> Blackboard
+    <i class="fas fa-th-list {{#if currentPageEquals "blackboard"}}current{{/if}}"></i></span></a>
     {{> header_breadcrumb_chat}}
   </li>
 </template>
@@ -49,10 +49,51 @@
 <template name="header_breadcrumb_round">
   <li class="{{#if active}}active{{/if}}">
     <a href="/rounds/{{id}}" class="rounds-link">
-      <i class="fas fa-folder-open"></i><span class="bb-omit-when-narrow"> Round:</span> <span class="bb-abbrev-when-narrow" data-full="{{round.name}}" data-abbrev="{{abbrev round.name}}"></span>
+      <i class="fas fa-folder-close"></i><span class="bb-omit-when-narrow"> Round:</span> <span class="bb-abbrev-when-narrow" data-full="{{round.name}}" data-abbrev="{{abbrev round.name}}"></span>
     </a>
-    {{> header_breadcrumb_extra_links round}}
+    {{> header_breadcrumb_chat}}
   </li>
+</template>
+
+<template name="header_breadcrumb_one_meta">
+  <li class="{{#if active}}active{{/if}}">
+    <a href="/puzzles/{{id}}" class="puzzles-link">
+      <i class="fas fa-folder-open"></i><span class="bb-omit-when-narrow"> Meta:</span> <span class="bb-abbrev-when-narrow" data-full="{{puzzle.name}}" data-abbrev="{{abbrev puzzle.name}}"></span>
+    </a>
+    {{> header_breadcrumb_extra_links puzzle}}
+  </li>
+</template>
+
+<template name="header_breadcrumb_meta_dropdown">
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span>
+      {{> Template.contentBlock}}
+    </a>
+    <ul class="dropdown-menu" role="menu">
+      {{#each id in inactives}}
+        {{> header_breadcrumb_one_meta page="puzzle" type=type id=id}}
+      {{/each}}
+    </ul>
+  </li>
+</template>
+
+<template name="header_breadcrumb_metas">
+  {{#let inactives=inactive_metas active=active_meta}}
+    {{#if active}}
+      {{#if inactives.all}}
+        {{#header_breadcrumb_meta_dropdown inactives=inactives.all type=type}}
+          +{{inactives.all.length}}
+        {{/header_breadcrumb_meta_dropdown}}
+      {{/if}}
+      {{> header_breadcrumb_one_meta page="puzzle" type=type id=active}}
+    {{else if inactives.one}}
+      {{> header_breadcrumb_one_meta page="puzzle" type=type id=inactives.one}}
+    {{else}}
+      {{#header_breadcrumb_meta_dropdown inactives=inactives.all type=type}}
+        {{inactives.all.length}}<span class="bb-omit-when-narrow"> Metas</span>
+      {{/header_breadcrumb_meta_dropdown}}
+    {{/if}}
+  {{/let}}
 </template>
 
 <template name="header_breadcrumb_puzzle">
@@ -97,8 +138,8 @@
 </template>
 
 <template name="header_breadcrumbs">
-<div class='bb-breadcrumbs{{#if currentPageEquals "blackboard"}} bb-omit-when-narrow{{/if}}'>
-<ul class="nav">
+<div class='bb-breadcrumbs'>
+<ul class="nav {{#if currentPageEquals "blackboard"}} bb-omit-when-narrow{{/if}}">
   {{#each breadcrumbs}}
     {{> Template.dynamic template=crumb_template}}
   {{/each}}
@@ -130,6 +171,7 @@
 </li>
   {{/if}}
 </ul>
+<div class="fill"></div>
 </div>
 </template>
 
@@ -231,13 +273,13 @@
   <div class="bb-lastchat">
     <div class="right pull-right">
       <a href="/chat/general/0" class="chat-link"
-         title="Complete ringhunters chat">more...</a><br/>
+         title="Complete {{roomname}} chat">more...</a><br/>
       <a href="/chat/general/0" class="chat-link bb-pop-out"
-         title="Pop out ringhunters chat"
+         title="Pop out {{roomname}} chat"
          target="chat0">pop out <i class="fas fa-expand-arrows-alt"></i></a>
     </div>
     <span class="left pull-left label label-inverse">
-      Ringhunters:
+      {{roomname}}:
     </span>
     <span class="center">
     {{#each lastchats}}

@@ -11,21 +11,9 @@ import { resetDatabase } from 'meteor/xolvio:cleaner'
 model = share.model
 
 describe 'renameRound', ->
-  driveMethods = null
   clock = null
   beforeEach ->
     clock = sinon.useFakeTimers(7)
-    driveMethods =
-      createPuzzle: sinon.fake.returns
-        id: 'fid' # f for folder
-        spreadId: 'sid'
-        docId: 'did'
-      renamePuzzle: sinon.spy()
-      deletePuzzle: sinon.spy()
-    if share.drive?
-      sinon.stub(share, 'drive').value(driveMethods)
-    else
-      share.drive = driveMethods
 
   afterEach ->
     sinon.restore()
@@ -43,14 +31,8 @@ describe 'renameRound', ->
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
-        solved: null
-        solved_by: null
         puzzles: ['yoy']
-        incorrectAnswers: []
         link: 'https://puzzlehunt.mit.edu/foo'
-        drive: 'fid'
-        spreadsheet: 'sid'
-        doc: 'did'
         tags: {}
         
     it 'fails without login', ->
@@ -78,9 +60,6 @@ describe 'renameRound', ->
           touched: 7
           touched_by: 'cjb'
 
-      it 'renames drive', ->
-        chai.assert.deepEqual driveMethods.renamePuzzle.getCall(0).args, ['Bar', 'fid', 'sid', 'did']
-
       it 'oplogs', ->
         chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1, 'oplogs'
 
@@ -96,13 +75,7 @@ describe 'renameRound', ->
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
-        solved: null
-        solved_by: null
-        incorrectAnswers: []
         link: 'https://puzzlehunt.mit.edu/foo'
-        drive: 'f1'
-        spreadsheet: 's1'
-        doc: 'd1'
         tags: {}
       id2 = model.Rounds.insert
         name: 'Bar'
@@ -111,13 +84,7 @@ describe 'renameRound', ->
         created_by: 'cscott'
         touched: 2
         touched_by: 'cscott'
-        solved: null
-        solved_by: null
-        incorrectAnswers: []
         link: 'https://puzzlehunt.mit.edu/foo'
-        drive: 'f2'
-        spreadsheet: 's2'
-        doc: 'd2'
         tags: {}
       ret = Meteor.callAs 'renameRound', 'cjb',
         id: id1
@@ -132,9 +99,6 @@ describe 'renameRound', ->
         canon: 'foo'
         touched: 1
         touched_by: 'torgen'
-
-    it 'doesn\'t rename drive', ->
-      chai.assert.equal driveMethods.renamePuzzle.callCount, 0, 'rename calls'
 
     it 'doesn\'t oplog', ->
       chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'rounds'}).fetch(), 0

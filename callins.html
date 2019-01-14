@@ -1,67 +1,85 @@
 <template name="callins">
-<div class="row-fluid bb-puzzleround">
-  <section class="bb-quips">
-  <button class="btn btn-small bb-addquip-btn">Add new quip</button>
-  <h1>Quips</h1>
-  {{#if quips.count}}
-    <table class="table">
-      {{#each quips}}
-        {{> callins_quip }}
-      {{/each}}
-    </table>
-  {{else}}
-    No quips!  <a class="quips-link" href="{{quipAddUrl}}">Add some</a>.
-  {{/if}}
-  </section>
-  <section class="bb-callin-queue">
-  <h1>Answer call-in queue</h1>
-    <table class="table"><tbody>
-      <tr>
-        <th>Puzzle</th>
-        <th>Answer</th>
-        <th>Proposed at</th>
-        <th>Last guess</th>
-        <th>Submitted to HQ</th>
-        <th align="center">Resolution</th>
-      </tr>
-      {{#each callins}}
-        {{> callin_row }}
-      {{else}}
-      <tr><td colspan="5">
-        No answers in the call-in queue.
-      </td></tr>
-      {{/each}}
-    </tbody></table>
-  </section>
+<div class="row-fluid bb-puzzleround bb-callins">
+  <div class="bb-splitter" style="padding-right: {{hsize}}px">
+    <div class="bb-left-content">{{! start left of splitter }}
+      <div class="bb-quip-stars">
+        <section class="bb-quips">
+          <button class="btn btn-small bb-addquip-btn">Add new quip</button>
+          <h1>Quips</h1>
+          {{#if quips.count}}
+            <table class="table">
+              {{#each quips}}
+                {{> callins_quip }}
+              {{/each}}
+            </table>
+          {{else}}
+            No quips!  <a class="quips-link" href="{{quipAddUrl}}">Add some</a>.
+          {{/if}}
+        </section>
+        {{> starred_messages canModify=mynick}}
+      </div>
+      <section class="bb-callin-queue">
+        <h1>Answer call-in queue</h1>
+        <table id="bb-callin-table" class="table"><tbody>
+          <tr>
+            <th>Puzzle</th>
+            <th>Answer</th>
+            <th>Proposed at</th>
+            <th>Last guess</th>
+            <th>Submitted to HQ</th>
+            <th align="center">Resolution</th>
+          </tr>
+          {{#each callins}}
+            {{> callin_row }}
+          {{else}}
+          <tr><td colspan="6">
+            No answers in the call-in queue.
+          </td></tr>
+          {{/each}}
+        </tbody></table>
+      </section>
+    </div>{{! end left of splitter }}
+    <div class="bb-splitter-handle" style="right: {{hsize}}px"></div>
+    <div class="bb-right-content" style="width: {{hsize}}px">{{! start right of splitter }}
+      <div class="bb-bottom-right-content">{{! start bottom right splitter }}
+        <div class="bb-message-container">
+          {{> messages }}
+        </div>
+        <div class="bb-chat-input bb-chat-footer">
+          {{> messages_input }}
+        </div>
+      </div>
+    </div> {{! end right of splitter }}
+  </div>
 </div>
 </template>
 
 <template name="callin_row">
-        <tr data-bbedit="{{_id}}">
-            <td>{{link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{link target}}{{#if hunt_link}}
-            <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
-                    target="_blank">on&nbsp;hunt&nbsp;site
-            {{#if mynick}}
-              <span class="copy-and-go" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
-              <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
-              </span>
-            {{/if}}
-            </a></small>
-            {{/if}}{{#if solved}}<div class="dupe">Already Solved</div>{{/if}}</td>
-            <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}{{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}</td>
-            <td>{{pretty_ts this.created}}</td>
-            <td>{{#with lastAttempt}}{{pretty_ts timestamp}} <small>({{pretty_ts timestamp=timestamp style="brief duration"}})</small>{{else}}-{{/with}}</td>
-            {{#if mynick}}
-            <td><input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}></td>
-            <td class="btn-group">
-              <button class="btn btn-success bb-callin-correct">Correct</button>
-              <button class="btn btn-danger bb-callin-incorrect">Incorrect</button>
-              <button class="btn btn-warning bb-callin-cancel">Cancel</button>
-            </td>
-            {{else}}
-            <td class="text-warning">Log in to resolve answers in queue.</td>
-            {{/if}}
-        </tr>
+  <tr data-bbedit="{{_id}}">
+    <td>{{link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{link target}}{{#if hunt_link}}
+    <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
+            target="_blank">on&nbsp;hunt&nbsp;site
+    {{#if mynick}}
+      <span class="copy-and-go" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
+      <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
+      </span>
+    {{/if}}
+    </a></small>
+    {{/if}}{{#if solved}}<div class="dupe">Already Solved</div>{{/if}}</td>
+    <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}{{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}</td>
+    <td>{{pretty_ts this.created}}</td>
+    <td>{{#with lastAttempt}}{{pretty_ts timestamp}} <small>({{pretty_ts timestamp=timestamp style="brief duration"}})</small>{{else}}-{{/with}}</td>
+    {{#if mynick}}
+    <td><input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}></td>
+    <td class="btn-group">
+      <button class="btn btn-success bb-callin-correct">Correct</button>
+      <button class="btn btn-danger bb-callin-incorrect">Incorrect</button>
+      <button class="btn btn-warning bb-callin-cancel">Cancel</button>
+    </td>
+    {{else}}
+    <td class="text-warning">Log in to resolve answers in queue.</td>
+    {{/if}}
+  </tr>
 </template>
 
 <template name="callins_quip">

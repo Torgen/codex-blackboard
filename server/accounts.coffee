@@ -25,8 +25,12 @@ Accounts.registerLoginHandler 'codex', (options) ->
   profile.real_name = options.real_name if options.real_name
 
   # If you have the team password, we'll create an account for you.
-  Meteor.users.upsert
-    _id: canon
-  , $set: profile
+  try
+    Meteor.users.upsert
+      _id: canon
+      bot_wakeup: $exists: false
+    , $set: profile
+  catch error
+    throw new Meteor.Error 401, 'Can\'t impersonate the bot'
 
   return { userId: canon }

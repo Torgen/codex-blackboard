@@ -6,12 +6,18 @@
 </div>
 <div class="bb-menu-drawer fade">
   <ul class="nav nav-list bb-sidenav">
-    {{#each roundgroups}}
-    <li class="nav-header">{{name}}</li>
+    <li><a class="callins-link" href="/callins"><i class="fas fa-phone"></i> Callin Queue</a></li>
+    <li><a href="https://www.github.com/cjb/codex-blackboard/issues" target="_blank"><i class="fab fa-github"></i> Issues</a></li>
+    <li class="separator"></li>
     {{#each rounds}}
-    <li><a title="r{{round_num}}" href="#r{{round._id}}"><i class="fas fa-chevron-right"></i>
-    {{round.name}}</a></li>
+    <li class="nav-header">{{name}}</li>
+    {{#each metas}}
+    <li><a href="#m{{puzzle._id}}"><i class="fas fa-chevron-right"></i>
+    {{puzzle.name}}</a></li>
     {{/each}}
+    {{#if unassigned.length}}
+    <li><a href="#unassigned{{_id}}"><i class="fas fa-chevron-right"></i>Unassigned</a></li>
+    {{/if}}
     {{/each}}
   </ul>
 </div>
@@ -22,9 +28,9 @@
 <div class="btn-toolbar pull-right text-right bb-top-buttons">
     {{#if canEdit}}
      <div class="btn-group">
-     <button class="btn btn-mini btn-inverse bb-add-round-group">
+     <button class="btn btn-mini btn-inverse bb-add-round">
        <i class="bb-add-icon fas fa-plus"></i>
-       Add new round group
+       Add new round
      </button>
      </div>
     {{else}}
@@ -67,9 +73,9 @@
     <input type="checkbox" id="bb-hide-solved-input" checked="{{hideSolved}}">
     Hide solved puzzles
   </label>
-  <label class="checkbox bb-hide-rounds-solved-meta">
-    <input type="checkbox" id="bb-hide-rounds-solved-meta-input" checked="{{hideRoundsSolvedMeta}}">
-    Hide rounds with solved metas
+  <label class="checkbox bb-hide-solved-meta">
+    <input type="checkbox" id="bb-hide-solved-meta-input" checked="{{hideSolvedMeta}}">
+    Hide solved metas
   </label>
   <label class="checkbox bb-compact-mode">
     <input type="checkbox" id="bb-compact-mode" checked="{{compactMode}}">
@@ -102,52 +108,9 @@
     </tr>
     {{/unless}}
   </thead>
-    {{#each roundgroups}}
-    <tr><th colspan="{{nCols}}" id="group{{_id}}">
-      <h2 class="bb-editable" data-bbedit="roundgroups/{{_id}}/title">
-    {{#if editing "roundgroups" _id "title"}}
-      <input type="text" id="roundgroups-{{_id}}-title"
-             value="{{name}}"
-             class="input-block-level" />
-    {{else}}
-      {{#if canEdit}}
-        <i class="bb-delete-icon fas fa-times pull-left"
-           title="Delete this round group"></i>
-        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-           title="Edit the name of this round group"></i>
-      {{else}}
-        {{link id=_id title="Chat room for round group" chat=true icon="fas fa-comments" class="pull-right bb-rg-chat"}}
-      {{/if}}
-      {{name}}
-    {{/if}}
-      </h2>
-    {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
-    {{>blackboard_link}}
-  {{#if canEdit}}
-  <div class="bb-roundgroup-buttons" data-bbedit="roundgroups/{{_id}}">
-     <button class="btn btn-mini btn-inverse bb-add-round">
-       <i class="fas fa-plus"></i>
-       Add new round to this group
-     </button>
-     <button class="btn btn-mini btn-inverse bb-add-tag">
-       <i class="fas fa-tag"></i>
-       Add new tag to this group
-     </button>
-     <button class="btn btn-mini btn-inverse bb-move-down">
-       <i class="fas fa-arrow-down"></i>
-       Move group down
-     </button>
-     <button class="btn btn-mini btn-inverse bb-move-up">
-       <i class="fas fa-arrow-up"></i>
-       Move group up
-     </button>
-   </div>
-  {{/if}}
-  </th></tr>
   {{#each rounds}}
-      {{> blackboard_round }}
-    {{/each}}
-    {{/each}}
+    {{> blackboard_round}}
+  {{/each}}
   </table>
   </div><!-- bb-tables -->
   {{#if hideStatus}}
@@ -161,146 +124,318 @@
 </div><!-- row-fluid -->
 </template>
 
+<template name="blackboard_round">
+  <tbody>
+  <tr><th colspan="{{nCols}}" id="round{{_id}}">
+    <h2 class="bb-editable" data-bbedit="rounds/{{_id}}/title">
+    {{#if editing "rounds" _id "title"}}
+      <input type="text" id="rounds-{{_id}}-title"
+            value="{{name}}"
+            class="input-block-level" />
+    {{else}}
+      {{#if canEdit}}
+        <i class="bb-delete-icon fas fa-times pull-left"
+          title="Delete this round"></i>
+        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
+          title="Edit the name of this round"></i>
+      {{else}}
+        {{link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
+        {{#if link}}<a class="pull-right" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
+      {{/if}}
+    {{name}}
+    {{/if}}
+    </h2>
+  {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
+  {{>blackboard_link}}
+  {{#if canEdit}}
+    <div class="bb-round-buttons" data-bbedit="rounds/{{_id}}">
+      <div class="btn-group">
+        <button class="btn btn-mini btn-inverse bb-add-meta">
+          <i class="fas fa-plus"></i>
+          Add new meta to this round
+        </button>
+        <button class="btn btn-mini btn-inverse dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="bb-add-puzzle">Add unassigned puzzle</a></li>
+        </ul>
+      </div>
+      <button class="btn btn-mini btn-inverse bb-add-tag">
+        <i class="fas fa-tag"></i>
+        Add new tag to this round
+      </button>
+      <button class="btn btn-mini btn-inverse bb-move-down">
+        <i class="fas fa-arrow-down"></i>
+        Move round down
+      </button>
+      <button class="btn btn-mini btn-inverse bb-move-up">
+        <i class="fas fa-arrow-up"></i>
+        Move round up
+      </button>
+    </div>
+  {{/if}}
+  </th></tr></tbody>
+  {{#each metas}}
+    {{> blackboard_meta }}
+  {{/each}}
+  {{#with unassigned}}
+    {{> blackboard_unassigned }}
+  {{/with}}
+</template>
+
+<template name="blackboard_unassigned">
+  {{#if this.length}}
+    <tbody class="unassigned" id="unassigned{{../_id}}">
+    <tr><th colspan="{{nCols}}">Unassigned</th></tr>
+    {{#each this}}
+      {{> blackboard_puzzle}}
+    {{/each}}
+    </tbody>
+  {{/if}}
+</template>
+
 <template name="blackboard_status_grid">
   <div class="bb-status-grid">
   <table>
   <tbody>
-    {{#each roundgroups}}
-    <tr><th colspan=2 class="bb-status-grid-roundgroup bb-status-{{#if solved}}solved{{else if stuck this}}stuck{{else}}unsolved{{/if}}">{{link id=_id}}</th></tr>
-      {{#each rounds}}
+    {{#each rounds}}
+    <tr><th colspan=2 class="bb-status-grid-round bb-status-{{#if solved}}solved{{else if stuck this}}stuck{{else}}unsolved{{/if}}">{{link id=_id}}</th></tr>
+      {{#each metas}}
       <tr>
-        <td class="bb-status-grid-round bb-status-{{#if round.solved}}solved{{else if stuck round}}stuck{{else}}unsolved{{/if}}">
-            {{link id=round._id title="meta" text=round.name}}
+        <td class="bb-status-grid-meta bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+            {{link id=puzzle._id title="meta" text=puzzle.name}}
         </td><td class="bb-status-grid-puzzles">
-        {{#each puzzles}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+        {{#each puzzles puzzle.puzzles}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
             {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
         </div>{{/each}}</td>
       </tr>
       {{/each}}
+      {{#with unassigned}}
+        {{#if this.length}}
+        <tr>
+          <td class="bb-status-grid-meta bb-status-unsolved">Unassigned</td>
+          <td class="bb-status-grid-puzzles">
+          {{#each puzzles this}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+            {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
+          </div>{{/each}}</td>
+        </tr>
+        {{/if}}
+      {{/with}}
     {{/each}}
   </tbody>
   </table></div><!-- bb-status-grid -->
 </template>
 
-<template name="blackboard_round">
-  {{#if showRound }}
-  <tbody id="r{{round._id}}" style="{{#unless boringMode}}background-color: {{color}}{{/unless}}">
-  <tr><th colspan="{{nCols}}">
-  <h3 class="bb-editable" data-bbedit="rounds/{{round._id}}/title">
-  {{#if editing "rounds" round._id "title"}}
-      <input type="text" id="rounds-{{round._id}}-title"
-             value="{{round.name}}"
-             class="input-block-level" />
-  {{else}}
-    {{#if canEdit}}
-      <i class="bb-delete-icon fas fa-times pull-left"
-         title="Delete this round"></i>
-      <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-         title="Edit the name of this round"></i>
-    {{/if}}
-    {{link id=round._id title=rX editing=canEdit}}
-    <small>({{rX}}: {{num_solved}}/{{num_puzzles}} puzzles solved)</small>
-  {{/if}}
-  </h3></th></tr>
-  {{#if hasPuzzles}}
-    {{! META }}
-    {{#if showMeta}}
-    <tr class="meta {{#if stuck round}}bb-status-stuck{{/if}}">
-      <td class="puzzle-name"><div>
-        {{#unless canEdit}}
-          {{#if round.spreadsheet}}<a href="{{spread_link round.spreadsheet}}" target="_blank" title="Spreadsheet for round" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
-          {{#if round.doc}}<a href="{{doc_link round.doc}}" target="_blank" title="Doc for round" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
-          {{link id=round._id title="Chat room for round" chat=true class="pull-right" icon="fas fa-comments"}}
-          {{#if round.link}}<a class="pull-right" href="{{round.link}}" title="Link to hunt site"><i class="fas fa-puzzle-piece"></i></a>{{/if}}
-        {{/unless}}
-        <b>{{link id=round._id title=rX text="ROUND/META" editing=canEdit}}</b>
-        {{#if canEdit}}
-        <div class="bb-puzzle-add-move" data-bbedit="rounds/{{round._id}}">
-        <span class="bb-add-tag"
-             title="Add tag to puzzle">
-          <i class="fas fa-tags"></i>
-          <i class="fas fa-plus"></i>
-        </span>
-        </div>
-        {{/if}}
-        {{#unless compactMode}}
-        {{#with round}}{{>blackboard_puzzle_tags}}{{/with}}
-        {{/unless}}
-        {{#with round}}{{>blackboard_link}}{{/with}}
-      </div></td>
-      <td class="puzzle-answer bb-editable"
-          data-bbedit="tags/{{round._id}}/answer/value">
-      {{#if editing "tags" round._id "answer" "value"}}
-        <input type="text" id="tags-{{round._id}}-answer-value"
-               value="{{tag "answer"}}"
-               class="input-block-level" />
+<template name="blackboard_othermeta_link">
+  <span class="bb-othermeta">{{#with color}}<span class="bb-colorbox" style="background-color: {{this}}"></span>{{/with}}
+  {{link _id}}</span>
+</template>
+
+<template name="blackboard_puzzle_cells">
+<td class="puzzle-name"><div>{{! div needed to establish relative pos }}
+  <div class="bb-editable bb-puzzle-title" data-bbedit="puzzles/{{puzzle._id}}/title">
+    {{#if editing "puzzles" puzzle._id "title"}}
+      <input type="text" id="puzzles-{{puzzle._id}}-title"
+              value="{{puzzle.name}}"
+              class="input-block-level" />
+    {{else}}
+      {{#if canEdit}}
+        <i class="bb-delete-icon fas fa-times pull-left"
+            title="Delete this puzzle"></i>
+        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
+            title="Edit the name of this puzzle"></i>
       {{else}}
-        {{#if canEdit}}
-          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-             title="Change the meta answer for this round"></i>
-          {{#if tag "answer"}}
-            <i class="bb-delete-icon fas fa-times pull-left"
-               title="Delete the meta answer for this round"></i>
-          {{/if}}
-        {{/if}}
-        <b class="answer">{{tag "answer"}}</b>
+        {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
+        {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
+        {{link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="fas fa-comments"}}
+        {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" title="Link to hunt site"><i class="fas fa-puzzle-piece"></i></a>{{/if}}
       {{/if}}
-      </td>
-    {{#unless compactMode}}
-      <td class="puzzle-status {{#unless round.solved}}bb-editable{{/unless}}"
-        data-bbedit="tags/{{round._id}}/status/value">
-      {{#if editing "tags" round._id "status" "value"}}
-        <input type="text" id="tags-{{round._id}}-status-value"
-               value="{{tag "status"}}"
-               class="input-block-level" />
+      {{link id=puzzle._id editing=canEdit}}
+    {{/if}}
+    </div>
+    {{#if canEdit}}
+      <div class="bb-puzzle-add-move" data-bbedit="puzzles/{{puzzle._id}}">
+      <button class="btn btn-link bb-add-tag"
+            title="Add tag to puzzle">
+        <i class="fas fa-tags"></i>
+        <i class="fas fa-plus"></i>
+      </button>
+      <button class="btn btn-link bb-move-down"><i class="fas fa-arrow-down"></i></button>
+      <button class="btn btn-link bb-move-up"><i class="fas fa-arrow-up"></i></button>
+      </div>
+    {{/if}}
+    {{#with puzzle}}
+      {{#unless compactMode}}
+      <table class="bb-tag-table"><tbody>
+        {{#each tags}}
+        <tr>
+          <td class="bb-editable"
+              data-bbedit="tags/{{id}}/{{canon}}/name">
+            {{#if editing "tags" id canon "name"}}
+              <input type="text" id="tags-{{id}}-{{canon}}-name"
+                      value="{{name}}"
+                      class="input-block-level" />
+            {{else}}
+              {{#if canEdit}}
+                <i class="bb-edit-icon fas fa-pencil-alt pull-left"
+                    title="Edit the name of this tag"></i>
+              {{/if}}
+              {{name}}:
+            {{/if}}
+          </td>
+          <td class="bb-editable"
+              data-bbedit="tags/{{id}}/{{canon}}/value">
+            {{#if equal canon "color"}}
+              {{#if canEdit}}
+                <input type="color" id="tags-{{id}}-{{canon}}-color"
+                       value="{{hexify value}}" />
+              {{else}}
+                <span class="bb-colorbox" style="background-color: {{value}}"></span>
+              {{/if}}
+            {{/if}}
+            {{#if editing "tags" id canon "value"}}
+              <input type="text" id="tags-{{id}}-{{canon}}-value"
+                      value="{{value}}"
+                      class="input-block-level" />
+            {{else if canEdit}}
+              <i class="bb-delete-icon fas fa-times pull-left"
+                  title="Delete this tag and value"></i>
+              <i class="bb-edit-icon fas fa-pencil-alt pull-right"
+                  title="Change the value of this tag"></i>
+              {{value}}
+            {{else}}
+              {{linkify value}}
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+        {{#if canEdit}}
+          {{#if canChangeMeta}}
+          <tr>
+            <td>is Meta:</td>
+            <td><input class="bb-set-is-meta" type="checkbox" checked={{isMeta}} /></td>
+          </tr>
+          {{/if}}
+          <tr>
+            <td>Feeds Into:</td>
+            <td class="bb-editable" data-bbedit="feedsInto/{{_id}}">
+              {{#if editing "feedsInto" _id}}
+                {{#each allMetas}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
+                {{#with unfedMetas}}{{#if this.count}}
+                  <div class="btn-group bb-feed-meta">
+                    <button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
+                    Feed Meta <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      {{#each this}}<li>{{> blackboard_addmeta_entry}}</li>{{/each}}
+                    </ul>
+                  </div>
+                {{/if}}{{/with}}
+              {{else}}
+                <span class="comma-list">{{#each allMetas}}{{> blackboard_othermeta_link}} {{else}}(none){{/each}}</span>
+                <i class="bb-edit-icon fas fa-pencil-alt"></i>
+              {{/if}}
+            </td>
+          </tr>
+        {{else with otherMetas}}
+          <tr>
+            <td>Also feeds:</td>
+            <td class="comma-list">{{#each this}}{{> blackboard_othermeta_link}} {{/each}}</td>
+          </tr>
+        {{/if}}
+      </tbody></table>
+        {{/unless}}
+      {{>blackboard_link}}
+    {{/with}}
+  </div></td>
+  <td class="puzzle-answer bb-editable"
+      data-bbedit="tags/{{puzzle._id}}/answer/value">
+    {{#if editing "tags" puzzle._id "answer" "value"}}
+      <input type="text" id="tags-{{puzzle._id}}-answer-value"
+              value="{{tag "answer"}}"
+              class="input-block-level" />
+    {{else}}
+      {{#if canEdit}}
+        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
+            title="Change the answer of this puzzle"></i>
+      {{/if}}
+      {{#if tag "answer"}}
+        {{#if canEdit}}
+          <i class="bb-delete-icon fas fa-times pull-left"
+              title="Delete the answer to this puzzle"></i>
+        {{/if}}
+        <span class="answer">{{tag "answer"}}</span>
+      {{/if}}
+    {{/if}}
+  </td>
+  {{#unless compactMode}}
+    <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
+        data-bbedit="tags/{{puzzle._id}}/status/value">
+      {{#if editing "tags" puzzle._id "status" "value"}}
+        <input type="text" id="tags-{{puzzle._id}}-status-value"
+                value="{{tag "status"}}"
+                class="input-block-level" />
       {{else}}
-        {{#unless round.solved}}
+        {{#unless puzzle.solved}}
         {{#if canEdit}}
           <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-             title="Change the status of this round meta"></i>
+              title="Change the status of this puzzle"></i>
           {{#if tag "status"}}
             <i class="bb-delete-icon fas fa-times pull-left"
-               title="Delete the status message for this round meta"></i>
+                title="Delete the status message for this puzzle"></i>
           {{/if}}
         {{/if}}
         {{/unless}}
         {{tag "status"}}
       {{/if}}
-      </td>
+    </td>
     {{#unless canEdit}}
-    <td class="puzzle-working">
-      {{#each whos_working}}{{> nick_presence }} {{/each}}
-    </td>
-    <td class="puzzle-update">
-      {{#if round.solved}}solved {{pretty_ts timestamp=round.solved style="brief duration"}}
-      {{else}}added {{pretty_ts timestamp=round.created style="brief duration"}}
-      {{/if}}
-    </td>
+      <td class="puzzle-working">
+        {{#each whos_working}}{{> nick_presence }} {{/each}}
+      </td>
+      <td class="puzzle-update">
+        {{#if puzzle.solved}}solved {{pretty_ts timestamp=puzzle.solved style="brief duration"}}
+        {{else if stuck puzzle}}stuck since {{pretty_ts timestamp=puzzle.tags.status.touched style="brief duration"}}
+        {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
+        {{/if}}
+      </td>
     {{/unless}}
-    {{/unless}}
-    </tr>
-    {{/if}}
+  {{/unless}}
+</template>
 
+<template name="blackboard_addmeta_entry">
+  <a href="#" data-puzzle-id="{{_id}}">
+    {{#with color}}<span class="bb-colorbox" style="background-color: {{this}}"></span>{{/with}}
+    {{name}}
+  </a>
+</template>
+
+<template name="blackboard_unfeed_meta">
+  <div>
+    <i class="bb-unfeed-icon fas fa-times" title="Stop feeding this meta"></i>
+    {{> blackboard_othermeta_link meta}}
+  </div>
+</template>
+
+<template name="blackboard_meta">
+  {{#if showMeta}}
+  <tbody class="meta" id="m{{puzzle._id}}" data-puzzle-id="{{puzzle._id}}"
+         style="{{#unless boringMode}}background-color: {{color}}{{/unless}}">
+    <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}}">
+      {{> blackboard_puzzle_cells}}
+    </tr>
     {{#each puzzles}}
       {{> blackboard_puzzle}}
+    {{else}}
+      <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
     {{/each}}
-  {{else}}
-  <tr class="round-empty"><td colspan="{{nCols}}">No puzzles in this round yet.</td></tr>
-  {{/if}}
   {{#if canEdit}}
-  <tr class="roundfooter"><td colspan="{{nCols}}">
-  <div class="bb-round-buttons" data-bbedit="rounds/{{round._id}}">
+  <tr class="metafooter"><td colspan="{{nCols}}">
+  <div class="bb-meta-buttons" data-bbedit="puzzles/{{puzzle._id}}">
      <button class="btn btn-mini btn-inverse bb-add-puzzle">
        <i class="fas fa-plus"></i>
-       Add new puzzle to this round
-     </button>
-     <button class="btn btn-mini btn-inverse bb-move-down">
-       <i class="fas fa-arrow-down"></i>
-       Move round down
-     </button>
-     <button class="btn btn-mini btn-inverse bb-move-up">
-       <i class="fas fa-arrow-up"></i>
-       Move round up
+       Create new puzzle feeding this meta
      </button>
   </div>
   </td></tr>
@@ -308,107 +443,20 @@
   </tbody>
   {{/if}}
 </template>
+
 <template name="nick_presence">
 <span class="nick {{#unless foreground}}background{{/unless}} {{#if nickNear nick}}near{{/if}}"
       title="{{nickOrName nick}}{{nickLocation nick}}">{{gravatar id=email image="wavatar" size=14 }}</span>
 </template>
 
 <template name="blackboard_puzzle">
-  <tr class="puzzle {{#if stuck puzzle}}bb-status-stuck{{/if}}" draggable="{{canEdit}}"><!-- {{id}} -->
-    <td class="puzzle-name"><div>{{! div needed to establish relative pos }}
-      <div class="bb-editable" data-bbedit="puzzles/{{puzzle._id}}/title">
-      {{#if editing "puzzles" puzzle._id "title"}}
-        <input type="text" id="puzzles-{{puzzle._id}}-title"
-               value="{{puzzle.name}}"
-               class="input-block-level" />
-      {{else}}
-        {{#if canEdit}}
-          <i class="bb-delete-icon fas fa-times pull-left"
-             title="Delete this puzzle"></i>
-          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-             title="Edit the name of this puzzle"></i>
-        {{else}}
-          {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
-          {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
-          {{link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="fas fa-comments"}}
-          {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" title="Link to hunt site"><i class="fas fa-puzzle-piece"></i></a>{{/if}}
-        {{/if}}
-        {{link id=puzzle._id title=rXpY editing=canEdit}}
-      {{/if}}
-      </div>
-      {{#if canEdit}}
-        <div class="bb-puzzle-add-move" data-bbedit="puzzles/{{puzzle._id}}">
-        <span class="bb-add-tag"
-             title="Add tag to puzzle">
-          <i class="fas fa-tags"></i>
-          <i class="fas fa-plus"></i>
-        </span>
-        <span class="bb-move-down"><i class="fas fa-arrow-down"></i></span>
-        <span class="bb-move-up"><i class="fas fa-arrow-up"></i></span>
-        </div>
-      {{/if}}
-      {{#unless compactMode}}
-      {{#with puzzle}}{{>blackboard_puzzle_tags}}{{/with}}
-      {{/unless}}
-      {{#with puzzle}}{{>blackboard_link}}{{/with}}
-    </div></td>
-    <td class="puzzle-answer bb-editable"
-        data-bbedit="tags/{{puzzle._id}}/answer/value">
-      {{#if editing "tags" puzzle._id "answer" "value"}}
-        <input type="text" id="tags-{{puzzle._id}}-answer-value"
-               value="{{tag "answer"}}"
-               class="input-block-level" />
-      {{else}}
-        {{#if canEdit}}
-          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-             title="Change the answer of this puzzle"></i>
-        {{/if}}
-        {{#if tag "answer"}}
-          {{#if canEdit}}
-            <i class="bb-delete-icon fas fa-times pull-left"
-               title="Delete the answer to this puzzle"></i>
-          {{/if}}
-          <span class="answer">{{tag "answer"}}</span>
-        {{/if}}
-      {{/if}}
-    </td>
-    {{#unless compactMode}}
-    <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
-        data-bbedit="tags/{{puzzle._id}}/status/value">
-      {{#if editing "tags" puzzle._id "status" "value"}}
-        <input type="text" id="tags-{{puzzle._id}}-status-value"
-               value="{{tag "status"}}"
-               class="input-block-level" />
-      {{else}}
-        {{#unless puzzle.solved}}
-        {{#if canEdit}}
-          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-             title="Change the status of this puzzle"></i>
-          {{#if tag "status"}}
-            <i class="bb-delete-icon fas fa-times pull-left"
-               title="Delete the status message for this puzzle"></i>
-          {{/if}}
-        {{/if}}
-        {{/unless}}
-        {{tag "status"}}
-      {{/if}}
-    </td>
-    {{#unless canEdit}}
-    <td class="puzzle-working">
-      {{#each whos_working}}{{> nick_presence }} {{/each}}
-    </td>
-    <td class="puzzle-update">
-      {{#if puzzle.solved}}solved {{pretty_ts timestamp=puzzle.solved style="brief duration"}}
-      {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
-      {{/if}}
-    </td>
-    {{/unless}}
-    {{/unless}}
+  <tr class="puzzle {{#if stuck puzzle}}bb-status-stuck{{/if}}" draggable="{{canEdit}}" data-puzzle-id="{{puzzle._id}}">
+    {{> blackboard_puzzle_cells}}
  </tr>
 </template>
 
 <template name="blackboard_tags">
-  <dl class="dl-horizontal">{{#each tags _id}}
+  <dl class="dl-horizontal">{{#each tags}}
     <dt class="bb-editable"
         data-bbedit="tags/{{id}}/{{canon}}/name">
       {{#if editing "tags" id canon "name"}}
@@ -442,51 +490,6 @@
       {{/if}}
     </dd>
   {{/each}}</dl>
-</template>
-
-<template name="blackboard_puzzle_tags">
-  <table class="bb-tag-table"><tbody>{{#each tags _id}}
-        <tr>
-          <td class="bb-editable"
-              data-bbedit="tags/{{id}}/{{canon}}/name">
-            {{#if editing "tags" id canon "name"}}
-              <input type="text" id="tags-{{id}}-{{canon}}-name"
-                     value="{{name}}"
-                     class="input-block-level" />
-            {{else}}
-              {{#if canEdit}}
-                <i class="bb-edit-icon fas fa-pencil-alt pull-left"
-                   title="Edit the name of this tag"></i>
-              {{/if}}
-              {{name}}:
-            {{/if}}
-          </td>
-          <td class="bb-editable"
-              data-bbedit="tags/{{id}}/{{canon}}/value">
-            {{#if equal canon "color"}}
-              {{#if canEdit}}
-                <input type="color" id="tags-{{id}}-{{canon}}-color"
-                       value="{{hexify value}}" />
-              {{else}}
-                <span class="bb-colorbox" style="background-color: {{value}}"></span>
-              {{/if}}
-            {{/if}}
-            {{#if editing "tags" id canon "value"}}
-              <input type="text" id="tags-{{id}}-{{canon}}-value"
-                     value="{{value}}"
-                     class="input-block-level" />
-            {{else if canEdit}}
-              <i class="bb-delete-icon fas fa-times pull-left"
-                 title="Delete this tag and value"></i>
-              <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-                 title="Change the value of this tag"></i>
-              {{value}}
-            {{else}}
-              {{linkify value}}
-            {{/if}}
-          </td>
-        </tr>
-      {{/each}}</tbody></table>
 </template>
 
 <template name="blackboard_link">

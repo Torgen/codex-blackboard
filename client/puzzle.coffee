@@ -5,11 +5,11 @@ import color from './imports/objectColor.coffee'
 model = share.model # import
 settings = share.settings # import
 
-capType = (type) ->
-  if type is 'puzzles'
+capType = (puzzle) ->
+  if puzzle?.puzzles?
+    'Meta'
+  else
     'Puzzle'
-  else if type is 'rounds'
-    'Round'
 
 possibleViews = (puzzle) ->
   x = []
@@ -30,43 +30,47 @@ currentViewIs = (puzzle, view) ->
 
 Template.puzzle_info.helpers
   tag: (name) -> (model.getTag this, name) or ''
+  getPuzzle: -> model.Puzzles.findOne this
   caresabout: ->
     cared = model.getTag @puzzle, "Cares About"
     (
       name: tag
       canon: model.canonical tag
     ) for tag in cared?.split(',') or []
+
   unsetcaredabout: ->
-    return [] if @type is 'rounds'
-    tag for tag in @round?.tags.cares_about?.value.split(',') or [] when not model.getTag @puzzle, tag
+    return unless @puzzle
+    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+      continue unless meta?
+      for tag in meta.tags.cares_about?.value.split(',') or []
+        continue if model.getTag @puzzle, tag
+        { name: tag, meta: meta.name }
+    [].concat r...
+    
   metatags: ->
-    return [] if @type is 'rounds'
-    tag for canon, tag of @round?.tags when /^meta /i.test tag.name
+    return unless @puzzle?
+    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+      continue unless meta?
+      for canon, tag of meta.tags
+        continue unless /^meta /i.test tag.name
+        {name: tag.name, value: tag.value, meta: meta.name}
+    [].concat r...
 
 
 Template.puzzle.helpers
   data: ->
     r = {}
-    r.type = Session.get('type')
-    if r.type is 'puzzles'
-      puzzle = r.puzzle = model.Puzzles.findOne Session.get("id")
-      round = r.round = model.Rounds.findOne puzzles: puzzle?._id
-      r.puzzle_num = 1 + (round?.puzzles or []).indexOf(puzzle?._id)
-    else
-      puzzle = r.puzzle = round = r.round = model.Rounds.findOne Session.get("id")
-      r.puzzles = ((model.Puzzles.findOne(p) or {_id:p}) \
-        for p in (round?.puzzles or []))
-    group = r.group = model.RoundGroups.findOne rounds: round?._id
-    r.round_num = 1 + group?.round_start + \
-                  (group?.rounds or []).indexOf(round?._id)
+    puzzle = r.puzzle = model.Puzzles.findOne Session.get 'id'
+    round = r.round = model.Rounds.findOne puzzles: puzzle?._id
+    r.isMeta = puzzle?.puzzles?
     r.stuck = model.isStuck puzzle
-    r.capType = capType r.type
+    r.capType = capType puzzle
     return r
   vsize: -> share.Splitter.vsize.get()
   vsizePlusHandle: -> +share.Splitter.vsize.get() + 6
   hsize: -> share.Splitter.hsize.get()
   currentViewIs: (view) -> currentViewIs @puzzle, view
-  color: -> color @puzzle
+  color: -> color @puzzle if @puzzle
 
 Template.header_breadcrumb_extra_links.helpers
   currentViewIs: (view) -> currentViewIs this, view
@@ -76,28 +80,19 @@ Template.puzzle.onCreated ->
   share.chat.startupChat()
   this.autorun =>
     # set page title
-    type = Session.get('type')
-    id = Session.get('id')
-    name = model.collection(type)?.findOne(id)?.name or id
-    $("title").text("#{capType type}: #{name}")
+    id = Session.get 'id'
+    puzzle = model.Puzzles.findOne id
+    name = puzzle?.name or id
+    $("title").text("#{capType puzzle}: #{name}")
   # presumably we also want to subscribe to the puzzle's chat room
   # and presence information at some point.
   this.autorun =>
     return if settings.BB_SUB_ALL
-    id = Session.get('id')
+    id = Session.get 'id'
     return unless id
-    if Session.equals("type", "puzzles")
-      this.subscribe 'puzzle-by-id', id
-      this.subscribe 'round-for-puzzle', id
-      round = model.Rounds.findOne puzzles: id
-    else if Session.equals("type", "rounds")
-      this.subscribe 'round-by-id', id
-      this.subscribe 'roundgroup-for-round', id
-      round = model.Rounds.findOne id
-      for p in round?.puzzles or []
-        this.subscribe 'puzzle-by-id', p
-    return unless round
-    this.subscribe 'roundgroup-for-round', round._id
+    @subscribe 'puzzle-by-id', id
+    @subscribe 'round-for-puzzle', id
+    @subscribe 'puzzles-by-meta', id
 
 Template.puzzle.onRendered ->
   $('html').addClass('fullHeight')

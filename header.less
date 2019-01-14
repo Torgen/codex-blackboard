@@ -1,19 +1,60 @@
-#bb-body .navbar-inverse .navbar-inner {
-  background: url('/img/irongrip.png');
-  color: #c4c4c4;
-  strong,b {  color: #f5f5f5; }
-  .messageRow, .actionRow, .bb-lastupdate {
-    &, & .timestamp { color: #c4c4c4; }
+#bb-body .navbar-fixed-top {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  pointer-events: none;
+  box-shadow: unset;
+  align-items: stretch;
+  @media (max-width: 767px) {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  .navbar-inner, .bb-breadcrumbs .nav {
+    pointer-events: auto;
+    background: url('/img/irongrip.png');
+    color: #c4c4c4;
+    strong,b {  color: #f5f5f5; }
+    .messageRow, .actionRow, .bb-lastupdate {
+      &, & .timestamp { color: #c4c4c4; }
+    }
+    border: 0px;
   }
   .bb-breadcrumbs {
-    height: 40px;
-    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-flow: column nowrap;
+    overflow-x: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    .fill {
+      flex-grow: 1;
+      flex-shrink: 1;
+    }
     .nav {
+      &.bb-omit-when-narrow {
+        @media (max-width: 767px) {
+          display: flex !important;
+          top: -40px;
+        }
+      }
+      height: 40px;
       display: flex;
+      width: -webkit-max-content;
+      width: -moz-max-content;
+      width: max-content;
+      min-width: 100%;
       flex-flow: row nowrap;
       justify-content: stretch;
       float: none;
-      & > li {
+      margin: 0px;
+      border-bottom: 1px solid black;
+      box-shadow: 0px 2px 4px #777;
+      li {
         display: flex;
         flex-grow: 0;
         flex-shrink: 0;
@@ -26,6 +67,21 @@
         }
         a:not(.current) i:not(.current):hover {
           border-bottom: 1px solid white;
+        }
+        &.dropdown.open > ul.dropdown-menu {
+          display: flex;
+          background: url('/img/irongrip.png');
+          color: #c4c4c4;
+          flex-flow: column nowrap;
+          & > li {
+            display: flex;
+            flex-flow: row nowrap;
+            color: #c4c4c4;
+            a {
+              color: #c4c4c4;
+              &:hover { background: none; }
+            }
+          }
         }
       }
       & > .fill {

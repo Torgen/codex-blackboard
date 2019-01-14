@@ -2,6 +2,7 @@
 
 import { nickEmail } from './imports/nickEmail.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
+import { reactiveLocalStorage } from './imports/storage.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -71,15 +72,22 @@ okCancelEvents = share.okCancelEvents = (selector, callbacks) ->
 compactMode = ->
   editing = Meteor.userId() and Session.get 'canEdit'
   ('true' is reactiveLocalStorage.getItem 'compactMode') and not editing
-nCols = -> if compactMode() then 2 else \
-  (if (Meteor.userId() and Session.get 'canEdit') then 3 else 5)
+
+Template.registerHelper 'nCols', ->
+  if compactMode()
+    2
+  else if Meteor.userId() and (Session.get 'canEdit')
+    3
+  else
+    5
+
+Template.registerHelper 'compactMode', compactMode
+
 Template.blackboard.helpers
   sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
   hideSolved: -> 'true' is reactiveLocalStorage.getItem 'hideSolved'
-  hideRoundsSolvedMeta: -> 'true' is reactiveLocalStorage.getItem 'hideRoundsSolvedMeta'
+  hideSolvedMeta: -> 'true' is reactiveLocalStorage.getItem 'hideSolvedMeta'
   hideStatus: -> 'true' is reactiveLocalStorage.getItem 'hideStatus'
-  compactMode: compactMode
-  nCols: nCols
 
 # Notifications
 notificationStreams = [
@@ -121,60 +129,60 @@ Template.blackboard.events
   "change .bb-notification-controls [data-notification-stream]": (event, template) ->
     share.notification.set event.target.dataset.notificationStream, event.target.checked
 
+round_helper = ->
+  dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
+  model.Rounds.find {}, sort: [["sort_key", dir]]
+meta_helper = ->
+  # the following is a map() instead of a direct find() to preserve order
+  r = for id, index in this.puzzles
+    puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
+    continue unless puzzle?
+    {
+      _id: id
+      puzzle: puzzle
+      num_puzzles: puzzle.puzzles.length
+    }
+  return r
+unassigned_helper = ->
+  for id, index in this.puzzles
+    puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
+    continue unless puzzle?
+    { _id: id, puzzle: puzzle }
+
 ############## groups, rounds, and puzzles ####################
 Template.blackboard.helpers
-  roundgroups: ->
-    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
-    model.RoundGroups.find {}, sort: [["created", dir]]
-  # the following is a map() instead of a direct find() to preserve order
-  rounds: ->
-    r = ({
-      round_num: 1+index+this.round_start
-      round: (model.Rounds.findOne(id) or \
-              {_id: id, name: model.Names.findOne(id)?.name, puzzles: []})
-      rX: "r#{1+index+this.round_start}"
-      num_puzzles: (model.Rounds.findOne(id)?.puzzles or []).length
-      num_solved: (p for p in (model.Rounds.findOne(id)?.puzzles or []) when \
-                   model.Puzzles.findOne(p)?.solved?).length
-    } for id, index in this.rounds)
-    r.reverse() if 'true' is reactiveLocalStorage.getItem 'sortReverse'
-    return r
-  stuck: share.model.isStuck
+  rounds: round_helper
+  metas: meta_helper
+  unassigned: unassigned_helper
 
 Template.blackboard_status_grid.helpers
-  roundgroups: ->
-    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
-    model.RoundGroups.find {}, sort: [["created", dir]]
-  # the following is a map() instead of a direct find() to preserve order
-  rounds: ->
-    r = ({
-      round_num: 1+index+this.round_start
-      round: (model.Rounds.findOne(id) or \
-              {_id: id, name: model.Names.findOne(id)?.name, puzzles: []})
-      rX: "r#{1+index+this.round_start}"
-      num_puzzles: (model.Rounds.findOne(id)?.puzzles or []).length
-    } for id, index in this.rounds)
-    return r
-  puzzles: ->
+  rounds: round_helper
+  metas: meta_helper
+  unassigned: -> 
+    for id, index in this.puzzles
+      puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
+      continue unless puzzle?
+      puzzle._id
+  puzzles: (ps) ->
     p = ({
-      round_num: this.x_num
+      _id: id
       puzzle_num: 1 + index
       puzzle: model.Puzzles.findOne(id) or { _id: id }
-      rXpY: "r#{this.round_num}p#{1+index}"
-      pY: "p#{1+index}"
-    } for id, index in this.round?.puzzles)
+    } for id, index in ps)
     return p
   stuck: share.model.isStuck
 
 Template.blackboard.events
   "click .bb-menu-button .btn": (event, template) ->
     template.$('.bb-menu-drawer').modal 'show'
-  "click a[href^='#']": (event, template) ->
-    event.preventDefault()
+  'click .bb-menu-drawer a': (event, template) ->
     template.$('.bb-menu-drawer').modal 'hide'
-    $.scrollTo (event.target.getAttribute 'href'),
-      duration: 400
-      offset: { top: -110 }
+    href = event.target.getAttribute 'href'
+    if href.match /^#/
+      event.preventDefault()
+      $.scrollTo href,
+        duration: 400
+        offset: { top: -110 }
 
 Template.nick_presence.helpers
   email: -> nickEmail @nick
@@ -195,53 +203,43 @@ Template.blackboard.onRendered ->
 
 doBoolean = (name, newVal) ->
   reactiveLocalStorage.setItem name, newVal
+
 Template.blackboard.events
   "click .bb-sort-order button": (event, template) ->
     reverse = $(event.currentTarget).attr('data-sortReverse') is 'true'
     doBoolean 'sortReverse', reverse
   "change .bb-hide-solved input": (event, template) ->
     doBoolean 'hideSolved', event.target.checked
-  "change .bb-hide-rounds-solved-meta input": (event, template) ->
-    doBoolean 'hideRoundsSolvedMeta', event.target.checked
+  "change .bb-hide-solved-meta input": (event, template) ->
+    doBoolean 'hideSolvedMeta', event.target.checked
   "change .bb-compact-mode input": (event, template) ->
     doBoolean 'compactMode', event.target.checked
   "change .bb-boring-mode input": (event, template) ->
     doBoolean 'boringMode', event.target.checked
   "click .bb-hide-status": (event, template) ->
     doBoolean 'hideStatus', ('true' isnt reactiveLocalStorage.getItem 'hideStatus')
-  "click .bb-add-round-group": (event, template) ->
-    alertify.prompt "Name of new round group:", (e,str) ->
-      return unless e # bail if cancelled
-      Meteor.call 'newRoundGroup', name: str
-  "click .bb-roundgroup-buttons .bb-add-round": (event, template) ->
-    [type, id, rest...] = share.find_bbedit(event)
-    who = Meteor.userId()
+  "click .bb-add-round": (event, template) ->
     alertify.prompt "Name of new round:", (e,str) ->
       return unless e # bail if cancelled
-      Meteor.call 'newRound', { name: str }, (error,r)->
-        throw error if error
-        Meteor.call 'addRoundToGroup', {round: r._id, group: id}
+      Meteor.call 'newRound', name: str
   "click .bb-round-buttons .bb-add-puzzle": (event, template) ->
-    [type, id, rest...] = share.find_bbedit(event)
-    who = Meteor.userId()
-    alertify.prompt "Name of new puzzle:", (e,str) ->
+    alertify.prompt "Name of new puzzle:", (e,str) =>
       return unless e # bail if cancelled
-      Meteor.call 'newPuzzle', { name: str }, (error,p)->
+      Meteor.call 'newPuzzle', { name: str, round: @_id }, (error,r)->
         throw error if error
-        Meteor.call 'addPuzzleToRound', {puzzle: p._id, round: id}
-  "click .bb-add-tag": (event, template) ->
-    [type, id, rest...] = share.find_bbedit(event)
-    who = Meteor.userId()
-    alertify.prompt "Name of new tag:", (e,str) ->
+  "click .bb-round-buttons .bb-add-meta": (event, template) ->
+    alertify.prompt "Name of new metapuzzle:", (e,str) =>
       return unless e # bail if cancelled
-      Meteor.call 'setTag', {type:type, object:id, name:str, value:''}
-  "click .bb-move-up, click .bb-move-down": (event, template) ->
-    [type, id, rest...] = share.find_bbedit(event)
-    up = event.currentTarget.classList.contains('bb-move-up')
-    # flip direction if sort order is inverted
-    up = (!up) if ('true' is reactiveLocalStorage.getItem 'sortReverse') and type isnt 'puzzles'
-    method = if up then 'moveUp' else 'moveDown'
-    Meteor.call method, {type:type, id:id}
+      Meteor.call 'newPuzzle', { name: str, round: @_id, puzzles: [] }, (error,r)->
+        throw error if error
+  "click .bb-round-buttons .bb-add-tag": (event, template) ->
+    alertify.prompt "Name of new tag:", (e,str) =>
+      return unless e # bail if cancelled
+      Meteor.call 'setTag', {type:'rounds', object: @_id, name:str, value:''}
+  "click .bb-puzzle-add-move .bb-add-tag": (event, template) ->
+    alertify.prompt "Name of new tag:", (e,str) =>
+      return unless e # bail if cancelled
+      Meteor.call 'setTag', {type:'puzzles', object: @puzzle._id, name:str, value:''}
   "click .bb-canEdit .bb-delete-icon": (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     [type, id, rest...] = share.find_bbedit(event)
@@ -280,6 +278,50 @@ Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
   cancel: (evt) ->
     Session.set 'editing', undefined # not editing anything anymore
 )
+
+Template.blackboard_round.helpers
+  # the following is a map() instead of a direct find() to preserve order
+  metas: ->
+    r = for id, index in @puzzles
+      puzzle = model.Puzzles.findOne({_id: id, puzzles: {$ne: null}})
+      continue unless puzzle?
+      {
+        _id: id
+        puzzle: puzzle
+        num_puzzles: puzzle.puzzles.length
+        num_solved: model.Puzzles.find({_id: {$in: puzzle.puzzles}, solved: {$ne: null}}).length
+      }
+    r.reverse() if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+    return r
+  unassigned: unassigned_helper
+
+Template.blackboard_round.events
+  'click .bb-round-buttons .bb-move-down': (event, template) ->
+    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then -1 else 1
+    Meteor.call 'moveRound', template.data._id, dir
+  'click .bb-round-buttons .bb-move-up': (event, template) ->
+    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 1 else -1
+    Meteor.call 'moveRound', template.data._id, dir
+
+moveBeforePrevious = (match, rel, event, template) ->
+  row = template.$(event.target).closest(match)
+  prevRow = row.prev(match)
+  return unless prevRow.length is 1
+  args = {}
+  args[rel] = nextRow[0].dataset.puzzleId
+  Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
+
+moveAfterNext = (match, rel, event, template) ->
+  row = template.$(event.target).closest(match)
+  nextRow = row.next(match)
+  return unless nextRow.length is 1
+  args = {}
+  args[rel] = nextRow[0].dataset.puzzleId
+  Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
+      
+Template.blackboard_unassigned.events
+  'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle', 'before'
+  'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle', 'after'
 processBlackboardEdit =
   tags: (text, id, canon, field) ->
     field = 'name' if text is null # special case for delete of status tag
@@ -288,8 +330,6 @@ processBlackboardEdit =
     processBlackboardEdit["puzzles_#{field}"]?(text, id)
   rounds: (text, id, field) ->
     processBlackboardEdit["rounds_#{field}"]?(text, id)
-  roundgroups: (text, id, field) ->
-    processBlackboardEdit["roundgroups_#{field}"]?(text, id)
   puzzles_title: (text, id) ->
     if text is null # delete puzzle
       Meteor.call 'deletePuzzle', id
@@ -300,11 +340,6 @@ processBlackboardEdit =
       Meteor.call 'deleteRound', id
     else
       Meteor.call 'renameRound', {id:id, name:text}
-  roundgroups_title: (text, id) ->
-    if text is null # delete roundgroup
-      Meteor.call 'deleteRoundGroup', id
-    else
-      Meteor.call 'renameRoundGroup', {id:id,name:text}
   tags_name: (text, id, canon) ->
     n = model.Names.findOne(id)
     if text is null # delete tag
@@ -332,27 +367,47 @@ processBlackboardEdit =
       object: id
       fields: link: text
 
-Template.blackboard_round.helpers
-  hasPuzzles: -> (this.round?.puzzles?.length > 0)
-  color: -> puzzleColor @round if @round?
-  showRound: ->
-    return false if ('true' is reactiveLocalStorage.getItem 'hideRoundsSolvedMeta') and (this.round?.solved?)
-    return ('true' isnt reactiveLocalStorage.getItem 'hideSolved') or (!this.round?.solved?) or
-    ((model.Puzzles.findOne(id) for id, index in this.round?.puzzles ? []).
-      filter (p) -> !p?.solved?).length > 0
-  showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolved') or (!this.round?.solved?)
+moveWithinMeta = (pos) -> (event, template) -> 
+  meta = template.data
+  Meteor.call 'moveWithinMeta', @puzzle._id, meta.puzzle._id, pos: pos
+
+Template.blackboard_meta.events
+  'click tbody.meta tr.puzzle .bb-move-up': moveWithinMeta -1
+  'click tbody.meta tr.puzzle .bb-move-down': moveWithinMeta 1
+  'click tbody.meta tr.meta .bb-move-up': (event, template) ->
+    rel = 'before'
+    if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+      rel = 'after'
+    moveBeforePrevious 'tbody.meta', rel, event, template
+  'click tbody.meta tr.meta .bb-move-down': (event, template) ->
+    rel = 'after'
+    if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+      rel = 'before'
+    moveAfterNext 'tbody.meta', rel, event, template
+  'click .bb-meta-buttons .bb-add-puzzle': (event, template) ->
+    puzzId = @puzzle._id
+    roundId = Template.parentData()._id
+    alertify.prompt "Name of new puzzle:", (e,str) =>
+      return unless e # bail if cancelled
+      Meteor.call 'newPuzzle',
+        name: str
+        feedsInto: [puzzId]
+        round: roundId,
+      (error,r)-> throw error if error
+
+Template.blackboard_meta.helpers
+  color: -> puzzleColor @puzzle if @puzzle?
+  showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolvedMeta') or (!this.puzzle?.solved?)
   # the following is a map() instead of a direct find() to preserve order
   puzzles: ->
     p = ({
-      round_num: this.round_num
-      puzzle_num: 1 + index
+      _id: id
       puzzle: model.Puzzles.findOne(id) or { _id: id }
-      rXpY: "r#{this.round_num}p#{1+index}"
-    } for id, index in this.round.puzzles)
-    editing = Meteor.userId() and Session.get 'canEdit'
+    } for id, index in this.puzzle.puzzles)
+    editing = Meteor.userId() and (Session.get 'canEdit')
     hideSolved = 'true' is reactiveLocalStorage.getItem 'hideSolved'
     return p if editing or !hideSolved
-    p.filter (pp) ->  !pp.puzzle.solved?
+    p.filter (pp) -> !pp.puzzle.solved?
   tag: (name) ->
     return (model.getTag this.round, name) or ''
   whos_working: ->
@@ -360,23 +415,71 @@ Template.blackboard_round.helpers
       room_name: ("rounds/"+this.round?._id)
     , sort: ["nick"]
   compactMode: compactMode
-  nCols: nCols
   stuck: share.model.isStuck 
 
-Template.blackboard_puzzle.helpers
+Template.blackboard_puzzle_cells.events
+  'change .bb-set-is-meta': (event, template) ->
+    if event.target.checked
+      Meteor.call 'makeMeta', template.data.puzzle._id
+    else
+      Meteor.call 'makeNotMeta', template.data.puzzle._id
+  'click .bb-feed-meta a[data-puzzle-id]': (event, template) ->
+    Meteor.call 'feedMeta', template.data.puzzle._id, event.target.dataset.puzzleId
+    event.preventDefault()
+
+tagHelper = ->
+  isRound = not ('feedsInto' of this)
+  tags = this?.tags or {}
+  (
+    t = tags[canon]
+    { _id: "#{@_id}/#{canon}", id: @_id, name: t.name, canon, value: t.value }
+  ) for canon in Object.keys(tags).sort() when not \
+    ((Session.equals('currentPage', 'blackboard') and \
+      (canon is 'status' or \
+          (!isRound and canon is 'answer'))) or \
+      ((canon is 'answer' or canon is 'backsolve') and \
+      (Session.equals('currentPage', 'puzzle'))))
+
+Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
-    return (model.getTag this.puzzle, name) or ''
+    return (model.getTag @puzzle, name) or ''
+  tags: tagHelper
+  hexify: (v) -> cssColorToHex v
   whos_working: ->
     return model.Presence.find
-      room_name: ("puzzles/"+this.puzzle?._id)
+      room_name: ("puzzles/"+@puzzle?._id)
     , sort: ["nick"]
   compactMode: compactMode
-  nCols: nCols
   stuck: share.model.isStuck
+  allMetas: ->
+    return [] unless @
+    (model.Puzzles.findOne x) for x in @feedsInto
+  otherMetas: ->
+    parent = Template.parentData(2)
+    return unless parent.puzzle
+    return unless @feedsInto?
+    return if @feedsInto.length < 2
+    return model.Puzzles.find(_id: { $in: @feedsInto, $ne: parent.puzzle._id })
+  isMeta: -> return @puzzles?
+  canChangeMeta: -> not @puzzles or @puzzles.length is 0
+  unfedMetas: ->
+    return model.Puzzles.find(puzzles: {$exists: true, $ne: @_id})
+
+colorHelper = -> model.getTag @, 'color'
+
+Template.blackboard_othermeta_link.helpers color: colorHelper
+Template.blackboard_addmeta_entry.helpers color: colorHelper
+
+Template.blackboard_unfeed_meta.events
+  'click .bb-unfeed-icon': (event, template) ->
+    Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta._id
 
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 
 dragdata = null
+
+Template.blackboard_puzzle.helpers
+  stuck: share.model.isStuck
 
 Template.blackboard_puzzle.events
   'dragend tr.puzzle': (event, template) ->
@@ -391,90 +494,50 @@ Template.blackboard_puzzle.events
       id: @puzzle._id
       fromTop: event.clientY - rect.top
       fromBottom: rect.bottom - event.clientY
+    dragdata.meta = Template.parentData(1).puzzle?._id
+    dragdata.round = Template.parentData(2)?._id
+    console.log "meta id #{dragdata.meta}, round id #{dragdata.round}"
     dt = event.dataTransfer
     dt.setData PUZZLE_MIME_TYPE, dragdata.id
     dt.effectAllowed = 'move'
   'dragover tr.puzzle': (event, template) ->
     event = event.originalEvent
     return unless event.dataTransfer.types.includes PUZZLE_MIME_TYPE
-    myId = @puzzle._id
+    myId = template.data.puzzle._id
     if dragdata.id is myId
       event.preventDefault()  # Drop okay
       return  # ... but nothing to do
-    parent = share.model.Rounds.findOne {puzzles: dragdata.id}
-    console.log "itsparent #{parent._id}" unless Meteor.isProduction
-    # Can't drop into another round for now.
-    return unless parent._id is (share.model.Rounds.findOne {puzzles: myId})._id
+    parentData = Template.parentData(1)
+    meta = Template.parentData(1).puzzle
+    round = Template.parentData(2)
+    return unless meta?._id is dragdata.meta
+    return unless round?._id is dragdata.round
     event.preventDefault()
+    parent = meta or round
     myIndex = parent.puzzles.indexOf myId
     itsIndex = parent.puzzles.indexOf dragdata.id
     diff = itsIndex - myIndex
     rect = event.target.getBoundingClientRect()
     clientY = event.clientY
-    args =
-      round: parent
-      puzzle: dragdata.id
+    args = null
     if clientY - rect.top < dragdata.fromTop
       return if diff == -1
-      args.before = myId
+      args = before: myId
     else if rect.bottom - clientY < dragdata.fromBottom
       return if diff == 1
-      args.after = myId
+      args = after: myId
     else if diff > 1
-      args.after = myId
+      args = after: myId
     else if diff < -1
-      args.before = myId
+      args = before: myId
     else
       return
-    Meteor.call 'addPuzzleToRound', args
+    if meta?
+      Meteor.call 'moveWithinMeta', dragdata.id, meta._id, args
+    else if round?
+      Meteor.call 'moveWithinRound', dragdata.id, round._id, args
 
-Template.blackboard_round.events
-  'dragover tr.meta': (event, template) ->
-    event = event.originalEvent
-    return unless event.dataTransfer.types.includes PUZZLE_MIME_TYPE
-    return unless @round._id is (share.model.Rounds.findOne {puzzles: dragdata.id})._id
-    event.preventDefault()
-    puzzles = @round.puzzles
-    return unless puzzles.length
-    firstPuzzle = puzzles[0]
-    return if firstPuzzle is dragdata.id
-    Meteor.call 'addPuzzleToRound',
-      round: @round
-      puzzle: dragdata.id
-      before: firstPuzzle
-  'dragover tr.roundfooter': (event, template) ->
-    event = event.originalEvent
-    return unless event.dataTransfer.types.includes PUZZLE_MIME_TYPE
-    return unless @round._id is (share.model.Rounds.findOne {puzzles: dragdata.id})._id
-    event.preventDefault()
-    puzzles = @round.puzzles
-    len = puzzles.length
-    return unless len
-    lastpuzzle = puzzles[len-1]
-    return if lastpuzzle is dragdata.id
-    Meteor.call 'addPuzzleToRound',
-      round: @round
-      puzzle: dragdata.id
-      after: lastpuzzle
-
-tagHelper = (id) ->
-  isRoundGroup = ('rounds' of this)
-  tags = this?.tags or {}
-  (
-    t = tags[canon]
-    { id, name: t.name, canon, value: t.value }
-  ) for canon in Object.keys(tags).sort() when not \
-    ((Session.equals('currentPage', 'blackboard') and \
-      (canon is 'status' or \
-          (!isRoundGroup and canon is 'answer'))) or \
-      ((canon is 'answer' or canon is 'backsolve') and \
-      (Session.equals('currentPage', 'puzzle') or \
-        Session.equals('currentPage', 'round'))))
-
-Template.blackboard_tags.helpers tags: tagHelper
-Template.blackboard_puzzle_tags.helpers
-  tags: tagHelper
-  hexify: (v) -> cssColorToHex v
+Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information

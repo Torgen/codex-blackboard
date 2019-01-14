@@ -47,7 +47,6 @@ describe 'newRound', ->
       id = Meteor.callAs 'newRound', 'torgen',
         name: 'Foo'
         link: 'https://puzzlehunt.mit.edu/foo'
-        puzzles: ['yoy']
       ._id
 
     it 'creates round', ->
@@ -60,15 +59,11 @@ describe 'newRound', ->
         created_by: 'torgen'
         touched: 7
         touched_by: 'torgen'
-        solved: null
-        solved_by: null
-        puzzles: ['yoy']
-        incorrectAnswers: []
+        puzzles: []
         link: 'https://puzzlehunt.mit.edu/foo'
-        drive: 'fid'
-        spreadsheet: 'sid'
-        doc: 'did'
         tags: {}
+      ['solved', 'solved_by', 'incorrectAnswers', 'drive', 'spreadsheet', 'doc'].forEach (prop) =>
+        chai.assert.notProperty round, prop
 
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
@@ -84,14 +79,8 @@ describe 'newRound', ->
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
-        solved: null
-        solved_by: null
         puzzles: ['yoy']
-        incorrectAnswers: []
         link: 'https://puzzlehunt.mit.edu/foo'
-        drive: 'fid'
-        spreadsheet: 'sid'
-        doc: 'did'
         tags: {}
       id2 = Meteor.callAs 'newRound', 'cjb',
         name: 'Foo'

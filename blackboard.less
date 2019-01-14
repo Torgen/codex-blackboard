@@ -220,9 +220,13 @@ body.has-emojis {
   }
   .bb-colorbox {
     display: inline-block;
-    width: 12px;
-    height:12px;
-    border: 1px solid black;
+    width: 1em;
+    height:1em;
+    border: 0.1em solid black;
+    vertical-align: text-bottom;
+  }
+  .bb-othermeta {
+    display: inline-block;
   }
   input[type=color] {
     width: 14px;
@@ -243,6 +247,9 @@ body.has-emojis {
     margin-top: 0;
     left: -21px;
     right: auto;
+    @media(max-width: 980px) {
+      left: -14px;
+    }
     -webkit-box-shadow: none;
        -moz-box-shadow: none;
             box-shadow: none;
@@ -253,7 +260,7 @@ body.has-emojis {
     margin-top: 10px;
     margin-left: -7px;
     margin-right: -7px;
-    @media(max-width: 979px) {
+    @media(max-width: 980px) {
       margin-left: 0px;
       margin-right: 0px;
     }
@@ -272,14 +279,14 @@ body.has-emojis {
     padding: 5px;
     font-size: 80%;
 
-    .bb-status-grid-roundgroup {
+    .bb-status-grid-round {
       font-weight: bold;
       text-transform: uppercase;
     }
     td {
       padding: 0px;
     }
-    .bb-status-grid-round {
+    .bb-status-grid-meta {
       padding-right:2px;
     }
     .bb-status-grid-cell {
@@ -369,11 +376,11 @@ body.has-emojis {
     position: relative;
     z-index: 99;
   }
-  .bb-roundgroup-buttons, .bb-round-buttons {
+  .bb-round-buttons, .bb-meta-buttons {
     margin-top: 5px;
     margin-bottom: 5px;
   }
-  .bb-rg-chat {
+  .bb-round-chat {
     font-size: 50%;
     margin-top: 7px;
   }
@@ -401,18 +408,27 @@ body.has-emojis {
   }
   .bb-puzzle {
     margin-bottom: 0;
-    th, tr.roundfooter {
-      background: rgba(255,255,255,0.75);
-      .boring & { background: #f8f8f8; }
+    tr.meta, tr.metafooter {
+      --tr-bg: rgba(255,255,255,0.75);
+      .boring & {
+        background: #f8f8f8;
+        &.bb-status-stuck { background: #CC0; }
+      }
+      .bb-puzzle-title {
+        font-weight: bold;
+        text-transform: uppercase;
+      }
     }
-    tr.meta, tr.puzzle, tr.round-empty {
-      @bg: rgba(255,255,255,0.85);
-      background: @bg;
-      &.bb-status-stuck { background: repeating-linear-gradient(45deg, #FF0, #FF0 10px, @bg 10px, @bg 20px); }
+    tr.puzzle, tr.round-empty {
+      --tr-bg: rgba(255,255,255,0.85);
       .boring & {
         background: white;
-        &.bb-status-stuck { background-color: #FF0; }
+        &.bb-status-stuck { background: #FF0; }
       }
+    }
+    tr.meta, tr.puzzle, tr.metafooter, tr.round-empty {
+      &.bb-status-stuck { background: repeating-linear-gradient(45deg, #FF0, #FF0 10px, var(--tr-bg) 10px, var(--tr-bg) 20px); }
+      background: var(--tr-bg);
     }
     .bb-edit-icon, .bb-delete-icon {
       margin-top: 3px;
@@ -644,16 +660,30 @@ html.fullHeight {
 
 /* Desktop
 ------------------------- */
-@media (max-width: 979px) {
+@media (max-width: 980px) {
   /* navbar becomes unfixed below 980px */
   .navbar-fixed-top, .bb-chat-messages { margin-bottom: 0; }
   .navbar-fixed-bottom { margin-top: 0; }
-  .navbar-fixed-top .navbar-inner { padding: 0; }
-  .bb-chat-messages, .bb-puzzle-round { padding-top: 0 !important; }
+  .navbar-fixed-top {
+    padding: 0;
+    .navbar-inner { padding: 0px; }
+  }
+  .container-fluid > .navbar-fixed-top {
+    position: absolute;
+  }
+  #messages {
+    padding-top: @navbar-height - 20px;
+    /* Need this amount of specificity to override .row-fluid rule. */
+    #bb-body .bb-splitter & { padding-top: 0px; }
+  }
+  .bb-puzzle-round { padding-top: 0 !important; }
   .bb-chat-footer { margin-left: -20px; margin-right: -20px; }
   #bb-body {
-    padding-top: 0;
+    padding-top: 0px;
     padding-bottom: 0;
+    .row-fluid {
+      padding-top: @navbar-height;
+    }
   }
   #bb-tables {
     section {
@@ -674,7 +704,7 @@ html.fullHeight {
     #bb-content {
       & > .bb-topbar {
         position: absolute;
-        top: 0; height: 109px;
+        top: 0;
         left: 0; right: 0; width: auto;
         padding: 0;
         margin: 0;
@@ -697,12 +727,7 @@ html.fullHeight {
     padding-top: 0;
   }
   .bb-buttonbar .bb-login { float: right }
-  .container-fluid > .navbar-fixed-top {
-    /* compensate for 20px of padding on container-fluid */
-    margin-left: -20px;
-    margin-right: -20px;
-  }
-  td.puzzle-answer, .puzzle-status, .puzzle-working, .puzzle-update {
+  td.puzzle-answer, td.puzzle-status, td.puzzle-working, td.puzzle-update {
     word-break: break-all;
   }
 }
@@ -730,12 +755,12 @@ html.fullHeight {
   }
 }
 
-@media (min-width: 481px) and (max-width: 979px) {
+@media (min-width: 481px) and (max-width: 980px) {
   /* re-fix the chat footer to the bottom */
   .bb-chat-footer.navbar-fixed-bottom {
     position: fixed;
     margin-left: 0; margin-right: 0;
-    .navbar-inner { padding: 0; }
+    .navbar-inner { padding: 0; margin-bottom: -1px;}
   }
   .bb-chat-messages { margin-bottom: 15px+26px; }
 }

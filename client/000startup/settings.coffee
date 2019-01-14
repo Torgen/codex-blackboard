@@ -13,6 +13,8 @@ settings.DEFAULT_HOST = server.defaultHost ? 'codexian.us'
 
 settings.TEAM_NAME = server.teamName ? 'Codex'
 
+settings.GENERAL_ROOM_NAME = server.chatName ? 'Ringhunters'
+
 # -- Performance settings --
 
 # make fewer people subscribe to ringhunters chat.

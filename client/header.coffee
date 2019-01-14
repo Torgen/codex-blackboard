@@ -2,6 +2,8 @@
 
 import canonical from '../lib/imports/canonical.coffee'
 import { emailFromNickObject } from './imports/nickEmail.coffee'
+import botuser from './imports/botuser.coffee'
+import { reactiveLocalStorage } from './imports/storage.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -138,9 +140,9 @@ Template.header_loginmute.helpers
   connectStatus: Meteor.status
   botTitle: ->
     if 'true' is reactiveLocalStorage.getItem 'nobot'
-      "Codexbot promises not to bother you"
+      "#{botuser().nickname} promises not to bother you"
     else
-      "Codexbot is feeling chatty!"
+      "#{botuser().nickname} is feeling chatty!"
   sessionNick: -> # TODO(torgen): replace with currentUser
     user = Meteor.user()
     return unless user?
@@ -170,32 +172,117 @@ Template.header_loginmute.events
   "click .failed, click .offline": (event, template) ->
     Meteor.reconnect()
 
+fillMetas = (metas, currentid) ->
+  puzzle = model.Puzzles.findOne currentid
+  if puzzle?.feedsInto?
+    for p in puzzle.feedsInto
+      unless metas[p]?
+        metas[p] = p
+        fillMetas metas, p
+
 ############## breadcrumbs #######################
+
+crumbs_equal = (x, y) ->
+  return false unless x.length is y.length
+  for xi, i in x
+    yi = y[i]
+    return false unless xi.type is yi.type
+    return false unless xi.page is yi.page
+    continue if xi.id is yi.id
+    return false unless 'object' is typeof xi.id
+    return false unless 'object' is typeof yi.id
+    return false unless Object.keys(xi.id).length is Object.keys(yi.id).length
+    for k, v of xi.id
+      return false unless yi.id[k]?
+      return false unless yi.id[k] is v
+  true
+
+breadcrumbs_var = new ReactiveVar [{page: 'blackboard', type: 'general', id: '0'}], crumbs_equal
+
+in_crumbs = (crumbs, type, id) ->
+  return false unless crumbs?
+  for crumb in crumbs
+    continue unless crumb.type is type
+    if crumb.page is 'metas'
+      return true if crumb.id[id]?
+    else
+      return true if crumb.id is id
+  false
+
+# One autorun to determine if the current page should be the leaf.
+# Basically, if the current page isn't in the current breadcrumb trail,
+# it should be the leaf.
 Tracker.autorun ->
-  breadcrumbs = Session.get 'breadcrumbs'
-  currentpage = Session.get 'currentPage'
-  currenttype = Session.get 'type'
-  currentid = Session.get 'id'
-  # Regenerate breadcrumbs
-  base = [{page: 'blackboard', type: 'general', id: '0'}]
-  if currenttype is 'puzzles'
-    round = model.Rounds.findOne puzzles: currentid
-    if round?
-      base.push {page: 'round', type: 'rounds', id: round._id}
-    base.push {page: 'puzzle', type: 'puzzles', id: currentid}
-  else if currenttype is 'rounds'
-    base.push {page: 'round', type: 'rounds', id: currentid}
-  else if currentpage isnt 'chat' and currentpage isnt 'blackboard'
-    base.push {page: currentpage, type: currenttype, id: currentid}
-  # If the new breadcrumbs are a prefix of the old ones, keep the old ones.
-  if breadcrumbs? and base.length <= breadcrumbs.length
-    return if do ->
-      for crumb, i in base
-        oldcrumb = breadcrumbs[i]
-        if crumb.page isnt oldcrumb.page or crumb.type isnt oldcrumb.type or crumb.id isnt oldcrumb.id
-          return false
-      return true
-  Session.set 'breadcrumbs', base
+  breadcrumbs = breadcrumbs_var.get()
+  type = Session.get 'type'
+  id = Session.get 'id'
+  unless in_crumbs breadcrumbs, type, id
+    Session.set
+      breadcrumbs_leaf_type: type
+      breadcrumbs_leaf_id: id
+
+# Because our graph is unweighted, BFS suffices--we don't need something fancy
+# like Dijkstra.
+min_meta_paths = (root) ->
+  depth = 0
+  current = [root]
+  next = {}
+  depths = {}
+  trail = []
+  depths[root] = -1
+  loop
+    for id in current
+      puzzle = model.Puzzles.findOne id
+      continue unless puzzle?
+      for meta in puzzle.feedsInto
+        unless depths[meta]?
+          depths[meta] = depth
+          next[meta] = depth
+    current = Object.keys next
+    unless current.length
+      return trail
+    trail.push next
+    depth++
+    next = {}
+
+generate_crumbs = (leaf_type, leaf_id) ->
+  crumbs = [{page: 'blackboard', type: 'general', id: '0'}]
+  leaf_type = Session.get 'breadcrumbs_leaf_type'
+  leaf_id = Session.get 'breadcrumbs_leaf_id'
+  return crumbs unless leaf_type? and leaf_id?
+  if leaf_type is 'puzzles'
+    metas = min_meta_paths leaf_id
+    # Deepest are last here, so...
+    metas.reverse()
+    # One breadcrumb for each level of meta.
+    # Consider grouping together beyond some number of levels
+    for meta in metas
+      crumbs.push {page: 'metas', type: 'puzzles', id: meta}
+    crumbs.push {page: 'puzzle', type: 'puzzles', id: leaf_id}
+  else if leaf_type is 'rounds'
+    crumbs.push {page: 'round', type: 'rounds', id: leaf_id}
+  else if leaf_type is 'quips'
+    crumbs.push {page: 'quip', type: 'quips', id: leaf_id}
+  else
+    unless leaf_type is 'general'
+      crumbs.push {page: leaf_type, type: leaf_type, id: leaf_id}
+  crumbs
+
+# A second autorun to determine what should be in the crumbs. 
+# Basically, if the current type/id is the leaf, always regenerate the crumbs
+# from the breadcrumb leaf.
+# Otherwise generate them only if the current type/id appears in the new trail.
+# This stops the current crumb from vanishing if you're viewing a meta above a
+# puzzle when the puzzle is removed from the meta.
+Tracker.autorun ->
+  leaf_type = Session.get 'breadcrumbs_leaf_type'
+  leaf_id = Session.get 'breadcrumbs_leaf_id'
+  crumbs = generate_crumbs leaf_type, leaf_id
+  type = Session.get 'type'
+  id = Session.get 'id'
+  unless type is leaf_type and id is leaf_id
+    return unless in_crumbs crumbs, type, id
+  breadcrumbs_var.set crumbs
 
 Template.header_breadcrumb_chat.helpers
   inThisRoom: ->
@@ -204,7 +291,6 @@ Template.header_breadcrumb_chat.helpers
     Session.equals 'id', @id
 
 active = ->
-  (Session.equals('currentPage', @page) or Session.equals('currentPage', 'chat')) and \
   Session.equals('type', @type) and Session.equals('id', @id)
 
 Template.header_breadcrumb_blackboard.helpers
@@ -220,10 +306,37 @@ Template.header_breadcrumb_round.helpers
   round: -> model.Rounds.findOne @id if @id
   active: active
 
+Template.header_breadcrumb_metas.helpers
+  active_meta: ->
+    return unless Session.equals 'type', @type
+    id = Session.get 'id'
+    if @id[id]?
+      return id
+  inactive_metas: ->
+    keys = Object.keys @id
+    if Session.equals 'type', @type
+      id = Session.get 'id'
+      keys = keys.filter (x) -> x isnt id
+    if keys.length is 1
+      one: keys[0]
+      all: keys
+    else if keys.length is 0
+      {}
+    else
+      all: keys
+
+Template.header_breadcrumb_one_meta.onCreated ->
+  @autorun =>
+    @subscribe 'puzzle-by-id', Template.currentData().id
+    @subscribe 'metas-for-puzzle', Template.currentData().id
+Template.header_breadcrumb_one_meta.helpers
+  puzzle: -> model.Puzzles.findOne @id if @id
+  active: active
+
 Template.header_breadcrumb_puzzle.onCreated ->
   @autorun =>
     @subscribe 'puzzle-by-id', Template.currentData().id
-    @subscribe 'round-for-puzzle', Template.currentData().id
+    @subscribe 'metas-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_puzzle.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
   active: active
@@ -232,7 +345,7 @@ Template.header_breadcrumb_quip.onCreated ->
   @autorun => @subscribe 'quips'
 Template.header_breadcrumb_quip.helpers
   idIsNew: -> 'new' is @id
-  quip: ->  model.Quips.findOne @id unless @id is 'new'
+  quip: -> model.Quips.findOne @id
 
 Template.header_breadcrumbs.onCreated ->
   @autorun =>
@@ -241,15 +354,9 @@ Template.header_breadcrumbs.onCreated ->
         Session.set 'RINGHUNTERS_FOLDER', (f or undefined)
 
 Template.header_breadcrumbs.helpers
-  breadcrumbs: -> Session.get 'breadcrumbs'
-  crumb_template: -> "header_breadcrumb_#{this.page}"
+  breadcrumbs: -> breadcrumbs_var.get()
+  crumb_template: -> "header_breadcrumb_#{@page}"
   active: active
-  round: ->
-    if Session.equals 'type', 'puzzles'
-      model.Rounds.findOne puzzles: Session.get 'id'
-    else if Session.equals 'type', 'rounds'
-      model.Rounds.findOne Session.get 'id'
-    else null
   puzzle: ->
     if Session.equals 'type', 'puzzles'
       model.Puzzles.findOne Session.get 'id'
@@ -258,16 +365,16 @@ Template.header_breadcrumbs.helpers
   drive: -> switch Session.get 'type'
     when 'general'
       Session.get 'RINGHUNTERS_FOLDER'
-    when 'rounds', 'puzzles'
-      model.collection(Session.get 'type')?.findOne(Session.get 'id')?.drive
+    when 'puzzles'
+      model.Puzzles.findOne(Session.get 'id')?.drive
 
 Template.header_breadcrumbs.events
   "click .bb-upload-file": (event, template) ->
     folder = switch Session.get 'type'
       when 'general'
         Session.get 'RINGHUNTERS_FOLDER'
-      when 'rounds', 'puzzles'
-        model.collection(Session.get 'type')?.findOne(Session.get 'id')?.drive
+      when 'puzzles'
+        model.Puzzles.findOne(Session.get 'id')?.drive
     return unless folder
     uploadToDriveFolder folder, (docs) ->
       message = "uploaded "+(for doc in docs
@@ -329,7 +436,7 @@ Template.header_nickmodal_contents.onCreated ->
   # subscription to it (in main.coffee)
   this.typeaheadSource = (query,process) =>
     this.update(query)
-    (n.nickname for n in Meteor.users.find({}).fetch())
+    (n.nickname for n in Meteor.users.find(bot_wakeup: $exists: false).fetch())
   this.update = (query, options) =>
     # can we find an existing nick matching this?
     n = if query then Meteor.users.findOne canonical query else undefined
@@ -468,6 +575,7 @@ Template.header_lastchats.helpers
     return m
   msgbody: ->
     if this.bodyIsHtml then new Spacebars.SafeString(this.body) else this.body
+  roomname: -> settings.GENERAL_ROOM_NAME
 
 # subscribe when this template is in use/unsubscribe when it is destroyed
 Template.header_lastchats.onCreated ->
@@ -476,7 +584,4 @@ Template.header_lastchats.onCreated ->
     p = share.chat.pageForTimestamp 'general/0', 0, {subscribe:this}
     return unless p? # wait until page info is loaded
     messages = if p.archived then "oldmessages" else "messages"
-    # use autorun to ensure subscription changes if/when nick does
-    if Meteor.userId()? and not settings.BB_DISABLE_PM
-      this.subscribe "#{messages}-in-range-to-me", p.room_name, p.from, p.to
     this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to

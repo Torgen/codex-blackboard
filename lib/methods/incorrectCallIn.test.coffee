@@ -22,53 +22,51 @@ describe 'incorrectCallIn', ->
   beforeEach ->
     resetDatabase()
 
-  ['puzzles', 'rounds', 'roundgroups'].forEach (type) =>
-    describe "for #{model.pretty_collection(type)}", ->
-      puzzle = null
-      callin = null
-      beforeEach ->
-        puzzle = model.collection(type).insert
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 1
-          touched_by: 'cscott'
-          solved: null
-          solved_by: null
-          tags: {}
-        callin = model.CallIns.insert
-          name: 'Foo:precipitate'
-          type: type
-          target: puzzle
-          answer: 'precipitate'
-          created: 2
-          created_by: 'torgen'
-          submitted_to_hq: true
-          backsolve: false
-          provided: false
+  puzzle = null
+  callin = null
+  beforeEach ->
+    puzzle = model.Puzzles.insert
+      name: 'Foo'
+      canon: 'foo'
+      created: 1
+      created_by: 'cscott'
+      touched: 1
+      touched_by: 'cscott'
+      solved: null
+      solved_by: null
+      tags: {}
+      feedsInto: []
+    callin = model.CallIns.insert
+      name: 'Foo:precipitate'
+      target: puzzle
+      answer: 'precipitate'
+      created: 2
+      created_by: 'torgen'
+      submitted_to_hq: true
+      backsolve: false
+      provided: false
 
-      it 'fails without login', ->
-        chai.assert.throws ->
-          Meteor.call 'incorrectCallIn', callin
-        , Match.Error
+  it 'fails without login', ->
+    chai.assert.throws ->
+      Meteor.call 'incorrectCallIn', callin
+    , Match.Error
 
-      describe 'when logged in', ->
-        beforeEach ->
-          Meteor.callAs 'incorrectCallIn', 'cjb', callin
-    
-        it 'deletes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne()
+  describe 'when logged in', ->
+    beforeEach ->
+      Meteor.callAs 'incorrectCallIn', 'cjb', callin
 
-        it 'addsIncorrectAnswer', ->
-          chai.assert.deepInclude model.collection(type).findOne(puzzle),
-            incorrectAnswers: [{answer: 'precipitate', who: 'cjb', timestamp: 7, backsolve: false, provided: false}]
+    it 'deletes callin', ->
+      chai.assert.isUndefined model.CallIns.findOne()
 
-        it 'oplogs', ->
-          chai.assert.lengthOf model.Messages.find({type: type, id: puzzle, stream: 'callins'}).fetch(), 1
+    it 'addsIncorrectAnswer', ->
+      chai.assert.deepInclude model.Puzzles.findOne(puzzle),
+        incorrectAnswers: [{answer: 'precipitate', who: 'cjb', timestamp: 7, backsolve: false, provided: false}]
 
-        it "notifies #{model.pretty_collection(type)} chat", ->
-          chai.assert.lengthOf model.Messages.find(room_name: "#{type}/#{puzzle}").fetch(), 1
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
 
-        it "notifies general chat", ->
-          chai.assert.lengthOf model.Messages.find(room_name: 'general/0').fetch(), 1
+    it "notifies puzzle chat", ->
+      chai.assert.lengthOf model.Messages.find(room_name: "puzzles/#{puzzle}").fetch(), 1
+
+    it "notifies general chat", ->
+      chai.assert.lengthOf model.Messages.find(room_name: 'general/0').fetch(), 1

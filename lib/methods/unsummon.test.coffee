@@ -22,131 +22,121 @@ describe 'unsummon', ->
   beforeEach ->
     resetDatabase()
   
-  ['roundgroups', 'rounds', 'puzzles'].forEach (type) =>
-    describe "on #{model.pretty_collection(type)}", ->
-      describe 'which is not stuck', ->
-        id = null
-        ret = null
-        beforeEach ->
-          id = model.collection(type).insert
-            name: 'Foo'
-            canon: 'foo'
-            created: 1
-            created_by: 'cscott'
-            touched: 2
-            touched_by: 'cjb'
-            solved: null
-            solved_by: null
-            tags: status: {name: 'Status', value: 'precipitate', touched: 2, touched_by: 'cjb'}
-          ret = Meteor.callAs 'unsummon', 'torgen',
-            type: type
-            object: id
+  describe 'which is not stuck', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'cjb'
+        solved: null
+        solved_by: null
+        tags: status: {name: 'Status', value: 'precipitate', touched: 2, touched_by: 'cjb'}
+      ret = Meteor.callAs 'unsummon', 'torgen', object: id
 
-        it 'returns an error', ->
-          chai.assert.isString ret
+    it 'returns an error', ->
+      chai.assert.isString ret
 
-        it 'doesn\'t touch', ->
-          chai.assert.deepInclude model.collection(type).findOne(id),
-            touched: 2
-            touched_by: 'cjb'
-            tags: status: {name: 'Status', value: 'precipitate', touched: 2, touched_by: 'cjb'}
+    it 'doesn\'t touch', ->
+      chai.assert.deepInclude model.Puzzles.findOne(id),
+        touched: 2
+        touched_by: 'cjb'
+        tags: status: {name: 'Status', value: 'precipitate', touched: 2, touched_by: 'cjb'}
 
-        it 'doesn\'t chat', ->
-          chai.assert.lengthOf model.Messages.find(room_name: $ne: 'oplog/0').fetch(), 0
+    it 'doesn\'t chat', ->
+      chai.assert.lengthOf model.Messages.find(room_name: $ne: 'oplog/0').fetch(), 0
 
-        it 'doesn\'t oplog', ->
-          chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0
+    it 'doesn\'t oplog', ->
+      chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0
 
-      describe 'which someone else made stuck', ->
-        id = null
-        ret = null
-        beforeEach ->
-          id = model.collection(type).insert
-            name: 'Foo'
-            canon: 'foo'
-            created: 1
-            created_by: 'cscott'
-            touched: 2
-            touched_by: 'cjb'
-            solved: null
-            solved_by: null
-            tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'cjb'}
-        it 'fails without login', ->
-          chai.assert.throws ->
-            Meteor.call 'unsummon',
-              type: type
-              object: id
-          , Match.error
+  describe 'which someone else made stuck', ->
+    id = null
+    beforeEach ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'cjb'
+        solved: null
+        solved_by: null
+        tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'cjb'}
 
-        describe 'when logged in', ->
-          ret = null
-          beforeEach ->
-            ret = Meteor.callAs 'unsummon', 'torgen',
-              type: type
-              object: id
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'unsummon', object: id
+      , Match.Error
 
-          it 'returns nothing', ->
-            chai.assert.isUndefined ret
+    describe 'when logged in', ->
+      ret = null
+      beforeEach ->
+        ret = Meteor.callAs 'unsummon', 'torgen', object: id
 
-          it 'updates document', ->
-            chai.assert.deepInclude model.collection(type).findOne(id),
-              touched: 7
-              touched_by: 'torgen'
-              tags: {}
+      it 'returns nothing', ->
+        chai.assert.isUndefined ret
 
-          it 'oplogs', ->
-            chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: type, id: id}).fetch(), 1
+      it 'updates document', ->
+        chai.assert.deepInclude model.Puzzles.findOne(id),
+          touched: 7
+          touched_by: 'torgen'
+          tags: {}
 
-          it 'notifies main chat', ->
-            msgs = model.Messages.find(room_name: 'general/0').fetch()
-            chai.assert.lengthOf msgs, 1
-            chai.assert.include msgs[0].body, 'has arrived'
-            chai.assert.include msgs[0].body, "#{model.pretty_collection(type)} Foo"
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
 
-          it "notifies #{model.pretty_collection(type)} chat", ->
-            msgs = model.Messages.find(room_name: "#{type}/#{id}").fetch()
-            chai.assert.lengthOf msgs, 1
-            chai.assert.include msgs[0].body, 'has arrived'
-            chai.assert.notInclude msgs[0].body, "#{model.pretty_collection(type)} Foo"
+      it 'notifies main chat', ->
+        msgs = model.Messages.find(room_name: 'general/0').fetch()
+        chai.assert.lengthOf msgs, 1
+        chai.assert.include msgs[0].body, 'has arrived'
+        chai.assert.include msgs[0].body, "puzzle Foo"
 
-      describe 'which they made stuck', ->
-        id = null
-        ret = null
-        beforeEach ->
-          id = model.collection(type).insert
-            name: 'Foo'
-            canon: 'foo'
-            created: 1
-            created_by: 'cscott'
-            touched: 2
-            touched_by: 'cjb'
-            solved: null
-            solved_by: null
-            tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'cjb'}
-          ret = Meteor.callAs 'unsummon', 'cjb',
-            type: type
-            object: id
+      it "notifies puzzle chat", ->
+        msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+        chai.assert.lengthOf msgs, 1
+        chai.assert.include msgs[0].body, 'has arrived'
+        chai.assert.notInclude msgs[0].body, "puzzle Foo"
 
-        it 'returns nothing', ->
-          chai.assert.isUndefined ret
+  describe 'which they made stuck', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'cjb'
+        solved: null
+        solved_by: null
+        tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'cjb'}
+      ret = Meteor.callAs 'unsummon', 'cjb', object: id
 
-        it 'updates document', ->
-          chai.assert.deepInclude model.collection(type).findOne(id),
-            touched: 7
-            touched_by: 'cjb'
-            tags: {}
+    it 'returns nothing', ->
+      chai.assert.isUndefined ret
 
-        it 'oplogs', ->
-          chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: type, id: id}).fetch(), 1
+    it 'updates document', ->
+      chai.assert.deepInclude model.Puzzles.findOne(id),
+        touched: 7
+        touched_by: 'cjb'
+        tags: {}
 
-        it 'notifies main chat', ->
-          msgs = model.Messages.find(room_name: 'general/0').fetch()
-          chai.assert.lengthOf msgs, 1
-          chai.assert.include msgs[0].body, 'no longer'
-          chai.assert.include msgs[0].body, "#{model.pretty_collection(type)} Foo"
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
 
-        it "notifies #{model.pretty_collection(type)} chat", ->
-          msgs = model.Messages.find(room_name: "#{type}/#{id}").fetch()
-          chai.assert.lengthOf msgs, 1
-          chai.assert.include msgs[0].body, 'no longer'
-          chai.assert.notInclude msgs[0].body, "#{model.pretty_collection(type)} Foo"
+    it 'notifies main chat', ->
+      msgs = model.Messages.find(room_name: 'general/0').fetch()
+      chai.assert.lengthOf msgs, 1
+      chai.assert.include msgs[0].body, 'no longer'
+      chai.assert.include msgs[0].body, "puzzle Foo"
+
+    it "notifies puzzle chat", ->
+      msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+      chai.assert.lengthOf msgs, 1
+      chai.assert.include msgs[0].body, 'no longer'
+      chai.assert.notInclude msgs[0].body, "puzzle Foo"

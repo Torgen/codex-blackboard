@@ -1,26 +1,13 @@
 # sample data for load testing
 ensureData = (cb) ->
-  who = 'loadtest'
-  Meteor.call 'newRoundGroup',
-    name: 'roundgroup',
-    rounds: null
-  , (err, rg) ->
+  Meteor.call 'newRound',
+    name: 'round'
+    puzzles: null
+  , (err, r) ->
     cb(err) if err?
-    Meteor.call 'newRound',
-      name: 'round'
-      puzzles: null
-    , (err, r) ->
-      cb(err) if err?
-      Meteor.call 'addRoundToGroup', {round:r, group:rg}
-      Meteor.call 'newPuzzle',
-        name: 'puzzle'
-      , (err, p) ->
-        cb(err) if err?
-        Meteor.call 'addPuzzleToRound', {puzzle:p, round:r}
-        cb null,
-          puzzle: p
-          round: r
-          roundgroup: rg
+    Meteor.call 'newPuzzle',
+      name: 'puzzle'
+      round: r
 
 # different load testing tasks
 tasks = Object.create(null)
@@ -82,47 +69,29 @@ addPuzzles = (data) ->
     return if err?
     followup o, ->
       Meteor.setTimeout((-> removeit(o)), 10*1000)
-  switch Random.choice ['roundgroup', 'round', 'puzzle']
-    when 'roundgroup'
-      followup = (rg, cb) ->
-        Meteor.call 'renameRoundGroup',
-          id: rg._id
-          name: Random.hexString(16)
-        , cb
-      removeit = (rg) ->
-        Meteor.call 'deleteRoundGroup', rg._id
-      Meteor.call 'newRoundGroup', {name:name,rounds:null}, cb
+  switch Random.choice ['round', 'puzzle']
     when 'round'
       followup = (r, cb) ->
-        Meteor.call 'addRoundToGroup',
-          round: r._id
-          group: data.roundgroup._id
-        , ->
-          Meteor.call 'renameRound',
-            id: r._id
-            name: Random.hexString(16)
-          , cb
+        Meteor.call 'renameRound',
+          id: r._id
+          name: Random.hexString(16)
+        , cb
       removeit = (r) ->
         Meteor.call 'deleteRound', r._id
       Meteor.call 'newRound', {name:name,puzzles:null}, cb
     when 'puzzle'
       followup = (p, cb) ->
-        Meteor.call 'addPuzzleToRound',
-          puzzle: p._id
-          round: data.round._id
+        Meteor.call 'renamePuzzle',
+          id: p._id
+          name: Random.hexString(16)
         , ->
-          Meteor.call 'renamePuzzle',
-            id: p._id
-            name: Random.hexString(16)
-          , ->
-            Meteor.call 'setAnswer',
-              type: "puzzles"
-              target: p._id
-              answer: Random.choice ['root beer', 'watermelon', 'ice cream']
-            , cb
+          Meteor.call 'setAnswer',
+            target: p._id
+            answer: Random.choice ['root beer', 'watermelon', 'ice cream']
+          , cb
       removeit = (p) ->
         Meteor.call 'deletePuzzle', p._id
-      Meteor.call 'newPuzzle', {name:name}, cb
+      Meteor.call 'newPuzzle', {name:name, round: data.round._id}, cb
 
 # -- tasks --
 

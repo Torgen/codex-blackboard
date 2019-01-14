@@ -2,6 +2,7 @@
 
 import { nickEmail } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
+import { reactiveLocalStorage } from './imports/storage.coffee'
 
 settings = share.settings # import
 chat = share.chat # import
@@ -118,16 +119,20 @@ finishSetupNotifications = ->
 
 Meteor.startup ->
   now = share.model.UTCNow() + 3
+  suppress = true
   Tracker.autorun ->
     return if share.notification.count() is 0 # unsubscribes
     p = share.chat.pageForTimestamp 'oplog/0', 0, {subscribe:true}
     return unless p? # wait until page info is loaded
     messages = if p.archived then "oldmessages" else "messages"
-    Meteor.subscribe "#{messages}-in-range", p.room_name, p.from, p.to
+    Meteor.subscribe "#{messages}-in-range", p.room_name, p.from, p.to,
+      onStop: -> suppress = true
+      onReady: -> suppress = false
   share.model.Messages.find({room_name: 'oplog/0', timestamp: $gte: now}).observeChanges
     added: (id, msg) ->
       return unless Notification.permission is 'granted'
       return unless share.notification.get(msg.stream)
+      return if suppress
       gravatar = $.gravatar nickEmail(msg.nick),
         image: 'wavatar'
         size: 192
@@ -176,10 +181,8 @@ BlackboardRouter = Backbone.Router.extend
     "": "BlackboardPage"
     "edit": "EditPage"
     "rounds/:round": "RoundPage"
-    "rounds/:round/:view": "RoundPage"
     "puzzles/:puzzle": "PuzzlePage"
     "puzzles/:puzzle/:view": "PuzzlePage"
-    "roundgroups/:roundgroup": "RoundGroupPage"
     "chat/:type/:id": "ChatPage"
     "chat/:type/:id/:timestamp": "ChatPage"
     "oplogs/:timestamp": "OpLogPage"
@@ -202,20 +205,14 @@ BlackboardRouter = Backbone.Router.extend
         canEdit: true
         editing: undefined
 
-  RoundPage: (id, view=null) ->
-    this.Page("round", "rounds", id)
-    Session.set
-      timestamp: 0
-      view: view
-
   PuzzlePage: (id, view=null) ->
     this.Page("puzzle", "puzzles", id)
     Session.set
       timestamp: 0
       view: view
 
-  RoundGroupPage: (id) ->
-    this.goToChat "roundgroups", id, 0
+  RoundPage: (id) ->
+    this.goToChat "rounds", id, 0
 
   ChatPage: (type,id,timestamp=0) ->
     id = "0" if type is "general"
@@ -223,17 +220,17 @@ BlackboardRouter = Backbone.Router.extend
     Session.set "timestamp", +timestamp
 
   OpLogPage: (timestamp) ->
-    this.Page("oplog", "general", "0")
+    this.Page("oplog", "oplog", "0")
     Session.set "timestamp", timestamp
 
   CallInPage: ->
-    this.Page("callins", "general", "0")
+    this.Page("callins", "callins", "0")
 
   QuipPage: (id) ->
     this.Page("quip", "quips", id)
 
   FactsPage: ->
-    this.Page("facts", "general", "0")
+    this.Page("facts", "facts", "0")
 
   LoadTestPage: (which) ->
     return if Meteor.isProduction

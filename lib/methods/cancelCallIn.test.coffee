@@ -22,43 +22,40 @@ describe 'cancelCallIn', ->
   beforeEach ->
     resetDatabase()
 
-  ['puzzles', 'rounds', 'roundgroups'].forEach (type) =>
-    describe "for #{model.pretty_collection(type)}", ->
-      puzzle = null
-      callin = null
-      beforeEach ->
-        puzzle = model.collection(type).insert
-          name: 'Foo'
-          canon: 'foo'
-          created: 1
-          created_by: 'cscott'
-          touched: 1
-          touched_by: 'cscott'
-          solved: null
-          solved_by: null
-          tags: {}
-        callin = model.CallIns.insert
-          name: 'Foo:precipitate'
-          type: type
-          target: puzzle
-          answer: 'precipitate'
-          created: 2
-          created_by: 'torgen'
-          submitted_to_hq: true
-          backsolve: false
-          provided: false
+  puzzle = null
+  callin = null
+  beforeEach ->
+    puzzle = model.Puzzles.insert
+      name: 'Foo'
+      canon: 'foo'
+      created: 1
+      created_by: 'cscott'
+      touched: 1
+      touched_by: 'cscott'
+      solved: null
+      solved_by: null
+      tags: {}
+    callin = model.CallIns.insert
+      name: 'Foo:precipitate'
+      target: puzzle
+      answer: 'precipitate'
+      created: 2
+      created_by: 'torgen'
+      submitted_to_hq: true
+      backsolve: false
+      provided: false
       
-      it 'fails without login', ->
-        chai.assert.throws ->
-          Meteor.call 'cancelCallIn', id: callin
-        , Match.Error
+  it 'fails without login', ->
+    chai.assert.throws ->
+      Meteor.call 'cancelCallIn', id: callin
+    , Match.Error
 
-      describe 'when logged in', ->
-        beforeEach ->
-          Meteor.callAs 'cancelCallIn', 'cjb', id: callin
+  describe 'when logged in', ->
+    beforeEach ->
+      Meteor.callAs 'cancelCallIn', 'cjb', id: callin
 
-        it 'deletes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne()
-        
-        it 'oplogs', ->
-          chai.assert.lengthOf model.Messages.find({type: type, id: puzzle}).fetch(), 1
+    it 'deletes callin', ->
+      chai.assert.isUndefined model.CallIns.findOne()
+    
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle}).fetch(), 1

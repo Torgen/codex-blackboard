@@ -17,13 +17,13 @@
   {{/each}}
 {{/with}}
 {{#each cares in unsetcaredabout}}
-  <tr><td>{{cares}}:</td><td class="wanted">(wanted by {{round.name}})</td></tr>
+  <tr><td>{{cares.name}}:</td><td class="wanted">(wanted by {{cares.meta}})</td></tr>
 {{/each}}
 {{#each mtag in metatags}}
-  <tr><td>{{mtag.name}}:<br><i>(from {{round.name}})</i></td><td>{{mtag.value}}</td></tr>
+  <tr><td>{{mtag.name}}:<br><i>(from {{mtag.meta}})</i></td><td>{{mtag.value}}</td></tr>
 {{/each}}
 {{#with puzzle}}
-  {{#each tags _id}}
+  {{#each tags}}
     <tr>
       <td class="tagname">{{name}}:</td>
       <td class="tagvalue">
@@ -35,20 +35,20 @@
 {{/with}}
 </tbody></table>
 {{> starred_messages canModify=mynick}}
-{{#if puzzles}}
+{{#if puzzle.puzzles}}{{#let cares=caresabout}}
 <table class="bb-round-answers table table-bordered table-condensed"><tbody>
-  {{#let cares=caresabout}}
   <tr><th>Puzzle in round</th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
-  {{#each puzzles}}
-  <tr><td>{{link _id}}</td><td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
-  {{#each t in cares}}
-  <td>{{tag t.name}}</td>
-  {{/each}}
-  </tr>
-  {{/each}}
-  {{/let}}
+  {{#each puzzle.puzzles}}{{#with getPuzzle}}
+    <tr>
+      <td>{{link _id}}</td>
+      <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+      {{#each t in cares}}
+        <td>{{tag t.name}}</td>
+      {{/each}}
+    </tr>
+  {{/with}}{{/each}}
 </tbody></table>
-{{/if}}
+{{/let}}{{/if}}
 </template>
 
 <template name="puzzle">

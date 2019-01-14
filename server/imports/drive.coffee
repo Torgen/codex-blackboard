@@ -192,7 +192,7 @@ rmrfFolder = (drive, id) ->
 export class Drive
   constructor: (@drive) ->
     @rootFolder = (awaitOrEnsureFolder @drive, ROOT_FOLDER_NAME).id
-    @ringhuntersFolder = (awaitOrEnsureFolder @drive, 'Ringhunters Uploads', @rootFolder).id
+    @ringhuntersFolder = (awaitOrEnsureFolder @drive, "#{Meteor.settings?.public?.chatName ? 'Ringhunters'} Uploads", @rootFolder).id
   
   createPuzzle: (name) ->
     folder = ensureFolder @drive, name, @rootFolder
