@@ -57,14 +57,16 @@
     <td>{{link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{link target}}{{#if hunt_link}}
     <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
             target="_blank">on&nbsp;hunt&nbsp;site
-    {{#if mynick}}
-      <span class="copy-and-go btn btn-info btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
-      <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
-      </span>
-    {{/if}}
     </a></small>
     {{/if}}{{#if solved}}<div class="dupe">Already Solved</div>{{/if}}</td>
-    <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}{{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}</td>
+    <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}
+      {{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}
+      {{#if hunt_link}}
+        <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-info btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
+          <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
+        </a> 
+      {{/if}}
+    </td>
     <td>{{pretty_ts this.created}}</td>
     <td>{{#with lastAttempt}}{{pretty_ts timestamp}} <small>({{pretty_ts timestamp=timestamp style="brief duration"}})</small>{{else}}-{{/with}}</td>
     {{#if mynick}}
