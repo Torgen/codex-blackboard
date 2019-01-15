@@ -49,6 +49,11 @@ Template.registerHelper 'mynick', -> Meteor.user()?.nickname
 
 Template.registerHelper 'boringMode', -> 'true' is reactiveLocalStorage.getItem 'boringMode'
 
+Template.registerHelper 'embeddable', (link) ->
+  return false unless link
+  return false if window.location.protocol is 'https:' and not link.startsWith 'https:'
+  true
+
 # subscribe to the all-names feed all the time
 Meteor.subscribe 'all-names'
 # subscribe to all nicks all the time

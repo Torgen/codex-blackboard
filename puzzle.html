@@ -77,10 +77,10 @@
     <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{doc_link puzzle.doc}}?widget=true&chrome=false&rm=embedded'
             style="{{#unless currentViewIs "doc"}}display:none{{/unless}}"></iframe>
   {{/if}}
-  {{#if puzzle.link}}
+  {{#if embeddable puzzle.link}}
     <div class="bb-left-header" style="{{#unless currentViewIs "puzzle"}}display: none;{{/unless}}">
       <a align="center" href="{{puzzle.link}}"
-         target="_blank"><i class='fas fa-expand-arrows-alt'></i>
+        target="_blank"><i class='fas fa-expand-arrows-alt'></i>
       Open puzzle in new window</a>
     </div>
     {{! hide iframe when not current view for faster tab change }}

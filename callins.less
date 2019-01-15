@@ -4,11 +4,8 @@
   h1 { font-size: 150%; }
 }
 .bb-callins .bb-left-content {
-  display: grid;
-  grid-template-columns: 50% 50%;
   @media (max-width: 767px) {
-    grid-template-columns: 100%;
-    .btn { font-size: 11.9px; padding: 2px 10px }
+    .btn:not(.btn-mini) { font-size: 11.9px; padding: 2px 10px }
   }
   @media (max-width: 640px) {
     .btn { font-size: 10.5px; padding: 0px 6px }
@@ -36,37 +33,8 @@
   }
   .bb-starred-messages {
     h3 { font-size: 150%; margin-left: 10px }
-    grid-column-start: 2;
-    grid-column-end: 3;
-    grid-row-start: 1;
-    grid-row-end: 2;
-    @media (max-width: 767px) {
-      grid-column-start: 1;
-      grid-column-end: 2;
-    }
-    & + .bb-quips {
-      grid-column-end: 2;
-    }
-  }
-  .bb-quips {
-    grid-column-start: 1;
-    grid-column-end: 3;
-    grid-row-start: 1;
-    grid-row-end: 2;
-    @media (max-width: 767px) {
-      grid-row-start: 3;
-      grid-row-end: 4;
-      grid-column-end: 2;
-    }
   }
   .bb-callin-queue {
-    grid-column-start: 1;
-    grid-column-end: 3;
-    grid-row-start: 2;
-    grid-row-end: 3;
-    @media (max-width: 767px) {
-      grid-column-end: 2;
-    }
     table#bb-callin-table td {
       text-align: initial;
     }

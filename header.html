@@ -25,7 +25,7 @@
 </template>
 
 <template name="header_breadcrumb_extra_links">
-  {{#if this.link}}
+  {{#if embeddable this.link}}
     <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "puzzle"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/puzzle" title="Puzzle">
       <i class="fas fa-puzzle-piece"></i>
     </a>

@@ -22,6 +22,7 @@ depunctuate = (word) ->
   word
 
 export default abbrev = (txt) ->
+  return unless txt
   wds = txt.split /[ ,.]/
   fw = for wd in wds
     l = wd.toLowerCase()

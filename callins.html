@@ -2,21 +2,7 @@
 <div class="row-fluid bb-puzzleround bb-callins">
   <div class="bb-splitter" style="--right-column: {{hsize}}px">
     <div class="bb-left-content">{{! start left of splitter }}
-      {{! reordered in css }}
       {{> starred_messages canModify=mynick}}
-      <section class="bb-quips">
-        <button class="btn btn-small bb-addquip-btn">Add new quip</button>
-        <h1>Quips</h1>
-        {{#if quips.count}}
-          <table class="table">
-            {{#each quips}}
-              {{> callins_quip }}
-            {{/each}}
-          </table>
-        {{else}}
-          No quips!  <a class="quips-link" href="{{quipAddUrl}}">Add some</a>.
-        {{/if}}
-      </section>
       <section class="bb-callin-queue">
         <h1>Answer call-in queue</h1>
         <table id="bb-callin-table" class="table"><tbody>
@@ -36,6 +22,19 @@
           </td></tr>
           {{/each}}
         </tbody></table>
+      </section>
+      <section class="bb-quips">
+        <button class="btn btn-small bb-addquip-btn">Add new quip</button>
+        <h1>Quips</h1>
+        {{#if quips.count}}
+          <table class="table">
+            {{#each quips}}
+              {{> callins_quip }}
+            {{/each}}
+          </table>
+        {{else}}
+          No quips!  <a class="quips-link" href="{{quipAddUrl}}">Add some</a>.
+        {{/if}}
       </section>
     </div>{{! end left of splitter }}
     <div class="bb-splitter-handle"></div>
@@ -59,7 +58,7 @@
     <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
             target="_blank">on&nbsp;hunt&nbsp;site
     {{#if mynick}}
-      <span class="copy-and-go" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
+      <span class="copy-and-go btn btn-info btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
       <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
       </span>
     {{/if}}
