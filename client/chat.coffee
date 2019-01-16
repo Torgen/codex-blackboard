@@ -420,7 +420,7 @@ $(window).scroll (event) ->
   return unless Session.equals('currentPage', 'chat')
   return if instachat.bottomObserver
   #console.log if selfScroll? then 'Self scroll' else 'External scroll'
-  return maybeScrollMessagesView() if selfScroll?
+  return if selfScroll?
   # set to false, just in case older browser doesn't have scroll properties
   instachat.scrolledToBottom = false
   [body, html] = [document.body, document.documentElement]
