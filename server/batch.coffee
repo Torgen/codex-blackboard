@@ -16,6 +16,30 @@ MESSAGE_PAGE = 100
 # move pages of messages to oldmessages collection
 MOVE_OLD_PAGES = true
 
+# Initialize settings
+embed =
+  name: 'Embed Puzzles'
+  default: 'true'
+  description: 'Allow embedding iframe of puzzles on puzzle page. Disable if hunt site uses X-Frame-Options to forbid embedding.'
+pprefix =
+  name: 'Puzzle URL Prefix'
+  default: ''
+  description: 'If set, used as the prefix for new puzzles. Otherwise, must be set manually'
+rprefix =
+  name: 'Round URL Prefix'
+  default: ''
+  description: 'If set, used as the prefix for new rounds. Otherwise, must be set manually.'
+
+for setting in [embed, pprefix, rprefix]
+  model.Settings.upsert canonical(setting.name),
+    $set:
+      name: setting.name
+      default: setting.default
+      description: setting.description
+    $setOnInsert:
+      value: setting.default
+      touched: model.UTCNow()
+
 # helper function: like _.throttle, but always ensures `wait` of idle time
 # between invocations.  This ensures that we stay chill even if a single
 # execution of the function starts to exceed `wait`.

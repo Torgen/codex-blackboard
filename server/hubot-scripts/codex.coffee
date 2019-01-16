@@ -315,3 +315,18 @@ share.hubot.codex = (robot) ->
       strip m[1]
     Meteor.callAs 'newPoll', msg.envelope.user.id, msg.envelope.room, strip(msg.match[1]), opts
 
+  robot.commands.push 'bot global list - lists dynamic settings'
+  robot.respond /global list$/i, (msg) ->
+    for setting from share.model.Settings.find {}
+      msg.priv useful: true, "#{setting.name}: #{setting.description} Current: '#{setting.value}' Default: '#{setting.default}'"
+    msg.finish()
+
+  robot.commands.push 'bot global set <setting> to <value> - changes a dynamic setting'
+  robot.respond (rejoin /global set /, thingRE, / to /, thingRE, /$/i), (msg) ->
+    setting = strip msg.match[1]
+    value = strip msg.match[2]
+    if Meteor.callAs 'changeSetting', msg.envelope.user.id, setting, value
+      msg.reply useful: true, "OK, set #{setting} to #{value}"
+    else
+      msg.reply useful: true, "Sorry, I don't know the setting '#{setting}'."
+    msg.finish()

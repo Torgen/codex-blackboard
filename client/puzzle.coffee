@@ -1,6 +1,7 @@
 'use strict'
 
 import color from './imports/objectColor.coffee'
+import embeddable from './imports/embeddable.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -14,7 +15,7 @@ capType = (puzzle) ->
 possibleViews = (puzzle) ->
   x = []
   x.push 'spreadsheet' if puzzle?.spreadsheet?
-  x.push 'puzzle' if puzzle?.link?
+  x.push 'puzzle' if embeddable puzzle?.link
   x.push 'info'
   x.push 'doc' if puzzle?.doc?
   x

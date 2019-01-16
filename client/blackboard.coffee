@@ -105,6 +105,7 @@ notificationStreamsEnabled = ->
 Template.blackboard.helpers
   notificationStreams: notificationStreams
   notificationsAsk: ->
+    return false unless Notification?
     p = Session.get 'notifications'
     p isnt 'granted' and p isnt 'denied'
   notificationsEnabled: -> Session.equals 'notifications', 'granted'

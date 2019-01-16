@@ -230,6 +230,16 @@ if Meteor.isServer
   Presence._ensureIndex {timestamp:-1}, {}
   Presence._ensureIndex {present:1, room_name:1}, {}
 
+# Global dynamic settings
+#  _id: canonical form of name
+#  name: human readable name for setting
+#  description: What the setting does
+#  value: Current value of the setting
+#  default: default value of the setting
+#  touched: when the setting was changed
+#  touched_by: who last changed the setting
+Settings = BBCollection.settings = new Mongo.Collection 'settings'
+
 # this reverses the name given to Mongo.Collection; that is the
 # 'type' argument is the name of a server-side Mongo collection.
 collection = (type) ->
@@ -433,9 +443,13 @@ doc_id_to_link = (id) ->
   Meteor.methods
     newRound: (args) ->
       check @userId, NonEmptyString
+      round_prefix = Settings.findOne('round_url_prefix')?.value
+      link = if round_prefix
+        round_prefix += '/' unless round_prefix.endsWith '/'
+        "#{round_prefix}#{canonical(args.name)}"
       newObject "rounds", {args..., who: @userId},
         puzzles: []
-        link: args.link or null
+        link: args.link or link
         sort_key: UTCNow()
       # TODO(torgen): create default meta
     renameRound: (args) ->
@@ -458,9 +472,9 @@ doc_id_to_link = (id) ->
         feedsInto: Match.Optional [NonEmptyString]
         puzzles: Match.Optional [NonEmptyString]
       throw new Meteor.Error(404, "bad round") unless Rounds.findOne(args.round)?
-      # TODO(torgen): if round has a default meta, set new puzzle to feed into that meta.
-      puzzle_prefix = huntPrefix 'puzzle'
+      puzzle_prefix = Settings.findOne('puzzle_url_prefix')?.value
       link = if puzzle_prefix
+        puzzle_prefix += '/' unless puzzle_prefix.endsWith '/'
         "#{puzzle_prefix}#{canonical(args.name)}"
       feedsInto = args.feedsInto or []
       extra =
@@ -1236,6 +1250,15 @@ doc_id_to_link = (id) ->
         name: NonEmptyString
       id = args.object._id or args.object
       newDriveFolder id, args.name
+
+    changeSetting: (setting, value) ->
+      check @userId, NonEmptyString
+      check setting, NonEmptyString
+      check value, String
+      0 < Settings.update canonical(setting), $set:
+        value: value
+        touched: UTCNow()
+        touched_by: @userId
 )()
 
 UTCNow = -> Date.now()
@@ -1258,6 +1281,7 @@ share.model =
   Pages: Pages
   LastRead: LastRead
   Presence: Presence
+  Settings: Settings
   # helper methods
   collection: collection
   pretty_collection: pretty_collection

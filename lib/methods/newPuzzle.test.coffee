@@ -84,6 +84,38 @@ describe 'newPuzzle', ->
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
 
+  it 'derives link', ->
+    model.Settings.insert
+      _id: 'puzzle_url_prefix'
+      value: 'https://testhuntpleaseign.org/puzzles'
+    round = model.Rounds.insert
+      name: 'Round'
+      canon: 'round'
+      created: 1
+      created_by: 'cjb'
+      touched: 1
+      touched_by: 'cjb'
+      puzzles: []
+    id = Meteor.callAs 'newPuzzle', 'torgen',
+      name: 'Foo'
+      round: round
+    ._id
+    chai.assert.deepInclude model.Puzzles.findOne(id),
+      name: 'Foo'
+      canon: 'foo'
+      created: 7
+      created_by: 'torgen'
+      touched: 7
+      touched_by: 'torgen'
+      solved: null
+      solved_by: null
+      incorrectAnswers: []
+      link: 'https://testhuntpleaseign.org/puzzles/foo'
+      drive: 'fid'
+      spreadsheet: 'sid'
+      doc: 'did'
+      tags: {}
+
   describe 'when one exists with that name', ->
     round = round
     id1 = null

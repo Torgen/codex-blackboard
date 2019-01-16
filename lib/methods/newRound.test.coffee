@@ -49,6 +49,9 @@ describe 'newRound', ->
         link: 'https://puzzlehunt.mit.edu/foo'
       ._id
 
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
+
     it 'creates round', ->
       # Round is created, then drive et al are added
       round = model.Rounds.findOne id
@@ -64,9 +67,26 @@ describe 'newRound', ->
         tags: {}
       ['solved', 'solved_by', 'incorrectAnswers', 'drive', 'spreadsheet', 'doc'].forEach (prop) =>
         chai.assert.notProperty round, prop
-
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
+  
+  it 'derives link', ->
+    model.Settings.insert
+      _id: 'round_url_prefix'
+      value: 'https://testhuntpleaseign.org/rounds'
+    id = Meteor.callAs 'newRound', 'torgen',
+      name: 'Foo'
+    ._id
+    # Round is created, then drive et al are added
+    round = model.Rounds.findOne id
+    chai.assert.deepInclude round,
+      name: 'Foo'
+      canon: 'foo'
+      created: 7
+      created_by: 'torgen'
+      touched: 7
+      touched_by: 'torgen'
+      puzzles: []
+      link: 'https://testhuntpleaseign.org/rounds/foo'
+      tags: {}
 
   describe 'when one has that name', ->
     id1 = null

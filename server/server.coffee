@@ -38,6 +38,8 @@ Meteor.publish 'presence-for-room', loginRequired (room_name) ->
     foreground_uuid: 0
     present: 0
 
+Meteor.publish 'settings', loginRequired -> model.Settings.find()
+
 Meteor.publish 'lastread', loginRequired -> model.LastRead.find nick: @userId
 
 # this is for the "that was easy" sound effect

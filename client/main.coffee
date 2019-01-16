@@ -3,8 +3,10 @@
 import { nickEmail } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
+import embeddable from './imports/embeddable.coffee'
 
 settings = share.settings # import
+model = share.model
 chat = share.chat # import
 
 # "Top level" templates:
@@ -49,11 +51,10 @@ Template.registerHelper 'mynick', -> Meteor.user()?.nickname
 
 Template.registerHelper 'boringMode', -> 'true' is reactiveLocalStorage.getItem 'boringMode'
 
-Template.registerHelper 'embeddable', (link) ->
-  return false unless link
-  return false if window.location.protocol is 'https:' and not link.startsWith 'https:'
-  true
+Template.registerHelper 'embeddable', embeddable
 
+# subscribe to the dynamic settings all the time.
+Meteor.subscribe 'settings'
 # subscribe to the all-names feed all the time
 Meteor.subscribe 'all-names'
 # subscribe to all nicks all the time
@@ -135,7 +136,7 @@ Meteor.startup ->
       onReady: -> suppress = false
   share.model.Messages.find({room_name: 'oplog/0', timestamp: $gte: now}).observeChanges
     added: (id, msg) ->
-      return unless Notification.permission is 'granted'
+      return unless Notification?.permission is 'granted'
       return unless share.notification.get(msg.stream)
       return if suppress
       gravatar = $.gravatar nickEmail(msg.nick),
@@ -150,7 +151,7 @@ Meteor.startup ->
         body: body
         tag: id
         icon: gravatar[0].src
-  if not Notification
+  unless Notification?
     Session.set 'notifications', 'denied'
     return
   Session.set 'notifications', Notification.permission
