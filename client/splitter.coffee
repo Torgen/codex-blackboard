@@ -7,7 +7,7 @@ Splitter = share.Splitter =
   vsize:
     dragging: new ReactiveVar false
     size: new ReactiveVar 300
-    get: () -> Splitter.vsize.size.get()
+    get: () -> Math.max(Splitter.vsize.size.get(), 0)
     set: (size, manual) ->
       if not size?
         size = 300
@@ -20,7 +20,7 @@ Splitter = share.Splitter =
   hsize:
     dragging: new ReactiveVar false
     size: new ReactiveVar 300
-    get: () -> Splitter.hsize.size.get()
+    get: () -> Math.max(Splitter.hsize.size.get(), 0)
     set: (size, manual) ->
       if not size?
         # 300px wide chat
