@@ -13,9 +13,6 @@ model = share.model
 # how many chats in a page?
 MESSAGE_PAGE = 100
 
-# move pages of messages to oldmessages collection
-MOVE_OLD_PAGES = true
-
 # Initialize settings
 embed =
   name: 'Embed Puzzles'
@@ -95,25 +92,18 @@ do ->
     # also run batch on removed: batch size might not have been big enough
     removed: (id) -> maybeRunBatch()
 
-# Pages
-# ensure old pages have the `archived` field
+# Migrate messages out of OldMessages
+# TODO by 2020 hunt: remove, as we won't need backward compatibility.
 Meteor.startup ->
-  model.Pages.find(archived: $exists: false).forEach (p) ->
-    model.Pages.update p._id, $set: archived: false
-# move messages to oldmessages collection
-queueMessageArchive = throttle ->
-  p = model.Pages.findOne({archived: false, next: $ne: null}, {sort:[['to','asc']]})
-  return unless p?
-  limit = 2 * MESSAGE_PAGE
-  loop
-    msgs = model.Messages.find({room_name: p.room_name, timestamp: $lt: p.to}, \
-      {sort:[['timestamp','asc']], limit: limit, reactive: false}).fetch()
-    model.OldMessages.upsert(m._id, m) for m in msgs
-    model.Pages.update(p._id, $set: archived: true) if msgs.length < limit
-    model.Messages.remove(m._id) for m in msgs
-    break if msgs.length < limit
-  queueMessageArchive()
-, 60*1000 # no more than once a minute
+  old = new Mongo.Collection 'oldmessages'
+  count = 0
+  old.find().forEach (doc) ->
+    model.Messages.insert doc
+    old.remove _id: doc._id
+    count++
+  console.log "Migrated #{count} old messages" if count > 0
+
+# Pages
 # watch messages collection and create pages as necessary
 do ->
   unpaged = Object.create(null)
@@ -152,9 +142,6 @@ do ->
       if p._id?
         model.Pages.update p._id, $set: next: pid
       unpaged[room_name] = 0
-      queueMessageArchive() if MOVE_OLD_PAGES
-# migrate messages to old messages collection
-(Meteor.startup queueMessageArchive) if MOVE_OLD_PAGES
 
 # Presence
 # ensure old entries are timed out after 2*PRESENCE_KEEPALIVE_MINUTES

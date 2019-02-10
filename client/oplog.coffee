@@ -31,8 +31,7 @@ Template.oplog.onCreated -> this.autorun =>
   timestamp = +Session.get('timestamp')
   p = chat.pageForTimestamp room_name, timestamp, {subscribe:this}
   return unless p? # wait until page info is loaded
-  messages = if p.archived then "oldmessages" else "messages"
-  this.subscribe "#{messages}-in-range", room_name, p.from, p.to
+  this.subscribe 'messages-in-range', room_name, p.from, p.to
   # subscribe to the 'prev' and 'next' pages as well
   if p.next?
     this.subscribe 'page-by-id', p.next

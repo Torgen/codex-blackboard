@@ -45,10 +45,9 @@ pageForTimestamp = (room_name, timestamp=0, subscribe=false) ->
 messagesForPage = (p, opts={}) ->
   unless p? # return empty cursor unless p is non-null
     return model.Messages.find(timestamp:model.NOT_A_TIMESTAMP)
-  messages = if p.archived then "oldmessages" else "messages"
   cond = $gte: +p.from, $lt: +p.to
   delete cond.$lt if cond.$lt is 0
-  model.collection(messages).find
+  model.Messages.find
     room_name: p.room_name
     timestamp: cond
   , opts
@@ -126,15 +125,9 @@ Template.starred_messages.onCreated ->
 
 Template.starred_messages.helpers
   messages: ->
-    # It would be nice to write a concatenation cursor, but it seems overkill
-    # for the number of starred messages we're ever likely to have.
-    r = []
-    for coll in [ model.OldMessages, model.Messages ]
-      c = coll.find {room_name: (Session.get 'room_name'), starred: true },
-        sort: [['timestamp', 'asc']]
-        transform: messageTransform
-      r.push c.fetch()...
-    r
+    model.Messages.find {room_name: (Session.get 'room_name'), starred: true },
+      sort: [['timestamp', 'asc']]
+      transform: messageTransform
 
 Template.media_message.events
   'click .bb-message-star.starred': (event, template) ->
@@ -261,14 +254,13 @@ Template.messages.onCreated ->
     timestamp = (+Session.get('timestamp'))
     p = pageForTimestamp room_name, timestamp, {subscribe: this}
     return unless p? # wait until page information is loaded
-    messages = if p.archived then "oldmessages" else "messages"
     if p.next? # subscribe to the 'next' page
       this.subscribe 'page-by-id', p.next
     # load messages for this page
     onReady = ->
       instachat.ready = true
       Session.set 'chatReady', true
-    this.subscribe "#{messages}-in-range", p.room_name, p.from, p.to,
+    this.subscribe 'messages-in-range', p.room_name, p.from, p.to,
       onReady: onReady
     Tracker.onInvalidate invalidator
 

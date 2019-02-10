@@ -106,23 +106,17 @@ Meteor.publish 'page-by-id', loginRequired (id) -> model.Pages.find _id: id
 Meteor.publish 'page-by-timestamp', loginRequired (room_name, timestamp) ->
   model.Pages.find room_name: room_name, to: timestamp
 
-for messages in [ 'messages', 'oldmessages' ]
-  do (messages) ->
-    # paged messages.  client is responsible for giving a reasonable
-    # range, which is a bit of an issue.  Once limit is supported in oplog
-    # we could probably add a limit here to be a little safer.
-    Meteor.publish "#{messages}-in-range", loginRequired (room_name, from, to=0) ->
-      cond = $gte: +from, $lt: +to
-      delete cond.$lt if cond.$lt is 0
-      model.collection(messages).find
-        room_name: room_name
-        timestamp: cond
-        $or: [ {to: $in: [null, @userId]}, {nick: @userId }]
+Meteor.publish 'messages-in-range', loginRequired (room_name, from, to=0) ->
+  cond = $gte: +from, $lt: +to
+  delete cond.$lt if cond.$lt is 0
+  model.Messages.find
+    room_name: room_name
+    timestamp: cond
+    $or: [ {to: $in: [null, @userId]}, {nick: @userId }]
 
 Meteor.publish 'starred-messages', loginRequired (room_name) ->
-  for messages in [ model.OldMessages, model.Messages ]
-    messages.find { room_name: room_name, starred: true },
-      sort: [["timestamp", "asc"]]
+  model.Messages.find { room_name: room_name, starred: true },
+    sort: [["timestamp", "asc"]]
 
 Meteor.publish 'callins', loginRequired ->
   model.CallIns.find {},
