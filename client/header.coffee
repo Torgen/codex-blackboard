@@ -524,12 +524,13 @@ confirmationDialog = share.confirmationDialog = (options) ->
   Template.header_confirmmodal_contents.cancel = true
   Session.set 'confirmModalVisible', (options or Object.create(null))
 
+OPLOG_COLLAPSE_LIMIT = 10
+
 ############## operation log in header ####################
 Template.header_lastupdates.helpers
   lastupdates: ->
-    LIMIT = 10
     ologs = model.Messages.find {room_name: "oplog/0"}, \
-          {sort: [["timestamp","desc"]], limit: LIMIT}
+          {sort: [["timestamp","desc"]], limit: OPLOG_COLLAPSE_LIMIT}
     ologs = ologs.fetch()
     # now look through the entries and collect similar logs
     # this way we can say "New puzzles: X, Y, and Z" instead of just
@@ -558,14 +559,14 @@ Template.header_lastupdates.helpers
 # subscribe when this template is in use/unsubscribe when it is destroyed
 Template.header_lastupdates.onCreated ->
   this.autorun =>
-    p = share.chat.pageForTimestamp 'oplog/0', 0, {subscribe:this}
-    return unless p? # wait until page info is loaded
-    this.subscribe 'messages-in-range', p.room_name, p.from, p.to
+    this.subscribe 'recent-messages', 'oplog/0', OPLOG_COLLAPSE_LIMIT
 # add tooltip to 'more' links
 do ->
   for t in ['header_lastupdates', 'header_lastchats']
     Template[t].onRendered ->
       $(this.findAll('.right a[title]')).tooltip placement: 'left'
+
+RECENT_GENERAL_LIMIT = 2
 
 ############## chat log in header ####################
 Template.header_lastchats.helpers
@@ -573,7 +574,7 @@ Template.header_lastchats.helpers
     LIMIT = 2
     m = model.Messages.find {
       room_name: "general/0", system: false, bodyIsHtml: false
-    }, {sort: [["timestamp","desc"]], limit: LIMIT}
+    }, {sort: [["timestamp","desc"]], limit: RECENT_GENERAL_LIMIT}
     m = m.fetch().reverse()
     return m
   msgbody: ->
@@ -583,7 +584,5 @@ Template.header_lastchats.helpers
 # subscribe when this template is in use/unsubscribe when it is destroyed
 Template.header_lastchats.onCreated ->
   return if settings.BB_DISABLE_RINGHUNTERS_HEADER
-  this.autorun =>
-    p = share.chat.pageForTimestamp 'general/0', 0, {subscribe:this}
-    return unless p? # wait until page info is loaded
-    this.subscribe 'messages-in-range', p.room_name, p.from, p.to
+  @autorun =>
+    @subscribe 'recent-header-messages'

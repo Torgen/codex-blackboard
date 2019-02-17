@@ -92,7 +92,9 @@ do ->
     # also run batch on removed: batch size might not have been big enough
     removed: (id) -> maybeRunBatch()
 
-# Migrate messages out of OldMessages
+# Migrate messages out of OldMessages and create dawns of time.
+# (i.e. ensure any chat room with messages has a sentinel message predating any
+# other message so you know when you have all of them.)
 # TODO by 2020 hunt: remove, as we won't need backward compatibility.
 Meteor.startup ->
   old = new Mongo.Collection 'oldmessages'
@@ -102,46 +104,27 @@ Meteor.startup ->
     old.remove _id: doc._id
     count++
   console.log "Migrated #{count} old messages" if count > 0
-
-# Pages
-# watch messages collection and create pages as necessary
-do ->
-  unpaged = Object.create(null)
-  model.Messages.find({}, sort:[['timestamp','asc']]).observe
-    added: (msg) ->
-      room_name = msg.room_name
-      # don't count pms (so we don't end up with a blank 'page')
-      return if msg.to
-      # add to (conservative) count of unpaged messages
-      # (this message might already be in a page, but we'll catch that below)
-      unpaged[room_name] = (unpaged[room_name] or 0) + 1
-      return if unpaged[room_name] < MESSAGE_PAGE
-      # recompute page parameters before adding a new page
-      # (be safe in case we had out-of-order observations)
-      # find highest existing page
-      p = model.Pages.findOne({room_name: room_name}, {sort:[['to','desc']]})\
-        or { _id: null, room_name: room_name, from: -1, to: 0 }
-      # count the number of unpaged messages
-      m = model.Messages.find(\
-        {room_name: room_name, to: null, timestamp: $gte: p.to}, \
-        {sort:[['timestamp','asc']], limit: MESSAGE_PAGE}).fetch()
-      if m.length < MESSAGE_PAGE
-        # false alarm: reset unpaged message count and continue
-        unpaged[room_name] = m.length
-        return
-      # ok, let's make a new page.  this will include at least all the
-      # messages in m, possibly more (if there are additional messages
-      # added with timestamp == m[m.length-1].timestamp)
-      pid = model.Pages.insert
-        room_name: room_name
-        from: p.to
-        to: 1 + m[m.length-1].timestamp
-        prev: p._id
-        next: null
-        archived: false
-      if p._id?
-        model.Pages.update p._id, $set: next: pid
-      unpaged[room_name] = 0
+  # TODO: if pages exist, create dawns of time
+  pages = new Mongo.Collection 'pages'
+  if pages.findOne()?
+    rawColl = model.Messages.rawCollection()
+    agg = Meteor.wrapAsync rawColl.aggregate, rawColl
+    count = 0
+    aggcsr = agg([$group: {_id: '$room_name', timestamp: $min: '$timestamp'}])
+    toArray = Meteor.wrapAsync aggcsr.toArray, aggcsr
+    toArray().forEach (room) ->
+      dawn = model.Messages.findOne(_id: room._id)
+      return if dawn? and dawn.timestamp <= room.timestamp
+      model.Messages.upsert room._id,
+        timestamp: room.timestamp - 1
+        dawn_of_time: true
+        system: true
+        bot_ignore: true
+        room_name: room._id
+      count++
+    console.log "Created dawn of time for #{count} rooms" if count > 0
+    deleted = pages.remove({})
+    console.log "Deleted #{deleted} pages" if deleted > 0
 
 # Presence
 # ensure old entries are timed out after 2*PRESENCE_KEEPALIVE_MINUTES

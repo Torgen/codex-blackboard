@@ -58,24 +58,22 @@
     display: inline-block;
     float: right;
     padding-right: 0.3em;
+    color: lightgrey;
     &:before {
       font-family: "Font Awesome 5 Free";
       content: "\f005 ";
     }
-    &.starred {
-      color: palegoldenrod;
-      font-weight: 900;
-    } 
-    &:not(.starred) {
-      color: lightgrey;
-    } 
+  }
+  .starred .bb-message-star {
+    color: palegoldenrod;
+    font-weight: 900;
   } 
-  &.can-modify-star .bb-message-star {
-    &.starred {
-      color: gold;
-    }
-    &:not(.starred) {
+  &.can-modify-star {
+    .bb-message-star {
       color: black;
+    }
+    .starred .bb-message-star {
+      color: gold;
     }
   }
   .media {

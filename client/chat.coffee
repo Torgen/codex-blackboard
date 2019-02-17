@@ -14,43 +14,10 @@ Session.setDefault
   room_name: 'general/0'
   type:      'general'
   id:        '0'
-  timestamp: 0
   chatReady: false
+  limit:     settings.INITIAL_CHAT_LIMIT
 
-# Chat/pagination helpers!
-
-# subscribe to last-page feed all the time
-lastPageSub = Meteor.subscribe 'last-pages'
-
-# helper method, using the `ready` signal from lastPageSub
-# returns `null` iff subscriptions are not ready.
-pageForTimestamp = (room_name, timestamp=0, subscribe=false) ->
-  timestamp = +timestamp
-  if timestamp is 0
-    return null unless lastPageSub.ready()
-    p = model.Pages.findOne(room_name:room_name, next:null)
-    return {
-      _id: p?._id
-      room_name: room_name
-      from: p?.from or 0
-      to: 0 # means "and everything else" for message-in-range subscription
-    }
-  else
-    if subscribe and Tracker.active # make sure we unsubscribe if necessary!
-      ctx = subscribe?.subscribe or Meteor
-      ctx.subscribe 'page-by-timestamp', room_name, timestamp
-    model.Pages.findOne(room_name:room_name, to:timestamp)
-
-# helper method to filter messages to match a given page object
-messagesForPage = (p, opts={}) ->
-  unless p? # return empty cursor unless p is non-null
-    return model.Messages.find(timestamp:model.NOT_A_TIMESTAMP)
-  cond = $gte: +p.from, $lt: +p.to
-  delete cond.$lt if cond.$lt is 0
-  model.Messages.find
-    room_name: p.room_name
-    timestamp: cond
-  , opts
+# Chat helpers!
 
 # compare to: computeMessageFollowup in lib/model.coffee
 computeMessageFollowup = (prev, curr) ->
@@ -130,10 +97,10 @@ Template.starred_messages.helpers
       transform: messageTransform
 
 Template.media_message.events
-  'click .bb-message-star.starred': (event, template) ->
+  'click .bb-message.starred .bb-message-star': (event, template) ->
     return unless $(event.target).closest('.can-modify-star').size() > 0
     Meteor.call 'setStarred', this._id, false
-  'click .bb-message-star:not(.starred)': (event, template) ->
+  'click .bb-message:not(.starred) .bb-message-star': (event, template) ->
     return unless $(event.target).closest('.can-modify-star').size() > 0
     Meteor.call 'setStarred', this._id, true
 
@@ -191,10 +158,12 @@ messageTransform = (m) ->
 # Template Binding
 Template.messages.helpers
   room_name: -> Session.get('room_name')
-  timestamp: -> +Session.get('timestamp')
   ready: -> Session.equals('chatReady', true) and \
             Template.instance().subscriptionsReady()
   isLastRead: (ts) -> Session.equals('lastread', +ts)
+  # The dawn of time message has ID equal to the room name because it's
+  # efficient to find it that way on the client, where there are no indexes.
+  startOfChannel: -> model.Messages.findOne(_id: Session.get 'room_name')?
   usefulEnough: (m) ->
     # test Session.get('nobot') last to get a fine-grained dependency
     # on the `nobot` session variable only for 'useless' messages
@@ -206,24 +175,13 @@ Template.messages.helpers
             not m.useless_cmd) or \
         doesMentionNick(m) or \
         ('true' isnt reactiveLocalStorage.getItem 'nobot')
-  prevTimestamp: ->
-    p = pageForTimestamp Session.get('room_name'), +Session.get('timestamp')
-    return unless p?.from
-    "/chat/#{p.room_name}/#{p.from}"
-  nextTimestamp: ->
-    p = pageForTimestamp Session.get('room_name'), +Session.get('timestamp')
-    return unless p?.next?
-    p = model.Pages.findOne(p.next)
-    return unless p?
-    "/chat/#{p.room_name}/#{p.to}"
   messages: ->
     room_name = Session.get 'room_name'
     # I will go out on a limb and say we need this because transform uses
     # doesMentionNick and transforms aren't usually reactive, so we need to
     # recompute them if you log in as someone else.
     Meteor.userId()
-    p = pageForTimestamp room_name, +Session.get('timestamp')
-    return messagesForPage p,
+    return model.Messages.find {room_name},
       sort: [['timestamp','asc']]
       transform: messageTransform
       
@@ -242,7 +200,13 @@ Template.messages.helpers
 
 Template.messages.onCreated ->
   instachat.scrolledToBottom = true
-  this.autorun =>
+  @autorun =>
+    # put this in a separate autorun so it's not invalidated needlessly when
+    # the limit changes.
+    room_name = Session.get 'room_name'
+    return unless room_name
+    @subscribe 'presence-for-room', room_name
+  @autorun =>
     invalidator = =>
       instachat.ready = false
       Session.set 'chatReady', false
@@ -250,17 +214,29 @@ Template.messages.onCreated ->
     invalidator()
     room_name = Session.get 'room_name'
     return unless room_name
-    this.subscribe 'presence-for-room', room_name
-    timestamp = (+Session.get('timestamp'))
-    p = pageForTimestamp room_name, timestamp, {subscribe: this}
-    return unless p? # wait until page information is loaded
-    if p.next? # subscribe to the 'next' page
-      this.subscribe 'page-by-id', p.next
     # load messages for this page
-    onReady = ->
+    onReady = =>
       instachat.ready = true
       Session.set 'chatReady', true
-    this.subscribe 'messages-in-range', p.room_name, p.from, p.to,
+      return unless @limitRaise?
+      [[firstMessage, offset], @limitRaise] = [@limitRaise, undefined]
+      Tracker.afterFlush =>
+        # only scroll if the button is visible, since it means we were at the
+        # top and are still there. If we were anywhere else, the window would
+        # have stayed put.
+        messages = @$('#messages')[0]
+        chatStart = @$('.bb-chat-load-more, .bb-chat-start')[0]
+        return unless chatStart.getBoundingClientRect().bottom > messages.offsetTop
+        # We can't just scroll the last new thing into view because of the header.
+        # we have to find the thing whose offset top is as much above the message
+        # we want to keep in view as the offset top of the messages element.
+        # We would have to loop to find firstMessage's index in messages.children,
+        # so just iterate backwards. Shouldn't take too long to find ~100 pixels.
+        currMessage = firstMessage
+        while currMessage? and firstMessage.offsetTop - currMessage.offsetTop < offset
+          currMessage = currMessage.previousElementSibling
+        currMessage?.scrollIntoView()
+    @subscribe 'recent-messages', room_name, Session.get('limit'),
       onReady: onReady
     Tracker.onInvalidate invalidator
 
@@ -276,6 +252,16 @@ Template.messages.onRendered ->
     $("#messages").each ->
       console.log "Observing #{this}" unless Meteor.isProduction
       instachat.mutationObserver.observe(this, {childList: true})
+
+Template.messages.events
+  'click .bb-chat-load-more': (event, template) ->
+    firstMessage = event.currentTarget.nextElementSibling
+    offset = firstMessage.offsetTop
+    # Skip starred messages because they might be loaded by a different publish.
+    while firstMessage.classList.contains 'starred'
+      firstMessage = firstMessage.nextElementSibling
+    template.limitRaise = [firstMessage, offset]
+    Session.set 'limit', Session.get('limit') + settings.CHAT_LIMIT_INCREMENT
 
 whos_here_helper = ->
   roomName = Session.get('type') + '/' + Session.get('id')
@@ -361,11 +347,8 @@ prettyRoomName = ->
     model.Names.findOne(id)?.name
   return (name or "unknown")
 
-joinRoom = (type, id, timestamp) ->
-  roomName = type + '/' + id
-  # xxx: could record the room name in a set here.
-  Session.set "room_name", roomName
-  share.Router.goToChat(type, id, timestamp ? Session.get('timestamp'))
+joinRoom = (type, id) ->
+  share.Router.goToChat type, id
   Tracker.afterFlush -> scrollMessagesView()
   $("#messageInput").select()
   startupChat()
@@ -442,12 +425,12 @@ $(document).on 'submit', '#joinRoom', ->
     $("#roomName").val prettyRoomName()
   # is this the general room?
   else if model.canonical(roomName) is model.canonical(GENERAL_ROOM)
-    joinRoom "general", "0", 0
+    joinRoom "general", "0"
   else
     # try to find room as a group, round, or puzzle name
     n = model.Names.findOne canon: model.canonical(roomName)
     if n
-      joinRoom n.type, n._id, 0
+      joinRoom n.type, n._id
     else
       # reset to old room name
       $("#roomName").val prettyRoomName()
@@ -495,7 +478,7 @@ Template.messages_input.submit = (message) ->
           return Meteor.call 'newMessage', args
         hideMessageAlert()
         cleanupChat()
-        joinRoom result.type, result.object._id, 0
+        joinRoom result.type, result.object._id
     when "/msg", "/m"
       # find who it's to
       [to, rest] = rest.split(/\s+([^]*)/, 2)
@@ -523,9 +506,6 @@ Template.messages_input.submit = (message) ->
   # on the newMessage call, which makes the below ineffective.  But leave
   # it here in case we turn latency compensation back on.
   Tracker.afterFlush -> scrollMessagesView()
-  # make sure we're looking at the most recent messages
-  if (+Session.get('timestamp'))
-    share.Router.navigate "/chat/#{Session.get 'room_name'}", {trigger:true}
   return
 Template.messages_input.events
   "keydown textarea": (event, template) ->
@@ -576,8 +556,6 @@ $(document).on 'focus', '#messageInput', ->
   hideMessageAlert()
 
 updateLastRead = ->
-  timestamp = (+Session.get('timestamp')) or Number.MAX_VALUE
-  return unless timestamp is Number.MAX_VALUE # don't update if we're paged back
   lastMessage = model.Messages.findOne
     room_name: Session.get 'room_name'
   ,
@@ -713,8 +691,5 @@ share.chat =
   cleanupChat: cleanupChat
   hideMessageAlert: hideMessageAlert
   joinRoom: joinRoom
-  # pagination helpers
-  pageForTimestamp: pageForTimestamp
-  messagesForPage: messagesForPage
   # for debugging
   instachat: instachat

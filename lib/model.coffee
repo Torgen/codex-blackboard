@@ -174,6 +174,8 @@ if Meteor.isServer
 #                    bot messages and commands that trigger them.)
 #   useless_cmd: boolean (true if this message triggered the bot to
 #                         make a not-useful response)
+#   dawn_of_time: boolean. True for the first message in each channel, which
+#                 also has _id equal to the channel name.
 #
 # Messages which are part of the operation log have `nick`, `message`,
 # and `timestamp` set to describe what was done, when, and by who.
@@ -190,20 +192,6 @@ if Meteor.isServer
   Messages._ensureIndex {room_name:1, starred: -1, timestamp: 1},
     partialFilterExpression: starred: true
   Messages._ensureIndex {timestamp: 1}, {}
-
-# Pages -- paging metadata for Messages collection
-#   from: timestamp (first page has from==0)
-#   to: timestamp
-#   room_name: corresponds to room_name in Messages collection.
-#   prev: id of previous page for this room_name, or null
-#   next: id of next page for this room_name, or null
-# Messages with from <= timestamp < to are included in a specific page.
-Pages = BBCollection.pages = new Mongo.Collection "pages"
-if Meteor.isServer
-  # used in the observe code in server/batch.coffee
-  Pages._ensureIndex {room_name:1, to:-1}, {unique:true}
-  # used in the publish method
-  Pages._ensureIndex {next: 1, room_name:1}, {}
 
 # Last read message for a user in a particular chat room
 #   nick: canonicalized string, as in Messages
@@ -436,6 +424,18 @@ doc_id_to_link = (id) ->
         touched: UTCNow()
         touched_by: canonical(args.who))
 
+  ensureDawnOfTime = (room_name) ->
+    return unless Meteor.isServer
+    Messages.upsert room_name,
+      $min: timestamp: UTCNow() - 1
+      $setOnInsert:
+        system: true
+        dawn_of_time: true
+        room_name: room_name
+        bot_ignore: true
+  Meteor.startup ->
+    ['general/0', 'callins/0', 'oplog/0'].forEach ensureDawnOfTime
+      
   Meteor.methods
     newRound: (args) ->
       check @userId, NonEmptyString
@@ -443,10 +443,11 @@ doc_id_to_link = (id) ->
       link = if round_prefix
         round_prefix += '/' unless round_prefix.endsWith '/'
         "#{round_prefix}#{canonical(args.name)}"
-      newObject "rounds", {args..., who: @userId},
+      r = newObject "rounds", {args..., who: @userId},
         puzzles: []
         link: args.link or link
         sort_key: UTCNow()
+      ensureDawnOfTime "rounds/#{r._id}"
       # TODO(torgen): create default meta
     renameRound: (args) ->
       check @userId, NonEmptyString
@@ -485,6 +486,7 @@ doc_id_to_link = (id) ->
       if args.puzzles?
         extra.puzzles = args.puzzles
       p = newObject "puzzles", {args..., who: @userId}, extra
+      ensureDawnOfTime "puzzles/#{p._id}"
       if args.puzzles?
         Puzzles.update {_id: $in: args.puzzles},
           $addToSet: feedsInto: p._id
@@ -823,6 +825,7 @@ doc_id_to_link = (id) ->
         newMsg.stream = args.stream or ''
       # translate emojis!
       newMsg.body = emojify newMsg.body unless newMsg.bodyIsHtml
+      ensureDawnOfTime newMsg.room_name
       # update the user's 'last read' message to include this one
       # (doing it here allows us to use server timestamp on message)
       unless (args.suppressLastRead or newMsg.system or newMsg.oplog)
@@ -1265,7 +1268,6 @@ share.model =
   Rounds: Rounds
   Puzzles: Puzzles
   Messages: Messages
-  Pages: Pages
   LastRead: LastRead
   Presence: Presence
   Settings: Settings

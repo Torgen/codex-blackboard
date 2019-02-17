@@ -64,7 +64,6 @@ Meteor.subscribe 'all-nicks'
 # we might subscribe to all-roundsandpuzzles, too.
 if settings.BB_SUB_ALL
   Meteor.subscribe 'all-roundsandpuzzles'
-# we also always subscribe to the last-pages feed; see chat.coffee
 
 keystring = (k) -> "notification.stream.#{k}"
 
@@ -130,9 +129,8 @@ Meteor.startup ->
   suppress = true
   Tracker.autorun ->
     return if share.notification.count() is 0 # unsubscribes
-    p = share.chat.pageForTimestamp 'oplog/0', 0, {subscribe:true}
-    return unless p? # wait until page info is loaded
-    Meteor.subscribe 'messages-in-range', p.room_name, p.from, p.to,
+    # Limits spam if you 
+    Meteor.subscribe 'oplogs-since', now,
       onStop: -> suppress = true
       onReady: -> suppress = false
   share.model.Messages.find({room_name: 'oplog/0', timestamp: $gte: now}).observeChanges
@@ -191,8 +189,7 @@ BlackboardRouter = Backbone.Router.extend
     "puzzles/:puzzle": "PuzzlePage"
     "puzzles/:puzzle/:view": "PuzzlePage"
     "chat/:type/:id": "ChatPage"
-    "chat/:type/:id/:timestamp": "ChatPage"
-    "oplogs/:timestamp": "OpLogPage"
+    "oplogs": "OpLogPage"
     "callins": "CallInPage"
     "quips/:id": "QuipPage"
     "facts": "FactsPage"
@@ -221,14 +218,12 @@ BlackboardRouter = Backbone.Router.extend
   RoundPage: (id) ->
     this.goToChat "rounds", id, 0
 
-  ChatPage: (type,id,timestamp=0) ->
+  ChatPage: (type,id) ->
     id = "0" if type is "general"
     this.Page("chat", type, id)
-    Session.set "timestamp", +timestamp
 
-  OpLogPage: (timestamp) ->
+  OpLogPage: ->
     this.Page("oplog", "oplog", "0")
-    Session.set "timestamp", timestamp
 
   CallInPage: ->
     this.Page("callins", "callins", "0")
@@ -245,10 +240,10 @@ BlackboardRouter = Backbone.Router.extend
     # proper subscriptions, etc; plus launch a background process
     # to perform database mutations
     cb = (args) =>
-      {page,type,id,timestamp} = args
+      {page,type,id} = args
       url = switch page
-        when 'chat' then this.chatUrlFor type, id, timestamp
-        when 'oplogs' then this.urlFor 'oplogs', timestamp # bit of a hack
+        when 'chat' then this.chatUrlFor type, id
+        when 'oplogs' then this.urlFor 'oplogs' # bit of a hack
         when 'blackboard' then Meteor._relativeToSiteRootUrl "/"
         when 'facts' then this.urlFor 'facts', '' # bit of a hack
         else this.urlFor type, id
@@ -257,20 +252,25 @@ BlackboardRouter = Backbone.Router.extend
     cb(r) if r? # immediately navigate if method is synchronous
 
   Page: (page, type, id) ->
+    old_room = Session.get 'room_name'
+    new_room = "#{type}/#{id}"
+    if old_room isnt new_room
+      # if switching between a puzzle room and full-screen chat, don't reset limit.
+      Session.set
+        room_name: new_room
+        limit: settings.INITIAL_CHAT_LIMIT
     Session.set
       currentPage: page
       type: type
       id: id
-      room_name: (type+'/'+id)
     # cancel modals if they were active
     $('#nickPickModal').modal 'hide'
     $('#confirmModal').modal 'hide'
 
   urlFor: (type,id) ->
     Meteor._relativeToSiteRootUrl "/#{type}/#{id}"
-  chatUrlFor: (type, id, timestamp) ->
-    (Meteor._relativeToSiteRootUrl "/chat#{this.urlFor(type,id)}") + \
-    (if (+timestamp) then "/#{+timestamp}" else "")
+  chatUrlFor: (type, id) ->
+    (Meteor._relativeToSiteRootUrl "/chat#{this.urlFor(type,id)}")
 
   goTo: (type,id) ->
     this.navigate(this.urlFor(type,id), {trigger:true})
@@ -279,8 +279,8 @@ BlackboardRouter = Backbone.Router.extend
 
   goToPuzzle: (puzzle) ->  this.goTo("puzzles", puzzle._id)
 
-  goToChat: (type, id, timestamp) ->
-    this.navigate(this.chatUrlFor(type, id, timestamp), {trigger:true})
+  goToChat: (type, id) ->
+    this.navigate(this.chatUrlFor(type, id), {trigger:true})
 
 share.Router = new BlackboardRouter()
 Backbone.history.start {pushState: true}

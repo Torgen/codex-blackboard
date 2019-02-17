@@ -98,21 +98,33 @@ Meteor.publish 'round-for-puzzle', loginRequired (id) -> model.Rounds.find puzzl
 Meteor.publish 'puzzles-by-meta', loginRequired (id) -> model.Puzzles.find feedsInto: id
 
 # get recent messages
-
-# the last Page object for every room_name.
-Meteor.publish 'last-pages', loginRequired -> model.Pages.find(next: null)
-# a specific page object
-Meteor.publish 'page-by-id', loginRequired (id) -> model.Pages.find _id: id
-Meteor.publish 'page-by-timestamp', loginRequired (room_name, timestamp) ->
-  model.Pages.find room_name: room_name, to: timestamp
-
-Meteor.publish 'messages-in-range', loginRequired (room_name, from, to=0) ->
-  cond = $gte: +from, $lt: +to
-  delete cond.$lt if cond.$lt is 0
+Meteor.publish 'recent-messages', loginRequired (room_name, limit) ->
   model.Messages.find
     room_name: room_name
-    timestamp: cond
-    $or: [ {to: $in: [null, @userId]}, {nick: @userId }]
+    $or: [ {to: null}, {to: @userId}, {nick: @userId }]
+  ,
+    sort: [['timestamp', 'desc']]
+    limit: limit
+
+# Special subscription for the recent chats header because it ignores system
+# and presence messages and anything with an HTML body.
+Meteor.publish 'recent-header-messages', loginRequired ->
+  model.Messages.find
+    room_name: 'general/0'
+    system: $ne: true
+    body_is_html: $ne: true
+    $or: [ {to: null}, {to: @userId}, {nick: @userId }]
+  ,
+    sort: [['timestamp', 'desc']]
+    limit: 2
+
+# Special subscription for desktop notifications
+Meteor.publish 'oplogs-since', loginRequired (since) ->
+  model.Messages.find
+    room_name: 'oplog/0'
+    timestamp: $gt: since
+  ,
+    sort: [['timestamp', 'desc']]
 
 Meteor.publish 'starred-messages', loginRequired (room_name) ->
   model.Messages.find { room_name: room_name, starred: true },

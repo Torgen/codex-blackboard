@@ -56,7 +56,7 @@
 </template>
 
 <template name="starred_messages">
-  {{#if messages}}
+  {{#if messages.count}}
   <div class="bb-chat-messages bb-starred-messages {{#if canModify}}can-modify-star{{/if}}">
     <h3>Starred Messages</h3>
     {{#each messages}}
@@ -67,13 +67,13 @@
 </template>
 
 <template name="media_message">
-<div class="media{{#if message.to}} bb-message-pm{{/if}}" data-nick="{{message.nick}}" data-pm-to="{{message.to}}">
+<div class="bb-message media{{#if message.to}} bb-message-pm{{/if}}{{#if message.starred}} starred{{/if}}" data-nick="{{message.nick}}" data-pm-to="{{message.to}}">
   {{gravatar id=email image="wavatar" size=48 classes="media-object pull-left img-rounded" }}
   <div class="media-body bb-message-body">
     <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
     {{#unless message.to}}
       {{! can't star a PM. }}
-      <div class="bb-message-star {{#if message.starred}}starred{{/if}}"></div>
+      <div class="bb-message-star"></div>
     {{/unless}}
     <h5 class="media-heading"><span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span>
           {{#if message.to}}
@@ -108,16 +108,19 @@
 
 <template name="messages">
   <div id="messages" class="row-fluid bb-chat-messages {{#if mynick}}can-modify-star{{/if}}">
-    {{#if ready}}{{#if prevTimestamp}}
-      <p align="center">
-        <a href="{{prevTimestamp}}" class="chat-link">See earlier messages</a>
-      </p>
-    {{else if timestamp}}
-      <p align="center">Start of chat log.</p>
-    {{/if}}{{/if}}
+    {{#if ready}}
+      {{#if startOfChannel}}
+        <button disabled="" class="btn btn-small btn-block btn-info bb-chat-start">No earlier messages</button>
+      {{else}}
+        <button class="btn btn-small btn-info btn-block bb-chat-load-more">Load more messages</button>
+      {{/if}}
+    {{else}}
+      <button class="btn btn-small btn-info btn-block active bb-chat-loading">Loading <i class="fas fa-spin fa-spinner"></i></button>
+    {{/if}}
     {{#each messages}}{{scrollHack}}
-      {{#if message.presence}}
-<div class="bb-message-presence {{message.presence}}" title={{body}}>
+      {{#if message.dawn_of_time}}<!-- Channel creation -->
+      {{else if message.presence}}
+<div class="bb-message-presence {{message.presence}}" title="{{body}}">
   {{gravatar id=email image="wavatar" size=14 }}{{message.nick}}
 </div>
       {{else if message.system}}
@@ -126,7 +129,7 @@
      {{body}}
 </div>
       {{else if usefulEnough message}}
-        {{# if message.action}}
+        {{#if message.action}}
 <div class="bb-message-action" data-nick="{{message.nick}}">
    <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
      <i class="fas fa-hand-point-right"></i>
@@ -139,25 +142,8 @@
       {{#if isLastRead message.timestamp}}
 <div class="bb-message-last-read">read</div>
       {{/if}}
-    {{else}}
-      <p align="center">
-{{#if ready}}
-No chat messages{{#if timestamp}} before {{pretty_ts timestamp}}{{/if}}.
-{{else}}
-...loading messages...
-{{/if}}
-      </p>
     {{/each}}
-
-    {{#if timestamp}}{{#if ready}}
-      <p align="center">
-      {{#if nextTimestamp}}
-      <a href="{{nextTimestamp}}" class="chat-link">See next page of logs</a>;
-      {{/if}}
-      <a href="/chat/{{room_name}}" class="chat-link">See most recent logs</a>
-      </p>
-    {{/if}}{{/if}}
     {{! Ensure there's always a small "last-child" here to scroll to.}}
-    <p id=chat-bottom></p>
+    <p id="chat-bottom"></p>
   </div>
 </template>
