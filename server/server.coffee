@@ -112,7 +112,7 @@ Meteor.publish 'recent-header-messages', loginRequired ->
   model.Messages.find
     room_name: 'general/0'
     system: $ne: true
-    body_is_html: $ne: true
+    bodyIsHtml: $ne: true
     $or: [ {to: null}, {to: @userId}, {nick: @userId }]
   ,
     sort: [['timestamp', 'desc']]

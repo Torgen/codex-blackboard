@@ -571,9 +571,8 @@ RECENT_GENERAL_LIMIT = 2
 ############## chat log in header ####################
 Template.header_lastchats.helpers
   lastchats: ->
-    LIMIT = 2
     m = model.Messages.find {
-      room_name: "general/0", system: false, bodyIsHtml: false
+      room_name: "general/0", system: {$ne: true}, bodyIsHtml: {$ne: true}
     }, {sort: [["timestamp","desc"]], limit: RECENT_GENERAL_LIMIT}
     m = m.fetch().reverse()
     return m
