@@ -123,8 +123,6 @@ Meteor.publish 'oplogs-since', loginRequired (since) ->
   model.Messages.find
     room_name: 'oplog/0'
     timestamp: $gt: since
-  ,
-    sort: [['timestamp', 'desc']]
 
 Meteor.publish 'starred-messages', loginRequired (room_name) ->
   model.Messages.find { room_name: room_name, starred: true },
