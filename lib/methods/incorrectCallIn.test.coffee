@@ -66,7 +66,7 @@ describe 'incorrectCallIn', ->
       chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
 
     it "notifies puzzle chat", ->
-      chai.assert.lengthOf model.Messages.find(room_name: "puzzles/#{puzzle}").fetch(), 1
+      chai.assert.lengthOf model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch(), 1
 
     it "notifies general chat", ->
-      chai.assert.lengthOf model.Messages.find(room_name: 'general/0').fetch(), 1
+      chai.assert.lengthOf model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch(), 1

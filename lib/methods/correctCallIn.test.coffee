@@ -72,7 +72,7 @@ describe 'correctCallIn', ->
       chai.assert.isUndefined model.CallIns.findOne callin
 
     it 'oplogs', ->
-      o = model.Messages.find(room_name: 'oplog/0').fetch()
+      o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf o, 1
       chai.assert.include o[0],
         type: 'puzzles'
@@ -82,7 +82,7 @@ describe 'correctCallIn', ->
       chai.assert.include o[0].body, '(PRECIPITATE)', 'message'
 
     it 'notifies puzzle chat', ->
-      o = model.Messages.find(room_name: "puzzles/#{puzzle}").fetch()
+      o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf o, 1
       chai.assert.include o[0],
         nick: 'cjb'
@@ -91,7 +91,7 @@ describe 'correctCallIn', ->
       chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
     it 'notifies general chat', ->
-      o = model.Messages.find(room_name: "general/0").fetch()
+      o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf o, 1
       chai.assert.include o[0],
         nick: 'cjb'
@@ -115,7 +115,7 @@ describe 'correctCallIn', ->
       puzzles: [puzzle]
     model.Puzzles.update puzzle, $push: feedsInto: meta
     Meteor.callAs 'correctCallIn', 'cjb', callin
-    m = model.Messages.find(room_name: "puzzles/#{meta}").fetch()
+    m = model.Messages.find(room_name: "puzzles/#{meta}", dawn_of_time: $ne: true).fetch()
     chai.assert.lengthOf m, 1
     chai.assert.include m[0],
       nick: 'cjb'

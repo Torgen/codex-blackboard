@@ -114,13 +114,13 @@ describe 'summon', ->
         tags: status: {name: 'Status', value: 'Stuck like glue', touched: 7, touched_by: 'torgen'}
 
     it 'notifies main chat', ->
-      msgs = model.Messages.find(room_name: 'general/0').fetch()
+      msgs = model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf msgs, 1
       chai.assert.include msgs[0].body, ': Stuck like glue ('
       chai.assert.include msgs[0].body, 'Foo'
 
     it "notifies puzzle chat", ->
-      msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+      msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf msgs, 1
       chai.assert.include msgs[0].body, ': Stuck like glue'
       chai.assert.notInclude msgs[0].body, 'Foo'
@@ -162,13 +162,13 @@ describe 'summon', ->
           tags: status: {name: 'Status', value: 'Stuck', touched: 7, touched_by: 'torgen'}
 
       it 'notifies main chat', ->
-        msgs = model.Messages.find(room_name: 'general/0').fetch()
+        msgs = model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': Stuck ('
         chai.assert.include msgs[0].body, 'Foo'
 
       it "notifies puzzle chat", ->
-        msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+        msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': Stuck'
         chai.assert.notInclude msgs[0].body, 'Foo'
@@ -193,13 +193,13 @@ describe 'summon', ->
           tags: status: {name: 'Status', value: 'stucK like glue', touched: 7, touched_by: 'torgen'}
 
       it 'notifies main chat', ->
-        msgs = model.Messages.find(room_name: 'general/0').fetch()
+        msgs = model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': stucK like glue ('
         chai.assert.include msgs[0].body, 'Foo'
 
       it "notifies puzzle chat", ->
-        msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+        msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': stucK like glue'
         chai.assert.notInclude msgs[0].body, 'Foo'
@@ -224,14 +224,14 @@ describe 'summon', ->
           tags: status: {name: 'Status', value: 'Stuck: no idea', touched: 7, touched_by: 'torgen'}
 
       it 'notifies main chat', ->
-        msgs = model.Messages.find(room_name: 'general/0').fetch()
+        msgs = model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': no idea ('
         chai.assert.notInclude msgs[0].body, 'Stuck'
         chai.assert.include msgs[0].body, 'Foo'
 
       it "notifies puzzle chat", ->
-        msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+        msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': no idea'
         chai.assert.notInclude msgs[0].body, 'Stuck'

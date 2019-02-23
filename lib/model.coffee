@@ -449,6 +449,7 @@ doc_id_to_link = (id) ->
         sort_key: UTCNow()
       ensureDawnOfTime "rounds/#{r._id}"
       # TODO(torgen): create default meta
+      r
     renameRound: (args) ->
       check @userId, NonEmptyString
       renameObject "rounds", {args..., who: @userId}

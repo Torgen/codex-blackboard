@@ -69,7 +69,7 @@ describe 'newPoll', ->
   it 'creates message', ->
     Meteor.callAs 'newPoll', 'torgen', 'general/0', 'What up?', ['Red', 'Orange', 'Yellow', 'Green', 'Blue']
     p = model.Polls.findOne()._id
-    chai.assert.deepInclude model.Messages.findOne(),
+    chai.assert.deepInclude model.Messages.findOne(dawn_of_time: $ne: true),
       room_name: 'general/0'
       nick: 'torgen'
       body: 'What up?'

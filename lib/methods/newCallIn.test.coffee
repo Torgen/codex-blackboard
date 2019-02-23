@@ -70,7 +70,7 @@ describe 'newCallIn', ->
           provided: false
 
       it 'oplogs', ->
-        o = model.Messages.find(room_name: 'oplog/0').fetch()
+        o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf o, 1
         chai.assert.include o[0],
           type: 'puzzles'
@@ -81,7 +81,7 @@ describe 'newCallIn', ->
         chai.assert.include o[0].body, 'precipitate', 'message'
 
       it 'notifies puzzle chat', ->
-        o = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+        o = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf o, 1
         chai.assert.include o[0],
           nick: 'torgen'
@@ -90,7 +90,7 @@ describe 'newCallIn', ->
         chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
       it 'notifies general chat', ->
-        o = model.Messages.find(room_name: "general/0").fetch()
+        o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf o, 1
         chai.assert.include o[0],
           nick: 'torgen'
@@ -164,7 +164,7 @@ describe 'newCallIn', ->
     Meteor.callAs 'newCallIn', 'torgen',
       target: p
       answer: 'precipitate'
-    m = model.Messages.find(room_name: "puzzles/#{meta}").fetch()
+    m = model.Messages.find(room_name: "puzzles/#{meta}", dawn_of_time: $ne: true).fetch()
     chai.assert.lengthOf m, 1
     chai.assert.include m[0],
       nick: 'torgen'

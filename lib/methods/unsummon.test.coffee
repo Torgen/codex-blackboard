@@ -90,13 +90,13 @@ describe 'unsummon', ->
         chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
 
       it 'notifies main chat', ->
-        msgs = model.Messages.find(room_name: 'general/0').fetch()
+        msgs = model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, 'has arrived'
         chai.assert.include msgs[0].body, "puzzle Foo"
 
       it "notifies puzzle chat", ->
-        msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+        msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, 'has arrived'
         chai.assert.notInclude msgs[0].body, "puzzle Foo"
@@ -130,13 +130,13 @@ describe 'unsummon', ->
       chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
 
     it 'notifies main chat', ->
-      msgs = model.Messages.find(room_name: 'general/0').fetch()
+      msgs = model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf msgs, 1
       chai.assert.include msgs[0].body, 'no longer'
       chai.assert.include msgs[0].body, "puzzle Foo"
 
     it "notifies puzzle chat", ->
-      msgs = model.Messages.find(room_name: "puzzles/#{id}").fetch()
+      msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf msgs, 1
       chai.assert.include msgs[0].body, 'no longer'
       chai.assert.notInclude msgs[0].body, "puzzle Foo"
