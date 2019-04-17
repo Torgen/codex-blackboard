@@ -444,34 +444,37 @@ body.has-emojis {
       margin-left: -2px;
       margin-right: 3px;
     }
-    .puzzle-name > div {
-      /* relative positioning context for .bb-puzzle-add-move.
-       * Note that firefox doesn't allow position: relative on a table cell */
-      position: relative;
-    }
-    .puzzle-name .bb-puzzle-add-move {
-      display: block; width: 14px*3; height: 14px;
-      position: absolute; right: -2px; top: 3px;
-      .bb-add-tag, .bb-move-up, .bb-move-down {
-        display: inline-block; width: 14px; height: 14px;
+    .puzzle-name {
+      .bb-favorite-button { float: right; }
+      & > div {
+        /* relative positioning context for .bb-puzzle-add-move.
+        * Note that firefox doesn't allow position: relative on a table cell */
         position: relative;
-        float: left;
-        i { position: absolute; top: 0; left: 0; margin-top: 0px; }
-        &:hover { cursor: pointer; }
       }
-      button {
-        padding: 0; margin: 0; border: none; text-shadow: none;
-        line-height: 14px; height: 14px;
-      }
-      .bb-add-tag {
-        i + i {
-         top: 3px;
-         -webkit-transform-origin: bottom left;
-            -moz-transform-origin: bottom left;
-                 transform-origin: bottom left;
-         -webkit-transform: scale(0.5);
-            -moz-transform: scale(0.5);
-                 transform: scale(0.5);
+      .bb-puzzle-add-move {
+        display: block; width: 14px*3; height: 14px;
+        position: absolute; right: -2px; top: 3px;
+        .bb-add-tag, .bb-move-up, .bb-move-down {
+          display: inline-block; width: 14px; height: 14px;
+          position: relative;
+          float: left;
+          i { position: absolute; top: 0; left: 0; margin-top: 0px; }
+          &:hover { cursor: pointer; }
+        }
+        button {
+          padding: 0; margin: 0; border: none; text-shadow: none;
+          line-height: 14px; height: 14px;
+        }
+        .bb-add-tag {
+          i + i {
+          top: 3px;
+          -webkit-transform-origin: bottom left;
+              -moz-transform-origin: bottom left;
+                  transform-origin: bottom left;
+          -webkit-transform: scale(0.5);
+              -moz-transform: scale(0.5);
+                  transform: scale(0.5);
+          }
         }
       }
     }

@@ -1,0 +1,18 @@
+.bb-favorite-button {
+  position: relative;
+  display: inline-block;
+  &::before, &::after {
+    font-family: "Font Awesome 5 Free";
+    content: "\f004";
+  }
+  &::before { font-weight: 900; }
+  &::after {
+    font-weight: 400;
+    color: black; 
+    position: absolute;
+    bottom: 0px;
+    left:0px;
+  }
+  &.indifferent::before { color: transparent; }
+  &.favorite::before { color: red; }
+}
