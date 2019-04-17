@@ -83,6 +83,8 @@ if Meteor.isServer
 #   drive: optional google drive folder id
 #   spreadsheet: optional google spreadsheet id
 #   doc: optional google doc id
+#   favorites: list of userids of users who favorited this puzzle.
+#              on the client, either empty/null or contains only you.
 #   puzzles: array of puzzle _ids for puzzles that feed into this.
 #            absent if this isn't a meta. empty if it is, but nothing feeds into
 #            it yet.
@@ -93,6 +95,8 @@ if Meteor.isServer
 #   the order within a meta.
 #   Note that this allows arbitrarily many meta puzzles. Also, there is no
 #   requirement that a meta be fed only by puzzles in the same round.
+# If you add fields to this that should be visible on the client, also add them
+# to the fields map in puzzleQuery in server/server.coffee.
 Puzzles = BBCollection.puzzles = new Mongo.Collection "puzzles"
 if Meteor.isServer
   Puzzles._ensureIndex {canon: 1}, {unique:true, dropDups:true}
@@ -1190,6 +1194,20 @@ doc_id_to_link = (id) ->
       Puzzles.update id, updateDoc
       oplog "Deleted answer for", 'puzzles', id, @userId
       return true
+
+    favorite: (puzzle) ->
+      check @userId, NonEmptyString
+      check puzzle, NonEmptyString
+      num = Puzzles.update puzzle, $addToSet:
+        favorites: @userId
+      num > 0
+
+    unfavorite: (puzzle) ->
+      check @userId, NonEmptyString
+      check puzzle, NonEmptyString
+      num = Puzzles.update puzzle, $pull:
+        favorites: @userId
+      num > 0
 
     newPoll: (room, question, options) ->
       check @userId, NonEmptyString

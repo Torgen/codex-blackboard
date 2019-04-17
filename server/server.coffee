@@ -1,8 +1,30 @@
 'use strict'
 model = share.model # import
 
+puzzleQuery = (query) -> 
+  model.Puzzles.find query,
+    fields:
+      name: 1
+      canon: 1
+      link: 1
+      created: 1
+      created_by: 1
+      touched: 1
+      touched_by: 1
+      solved: 1
+      solved_by: 1
+      incorrectAnswers: 1
+      tags: 1
+      drive: 1
+      spreadsheet: 1
+      doc: 1
+      favorites: $elemMatch: $eq: @userId
+      puzzles: 1
+      feedsInto: 1
+
 loginRequired = (f) -> ->
   return @ready() unless @userId
+  @puzzleQuery = puzzleQuery
   f.apply @, arguments
 
 # hack! log subscriptions so we can see what's going on server-side
@@ -14,8 +36,10 @@ Meteor.publish = ((publish) ->
     publish.call(Meteor, name, func2)
 )(Meteor.publish) if false # disable by default
 
+
+
 Meteor.publish 'all-roundsandpuzzles', loginRequired -> [
-  model.Rounds.find(), model.Puzzles.find()
+  model.Rounds.find(), @puzzleQuery({})
 ]
 
 # Login not required for this because it's needed for nick autocomplete.
@@ -91,11 +115,11 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
 
 # limit site traffic by only pushing out changes relevant to a certain
 # round or puzzle
-Meteor.publish 'puzzle-by-id', loginRequired (id) -> model.Puzzles.find _id: id
-Meteor.publish 'metas-for-puzzle', loginRequired (id) -> model.Puzzles.find puzzles: id
+Meteor.publish 'puzzle-by-id', loginRequired (id) -> @puzzleQuery _id: id
+Meteor.publish 'metas-for-puzzle', loginRequired (id) -> @puzzleQuery puzzles: id
 Meteor.publish 'round-by-id', loginRequired (id) -> model.Rounds.find _id: id
 Meteor.publish 'round-for-puzzle', loginRequired (id) -> model.Rounds.find puzzles: id
-Meteor.publish 'puzzles-by-meta', loginRequired (id) -> model.Puzzles.find feedsInto: id
+Meteor.publish 'puzzles-by-meta', loginRequired (id) -> @puzzleQuery feedsInto: id
 
 # get recent messages
 Meteor.publish 'recent-messages', loginRequired (room_name, limit) ->
