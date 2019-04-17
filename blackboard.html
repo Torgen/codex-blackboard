@@ -9,6 +9,9 @@
     <li><a class="callins-link" href="/callins"><i class="fas fa-phone"></i> Callin Queue</a></li>
     <li><a href="https://www.github.com/{{whoseGitHub}}/codex-blackboard/issues" target="_blank"><i class="fab fa-github"></i> Issues</a></li>
     <li class="separator"></li>
+    {{#if favorites.count}}
+      <li><a href="#favorites"><i class="fas fa-chevron-right"></i>Favorites</a></li>
+    {{/if}}
     {{#each rounds}}
     <li class="nav-header">{{name}}</li>
     {{#each metas}}
@@ -108,6 +111,16 @@
     </tr>
     {{/unless}}
   </thead>
+  {{#let faves=favorites}}
+    {{#if faves.count}}
+      <tbody>
+        <tr><th colspan="{{nCols}}" id="favorites"><h2>Favorite Puzzles</h2></th></tr>
+        {{#each faves}}
+          {{>blackboard_puzzle _id=_id puzzle=this}}
+        {{/each}}
+      </tbody>
+    {{/if}}
+  {{/let}}
   {{#each rounds}}
     {{> blackboard_round}}
   {{/each}}

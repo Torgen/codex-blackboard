@@ -160,6 +160,7 @@ Template.blackboard.helpers
   rounds: round_helper
   metas: meta_helper
   unassigned: unassigned_helper
+  favorites: -> model.Puzzles.find favorites: Meteor.userId()
 
 Template.blackboard_status_grid.helpers
   rounds: round_helper
