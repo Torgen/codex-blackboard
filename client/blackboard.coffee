@@ -160,7 +160,11 @@ Template.blackboard.helpers
   rounds: round_helper
   metas: meta_helper
   unassigned: unassigned_helper
-  favorites: -> model.Puzzles.find favorites: Meteor.userId()
+  favorites: ->
+    query = favorites: Meteor.userId()
+    if not Session.get('canEdit') and 'true' is reactiveLocalStorage.getItem 'hideSolved'
+      query.solved = $eq: null
+    model.Puzzles.find query
 
 Template.blackboard_status_grid.helpers
   rounds: round_helper
