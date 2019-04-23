@@ -2,6 +2,7 @@
 
 import canonical from './imports/canonical.coffee'
 import { ArrayMembers, ArrayWithLength, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
+import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 
 # Blackboard -- data model
@@ -85,6 +86,8 @@ if Meteor.isServer
 #   doc: optional google doc id
 #   favorites: list of userids of users who favorited this puzzle.
 #              on the client, either empty/null or contains only you.
+#   mechanics: list of canonical forms of mechanic names from
+#              ./imports/mechanics.coffee.
 #   puzzles: array of puzzle _ids for puzzles that feed into this.
 #            absent if this isn't a meta. empty if it is, but nothing feeds into
 #            it yet.
@@ -1208,6 +1211,28 @@ doc_id_to_link = (id) ->
       num = Puzzles.update puzzle, $pull:
         favorites: @userId
       num > 0
+
+    addMechanic: (puzzle, mechanic) ->
+      check @userId, NonEmptyString
+      check puzzle, NonEmptyString
+      check mechanic, IsMechanic
+      num = Puzzles.update puzzle,
+        $addToSet: mechanics: mechanic
+        $set:
+          touched: UTCNow()
+          touched_by: @userId
+      throw new Meteor.Error(404, "bad puzzle") unless num > 0
+
+    removeMechanic: (puzzle, mechanic) ->
+      check @userId, NonEmptyString
+      check puzzle, NonEmptyString
+      check mechanic, IsMechanic
+      num = Puzzles.update puzzle,
+        $pull: mechanics: mechanic
+        $set:
+          touched: UTCNow()
+          touched_by: @userId
+      throw new Meteor.Error(404, "bad puzzle") unless num > 0
 
     newPoll: (room, question, options) ->
       check @userId, NonEmptyString

@@ -19,6 +19,7 @@ puzzleQuery = (query) ->
       spreadsheet: 1
       doc: 1
       favorites: $elemMatch: $eq: @userId
+      mechanics: 1
       puzzles: 1
       feedsInto: 1
 
