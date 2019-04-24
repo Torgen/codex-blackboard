@@ -1,0 +1,24 @@
+<template name="mechanics">
+  {{! expected data context: 
+  label: Text to appear on top level dropdown
+  checked: list of selected mechanics }}
+  <div class="btn-group bb-mechanics-dropdown">
+    <a class="btn dropdown-toggle btn-inverse pull-left" data-toggle="dropdown" href="#">
+      {{label}}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      {{#each mechanics}}
+      <li><a name="{{canon}}">
+        <label class="checkbox">
+          <input data-mechanic="{{canon}}" type="checkbox" checked="{{isChecked}}">{{name}}
+        </label>
+      </a></li>
+      {{/each}}
+    </ul>
+  </div>
+</template>
+
+<template name="puzzle_mechanics">
+  {{> mechanics checked=mechanics label="Mechanics"}}
+</template>

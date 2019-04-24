@@ -1,0 +1,17 @@
+'use strict'
+
+import {mechanics} from '../lib/imports/mechanics.coffee'
+
+Template.mechanics.helpers
+  mechanics: -> mech for c, mech of mechanics
+  isChecked: -> Template.instance().data.checked?.includes @canon
+
+Template.mechanics.events
+  'click li a': (event, template) ->
+    # Stop the dropdown from closing.
+    event.stopPropagation()
+
+Template.puzzle_mechanics.events
+  'change input[data-mechanic]': (event, template) ->
+    method = if event.currentTarget.checked then 'addMechanic' else 'removeMechanic'
+    Meteor.call method, template.data._id, event.currentTarget.dataset.mechanic

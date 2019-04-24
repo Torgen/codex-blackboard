@@ -15,6 +15,7 @@
     <tr><td class="wronganswer">IncorrectAnswer:</td><td class="answer">{{answer}}</td></tr>
     <tr><td class="backsolve">{{#if backsolve}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts timestamp}}</td></tr>
   {{/each}}
+  <tr><td colspan="2">{{> puzzle_mechanics}}</td></tr>
 {{/with}}
 {{#each cares in unsetcaredabout}}
   <tr><td>{{cares.name}}:</td><td class="wanted">(wanted by {{cares.meta}})</td></tr>
