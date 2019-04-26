@@ -2,6 +2,12 @@
 
 import {mechanics} from '../lib/imports/mechanics.coffee'
 
+Template.registerHelper 'yourFavoriteMechanic', ->
+  Meteor.user().favorite_mechanics?.includes @
+
+Template.registerHelper 'mechanicName', ->
+  mechanics[@].name
+
 Template.mechanics.helpers
   mechanics: -> mech for c, mech of mechanics
   isChecked: -> Template.instance().data.checked?.includes @canon
