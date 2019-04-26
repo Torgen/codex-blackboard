@@ -3,7 +3,7 @@
   label: Text to appear on top level dropdown
   checked: list of selected mechanics }}
   <div class="btn-group bb-mechanics-dropdown">
-    <a class="btn dropdown-toggle btn-inverse pull-left" data-toggle="dropdown" href="#">
+    <a class="btn btn-small dropdown-toggle btn-inverse pull-left" data-toggle="dropdown" href="#">
       {{label}}
       <span class="caret"></span>
     </a>
@@ -21,4 +21,8 @@
 
 <template name="puzzle_mechanics">
   {{> mechanics checked=mechanics label="Mechanics"}}
+</template>
+
+<template name="favorite_mechanics">
+  {{> mechanics checked=currentUser.favorite_mechanics label="Favorite Mechanics"}}
 </template>

@@ -15,3 +15,8 @@ Template.puzzle_mechanics.events
   'change input[data-mechanic]': (event, template) ->
     method = if event.currentTarget.checked then 'addMechanic' else 'removeMechanic'
     Meteor.call method, template.data._id, event.currentTarget.dataset.mechanic
+
+Template.favorite_mechanics.events
+  'change input[data-mechanic]': (event, template) ->
+    method = if event.currentTarget.checked then 'favoriteMechanic' else 'unfavoriteMechanic'
+    Meteor.call method, event.currentTarget.dataset.mechanic
