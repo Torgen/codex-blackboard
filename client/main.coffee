@@ -61,6 +61,8 @@ Meteor.subscribe 'settings'
 Meteor.subscribe 'all-names'
 # subscribe to all nicks all the time
 Meteor.subscribe 'all-nicks'
+# Subscribe to yourself all the time
+Meteor.subscribe 'me'
 # we might subscribe to all-roundsandpuzzles, too.
 if settings.BB_SUB_ALL
   Meteor.subscribe 'all-roundsandpuzzles'

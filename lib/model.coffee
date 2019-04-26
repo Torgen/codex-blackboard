@@ -154,6 +154,8 @@ Polls = BBCollection.polls = new Mongo.Collection "polls"
 #   real_name (optional)
 #   gravatar (optional email address for avatar)
 #   services: map of provider-specific stuff; hidden on client
+#   favorite_mechanics: list of favorite mechanics in canonical form.
+#     Only served to yourself.
 if Meteor.isServer
   Meteor.users._ensureIndex {priv_located_order: 1},
     partialFilterExpression:
@@ -809,6 +811,18 @@ doc_id_to_link = (id) ->
           priv_located: args.timestamp ? timestamp
           priv_located_at: args.location
         $min: priv_located_order: timestamp
+      throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
+
+    favoriteMechanic: (mechanic) ->
+      check @userId, NonEmptyString
+      check mechanic, IsMechanic
+      n = Meteor.users.update @userId, $addToSet: favorite_mechanics: mechanic
+      throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
+
+    unfavoriteMechanic: (mechanic) ->
+      check @userId, NonEmptyString
+      check mechanic, IsMechanic
+      n = Meteor.users.update @userId, $pull: favorite_mechanics: mechanic
       throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
 
     newMessage: (args) ->
