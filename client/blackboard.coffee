@@ -97,6 +97,7 @@ notificationStreams = [
   {name: 'callins', label: "Call-Ins"}
   {name: 'answers', label: "Answers"}
   {name: 'stuck', label: 'Stuck Puzzles'}
+  {name: 'favorite-mechanics', label: 'Favorite Mechanics'}
 ]
 
 notificationStreamsEnabled = ->
