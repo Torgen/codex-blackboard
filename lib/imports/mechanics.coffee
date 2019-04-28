@@ -10,16 +10,18 @@ export class Mechanic
     mechanics[@canon] = @
     Object.freeze @
 
-new Mechanic "Crossword"
-new Mechanic "Cryptic Clues"
-new Mechanic "Duck Konundrum"
-new Mechanic "Music Identification"
-new Mechanic "Nikoli Variants"
-new Mechanic "NPL Flats"
-new Mechanic "Physical Artifact"
-new Mechanic "Programming"
-new Mechanic "Runaround"
-new Mechanic "Text Adventure"
+new Mechanic 'Creative Submission'
+new Mechanic 'Crossword'
+new Mechanic 'Cryptic Clues'
+new Mechanic 'Duck Konundrum'
+new Mechanic 'Music Identification'
+new Mechanic 'Nikoli Variants'
+new Mechanic 'NPL Flats'
+new Mechanic 'Physical Artifact'
+new Mechanic 'Programming'
+new Mechanic 'Runaround'
+new Mechanic 'Scavenger Hunt'
+new Mechanic 'Text Adventure'
 
 Object.freeze mechanics
 
