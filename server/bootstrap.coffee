@@ -68,6 +68,7 @@ Meteor.startup ->
         round: civ._id
         link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/technological_crisis_at_shikakuro_farms/'
         tags: [ {name: 'Technology', value: 'Agriculture'}]
+        mechanics: ['nikoli_variants']
       charm = ca 'newPuzzle',
         name: 'Charm School'
         round: civ._id
@@ -78,11 +79,13 @@ Meteor.startup ->
         round: civ._id
         link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/showcase/'
         tags: [ {name: 'Technology', value: 'Mathematics'}]
+        mechanics: ['runaround']
       drafting = ca 'newPuzzle',
         name: 'Drafting Table'
         round: civ._id
         link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/drafting_table/'
         tags: [ {name: 'Technology', value: 'Draftsmanship'}]
+        mechanics: ['programming']
       racking = ca 'newPuzzle',
         name: 'Racking Your Brains'
         round: civ._id
@@ -98,6 +101,7 @@ Meteor.startup ->
         round: civ._id
         link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/hints_with_a_bit_of_love/'
         tags: [ {name: 'Technology', value: '...and Literature'}]
+        mechanics: ['cryptic_clues']
       bank = ca 'newPuzzle',
         name: 'Letter Bank'
         round: civ._id
@@ -148,6 +152,7 @@ Meteor.startup ->
         round: civ._id
         link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/puzzle_box/'
         tags: [ {name: 'Technology', value: 'Invention'}]
+        mechanics: ['video_game']
       magic = ca 'newPuzzle',
         name: 'Sufficiently Advanced Technology'
         round: civ._id
@@ -163,11 +168,13 @@ Meteor.startup ->
         round: civ._id
         link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/inventory_query/'
         tags: [ {name: 'Technology', value: 'Private Property'}]
+        mechanics: ['text_adventure']
       laureate = ca 'newPuzzle',
         name: 'Laureate'
         round: civ._id
         link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/laureate/'
         tags: [ {name: 'Technology', value: 'Carbon Nanotubules'}]
+        mechanics: ['crossword', 'cryptic_clues']
       princesses = ca 'newPuzzle',
         name: 'The Sport Of Princesses'
         round: civ._id
@@ -259,6 +266,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/clueless.html'
         feedsInto: [disgust._id]
+        mechanics: ['crossword', 'cryptic_clues']
       ca 'newPuzzle',
         name: 'In Memoriam'
         round: emotions._id
@@ -270,12 +278,14 @@ Meteor.startup ->
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/freak_out.html'
         feedsInto: [fear._id]
+        mechanics: ['music_identification']
       ca 'newPuzzle',
         name: 'Let\'s Get Ready To Jumble'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/lets_get_ready_to_jumble.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '11'}]
+        mechanics: ['creative_submission']
       ca 'newPuzzle',
         name: 'AKA'
         round: emotions._id
@@ -292,12 +302,14 @@ Meteor.startup ->
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/a_learning_path.html'
         feedsInto: [disgust._id, fear._id]
+        mechanics: ['nikoli_variants']
       ca 'newPuzzle',
         name: 'Cross Words'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/cross_words.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '1'}]
+        mechanics: ['crossword']
       ca 'newPuzzle',
         name: 'We Are All Afraid To Die'
         round: emotions._id
@@ -326,6 +338,7 @@ Meteor.startup ->
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/caged.html'
         feedsInto: [joy._id, sadness._id]
         tags: [{name: 'Borders', value: '5'}]
+        mechanics: ['crossword']
       ca 'newPuzzle',
         name: 'Minority Report'
         round: emotions._id
@@ -337,12 +350,14 @@ Meteor.startup ->
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/asteroids.html'
         feedsInto: [anger._id]
         tags: [{name: 'Temperature', value: '3'}]
+        mechanics: ['video_game']
       ca 'newPuzzle',
         name: 'Good Fences Make Sad and Disgusted Neighbors'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/good_fences_make_sad_and_disgusted_neighbors.html'
         feedsInto: [sadness._id, disgust._id]
         tags: [{name: 'Borders', value: '2'}]
+        mechanics: ['nikoli_variants']
       ca 'newPuzzle',
         name: 'Face Your Fears'
         round: emotions._id
@@ -370,6 +385,7 @@ Meteor.startup ->
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/crossed_paths.html'
         feedsInto: [joy._id]
+        mechanics: ['crossword']
       ca 'newPuzzle',
         name: 'On the A Line'
         round: emotions._id
@@ -399,6 +415,7 @@ Meteor.startup ->
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/nobody_likes_sad_songs.html'
         feedsInto: [sadness._id]
         tags: [{name: 'Borders', value: '2'}]
+        mechanics: ['music_identification']
       ca 'newPuzzle',
         name: 'Irritating Places'
         round: emotions._id
@@ -436,6 +453,7 @@ Meteor.startup ->
         name: 'The Brainstorm'
         round: emotions._id
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/the_brainstorm.html'
+        mechanics: ['runaround']
       
 
     console.log 'Done populating initial database.'

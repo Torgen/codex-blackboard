@@ -478,6 +478,7 @@ doc_id_to_link = (id) ->
         round: NonEmptyString
         feedsInto: Match.Optional [NonEmptyString]
         puzzles: Match.Optional [NonEmptyString]
+        mechanics: Match.Optional [IsMechanic]
       throw new Meteor.Error(404, "bad round") unless Rounds.findOne(args.round)?
       puzzle_prefix = Settings.findOne('puzzle_url_prefix')?.value
       link = if puzzle_prefix
@@ -495,6 +496,8 @@ doc_id_to_link = (id) ->
         feedsInto: feedsInto
       if args.puzzles?
         extra.puzzles = args.puzzles
+      if args.mechanics?
+        extra.mechanics = [new Set(args.mechanics)...]
       p = newObject "puzzles", {args..., who: @userId}, extra
       ensureDawnOfTime "puzzles/#{p._id}"
       if args.puzzles?

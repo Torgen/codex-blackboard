@@ -83,6 +83,37 @@ describe 'newPuzzle', ->
     
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
+    
+  describe 'with mechanics', ->
+    round = null
+    beforeEach ->
+      round = model.Rounds.insert
+        name: 'Round'
+        canon: 'round'
+        created: 1
+        created_by: 'cjb'
+        touched: 1
+        touched_by: 'cjb'
+        puzzles: []
+
+    it 'dedupes mechanics', ->
+      id = Meteor.callAs 'newPuzzle', 'torgen',
+        name: 'Foo'
+        link: 'https://puzzlehunt.mit.edu/foo'
+        round: round
+        mechanics: ['crossword', 'crossword', 'cryptic_clues']
+      ._id
+      chai.assert.deepEqual model.Puzzles.findOne(id).mechanics, ['crossword', 'cryptic_clues']
+
+    it 'rejects bad mechanics', ->
+      chai.assert.throws ->
+        Meteor.callAs 'newPuzzle', 'torgen',
+          name: 'Foo'
+          link: 'https://puzzlehunt.mit.edu/foo'
+          round: round
+          mechanics: ['acrostic']
+      , Match.Error
+
 
   it 'derives link', ->
     model.Settings.insert

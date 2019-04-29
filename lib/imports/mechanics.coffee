@@ -22,6 +22,7 @@ new Mechanic 'Programming'
 new Mechanic 'Runaround'
 new Mechanic 'Scavenger Hunt'
 new Mechanic 'Text Adventure'
+new Mechanic 'Video Game'
 
 Object.freeze mechanics
 
