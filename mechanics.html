@@ -1,10 +1,9 @@
 <template name="mechanics">
-  {{! expected data context: 
-  label: Text to appear on top level dropdown
-  checked: list of selected mechanics }}
+  {{! expected data context: list of selected mechanics }}
+  {{! nested element: label for dropdown }}
   <div class="btn-group bb-mechanics-dropdown">
-    <a class="btn btn-small dropdown-toggle btn-inverse pull-left" data-toggle="dropdown" href="#">
-      {{label}}
+    <a class="btn dropdown-toggle btn-inverse pull-left" data-toggle="dropdown" href="#">
+      {{> Template.contentBlock}}
       <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
@@ -20,9 +19,11 @@
 </template>
 
 <template name="puzzle_mechanics">
-  {{> mechanics checked=mechanics label="Mechanics"}}
+  {{# mechanics mechanics}}{{nullToZero mechanics.length}} Selected{{/mechanics}}
 </template>
 
 <template name="favorite_mechanics">
-  {{> mechanics checked=currentUser.favorite_mechanics label="Favorite Mechanics"}}
+  {{# mechanics currentUser.favorite_mechanics}}
+    {{nullToZero currentUser.favorite_mechanics.length}} Favorite Mechanic{{#if plural currentUser.favorite_mechanics.length}}s{{/if}}
+  {{/mechanics}}
 </template>

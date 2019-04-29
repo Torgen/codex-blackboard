@@ -10,7 +10,7 @@ Template.registerHelper 'mechanicName', ->
 
 Template.mechanics.helpers
   mechanics: -> mech for c, mech of mechanics
-  isChecked: -> Template.instance().data.checked?.includes @canon
+  isChecked: -> Template.instance().data?.includes @canon
 
 Template.mechanics.events
   'click li a': (event, template) ->
