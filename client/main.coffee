@@ -114,30 +114,21 @@ share.notification =
   # On android chrome, we clobber this with a version that uses the
   # ServiceWorkerRegistration.
   notify: (title, settings) ->
-    onclick = null
-    if settings.onclick?
-      onclick = settings.onclick
-      delete settings.onclick
     n = new Notification title, settings
-    if onclick?
-      n.onclick = onclick
+    if settings.data?.url?
+      n.onclick = -> share.Router.navigate settings.data.url, trigger: true
   ask: ->
     Notification.requestPermission (ok) ->
       Session.set 'notifications', ok
       setupNotifications() if ok is 'granted'
 setupNotifications = ->
   if isAndroidChrome()
-    navigator.serviceWorker.register(Meteor._relativeToSiteRootUrl 'empty.js').then((reg) ->
-      navigator.serviceWorker.addEventListener 'notificationclick', (event) ->
-        n = event.notification
-        if n.data?.onclick?
-          n.close()
-          n.data.onclick()
-      share.notification.notify = (title, settings) ->
-        if settings.onclick?
-          settings.data = onclick: settings.onclick
-          delete settings.onclick
-        reg.showNotification title, settings
+    navigator.serviceWorker.register(Meteor._relativeToSiteRootUrl 'sw.js').then((reg) ->
+      navigator.serviceWorker.addEventListener 'message', (msg) ->
+        console.log msg.data
+        return unless msg.data.action is 'navigate'
+        share.Router.navigate msg.data.url, trigger: true
+      share.notification.notify = (title, settings) -> reg.showNotification title, settings
       finishSetupNotifications()
     ).catch (error) -> Session.set 'notifications', 'default'
     return
@@ -184,11 +175,10 @@ Meteor.startup ->
       share.model.Puzzles.find(mechanics: mech).observeChanges
         added: (id, puzzle) ->
           return if faveSuppress
-          console.log puzzle
           share.notification.notify puzzle.name,
             body: "Mechanic \"#{mechanics[mech].name}\" added to puzzle \"#{puzzle.name}\""
             tag: "#{id}/#{mech}"
-            onclick: -> share.Router.goTo 'puzzles', id
+            data: url: share.Router.urlFor 'puzzles', id
     faveSuppress = false
   unless Notification?
     Session.set 'notifications', 'denied'
