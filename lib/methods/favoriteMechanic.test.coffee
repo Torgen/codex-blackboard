@@ -51,9 +51,3 @@ describe 'favoriteMechanic', ->
     it 'creates favorite mechanics', ->
       Meteor.callAs 'favoriteMechanic', 'torgen', 'cryptic_clues'
       chai.assert.deepEqual Meteor.users.findOne('torgen').favorite_mechanics, ['cryptic_clues']
-
-    
-
-
-    
-
