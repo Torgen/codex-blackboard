@@ -723,7 +723,7 @@ html.fullHeight {
   #bb-body {
     padding-top: 0px;
     padding-bottom: 0;
-    #bb-content > .row-fluid {
+    #bb-content > #bb-blackboard {
       padding-top: @navbar-height;
     }
   }
@@ -797,6 +797,9 @@ html.fullHeight {
 
   .bb-hide-status {
     display: none;
+  }
+  #bb-body #bb-content > #bb-blackboard {
+    padding-top: @navbar-height - 40px;
   }
 }
 
