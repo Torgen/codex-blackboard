@@ -457,7 +457,7 @@
     </tr>
     {{#each puzzles}}
       {{> blackboard_puzzle}}
-    {{else}}
+    {{else unless num_puzzles}}
       <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
     {{/each}}
   {{#if canEdit}}
