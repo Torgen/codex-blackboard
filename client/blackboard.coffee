@@ -443,7 +443,14 @@ Template.blackboard_meta.helpers
       room_name: ("rounds/"+this.round?._id)
     , sort: ["nick"]
   compactMode: compactMode
-  stuck: share.model.isStuck 
+  stuck: share.model.isStuck
+  numHidden: ->
+    return 0 unless 'true' is reactiveLocalStorage.getItem 'hideSolved'
+    y = for id, index in @puzzle.puzzles
+      x = model.Puzzles.findOne id
+      continue unless x.solved?
+    y.length
+
 
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
