@@ -43,7 +43,7 @@
               Add new round
             </button>
           </div>
-        {{else #if notificationsEnabled}}
+        {{else if notificationsEnabled}}
           <div class="btn-group text-left">
             <button class="btn btn-small bb-notification-enabled{{#if anyNotificationsEnabled}} btn-inverse{{/if}}">
               <i class="fas {{#if anyNotificationsEnabled}}fa-bullhorn{{else}}fa-power-off{{/if}}"></i>
