@@ -125,7 +125,7 @@ setupNotifications = ->
   if isAndroidChrome()
     navigator.serviceWorker.register(Meteor._relativeToSiteRootUrl 'sw.js').then((reg) ->
       navigator.serviceWorker.addEventListener 'message', (msg) ->
-        console.log msg.data
+        console.log msg.data unless Meteor.isProduction
         return unless msg.data.action is 'navigate'
         share.Router.navigate msg.data.url, trigger: true
       share.notification.notify = (title, settings) -> reg.showNotification title, settings
