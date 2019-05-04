@@ -85,7 +85,7 @@ notificationDefaults =
   callins: false
   answers: true
   announcements: true
-  'new-puzzles': true
+  'new-puzzles': false
   stuck: false
   'favorite-mechanics': true
 
