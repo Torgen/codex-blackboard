@@ -460,16 +460,21 @@
     {{else unless num_puzzles}}
       <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
     {{/each}}
-  {{#if canEdit}}
+  {{#let numHidden=numHidden}}
+  {{#if or canEdit numHidden}}
   <tr class="metafooter"><td colspan="{{nCols}}">
-  <div class="bb-meta-buttons" data-bbedit="puzzles/{{puzzle._id}}">
-     <button class="btn btn-mini btn-inverse bb-add-puzzle">
-       <i class="fas fa-plus"></i>
-       Create new puzzle feeding this meta
-     </button>
-  </div>
+    {{#if canEdit}}
+      <div class="bb-meta-buttons" data-bbedit="puzzles/{{puzzle._id}}">
+        <button class="btn btn-mini btn-inverse bb-add-puzzle">
+          <i class="fas fa-plus"></i>
+          Create new puzzle feeding this meta
+        </button>
+      </div>
+    {{/if}}
+    {{#with numHidden}}<span class="num-hidden">({{this}} puzzle{{#if plural this}}s{{/if}} hidden)</span>{{/with}}
   </td></tr>
   {{/if}}
+  {{/let}}
   </tbody>
   {{/if}}
 </template>
