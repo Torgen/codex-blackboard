@@ -60,8 +60,6 @@ Template.registerHelper 'plural', (x) -> x != 1
 
 Template.registerHelper 'nullToZero', (x) -> x ? 0
 
-Template.registerHelper 'or', (args..., kw) -> args.some (x) -> x
-
 # subscribe to the dynamic settings all the time.
 Meteor.subscribe 'settings'
 # subscribe to the all-names feed all the time
