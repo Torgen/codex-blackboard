@@ -1,0 +1,134 @@
+.border-box {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+/* special hack for 100% height layout w/ vertical slider,
+   used on puzzle and round pages */
+html.fullHeight {
+
+  &, body, #bb-body, #bb-content, .bb-puzzleround,
+  .bb-splitter, .bb-splitter iframe, .bb-vsplitter {
+    height: 100%;
+  }
+  .bb-splitter > .bb-left-content, .bb-splitter iframe {
+    width: 100%;
+  }
+  #bb-body, #bb-content, .bb-puzzleround,
+  .bb-splitter, .bb-splitter > div, .bb-splitter iframe,
+  .bb-top-content > div, .bb-vsplitter { .border-box; }
+  /* splitter! */
+  .bb-puzzleround {
+    position: relative; /* establish positioning context */
+    width: 100%;
+    padding-left: 0px; padding-right: 0px;
+    .bb-splitter { /* vertical */
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      padding-right: var(--right-column);
+      @media (max-width: 767px) {
+        padding-right: initial;
+      }
+      &, & > div { height:100%; }
+      .bb-left-header {
+        padding-left: 2px; padding-right: 2px;
+      }
+      .bb-splitter-handle {
+        background: #ccc url('/img/vgrabber.gif') no-repeat center;
+        &:hover { background-color: #aaa; }
+      }
+      & > .bb-splitter-handle {
+        width: 6px;
+        cursor: ew-resize;
+        right: var(--right-column);
+        @media (max-width: 767px) {
+          display: none;
+        }
+      }
+      &.active {
+        & > .bb-splitter-handle { background-color: #e88; }
+        .bb-left-content, .bb-right-content { pointer-events: none; }
+      }
+      & > .bb-left-content { 
+        overflow-y: auto;
+        left: 0; top: 0;
+        .bb-left-header {
+          position: absolute; right: 100%; writing-mode: vertical-lr; top:10px;
+        }
+        iframe {
+          padding-top: 5px; /* was 26px, but we're chosing to overlap header */
+          margin-bottom: -5px;
+          border-top: none;
+        }
+      }
+      table:not(.table-bordered) {
+        tr > td:first-child { text-align: right }
+        td.rightanswer, td.wronganswer { font-weight: bold }
+      }
+      /* horizontal splitter in right half */
+      .bb-right-content {
+        position: absolute;
+        right: 0px;
+        width: var(--right-column);
+        @media (max-width: 767px) {
+          display: none;
+        }
+        .bb-top-right-content, .bb-bottom-right-content {
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+        }
+        .bb-splitter-handle {
+          height: 6px;
+          background-image: url('/img/hgrabber.gif');
+          cursor: ns-resize;
+          position: absolute;
+          left: 0; right: 0;
+          bottom: 300px;
+        }
+        &.active {
+          .bb-splitter-handle { background-color: #e88; }
+          .bb-top-right-content, .bb-bottom-right-content { pointer-events: none; }
+        }
+        .bb-bottom-right-content {
+          position: absolute;
+          right: 0; bottom: 0;
+          /* chat stylin' */
+          background: url('/img/grid_noise.png');
+          background-attachment: fixed;
+          overflow: hidden;
+          .bb-message-container, .bb-chat-messages { .border-box; }
+          .bb-message-container {
+            overflow: auto;
+            position: absolute;
+            left: 0; right: 0;
+            top: 0; bottom: 36px;
+          }
+          .bb-chat-messages {
+            padding: 5px 2px 0 2px;
+            margin-bottom: 0;
+          }
+          .bb-chat-footer {
+            position: absolute;
+            left: 0; right: 0; margin-left: 0; margin-right: 0;
+            bottom: 0; height: 36px;
+            background: url('/img/irongrip.png');
+            #messageInput { margin-top: 3px; }
+          }
+          .bb-chat-pop-out {
+            position: absolute; top: 0; right: 14px;
+            background: white;
+            border: 1px solid #888;
+            padding-left: 2px; padding-right: 4px;
+            border-bottom-left-radius: 5px;
+            &.in-margin {
+              padding-top: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

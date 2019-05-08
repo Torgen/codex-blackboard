@@ -101,9 +101,6 @@ Template.puzzle.onDestroyed ->
   $('html').removeClass('fullHeight')
   share.chat.cleanupChat()
 
-Template.puzzle.events
-  "mousedown .bb-splitter-handle": (e,t) -> share.Splitter.handleEvent(e,t)
-
 Template.puzzle_summon_button.helpers
   stuck: -> model.isStuck this
 

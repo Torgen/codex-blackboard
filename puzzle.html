@@ -53,11 +53,10 @@
 </template>
 
 <template name="puzzle">
-<div class="row-fluid bb-puzzleround">
- <!-- this is a puzzle page -->
 {{#with data}}
-<div class="bb-splitter" style="--right-column: {{hsize}}px; {{#unless boringMode}}background: {{color}}{{/unless}}">
-  <div class="bb-left-content">{{! start left of splitter }}
+<div class="row-fluid bb-puzzleround" style="{{#unless boringMode}}background: {{color}}{{/unless}}">
+ <!-- this is a puzzle page -->
+{{#horizontal_splitter}}
   {{#if puzzle.spreadsheet}}
     <div class="bb-left-header" style="{{#unless currentViewIs "spreadsheet"}}display: none;{{/unless}}">
       <a align="center" href="{{spread_link puzzle.spreadsheet}}"
@@ -91,9 +90,8 @@
   {{#if currentViewIs "info"}}
     <div class="bb-puzzle-frame">{{> puzzle_info}}</div>
   {{/if}}
-  </div>{{! end left of splitter }}
-  <div class="bb-splitter-handle"></div>
-  <div class="bb-right-content" style="{{#unless currentViewIs "info"}}padding-bottom: {{vsizePlusHandle}}px{{/unless}}">{{! start right of splitter }}
+  {{else}}
+  <div class="bb-vsplitter" style="{{#unless currentViewIs "info"}}padding-bottom: {{vsizePlusHandle}}px{{/unless}}">{{! start right of splitter }}
     {{#unless currentViewIs "info"}}
     <div class="bb-top-right-content">{{! start top right splitter }}
       {{> puzzle_info }}
@@ -101,26 +99,21 @@
     <div class="bb-splitter-handle" style="bottom: {{vsize}}px"></div>
     {{/unless}}
     <div class="bb-bottom-right-content" style="{{#unless currentViewIs "info"}}height: {{vsize}}px{{/unless}}">{{! start bottom right splitter }}
-      <div class="bb-message-container">
-        {{> messages }}
-      </div>
-      <div class="bb-chat-input bb-chat-footer">
-        {{> messages_input }}
-      </div>
+      {{> embedded_chat}}
       <div class="bb-chat-pop-out {{#if currentViewIs "info"}}in-margin{{/if}}">
         <a href="/chat/puzzles/{{puzzle._id}}" class="chat-link bb-pop-out"
            target="chat{{puzzle._id}}"><i class="fas fa-expand-arrows-alt"></i>
       Pop out</a>
       </div>
     </div>
-  </div> {{! end right of splitter }}
-</div>
+  </div>
+{{/horizontal_splitter}}
 {{#with puzzle}}
 {{> puzzle_summon_modal}}
 {{> puzzle_callin_modal}}
 {{/with}}
-{{/with}}
 </div>
+{{/with}}
 </template>
 
 <template name="puzzle_summon_button">

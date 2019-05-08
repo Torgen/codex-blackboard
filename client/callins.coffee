@@ -61,7 +61,6 @@ Template.callins.onDestroyed ->
 Template.callins.events
   "click .bb-addquip-btn": (event, template) ->
      share.Router.goTo "quips", "new"
-  "mousedown .bb-splitter-handle": (e,t) -> share.Splitter.handleEvent(e,t)
 
 Template.callins_quip.events
   "click .bb-quip-next": (event, template) ->

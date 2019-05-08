@@ -1,54 +1,45 @@
 <template name="callins">
 <div class="row-fluid bb-puzzleround bb-callins">
-  <div class="bb-splitter" style="--right-column: {{hsize}}px">
-    <div class="bb-left-content">{{! start left of splitter }}
-      {{> starred_messages canModify=mynick}}
-      <section class="bb-callin-queue">
-        <h1>Answer call-in queue</h1>
-        <table id="bb-callin-table" class="table"><tbody>
-          <tr>
-            <th>Puzzle</th>
-            <th>Answer</th>
-            <th>Proposed at</th>
-            <th>Last guess</th>
-            <th>Submitted to HQ</th>
-            <th align="center">Resolution</th>
-          </tr>
-          {{#each callins}}
-            {{> callin_row }}
-          {{else}}
-          <tr><td colspan="6">
-            No answers in the call-in queue.
-          </td></tr>
-          {{/each}}
-        </tbody></table>
-      </section>
-      <section class="bb-quips">
-        <button class="btn btn-small bb-addquip-btn">Add new quip</button>
-        <h1>Quips</h1>
-        {{#if quips.count}}
-          <table class="table">
-            {{#each quips}}
-              {{> callins_quip }}
-            {{/each}}
-          </table>
+  {{# horizontal_splitter }}
+    {{> starred_messages canModify=mynick}}
+    <section class="bb-callin-queue">
+      <h1>Answer call-in queue</h1>
+      <table id="bb-callin-table" class="table"><tbody>
+        <tr>
+          <th>Puzzle</th>
+          <th>Answer</th>
+          <th>Proposed at</th>
+          <th>Last guess</th>
+          <th>Submitted to HQ</th>
+          <th align="center">Resolution</th>
+        </tr>
+        {{#each callins}}
+          {{> callin_row }}
         {{else}}
-          No quips!  <a class="quips-link" href="{{quipAddUrl}}">Add some</a>.
-        {{/if}}
-      </section>
-    </div>{{! end left of splitter }}
-    <div class="bb-splitter-handle"></div>
-    <div class="bb-right-content">{{! start right of splitter }}
-      <div class="bb-bottom-right-content">{{! start bottom right splitter }}
-        <div class="bb-message-container">
-          {{> messages }}
-        </div>
-        <div class="bb-chat-input bb-chat-footer">
-          {{> messages_input }}
-        </div>
-      </div>
-    </div> {{! end right of splitter }}
-  </div>
+        <tr><td colspan="6">
+          No answers in the call-in queue.
+        </td></tr>
+        {{/each}}
+      </tbody></table>
+    </section>
+    <section class="bb-quips">
+      <button class="btn btn-small bb-addquip-btn">Add new quip</button>
+      <h1>Quips</h1>
+      {{#if quips.count}}
+        <table class="table">
+          {{#each quips}}
+            {{> callins_quip }}
+          {{/each}}
+        </table>
+      {{else}}
+        No quips!  <a class="quips-link" href="{{quipAddUrl}}">Add some</a>.
+      {{/if}}
+    </section>
+  {{else}}
+    <div class="bb-bottom-right-content">{{! start bottom right splitter }}
+      {{> embedded_chat }}
+    </div>
+  {{/ horizontal_splitter}}
 </div>
 </template>
 

@@ -78,3 +78,9 @@ Splitter = share.Splitter =
     val = reactiveLocalStorage.getItem "splitter.#{dim}"
     return unless val?
     x.set val
+
+Template.horizontal_splitter.helpers
+  hsize: -> Splitter.hsize.get()
+
+Template.horizontal_splitter.events
+  'mousedown .bb-splitter-handle': (e,t) -> Splitter.handleEvent(e,t)

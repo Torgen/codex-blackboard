@@ -25,6 +25,15 @@
 
 </template>
 
+<template name="embedded_chat">
+  <div class="bb-message-container">
+    {{> messages }}
+  </div>
+  <div class="bb-chat-input bb-chat-footer">
+    {{> messages_input }}
+  </div>
+</template>
+
 <template name="chat_header">
   {{#unless "true"}}
   <form id="joinRoom" class="form-search pull-left">
