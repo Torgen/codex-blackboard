@@ -638,7 +638,7 @@ Tracker.autorun ->
     Session.set 'lastread', undefined
     return hideMessageAlert()
   # watch the last read and update the session (even if we're paged back)
-  Meteor.subscribe 'lastread'
+  Meteor.subscribe 'lastread', room_name
   lastread = model.LastRead.findOne {nick, room_name}
   unless lastread
     Session.set 'lastread', undefined

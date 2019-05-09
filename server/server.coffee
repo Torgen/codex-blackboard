@@ -73,7 +73,7 @@ Meteor.publish 'presence-for-room', loginRequired (room_name) ->
 
 Meteor.publish 'settings', loginRequired -> model.Settings.find()
 
-Meteor.publish 'lastread', loginRequired -> model.LastRead.find nick: @userId
+Meteor.publish 'lastread', loginRequired (room_name) -> model.LastRead.find {nick: @userId, room_name}
 
 # this is for the "that was easy" sound effect
 # everyone is subscribed to this all the time
