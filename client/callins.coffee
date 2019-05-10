@@ -23,7 +23,6 @@ Meteor.startup ->
 
 Template.callins.onCreated ->
   $('html').addClass('fullHeight')
-  share.chat.startupChat()
   this.subscribe 'callins'
   this.subscribe 'quips'
   return if settings.BB_SUB_ALL
@@ -55,7 +54,6 @@ Template.callins.onRendered ->
 
 Template.callins.onDestroyed ->
   $('html').removeClass('fullHeight')
-  share.chat.cleanupChat()
   this.clipboard.destroy()
 
 Template.callins.events

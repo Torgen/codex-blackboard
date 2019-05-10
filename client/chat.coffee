@@ -351,7 +351,6 @@ joinRoom = (type, id) ->
   share.Router.goToChat type, id
   Tracker.afterFlush -> scrollMessagesView()
   $("#messageInput").select()
-  startupChat()
 
 maybeScrollMessagesView = do ->
   pending = false
@@ -477,7 +476,6 @@ Template.messages_input.submit = (message) ->
           args.body = "tried to join an unknown chat room"
           return Meteor.call 'newMessage', args
         hideMessageAlert()
-        cleanupChat()
         joinRoom result.type, result.object._id
     when "/msg", "/m"
       # find who it's to
@@ -604,9 +602,12 @@ cleanupChat = ->
       room_name: Session.get "room_name"
       present: false
 
-Template.chat.onDestroyed ->
-  hideMessageAlert()
+Template.messages.onCreated startupChat
+
+Template.messages.onDestroyed ->
   cleanupChat()
+  hideMessageAlert()
+
 # window.unload is a bit spotty with async stuff, but we might as well try
 $(window).unload -> cleanupChat()
 
@@ -628,22 +629,21 @@ updateNotice = do ->
     ## XXX check instachat.ready and instachat.alertWhenUnreadMessages ?
     [lastUnread, lastMention] = [unread, mention]
 
-Tracker.autorun ->
-  pageWithChat = /^(chat|puzzle|round|callins)$/.test Session.get('currentPage')
+Template.messages.onCreated -> @autorun ->
   nick = Meteor.userId() or ''
   room_name = Session.get 'room_name'
-  unless pageWithChat and nick and room_name
+  unless nick and room_name
     Session.set 'lastread', undefined
     return hideMessageAlert()
-  # watch the last read and update the session (even if we're paged back)
+  Tracker.onInvalidate hideMessageAlert
+  # watch the last read and update the session
   Meteor.subscribe 'lastread', room_name
   lastread = model.LastRead.findOne {nick, room_name}
   unless lastread
     Session.set 'lastread', undefined
     return hideMessageAlert()
   Session.set 'lastread', lastread.timestamp
-  # watch the unread messages (unless we're paged back)
-  return hideMessageAlert() unless (+Session.get('timestamp')) is 0
+  # watch the unread messages
   total_unread = 0
   total_mentions = 0
   update = -> false # ignore initial updates
@@ -685,8 +685,6 @@ do ->
 share.chat =
   favicon: favicon
   convertURLsToLinksAndImages: convertURLsToLinksAndImages
-  startupChat: startupChat
-  cleanupChat: cleanupChat
   hideMessageAlert: hideMessageAlert
   joinRoom: joinRoom
   # for debugging

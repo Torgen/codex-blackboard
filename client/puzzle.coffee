@@ -78,7 +78,6 @@ Template.header_breadcrumb_extra_links.helpers
 
 Template.puzzle.onCreated ->
   $('html').addClass('fullHeight')
-  share.chat.startupChat()
   this.autorun =>
     # set page title
     id = Session.get 'id'
@@ -99,7 +98,6 @@ Template.puzzle.onRendered ->
   $('html').addClass('fullHeight')
 Template.puzzle.onDestroyed ->
   $('html').removeClass('fullHeight')
-  share.chat.cleanupChat()
 
 Template.puzzle_summon_button.helpers
   stuck: -> model.isStuck this
