@@ -507,6 +507,7 @@ Template.messages_input.submit = (message) ->
   # it here in case we turn latency compensation back on.
   Tracker.afterFlush -> scrollMessagesView()
   return
+
 Template.messages_input.events
   "keydown textarea": (event, template) ->
     # tab completion
@@ -544,16 +545,13 @@ Template.messages_input.events
     message = $message.val()
     $message.val ""
     Template.messages_input.submit message
-
-
-# alert for unread messages
-$(document).on 'blur', '#messageInput', ->
-  instachat.alertWhenUnreadMessages = true
-
-$(document).on 'focus', '#messageInput', ->
-  updateLastRead() if instachat.ready # skip during initial load
-  instachat.alertWhenUnreadMessages = false
-  hideMessageAlert()
+  'blur #messageInput': (event, template) ->
+    # alert for unread messages
+    instachat.alertWhenUnreadMessages = true
+  'focus #messageInput': (event, template) -> 
+    updateLastRead() if instachat.ready # skip during initial load
+    instachat.alertWhenUnreadMessages = false
+    hideMessageAlert()
 
 updateLastRead = ->
   lastMessage = model.Messages.findOne
