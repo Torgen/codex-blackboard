@@ -40,17 +40,31 @@ Template.registerHelper 'link', (args) ->
   link += '</a>'
   return new Spacebars.SafeString(link)
 
-$(document).on 'click', 'a.puzzles-link, a.rounds-link, a.chat-link, a.home-link, a.oplogs-link, a.quips-link, a.callins-link, a.facts-link', (event) ->
-  return unless event.button is 0 # check right-click
-  return if event.ctrlKey or event.shiftKey or event.altKey or event.metaKey # check alt/ctrl/shift/command clicks
-  return if /^https?:/.test($(event.currentTarget).attr('href'))
-  event.preventDefault()
-  if $(this).hasClass('bb-pop-out')
-    window.open $(event.currentTarget).attr('href'), 'Pop out', \
-      ("height=480,width=480,menubar=no,toolbar=no,personalbar=no,"+\
-       "status=yes,resizeable=yes,scrollbars=yes")
-  else
-    share.Router.navigate $(this).attr('href'), {trigger:true}
+do ->
+  clickHandler = (event, template) ->
+    return unless event.button is 0 # check right-click
+    return if event.ctrlKey or event.shiftKey or event.altKey or event.metaKey # check alt/ctrl/shift/command clicks
+    target = event.currentTarget
+    # href on the element directly is absolute. We want the relative path if it exists for routing.
+    rawHref = target.getAttribute 'href'
+    return if /^https?:/.test rawHref
+    event.preventDefault()
+    if target.classList.contains 'bb-pop-out'
+      # here we want the absolute path since it's for a new window.
+      window.open target.href, 'Pop out', \
+        ("height=480,width=480,menubar=no,toolbar=no,personalbar=no,"+\
+        "status=yes,resizeable=yes,scrollbars=yes")
+    else
+      share.Router.navigate rawHref, {trigger:true}
+  Template.page.events
+    'click a.puzzles-link': clickHandler
+    'click a.rounds-link': clickHandler
+    'click a.chat-link': clickHandler
+    'click a.home-link': clickHandler
+    'click a.oplogs-link': clickHandler
+    'click a.quips-link': clickHandler
+    'click a.callins-link': clickHandler
+    'click a.facts-link': clickHandler
 
 Template.registerHelper 'drive_link', (args) ->
   args = keyword_or_positional 'id', args
