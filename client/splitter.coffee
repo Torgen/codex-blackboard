@@ -84,3 +84,12 @@ Template.horizontal_splitter.helpers
 
 Template.horizontal_splitter.events
   'mousedown .bb-splitter-handle': (e,t) -> Splitter.handleEvent(e,t)
+
+Template.horizontal_splitter.onCreated ->
+  $('html').addClass('fullHeight')
+
+Template.horizontal_splitter.onRendered ->
+  $('html').addClass('fullHeight')
+
+Template.horizontal_splitter.onDestroyed ->
+  $('html').removeClass('fullHeight')

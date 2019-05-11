@@ -22,7 +22,6 @@ Meteor.startup ->
     initial = false
 
 Template.callins.onCreated ->
-  $('html').addClass('fullHeight')
   this.subscribe 'callins'
   this.subscribe 'quips'
   return if settings.BB_SUB_ALL
@@ -48,12 +47,10 @@ Template.callins.helpers
   hsize: -> share.Splitter.hsize.get()
 
 Template.callins.onRendered ->
-  $('html').addClass('fullHeight')
   $("title").text("Answer queue")
   this.clipboard = new Clipboard '.copy-and-go'
 
 Template.callins.onDestroyed ->
-  $('html').removeClass('fullHeight')
   this.clipboard.destroy()
 
 Template.callins.events
