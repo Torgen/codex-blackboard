@@ -417,25 +417,6 @@ $(window).scroll (event) ->
     console.log ' html scrollTop', html.scrollTop, 'scrollTopMax', html.scrollTopMax, 'scrollHeight', html.scrollHeight, 'clientHeight', html.clientHeight
   instachat.scrolledToBottom = atBottom
 
-# Form Interceptors
-$(document).on 'submit', '#joinRoom', ->
-  roomName = $("#roomName").val()
-  if not roomName
-    # reset to old room name
-    $("#roomName").val prettyRoomName()
-  # is this the general room?
-  else if model.canonical(roomName) is model.canonical(GENERAL_ROOM)
-    joinRoom "general", "0"
-  else
-    # try to find room as a group, round, or puzzle name
-    n = model.Names.findOne canon: model.canonical(roomName)
-    if n
-      joinRoom n.type, n._id
-    else
-      # reset to old room name
-      $("#roomName").val prettyRoomName()
-  return false
-
 Template.messages_input.submit = (message) ->
   return unless message
   args =

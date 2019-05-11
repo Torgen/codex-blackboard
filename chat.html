@@ -35,15 +35,6 @@
 </template>
 
 <template name="chat_header">
-  {{#unless "true"}}
-  <form id="joinRoom" class="form-search pull-left">
-    <div class="input-prepend">
-      <span class='add-on'>Room name:</span>
-      <input id="roomName" type="text" class="search-query"
-             value="{{room_name}}" />
-    </div>
-  </form>
-  {{/unless}}
   <div class="navbar-text bb-chat-presence">
     <span class="label label-inverse">
     Hunters present ({{whos_here.count}}):
