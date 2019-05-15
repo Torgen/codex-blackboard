@@ -20,6 +20,11 @@ emojify = if Meteor.isServer
 else
   (s) -> s
 
+randomname = if Meteor.isServer
+  (s) -> require('../server/imports/randomname.coffee').default(seed: s)
+else
+  (s) -> s.slice(0, 16)
+
 BBCollection = Object.create(null) # create new object w/o any inherited cruft
 
 # Names is a synthetic collection created by the server which indexes
@@ -689,10 +694,7 @@ doc_id_to_link = (id) ->
       check text, NonEmptyString
       # "Name" of a quip is a random name based on its hash, so the
       # oplogs don't spoil the quips.
-      name = if Meteor.isSimulation
-        text.slice(0, 16) # placeholder
-      else
-        RandomName(seed: text)
+      name = randomname(text)
       newObject "quips", {name:name, who:@userId},
         text: text
         last_used: 0 # not yet used

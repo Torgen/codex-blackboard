@@ -16,7 +16,6 @@ cscottnet:mail-listener2
 cscottnet:alertify-bootstrap
 cscottnet:hubot
 codex-blackboard-hubot-scripts
-cscottnet:random-name
 cscottnet:geolocation
 reactive-var@1.0.11
 meteor-base@1.4.0
