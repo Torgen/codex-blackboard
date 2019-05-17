@@ -12,6 +12,7 @@
 # }
 
 import { callAs } from './imports/impersonate.coffee'
+import Twitter from 'twit'
 
 return unless share.DO_BATCH_PROCESSING
 settings = Meteor.settings?.twitter ? {}
@@ -25,7 +26,7 @@ return unless settings.access_token_key and settings.access_token_secret
 twit = new Twitter
   consumer_key: settings.consumer_key
   consumer_secret: settings.consumer_secret
-  access_token_key: settings.access_token_key
+  access_token: settings.access_token_key
   access_token_secret: settings.access_token_secret
 
 linkify = do ->
@@ -56,20 +57,23 @@ htmlify = (data) ->
   "<a href='https://twitter.com/#{data.user.screen_name}'>@#{data.user.screen_name}</a> <a href='https://twitter.com/#{data.user.screen_name}/status/#{data.id_str}' target='_blank'>says:</a> #{text}"
 
 # See https://dev.twitter.com/streaming/overview/request-parameters#track
-twit.stream 'statuses/filter', {track: HASHTAGS}, (stream) ->
-  console.log "Listening to #{HASHTAGS} on twitter"
-  stream.on 'data', (data) ->
-    return if data.retweeted_status? # don't report retweets
-    unless data.user? # weird bug we saw
-      console.log 'WEIRD TWIT!', data
-      return
-    console.log "Twitter! @#{data.user.screen_name} #{data.text}"
-    html = htmlify data
-    if data.quoted_status?
-      quote = htmlify data.quoted_status
-      html = "#{html}<blockquote>#{quote}</blockquote>"
-    callAs 'newMessage', 'via twitter',
-      action: 'true'
-      body: html
-      bodyIsHtml: true
-      bot_ignore: true
+stream = twit.stream 'statuses/filter', {track: HASHTAGS}
+console.log "Listening to #{HASHTAGS} on twitter"
+stream.on 'tweet', Meteor.bindEnvironment (data) ->
+  return if data.retweeted_status? # don't report retweets
+  unless data.user? # weird bug we saw
+    console.log 'WEIRD TWIT!', data
+    return
+  console.log "Twitter! @#{data.user.screen_name} #{data.text}"
+  html = htmlify data
+  if data.quoted_status?
+    quote = htmlify data.quoted_status
+    html = "#{html}<blockquote>#{quote}</blockquote>"
+  callAs 'newMessage', 'via twitter',
+    action: 'true'
+    body: html
+    bodyIsHtml: true
+    bot_ignore: true
+
+stream.on 'error', Meteor.bindEnvironment (error) ->
+  console.warn 'Twitter error:', error
