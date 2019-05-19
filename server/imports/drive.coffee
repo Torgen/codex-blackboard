@@ -1,5 +1,7 @@
 'use strict'
 
+import { Readable } from 'stream'
+
 # Drive folder settings
 DEFAULT_ROOT_FOLDER_NAME = "MIT Mystery Hunt #{new Date().getFullYear()}"
 ROOT_FOLDER_NAME = -> Meteor.settings.folder or process.env.DRIVE_ROOT_FOLDER or DEFAULT_ROOT_FOLDER_NAME
@@ -37,21 +39,20 @@ userRateExceeded = (error) ->
 
 delays = [100, 250, 500, 1000, 2000, 5000, 10000]
 
-afterDelay = (ix, base, name, params, callback) ->
-  try
-    r = Gapi.exec base, name, params 
-    callback null, r
-  catch error
-    if ix >= delays.length or not userRateExceeded(error)
-      callback error, null
-      return
-    console.warn "Rate limited for #{name}; Will retry after #{delays[ix]}ms"
-    later = ->
-      afterDelay ix+1, base, name, params, callback
-    Meteor.setTimeout later, delays[ix]
-    
-apiThrottle = Meteor.wrapAsync (base, name, params, callback) ->
-  afterDelay 0, base, name, params, callback
+delay = (ms) -> new Promise (resolve) -> setTimeout resolve, ms
+
+apiThrottle = (base, name, params) ->
+  ix = 0
+  Promise.await do ->
+    loop
+      try
+        return (await base[name] params).data
+      catch error
+        if ix >= delays.length or not userRateExceeded(error)
+          throw error
+        console.warn "Rate limited for #{name}; Will return after #{delays[ix]}ms"
+        await delay delays[ix]
+        ix++
 
 ensurePermissions = (drive, id) ->
   # give permissions to both anyone with link and to the primary
@@ -84,13 +85,21 @@ spreadsheetSettings =
   titleFunc: WORKSHEET_NAME
   driveMimeType: GDRIVE_SPREADSHEET_MIME_TYPE
   uploadMimeType: XLSX_MIME_TYPE
-  uploadTemplate: SPREADSHEET_TEMPLATE
+  uploadTemplate: ->
+    # The file is small enough to fit in ram, so don't recreate a file read
+    # stream every time.
+    # Apparently there's a module called streamifier that does this.
+    r = new Readable
+    r._read = ->
+    r.push SPREADSHEET_TEMPLATE
+    r.push null
+    r
 
 docSettings =
   titleFunc: DOC_NAME
   driveMimeType: GDRIVE_DOC_MIME_TYPE
   uploadMimeType: 'text/plain'
-  uploadTemplate: 'Put notes here.'
+  uploadTemplate: -> 'Put notes here.'
   
 ensure = (drive, name, folder, settings) ->
   doc = apiThrottle drive.children, 'list',
@@ -109,31 +118,27 @@ ensure = (drive, name, folder, settings) ->
       resource: doc
       media:
         mimeType: settings.uploadMimeType
-        body: settings.uploadTemplate
+        body: settings.uploadTemplate()
   ensurePermissions drive, doc.id
-  return doc
+  doc
 
-awaitOnce = (drive, attempts, name, parent, callback) ->
-  try
+awaitFolder = (drive, name, parent) ->
+  triesLeft = 5
+  loop
     resp = apiThrottle drive.children, 'list',
       folderId: parent
       q: "title=#{quote name}"
       maxResults: 1
     if resp.items.length > 0
       console.log "#{name} found"
-      callback null, resp.items[0]
-    else if attempts < 1
+      return resp.items[0]
+    else if triesLeft < 1
       console.log "#{name} never existed"
-      callback "never existed", null
+      throw 'never existed'
     else
       console.log "Waiting #{attempts} more times for #{name}"
-      later = -> awaitOnce attempts-1, name, parent, callback
-      Meteor.setTimeout later, 1000
-  catch error
-    callback error, null
-
-awaitFolder = Meteor.wrapAsync (drive, name, parent, callback) ->
-  awaitOnce drive, 5, name, parent, callback
+      Promise.await delay 1000
+      triesLeft--
 
 ensureFolder = (drive, name, parent) ->
   # check to see if the folder already exists
@@ -160,7 +165,6 @@ awaitOrEnsureFolder = (drive, name, parent) ->
   try
     return awaitFolder drive, name, (parent or 'root')
   catch error
-    console.log error
     return ensureFolder drive, name, parent if error is "never existed"
     throw error
 

@@ -20,7 +20,6 @@ coffeescript@2.3.2_1
 coffeescript-compiler@2.3.2_1
 cscottnet:alertify-bootstrap@0.3.11
 cscottnet:geolocation@1.0.4
-cscottnet:googleapis@2.1.7_1
 cscottnet:hubot@2.17.0
 cscottnet:mail-listener2@0.1.8
 ddp@1.4.0

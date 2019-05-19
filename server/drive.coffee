@@ -1,6 +1,8 @@
 'use strict'
 
 import { Drive, FailDrive } from './imports/drive.coffee'
+import { decrypt } from './imports/crypt.coffee'
+import { google } from 'googleapis'
 
 # helper functions to perform Google Drive operations
 
@@ -11,23 +13,21 @@ catch error
   undefined
 if KEY? and Meteor.settings.password?
   # Decrypt the JWT authentication key synchronously at startup
-  KEY = Gapi.decrypt KEY, Meteor.settings.password
+  KEY = decrypt KEY, Meteor.settings.password
 EMAIL = Meteor.settings.email or '571639156428@developer.gserviceaccount.com'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Intialize APIs and load rootFolder
-do ->
+Promise.await do ->
   try
+    auth = null
     if /^-----BEGIN RSA PRIVATE KEY-----/.test(KEY)
-      jwt = new Gapi.apis.auth.JWT(EMAIL, null, KEY, SCOPES)
-      jwt.credentials = Gapi.authorize(jwt);
+      auth = new google.auth.JWT(EMAIL, null, KEY, SCOPES)
+      await auth.authorize()
     else
-      jwt = Meteor.wrapAsync(Gapi.apis.auth.getApplicationDefault, Gapi.apis.auth)()
-      if jwt.createScopedRequired && jwt.createScopedRequired()
-        jwt = jwt.createScoped(SCOPES)
+      auth = await google.auth.getClient scopes: SCOPES
     # record the API and auth info
-    api = Gapi.apis.drive('v2')
-    Gapi.registerAuth jwt
+    api = google.drive {version: 'v2', auth}
     share.drive = new Drive api
     console.log "Google Drive authorized and activated"
   catch error
