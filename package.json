@@ -7,6 +7,7 @@
     "@babel/runtime": "^7.2.0",
     "css-color-names": "0.0.4",
     "googleapis": "^40.0.0",
+    "hubot-help": "^1.0.1",
     "node-random-name": "^1.0.1",
     "twit": "^2.2.11"
   },

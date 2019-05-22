@@ -13,7 +13,6 @@ check@1.3.1
 cscottnet:mail-listener2
 cscottnet:alertify-bootstrap
 cscottnet:hubot
-codex-blackboard-hubot-scripts
 cscottnet:geolocation
 reactive-var@1.0.11
 meteor-base@1.4.0
