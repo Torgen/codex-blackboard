@@ -2,6 +2,7 @@
 
 import canonical from '../../lib/imports/canonical.coffee'
 import { callAs } from './impersonate.coffee'
+import Hubot from 'hubot/es2015'
 
 # Log messages?
 DEBUG = !Meteor.isProduction
