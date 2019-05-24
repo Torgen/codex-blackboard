@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.2.0",
+    "coffeescript": "^2.4.1",
     "css-color-names": "0.0.4",
     "googleapis": "^40.0.0",
     "hubot": "^3.3.2",
