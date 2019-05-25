@@ -15,6 +15,7 @@
 # package.
 
 import { callAs } from './imports/impersonate.coffee'
+import { MailListener } from 'mail-listener5'
 
 watch = Meteor.settings?.watch ? {}
 watch.username ?= process.env.MAILWATCH_USERNAME
@@ -25,7 +26,6 @@ watch.tls ?= process.env.MAILWATCH_TLS ? true
 watch.tlsOptions ?= if (tls_options_env = process.env.MAILWATCH_TLS_OPTIONS)? then EJSON.parse(tls_options_env) else { rejectUnauthorized: false }
 watch.mailbox ?= process.env.MAILWATCH_MAILBOX ? 'INBOX'
 watch.markSeen ?= process.env.MAILWATCH_MARK_SEEN ? true
-watch.mailParserOptions = if (mailparser_options_env = process.env.MAILWATCH_MAILPARSER_OPTIONS)? then EJSON.parse(mailparser_options_env) else { streamAttachments: true }
 
 return unless share.DO_BATCH_PROCESSING and watch.username and watch.password
 mailListener = new MailListener
@@ -38,14 +38,14 @@ mailListener = new MailListener
   mailbox: watch.mailbox
   markSeen: watch.markSeen
   fetchUnreadOnStart: false
-  mailParserOptions: watch.mailParserOptions
+  attachments: false
 
 mailListener.on 'server:connected', ->
   console.log 'Watching for mail to', watch.username
 mailListener.on 'error', (err) ->
   console.error 'IMAP error', err
 
-mailListener.on 'mail', (mail) ->
+mailListener.on 'mail', Meteor.bindEnvironment (mail) ->
   # mail arrived! fields:
   #  text -- body plaintext
   #  html -- optional field, contains body formatted as HTML
