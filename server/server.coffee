@@ -147,6 +147,7 @@ Meteor.publish 'recent-header-messages', loginRequired ->
     room_name: 'general/0'
     system: $ne: true
     bodyIsHtml: $ne: true
+    deleted: $ne: true
     $or: [ {to: null}, {to: @userId}, {nick: @userId }]
   ,
     sort: [['timestamp', 'desc']]
