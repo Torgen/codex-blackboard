@@ -55,6 +55,10 @@
   {{/if}}
 </template>
 
+<template name="message_delete_button">
+  <div class="bb-delete-message"></div>
+</template>
+
 <template name="starred_messages">
   {{#if messages.count}}
   <div class="bb-chat-messages bb-starred-messages {{#if canModify}}can-modify-star{{/if}}">
@@ -75,6 +79,7 @@
         {{! can't star a PM. }}
         <div class="bb-message-star"></div>
       {{/unless}}
+      {{> message_delete_button}}
       <h5 class="media-heading"><span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span>
             {{#if message.to}}
       <small>(Private message to {{nickOrName message.to}})</small>
@@ -118,27 +123,31 @@
       <button class="btn btn-small btn-info btn-block active bb-chat-loading">Loading <i class="fas fa-spin fa-spinner"></i></button>
     {{/if}}
     {{#each messages}}{{scrollHack}}
-      {{#if message.dawn_of_time}}<!-- Channel creation -->
-      {{else if message.presence}}
-        <div class="bb-message-presence {{message.presence}}" title="{{body}}">
-          {{gravatar id=email image="wavatar" size=14 }}{{message.nick}}
-        </div>
-      {{else if message.system}}
-        <div class="bb-message-system">
-          <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
-            {{body}}
-        </div>
-      {{else if usefulEnough message}}
-        {{#if message.action}}
-          <div class="bb-message-action" data-nick="{{message.nick}}">
-            <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
-              <i class="fas fa-hand-point-right"></i>
-              <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{body}}
+      {{#unless message.deleted}}
+        {{#if message.dawn_of_time}}<!-- Channel creation -->
+        {{else if message.presence}}
+          <div class="bb-message-presence {{message.presence}}" title="{{body}}">
+            {{gravatar id=email image="wavatar" size=14 }}{{message.nick}}
           </div>
-        {{else}}
-          {{> media_message }}
+        {{else if message.system}}
+          <div class="bb-message-system">
+            <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
+            {{> message_delete_button}}
+              {{body}}
+          </div>
+        {{else if usefulEnough message}}
+          {{#if message.action}}
+            <div class="bb-message-action" data-nick="{{message.nick}}">
+              <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
+              {{> message_delete_button}}
+                <i class="fas fa-hand-point-right"></i>
+                <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{body}}
+            </div>
+          {{else}}
+            {{> media_message }}
+          {{/if}}
         {{/if}}
-      {{/if}}
+      {{/unless}}
       {{#if isLastRead message.timestamp}}
         <div class="bb-message-last-read">read</div>
       {{/if}}

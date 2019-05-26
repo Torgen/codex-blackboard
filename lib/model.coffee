@@ -191,6 +191,9 @@ if Meteor.isServer
 #                         make a not-useful response)
 #   dawn_of_time: boolean. True for the first message in each channel, which
 #                 also has _id equal to the channel name.
+#   deleted: boolean. True if message was deleted. 'Deleted' messages aren't
+#            actually deleted because that could screw up the 'last read' line;
+#            they're just not rendered.
 #
 # Messages which are part of the operation log have `nick`, `message`,
 # and `timestamp` set to describe what was done, when, and by who.
@@ -852,6 +855,15 @@ doc_id_to_link = (id) ->
           timestamp: newMsg.timestamp
       newMsg._id = Messages.insert newMsg
       return newMsg
+
+    deleteMessage: (id) ->
+      check @userId, NonEmptyString
+      check id, NonEmptyString
+      Messages.update
+        _id: id
+        dawn_of_time: $ne: true
+      ,
+        $set: deleted: true
 
     setStarred: (id, starred) ->
       check @userId, NonEmptyString

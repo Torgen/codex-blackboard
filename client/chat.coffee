@@ -104,6 +104,12 @@ Template.media_message.events
     return unless $(event.target).closest('.can-modify-star').size() > 0
     Meteor.call 'setStarred', this._id, true
 
+Template.message_delete_button.events
+  'click .bb-delete-message': (event, template) ->
+    alertify.confirm 'Really delete this message?', (e) =>
+      return unless e
+      Meteor.call 'deleteMessage', @_id
+
 Template.poll.onCreated ->
   @show_votes = new ReactiveVar false
   @autorun =>

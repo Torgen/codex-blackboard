@@ -59,6 +59,8 @@
     float: right;
     padding-right: 0.3em;
     position: relative;
+    width: 1em;
+    height: 1em;
     &::before, &::after {
       font-family: "Font Awesome 5 Free";
       content: "\f005";
@@ -67,6 +69,21 @@
     }
     &::before { font-weight: 900; }
     &::after { font-weight: 400; }
+  }
+  .bb-delete-message {
+    position: relative;
+    float: right;
+    cursor: pointer;
+    padding-right: 0.3em;
+    height: 1em;
+    width: 1em;
+    &::before {
+      font-family: "Font Awesome 5 Free";
+      position: absolute;
+      right: 3px;
+      font-weight: 900;
+      content: "\f2ed";
+    }
   }
   .starred .bb-message-star {
     &::after {
