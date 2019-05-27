@@ -47,8 +47,10 @@ sudo npm install
 # Copy the static files
 sudo cp -a $scriptroot/installfiles/* /
 sudo systemctl daemon-reload
+node_path=$(npm root -g --no-update-notifier)
 
 handlebars < $scriptroot/installtemplates/etc/codex-common.env.handlebars --domainname "$domainname" | sudo bash -c "cat > /etc/codex-common.env"
+handlebars < $scriptroot/installtemplates/etc/codex-batch.env.handlebars --node_path "$node_path" | sudo bash -c "cat > /etc/codex-batch.env"
 sudo vim /etc/codex-common.env
 sudo chmod 600 /etc/codex-batch.env
 sudo vim /etc/codex-batch.env

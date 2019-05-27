@@ -29,6 +29,7 @@ class BlackboardAdapter extends Hubot.Adapter
   #
   # Returns nothing.
   send: (envelope, strings...) ->
+    console.log 'envelope', envelope
     return @priv envelope, strings... if envelope.message.private
     @sendHelper envelope, strings, (string, props) =>
       console.log "send #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
@@ -194,17 +195,26 @@ export default class Robot extends Hubot.Robot
     @error = bind @error
     @catchAll = bind @catchAll
     @adapter = new BlackboardAdapter @, canonical(@name), @gravatar
-    self = @
-    @priv =
-      respond: (re, cb) -> self.respond re, (resp) ->
+
+  hear:    (regex, callback) -> super regex, @privatize callback
+  respond: (regex, callback) -> super regex, @privatize callback
+  enter: (callback) -> super @privatize callback
+  leave: (callback) -> super @privatize callback
+  topic: (callback) -> super @privatize callback
+  error: (callback) -> super  @privatize callback
+  catchAll: (callback) -> super @privatize callback
+  privately: (callback) ->
+    # Call the given callback on this such that any listeners it registers will
+    # behave as though they received a private message.
+    @private = true
+    try
+      callback @
+    finally
+      @private = false
+  privatize: (callback) ->
+    Meteor.bindEnvironment if @private
+      (resp) ->
         resp.message.private = true
-        cb resp
-      loadFile: -> self.loadFile arguments...
-  hear:    (regex, callback) -> super regex, Meteor.bindEnvironment callback
-  respond: (regex, callback) -> super regex, Meteor.bindEnvironment callback
-  enter: (callback) -> super Meteor.bindEnvironment(callback)
-  leave: (callback) -> super Meteor.bindEnvironment(callback)
-  topic: (callback) -> super Meteor.bindEnvironment(callback)
-  error: (callback) -> super Meteor.bindEnvironment(callback)
-  catchAll: (callback) -> super Meteor.bindEnvironment(callback)
+        callback resp
+    else callback
 

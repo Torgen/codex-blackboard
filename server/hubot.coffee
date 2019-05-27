@@ -21,7 +21,7 @@ EXTERNAL_SCRIPTS = Meteor.settings?.external_scripts ? process.env.EXTERNAL_SCRI
 Meteor.startup ->
   robot = new Robot BOTNAME, BOT_GRAVATAR
   # register scripts
-  hubot_help robot.priv
+  robot.privately hubot_help
   robot.loadExternalScripts EXTERNAL_SCRIPTS
   delete share.hubot[script] for script in SKIP_SCRIPTS
   Object.keys(share.hubot).forEach (scriptName) ->
