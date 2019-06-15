@@ -123,7 +123,11 @@ class BlackboardAdapter extends Hubot.Adapter
         return if startup
         return if msg.bot_ignore
         return if IGNORED_NICKS.has msg.nick
-        user = new Hubot.User(msg.nick, room: msg.room_name)
+        # Copy user, adding room. Room is needed for the envelope, but if we
+        # made the user here anew we would need to query the users table to get
+        # the real name.
+        user = Object.create @robot.brain.userForId(msg.nick)
+        Object.assign user, room: msg.room_name
         if msg.presence?
           if msg.presence is 'join'
             pm = new Hubot.EnterMessage user, null, id
