@@ -123,10 +123,20 @@ class BlackboardAdapter extends Hubot.Adapter
         return if startup
         return if msg.bot_ignore
         return if IGNORED_NICKS.has msg.nick
+        user = new Hubot.User(msg.nick, room: msg.room_name)
+        if msg.presence?
+          if msg.presence is 'join'
+            pm = new Hubot.EnterMessage user, null, id
+          else if msg.presence is 'part'
+            pm = new Hubot.LeaveMessage user, null, id
+          else
+            console.warn 'Weird presence message:', msg
+            return
+          @receive pm
+          return
         return if msg.system or msg.action or msg.oplog or msg.bodyIsHtml or msg.poll
         console.log "Received from #{msg.nick} in #{msg.room_name}: #{msg.body}"\
           if DEBUG
-        user = new Hubot.User(msg.nick, room: msg.room_name)
         tm = new Hubot.TextMessage(user, msg.body, id)
         tm.private = msg.to?
         # if private, ensure it's treated as a direct address
