@@ -27,6 +27,5 @@ Meteor.startup ->
   Object.keys(share.hubot).forEach (scriptName) ->
     console.log "Loading hubot script: #{scriptName}"
     share.hubot[scriptName](robot)
-
-  robot.brain.emit('loaded')
+  
   robot.run()
