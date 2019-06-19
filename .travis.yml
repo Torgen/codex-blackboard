@@ -11,4 +11,7 @@ before_install:
   - curl https://install.meteor.com | /bin/sh
 
 script:
-  - ~/.meteor/meteor test --once  --driver-package meteortesting:mocha
+  - ~/.meteor/meteor npm run-script coverage.lcov
+
+after_success:
+  - cat .coverage/lcov.info | node_modules/coveralls/bin/coveralls.js || true

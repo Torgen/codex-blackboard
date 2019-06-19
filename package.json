@@ -21,7 +21,9 @@
     "sinon": "^6.1.4"
   },
   "scripts": {
-    "test": "meteor test --once --driver-package meteortesting:mocha"
+    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "coverage": "COVERAGE=1 COVERAGE_OUT_HTML=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
+    "coverage.lcov": "COVERAGE=1 COVERAGE_OUT_LCOVONLY=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test"
   },
   "repository": {
     "type": "git",
