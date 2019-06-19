@@ -14,4 +14,4 @@ script:
   - ~/.meteor/meteor npm run-script coverage.lcov
 
 after_success:
-  - cat .coverage/lcov.info | node_modules/coveralls/bin/coveralls.js || true
+  - cat .coverage/lcov.info | node_modules/coveralls/bin/coveralls.js
