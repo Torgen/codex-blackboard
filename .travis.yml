@@ -2,6 +2,14 @@ language: node_js
 node_js:
  - 8
 
+env:
+  global:
+    - COVERALLS_PARALLEL=true
+
+  matrix:
+    - TEST_SCRIPT=coverage.lcov
+    - TEST_SCRIPT=coverage.full.lcov
+
 cache:
   directories:
     - node_modules
@@ -11,8 +19,10 @@ before_install:
   - curl https://install.meteor.com | /bin/sh
 
 script:
-  - COVERAGE=1 COVERAGE_APP_FOLDER=$PWD/ COVERAGE_OUT_COVERAGE=1 ~/.meteor/meteor npm test
-  - COVERAGE=1 COVERAGE_APP_FOLDER=$PWD/ COVERAGE_IN_COVERAGE=1 COVERAGE_OUT_LCOVONLY=1  ~/.meteor/meteor npm run-script test.full
+  - ~/.meteor/meteor npm run-script $TEST_SCRIPT
 
 after_success:
   - cat .coverage/lcov.info | node_modules/coveralls/bin/coveralls.js
+
+notifications:
+  webhooks: https://coveralls.io/webhook
