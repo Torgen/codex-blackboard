@@ -45,7 +45,7 @@ Meteor.startup ->
     # add some general chats
     for chat in SAMPLE_CHATS
       chat.room_name = "general/0"
-      callAs "newMessage", chat.nick, chat
+      callAs "newMessage", chat.nick, {body: chat.body}
     # add some user ids
     for nick in SAMPLE_NICKS
       Meteor.users.insert nick
