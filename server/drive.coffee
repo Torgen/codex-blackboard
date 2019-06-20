@@ -18,6 +18,9 @@ EMAIL = Meteor.settings.email or '571639156428@developer.gserviceaccount.com'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Intialize APIs and load rootFolder
+if Meteor.isAppTest
+  share.drive = new FailDrive
+  return
 Promise.await do ->
   try
     auth = null
