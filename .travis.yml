@@ -11,8 +11,8 @@ before_install:
   - curl https://install.meteor.com | /bin/sh
 
 script:
-  - COVERAGE=1 COVERAGE_APP_FOLDER=$PWD/ COVERAGE_OUT_COVERASE=1 ~/.meteor/meteor npm test
-  - COVERAGE=1 COVERAGE_APP_FOLDER=$PWD/ COVERAGE_IN_COVERASE=1 COVERAGE_OUT_LCOVONLY=1  ~/.meteor/meteor npm run-script test.full
+  - COVERAGE=1 COVERAGE_APP_FOLDER=$PWD/ COVERAGE_OUT_COVERAGE=1 ~/.meteor/meteor npm test
+  - COVERAGE=1 COVERAGE_APP_FOLDER=$PWD/ COVERAGE_IN_COVERAGE=1 COVERAGE_OUT_LCOVONLY=1  ~/.meteor/meteor npm run-script test.full
 
 after_success:
   - cat .coverage/lcov.info | node_modules/coveralls/bin/coveralls.js
