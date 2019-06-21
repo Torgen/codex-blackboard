@@ -118,7 +118,8 @@ class BlackboardAdapter extends Hubot.Adapter
     IGNORED_NICKS = new Set ['', @botname]
     # listen to the chat room, ignoring messages sent before we startup
     startup = true
-    @handle = share.model.Messages.find(timestamp: $gt: share.model.UTCNow()).observeChanges
+    query = share.model.Messages.find(timestamp: $gt: share.model.UTCNow())
+    @handle = query.observeChanges
       added: (id, msg) =>
         return if startup
         return if msg.bot_ignore
@@ -154,6 +155,7 @@ class BlackboardAdapter extends Hubot.Adapter
       room_name: 'general/0'
       action: true
       bot_ignore: true
+    @emit 'connected'
 
   # Public: Raw method for shutting the bot down.
   #

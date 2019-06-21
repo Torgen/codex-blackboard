@@ -39,3 +39,4 @@ accounts-base@1.4.3
 sha@1.0.9
 underscore@1.0.10
 lmieulet:meteor-legacy-coverage
+meteortesting:mocha-core
