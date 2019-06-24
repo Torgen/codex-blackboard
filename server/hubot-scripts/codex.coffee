@@ -66,12 +66,11 @@ share.hubot.codex = (robot) ->
 
   # newCallIn
   robot.commands.push 'bot call in <answer> [for <puzzle>] - Updates codex blackboard'
-  robot.respond (rejoin /Call\s*in((?: (?:backsolved?|provided))*)( answer)? /,thingRE,'(?:',/\ for (?:(puzzle|round|round group) )?/,thingRE,')?',/$/i), (msg) ->
+  robot.respond (rejoin /Call\s*in((?: (?:backsolved?|provided))*)( answer)? /,thingRE,'(?:',/\ for /,thingRE,')?',/$/i), (msg) ->
     backsolve = /backsolve/.test(msg.match[1])
     provided = /provided/.test(msg.match[1])
     answer = strip msg.match[3]
-    type = if msg.match[4]? then msg.match[4].replace(/\s+/g,'')+'s'
-    name = if msg.match[5]? then strip msg.match[5]
+    name = if msg.match[4]? then strip msg.match[4]
     who = msg.envelope.user.id
     if name?
       target = callAs "getByName", who,
@@ -230,12 +229,17 @@ share.hubot.codex = (robot) ->
     tag_value = strip msg.match[5]
     who = msg.envelope.user.id
     if msg.match[2]?
+      descriptor =
+        if msg.match[3]?
+          "a #{share.model.pretty_collection msg.match[3]}"
+        else
+          'anything'
       type = if msg.match[3]? then msg.match[3].replace(/\s+/g,'')+'s'
       target = callAs 'getByName', who,
         name: strip msg.match[4]
         optional_type: type
       if not target?
-        msg.reply useful: true, "I can't find a puzzle called \"#{strip msg.match[4]}\"."
+        msg.reply useful: true, "I can't find #{descriptor} called \"#{strip msg.match[4]}\"."
         return msg.finish()
     else
       target = objectFromRoom msg
@@ -314,7 +318,11 @@ share.hubot.codex = (robot) ->
     optsRe = new RegExp rejoin(' ', wordOrQuote), 'g'
     opts = while m = optsRe.exec msg.match[2]
       strip m[1]
+    if opts.length < 2 or opts.length > 5
+      msg.reply useful: true, 'Must have between 2 and 5 options.'
+      return msg.finish()
     callAs 'newPoll', msg.envelope.user.id, msg.envelope.room, strip(msg.match[1]), opts
+    msg.finish()
 
   robot.commands.push 'bot global list - lists dynamic settings'
   robot.respond /global list$/i, (msg) ->

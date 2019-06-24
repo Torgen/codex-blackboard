@@ -7,6 +7,7 @@ import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import Robot from './hubot.coffee'
 import delay from 'delay'
+import { waitForDocument } from './testutils.coffee'
 
 model = share.model
 
@@ -176,151 +177,112 @@ describe 'hubot', ->
     chai.assert.isFalse spy.called
 
   it 'replies to public messages publicly', ->
-    handle = null
-    id = null
-    await new Promise (resolve, reject) ->
-      robot.respond /hello/, (msg) ->
-        clock.tick 2
-        msg.reply 'hello yourself'
-      robot.run()
-      id = model.Messages.insert
-        timestamp: Date.now() + 1
-        nick: 'torgen'
-        room_name: 'general/0'
-        body: 'testbot hello'
-      handle = model.Messages.find(body: 'torgen: hello yourself', to: $exists: false).observe
-        added: (msg) ->
-          chai.assert.include msg,
-            timestamp: 9
-            nick: 'testbot'
-            room_name: 'general/0'
-            bot_ignore: true
-          resolve()
-    handle.stop()
+    robot.respond /hello/, (msg) ->
+      clock.tick 2
+      msg.reply 'hello yourself'
+    robot.run()
+    id = model.Messages.insert
+      timestamp: Date.now() + 1
+      nick: 'torgen'
+      room_name: 'general/0'
+      body: 'testbot hello'
+    await waitForDocument model.Messages, {body: 'torgen: hello yourself', to: $exists: false},
+      timestamp: 9
+      nick: 'testbot'
+      room_name: 'general/0'
+      bot_ignore: true
     chai.assert.include model.Messages.findOne(id), useless_cmd: true
 
   it 'replies to private messages privately', ->
-    handle = null
-    id = null
-    await new Promise (resolve, reject) ->
-      robot.respond /hello/, (msg) ->
-        clock.tick 2
-        msg.reply 'hello yourself'
-      robot.run()
-      id = model.Messages.insert
-        timestamp: Date.now() + 1
-        nick: 'torgen'
-        room_name: 'general/0'
-        body: 'hello'
-        to: 'testbot'
-      handle = model.Messages.find(body: 'hello yourself', to: 'torgen').observe
-        added: (msg) ->
-          chai.assert.include msg,
-            timestamp: 9
-            nick: 'testbot'
-            room_name: 'general/0'
-            bot_ignore: true
-          resolve()
-    handle.stop()
+    robot.respond /hello/, (msg) ->
+      clock.tick 1
+      msg.reply 'hello yourself'
+    robot.run()
+    clock.tick 1
+    id = model.Messages.insert
+      timestamp: Date.now()
+      nick: 'torgen'
+      room_name: 'general/0'
+      body: 'hello'
+      to: 'testbot'
+    await waitForDocument model.Messages, {body: 'hello yourself', to: 'torgen'}, 
+      timestamp: 9
+      nick: 'testbot'
+      room_name: 'general/0'
+      bot_ignore: true
     chai.assert.notDeepInclude model.Messages.findOne(id), useless_cmd: true
 
   it 'emotes to public messages publicly', ->
-    handle = null
-    id = null
-    await new Promise (resolve, reject) ->
-      robot.respond /hello/, (msg) ->
-        clock.tick 2
-        msg.emote 'waves'
-      robot.run()
-      id = model.Messages.insert
-        timestamp: Date.now() + 1
-        nick: 'torgen'
-        room_name: 'general/0'
-        body: 'testbot hello'
-      handle = model.Messages.find(body: 'waves', to: $exists: false).observe
-        added: (msg) ->
-          chai.assert.include msg,
-            timestamp: 9
-            nick: 'testbot'
-            room_name: 'general/0'
-            bot_ignore: true
-            action: true
-          resolve()
-    handle.stop()
+    robot.respond /hello/, (msg) ->
+      clock.tick 2
+      msg.emote 'waves'
+    robot.run()
+    id = model.Messages.insert
+      timestamp: Date.now() + 1
+      nick: 'torgen'
+      room_name: 'general/0'
+      body: 'testbot hello'
+    await waitForDocument model.Messages, {body: 'waves', to: $exists: false},
+      timestamp: 9
+      nick: 'testbot'
+      room_name: 'general/0'
+      bot_ignore: true
+      action: true
     chai.assert.include model.Messages.findOne(id), useless_cmd: true
 
   it 'emotes to private messages privately', ->
-    handle = null
-    id = null
-    await new Promise (resolve, reject) ->
-      robot.respond /hello/, (msg) ->
-        clock.tick 2
-        msg.emote 'waves'
-      robot.run()
-      id = model.Messages.insert
-        timestamp: Date.now() + 1
-        nick: 'torgen'
-        to: 'testbot'
-        room_name: 'general/0'
-        body: 'hello'
-      handle = model.Messages.find(body: '*** waves ***', to: 'torgen', action: $ne: true).observe
-        added: (msg) ->
-          chai.assert.include msg,
-            timestamp: 9
-            nick: 'testbot'
-            room_name: 'general/0'
-            bot_ignore: true
-          resolve()
-    handle.stop()
+    robot.respond /hello/, (msg) ->
+      clock.tick 2
+      msg.emote 'waves'
+    robot.run()
+    id = model.Messages.insert
+      timestamp: Date.now() + 1
+      nick: 'torgen'
+      to: 'testbot'
+      room_name: 'general/0'
+      body: 'hello'
+    await waitForDocument model.Messages, {body: '*** waves ***', to: 'torgen', action: $ne: true},
+      timestamp: 9
+      nick: 'testbot'
+      room_name: 'general/0'
+      bot_ignore: true
     chai.assert.notDeepInclude model.Messages.findOne(id), useless_cmd: true
 
   it 'sends publicly', ->
-    handle = null
-    id = null
-    await new Promise (resolve, reject) ->
-      robot.respond /hello/, (msg) ->
-        clock.tick 2
-        msg.send useful: true, 'hello was said'
-      robot.run()
-      id = model.Messages.insert
-        timestamp: Date.now() + 1
-        nick: 'torgen'
-        room_name: 'general/0'
-        body: 'testbot hello'
-      handle = model.Messages.find(body: 'hello was said', to: $exists: false).observe
-        added: (msg) ->
-          chai.assert.include msg,
-            timestamp: 9
-            nick: 'testbot'
-            room_name: 'general/0'
-            bot_ignore: true
-            useful: true
-          resolve()
-    handle.stop()
+    robot.respond /hello/, (msg) ->
+      clock.tick 1
+      msg.send useful: true, 'hello was said'
+    robot.run()
+    clock.tick 1
+    id = model.Messages.insert
+      timestamp: Date.now()
+      nick: 'torgen'
+      room_name: 'general/0'
+      body: 'testbot hello'
+    await waitForDocument model.Messages, {body: 'hello was said', to: $exists: false},
+      timestamp: 9
+      nick: 'testbot'
+      room_name: 'general/0'
+      bot_ignore: true
+      useful: true
     chai.assert.notDeepInclude model.Messages.findOne(id), useless_cmd: true
 
   it 'privs privately', ->
-    handle = null
-    id = null
-    await new Promise (resolve, reject) ->
-      robot.respond /hello/, (msg) ->
-        clock.tick 2
-        msg.priv 'psst. hello'
-      robot.run()
-      id = model.Messages.insert
-        timestamp: Date.now() + 1
-        nick: 'torgen'
-        room_name: 'general/0'
-        body: 'testbot hello'
-      handle = model.Messages.find(body: 'psst. hello', to: 'torgen').observe
-        added: (msg) ->
-          chai.assert.include msg,
-            timestamp: 9
-            nick: 'testbot'
-            room_name: 'general/0'
-            bot_ignore: true
-          resolve()
-    handle.stop()
+    robot.respond /hello/, (msg) ->
+      clock.tick 1
+      msg.priv 'psst. hello'
+    robot.run()
+    clock.tick 1
+    id = model.Messages.insert
+      timestamp: Date.now()
+      nick: 'torgen'
+      room_name: 'general/0'
+      body: 'testbot hello'
+    await waitForDocument model.Messages, {body: 'psst. hello', to: 'torgen'},
+      timestamp: 9
+      nick: 'testbot'
+      room_name: 'general/0'
+      bot_ignore: true
     chai.assert.include model.Messages.findOne(id), useless_cmd: true
   
   

@@ -35,11 +35,11 @@ export objectFromRoom = (msg) ->
   room = msg.envelope.room
   who = msg.envelope.user.id
   [type,id] = room.split('/', 2)
-  if type is "general"
+  if type is "general" or type is 'callins'
     msg.reply useful: true, "You need to tell me which puzzle this is for."
     msg.finish()
     return
-  unless type is 'puzzles' or type is 'rounds' or type is 'roundgroups'
+  unless type is 'puzzles' or type is 'rounds'
     msg.reply useful: true, "I don't understand the type: #{type}."
     msg.finish()
     return
