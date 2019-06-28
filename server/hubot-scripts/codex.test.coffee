@@ -328,7 +328,7 @@ describe 'codex hubot script', ->
         canon: 'latino_alphabet'
         feedsInto: [mid]
       await waitForDocument model.Puzzles, {_id: mid, puzzles: puzz._id}, {}
-      chai.assert.deepInclude model.Rounds.findOne(rid), puzzles: [mid, puzz._id]
+      await waitForDocument model.Rounds, {_id: rid, puzzles: [mid, puzz._id]}, {}
 
     it 'creates in this meta', ->
       mid = model.Puzzles.insert
@@ -348,7 +348,6 @@ describe 'codex hubot script', ->
         canon: 'latino_alphabet'
         feedsInto: [mid]
       await waitForDocument model.Puzzles, {_id: mid, puzzles: puzz._id}, {}
-      chai.assert.deepInclude model.Rounds.findOne(rid), puzzles: [mid, puzz._id]
 
     it 'creates in named round', ->
       mid = model.Puzzles.insert
@@ -368,8 +367,8 @@ describe 'codex hubot script', ->
       puzz = await waitForDocument model.Puzzles, {name: 'Latino Alphabet'},
         canon: 'latino_alphabet'
         feedsInto: []
+      await waitForDocument model.Rounds, {_id: rid, puzzles: [mid, puzz._id]}, {}
       chai.assert.deepInclude model.Puzzles.findOne(mid), puzzles: []
-      chai.assert.deepInclude model.Rounds.findOne(rid), puzzles: [mid, puzz._id]
 
     it 'creates in this round', ->
       mid = model.Puzzles.insert
@@ -389,8 +388,8 @@ describe 'codex hubot script', ->
       puzz = await waitForDocument model.Puzzles, {name: 'Latino Alphabet'},
         canon: 'latino_alphabet'
         feedsInto: []
+      await waitForDocument model.Rounds, {_id: rid, puzzles: [mid, puzz._id]}, {}
       chai.assert.deepInclude model.Puzzles.findOne(mid), puzzles: []
-      chai.assert.deepInclude model.Rounds.findOne(rid), puzzles: [mid, puzz._id]
 
     it 'fails when this is not a puzzle or round', ->
       mid = model.Puzzles.insert
@@ -433,8 +432,8 @@ describe 'codex hubot script', ->
       puzz = await waitForDocument model.Puzzles, {name: 'Latino Alphabet'},
         canon: 'latino_alphabet'
         feedsInto: []
+      await waitForDocument model.Rounds, {_id: rid, puzzles: [puzz._id]}, {}
       chai.assert.deepInclude model.Puzzles.findOne(mid), puzzles: []
-      chai.assert.deepInclude model.Rounds.findOne(rid), puzzles: [puzz._id]
 
   describe 'deletePuzzle', ->
     it 'deletes puzzle', ->
