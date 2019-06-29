@@ -143,6 +143,7 @@ share.hubot.codex = (robot) ->
           else
             'anything'
         msg.reply useful: true, "I can't find #{descriptor} called \"#{rname}\"."
+        msg.finish()
         return
     extra =
       name: pname

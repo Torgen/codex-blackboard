@@ -385,9 +385,31 @@ describe 'codex hubot script', ->
         room_name: "rounds/#{rid}"
         timestamp: Date.now()
         body: 'bot Latino Alphabet is a new puzzle in this'
+      puzz = await waitForDocument model.Puzzles, {name: 'Latino Alphabet', puzzles: null},
+        canon: 'latino_alphabet'
+        feedsInto: []
+      await waitForDocument model.Rounds, {_id: rid, puzzles: [mid, puzz._id]}, {}
+      chai.assert.deepInclude model.Puzzles.findOne(mid), puzzles: []
+
+    it 'creates meta in this round', ->
+      mid = model.Puzzles.insert
+        name: 'Even This Poem'
+        canon: 'even_this_poem'
+        feedsInto: []
+        puzzles: []
+      rid = model.Rounds.insert
+        name: 'Elliptic Curve'
+        canon: 'elliptic_curve'
+        puzzles: [mid]
+      model.Messages.insert
+        nick: 'torgen'
+        room_name: "rounds/#{rid}"
+        timestamp: Date.now()
+        body: 'bot Latino Alphabet is a new meta in this'
       puzz = await waitForDocument model.Puzzles, {name: 'Latino Alphabet'},
         canon: 'latino_alphabet'
         feedsInto: []
+        puzzles: []
       await waitForDocument model.Rounds, {_id: rid, puzzles: [mid, puzz._id]}, {}
       chai.assert.deepInclude model.Puzzles.findOne(mid), puzzles: []
 
@@ -434,6 +456,18 @@ describe 'codex hubot script', ->
         feedsInto: []
       await waitForDocument model.Rounds, {_id: rid, puzzles: [puzz._id]}, {}
       chai.assert.deepInclude model.Puzzles.findOne(mid), puzzles: []
+
+    it 'fails when no such thing to create in', ->
+      model.Messages.insert
+        nick: 'torgen'
+        room_name: 'general/0'
+        timestamp: Date.now()
+        body: 'bot Latino Alphabet is a new puzzle in elliptic curve'
+      waitForDocument model.Messages, {body: 'torgen: I can\'t find anything called "elliptic curve".'},
+        nick: 'testbot'
+        timestamp: 7
+        room_name: 'general/0'
+        useful: true
 
   describe 'deletePuzzle', ->
     it 'deletes puzzle', ->
