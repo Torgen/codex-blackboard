@@ -267,7 +267,7 @@ share.hubot.codex = (robot) ->
       target = objectFromRoom msg
       return unless target?
     unless target.type is 'puzzles'
-      msg.reply useful: true, 'Only puzzles can be stuck'
+      msg.reply useful: true, 'Only puzzles can be stuck.'
       return msg.finish()
     result = callAs 'summon', who,
       object: target.object._id
@@ -294,7 +294,7 @@ share.hubot.codex = (robot) ->
       target = objectFromRoom msg
       return unless target?
     unless target.type is 'puzzles'
-      msg.reply useful: true, 'Only puzzles can be stuck'
+      msg.reply useful: true, 'Only puzzles can be stuck.'
       return msg.finish()
     result = callAs 'unsummon', who,
       object: target.object._id

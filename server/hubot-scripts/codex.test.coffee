@@ -740,21 +740,271 @@ describe 'codex hubot script', ->
   describe 'stuck', ->
     describe 'in puzzle room', ->
       it 'marks stuck without reason', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags: {}
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'puzzles/12345abcde'
+          timestamp: Date.now()
+          body: 'bot stuck'
+        waitForDocument model.Puzzles, {_id: '12345abcde', 'tags.status.value': 'Stuck' },
+          tags: status:
+            name: 'Status'
+            touched_by: 'torgen'
+            touched: 7
+            value: 'Stuck'
+
       it 'marks stuck with reason', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags: {}
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'puzzles/12345abcde'
+          timestamp: Date.now()
+          body: 'bot stuck because maparium is closed'
+        waitForDocument model.Puzzles, {_id: '12345abcde', 'tags.status.value': 'Stuck: maparium is closed' },
+          tags: status:
+            name: 'Status'
+            touched_by: 'torgen'
+            touched: 7
+            value: 'Stuck: maparium is closed'
+
       it 'allows specifying puzzle', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags: {}
+        model.Puzzles.insert
+          _id: 'fghij67890'
+          name: 'Even This Poem'
+          canon: 'even_this_poem'
+          tags: {}
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'puzzles/12345abcde'
+          timestamp: Date.now()
+          body: 'bot stuck on even this poem because maparium is closed'
+        waitForDocument model.Puzzles, {_id: 'fghij67890', 'tags.status.value': 'Stuck: maparium is closed' },
+          tags: status:
+            name: 'Status'
+            touched_by: 'torgen'
+            touched: 7
+            value: 'Stuck: maparium is closed'
+            
     describe 'in general room', ->
       it 'marks stuck without reason', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags: {}
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'general/0'
+          timestamp: Date.now()
+          body: 'bot stuck on latino alphabet'
+        waitForDocument model.Puzzles, {_id: '12345abcde', 'tags.status.value': 'Stuck' },
+          tags: status:
+            name: 'Status'
+            touched_by: 'torgen'
+            touched: 7
+            value: 'Stuck'
+
       it 'marks stuck with reason', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags: {}
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'general/0'
+          timestamp: Date.now()
+          body: 'bot stuck on latino alphabet because maparium is closed'
+        waitForDocument model.Puzzles, {_id: '12345abcde', 'tags.status.value': 'Stuck: maparium is closed' },
+          tags: status:
+            name: 'Status'
+            touched_by: 'torgen'
+            touched: 7
+            value: 'Stuck: maparium is closed'
+
       it 'fails without puzzle', ->
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'general/0'
+          timestamp: Date.now()
+          body: 'bot stuck because maparium is closed'
+        waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          body: 'torgen: You need to tell me which puzzle this is for.'
+          room_name: 'general/0'
+          useful: true
+
       it 'fails on round', ->
+        model.Rounds.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags: {}
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'general/0'
+          timestamp: Date.now()
+          body: 'bot stuck on latino alphabet because maparium is closed'
+        await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          body: 'torgen: I don\'t know what "latino alphabet" is.'
+          room_name: 'general/0'
+          useful: true
+        chai.assert.deepInclude model.Rounds.findOne('12345abcde'),
+          tags: {}
+
+    describe 'in round room', ->
+      it 'fails without puzzle', ->
+        model.Rounds.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags: {}
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'rounds/12345abcde'
+          timestamp: Date.now()
+          body: 'bot stuck because maparium is closed'
+        waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          body: 'torgen: Only puzzles can be stuck.'
+          room_name: 'rounds/12345abcde'
+          useful: true
 
   describe 'unstuck', ->
     describe 'in puzzle room', ->
       it 'marks unstuck', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags:
+            status:
+              name: 'Status'
+              value: 'Stuck'
+              touched: 6
+              touched_by: 'torgen'
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'puzzles/12345abcde'
+          timestamp: Date.now()
+          body: 'bot unstuck'
+        await waitForDocument model.Messages, {nick: 'torgen', room_name: 'puzzles/12345abcde', action: true},
+          body: 'no longer needs help getting unstuck'
+          timestamp: 7
+        chai.assert.deepInclude model.Puzzles.findOne('12345abcde'),
+          tags: {}
+        
+      it 'is here to help', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags:
+            status:
+              name: 'Status'
+              value: 'Stuck'
+              touched: 6
+              touched_by: 'cjb'
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'puzzles/12345abcde'
+          timestamp: Date.now()
+          body: 'bot unstuck'
+        await waitForDocument model.Messages, {nick: 'torgen', room_name: 'puzzles/12345abcde', action: true},
+          body: 'has arrived to help'
+          timestamp: 7
+        chai.assert.deepInclude model.Puzzles.findOne('12345abcde'),
+          tags: {}
+
       it 'allows specifying puzzle', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags:
+            status:
+              name: 'Status'
+              value: 'Stuck'
+              touched: 6
+              touched_by: 'cjb'
+        model.Puzzles.insert
+          _id: 'fghij67890'
+          name: 'Even This Poem'
+          canon: 'even_this_poem'
+          tags: {}
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'puzzles/fghij67890'
+          timestamp: Date.now()
+          body: 'bot unstuck on latino alphabet'
+        waitForDocument model.Puzzles, {_id: '12345abcde', tags: {}},
+          touched: 7
+          touched_by: 'torgen'
+
     describe 'in general room', ->
       it 'marks unstuck', ->
+        model.Puzzles.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags:
+            status:
+              name: 'Status'
+              value: 'Stuck'
+              touched: 6
+              touched_by: 'cjb'
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'general/0'
+          timestamp: Date.now()
+          body: 'bot unstuck on latino alphabet'
+        waitForDocument model.Puzzles, {_id: '12345abcde', tags: {}},
+          touched: 7
+          touched_by: 'torgen'
+
       it 'fails without puzzle', ->
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'general/0'
+          timestamp: Date.now()
+          body: 'bot unstuck'
+        waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          body: 'torgen: You need to tell me which puzzle this is for.'
+          room_name: 'general/0'
+          useful: true
+
+    describe 'in round room', ->
+      it 'fails without puzzle', ->
+        model.Rounds.insert
+          _id: '12345abcde'
+          name: 'Latino Alphabet'
+          canon: 'latino_alphabet'
+          tags:
+            status:
+              name: 'Status'
+              value: 'Stuck'
+              touched: 6
+              touched_by: 'cjb'
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'rounds/12345abcde'
+          timestamp: Date.now()
+          body: 'bot unstuck'
+        waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          body: 'torgen: Only puzzles can be stuck.'
+          room_name: 'rounds/12345abcde'
+          useful: true
 
   describe 'announce', ->
     it 'creates announcement', ->
