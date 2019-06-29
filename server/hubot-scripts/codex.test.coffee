@@ -1018,6 +1018,17 @@ describe 'codex hubot script', ->
           room_name: 'general/0'
           useful: true
 
+      it 'fails when no such puzzle', ->
+        model.Messages.insert
+          nick: 'torgen'
+          room_name: 'general/0'
+          timestamp: Date.now()
+          body: 'bot unstuck on latino alphabet'
+        waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          body: 'torgen: I don\'t know what "latino alphabet" is.'
+          room_name: 'general/0'
+          useful: true
+
     describe 'in round room', ->
       it 'fails without puzzle', ->
         model.Rounds.insert
