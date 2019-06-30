@@ -1,8 +1,8 @@
 'use strict'
 
-brain = new Mongo.Collection 'brain'
+export brain = new Mongo.Collection 'brain'
 
-share.hubot.brain = (robot) ->
+export default share.hubot.brain = (robot) ->
 
   robot.brain.setAutoSave false
 
