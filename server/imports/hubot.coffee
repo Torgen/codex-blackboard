@@ -190,7 +190,6 @@ class BlackboardAdapter extends Hubot.Adapter
         map(line, props)
       catch err
         console.error "Hubot error: #{err}" if DEBUG
-        @robot.logger.error "Blackboard send error: #{err}"
 
 # grrrr, Meteor.bindEnvironment doesn't preserve `this` apparently
 bind = (f) ->

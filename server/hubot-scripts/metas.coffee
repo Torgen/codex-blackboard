@@ -6,7 +6,7 @@ makeMeta = (msg) ->
   name = msg.match[1]
   p = puzzleOrThis(name, msg)
   if not p
-    return if msg.done
+    return if msg.message.done
     msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
     msg.finish()
     return
@@ -21,7 +21,7 @@ makeNotMeta = (msg) ->
   name = msg.match[1]
   p = puzzleOrThis(name, msg)
   if not p
-    return if msg.done
+    return if msg.message.done
     msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
     msg.finish()
     return
