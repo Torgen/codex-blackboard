@@ -38,3 +38,7 @@ export ObjectWith = (pattern) ->
     Object.keys(pattern).forEach (k) ->
       check o[k], pattern[k]
     true
+
+export EqualsString = (str) ->
+  Match.Where (o) -> o is str
+

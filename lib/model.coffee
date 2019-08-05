@@ -1,7 +1,7 @@
 'use strict'
 
 import canonical from './imports/canonical.coffee'
-import { ArrayMembers, ArrayWithLength, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
+import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 import { RoundUrlPrefix, PuzzleUrlPrefix } from './imports/settings.coffee'
@@ -114,7 +114,9 @@ if Meteor.isServer
 
 # CallIns are:
 #   _id: mongodb id
+#   callin_type: type of callin. Must be 'answer'.
 #   target: _id of puzzle
+#   target_type: type of target. Must be 'puzzles'.
 #   answer: string (proposed answer to call in)
 #   created: timestamp
 #   created_by: canon of Nick
@@ -622,18 +624,25 @@ doc_id_to_link = (id) ->
       check @userId, NonEmptyString
       check args, ObjectWith
         target: IdOrObject
+        target_type: Match.Optional EqualsString 'puzzles'
         answer: NonEmptyString
+        callin_type: Match.Optional EqualsString 'answer'
         backsolve: Match.Optional(Boolean)
         provided: Match.Optional(Boolean)
       return if this.isSimulation # otherwise we trigger callin sound twice
+      args.callin_type ?= 'answer'
+      args.target_type ?= 'puzzles'
       id = args.target._id or args.target
-      puzzle = Puzzles.findOne(args.target)
-      throw new Meteor.Error(404, "bad target") unless puzzle?
-      name = puzzle.name
-      backsolve = if args.backsolve then " [backsolved]" else ''
-      provided = if args.provided then " [provided]" else ''
-      newObject "callins", {name:"#{name}:#{args.answer}", who:@userId},
+      if args.callin_type is 'answer'
+        puzzle = Puzzles.findOne(args.target)
+        throw new Meteor.Error(404, "bad target") unless puzzle?
+        name = puzzle.name
+        backsolve = if args.backsolve then " [backsolved]" else ''
+        provided = if args.provided then " [provided]" else ''
+      newObject "callins", {name:"#{args.callin_type}:#{name}:#{args.answer}", who:@userId},
+        callin_type: args.callin_type
         target: id
+        target_type: args.target_type
         answer: args.answer
         who: @userId
         submitted_to_hq: false
