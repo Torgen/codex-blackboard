@@ -622,23 +622,45 @@ doc_id_to_link = (id) ->
 
     newCallIn: (args) ->
       check @userId, NonEmptyString
-      check args, ObjectWith
-        target: IdOrObject
-        target_type: Match.Optional EqualsString 'puzzles'
-        answer: NonEmptyString
-        callin_type: Match.Optional EqualsString 'answer'
-        backsolve: Match.Optional(Boolean)
-        provided: Match.Optional(Boolean)
       return if this.isSimulation # otherwise we trigger callin sound twice
       args.callin_type ?= 'answer'
       args.target_type ?= 'puzzles'
+      puzzle = null
+      body = -> ''
+      switch args.callin_type
+        when 'answer'
+          check args,
+            target: IdOrObject
+            target_type: EqualsString 'puzzles'
+            answer: NonEmptyString
+            callin_type: EqualsString 'answer'
+            backsolve: Match.Optional Boolean
+            provided: Match.Optional Boolean
+            suppressRoom: Match.Optional String
+          puzzle = Puzzles.findOne(args.target)
+          throw new Meteor.Error(404, "bad target") unless puzzle?
+          name = puzzle.name
+          backsolve = if args.backsolve then " [backsolved]" else ''
+          provided = if args.provided then " [provided]" else ''
+          body = (opts) ->
+            "is requesting a call-in for #{args.answer.toUpperCase()}" + \
+            (if opts?.specifyPuzzle then " (#{name})" else "") + provided + backsolve
+        when 'interaction request'
+          check args,
+            target: IdOrObject
+            target_type: EqualsString 'puzzles'
+            answer: NonEmptyString
+            callin_type: EqualsString 'interaction request'
+            suppressRoom: Match.Optional String
+          puzzle = Puzzles.findOne(args.target)
+          throw new Meteor.Error(404, "bad target") unless puzzle?
+          name = puzzle.name
+          body = (opts) ->
+            "is requesting the interaction #{args.answer.toUpperCase()}" + \
+            (if opts?.specifyPuzzle then " (#{name})" else "")
+        else
+          throw new Match.Error "Bad callin_type #{args.callin_type}"
       id = args.target._id or args.target
-      if args.callin_type is 'answer'
-        puzzle = Puzzles.findOne(args.target)
-        throw new Meteor.Error(404, "bad target") unless puzzle?
-        name = puzzle.name
-        backsolve = if args.backsolve then " [backsolved]" else ''
-        provided = if args.provided then " [provided]" else ''
       newObject "callins", {name:"#{args.callin_type}:#{name}:#{args.answer}", who:@userId},
         callin_type: args.callin_type
         target: id
@@ -649,26 +671,24 @@ doc_id_to_link = (id) ->
         backsolve: !!args.backsolve
         provided: !!args.provided
       , {suppressLog:true}
-      body = (opts) ->
-        "is requesting a call-in for #{args.answer.toUpperCase()}" + \
-        (if opts?.specifyPuzzle then " (#{name})" else "") + provided + backsolve
       msg = action: true
       # send to the general chat
       msg.body = body(specifyPuzzle: true)
       unless args?.suppressRoom is "general/0"
         Meteor.call 'newMessage', msg
-      # send to the puzzle chat
-      msg.body = body(specifyPuzzle: false)
-      msg.room_name = "puzzles/#{id}"
-      unless args?.suppressRoom is msg.room_name
-        Meteor.call 'newMessage', msg
-      # send to the metapuzzle chat
-      puzzle.feedsInto.forEach (meta) ->
-        msg.body = body(specifyPuzzle: true)
-        msg.room_name = "puzzles/#{meta}"
+      if puzzle?
+        # send to the puzzle chat
+        msg.body = body(specifyPuzzle: false)
+        msg.room_name = "puzzles/#{id}"
         unless args?.suppressRoom is msg.room_name
-          Meteor.call "newMessage", msg
-      oplog "New answer #{args.answer} submitted for", 'puzzles', id, \
+          Meteor.call 'newMessage', msg
+        # send to the metapuzzle chat
+        puzzle.feedsInto.forEach (meta) ->
+          msg.body = body(specifyPuzzle: true)
+          msg.room_name = "puzzles/#{meta}"
+          unless args?.suppressRoom is msg.room_name
+            Meteor.call "newMessage", msg
+      oplog "New #{args.callin_type} #{args.answer} submitted for", args.target_type, id, \
           @userId, 'callins'
 
     newQuip: (text) ->

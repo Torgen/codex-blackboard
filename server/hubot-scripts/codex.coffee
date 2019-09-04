@@ -85,7 +85,7 @@ share.hubot.codex = (robot) ->
       target = objectFromRoom msg
       return unless target?
     callAs "newCallIn", who,
-      type: target.type
+      target_type: target.type
       target: target.object._id
       answer: answer
       backsolve: backsolve
