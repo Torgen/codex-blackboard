@@ -726,38 +726,55 @@ doc_id_to_link = (id) ->
       check @userId, NonEmptyString
       deleteObject "quips", {id, who: @userId}
 
-    correctCallIn: (id) ->
+    # Response is optional for interaction requests and forbibben for answers.
+    correctCallIn: (id, response) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
       callin = CallIns.findOne id
       throw new Meteor.Error(400, "bad callin") unless callin
-      # call-in is cancelled as a side-effect of setAnswer
-      Meteor.call "setAnswer",
-        target: callin.target
-        answer: callin.answer
-        backsolve: callin.backsolve
-        provided: callin.provided
-      backsolve = if callin.backsolve then "[backsolved] " else ''
-      provided = if callin.provided then "[provided] " else ''
-      puzzle = Puzzles.findOne(callin.target)
-      return unless puzzle?
-      msg =
-        body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
-        action: true
-        room_name: "puzzles/#{callin.target}"
+      msg = room_name: "#{callin.target_type}/#{callin.target}"
+      puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
+      switch callin.callin_type
+        when 'answer'
+          check response, undefined
+          # call-in is cancelled as a side-effect of setAnswer
+          Meteor.call "setAnswer",
+            target: callin.target
+            answer: callin.answer
+            backsolve: callin.backsolve
+            provided: callin.provided
+          backsolve = if callin.backsolve then "[backsolved] " else ''
+          provided = if callin.provided then "[provided] " else ''
+          return unless puzzle?
+          Object.assign msg,
+            body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
+            action: true
+        when 'interaction request'
+          check response, Match.Optional String
+          extra = if response?
+            " with response \"#{response}\""
+          else
+            ''
+          Object.assign msg,
+            body: "reports that the interaction request #{callin.answer.toUpperCase()} was ACCEPTED#{extra}!"
+            action: true
+          Meteor.call 'cancelCallIn',
+            id: id
+            suppressLog: true
 
       # one message to the puzzle chat
       Meteor.call 'newMessage', msg
 
       # one message to the general chat
       delete msg.room_name
-      msg.body += " (#{puzzle.name})" if puzzle.name?
+      msg.body += " (#{puzzle.name})" if puzzle?.name?
       Meteor.call 'newMessage', msg
 
-      # one message to the each metapuzzle's chat
-      puzzle.feedsInto.forEach (meta) ->
-        msg.room_name = "puzzles/#{meta}"
-        Meteor.call 'newMessage', msg
+      if callin.callin_type is 'answer'
+        # one message to the each metapuzzle's chat
+        puzzle.feedsInto.forEach (meta) ->
+          msg.room_name = "puzzles/#{meta}"
+          Meteor.call 'newMessage', msg
 
     incorrectCallIn: (id) ->
       check @userId, NonEmptyString
