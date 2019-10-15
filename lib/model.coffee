@@ -732,7 +732,9 @@ doc_id_to_link = (id) ->
       check id, NonEmptyString
       callin = CallIns.findOne id
       throw new Meteor.Error(400, "bad callin") unless callin
-      msg = room_name: "#{callin.target_type}/#{callin.target}"
+      msg =
+        room_name: "#{callin.target_type}/#{callin.target}"
+        action: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       switch callin.callin_type
         when 'answer'
@@ -748,7 +750,6 @@ doc_id_to_link = (id) ->
           return unless puzzle?
           Object.assign msg,
             body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
-            action: true
         when 'interaction request'
           check response, Match.Optional String
           extra = if response?
@@ -757,7 +758,6 @@ doc_id_to_link = (id) ->
             ''
           Object.assign msg,
             body: "reports that the interaction request #{callin.answer.toUpperCase()} was ACCEPTED#{extra}!"
-            action: true
           Meteor.call 'cancelCallIn',
             id: id
             suppressLog: true
@@ -776,27 +776,48 @@ doc_id_to_link = (id) ->
           msg.room_name = "puzzles/#{meta}"
           Meteor.call 'newMessage', msg
 
-    incorrectCallIn: (id) ->
+    # Response is optional for interaction requests and forbibben for answers.
+    incorrectCallIn: (id, response) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
       callin = CallIns.findOne id
       throw new Meteor.Error(400, "bad callin") unless callin
-      # call-in is cancelled as a side-effect of addIncorrectAnswer
-      Meteor.call "addIncorrectAnswer",
-        target: callin.target
-        answer: callin.answer
-        backsolve: callin.backsolve
-        provided: callin.provided
-      puzzle = Puzzles.findOne(callin.target)
-      return unless puzzle?
-      name = puzzle.name
       msg =
-        body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
+        room_name: "#{callin.target_type}/#{callin.target}"
         action: true
-        room_name: "puzzles/#{callin.target}"
+      puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
+      switch callin.callin_type
+        when 'answer'
+          check response, undefined
+          # call-in is cancelled as a side-effect of addIncorrectAnswer
+          Meteor.call "addIncorrectAnswer",
+            target: callin.target
+            answer: callin.answer
+            backsolve: callin.backsolve
+            provided: callin.provided
+          return unless puzzle?
+          Object.assign msg,
+            body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
+        when 'interaction request'
+          check response, Match.Optional String
+          extra = if response?
+            " with response \"#{response}\""
+          else
+            ''
+          Object.assign msg,
+            body: "sadly relays that the interaction request #{callin.answer.toUpperCase()} was REJECTED#{extra}."
+          Meteor.call 'cancelCallIn',
+            id: id
+            suppressLog: true
+
+      # one message to the puzzle chat
       Meteor.call 'newMessage', msg
+
+      return unless puzzle?
+
+      # one message to the general chat
       delete msg.room_name
-      msg.body += " (#{name})" if name?
+      msg.body += " (#{puzzle.name})" if puzzle.name?
       Meteor.call 'newMessage', msg
       puzzle.feedsInto.forEach (meta) ->
         msg.room_name = "puzzles/#{meta}"

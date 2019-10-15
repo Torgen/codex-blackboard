@@ -26,49 +26,160 @@ describe 'incorrectCallIn', ->
 
   puzzle = null
   callin = null
-  beforeEach ->
-    puzzle = model.Puzzles.insert
-      name: 'Foo'
-      canon: 'foo'
-      created: 1
-      created_by: 'cscott'
-      touched: 1
-      touched_by: 'cscott'
-      solved: null
-      solved_by: null
-      tags: {}
-      feedsInto: []
-    callin = model.CallIns.insert
-      name: 'Foo:precipitate'
-      target: puzzle
-      answer: 'precipitate'
-      created: 2
-      created_by: 'torgen'
-      submitted_to_hq: true
-      backsolve: false
-      provided: false
 
-  it 'fails without login', ->
-    chai.assert.throws ->
-      Meteor.call 'incorrectCallIn', callin
-    , Match.Error
-
-  describe 'when logged in', ->
+  describe 'on answer', ->
     beforeEach ->
-      callAs 'incorrectCallIn', 'cjb', callin
+      puzzle = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 1
+        touched_by: 'cscott'
+        solved: null
+        solved_by: null
+        tags: {}
+        feedsInto: []
+      callin = model.CallIns.insert
+        name: 'Foo:precipitate'
+        target: puzzle
+        target_type: 'puzzles'
+        answer: 'precipitate'
+        callin_type: 'answer'
+        created: 2
+        created_by: 'torgen'
+        submitted_to_hq: true
+        backsolve: false
+        provided: false
 
-    it 'deletes callin', ->
-      chai.assert.isUndefined model.CallIns.findOne()
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'incorrectCallIn', callin
+      , Match.Error
 
-    it 'addsIncorrectAnswer', ->
-      chai.assert.deepInclude model.Puzzles.findOne(puzzle),
-        incorrectAnswers: [{answer: 'precipitate', who: 'cjb', timestamp: 7, backsolve: false, provided: false}]
+    describe 'when logged in', ->
+      beforeEach ->
+        callAs 'incorrectCallIn', 'cjb', callin
 
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
+      it 'deletes callin', ->
+        chai.assert.isUndefined model.CallIns.findOne()
 
-    it "notifies puzzle chat", ->
-      chai.assert.lengthOf model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch(), 1
+      it 'addsIncorrectAnswer', ->
+        chai.assert.deepInclude model.Puzzles.findOne(puzzle),
+          incorrectAnswers: [{answer: 'precipitate', who: 'cjb', timestamp: 7, backsolve: false, provided: false}]
 
-    it "notifies general chat", ->
-      chai.assert.lengthOf model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch(), 1
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
+
+      it "notifies puzzle chat", ->
+        chai.assert.lengthOf model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch(), 1
+
+      it "notifies general chat", ->
+        chai.assert.lengthOf model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch(), 1
+  
+  describe 'on interaction request', ->
+    beforeEach ->
+      puzzle = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 1
+        touched_by: 'cscott'
+        solved: null
+        solved_by: null
+        tags: {}
+        feedsInto: []
+      callin = model.CallIns.insert
+        name: 'Foo:precipitate'
+        target: puzzle
+        target_type: 'puzzles'
+        answer: 'precipitate'
+        callin_type: 'interaction request'
+        created: 2
+        created_by: 'torgen'
+        submitted_to_hq: true
+        backsolve: false
+        provided: false
+
+    describe 'without response', ->
+
+      it 'fails without login', ->
+        chai.assert.throws ->
+          Meteor.call 'incorrectCallIn', callin
+        , Match.Error
+
+      describe 'when logged in', ->
+        beforeEach ->
+          callAs 'incorrectCallIn', 'cjb', callin
+
+        it 'deletes callin', ->
+          chai.assert.isUndefined model.CallIns.findOne()
+
+        it 'does not add incorrectAnswer', ->
+          chai.assert.isUndefined model.Puzzles.findOne(puzzle).incorrectAnswers
+
+        it 'does not oplog', ->
+          chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
+
+        it "notifies puzzle chat", ->
+          o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'cjb'
+            action: true
+          chai.assert.include o[0].body, 'REJECTED', 'message'
+          chai.assert.include o[0].body, 'PRECIPITATE', 'message'
+          chai.assert.notInclude o[0].body, '(Foo)', 'message'
+
+        it "notifies general chat", ->
+          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'cjb'
+            action: true
+          chai.assert.include o[0].body, 'REJECTED', 'message'
+          chai.assert.include o[0].body, 'PRECIPITATE', 'message'
+          chai.assert.include o[0].body, '(Foo)', 'message'
+
+    describe 'with response', ->
+
+      it 'fails without login', ->
+        chai.assert.throws ->
+          Meteor.call 'incorrectCallIn', callin, 'sediment'
+        , Match.Error
+
+      describe 'when logged in', ->
+        beforeEach ->
+          callAs 'incorrectCallIn', 'cjb', callin, 'sediment'
+
+        it 'deletes callin', ->
+          chai.assert.isUndefined model.CallIns.findOne()
+
+        it 'does not add incorrectAnswer', ->
+          chai.assert.isUndefined model.Puzzles.findOne(puzzle).incorrectAnswers
+
+        it 'does not oplog', ->
+          chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
+
+        it "notifies puzzle chat", ->
+          o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'cjb'
+            action: true
+          chai.assert.include o[0].body, 'REJECTED', 'message'
+          chai.assert.include o[0].body, 'PRECIPITATE', 'message'
+          chai.assert.include o[0].body, 'sediment', 'message'
+          chai.assert.notInclude o[0].body, '(Foo)', 'message'
+
+        it "notifies general chat", ->
+          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'cjb'
+            action: true
+          chai.assert.include o[0].body, 'REJECTED', 'message'
+          chai.assert.include o[0].body, 'PRECIPITATE', 'message'
+          chai.assert.include o[0].body, 'sediment', 'message'
+          chai.assert.include o[0].body, '(Foo)', 'message'
