@@ -85,17 +85,26 @@ Template.callin_row.helpers
     for wrong in @puzzle?.incorrectAnswers
       return true if wrong.answer is @answer
     return false
+  interactionRequest: -> @callin_type is "interaction request"
   nickEmail: -> nickEmail @
 
 Template.callin_row.events
   "click .bb-callin-correct": (event, template) ->
-     Meteor.call 'correctCallIn', @_id
+    response = template.find("input.response")?.value
+    if response? and response isnt ''
+      Meteor.call 'correctCallIn', @_id, response
+    else
+      Meteor.call 'correctCallIn', @_id
 
   "click .bb-callin-incorrect": (event, template) ->
-     Meteor.call 'incorrectCallIn', @_id
+    response = template.find("input.response")?.value
+    if response? and response isnt ''
+      Meteor.call 'incorrectCallIn', @_id, response
+    else
+      Meteor.call 'incorrectCallIn', @_id
 
   "click .bb-callin-cancel": (event, template) ->
-     Meteor.call 'cancelCallIn', id: @_id
+    Meteor.call 'cancelCallIn', id: @_id
 
   "change .bb-submitted-to-hq": (event, template) ->
     checked = !!event.currentTarget.checked
