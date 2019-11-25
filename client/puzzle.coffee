@@ -133,11 +133,30 @@ Template.puzzle_summon_modal.events
 Template.puzzle_callin_button.events
   "click .bb-callin-btn": (event, template) ->
     $('#callin_modal input:text').val('')
-    $('#callin_modal input:checked').val([])
+    $('#callin_modal input[type="checkbox"]:checked').val([])
     $('#callin_modal').modal show: true
-    $('#callin_mdal input:text').focus()
+    $('#callin_modal input:text').focus()
+
+Template.puzzle_callin_modal.onCreated ->
+  @type = new ReactiveVar 'answer'
+
+Template.puzzle_callin_modal.onRendered ->
+  @$("input[name='callin_type'][value='#{@type.get()}']").prop('checked', true)
+
+Template.puzzle_callin_modal.helpers
+  type: -> Template.instance().type.get()
+  typeIs: (type) ->
+    console.log type, Template.instance().type.get()
+    Template.instance().type.get() is type
+  typeName: -> switch Template.instance().type.get()
+    when 'answer' then 'Answer'
+    when 'interaction request' then 'Interaction Request'
+    else ''
 
 Template.puzzle_callin_modal.events
+  'change input[name="callin_type"]': (event, template) ->
+    console.log event.currentTarget.value
+    template.type.set event.currentTarget.value
   "click .bb-callin-submit, submit form": (event, template) ->
     event.preventDefault() # don't reload page
     answer = template.$('.bb-callin-answer').val()
@@ -145,6 +164,7 @@ Template.puzzle_callin_modal.events
     args =
       target: Session.get 'id'
       answer: answer
+      callin_type: template.type.get()
     if template.$('input:checked[value="provided"]').val() is 'provided'
       args.provided = true
     if template.$('input:checked[value="backsolve"]').val() is 'backsolve'

@@ -196,20 +196,25 @@ Request Call-In
 <div class="modal hide fade" id="callin_modal">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h3>Request an answer call-in</h3>
+    <h3>Request a call-in</h3>
   </div>
   <div class="modal-body">
     <form class="form">
-      <label>Answer to call in:</label>
-      <input type="text" class="bb-callin-answer" placeholder="Answer">
-      <label class="checkbox">
-        <input type="checkbox" value="backsolve"> Backsolved?
-      </label>
-      <label class="checkbox">
-        <input type="checkbox" value="provided"> Answer provided by HQ?
-        <!-- ie, because we brought a physical object to HQ, won a
-             game, or cashed in points -->
-      </label>
+      <label>{{typeName}} to call in:</label>
+      <input type="text" class="bb-callin-answer" placeholder="{{typeName}}">
+      <label>Callin Type</label>
+      <label class="radio inline"><input type="radio" id="answer" value="answer" name="callin_type" checked="checked">Answer</label>
+      <label class="radio inline"><input type="radio" value="interaction request" name="callin_type">Interaction Request</label>
+      {{#if typeIs "answer"}}
+        <label class="checkbox">
+          <input type="checkbox" value="backsolve"> Backsolved?
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" value="provided"> Answer provided by HQ?
+          <!-- ie, because we brought a physical object to HQ, won a
+              game, or cashed in points -->
+        </label>
+      {{/if}}
     </form>
   </div>
   <div class="modal-footer">
