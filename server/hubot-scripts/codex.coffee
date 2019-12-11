@@ -95,6 +95,33 @@ share.hubot.codex = (robot) ->
     msg.reply useful: true, "Okay, \"#{answer}\" for #{target.object.name} added to call-in list!"
     msg.finish()
 
+  robot.commands.push 'bot request interaction <answer> [for <puzzle>] - Updates codex blackboard'
+  robot.respond (rejoin /Request\s*interaction /,thingRE,'(?:',/\ for /,thingRE,')?',/$/i), (msg) ->
+    answer = strip msg.match[1]
+    name = if msg.match[2]? then strip msg.match[2]
+    who = msg.envelope.user.id
+    if name?
+      target = callAs "getByName", who,
+        name: name
+        optional_type: type ? "puzzles"
+      if not target and not type?
+        target = callAs "getByName", who, name: name
+      if not target
+        msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
+        return msg.finish()
+    else
+      target = objectFromRoom msg
+      return unless target?
+    callAs "newCallIn", who,
+      target_type: target.type
+      target: target.object._id
+      answer: answer
+      callin_type: 'interaction request'
+      # I don't mind a little redundancy, but if it bothers you uncomment this:
+      #suppressRoom: msg.envelope.room
+    msg.reply useful: true, "Okay, interaction request \"#{answer}\" for #{target.object.name} added to call-in list!"
+    msg.finish()
+
 # deleteAnswer
   robot.commands.push 'bot delete the answer to <puzzle> - Updates codex blackboard'
   robot.respond (rejoin /Delete( the)? answer (to|for)( puzzle)? /,thingRE,/$/i), (msg) ->

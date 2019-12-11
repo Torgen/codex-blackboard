@@ -184,128 +184,221 @@ describe 'codex hubot script', ->
         useful: true
 
   describe 'newCallIn', ->
-    describe 'in puzzle room', ->
-      it 'infers puzzle', ->
-        model.Puzzles.insert
-          _id: '12345abcde'
-          name: 'Latino Alphabet'
-          canon: 'latino_alphabet'
-          feedsInto: []
-          tags: {}
-        model.Messages.insert
-          nick: 'torgen'
-          room_name: 'puzzles/12345abcde'
-          timestamp: Date.now()
-          body: 'bot call in linear abeja'
-        waitForDocument model.CallIns, {answer: 'linear abeja'},
-          target: '12345abcde'
-          created: 7
-          created_by: 'torgen'
-          touched: 7
-          touched_by: 'torgen'
+    describe 'of answer', ->
+      describe 'in puzzle room', ->
+        it 'infers puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'puzzles/12345abcde'
+            timestamp: Date.now()
+            body: 'bot call in linear abeja'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'answer'
 
-      it 'allows specifying puzzle', ->
-        model.Puzzles.insert
-          _id: '12345abcde'
-          name: 'Latino Alphabet'
-          canon: 'latino_alphabet'
-          feedsInto: []
-          tags: {}
-        model.Messages.insert
-          nick: 'torgen'
-          room_name: 'puzzles/fghij67890'
-          timestamp: Date.now()
-          body: 'bot call in linear abeja for latino alphabet'
-        waitForDocument model.CallIns, {answer: 'linear abeja'},
-          target: '12345abcde'
-          created: 7
-          created_by: 'torgen'
-          touched: 7
-          touched_by: 'torgen'
+        it 'allows specifying puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'puzzles/fghij67890'
+            timestamp: Date.now()
+            body: 'bot call in linear abeja for latino alphabet'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'answer'
 
-      it 'understands backsolved', ->
-        model.Puzzles.insert
-          _id: '12345abcde'
-          name: 'Latino Alphabet'
-          canon: 'latino_alphabet'
-          feedsInto: []
-          tags: {}
-        model.Messages.insert
-          nick: 'torgen'
-          room_name: 'puzzles/12345abcde'
-          timestamp: Date.now()
-          body: 'bot call in backsolved linear abeja'
-        waitForDocument model.CallIns, {answer: 'linear abeja'},
-          backsolve: true
-          target: '12345abcde'
-          created: 7
-          created_by: 'torgen'
-          touched: 7
-          touched_by: 'torgen'
+        it 'understands backsolved', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'puzzles/12345abcde'
+            timestamp: Date.now()
+            body: 'bot call in backsolved linear abeja'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            backsolve: true
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'answer'
 
-      it 'understands provided', ->
-        model.Puzzles.insert
-          _id: '12345abcde'
-          name: 'Latino Alphabet'
-          canon: 'latino_alphabet'
-          feedsInto: []
-          tags: {}
-        model.Messages.insert
-          nick: 'torgen'
-          room_name: 'puzzles/12345abcde'
-          timestamp: Date.now()
-          body: 'bot call in provided linear abeja'
-        waitForDocument model.CallIns, {answer: 'linear abeja'},
-          provided: true
-          target: '12345abcde'
-          created: 7
-          created_by: 'torgen'
-          touched: 7
-          touched_by: 'torgen'
+        it 'understands provided', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'puzzles/12345abcde'
+            timestamp: Date.now()
+            body: 'bot call in provided linear abeja'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            provided: true
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'answer'
 
-    describe 'in general room', ->
-      it 'fails when puzzle is not specified', ->
-        model.Messages.insert
-          nick: 'torgen'
-          room_name: 'general/0'
-          timestamp: Date.now()
-          body: 'bot call in linear abeja'
-        await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-          body: 'torgen: You need to tell me which puzzle this is for.'
-          room_name: 'general/0'
-          useful: true
-        chai.assert.isUndefined model.CallIns.findOne()
+      describe 'in general room', ->
+        it 'fails when puzzle is not specified', ->
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot call in linear abeja'
+          await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+            body: 'torgen: You need to tell me which puzzle this is for.'
+            room_name: 'general/0'
+            useful: true
+          chai.assert.isUndefined model.CallIns.findOne()
 
-      it 'fails when puzzle does not exist', ->
-        model.Messages.insert
-          nick: 'torgen'
-          room_name: 'general/0'
-          timestamp: Date.now()
-          body: 'bot call in linear abeja for latino alphabet'
-        await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-          body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
-          room_name: 'general/0'
-          useful: true
-        chai.assert.isUndefined model.CallIns.findOne()
+        it 'fails when puzzle does not exist', ->
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot call in linear abeja for latino alphabet'
+          await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+            body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+            room_name: 'general/0'
+            useful: true
+          chai.assert.isUndefined model.CallIns.findOne()
 
-      it 'allows specifying puzzle', ->
-        model.Puzzles.insert
-          _id: '12345abcde'
-          name: 'Latino Alphabet'
-          canon: 'latino_alphabet'
-          feedsInto: []
-          tags: {}
-        model.Messages.insert
-          nick: 'torgen'
-          room_name: 'general/0'
-          timestamp: Date.now()
-          body: 'bot call in linear abeja for latino alphabet'
-        waitForDocument model.CallIns, {answer: 'linear abeja'},
-          target: '12345abcde'
-          created: 7
-          created_by: 'torgen'
-          touched: 7
-          touched_by: 'torgen'
+        it 'allows specifying puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot call in linear abeja for latino alphabet'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'answer'
+
+    describe 'of interaction request', ->
+      describe 'in puzzle room', ->
+        it 'infers puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'puzzles/12345abcde'
+            timestamp: Date.now()
+            body: 'bot request interaction linear abeja'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'interaction request'
+
+        it 'allows specifying puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'puzzles/fghij67890'
+            timestamp: Date.now()
+            body: 'bot request interaction linear abeja for latino alphabet'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'interaction request'
+
+      describe 'in general room', ->
+        it 'fails when puzzle is not specified', ->
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot request interaction linear abeja'
+          await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+            body: 'torgen: You need to tell me which puzzle this is for.'
+            room_name: 'general/0'
+            useful: true
+          chai.assert.isUndefined model.CallIns.findOne()
+
+        it 'fails when puzzle does not exist', ->
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot request interaction linear abeja for latino alphabet'
+          await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+            body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+            room_name: 'general/0'
+            useful: true
+          chai.assert.isUndefined model.CallIns.findOne()
+
+        it 'allows specifying puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot request interaction linear abeja for latino alphabet'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'interaction request'
 
   describe 'newPuzzle', ->
     beforeEach -> PuzzleUrlPrefix.ensure()
