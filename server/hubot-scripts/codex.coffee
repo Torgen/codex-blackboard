@@ -97,9 +97,16 @@ share.hubot.codex = (robot) ->
     msg.finish()
 
   robot.commands.push 'bot request interaction <answer> [for <puzzle>] - Updates codex blackboard'
-  robot.respond (rejoin /Request\s*interaction /,thingRE,'(?:',/\ for /,thingRE,')?',/$/i), (msg) ->
-    answer = strip msg.match[1]
-    name = if msg.match[2]? then strip msg.match[2]
+  robot.commands.push 'bot tell hq <message> [for <puzzle>] - Updates codex blackboard'
+  robot.respond (rejoin /(Request\s+interaction|tell\s+hq) /,thingRE,'(?:',/\ for /,thingRE,')?',/$/i), (msg) ->
+    callin_type = switch canonical(msg.match[1])
+      when 'request_interaction'
+        callin_types.INTERACTION_REQUEST
+      when 'tell_hq'
+        callin_types.MESSAGE_TO_HQ
+
+    answer = strip msg.match[2]
+    name = if msg.match[3]? then strip msg.match[3]
     who = msg.envelope.user.id
     if name?
       target = callAs "getByName", who,
@@ -117,10 +124,10 @@ share.hubot.codex = (robot) ->
       target_type: target.type
       target: target.object._id
       answer: answer
-      callin_type: callin_types.INTERACTION_REQUEST
+      callin_type: callin_type
       # I don't mind a little redundancy, but if it bothers you uncomment this:
       #suppressRoom: msg.envelope.room
-    msg.reply useful: true, "Okay, interaction request \"#{answer}\" for #{target.object.name} added to call-in list!"
+    msg.reply useful: true, "Okay, #{callin_type} \"#{answer}\" for #{target.object.name} added to call-in list!"
     msg.finish()
 
 # deleteAnswer
