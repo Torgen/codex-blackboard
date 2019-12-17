@@ -3,3 +3,4 @@
 
 export ANSWER = 'answer'
 export INTERACTION_REQUEST = 'interaction request'
+export MESSAGE_TO_HQ = 'message to hq'

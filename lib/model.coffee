@@ -659,6 +659,19 @@ doc_id_to_link = (id) ->
           body = (opts) ->
             "is requesting the interaction #{args.answer.toUpperCase()}" + \
             (if opts?.specifyPuzzle then " (#{name})" else "")
+        when callin_types.MESSAGE_TO_HQ
+          check args,
+            target: IdOrObject
+            target_type: EqualsString 'puzzles'
+            answer: NonEmptyString
+            callin_type: EqualsString callin_types.MESSAGE_TO_HQ
+            suppressRoom: Match.Optional String
+          puzzle = Puzzles.findOne(args.target)
+          throw new Meteor.Error(404, "bad target") unless puzzle?
+          name = puzzle.name
+          body = (opts) ->
+            "wants to tell HQ, \"#{args.answer.toUpperCase()}\"" + \
+            (if opts?.specifyPuzzle then " (#{name})" else "")
         else
           throw new Match.Error "Bad callin_type #{args.callin_type}"
       id = args.target._id or args.target
