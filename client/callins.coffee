@@ -2,6 +2,7 @@
 
 import { nickEmail } from './imports/nickEmail.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
+import { INTERACTION_REQUEST } from '/lib/imports/callin_types.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -85,7 +86,7 @@ Template.callin_row.helpers
     for wrong in @puzzle?.incorrectAnswers
       return true if wrong.answer is @answer
     return false
-  interactionRequest: -> @callin_type is "interaction request"
+  interactionRequest: -> @callin_type is INTERACTION_REQUEST
   nickEmail: -> nickEmail @
 
 Template.callin_row.events

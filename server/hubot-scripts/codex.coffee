@@ -23,6 +23,7 @@ import {rejoin, strip, thingRE, objectFromRoom } from '../imports/botutil.coffee
 import { callAs, impersonating } from '../imports/impersonate.coffee'
 import { all_settings } from '/lib/imports/settings.coffee'
 import canonical from '/lib/imports/canonical.coffee'
+import * as callin_types from '/lib/imports/callin_types.coffee'
 
 share.hubot.codex = (robot) ->
 
@@ -116,7 +117,7 @@ share.hubot.codex = (robot) ->
       target_type: target.type
       target: target.object._id
       answer: answer
-      callin_type: 'interaction request'
+      callin_type: callin_types.INTERACTION_REQUEST
       # I don't mind a little redundancy, but if it bothers you uncomment this:
       #suppressRoom: msg.envelope.room
     msg.reply useful: true, "Okay, interaction request \"#{answer}\" for #{target.object.name} added to call-in list!"

@@ -2,6 +2,7 @@
 
 import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
+import * as callin_types from '/lib/imports/callin_types.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -138,7 +139,7 @@ Template.puzzle_callin_button.events
     $('#callin_modal input:text').focus()
 
 Template.puzzle_callin_modal.onCreated ->
-  @type = new ReactiveVar 'answer'
+  @type = new ReactiveVar callin_types.ANSWER
 
 Template.puzzle_callin_modal.onRendered ->
   @$("input[name='callin_type'][value='#{@type.get()}']").prop('checked', true)
@@ -149,8 +150,8 @@ Template.puzzle_callin_modal.helpers
     console.log type, Template.instance().type.get()
     Template.instance().type.get() is type
   typeName: -> switch Template.instance().type.get()
-    when 'answer' then 'Answer'
-    when 'interaction request' then 'Interaction Request'
+    when callin_types.ANSWER then 'Answer'
+    when callin_types.INTERACTION_REQUEST then 'Interaction Request'
     else ''
 
 Template.puzzle_callin_modal.events

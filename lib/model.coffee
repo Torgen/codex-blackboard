@@ -5,6 +5,7 @@ import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyStr
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 import { RoundUrlPrefix, PuzzleUrlPrefix } from './imports/settings.coffee'
+import * as callin_types from './imports/callin_types.coffee'
 if Meteor.isServer
   {newMessage, ensureDawnOfTime} = require('/server/imports/newMessage.coffee')
 else
@@ -623,17 +624,17 @@ doc_id_to_link = (id) ->
     newCallIn: (args) ->
       check @userId, NonEmptyString
       return if this.isSimulation # otherwise we trigger callin sound twice
-      args.callin_type ?= 'answer'
+      args.callin_type ?= callin_types.ANSWER
       args.target_type ?= 'puzzles'
       puzzle = null
       body = -> ''
       switch args.callin_type
-        when 'answer'
+        when callin_types.ANSWER
           check args,
             target: IdOrObject
             target_type: EqualsString 'puzzles'
             answer: NonEmptyString
-            callin_type: EqualsString 'answer'
+            callin_type: EqualsString callin_types.ANSWER
             backsolve: Match.Optional Boolean
             provided: Match.Optional Boolean
             suppressRoom: Match.Optional String
@@ -645,12 +646,12 @@ doc_id_to_link = (id) ->
           body = (opts) ->
             "is requesting a call-in for #{args.answer.toUpperCase()}" + \
             (if opts?.specifyPuzzle then " (#{name})" else "") + provided + backsolve
-        when 'interaction request'
+        when callin_types.INTERACTION_REQUEST
           check args,
             target: IdOrObject
             target_type: EqualsString 'puzzles'
             answer: NonEmptyString
-            callin_type: EqualsString 'interaction request'
+            callin_type: EqualsString callin_types.INTERACTION_REQUEST
             suppressRoom: Match.Optional String
           puzzle = Puzzles.findOne(args.target)
           throw new Meteor.Error(404, "bad target") unless puzzle?
@@ -737,7 +738,7 @@ doc_id_to_link = (id) ->
         action: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       switch callin.callin_type
-        when 'answer'
+        when callin_types.ANSWER
           check response, undefined
           # call-in is cancelled as a side-effect of setAnswer
           Meteor.call "setAnswer",
@@ -750,7 +751,7 @@ doc_id_to_link = (id) ->
           return unless puzzle?
           Object.assign msg,
             body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
-        when 'interaction request'
+        when callin_types.INTERACTION_REQUEST
           check response, Match.Optional String
           extra = if response?
             " with response \"#{response}\""
@@ -770,7 +771,7 @@ doc_id_to_link = (id) ->
       msg.body += " (#{puzzle.name})" if puzzle?.name?
       Meteor.call 'newMessage', msg
 
-      if callin.callin_type is 'answer'
+      if callin.callin_type is callin_types.ANSWER
         # one message to the each metapuzzle's chat
         puzzle.feedsInto.forEach (meta) ->
           msg.room_name = "puzzles/#{meta}"
@@ -787,7 +788,7 @@ doc_id_to_link = (id) ->
         action: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       switch callin.callin_type
-        when 'answer'
+        when callin_types.ANSWER
           check response, undefined
           # call-in is cancelled as a side-effect of addIncorrectAnswer
           Meteor.call "addIncorrectAnswer",
@@ -798,7 +799,7 @@ doc_id_to_link = (id) ->
           return unless puzzle?
           Object.assign msg,
             body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
-        when 'interaction request'
+        when callin_types.INTERACTION_REQUEST
           check response, Match.Optional String
           extra = if response?
             " with response \"#{response}\""
