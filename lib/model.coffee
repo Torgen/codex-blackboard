@@ -750,42 +750,34 @@ doc_id_to_link = (id) ->
         room_name: "#{callin.target_type}/#{callin.target}"
         action: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
-      switch callin.callin_type
-        when callin_types.ANSWER
-          check response, undefined
-          # call-in is cancelled as a side-effect of setAnswer
-          Meteor.call "setAnswer",
-            target: callin.target
-            answer: callin.answer
-            backsolve: callin.backsolve
-            provided: callin.provided
-          backsolve = if callin.backsolve then "[backsolved] " else ''
-          provided = if callin.provided then "[provided] " else ''
-          return unless puzzle?
-          Object.assign msg,
-            body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
-        when callin_types.INTERACTION_REQUEST
-          check response, Match.Optional String
-          extra = if response?
-            " with response \"#{response}\""
-          else
-            ''
-          Object.assign msg,
-            body: "reports that the interaction request \"#{callin.answer}\" was ACCEPTED#{extra}!"
-          Meteor.call 'cancelCallIn',
-            id: id
-            suppressLog: true
-        when callin_types.MESSAGE_TO_HQ
-          check response, Match.Optional String
-          extra = if response?
-            " with response \"#{response}\""
-          else
-            ''
-          Object.assign msg,
-            body: "reports that the message to HQ \"#{callin.answer}\" was ACCEPTED#{extra}!"
-          Meteor.call 'cancelCallIn',
-            id: id
-            suppressLog: true
+      if callin.callin_type is callin_types.ANSWER
+        check response, undefined
+        # call-in is cancelled as a side-effect of setAnswer
+        Meteor.call "setAnswer",
+          target: callin.target
+          answer: callin.answer
+          backsolve: callin.backsolve
+          provided: callin.provided
+        backsolve = if callin.backsolve then "[backsolved] " else ''
+        provided = if callin.provided then "[provided] " else ''
+        return unless puzzle?
+        Object.assign msg,
+          body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
+      else
+        check response, Match.Optional String
+        extra = if response?
+          " with response \"#{response}\""
+        else
+          ''
+        type_text = if callin.callin_type is callin_types.MESSAGE_TO_HQ
+          'message to HQ'
+        else callin.callin_type
+
+        Object.assign msg,
+          body: "reports that the #{type_text} \"#{callin.answer}\" was ACCEPTED#{extra}!"
+        Meteor.call 'cancelCallIn',
+          id: id
+          suppressLog: true
 
       # one message to the puzzle chat
       Meteor.call 'newMessage', msg
@@ -830,7 +822,7 @@ doc_id_to_link = (id) ->
           else
             ''
           Object.assign msg,
-            body: "sadly relays that the interaction request #{callin.answer.toUpperCase()} was REJECTED#{extra}."
+            body: "sadly relays that the interaction request \"#{callin.answer}\" was REJECTED#{extra}."
           Meteor.call 'cancelCallIn',
             id: id
             suppressLog: true
