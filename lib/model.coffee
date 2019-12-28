@@ -772,6 +772,9 @@ doc_id_to_link = (id) ->
             ''
           Object.assign msg,
             body: "reports that the interaction request \"#{callin.answer}\" was ACCEPTED#{extra}!"
+          Meteor.call 'cancelCallIn',
+            id: id
+            suppressLog: true
         when callin_types.MESSAGE_TO_HQ
           check response, Match.Optional String
           extra = if response?

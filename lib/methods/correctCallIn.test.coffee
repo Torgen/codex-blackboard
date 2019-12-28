@@ -191,7 +191,7 @@ describe 'correctCallIn', ->
             nick: 'cjb'
             action: true
           chai.assert.include o[0].body, 'ACCEPTED', 'message'
-          chai.assert.include o[0].body, '"precipitate""', 'message'
+          chai.assert.include o[0].body, '"precipitate"', 'message'
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it 'notifies general chat', ->
