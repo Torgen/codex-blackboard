@@ -740,7 +740,7 @@ doc_id_to_link = (id) ->
       check @userId, NonEmptyString
       deleteObject "quips", {id, who: @userId}
 
-    # Response is optional for interaction requests and forbibben for answers.
+    # Response is forbibben for answers and optional for other callin types.
     correctCallIn: (id, response) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
@@ -771,7 +771,15 @@ doc_id_to_link = (id) ->
           else
             ''
           Object.assign msg,
-            body: "reports that the interaction request #{callin.answer.toUpperCase()} was ACCEPTED#{extra}!"
+            body: "reports that the interaction request \"#{callin.answer}\" was ACCEPTED#{extra}!"
+        when callin_types.MESSAGE_TO_HQ
+          check response, Match.Optional String
+          extra = if response?
+            " with response \"#{response}\""
+          else
+            ''
+          Object.assign msg,
+            body: "reports that the message to HQ \"#{callin.answer}\" was ACCEPTED#{extra}!"
           Meteor.call 'cancelCallIn',
             id: id
             suppressLog: true
