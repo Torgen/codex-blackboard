@@ -88,7 +88,7 @@ Template.callin_row.helpers
     return false
   callinTypeIs: (type) -> @callin_type is type
   allowsResponse: -> @callin_type isnt callin_types.ANSWER
-  allowsIncorrect: -> true
+  allowsIncorrect: -> @callin_type isnt callin_types.EXPECTED_CALLBACK
   nickEmail: -> nickEmail @
 
 Template.callin_row.events

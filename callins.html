@@ -56,17 +56,25 @@
         <div class="interaction">Interaction Request</div>
       {{else if callinTypeIs "message to hq"}}
         <div class="interaction">Message to HQ</div>
+      {{else if callinTypeIs "expected callback"}}
+        <div class="interaction">Expected Callback</div>
       {{/if}}
-      {{#if hunt_link}}
-        <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-info btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
-          <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
-        </a> 
-      {{/if}}
+      {{#unless callinTypeIs "expected callback"}}
+        {{#if hunt_link}}
+          <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-info btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
+            <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
+          </a> 
+        {{/if}}
+      {{/unless}}
     </td>
     <td>{{pretty_ts this.created}}</td>
     <td>{{#with lastAttempt}}{{pretty_ts timestamp}} <small>({{pretty_ts timestamp=timestamp style="brief duration"}})</small>{{else}}-{{/with}}</td>
     {{#if mynick}}
-    <td><input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{gravatar id=nickEmail image="wavatar" size=20 title=(nickOrName this)}}{{/with}}</td>
+    <td>
+      {{#if callinTypeIs "expected callback"}}N/A{{else}}
+      <input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{gravatar id=nickEmail image="wavatar" size=20 title=(nickOrName this)}}{{/with}}
+      {{/if}}
+    </td>
     <td class="form-inline">
       {{#if allowsResponse}}
         <div class="input-append">

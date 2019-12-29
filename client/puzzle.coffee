@@ -153,11 +153,13 @@ Template.puzzle_callin_modal.helpers
     when callin_types.ANSWER then 'Answer'
     when callin_types.INTERACTION_REQUEST then 'Interaction Request'
     when callin_types.MESSAGE_TO_HQ then 'Message to HQ'
+    when callin_types.EXPECTED_CALLBACK then 'Expected Callback'
     else ''
   callinTypes: -> [
     callin_types.ANSWER,
     callin_types.INTERACTION_REQUEST,
-    callin_types.MESSAGE_TO_HQ]
+    callin_types.MESSAGE_TO_HQ,
+    callin_types.EXPECTED_CALLBACK]
 
 Template.puzzle_callin_modal.events
   'change input[name="callin_type"]': (event, template) ->
