@@ -262,6 +262,7 @@ describe 'correctCallIn', ->
       callAs 'correctCallIn', 'cjb', callin
       m = model.Messages.find(room_name: "puzzles/#{meta}", dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf m, 0
+      
   describe 'for message to HQ', ->
     beforeEach ->
       puzzle = model.Puzzles.insert
@@ -369,6 +370,138 @@ describe 'correctCallIn', ->
         chai.assert.include o[0],
           nick: 'cjb'
           action: true
+        chai.assert.include o[0].body, '"precipitate"', 'message'
+        chai.assert.include o[0].body, 'Make us some supersaturated Kool-Aid', 'message'
+        chai.assert.include o[0].body, '(Foo)', 'message'
+
+    it 'does not notify meta chat for puzzle', ->
+      meta = model.Puzzles.insert
+        name: 'Meta'
+        canon: 'meta'
+        created: 2
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'cscott'
+        solved: null
+        solved_by: null
+        tags: {}
+        incorrectAnswers: []
+        feedsInto: []
+        puzzles: [puzzle]
+      model.Puzzles.update puzzle, $push: feedsInto: meta
+      callAs 'correctCallIn', 'cjb', callin
+      m = model.Messages.find(room_name: "puzzles/#{meta}", dawn_of_time: $ne: true).fetch()
+      chai.assert.lengthOf m, 0
+
+  describe 'for expected callback', ->
+    beforeEach ->
+      puzzle = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 1
+        touched_by: 'cscott'
+        solved: null
+        solved_by: null
+        tags: {}
+        feedsInto: []
+      callin = model.CallIns.insert
+        name: 'Foo:precipitate'
+        callin_type: 'expected callback'
+        target: puzzle
+        target_type: 'puzzles'
+        answer: 'precipitate'
+        created: 2
+        created_by: 'torgen'
+        submitted_to_hq: true
+        backsolve: false
+        provided: false
+    
+    it 'fails without login', ->
+      chai.assert.throws ->
+        Meteor.call 'correctCallIn', callin
+      , Match.Error
+
+    describe 'when logged in', ->
+      describe 'without response', ->
+        beforeEach ->
+          callAs 'correctCallIn', 'cjb', callin
+
+        it 'does not update puzzle', ->
+          doc = model.Puzzles.findOne puzzle
+          chai.assert.deepInclude doc,
+            touched: 1
+            touched_by: 'cscott'
+            solved: null
+            solved_by: null
+            tags: {}
+        
+        it 'removes callin', ->
+          chai.assert.isUndefined model.CallIns.findOne callin
+
+        it 'does not oplog', ->
+          o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 0
+
+        it 'notifies puzzle chat', ->
+          o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'cjb'
+            action: true
+          chai.assert.include o[0].body, 'RECEIVED', 'message'
+          chai.assert.include o[0].body, '"precipitate"', 'message'
+          chai.assert.notInclude o[0].body, '(Foo)', 'message'
+
+        it 'notifies general chat', ->
+          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'cjb'
+            action: true
+          chai.assert.include o[0].body, 'RECEIVED', 'message'
+          chai.assert.include o[0].body, '"precipitate"', 'message'
+          chai.assert.include o[0].body, '(Foo)', 'message'
+
+    describe 'with response', ->
+      beforeEach ->
+        callAs 'correctCallIn', 'cjb', callin, 'Make us some supersaturated Kool-Aid'
+
+      it 'does not update puzzle', ->
+        doc = model.Puzzles.findOne puzzle
+        chai.assert.deepInclude doc,
+          touched: 1
+          touched_by: 'cscott'
+          solved: null
+          solved_by: null
+          tags: {}
+      
+      it 'removes callin', ->
+        chai.assert.isUndefined model.CallIns.findOne callin
+
+      it 'does not oplog', ->
+        o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
+        chai.assert.lengthOf o, 0
+
+      it 'notifies puzzle chat', ->
+        o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
+        chai.assert.lengthOf o, 1
+        chai.assert.include o[0],
+          nick: 'cjb'
+          action: true
+        chai.assert.include o[0].body, 'RECEIVED', 'message'
+        chai.assert.include o[0].body, '"precipitate"', 'message'
+        chai.assert.include o[0].body, 'Make us some supersaturated Kool-Aid', 'message'
+        chai.assert.notInclude o[0].body, '(Foo)', 'message'
+
+      it 'notifies general chat', ->
+        o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+        chai.assert.lengthOf o, 1
+        chai.assert.include o[0],
+          nick: 'cjb'
+          action: true
+        chai.assert.include o[0].body, 'RECEIVED', 'message'
         chai.assert.include o[0].body, '"precipitate"', 'message'
         chai.assert.include o[0].body, 'Make us some supersaturated Kool-Aid', 'message'
         chai.assert.include o[0].body, '(Foo)', 'message'

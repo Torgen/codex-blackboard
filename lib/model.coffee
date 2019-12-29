@@ -766,9 +766,12 @@ doc_id_to_link = (id) ->
         type_text = if callin.callin_type is callin_types.MESSAGE_TO_HQ
           'message to HQ'
         else callin.callin_type
+        verb = if callin.callin_type is callin_types.EXPECTED_CALLBACK
+          'RECEIVED'
+        else 'ACCEPTED'
 
         Object.assign msg,
-          body: "reports that the #{type_text} \"#{callin.answer}\" was ACCEPTED#{extra}!"
+          body: "reports that the #{type_text} \"#{callin.answer}\" was #{verb}#{extra}!"
         Meteor.call 'cancelCallIn',
           id: id
           suppressLog: true
