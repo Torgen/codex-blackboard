@@ -487,6 +487,93 @@ describe 'codex hubot script', ->
             touched_by: 'torgen'
             callin_type: 'message to hq'
 
+    describe 'of expected callback', ->
+      describe 'in puzzle room', ->
+        it 'infers puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'puzzles/12345abcde'
+            timestamp: Date.now()
+            body: 'bot expect  callback linear abeja'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'expected callback'
+
+        it 'allows specifying puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'puzzles/fghij67890'
+            timestamp: Date.now()
+            body: 'bot expect callback linear abeja for latino alphabet'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'expected callback'
+
+      describe 'in general room', ->
+        it 'fails when puzzle is not specified', ->
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot expect callback linear abeja'
+          await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+            body: 'torgen: You need to tell me which puzzle this is for.'
+            room_name: 'general/0'
+            useful: true
+          chai.assert.isUndefined model.CallIns.findOne()
+
+        it 'fails when puzzle does not exist', ->
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot expect callback linear abeja for latino alphabet'
+          await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+            body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+            room_name: 'general/0'
+            useful: true
+          chai.assert.isUndefined model.CallIns.findOne()
+
+        it 'allows specifying puzzle', ->
+          model.Puzzles.insert
+            _id: '12345abcde'
+            name: 'Latino Alphabet'
+            canon: 'latino_alphabet'
+            feedsInto: []
+            tags: {}
+          model.Messages.insert
+            nick: 'torgen'
+            room_name: 'general/0'
+            timestamp: Date.now()
+            body: 'bot expect callback linear abeja for latino alphabet'
+          waitForDocument model.CallIns, {answer: 'linear abeja'},
+            target: '12345abcde'
+            created: 7
+            created_by: 'torgen'
+            touched: 7
+            touched_by: 'torgen'
+            callin_type: 'expected callback'
+
   describe 'newPuzzle', ->
     beforeEach -> PuzzleUrlPrefix.ensure()
 

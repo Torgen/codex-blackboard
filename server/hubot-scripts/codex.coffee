@@ -98,12 +98,15 @@ share.hubot.codex = (robot) ->
 
   robot.commands.push 'bot request interaction <answer> [for <puzzle>] - Updates codex blackboard'
   robot.commands.push 'bot tell hq <message> [for <puzzle>] - Updates codex blackboard'
-  robot.respond (rejoin /(Request\s+interaction|tell\s+hq) /,thingRE,'(?:',/\ for /,thingRE,')?',/$/i), (msg) ->
+  robot.commands.push 'bot expect callback <message> [for <puzzle>] - Updates codex blackboard'
+  robot.respond (rejoin /(Request\s+interaction|tell\s+hq|expect\s+callback) /,thingRE,'(?:',/\ for /,thingRE,')?',/$/i), (msg) ->
     callin_type = switch canonical(msg.match[1])
       when 'request_interaction'
         callin_types.INTERACTION_REQUEST
       when 'tell_hq'
         callin_types.MESSAGE_TO_HQ
+      when 'expect_callback'
+        callin_types.EXPECTED_CALLBACK
 
     answer = strip msg.match[2]
     name = if msg.match[3]? then strip msg.match[3]
