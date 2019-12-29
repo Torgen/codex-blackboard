@@ -628,52 +628,46 @@ doc_id_to_link = (id) ->
       args.target_type ?= 'puzzles'
       puzzle = null
       body = -> ''
-      switch args.callin_type
-        when callin_types.ANSWER
-          check args,
-            target: IdOrObject
-            target_type: EqualsString 'puzzles'
-            answer: NonEmptyString
-            callin_type: EqualsString callin_types.ANSWER
-            backsolve: Match.Optional Boolean
-            provided: Match.Optional Boolean
-            suppressRoom: Match.Optional String
-          puzzle = Puzzles.findOne(args.target)
-          throw new Meteor.Error(404, "bad target") unless puzzle?
-          name = puzzle.name
-          backsolve = if args.backsolve then " [backsolved]" else ''
-          provided = if args.provided then " [provided]" else ''
-          body = (opts) ->
-            "is requesting a call-in for #{args.answer.toUpperCase()}" + \
-            (if opts?.specifyPuzzle then " (#{name})" else "") + provided + backsolve
-        when callin_types.INTERACTION_REQUEST
-          check args,
-            target: IdOrObject
-            target_type: EqualsString 'puzzles'
-            answer: NonEmptyString
-            callin_type: EqualsString callin_types.INTERACTION_REQUEST
-            suppressRoom: Match.Optional String
-          puzzle = Puzzles.findOne(args.target)
-          throw new Meteor.Error(404, "bad target") unless puzzle?
-          name = puzzle.name
-          body = (opts) ->
-            "is requesting the interaction #{args.answer.toUpperCase()}" + \
-            (if opts?.specifyPuzzle then " (#{name})" else "")
-        when callin_types.MESSAGE_TO_HQ
-          check args,
-            target: IdOrObject
-            target_type: EqualsString 'puzzles'
-            answer: NonEmptyString
-            callin_type: EqualsString callin_types.MESSAGE_TO_HQ
-            suppressRoom: Match.Optional String
-          puzzle = Puzzles.findOne(args.target)
-          throw new Meteor.Error(404, "bad target") unless puzzle?
-          name = puzzle.name
-          body = (opts) ->
-            "wants to tell HQ, \"#{args.answer.toUpperCase()}\"" + \
-            (if opts?.specifyPuzzle then " (#{name})" else "")
-        else
-          throw new Match.Error "Bad callin_type #{args.callin_type}"
+      if args.callin_type is callin_types.ANSWER
+        check args,
+          target: IdOrObject
+          target_type: EqualsString 'puzzles'
+          answer: NonEmptyString
+          callin_type: EqualsString callin_types.ANSWER
+          backsolve: Match.Optional Boolean
+          provided: Match.Optional Boolean
+          suppressRoom: Match.Optional String
+        puzzle = Puzzles.findOne(args.target)
+        throw new Meteor.Error(404, "bad target") unless puzzle?
+        name = puzzle.name
+        backsolve = if args.backsolve then " [backsolved]" else ''
+        provided = if args.provided then " [provided]" else ''
+        body = (opts) ->
+          "is requesting a call-in for #{args.answer.toUpperCase()}" + \
+          (if opts?.specifyPuzzle then " (#{name})" else "") + provided + backsolve
+      else
+        check args,
+          target: IdOrObject
+          target_type: EqualsString 'puzzles'
+          answer: NonEmptyString
+          callin_type: Match.OneOf(
+            EqualsString(callin_types.INTERACTION_REQUEST),
+            EqualsString(callin_types.MESSAGE_TO_HQ),
+            EqualsString(callin_types.EXPECTED_CALLBACK))
+          suppressRoom: Match.Optional String
+        puzzle = Puzzles.findOne(args.target)
+        throw new Meteor.Error(404, "bad target") unless puzzle?
+        name = puzzle.name
+        description = switch args.callin_type
+          when callin_types.INTERACTION_REQUEST
+            'is requesting the interaction'
+          when callin_types.MESSAGE_TO_HQ
+            'wants to tell HQ'
+          when callin_types.EXPECTED_CALLBACK
+            'expects HQ to call back for'
+        body = (opts) ->
+          "#{description}, \"#{args.answer.toUpperCase()}\"" + \
+          (if opts?.specifyPuzzle then " (#{name})" else "")
       id = args.target._id or args.target
       newObject "callins", {name:"#{args.callin_type}:#{name}:#{args.answer}", who:@userId},
         callin_type: args.callin_type

@@ -331,7 +331,6 @@ describe 'newCallIn', ->
           chai.assert.include o[0].body, 'interaction', 'message'
           chai.assert.include o[0].body, '(Foo)', 'message'
 
-
   describe 'of hq contact', ->
 
     it 'fails when target doesn\'t exist', ->
@@ -458,4 +457,132 @@ describe 'newCallIn', ->
             action: true
           chai.assert.include o[0].body, '"PAY THE CAT TAX"', 'message'
           chai.assert.include o[0].body, 'tell HQ', 'message'
+          chai.assert.include o[0].body, '(Foo)', 'message'
+  
+  describe 'of expected callback', ->
+
+    it 'fails when target doesn\'t exist', ->
+      chai.assert.throws ->
+        callAs 'newCallIn', 'torgen',
+          target: 'something'
+          answer: 'precipitate'
+          callin_type: 'expected callback'
+      , Meteor.Error
+
+    it 'fails when target is not a puzzle', ->
+      id = model.Rounds.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 1
+        touched_by: 'cscott'
+        solved: null
+        solved_by: null
+        tags: {}
+        puzzles: []
+      chai.assert.throws ->
+        callAs 'newCallIn', 'torgen',
+          target: id
+          target_type: 'rounds'
+          answer: 'precipitate'
+          callin_type: 'expected callback'
+      , Match.Error
+
+    describe 'on puzzle which exists', ->
+      id = null
+      beforeEach ->
+        id = model.Puzzles.insert
+          name: 'Foo'
+          canon: 'foo'
+          created: 1
+          created_by: 'cscott'
+          touched: 1
+          touched_by: 'cscott'
+          solved: null
+          solved_by: null
+          tags: {}
+          incorrectAnswers: []
+          feedsInto: []
+
+      it 'fails without login', ->
+        chai.assert.throws ->
+          Meteor.call 'newCallIn',
+            target: id
+            answer: 'precipitate'
+            callin_type: 'expected callback'
+        , Match.Error
+
+      it 'fails without answer', ->
+        chai.assert.throws ->
+          callAs 'newCallIn', 'torgen',
+            target: id
+            callin_type: 'expected callback'
+        , Match.Error
+    
+      it 'fails with backsolve', ->
+        chai.assert.throws ->
+          callAs 'newCallIn', 'torgen',
+            target: id
+            answer: 'precipitate'
+            callin_type: 'expected callback'
+            backsolve: true
+        , Match.Error
+      
+      it 'fails with provided', ->
+        chai.assert.throws ->
+          callAs 'newCallIn', 'torgen',
+            target: id
+            answer: 'precipitate'
+            callin_type: 'expected callback'
+            provided: true
+        , Match.Error
+
+      describe 'with valid parameters', ->
+        beforeEach ->
+          callAs 'newCallIn', 'torgen',
+            target: id
+            answer: 'pay the cat tax'
+            callin_type: 'expected callback'
+
+        it 'creates document', ->
+          c = model.CallIns.findOne()
+          chai.assert.include c,
+            name: 'expected callback:Foo:pay the cat tax'
+            target: id
+            target_type: 'puzzles'
+            answer: 'pay the cat tax'
+            callin_type: 'expected callback'
+            who: 'torgen'
+            submitted_to_hq: false
+
+        it 'oplogs', ->
+          o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            type: 'puzzles'
+            id: id
+            stream: 'callins'
+            nick: 'torgen'
+          # oplog is lowercase
+          chai.assert.include o[0].body, 'pay the cat tax', 'message'
+
+        it 'notifies puzzle chat', ->
+          o = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'torgen'
+            action: true
+          chai.assert.include o[0].body, '"PAY THE CAT TAX"', 'message'
+          chai.assert.include o[0].body, 'expects HQ to call back', 'message'
+          chai.assert.notInclude o[0].body, '(Foo)', 'message'
+
+        it 'notifies general chat', ->
+          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          chai.assert.lengthOf o, 1
+          chai.assert.include o[0],
+            nick: 'torgen'
+            action: true
+          chai.assert.include o[0].body, '"PAY THE CAT TAX"', 'message'
+          chai.assert.include o[0].body, 'expects HQ to call back', 'message'
           chai.assert.include o[0].body, '(Foo)', 'message'
