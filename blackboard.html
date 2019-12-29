@@ -25,124 +25,127 @@
   </ul>
 </div>
 <!-- puzzles w/ index -->
-<div id="bb-blackboard" class="row-fluid">
-  <div id="bb-tables" class="{{#if hideStatus}}span12{{else}}span9{{/if}} {{#if canEdit}}bb-canEdit{{/if}}">
-    <!-- content div -->
-    <div class="row-fluid">
-      <h1 class="bb-blackboard-h1 span5">
-        <span class="bb-no-wrap"><span class="bb-hide-when-narrower">{{teamName}}</span></span>
-        <span class="bb-hide-when-narrow">Puzzle </span>
-        <span class="bb-no-wrap">Blackboard</span>
-      </h1>
-      <div class="btn-toolbar text-right bb-top-buttons span7">
-        {{> favorite_mechanics}}
-        {{#if canEdit}}
-          <div class="btn-group">
-            <button class="btn btn-mini btn-inverse bb-add-round">
-              <i class="bb-add-icon fas fa-plus"></i>
-              Add new round
+<div id="bb-blackboard" class="row-fluid bb-puzzleround">
+  {{#horizontal_splitter}}
+    <div id="bb-tables" class="{{#if canEdit}}bb-canEdit{{/if}}">
+      <!-- content div -->
+      <div class="row-fluid">
+        <h1 class="bb-blackboard-h1 span5">
+          <span class="bb-no-wrap"><span class="bb-hide-when-narrower">{{teamName}}</span></span>
+          <span class="bb-hide-when-narrow">Puzzle </span>
+          <span class="bb-no-wrap">Blackboard</span>
+        </h1>
+        <div class="btn-toolbar text-right bb-top-buttons span7">
+          {{> favorite_mechanics}}
+          {{#if canEdit}}
+            <div class="btn-group">
+              <button class="btn btn-mini btn-inverse bb-add-round">
+                <i class="bb-add-icon fas fa-plus"></i>
+                Add new round
+              </button>
+            </div>
+          {{else if notificationsEnabled}}
+            <div class="btn-group text-left">
+              <button class="btn btn-small bb-notification-enabled{{#if anyNotificationsEnabled}} btn-inverse{{/if}}">
+                <i class="fas {{#if anyNotificationsEnabled}}fa-bullhorn{{else}}fa-power-off{{/if}}"></i>
+                Notifications
+              </button>
+              <button class="btn btn-small dropdown-toggle{{#if anyNotificationsEnabled}} btn-inverse{{/if}}" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu pull-left bb-notification-controls">
+                {{#each notificationStreams}}
+                  <li><a href="#"><label for="bb-notification-{{name}}">
+                    <input type="checkbox" id="bb-notification-{{name}}"
+                          data-notification-stream="{{name}}"
+                          checked="{{notificationStreamEnabled name}}">
+                  {{label}}
+                  </label></a></li>
+                {{/each}}
+              </ul>
+            </div>
+          {{else if notificationsAsk}}
+            <div class="btn-group text-left">
+              <button class="btn btn-small bb-notification-ask">
+                <i class="fas fa-power-off"></i>
+                Enable notifications
+              </button>
+            </div>
+          {{/if}}
+          <div class="btn-group bb-sort-order">
+            <button class="btn btn-small {{#if sortReverse}}active{{/if}}"
+                    data-sortReverse="true" title="Newest rounds first">
+              <i class="fas fa-clock"></i>
+              <i class="fas fa-long-arrow-alt-up"></i>
+            </button>
+            <button class="btn btn-small {{#unless sortReverse}}active{{/unless}}"
+                    data-sortReverse="false" title="Oldest rounds first">
+              <i class="fas fa-clock"></i>
+              <i class="fas fa-long-arrow-alt-down"></i>
             </button>
           </div>
-        {{else if notificationsEnabled}}
-          <div class="btn-group text-left">
-            <button class="btn btn-small bb-notification-enabled{{#if anyNotificationsEnabled}} btn-inverse{{/if}}">
-              <i class="fas {{#if anyNotificationsEnabled}}fa-bullhorn{{else}}fa-power-off{{/if}}"></i>
-              Notifications
-            </button>
-            <button class="btn btn-small dropdown-toggle{{#if anyNotificationsEnabled}} btn-inverse{{/if}}" data-toggle="dropdown">
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-left bb-notification-controls">
-              {{#each notificationStreams}}
-                <li><a href="#"><label for="bb-notification-{{name}}">
-                  <input type="checkbox" id="bb-notification-{{name}}"
-                        data-notification-stream="{{name}}"
-                        checked="{{notificationStreamEnabled name}}">
-                {{label}}
-                </label></a></li>
-              {{/each}}
-            </ul>
-          </div>
-        {{else if notificationsAsk}}
-          <div class="btn-group text-left">
-            <button class="btn btn-small bb-notification-ask">
-              <i class="fas fa-power-off"></i>
-              Enable notifications
-            </button>
-          </div>
-        {{/if}}
-        <div class="btn-group bb-sort-order">
-          <button class="btn btn-small {{#if sortReverse}}active{{/if}}"
-                  data-sortReverse="true" title="Newest rounds first">
-            <i class="fas fa-clock"></i>
-            <i class="fas fa-long-arrow-alt-up"></i>
-          </button>
-          <button class="btn btn-small {{#unless sortReverse}}active{{/unless}}"
-                  data-sortReverse="false" title="Oldest rounds first">
-            <i class="fas fa-clock"></i>
-            <i class="fas fa-long-arrow-alt-down"></i>
-          </button>
-        </div>
-        {{#unless canEdit}}<br/>
-          <div class="btn-group btn-group-vertical text-right">
-            <label class="checkbox bb-hide-solved">
-              <input type="checkbox" id="bb-hide-solved-input" checked="{{hideSolved}}">
-              Hide solved puzzles
-            </label>
-            <label class="checkbox bb-hide-solved-meta">
-              <input type="checkbox" id="bb-hide-solved-meta-input" checked="{{hideSolvedMeta}}">
-              Hide solved metas
-            </label>
-            <label class="checkbox bb-compact-mode">
-              <input type="checkbox" id="bb-compact-mode" checked="{{compactMode}}">
-              Compact mode
-            </label>
-            <label class="checkbox bb-boring-mode">
-              <input type="checkbox" id="bb-boring-mode" checked="{{boringMode}}">
-              Less Colorful
-            </label>
-          </div>
-        {{/unless}}
-      </div>
-    </div>
-    {{> starred_messages canModify=canEdit}}
-    <table class="table table-bordered table-condensed bb-puzzle">
-      <thead>
-        {{#unless compactMode}}
-        <tr>
-          <th class="puzzle-name">Name</th>
-          <th class="puzzle-answer">Solution</th>
-          <th class="puzzle-status">Status</th>
-          {{#unless canEdit}}
-          <th class="puzzle-working">Working on this</th>
-          <th class="puzzle-update">Last update</th>
+          {{#unless canEdit}}<br/>
+            <div class="btn-group btn-group-vertical text-right">
+              <label class="checkbox bb-hide-solved">
+                <input type="checkbox" id="bb-hide-solved-input" checked="{{hideSolved}}">
+                Hide solved puzzles
+              </label>
+              <label class="checkbox bb-hide-solved-meta">
+                <input type="checkbox" id="bb-hide-solved-meta-input" checked="{{hideSolvedMeta}}">
+                Hide solved metas
+              </label>
+              <label class="checkbox bb-compact-mode">
+                <input type="checkbox" id="bb-compact-mode" checked="{{compactMode}}">
+                Compact mode
+              </label>
+              <label class="checkbox bb-boring-mode">
+                <input type="checkbox" id="bb-boring-mode" checked="{{boringMode}}">
+                Less Colorful
+              </label>
+            </div>
           {{/unless}}
-        </tr>
-        {{/unless}}
-      </thead>
-      {{#let faves=favorites}}
-        {{#if faves.count}}
-          <tbody>
-            <tr><th colspan="{{nCols}}" id="favorites"><h2>Favorite Puzzles</h2></th></tr>
-            {{#each faves}}
-              {{>blackboard_puzzle _id=_id puzzle=this}}
-            {{/each}}
-          </tbody>
-        {{/if}}
-      {{/let}}
-      {{#each rounds}}
-        {{> blackboard_round}}
-      {{/each}}
-    </table>
-  </div><!-- bb-tables -->
-  {{#if hideStatus}}
-  <div class="bb-hide-status"><i class='fas fa-chevron-left'></i></div>
-  {{else}}
-  <div id="bb-right-sidebar" class="span3">
-    <div class="bb-hide-status"><i class='fas fa-chevron-right'></i></div>
+        </div>
+      </div>
+      {{> starred_messages canModify=canEdit}}
+      <table class="table table-bordered table-condensed bb-puzzle">
+        <thead>
+          {{#unless compactMode}}
+          <tr>
+            <th class="puzzle-name">Name</th>
+            <th class="puzzle-answer">Solution</th>
+            <th class="puzzle-status">Status</th>
+            {{#unless canEdit}}
+            <th class="puzzle-working">Working on this</th>
+            <th class="puzzle-update">Last update</th>
+            {{/unless}}
+          </tr>
+          {{/unless}}
+        </thead>
+        {{#let faves=favorites}}
+          {{#if faves.count}}
+            <tbody>
+              <tr><th colspan="{{nCols}}" id="favorites"><h2>Favorite Puzzles</h2></th></tr>
+              {{#each faves}}
+                {{>blackboard_puzzle _id=_id puzzle=this}}
+              {{/each}}
+            </tbody>
+          {{/if}}
+        {{/let}}
+        {{#each rounds}}
+          {{> blackboard_round}}
+        {{/each}}
+      </table>
+    </div><!-- bb-tables -->
+  {{else vertical_splitter false}}
     {{> blackboard_status_grid}}
-  </div><!-- bb-right-sidebar -->
-  {{/if}}
+  {{else}}
+    {{> embedded_chat}}
+    <div class="bb-chat-pop-out">
+      <a href="/chat/general/0" class="chat-link bb-pop-out"
+          target="chat0"><i class="fas fa-expand-arrows-alt"></i>
+    Pop out</a>
+    </div>
+  {{/horizontal_splitter}}
 </div><!-- row-fluid -->
 </template>
 

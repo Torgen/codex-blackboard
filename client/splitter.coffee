@@ -93,3 +93,7 @@ Template.horizontal_splitter.onRendered ->
 
 Template.horizontal_splitter.onDestroyed ->
   $('html').removeClass('fullHeight')
+
+Template.vertical_splitter.helpers
+  vsize: -> share.Splitter.vsize.get()
+  vsizePlusHandle: -> +share.Splitter.vsize.get() + 6

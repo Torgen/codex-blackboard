@@ -96,22 +96,14 @@
   {{#if currentViewIs "info"}}
     <div class="bb-puzzle-frame">{{> puzzle_info}}</div>
   {{/if}}
-  {{else}}
-  <div class="bb-vsplitter" style="{{#unless currentViewIs "info"}}padding-bottom: {{vsizePlusHandle}}px{{/unless}}">{{! start right of splitter }}
-    {{#unless currentViewIs "info"}}
-    <div class="bb-top-right-content">{{! start top right splitter }}
-      {{> puzzle_info }}
-    </div>
-    <div class="bb-splitter-handle" style="bottom: {{vsize}}px"></div>
-    {{/unless}}
-    <div class="bb-bottom-right-content" style="{{#unless currentViewIs "info"}}height: {{vsize}}px{{/unless}}">{{! start bottom right splitter }}
-      {{> embedded_chat}}
-      <div class="bb-chat-pop-out {{#if currentViewIs "info"}}in-margin{{/if}}">
-        <a href="/chat/puzzles/{{puzzle._id}}" class="chat-link bb-pop-out"
-           target="chat{{puzzle._id}}"><i class="fas fa-expand-arrows-alt"></i>
-      Pop out</a>
-      </div>
-    </div>
+{{else vertical_splitter (currentViewIs "info")}}
+  {{> puzzle_info }}
+{{else}}
+  {{> embedded_chat}}
+  <div class="bb-chat-pop-out {{#if currentViewIs "info"}}in-margin{{/if}}">
+    <a href="/chat/puzzles/{{puzzle._id}}" class="chat-link bb-pop-out"
+        target="chat{{puzzle._id}}"><i class="fas fa-expand-arrows-alt"></i>
+  Pop out</a>
   </div>
 {{/horizontal_splitter}}
 {{#with puzzle}}

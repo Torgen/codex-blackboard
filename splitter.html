@@ -9,3 +9,21 @@
     <div class="bb-right-content">{{> Template.elseBlock}}</div>
   </div>
 </template>
+
+<template name="vertical_splitter">
+  {{! content block: top content.
+      else block: bottom content. 
+      context: whether to hide the top content }}
+  
+  <div class="bb-vsplitter" style="{{#unless this}}padding-bottom: {{vsizePlusHandle}}px{{/unless}}">{{! start right of splitter }}
+    {{#unless this}}
+      <div class="bb-top-right-content">{{! start top right splitter }}
+        {{> Template.contentBlock}}
+      </div>
+      <div class="bb-splitter-handle" style="bottom: {{vsize}}px"></div>
+    {{/unless}}
+    <div class="bb-bottom-right-content" style="{{#unless this}}height: {{vsize}}px{{/unless}}">{{! start bottom right splitter }}
+      {{> Template.elseBlock }}
+    </div>
+  </div>
+</template>

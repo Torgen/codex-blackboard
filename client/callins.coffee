@@ -48,9 +48,6 @@ Template.callins.helpers
       limit: 5
   quipAddUrl: ->
     share.Router.urlFor 'quips', 'new'
-  vsize: -> share.Splitter.vsize.get()
-  vsizePlusHandle: -> +share.Splitter.vsize.get() + 6
-  hsize: -> share.Splitter.hsize.get()
 
 Template.callins.onRendered ->
   $("title").text("Answer queue")

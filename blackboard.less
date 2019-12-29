@@ -235,82 +235,56 @@ body.has-emojis {
   }
 }
 
-#bb-right-sidebar {
-  position: fixed;
-  right: 14px;
-  bottom: 0px;
-  top: @navbar-height + 10px;
-  display: flex;
-  flex-direction: column;
-
-  & > div { position: relative; }
-
-  .bb-hide-status {
-    position: absolute;
-    margin-top: 0;
-    top: 10px;
-    left: -21px;
-    right: auto;
-    z-index: 1;
-    @media(max-width: 980px) {
-      left: -14px;
-    }
-    -webkit-box-shadow: none;
-       -moz-box-shadow: none;
-            box-shadow: none;
+.bb-status-grid {
+  position: relative;
+  background: white;
+  margin-top: 10px;
+  overflow-y: auto;
+  @media(max-width: 980px) {
+    margin-left: 0px;
+    margin-right: 0px;
   }
+  min-height: 66px;
+  -webkit-border-radius: 6px;
+      -moz-border-radius: 6px;
+          border-radius: 6px;
+  -webkit-border-top-left-radius: 0;
+      -moz-border-top-left-radius: 0;
+          border-top-left-radius: 0;
+  border: 1px solid #e5e5e5;
+  -webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.065);
+      -moz-box-shadow: 0 1px 4px rgba(0,0,0,0.065);
+          box-shadow: 0 1px 4px rgba(0,0,0,0.065);
 
-  .bb-status-grid {
-    background: white;
-    margin-top: 10px;
-    margin-left: -7px;
-    margin-right: -7px;
-    overflow-y: auto;
-    @media(max-width: 980px) {
-      margin-left: 0px;
-      margin-right: 0px;
-    }
-    min-height: 66px;
-    -webkit-border-radius: 6px;
-       -moz-border-radius: 6px;
-            border-radius: 6px;
-    -webkit-border-top-left-radius: 0;
-       -moz-border-top-left-radius: 0;
-            border-top-left-radius: 0;
-    border: 1px solid #e5e5e5;
-    -webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.065);
-       -moz-box-shadow: 0 1px 4px rgba(0,0,0,0.065);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.065);
+  padding: 5px;
+  font-size: 80%;
 
-    padding: 5px;
-    font-size: 80%;
-
-    .bb-status-grid-round {
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-    td {
-      padding: 0px;
-    }
-    .bb-status-grid-meta {
-      padding-right:2px;
-    }
-    .bb-status-grid-cell {
-      display: inline-block;
-      width: 1.5em;
-      text-align: center;
-    }
-    .bb-status-solved {
-      background:#AAFF99;
-    }
-    .bb-status-stuck {
-      background:#FFFF00;
-    }
-    .bb-status-unsolved {
-      background:#FCFCFC;
-    }
+  .bb-status-grid-round {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 0px;
+  }
+  .bb-status-grid-meta {
+    padding-right:2px;
+  }
+  .bb-status-grid-cell {
+    display: inline-block;
+    width: 1.5em;
+    text-align: center;
+  }
+  .bb-status-solved {
+    background:#AAFF99;
+  }
+  .bb-status-stuck {
+    background:#FFFF00;
+  }
+  .bb-status-unsolved {
+    background:#FCFCFC;
   }
 }
+
 .bb-canEdit .bb-editable {
   &:hover {
     background: #fcffc0;

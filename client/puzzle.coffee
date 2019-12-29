@@ -67,9 +67,6 @@ Template.puzzle.helpers
     r.stuck = model.isStuck puzzle
     r.capType = capType puzzle
     return r
-  vsize: -> share.Splitter.vsize.get()
-  vsizePlusHandle: -> +share.Splitter.vsize.get() + 6
-  hsize: -> share.Splitter.hsize.get()
   currentViewIs: (view) -> currentViewIs @puzzle, view
   color: -> color @puzzle if @puzzle
   docLoaded: -> Template.instance().docLoaded.get()
