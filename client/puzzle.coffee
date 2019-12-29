@@ -149,10 +149,15 @@ Template.puzzle_callin_modal.helpers
   typeIs: (type) ->
     console.log type, Template.instance().type.get()
     Template.instance().type.get() is type
-  typeName: -> switch Template.instance().type.get()
+  typeName: (type) -> switch (type ? Template.instance().type.get())
     when callin_types.ANSWER then 'Answer'
     when callin_types.INTERACTION_REQUEST then 'Interaction Request'
+    when callin_types.MESSAGE_TO_HQ then 'Message to HQ'
     else ''
+  callinTypes: -> [
+    callin_types.ANSWER,
+    callin_types.INTERACTION_REQUEST,
+    callin_types.MESSAGE_TO_HQ]
 
 Template.puzzle_callin_modal.events
   'change input[name="callin_type"]': (event, template) ->

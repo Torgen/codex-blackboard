@@ -203,8 +203,12 @@ Request Call-In
       <label>{{typeName}} to call in:</label>
       <input type="text" class="bb-callin-answer" placeholder="{{typeName}}">
       <label>Callin Type</label>
-      <label class="radio inline"><input type="radio" id="answer" value="answer" name="callin_type" checked="checked">Answer</label>
-      <label class="radio inline"><input type="radio" value="interaction request" name="callin_type">Interaction Request</label>
+      {{#each callin_type in callinTypes}}
+        <label class="radio inline">
+          <input type="radio" id="answer" value="{{callin_type}}" name="callin_type" checked="{{#unless @index}}checked{{/unless}}">
+          {{typeName callin_type}}
+        </label>
+      {{/each}}
       {{#if typeIs "answer"}}
         <label class="checkbox">
           <input type="checkbox" value="backsolve"> Backsolved?
