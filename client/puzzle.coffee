@@ -155,6 +155,12 @@ Template.puzzle_callin_modal.helpers
     when callin_types.MESSAGE_TO_HQ then 'Message to HQ'
     when callin_types.EXPECTED_CALLBACK then 'Expected Callback'
     else ''
+  tooltip: (type) -> switch type
+    when callin_types.ANSWER then 'The solution to the puzzle. Fingers crossed!'
+    when callin_types.INTERACTION_REQUEST then 'An intermediate string that may trigger a skit, physical puzzle, or creative challenge.'
+    when callin_types.MESSAGE_TO_HQ then 'Any other reason for contacting HQ, including spending clue currency and reporting an error.'
+    when callin_types.EXPECTED_CALLBACK then 'We will be contacted by HQ. No immediate action is required of the oncall.'
+    else ''
   callinTypes: -> [
     callin_types.ANSWER,
     callin_types.INTERACTION_REQUEST,

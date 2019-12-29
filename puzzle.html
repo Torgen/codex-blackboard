@@ -204,13 +204,13 @@ Request Call-In
       <input type="text" class="bb-callin-answer" placeholder="{{typeName}}">
       <label>Callin Type</label>
       {{#each callin_type in callinTypes}}
-        <label class="radio inline">
+        <label class="radio inline" title="{{tooltip callin_type}}">
           <input type="radio" id="answer" value="{{callin_type}}" name="callin_type" checked="{{#unless @index}}checked{{/unless}}">
           {{typeName callin_type}}
         </label>
       {{/each}}
       {{#if typeIs "answer"}}
-        <label class="checkbox">
+        <label class="checkbox" title="We derived this answer from a metapuzzle rather than the text of the puzzle itself.">
           <input type="checkbox" value="backsolve"> Backsolved?
         </label>
         <label class="checkbox">
