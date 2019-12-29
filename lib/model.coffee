@@ -811,6 +811,8 @@ doc_id_to_link = (id) ->
         return unless puzzle?
         Object.assign msg,
           body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
+      else if callin.callin_type is callin_types.EXPECTED_CALLBACK
+        throw new Meteor.Error(400, 'expected callback can\'t be incorrect')
       else
         check response, Match.Optional String
         extra = if response?

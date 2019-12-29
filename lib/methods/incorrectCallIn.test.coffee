@@ -183,6 +183,7 @@ describe 'incorrectCallIn', ->
           chai.assert.include o[0].body, '"precipitate"', 'message'
           chai.assert.include o[0].body, 'sediment', 'message'
           chai.assert.include o[0].body, '(Foo)', 'message'
+
   describe 'on message to hq', ->
     beforeEach ->
       puzzle = model.Puzzles.insert
@@ -289,3 +290,52 @@ describe 'incorrectCallIn', ->
           chai.assert.include o[0].body, '"precipitate"', 'message'
           chai.assert.include o[0].body, 'sediment', 'message'
           chai.assert.include o[0].body, '(Foo)', 'message'
+  
+  describe 'on expected callback', ->
+    beforeEach ->
+      puzzle = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 1
+        touched_by: 'cscott'
+        solved: null
+        solved_by: null
+        tags: {}
+        feedsInto: []
+      callin = model.CallIns.insert
+        name: 'Foo:precipitate'
+        target: puzzle
+        target_type: 'puzzles'
+        answer: 'precipitate'
+        callin_type: 'expected callback'
+        created: 2
+        created_by: 'torgen'
+        submitted_to_hq: true
+        backsolve: false
+        provided: false
+
+    describe 'without response', ->
+
+      it 'fails without login', ->
+        chai.assert.throws ->
+          Meteor.call 'incorrectCallIn', callin
+        , Match.Error
+
+      it 'fails when logged in', ->
+        chai.assert.throws ->
+          callAs 'incorrectCallIn', 'cjb', callin
+        , Meteor.Error
+
+    describe 'with response', ->
+
+      it 'fails without login', ->
+        chai.assert.throws ->
+          Meteor.call 'incorrectCallIn', callin, 'sediment'
+        , Match.Error
+
+      it 'fails when logged in', ->
+        chai.assert.throws ->
+          callAs 'incorrectCallIn', 'cjb', callin, 'sediment'
+        , Meteor.Error
