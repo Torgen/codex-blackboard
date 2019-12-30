@@ -43,8 +43,9 @@ Template.registerHelper 'linkify', (contents) ->
   contents = chat.convertURLsToLinksAndImages(UI._escape(contents))
   return new Spacebars.SafeString(contents)
 
-Template.registerHelper 'compactHeader', () ->
-  (Session.equals 'currentPage', 'chat')
+Template.registerHelper 'compactHeader', ->
+  Session.equals('currentPage', 'chat') or
+  (Session.equals('type', 'general') and Session.equals('id', '0'))
 
 Template.registerHelper 'teamName', -> settings.TEAM_NAME
 

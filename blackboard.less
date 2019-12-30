@@ -151,88 +151,93 @@ body.has-emojis {
   }
 }
 
+@left-size: 85px;
+@right-size: 45px;
+@vert-padding: 4px;
+
 #bb-body {
   padding-top: @navbar-height;
   padding-bottom: 15px;
+  &.compactHeader { padding-top: @navbar-height - 40px; }
+}
 
-  @left-size: 85px;
-  @right-size: 45px;
-  @vert-padding: 4px;
+.bb-buttonbar {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  padding-right: 5px;
+  .compactHeader & { flex-direction: row; }
+  .btn-group { text-align: left; }
+  .btn-toolbar { margin-top: 0; margin-bottom: 0; }
+  .tooltip-inner {
+    color: #000;
+    background-color: #eee;
+    border-color: black;
+    border-style: solid;
+    border-width: 0 1px 1px 1px;
+  }
+  .tooltip.bottom .tooltip-arrow {
+    border-bottom-color: #eee;
+  }
+  /* tweak to fix up moving buttons when tooltip appears */
+  .bb-protect { margin-right: -1px; }
+  .bb-unprotect { margin-left: 0; }
+}
 
-  .bb-buttonbar {
-    text-align: right;
-    padding-right: 5px;
-    .btn-group { text-align: left; }
-    .btn-toolbar { margin-top: 0; margin-bottom: 0; }
-    .tooltip-inner {
-      color: #000;
-      background-color: #eee;
-      border-color: black;
-      border-style: solid;
-      border-width: 0 1px 1px 1px;
-    }
-    .tooltip.bottom .tooltip-arrow {
-      border-bottom-color: #eee;
-    }
-    /* tweak to fix up moving buttons when tooltip appears */
-    .bb-protect { margin-right: -1px; }
-    .bb-unprotect { margin-left: 0; }
-  }
-  .bb-breadcrumbs .tooltip-inner { .bb-buttonbar .tooltip-inner; }
-  .bb-breadcrumbs .tooltip.bottom .tooltip-arrow { .bb-buttonbar .tooltip.bottom .tooltip-arrow; }
+.bb-breadcrumbs .tooltip-inner { .bb-buttonbar .tooltip-inner; }
+.bb-breadcrumbs .tooltip.bottom .tooltip-arrow { .bb-buttonbar .tooltip.bottom .tooltip-arrow; }
 
-  .bb-lastchat, .bb-lastupdate {
-    margin-bottom: @vert-padding;
-    margin-top: @vert-padding;
-    padding: 0 (15px + @right-size) 0 (14px + @left-size);
-    & > .left { margin-left: (-@left-size); }
-    & > .right { margin-right: (-@right-size);
-                 text-align: right;
-                 a[title], a[data-original-title] { position:relative; }
-      .bb-pop-out { font-size: 80%; }
-    }
-    &, .messageRow { .ellipsis; }
+.bb-lastchat, .bb-lastupdate {
+  margin-bottom: @vert-padding;
+  margin-top: @vert-padding;
+  padding: 0 (15px + @right-size) 0 (14px + @left-size);
+  & > .left { margin-left: (-@left-size); }
+  & > .right { margin-right: (-@right-size);
+                text-align: right;
+                a[title], a[data-original-title] { position:relative; }
+    .bb-pop-out { font-size: 80%; }
   }
-  .bb-lastchat .messageRow {
-    margin-top: 0;
-    margin-bottom: 0;
-    font: 90%;
-    line-height: 1.25;
-  }
-  .bb-lastchat > .right { line-height: 16px; }
-  .bb-lastchat, .bb-lastupdate {
-    .timestamp { color: #555; }
-  }
-  .bb-lastupdate {
-    .comma-list { text-transform: uppercase; }
-  }
-  .bb-chat-presence {
-    .ellipsis;
-    /* tweak the height by 1px to get text baselines to line up. */
-    /* yes, this is incredibly anal. */
-    padding-top: 1px;
-    margin-bottom: -1px;
-  }
+  &, .messageRow { .ellipsis; }
+}
+.bb-lastchat .messageRow {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 90%;
+  line-height: 1.25;
+}
+.bb-lastchat > .right { line-height: 16px; }
+.bb-lastchat, .bb-lastupdate {
+  .timestamp { color: #555; }
+}
+.bb-lastupdate {
+  .comma-list { text-transform: uppercase; }
+}
+.bb-chat-presence {
+  .ellipsis;
+  /* tweak the height by 1px to get text baselines to line up. */
+  /* yes, this is incredibly anal. */
+  padding-top: 1px;
+  margin-bottom: -1px;
+}
 
-  .answer {
-    text-transform: uppercase;
-  }
-  .bb-colorbox {
-    display: inline-block;
-    width: 1em;
-    height:1em;
-    border: 0.1em solid black;
-    vertical-align: text-bottom;
-  }
-  .bb-othermeta {
-    display: inline-block;
-  }
-  input[type=color] {
-    width: 14px;
-    height: 14px;
-    padding: 0px 0px;
-    margin-right: 0.25em;
-  }
+.answer {
+  text-transform: uppercase;
+}
+.bb-colorbox {
+  display: inline-block;
+  width: 1em;
+  height:1em;
+  border: 0.1em solid black;
+  vertical-align: text-bottom;
+}
+.bb-othermeta {
+  display: inline-block;
+}
+input[type=color] {
+  width: 14px;
+  height: 14px;
+  padding: 0px 0px;
+  margin-right: 0.25em;
 }
 
 .bb-status-grid {
@@ -568,7 +573,7 @@ body.has-emojis {
     padding-top: 0px;
     padding-bottom: 0;
     #bb-content > #bb-blackboard {
-      padding-top: @navbar-height;
+      padding-top: @navbar-height - 40px;
     }
   }
   #bb-tables {

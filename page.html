@@ -21,8 +21,8 @@ function onGoogleApiLoad() {
 
 <body>
   {{#if currentUser}}
-    <div id="bb-body" class="{{#if boringMode}}boring{{/if}}">
-        {{> page }}
+    <div id="bb-body" class="{{#if boringMode}}boring{{/if}} {{#if compactHeader}}compactHeader{{/if}}">
+      {{> page }}
     </div>
     {{> header_confirmmodal}}
   {{else}}
@@ -33,7 +33,7 @@ function onGoogleApiLoad() {
 </body>
 
 <template name="page">
-<div id="bb-content" class="container-fluid {{#if compactHeader}}compactHeader{{/if}}">
+<div id="bb-content" class="container-fluid">
 <!-- DEBUGGING: currentPage: "{{currentPage}}" -->
 
 <!-- common header -->
