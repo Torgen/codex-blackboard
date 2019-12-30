@@ -141,7 +141,7 @@
 
 <template name="header_breadcrumbs">
 <div class='bb-breadcrumbs'>
-<ul class="nav {{#if currentPageEquals "blackboard"}} bb-omit-when-narrow{{/if}}">
+<ul class="nav">
   {{#each breadcrumbs}}
     {{> Template.dynamic template=crumb_template}}
   {{/each}}
@@ -160,7 +160,7 @@
 <li class="bb-drive-buttons">
   <button type="button"
           class="bb-upload-file btn btn-inverse">
-    <i class="fas fa-file-upload"></i> Upload file
+    <i class="fas fa-file-upload"></i><span class="bb-omit-when-narrow"> Upload file</span>
   </button>
 </li>
     {{/if}}
