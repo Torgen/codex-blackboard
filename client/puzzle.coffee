@@ -146,9 +146,7 @@ Template.puzzle_callin_modal.onRendered ->
 
 Template.puzzle_callin_modal.helpers
   type: -> Template.instance().type.get()
-  typeIs: (type) ->
-    console.log type, Template.instance().type.get()
-    Template.instance().type.get() is type
+  typeIs: (type) -> Template.instance().type.get() is type
   typeName: (type) -> switch (type ? Template.instance().type.get())
     when callin_types.ANSWER then 'Answer'
     when callin_types.INTERACTION_REQUEST then 'Interaction Request'
@@ -169,7 +167,6 @@ Template.puzzle_callin_modal.helpers
 
 Template.puzzle_callin_modal.events
   'change input[name="callin_type"]': (event, template) ->
-    console.log event.currentTarget.value
     template.type.set event.currentTarget.value
   "click .bb-callin-submit, submit form": (event, template) ->
     event.preventDefault() # don't reload page
