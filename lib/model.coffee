@@ -115,7 +115,8 @@ if Meteor.isServer
 
 # CallIns are:
 #   _id: mongodb id
-#   callin_type: type of callin. Must be 'answer'.
+#   callin_type: type of callin.
+#      Must be one of the constants from imports/callin_types.coffee.
 #   target: _id of puzzle
 #   target_type: type of target. Must be 'puzzles'.
 #   answer: string (proposed answer to call in)
