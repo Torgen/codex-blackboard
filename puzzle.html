@@ -56,7 +56,7 @@
 {{#with data}}
 <div class="row-fluid bb-puzzleround" style="{{#unless boringMode}}background: {{color}}{{/unless}}">
  <!-- this is a puzzle page -->
-{{#horizontal_splitter}}
+{{#horizontal_splitter false}}
   {{#if puzzle.spreadsheet}}
     <div class="bb-left-header" style="{{#unless currentViewIs "spreadsheet"}}display: none;{{/unless}}">
       <a align="center" href="{{spread_link puzzle.spreadsheet}}"
