@@ -157,7 +157,6 @@ body.has-emojis {
 
 #bb-body {
   padding-top: @navbar-height;
-  padding-bottom: 15px;
   &.compactHeader { padding-top: @navbar-height - 40px; }
 }
 
@@ -314,7 +313,7 @@ input[type=color] {
 #bb-tables {
   background: white;
   margin-top: 10px;
-  padding-bottom: 15px;
+  padding-bottom: 30px;
   padding-left: 15px;
   padding-right: 15px;
   -webkit-border-radius: 6px;
@@ -559,11 +558,14 @@ input[type=color] {
     padding: 0;
     .navbar-inner { padding: 0px; }
   }
-  .container-fluid > .navbar-fixed-top {
+  #bb-content > .navbar-fixed-top {
     position: absolute;
   }
   #messages {
     padding-top: @navbar-height - 20px;
+    .compactHeader & {
+      padding-top: 22px;
+    }
     /* Need this amount of specificity to override .row-fluid rule. */
     #bb-body .bb-splitter & { padding-top: 0px; }
   }
@@ -574,12 +576,6 @@ input[type=color] {
     padding-bottom: 0;
     #bb-content > #bb-blackboard {
       padding-top: @navbar-height - 40px;
-    }
-  }
-  #bb-tables {
-    section {
-      padding-top: 0;
-      margin-top: 0;
     }
   }
   .bb-hide-status {
