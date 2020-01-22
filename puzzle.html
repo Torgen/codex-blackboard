@@ -57,12 +57,25 @@
 <div class="row-fluid bb-puzzleround" style="{{#unless boringMode}}background: {{color}}{{/unless}}">
  <!-- this is a puzzle page -->
 {{#horizontal_splitter}}
+  <div class="bb-pop-full-menu">
+    {{#if currentViewIs "spreadsheet"}}
+      {{#if puzzle.spreadsheet}}
+        <a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Open spreadsheet in new window"><i class='fas fa-external-link-alt'></i></a>
+      {{/if}}
+    {{else if currentViewIs "doc"}}
+      {{#if puzzle.doc}}
+        <a href="{{doc_link puzzle.doc}}" target="_blank" title="Open document in new window"><i class='fas fa-external-link-alt'></i></a>
+      {{/if}}
+    {{else if currentViewIs "puzzle"}}
+      {{#if puzzle.link}}
+        <a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class='fas fa-external-link-alt'></i></a>
+      {{/if}}
+    {{/if}}
+    {{#if canGoFullScreen}}
+      <a href="#" class="bb-go-fullscreen" title="Full screen"><i class='fas fa-expand-arrows-alt'></i></a>
+    {{/if}}
+  </div>
   {{#if puzzle.spreadsheet}}
-    <div class="bb-left-header" style="{{#unless currentViewIs "spreadsheet"}}display: none;{{/unless}}">
-      <a align="center" href="{{spread_link puzzle.spreadsheet}}"
-         target="_blank"><i class='fas fa-expand-arrows-alt'></i>
-      Open spreadsheet in new window</a>
-    </div>
     {{! hide iframe when not current view for faster tab change }}
     <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{spread_link puzzle.spreadsheet}}?widget=true&chrome=false&rm=embedded'
             style="{{#unless currentViewIs "spreadsheet"}}display:none{{/unless}}"></iframe>
@@ -73,22 +86,12 @@
         Spreadsheets don't seem to have the same bug, so we can load them
         eagerly.}}
     {{#if docLoaded}}
-      <div class="bb-left-header" style="{{#unless currentViewIs "doc"}}display: none;{{/unless}}">
-        <a align="center" href="{{doc_link puzzle.doc}}"
-          target="_blank"><i class='fas fa-expand-arrows-alt'></i>
-        Open document in new window</a>
-      </div>
       {{! hide iframe when not current view for faster tab change }}
       <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{doc_link puzzle.doc}}?widget=true&chrome=false&rm=embedded'
               style="{{#unless currentViewIs "doc"}}display:none{{/unless}}"></iframe>
     {{/if}}
   {{/if}}
   {{#if embeddable puzzle.link}}
-    <div class="bb-left-header" style="{{#unless currentViewIs "puzzle"}}display: none;{{/unless}}">
-      <a align="center" href="{{puzzle.link}}"
-        target="_blank"><i class='fas fa-expand-arrows-alt'></i>
-      Open puzzle in new window</a>
-    </div>
     {{! hide iframe when not current view for faster tab change }}
     <iframe class="bb-puzzle-frame" frameborder='0' src='{{puzzle.link}}'
             style="{{#unless currentViewIs "puzzle"}}display:none;{{/unless}}"></iframe>
@@ -102,7 +105,7 @@
   {{> embedded_chat}}
   <div class="bb-chat-pop-out {{#if currentViewIs "info"}}in-margin{{/if}}">
     <a href="/chat/puzzles/{{puzzle._id}}" class="chat-link bb-pop-out"
-        target="chat{{puzzle._id}}"><i class="fas fa-expand-arrows-alt"></i>
+        target="chat{{puzzle._id}}"><i class="fas fa-external-link-alt"></i>
   Pop out</a>
   </div>
 {{/horizontal_splitter}}

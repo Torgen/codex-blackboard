@@ -72,6 +72,9 @@ Template.puzzle.helpers
   color: -> color @puzzle if @puzzle
   docLoaded: -> Template.instance().docLoaded.get()
 
+Template.puzzle.events 
+  'click .bb-go-fullscreen': (e, t) -> $('.bb-puzzleround').get(0)?.requestFullscreen navigationUI: 'hide'
+
 Template.header_breadcrumb_extra_links.helpers
   currentViewIs: (view) -> currentViewIs this, view
 

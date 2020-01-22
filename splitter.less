@@ -4,6 +4,10 @@
           box-sizing: border-box;
 }
 
+:fullscreen .bb-pop-full-menu {
+  display:none;
+}
+
 /* special hack for 100% height layout w/ vertical slider,
    used on puzzle and round pages */
 html.fullHeight {
@@ -54,6 +58,18 @@ html.fullHeight {
       & > .bb-left-content { 
         overflow-y: auto;
         left: 0; top: 0;
+        .bb-pop-full-menu {
+          &:empty {
+            display: none;
+          }
+          position: absolute;
+          right: var(--right-column);
+          margin-right: 6px;
+          background: white;
+          border: 1px solid #888;
+          padding-left: 2px; padding-right: 4px;
+          padding-top: 5px;
+        }
         .bb-left-header {
           position: absolute; right: 100%; writing-mode: vertical-lr; top:10px;
         }

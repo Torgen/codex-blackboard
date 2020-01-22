@@ -61,6 +61,8 @@ Template.registerHelper 'plural', (x) -> x != 1
 
 Template.registerHelper 'nullToZero', (x) -> x ? 0
 
+Template.registerHelper 'canGoFullScreen', -> $('body').get(0)?.requestFullscreen?
+
 # subscribe to the all-names feed all the time
 Meteor.subscribe 'all-names'
 # subscribe to all nicks all the time
