@@ -60,6 +60,7 @@ do ->
     'click a.puzzles-link': clickHandler
     'click a.rounds-link': clickHandler
     'click a.chat-link': clickHandler
+    'click a.graph-link': clickHandler
     'click a.home-link': clickHandler
     'click a.oplogs-link': clickHandler
     'click a.quips-link': clickHandler

@@ -21,10 +21,14 @@ function onGoogleApiLoad() {
 
 <body>
   {{#if currentUser}}
-    <div id="bb-body" class="{{#if boringMode}}boring{{/if}} {{#if compactHeader}}compactHeader{{/if}}">
-      {{> page }}
-    </div>
-    {{> header_confirmmodal}}
+    {{#if currentPageEquals "graph"}}
+      {{>graph}}
+    {{else}}
+      <div id="bb-body" class="{{#if boringMode}}boring{{/if}} {{#if compactHeader}}compactHeader{{/if}}">
+        {{> page }}
+      </div>
+      {{> header_confirmmodal}}
+    {{/if}}
   {{else}}
     <div class="modal show">
       {{> header_nickmodal_contents}}
@@ -34,6 +38,7 @@ function onGoogleApiLoad() {
 
 <template name="page">
 <div id="bb-content">
+
 <!-- DEBUGGING: currentPage: "{{currentPage}}" -->
 
 <!-- common header -->

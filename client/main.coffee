@@ -223,6 +223,7 @@ scrollAfter = (x) ->
 BlackboardRouter = Backbone.Router.extend
   routes:
     "": "BlackboardPage"
+    "graph": "GraphPage"
     "edit": "EditPage"
     "rounds/:round": "RoundPage"
     "puzzles/:puzzle": "PuzzlePage"
@@ -247,6 +248,8 @@ BlackboardRouter = Backbone.Router.extend
       Session.set
         canEdit: true
         editing: undefined
+
+  GraphPage: -> @Page 'graph', 'general', '0'
 
   PuzzlePage: (id, view=null) ->
     this.Page("puzzle", "puzzles", id)
