@@ -73,8 +73,9 @@ Template.graph.onRendered ->
     @lay = @cy.layout
       name: 'fcose'
       randomize: @roundChange
-      idealEdgeLength: 100
-      gravityCompound: 10
+      edgeElasticity: 0.1
+      quality: 'proof'
+      nodeDimensionsIncludeLabels: true
       ready: =>
         @structure = false
         @roundChange = false
