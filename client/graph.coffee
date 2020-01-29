@@ -17,6 +17,7 @@ Template.graph.onRendered ->
   [cytoscape, fcose, layout] = await Promise.all @imports
   cytoscape.use layout.default
   cytoscape.use fcose.default
+  @status = 'idle'
   @cy = cytoscape.default
     container: @$ '.bb-status-graph'
     style: [
@@ -72,19 +73,30 @@ Template.graph.onRendered ->
       @cy.startBatch()
       @adding.set true
   @layout = =>
-    @lay?.stop()
-    @setAspect()
-    console.log "laying out structure: #{@structure} roundChange: #{@roundChange}"
-    @lay = @cy.layout
-      name: 'fcose'
-      randomize: @roundChange
-      edgeElasticity: 0.1
-      quality: 'proof'
-      nodeDimensionsIncludeLabels: true
-      ready: =>
-        @structure = false
-        @roundChange = false
-    @lay.run()
+    if @status is 'idle'
+      @status = 'running'
+    else
+      @status = 'waiting'
+      return
+    loop
+      @setAspect()
+      console.log "laying out structure: #{@structure} roundChange: #{@roundChange}"
+      lay = @cy.layout
+        name: 'fcose'
+        randomize: @roundChange
+        edgeElasticity: 0.1
+        quality: 'proof'
+        nodeDimensionsIncludeLabels: true
+      p = lay.promiseOn 'layoutstop'
+      lay.run()
+      await p
+      if @status is 'running'
+        @status = 'idle'
+        break
+      else
+        @status = 'running'
+    @structure = false
+    @roundChange = false
 
   @autorun =>
     if @adding.get()
