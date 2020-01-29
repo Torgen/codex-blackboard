@@ -6,7 +6,7 @@ import abbrev from '/lib/imports/abbrev.coffee'
 Template.graph.onCreated ->
   @subscribe 'all-roundsandpuzzles'
   @adding = new ReactiveVar false
-  @imports = [import('cytoscape'), import('cytoscape-fcose')]
+  @imports = [import('cytoscape'), import('cytoscape-fcose'), import('cytoscape-layout-utilities')]
 
 Template.graph.onDestroyed ->
   @rounds?.stop()
@@ -14,7 +14,8 @@ Template.graph.onDestroyed ->
   window.removeEventListener 'resize', @layout
 
 Template.graph.onRendered ->
-  [cytoscape, fcose] = await Promise.all @imports
+  [cytoscape, fcose, layout] = await Promise.all @imports
+  cytoscape.use layout.default
   cytoscape.use fcose.default
   @cy = cytoscape.default
     container: @$ '.bb-status-graph'
@@ -63,12 +64,16 @@ Template.graph.onRendered ->
       }
     ]
   @cy.userPanningEnabled(false).userZoomingEnabled(false).autounselectify(true)
+  @setAspect = =>
+    @cy.layoutUtilities desiredAspectRatio: $(window).width() / $(window).height()
+  @setAspect()
   startAdding = =>
     if !@adding.get()
       @cy.startBatch()
       @adding.set true
   @layout = =>
     @lay?.stop()
+    @setAspect()
     console.log "laying out structure: #{@structure} roundChange: #{@roundChange}"
     @lay = @cy.layout
       name: 'fcose'

@@ -9,6 +9,7 @@
     "css-color-names": "0.0.4",
     "cytoscape": "^3.13.0",
     "cytoscape-fcose": "^1.2.0",
+    "cytoscape-layout-utilities": "^1.0.0",
     "delay": "^4.3.0",
     "googleapis": "^40.0.0",
     "hubot": "^3.3.2",
