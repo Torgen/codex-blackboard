@@ -62,7 +62,7 @@ Template.graph.onRendered ->
           'background-color': 'lime'
       }
     ]
-  @cy.userPanningEnabled(false).userZoomingEnabled(false).autoungrabify(true).autounselectify(true)
+  @cy.userPanningEnabled(false).userZoomingEnabled(false).autounselectify(true)
   startAdding = =>
     if !@adding.get()
       @cy.startBatch()
