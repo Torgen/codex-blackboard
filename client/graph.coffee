@@ -72,7 +72,9 @@ Template.graph.onRendered ->
     if !@adding.get()
       @cy.startBatch()
       @adding.set true
-  @layout = =>
+  @layout = (event) =>
+    if event?
+      @roundChange = true
     if @status is 'idle'
       @status = 'running'
     else
