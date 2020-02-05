@@ -10,7 +10,7 @@ Template.graph.events
 Template.graph.onCreated ->
   @subscribe 'all-roundsandpuzzles'
   @adding = new ReactiveVar false
-  @imports = [import('cytoscape'), import('cytoscape-fcose'), import('cytoscape-layout-utilities')]
+  @import = import('/client/imports/graph.coffee') 
 
 Template.graph.onDestroyed ->
   @rounds?.stop()
@@ -18,9 +18,7 @@ Template.graph.onDestroyed ->
   window.removeEventListener 'resize', @layout
 
 Template.graph.onRendered ->
-  [cytoscape, fcose, layout] = await Promise.all @imports
-  cytoscape.use layout.default
-  cytoscape.use fcose.default
+  cytoscape = await @import
   @status = 'idle'
   @cy = cytoscape.default
     container: @$ '.bb-status-graph'
