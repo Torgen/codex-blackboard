@@ -3,6 +3,10 @@
 import objectColor from './imports/objectColor.coffee'
 import abbrev from '/lib/imports/abbrev.coffee'
 
+Template.graph.events
+  'click .bb-layout': (event, template) ->
+    template.layout? event
+
 Template.graph.onCreated ->
   @subscribe 'all-roundsandpuzzles'
   @adding = new ReactiveVar false

@@ -152,7 +152,6 @@ Template.header_loginmute.helpers
     if 'true' is reactiveLocalStorage.getItem 'mute' then 'Muted' else 'Click to mute'
   botIcon: ->
     if 'true' is reactiveLocalStorage.getItem 'nobot' then 'icon-bot-off' else 'icon-bot-on'
-  connectStatus: Meteor.status
   botTitle: ->
     botName = botuser()?.nickname or 'The bot'
     if 'true' is reactiveLocalStorage.getItem 'nobot'
@@ -169,12 +168,6 @@ Template.header_loginmute.helpers
       gravatar: emailFromNickObject user
     }
 
-Template.header_loginmute.onRendered ->
-  # tool tips
-  $(this.findAll('.bb-buttonbar *[title]')).tooltip
-    placement: 'bottom'
-    container: '.bb-buttonbar'
-
 Template.header_loginmute.events
   "click .bb-logout": (event, template) ->
     event.preventDefault()
@@ -183,6 +176,11 @@ Template.header_loginmute.events
     share.Router.navigate "/edit", {trigger: true}
   "click .bb-protect": (event, template) ->
     share.Router.navigate "/", {trigger: true}
+
+Template.connection_button.helpers
+  connectStatus: Meteor.status
+
+Template.connection_button.events
   "click .connected, click .connecting, click .waiting": (event, template) ->
     Meteor.disconnect()
   "click .failed, click .offline": (event, template) ->

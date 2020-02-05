@@ -240,13 +240,17 @@
      <button title="{{volumeTitle}}" class="mute btn btn-small btn-inverse">
       <span class="fas {{volumeIcon}}"></span>
      </button>
-     <button data-original-title="{{connectStatus.status}}{{#if connectStatus.retryTime}} until {{pretty_ts connectStatus.retryTime}}{{/if}}"
-             title="connecting" class="{{connectStatus.status}} btn btn-small btn-inverse">
-        <span class="bb-statuslight"></span>
-     </button>
+     {{> connection_button style="btn-small btn-inverse"}}
     </div>
    </div>
   </div>
+</template>
+
+<template name="connection_button">
+  <button title="{{connectStatus.status}}{{#if connectStatus.retryTime}} until {{pretty_ts connectStatus.retryTime}}{{/if}}"
+          class="{{connectStatus.status}} btn {{style}}">
+    <span class="bb-statuslight"></span>
+  </button>
 </template>
 
 <template name="header_lastupdates">
