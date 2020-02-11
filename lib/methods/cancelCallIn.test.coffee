@@ -46,6 +46,7 @@ describe 'cancelCallIn', ->
       submitted_to_hq: true
       backsolve: false
       provided: false
+      status: 'pending'
       
   it 'fails without login', ->
     chai.assert.throws ->
@@ -56,8 +57,10 @@ describe 'cancelCallIn', ->
     beforeEach ->
       callAs 'cancelCallIn', 'cjb', id: callin
 
-    it 'deletes callin', ->
-      chai.assert.isUndefined model.CallIns.findOne()
+    it 'updates callin', ->
+      c = model.CallIns.findOne()
+      chai.assert.include c,
+        status: 'cancelled'
     
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle}).fetch(), 1

@@ -165,7 +165,7 @@ Meteor.publish 'starred-messages', loginRequired (room_name) ->
     sort: [["timestamp", "asc"]]
 
 Meteor.publish 'callins', loginRequired ->
-  model.CallIns.find {},
+  model.CallIns.find {status: 'pending'},
     sort: [["created","asc"]]
 
 Meteor.publish 'quips', loginRequired ->

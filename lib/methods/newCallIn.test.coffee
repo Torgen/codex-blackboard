@@ -99,6 +99,7 @@ describe 'newCallIn', ->
             submitted_to_hq: false
             backsolve: false
             provided: false
+            status: 'pending'
 
         it 'oplogs', ->
           o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -142,6 +143,7 @@ describe 'newCallIn', ->
           submitted_to_hq: false
           backsolve: true
           provided: false
+          status: 'pending'
       
       it 'sets provided', ->
         callAs 'newCallIn', 'torgen',
@@ -156,6 +158,7 @@ describe 'newCallIn', ->
           submitted_to_hq: false
           backsolve: false
           provided: true
+          status: 'pending'
 
     it 'notifies meta chat for puzzle', ->
       meta = model.Puzzles.insert
@@ -299,6 +302,7 @@ describe 'newCallIn', ->
             callin_type: 'interaction request'
             who: 'torgen'
             submitted_to_hq: false
+            status: 'pending'
 
         it 'oplogs', ->
           o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -427,6 +431,7 @@ describe 'newCallIn', ->
             callin_type: 'message to hq'
             who: 'torgen'
             submitted_to_hq: false
+            status: 'pending'
 
         it 'oplogs', ->
           o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -555,6 +560,7 @@ describe 'newCallIn', ->
             callin_type: 'expected callback'
             who: 'torgen'
             submitted_to_hq: false
+            status: 'pending'
 
         it 'oplogs', ->
           o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()

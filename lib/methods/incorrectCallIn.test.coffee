@@ -51,6 +51,7 @@ describe 'incorrectCallIn', ->
         submitted_to_hq: true
         backsolve: false
         provided: false
+        status: 'pending'
 
     it 'fails without login', ->
       chai.assert.throws ->
@@ -61,8 +62,10 @@ describe 'incorrectCallIn', ->
       beforeEach ->
         callAs 'incorrectCallIn', 'cjb', callin
 
-      it 'deletes callin', ->
-        chai.assert.isUndefined model.CallIns.findOne()
+      it 'updates callin', ->
+        c = model.CallIns.findOne callin
+        chai.assert.include c,
+          status: 'rejected'
 
       it 'addsIncorrectAnswer', ->
         chai.assert.deepInclude model.Puzzles.findOne(puzzle),
@@ -101,6 +104,7 @@ describe 'incorrectCallIn', ->
         submitted_to_hq: true
         backsolve: false
         provided: false
+        status: 'pending'
 
     describe 'without response', ->
 
@@ -113,8 +117,10 @@ describe 'incorrectCallIn', ->
         beforeEach ->
           callAs 'incorrectCallIn', 'cjb', callin
 
-        it 'deletes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne()
+        it 'updates callin', ->
+          c = model.CallIns.findOne callin
+          chai.assert.include c,
+            status: 'rejected'
 
         it 'does not add incorrectAnswer', ->
           chai.assert.isUndefined model.Puzzles.findOne(puzzle).incorrectAnswers
@@ -153,8 +159,11 @@ describe 'incorrectCallIn', ->
         beforeEach ->
           callAs 'incorrectCallIn', 'cjb', callin, 'sediment'
 
-        it 'deletes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne()
+        it 'updates callin', ->
+          c = model.CallIns.findOne callin
+          chai.assert.include c,
+            status: 'rejected'
+            response: 'sediment'
 
         it 'does not add incorrectAnswer', ->
           chai.assert.isUndefined model.Puzzles.findOne(puzzle).incorrectAnswers
@@ -208,6 +217,7 @@ describe 'incorrectCallIn', ->
         submitted_to_hq: true
         backsolve: false
         provided: false
+        status: 'pending'
 
     describe 'without response', ->
 
@@ -220,8 +230,10 @@ describe 'incorrectCallIn', ->
         beforeEach ->
           callAs 'incorrectCallIn', 'cjb', callin
 
-        it 'deletes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne()
+        it 'updates callin', ->
+          c = model.CallIns.findOne callin
+          chai.assert.include c,
+            status: 'rejected'
 
         it 'does not add incorrectAnswer', ->
           chai.assert.isUndefined model.Puzzles.findOne(puzzle).incorrectAnswers
@@ -260,8 +272,11 @@ describe 'incorrectCallIn', ->
         beforeEach ->
           callAs 'incorrectCallIn', 'cjb', callin, 'sediment'
 
-        it 'deletes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne()
+        it 'updates callin', ->
+          c = model.CallIns.findOne callin
+          chai.assert.include c,
+            status: 'rejected'
+            response: 'sediment'
 
         it 'does not add incorrectAnswer', ->
           chai.assert.isUndefined model.Puzzles.findOne(puzzle).incorrectAnswers
@@ -315,6 +330,7 @@ describe 'incorrectCallIn', ->
         submitted_to_hq: true
         backsolve: false
         provided: false
+        status: 'pending'
 
     describe 'without response', ->
 

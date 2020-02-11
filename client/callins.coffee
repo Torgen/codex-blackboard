@@ -17,7 +17,7 @@ Meteor.startup ->
     sub = Meteor.subscribe 'callins'
     return unless sub.ready() # reactive, will re-execute when ready
     initial = true
-    model.CallIns.find({}).observe
+    model.CallIns.find({status: 'pending'}).observe
       added: (doc) ->
         return if initial
         console.log 'ding dong'
@@ -36,7 +36,7 @@ Template.callins.onCreated ->
 
 Template.callins.helpers
   callins: ->
-    model.CallIns.find {},
+    model.CallIns.find {status: 'pending'},
       sort: [["created","asc"]]
       transform: (c) ->
         c.puzzle = if c.target then model.Puzzles.findOne(_id: c.target)

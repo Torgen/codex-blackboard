@@ -126,10 +126,13 @@ if Meteor.isServer
 #   submitted_by: canon of Nick
 #   backsolve: true/false
 #   provided: true/false
+#   status: one of 'pending', 'accepted', 'rejected', or 'cancelled'.
+#   response: (optional) response from HQ to this callin
 CallIns = BBCollection.callins = new Mongo.Collection "callins"
 if Meteor.isServer
-  CallIns._ensureIndex {created: 1}, {}
-  CallIns._ensureIndex {target: 1, answer: 1}, {unique:true, dropDups:true}
+  CallIns._ensureIndex {status: 1, created: 1}
+  CallIns._ensureIndex {status: 1, target_type: 1, target: 1, callin_type: 1, answer: 1}, {unique:true, dropDups:true, partialFilterExpression: {status: 'pending'}}
+  CallIns._ensureIndex {target_type: 1, target: 1, created: 1}
 
 # Quips are:
 #   _id: mongodb id
@@ -679,6 +682,7 @@ doc_id_to_link = (id) ->
         submitted_to_hq: false
         backsolve: !!args.backsolve
         provided: !!args.provided
+        status: 'pending'
       , {suppressLog:true}
       msg = action: true
       # send to the general chat
@@ -760,7 +764,9 @@ doc_id_to_link = (id) ->
           body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
       else
         check response, Match.Optional String
+        updateBody = status: 'accepted'
         extra = if response?
+          updateBody.response = response
           " with response \"#{response}\""
         else
           ''
@@ -773,9 +779,8 @@ doc_id_to_link = (id) ->
 
         Object.assign msg,
           body: "reports that the #{type_text} \"#{callin.answer}\" was #{verb}#{extra}!"
-        Meteor.call 'cancelCallIn',
-          id: id
-          suppressLog: true
+        CallIns.update _id: id,
+          $set: updateBody
 
       # one message to the puzzle chat
       Meteor.call 'newMessage', msg
@@ -816,7 +821,9 @@ doc_id_to_link = (id) ->
         throw new Meteor.Error(400, 'expected callback can\'t be incorrect')
       else
         check response, Match.Optional String
+        updateBody = status: 'rejected'
         extra = if response?
+          updateBody.response = response
           " with response \"#{response}\""
         else
           ''
@@ -826,9 +833,8 @@ doc_id_to_link = (id) ->
 
         Object.assign msg,
           body: "sadly relays that the #{type_text} \"#{callin.answer}\" was REJECTED#{extra}."
-        Meteor.call 'cancelCallIn',
-          id: id
-          suppressLog: true
+        CallIns.update _id: id,
+          $set: updateBody
 
       # one message to the puzzle chat
       Meteor.call 'newMessage', msg
@@ -853,10 +859,8 @@ doc_id_to_link = (id) ->
       unless args.suppressLog
         oplog "Canceled call-in of #{callin.answer} for", 'puzzles', \
             callin.target, @userId
-      deleteObject "callins",
-        id: args.id
-        who: @userId
-      , {suppressLog:true}
+      CallIns.update _id: args.id,
+        $set: status: 'cancelled'
 
     locateNick: (args) ->
       check @userId, NonEmptyString
@@ -1236,10 +1240,12 @@ doc_id_to_link = (id) ->
       return false if updated is 0
       oplog "Found an answer (#{args.answer.toUpperCase()}) to", 'puzzles', id, @userId, 'answers'
       # cancel any entries on the call-in queue for this puzzle
-      for c in CallIns.find(target: id).fetch()
-        Meteor.call 'cancelCallIn',
-          id: c._id
-          suppressLog: (c.answer is args.answer)
+      CallIns.update {target_type: 'puzzles', target: id, status: 'pending', callin_type: 'answer', answer: args.answer},
+        $set: status: 'accepted'
+      CallIns.update {target_type: 'puzzles', target: id, status: 'pending'},
+        $set: status: 'cancelled'
+      ,
+        multi: true
       return true
 
     addIncorrectAnswer: (args) ->
@@ -1265,10 +1271,9 @@ doc_id_to_link = (id) ->
       oplog "reports incorrect answer #{args.answer} for", 'puzzles', id, @userId, \
           'callins'
       # cancel any matching entries on the call-in queue for this puzzle
-      for c in CallIns.find(target: id, answer: args.answer).fetch()
-        Meteor.call 'cancelCallIn',
-          id: c._id
-          suppressLog: true
+      # The 'pending' status means this should be unique if present.
+      CallIns.update {target_type: 'puzzles', target: id, status: 'pending', answer: args.answer},
+        $set: status: 'rejected'
       return true
 
     deleteAnswer: (args) ->

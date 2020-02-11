@@ -220,6 +220,7 @@ describe 'setAnswer', ->
         confirmed_by: null
         tags: {}
       cid1 = model.CallIns.insert
+        target_type: 'puzzles'
         target: id
         name: 'Foo'
         answer: 'bar'
@@ -229,7 +230,9 @@ describe 'setAnswer', ->
         submitted_to_hq: true
         backsolve: false
         provided: false
+        status: 'pending'
       cid2 = model.CallIns.insert
+        target_type: 'puzzles'
         target: id
         name: 'Foo'
         answer: 'qux'
@@ -239,18 +242,22 @@ describe 'setAnswer', ->
         submitted_to_hq: false
         backsolve: false
         provided: false
+        status: 'pending'
       callAs 'setAnswer', 'cjb',
         target: id
         answer: 'bar'
         
-    it 'deletes callins', ->
-      chai.assert.lengthOf model.CallIns.find().fetch(), 0
+    it 'updates callins', ->
+      chai.assert.include model.CallIns.findOne(cid1),
+        status: 'accepted'
+      chai.assert.include model.CallIns.findOne(cid2),
+        status: 'cancelled'
 
     it 'doesn\'t oplog for callins', ->
       chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'callins'}).fetch(), 0
 
     it 'oplogs for puzzle', ->
-      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 2
+      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
 
     it 'sets solved_by correctly', ->
       chai.assert.deepInclude model.Puzzles.findOne(id),

@@ -51,6 +51,7 @@ describe 'correctCallIn', ->
         submitted_to_hq: true
         backsolve: false
         provided: false
+        status: 'pending'
     
     it 'fails without login', ->
       chai.assert.throws ->
@@ -80,8 +81,10 @@ describe 'correctCallIn', ->
             touched: 7
             touched_by: 'cjb'
       
-      it 'removes callin', ->
-        chai.assert.isUndefined model.CallIns.findOne callin
+      it 'updates callin', ->
+        c = model.CallIns.findOne callin
+        chai.assert.include c,
+          status: 'accepted'
 
       it 'oplogs', ->
         o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -161,6 +164,7 @@ describe 'correctCallIn', ->
         submitted_to_hq: true
         backsolve: false
         provided: false
+        status: 'pending'
     
     it 'fails without login', ->
       chai.assert.throws ->
@@ -182,8 +186,10 @@ describe 'correctCallIn', ->
             confirmed_by: null
             tags: {}
         
-        it 'removes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne callin
+        it 'updates callin', ->
+          c = model.CallIns.findOne callin
+          chai.assert.include c,
+            status: 'accepted'
 
         it 'does not oplog', ->
           o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -222,8 +228,11 @@ describe 'correctCallIn', ->
           confirmed_by: null
           tags: {}
       
-      it 'removes callin', ->
-        chai.assert.isUndefined model.CallIns.findOne callin
+      it 'updates callin', ->
+        c = model.CallIns.findOne callin
+        chai.assert.include c,
+          status: 'accepted'
+          response: 'Make us some supersaturated Kool-Aid'
 
       it 'does not oplog', ->
         o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -316,8 +325,10 @@ describe 'correctCallIn', ->
             confirmed_by: null
             tags: {}
         
-        it 'removes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne callin
+        it 'updates callin', ->
+          c = model.CallIns.findOne callin
+          chai.assert.include c,
+            status: 'accepted'
 
         it 'does not oplog', ->
           o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -356,8 +367,11 @@ describe 'correctCallIn', ->
           confirmed_by: null
           tags: {}
       
-      it 'removes callin', ->
-        chai.assert.isUndefined model.CallIns.findOne callin
+      it 'updates callin', ->
+        c = model.CallIns.findOne callin
+        chai.assert.include c,
+          status: 'accepted'
+          response: 'Make us some supersaturated Kool-Aid'
 
       it 'does not oplog', ->
         o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -450,8 +464,10 @@ describe 'correctCallIn', ->
             confirmed_by: null
             tags: {}
         
-        it 'removes callin', ->
-          chai.assert.isUndefined model.CallIns.findOne callin
+        it 'updates callin', ->
+          c = model.CallIns.findOne callin
+          chai.assert.include c,
+            status: 'accepted'
 
         it 'does not oplog', ->
           o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
@@ -491,8 +507,11 @@ describe 'correctCallIn', ->
           confirmed_by: null
           tags: {}
       
-      it 'removes callin', ->
-        chai.assert.isUndefined model.CallIns.findOne callin
+      it 'updates callin', ->
+        c = model.CallIns.findOne callin
+        chai.assert.include c,
+          status: 'accepted'
+          response: 'Make us some supersaturated Kool-Aid'
 
       it 'does not oplog', ->
         o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()

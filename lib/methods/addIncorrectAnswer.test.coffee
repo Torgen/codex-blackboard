@@ -46,11 +46,13 @@ describe 'addIncorrectAnswer', ->
         tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
         incorrectAnswers: [{answer: 'qux', who: 'torgen', timestamp: 2, backsolve: false, provided: false}]
       model.CallIns.insert
+        target_type: 'puzzles'
         target: id
         name: 'Foo'
         answer: 'flimflam'
         created: 4
         created_by: 'cjb'
+        status: 'pending'
         
     it 'fails without login', ->
       chai.assert.throws ->
@@ -92,5 +94,6 @@ describe 'addIncorrectAnswer', ->
         # oplog is lowercase
         chai.assert.include o[0].body, 'flimflam', 'message'
 
-      it 'deletes callin', ->
-        chai.assert.lengthOf model.CallIns.find().fetch(), 0
+      it 'updates callin', ->
+        chai.assert.include model.CallIns.findOne(),
+          status: 'rejected'
