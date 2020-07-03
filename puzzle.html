@@ -11,10 +11,6 @@
     <tr><td class="rightanswer">Answer:</td><td class="answer">{{tag "answer"}}</td></tr>
     <tr><td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts solved}}</td></tr>
   {{/if}}
-  {{#each incorrectAnswers}}
-    <tr><td class="wronganswer">IncorrectAnswer:</td><td class="answer">{{answer}}</td></tr>
-    <tr><td class="backsolve">{{#if backsolve}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts timestamp}}</td></tr>
-  {{/each}}
   <tr><td>Mechanics:</td><td>{{> puzzle_mechanics}}</td></tr>
 {{/with}}
 {{#each cares in unsetcaredabout}}
@@ -36,6 +32,46 @@
 {{/with}}
 </tbody></table>
 {{> starred_messages canModify=mynick}}
+{{#let cs=callins}}
+  {{#if cs.count}}
+    <h3>Callin History</h3>
+    <table class="bb-callin-history table table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th colspan="2">Callin</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+      {{#each cs}}
+        <tr>
+          <td class="answer">{{answer}}</td>
+          <td class="bb-callin-metadata">
+            <span class="label label-info" title="{{callinType callin_type}}">{{callinTypeAbbrev callin_type}}</span>
+            {{#let since=(pretty_ts timestamp=created style="seconds_since")}}
+              <i class="fas fa-{{#if less since 1200}}hourglass-start
+                                {{else if less since 2400}}hourglass-half
+                                {{else if less since 3600}}hourglass-end
+                                {{else if less since 86400}}clock
+                                {{else}}calendar{{/if}}" title="Created at {{pretty_ts timestamp=created}}"></i>
+            {{/let}}</td>
+          <td class="form-inline">
+            {{#if equal status "pending"}}
+              {{>callin_resolution_buttons callin=this compact=true}}
+            {{else}}
+              <span class="btn disabled active btn-mini btn-{{#if equal status "accepted"}}success
+                                        {{else if equal status "rejected"}}danger
+                                        {{else if equal status "cancelled"}}warning
+                                        {{/if}}">{{callin_status}}</span>
+              {{#with response}}<i class="fas fa-arrow-right"></i>&ldquo;{{this}}&rdquo;{{/with}}
+            {{/if}}
+          </td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  {{/if}}
+{{/let}}
 {{#if puzzle.puzzles}}{{#let cares=caresabout}}
 <table class="bb-round-answers table table-bordered table-condensed"><tbody>
   <tr><th>Puzzle in round</th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>

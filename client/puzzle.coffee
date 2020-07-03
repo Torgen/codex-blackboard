@@ -30,6 +30,12 @@ currentViewIs = (puzzle, view) ->
   return false if possible.includes Session.get 'view'
   return view is possible[0]
 
+Template.puzzle_info.onCreated ->
+  @autorun =>
+    id = Session.get 'id'
+    return unless id
+    @subscribe 'callins-by-puzzle', id
+
 Template.puzzle_info.helpers
   tag: (name) -> (model.getTag this, name) or ''
   getPuzzle: -> model.Puzzles.findOne this
@@ -39,6 +45,14 @@ Template.puzzle_info.helpers
       name: tag
       canon: model.canonical tag
     ) for tag in cared?.split(',') or []
+  callins: ->
+    return unless @puzzle?
+    model.CallIns.find
+      target_type: 'puzzles'
+      target: @puzzle._id
+    ,
+      sort: {created: 1}
+  callin_status: -> callin_types.past_status_message @status, @callin_type
 
   unsetcaredabout: ->
     return unless @puzzle

@@ -126,6 +126,7 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
 # limit site traffic by only pushing out changes relevant to a certain
 # round or puzzle
 Meteor.publish 'puzzle-by-id', loginRequired (id) -> @puzzleQuery _id: id
+Meteor.publish 'callins-by-puzzle', loginRequired (id) -> model.CallIns.find {target_type: 'puzzles', target: id}
 Meteor.publish 'metas-for-puzzle', loginRequired (id) -> @puzzleQuery puzzles: id
 Meteor.publish 'round-by-id', loginRequired (id) -> model.Rounds.find _id: id
 Meteor.publish 'round-for-puzzle', loginRequired (id) -> model.Rounds.find puzzles: id

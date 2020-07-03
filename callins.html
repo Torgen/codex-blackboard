@@ -52,13 +52,9 @@
     {{/if}}{{#if solved}}<div class="dupe">Already Solved</div>{{/if}}</td>
     <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}
       {{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}
-      {{#if callinTypeIs "interaction request"}}
-        <div class="interaction">Interaction Request</div>
-      {{else if callinTypeIs "message to hq"}}
-        <div class="interaction">Message to HQ</div>
-      {{else if callinTypeIs "expected callback"}}
-        <div class="interaction">Expected Callback</div>
-      {{/if}}
+      {{#unless callinTypeIs "answer"}}
+        <div class="interaction">{{callinType callin_type}}</div>
+      {{/unless}}
       {{#unless callinTypeIs "expected callback"}}
         {{#if hunt_link}}
           <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-info btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
@@ -75,30 +71,40 @@
       <input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{gravatar id=nickEmail image="wavatar" size=20 title=(nickOrName this)}}{{/with}}
       {{/if}}
     </td>
-    <td class="form-inline">
-      {{#if allowsResponse}}
-        <div class="input-append">
-          <input type="text" class="response" placeholder="Response from HQ">
-          <button class="btn btn-success bb-callin-correct" title="Correct"><i class="fas fa-check"></i></button>
-          {{#if allowsIncorrect}}
-            <button class="btn btn-danger bb-callin-incorrect" title="Incorrect"><i class="fas fa-times"></i></button>
-          {{/if}}
-        </div>
-        <button class="btn btn-warning bb-callin-cancel" title="Cancel"><i class="fas fa-trash"></i></button>
-      {{else}}
-        <div class="btn-group">
-          <button class="btn btn-success bb-callin-correct">Correct</button>
-          {{#if allowsIncorrect}}
-            <button class="btn btn-danger bb-callin-incorrect">Incorrect</button>
-          {{/if}}
-          <button class="btn btn-warning bb-callin-cancel">Cancel</button>
-        </div>
-      {{/if}}
-    </td>
+    {{> callin_resolution_buttons callin=this}}
     {{else}}
     <td class="text-warning">Log in to resolve answers in queue.</td>
     {{/if}}
   </tr>
+</template>
+
+<template name="callin_resolution_buttons">
+  {{#if allowsResponse}}
+    <div class="bb-callin-allows-response">
+      <div class="input-append">
+        <input type="text" class="response{{#if compact}} input-compact{{/if}}" placeholder="Response{{#unless compact}} from HQ{{/unless}}">
+        <button class="btn btn-success bb-callin-correct{{#if compact}} btn-mini{{/if}}" title="{{accept_message}}"><i class="fas fa-check"></i></button>
+        {{#if allowsIncorrect}}
+          <button class="btn btn-danger bb-callin-incorrect{{#if compact}} btn-mini{{/if}}" title="{{reject_message}}"><i class="fas fa-times"></i></button>
+        {{/if}}
+      </div>
+      <button class="btn btn-warning bb-callin-cancel{{#if compact}} btn-mini{{/if}}" title="{{cancel_message}}"><i class="fas fa-trash"></i></button>
+    </div>
+  {{else}}
+    <div class="btn-group">
+      <button class="btn btn-success bb-callin-correct{{#if compact}} btn-mini{{/if}}" title="{{#if compact}}{{accept_message}}{{/if}}">
+        {{#if compact}}<i class="fas fa-check"></i>{{else}}{{accept_message}}{{/if}}
+      </button>
+      {{#if allowsIncorrect}}
+        <button class="btn btn-danger bb-callin-incorrect{{#if compact}} btn-mini{{/if}}" title="{{#if compact}}{{reject_message}}{{/if}}">
+          {{#if compact}}<i class="fas fa-times"></i>{{else}}{{reject_message}}{{/if}}
+        </button>
+      {{/if}}
+      <button class="btn btn-warning bb-callin-cancel{{#if compact}} btn-mini{{/if}}" title="{{#if compact}}{{cancel_message}}{{/if}}">
+        {{#if compact}}<i class="fas fa-trash"></i>{{else}}{{cancel_message}}{{/if}}
+      </button>
+    </div>
+  {{/if}}
 </template>
 
 <template name="callins_quip">

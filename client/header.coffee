@@ -117,10 +117,11 @@ Template.registerHelper 'pretty_ts', (args) ->
       if diff > 86400000
         return past_fmt.format d
       today_fmt.format d
-    when "duration", "brief_duration", "brief duration"
+    when "duration", "brief_duration", "brief duration", 'seconds_since'
       brief = (style isnt 'duration')
       duration = (Session.get('currentTime') or model.UTCNow()) - timestamp
       seconds = Math.floor(duration/1000)
+      return seconds if style is 'seconds_since'
       return "in the future" if seconds < -60
       return "just now" if seconds < 60
       [minutes, seconds] = [Math.floor(seconds/60), seconds % 60]

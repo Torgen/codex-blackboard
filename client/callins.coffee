@@ -84,28 +84,9 @@ Template.callin_row.helpers
       return true if wrong.answer is @answer
     return false
   callinTypeIs: (type) -> @callin_type is type
-  allowsResponse: -> @callin_type isnt callin_types.ANSWER
-  allowsIncorrect: -> @callin_type isnt callin_types.EXPECTED_CALLBACK
   nickEmail: -> nickEmail @
 
 Template.callin_row.events
-  "click .bb-callin-correct": (event, template) ->
-    response = template.find("input.response")?.value
-    if response? and response isnt ''
-      Meteor.call 'correctCallIn', @_id, response
-    else
-      Meteor.call 'correctCallIn', @_id
-
-  "click .bb-callin-incorrect": (event, template) ->
-    response = template.find("input.response")?.value
-    if response? and response isnt ''
-      Meteor.call 'incorrectCallIn', @_id, response
-    else
-      Meteor.call 'incorrectCallIn', @_id
-
-  "click .bb-callin-cancel": (event, template) ->
-    Meteor.call 'cancelCallIn', id: @_id
-
   "change .bb-submitted-to-hq": (event, template) ->
     checked = !!event.currentTarget.checked
     Meteor.call 'setField',
@@ -123,3 +104,27 @@ Template.callin_row.events
         submitted_to_hq: true
         submitted_by: Meteor.userId()
 
+Template.callin_resolution_buttons.helpers
+  allowsResponse: -> @callin.callin_type isnt callin_types.ANSWER
+  allowsIncorrect: -> @callin.callin_type isnt callin_types.EXPECTED_CALLBACK
+  accept_message: -> callin_types.accept_message @callin.callin_type
+  reject_message: -> callin_types.reject_message @callin.callin_type
+  cancel_message: -> callin_types.cancel_message @callin.callin_type
+
+Template.callin_resolution_buttons.events
+  "click .bb-callin-correct": (event, template) ->
+    response = template.find("input.response")?.value
+    if response? and response isnt ''
+      Meteor.call 'correctCallIn', @callin._id, response
+    else
+      Meteor.call 'correctCallIn', @callin._id
+
+  "click .bb-callin-incorrect": (event, template) ->
+    response = template.find("input.response")?.value
+    if response? and response isnt ''
+      Meteor.call 'incorrectCallIn', @callin._id, response
+    else
+      Meteor.call 'incorrectCallIn', @callin._id
+
+  "click .bb-callin-cancel": (event, template) ->
+    Meteor.call 'cancelCallIn', id: @callin._id

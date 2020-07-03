@@ -859,7 +859,7 @@ doc_id_to_link = (id) ->
       unless args.suppressLog
         oplog "Canceled call-in of #{callin.answer} for", 'puzzles', \
             callin.target, @userId
-      CallIns.update _id: args.id,
+      CallIns.update _id: args.id, status: 'pending',
         $set: status: 'cancelled'
 
     locateNick: (args) ->
@@ -1260,13 +1260,6 @@ doc_id_to_link = (id) ->
 
       target = Puzzles.findOne(id)
       throw new Meteor.Error(400, "bad target") unless target
-      Puzzles.update id, $push:
-        incorrectAnswers:
-          answer: args.answer
-          timestamp: UTCNow()
-          who: @userId
-          backsolve: !!args.backsolve
-          provided: !!args.provided
 
       oplog "reports incorrect answer #{args.answer} for", 'puzzles', id, @userId, \
           'callins'

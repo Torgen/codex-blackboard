@@ -2,6 +2,7 @@
 
 import { nickEmail } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
+import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
 import { mechanics } from '../lib/imports/mechanics.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import embeddable from './imports/embeddable.coffee'
@@ -20,11 +21,14 @@ chat = share.chat # import
 #   "quips"      -- view/edit phone-answering quips
 #   "facts"      -- server performance information
 Template.registerHelper "equal", (a, b) -> a is b
+Template.registerHelper "less", (a, b) -> a < b
 
 # session variables we want to make available from all templates
 do -> for v in ['currentPage']
   Template.registerHelper v, () -> Session.get(v)
 Template.registerHelper 'abbrev', abbrev
+Template.registerHelper 'callinType', human_readable
+Template.registerHelper 'callinTypeAbbrev', ctabbrev
 Template.registerHelper 'currentPageEquals', (arg) ->
   # register a more precise dependency on the value of currentPage
   Session.equals 'currentPage', arg
