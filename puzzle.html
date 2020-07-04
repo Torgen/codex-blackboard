@@ -58,6 +58,12 @@
           <td class="form-inline">
             {{#if equal status "pending"}}
               {{>callin_resolution_buttons callin=this compact=true}}
+              {{#with submitted_by}}
+                <span title="Submitted by {{nickOrName this}}">
+                  <i class="fas fa-phone"></i>
+                  {{gravatar id=nickEmail image="wavatar" size=20}}
+                </span>
+              {{/with}}
             {{else}}
               <span class="btn disabled active btn-mini btn-{{#if equal status "accepted"}}success
                                         {{else if equal status "rejected"}}danger
