@@ -1240,7 +1240,7 @@ doc_id_to_link = (id) ->
       return false if updated is 0
       oplog "Found an answer (#{args.answer.toUpperCase()}) to", 'puzzles', id, @userId, 'answers'
       # cancel any entries on the call-in queue for this puzzle
-      CallIns.update {target_type: 'puzzles', target: id, status: 'pending', callin_type: 'answer', answer: args.answer},
+      CallIns.update {target_type: 'puzzles', target: id, status: 'pending', callin_type: callin_types.ANSWER, answer: args.answer},
         $set: status: 'accepted'
       CallIns.update {target_type: 'puzzles', target: id, status: 'pending'},
         $set: status: 'cancelled'
@@ -1265,7 +1265,7 @@ doc_id_to_link = (id) ->
           'callins'
       # cancel any matching entries on the call-in queue for this puzzle
       # The 'pending' status means this should be unique if present.
-      CallIns.update {target_type: 'puzzles', target: id, status: 'pending', answer: args.answer},
+      CallIns.update {target_type: 'puzzles', callin_type: callin_types.ANSWER, target: id, status: 'pending', answer: args.answer},
         $set: status: 'rejected'
       return true
 

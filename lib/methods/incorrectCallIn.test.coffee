@@ -67,10 +67,6 @@ describe 'incorrectCallIn', ->
         chai.assert.include c,
           status: 'rejected'
 
-      it 'addsIncorrectAnswer', ->
-        chai.assert.deepInclude model.Puzzles.findOne(puzzle),
-          incorrectAnswers: [{answer: 'precipitate', who: 'cjb', timestamp: 7, backsolve: false, provided: false}]
-
       it 'oplogs', ->
         chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
 

@@ -44,7 +44,6 @@ describe 'addIncorrectAnswer', ->
         solved: null
         solved_by: null
         tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
-        incorrectAnswers: [{answer: 'qux', who: 'torgen', timestamp: 2, backsolve: false, provided: false}]
       model.CallIns.insert
         target_type: 'puzzles'
         target: id
@@ -52,6 +51,7 @@ describe 'addIncorrectAnswer', ->
         answer: 'flimflam'
         created: 4
         created_by: 'cjb'
+        callin_type: 'answer'
         status: 'pending'
         
     it 'fails without login', ->
@@ -66,16 +66,6 @@ describe 'addIncorrectAnswer', ->
         callAs 'addIncorrectAnswer', 'cjb',
           target: id
           answer: 'flimflam'
-
-      it 'appends answer', ->
-        doc = model.Puzzles.findOne id
-        chai.assert.lengthOf doc.incorrectAnswers, 2
-        chai.assert.include doc.incorrectAnswers[1],
-          answer: 'flimflam'
-          who: 'cjb'
-          timestamp: 7
-          backsolve: false
-          provided: false
 
       it 'doesn\'t touch', ->
         doc = model.Puzzles.findOne id
