@@ -66,12 +66,14 @@
     <td>{{pretty_ts this.created}}</td>
     <td>{{#with lastAttempt}}{{pretty_ts timestamp}} <small>({{pretty_ts timestamp=timestamp style="brief duration"}})</small>{{else}}-{{/with}}</td>
     {{#if mynick}}
-    <td>
-      {{#if callinTypeIs "expected callback"}}N/A{{else}}
-      <input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{gravatar id=nickEmail image="wavatar" size=20 title=(nickOrName this)}}{{/with}}
-      {{/if}}
-    </td>
-    {{> callin_resolution_buttons callin=this}}
+      <td>
+        {{#if callinTypeIs "expected callback"}}N/A{{else}}
+        <input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{gravatar id=nickEmail image="wavatar" size=20 title=(nickOrName this)}}{{/with}}
+        {{/if}}
+      </td>
+      <td class="form-inline">
+        {{> callin_resolution_buttons callin=this}}
+      </td>
     {{else}}
     <td class="text-warning">Log in to resolve answers in queue.</td>
     {{/if}}
