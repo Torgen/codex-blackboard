@@ -220,14 +220,49 @@ Template.messages.helpers
     touchSelfScroll() # ignore scroll events caused by DOM update
     maybeScrollMessagesView()
 
+instachat.keepalive = ->
+  Meteor.call "setPresence",
+    room_name: Session.get "room_name"
+    present: true
+    foreground: isVisible() # foreground/background tab status
+    uuid: settings.CLIENT_UUID # identify this tab
+
+clearKeepalive = ->
+  if instachat.keepaliveInterval?
+    Meteor.clearInterval instachat.keepaliveInterval
+    instachat.keepaliveInterval = undefined
+
+cleanupChat = ->
+  try
+    favicon.reset()
+  instachat.mutationObserver?.disconnect()
+  instachat.bottomObserver?.disconnect()
+  clearKeepalive()
+  if false # causes bouncing. just let it time out.
+    Meteor.call "setPresence",
+      room_name: Session.get "room_name"
+      present: false
+
+Template.messages.onDestroyed ->
+  cleanupChat()
+  hideMessageAlert()
+
+# window.unload is a bit spotty with async stuff, but we might as well try
+$(window).unload -> cleanupChat()
+
 Template.messages.onCreated ->
   instachat.scrolledToBottom = true
   @autorun =>
     # put this in a separate autorun so it's not invalidated needlessly when
     # the limit changes.
     room_name = Session.get 'room_name'
+    clearKeepalive()
     return unless room_name
     @subscribe 'presence-for-room', room_name
+    instachat.keepalive()
+    instachat.keepaliveInterval = \
+      Meteor.setInterval instachat.keepalive, (model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
+    
   @autorun =>
     invalidator = =>
       instachat.ready = false
@@ -580,41 +615,6 @@ Template.chat.onRendered ->
   type = Session.get('type')
   id = Session.get('id')
   joinRoom type, id
-
-startupChat = ->
-  return if instachat.keepaliveInterval?
-  instachat.keepalive = ->
-    Meteor.call "setPresence",
-      room_name: Session.get "room_name"
-      present: true
-      foreground: isVisible() # foreground/background tab status
-      uuid: settings.CLIENT_UUID # identify this tab
-  instachat.keepalive()
-  # send a keep alive every N minutes
-  instachat.keepaliveInterval = \
-    Meteor.setInterval instachat.keepalive, (model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
-
-cleanupChat = ->
-  try
-    favicon.reset()
-  instachat.mutationObserver?.disconnect()
-  instachat.bottomObserver?.disconnect()
-  if instachat.keepaliveInterval?
-    Meteor.clearInterval instachat.keepaliveInterval
-    instachat.keepalive = instachat.keepaliveInterval = undefined
-  if false # causes bouncing. just let it time out.
-    Meteor.call "setPresence",
-      room_name: Session.get "room_name"
-      present: false
-
-Template.messages.onCreated startupChat
-
-Template.messages.onDestroyed ->
-  cleanupChat()
-  hideMessageAlert()
-
-# window.unload is a bit spotty with async stuff, but we might as well try
-$(window).unload -> cleanupChat()
 
 # App startup
 Meteor.startup ->
