@@ -102,6 +102,10 @@
                 <input type="checkbox" id="bb-boring-mode" checked="{{boringMode}}">
                 Less Colorful
               </label>
+              <label class="checkbox bb-stuck-to-top">
+                <input type="checkbox" id="bb-stuck-to-top" checked="{{stuckToTop}}">
+                Prioritize Stuck
+              </label>
             </div>
           {{/unless}}
         </div>
@@ -121,6 +125,18 @@
           </tr>
           {{/unless}}
         </thead>
+        {{#if stuckToTop}}
+          {{#let stucks=stuckPuzzles}}
+            {{#if stucks.count}}
+              <tbody>
+                <tr><th colspan="{{nCols}}" id="stucks"><h2>Stuck Puzzles</h2></th></tr>
+                {{#each stucks}}
+                  {{>blackboard_puzzle _id=_id puzzle=this}}
+                {{/each}}
+              </tbody>
+            {{/if}}
+          {{/let}}
+        {{/if}}
         {{#let faves=favorites}}
           {{#if faves.count}}
             <tbody>

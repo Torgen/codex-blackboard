@@ -94,6 +94,7 @@ Template.blackboard.helpers
   hideSolved: -> 'true' is reactiveLocalStorage.getItem 'hideSolved'
   hideSolvedMeta: -> 'true' is reactiveLocalStorage.getItem 'hideSolvedMeta'
   hideStatus: -> 'true' is reactiveLocalStorage.getItem 'hideStatus'
+  stuckToTop: -> 'true' is reactiveLocalStorage.getItem 'stuckToTop'
   whoseGitHub: -> settings.WHOSE_GITHUB
 
 # Notifications
@@ -175,6 +176,8 @@ Template.blackboard.helpers
     if not Session.get('canEdit') and 'true' is reactiveLocalStorage.getItem 'hideSolved'
       query.solved = $eq: null
     model.Puzzles.find query
+  stuckPuzzles: -> model.Puzzles.find
+    'tags.status.value': /^stuck/i
 
 Template.blackboard_status_grid.helpers
   rounds: round_helper
@@ -248,6 +251,8 @@ Template.blackboard.events
     doBoolean 'compactMode', event.target.checked
   "change .bb-boring-mode input": (event, template) ->
     doBoolean 'boringMode', event.target.checked
+  "change .bb-stuck-to-top input": (event, template) ->
+    doBoolean 'stuckToTop', event.target.checked
   "click .bb-hide-status": (event, template) ->
     doBoolean 'hideStatus', ('true' isnt reactiveLocalStorage.getItem 'hideStatus')
   "click .bb-add-round": (event, template) ->
