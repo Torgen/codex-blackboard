@@ -92,6 +92,7 @@ Template.registerHelper 'compactMode', compactMode
 Template.blackboard.helpers
   sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
   hideSolved: -> 'true' is reactiveLocalStorage.getItem 'hideSolved'
+  hideSolvedFaves: -> 'true' is reactiveLocalStorage.getItem 'hideSolvedFaves'
   hideSolvedMeta: -> 'true' is reactiveLocalStorage.getItem 'hideSolvedMeta'
   hideStatus: -> 'true' is reactiveLocalStorage.getItem 'hideStatus'
   stuckToTop: -> 'true' is reactiveLocalStorage.getItem 'stuckToTop'
@@ -173,7 +174,7 @@ Template.blackboard.helpers
       {"favorites.#{Meteor.userId()}": true},
       mechanics: $in: Meteor.user().favorite_mechanics or []
     ]
-    if not Session.get('canEdit') and 'true' is reactiveLocalStorage.getItem 'hideSolved'
+    if not Session.get('canEdit') and (('true' is reactiveLocalStorage.getItem 'hideSolved') or ('true' is reactiveLocalStorage.getItem 'hideSolvedFaves'))
       query.solved = $eq: null
     model.Puzzles.find query
   stuckPuzzles: -> model.Puzzles.find
@@ -247,6 +248,8 @@ Template.blackboard.events
     doBoolean 'hideSolved', event.target.checked
   "change .bb-hide-solved-meta input": (event, template) ->
     doBoolean 'hideSolvedMeta', event.target.checked
+  "change .bb-hide-solved-faves input": (event, template) ->
+    doBoolean 'hideSolvedFaves', event.target.checked
   "change .bb-compact-mode input": (event, template) ->
     doBoolean 'compactMode', event.target.checked
   "change .bb-boring-mode input": (event, template) ->
