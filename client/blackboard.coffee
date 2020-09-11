@@ -241,6 +241,9 @@ doBoolean = (name, newVal) ->
   reactiveLocalStorage.setItem name, newVal
 
 Template.blackboard.events
+  'click .bb-display-settings li a': (event, template) ->
+    # Stop the dropdown from closing.
+    event.stopPropagation()
   "click .bb-sort-order button": (event, template) ->
     reverse = $(event.currentTarget).attr('data-sortReverse') is 'true'
     doBoolean 'sortReverse', reverse
