@@ -17,7 +17,11 @@ Meteor.startup ->
     sub = Meteor.subscribe 'callins'
     return unless sub.ready() # reactive, will re-execute when ready
     initial = true
-    model.CallIns.find({status: 'pending'}).observe
+    query =
+      status: 'pending'
+    unless Session.equals 'currentPage', 'callins'
+      query.callin_type = 'answer'
+    model.CallIns.find(query).observe
       added: (doc) ->
         return if initial
         console.log 'ding dong'
