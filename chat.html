@@ -29,7 +29,24 @@
   <div class="bb-message-container">
     {{> messages }}
   </div>
+  {{#if show_presence}}
+    <table class="bb-chat-presence-block">
+      <tbody>
+        {{#each whos_here}}
+        <tr>
+          <td class="bb-avatar">{{gravatar id=email image="wavatar" size=48}}</td>
+          <td>{{nickAndName nick}}</td>
+          <td>{{nickLocation nick}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{/if}}
   <div class="bb-chat-input bb-chat-footer">
+    <button class="btn btn-mini btn-inverse bb-show-whos-here {{#if show_presence}}active{{/if}}">
+      <i class="fas fa-angle-double-{{#if show_presence}}down{{else}}up{{/if}}"></i>
+      <i class="fas fa-address-card"></i>
+    </button>
     {{> messages_input }}
   </div>
 </template>

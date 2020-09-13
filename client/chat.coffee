@@ -2,6 +2,7 @@
 
 import { nickEmail } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
+import canonical from '/lib/imports/canonical.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
 model = share.model # import
@@ -328,6 +329,25 @@ whos_here_helper = ->
 Template.chat_header.helpers
   room_name: -> prettyRoomName()
   whos_here: whos_here_helper
+
+Template.embedded_chat.onCreated ->
+  @show_presence = new ReactiveVar false
+
+Template.embedded_chat.helpers
+  show_presence: -> Template.instance().show_presence.get()
+  whos_here: whos_here_helper
+  email: -> nickEmail @nick
+  nickAndName: (nick) ->
+    n = Meteor.users.findOne canonical nick
+    if n?.real_name?
+      "#{n.real_name} (#{n.nickname or nick})"
+    else
+      n.nickname or nick
+
+Template.embedded_chat.events
+  'click .bb-show-whos-here': (event, template) ->
+    rvar = template.show_presence
+    rvar.set(not rvar.get())
 
 # Utility functions
 
