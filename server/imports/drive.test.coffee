@@ -134,22 +134,6 @@ describe 'drive', ->
         ]
         drive = new Drive api
 
-      it 'retries on throttle', ->
-        children.expects('list').withArgs sinon.match
-          folderId: 'hunt'
-          q: 'title=\'New Puzzle\''
-          maxResults: 1
-        .exactly(8).callsFake ->
-            process.nextTick -> clock.next()
-            Promise.reject
-              code: 403
-              errors: [
-                domain: 'usageLimits'
-                reason: 'userRateLimitExceeded'
-              ]
-        chai.assert.throws ->
-          drive.createPuzzle 'New Puzzle'
-
       describe 'createPuzzle', ->
         it 'creates', ->
           children.expects('list').withArgs sinon.match

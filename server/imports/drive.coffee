@@ -31,28 +31,6 @@ samePerm = (p, pp) ->
   else  # returned permissions have emailAddress, not value.
     (p.type is 'user' and p.value is CODEX_ACCOUNT() and pp.emailAddress is CODEX_ACCOUNT())
 
-userRateExceeded = (error) ->
-  return false unless error.code == 403
-  for subError in error.errors
-    if subError.domain is 'usageLimits' and subError.reason is 'userRateLimitExceeded'
-      return true
-  return false
-
-delays = [100, 250, 500, 1000, 2000, 5000, 10000]
-
-apiThrottle = (base, name, params) ->
-  ix = 0
-  Promise.await do ->
-    loop
-      try
-        return (await base[name] params).data
-      catch error
-        if ix >= delays.length or not userRateExceeded(error)
-          throw error
-        console.warn "Rate limited for #{name}; Will return after #{delays[ix]}ms"
-        await delay delays[ix]
-        ix++
-
 ensurePermissions = (drive, id) ->
   # give permissions to both anyone with link and to the primary
   # service acount.  the service account must remain the owner in
@@ -70,14 +48,16 @@ ensurePermissions = (drive, id) ->
       role: 'writer'
       type: 'user'
       value: CODEX_ACCOUNT()
-  resp = apiThrottle drive.permissions, 'list', fileId: id
+  resp = (await drive.permissions.list fileId: id).data
+  ps = []
   perms.forEach (p) ->
     # does this permission already exist?
     exists = resp.items.some (pp) -> samePerm p, pp
     unless exists
-      apiThrottle drive.permissions, 'insert',
+      ps.push drive.permissions.insert
         fileId: id
         resource: p
+  await Promise.all ps
   'ok'
 
 spreadsheetSettings =
@@ -101,33 +81,35 @@ docSettings =
   uploadTemplate: -> 'Put notes here.'
   
 ensure = (drive, name, folder, settings) ->
-  doc = apiThrottle drive.children, 'list',
+  doc = (await drive.children.list
     folderId: folder.id
     q: "title=#{quote settings.titleFunc name} and mimeType=#{quote settings.driveMimeType}"
     maxResults: 1
-  .items[0]
+  ).data.items[0]
   unless doc?
     doc =
       title: settings.titleFunc name
       mimeType: settings.uploadMimeType
       parents: [id: folder.id]
-    doc = apiThrottle drive.files, 'insert',
+    doc = (await drive.files.insert
       convert: true
       body: doc
       resource: doc
       media:
         mimeType: settings.uploadMimeType
         body: settings.uploadTemplate()
-  ensurePermissions drive, doc.id
+    ).data
+  await ensurePermissions drive, doc.id
   doc
 
 awaitFolder = (drive, name, parent) ->
   triesLeft = 5
   loop
-    resp = apiThrottle drive.children, 'list',
+    resp = (await drive.children.list
       folderId: parent
       q: "title=#{quote name}"
       maxResults: 1
+    ).data
     if resp.items.length > 0
       console.log "#{name} found"
       return resp.items[0]
@@ -136,15 +118,16 @@ awaitFolder = (drive, name, parent) ->
       throw 'never existed'
     else
       console.log "Waiting #{attempts} more times for #{name}"
-      Promise.await delay 1000
+      await delay 1000
       triesLeft--
 
 ensureFolder = (drive, name, parent) ->
   # check to see if the folder already exists
-  resp = apiThrottle drive.children, 'list',
+  resp = (await drive.children.list
     folderId: parent or 'root'
     q: "title=#{quote name}"
     maxResults: 1
+  ).data
   if resp.items.length > 0
     resource = resp.items[0]
   else
@@ -153,56 +136,68 @@ ensureFolder = (drive, name, parent) ->
       title: name
       mimeType: GDRIVE_FOLDER_MIME_TYPE
     resource.parents = [id: parent] if parent
-    resource = apiThrottle drive.files, 'insert',
-      resource: resource
+    resource = (await drive.files.insert(resource: resource)).data
   # give the new folder the right permissions
-  ensurePermissions drive, resource.id
-  resource
+  {
+    folder: resource
+    permissionsPromise: ensurePermissions drive, resource.id
+  }
 
 awaitOrEnsureFolder = (drive, name, parent) ->
-  return ensureFolder drive, name, parent if share.DO_BATCH_PROCESSING
+  if share.DO_BATCH_PROCESSING
+    res = await ensureFolder drive, name, parent
+    await res.permissionsPromise
+    return res.folder
   try
-    return awaitFolder drive, name, (parent or 'root')
+    return await awaitFolder drive, name, (parent or 'root')
   catch error
-    return ensureFolder drive, name, parent if error is "never existed"
+    if error is "never existed"
+      res = await ensureFolder drive, name, parent
+      await res.permissionsPromise
+      return res.folder
     throw error
 
 rmrfFolder = (drive, id) ->
   resp = {}
+  ps = []
   loop
     # delete subfolders
-    resp = apiThrottle drive.children, 'list',
+    resp = (await drive.children.list
       folderId: id
       q: "mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
       maxResults: MAX_RESULTS
       pageToken: resp.nextPageToken
+    ).data
     resp.items.forEach (item) ->
-      rmrfFolder item.id
+      ps.push rmrfFolder item.id
     break unless resp.nextPageToken?
   loop
     # delete non-folder stuff
-    resp = apiThrottle drive.children, 'list',
+    resp = (await drive.children.list
       folderId: id
       q: "mimeType!=#{quote GDRIVE_FOLDER_MIME_TYPE}"
       maxResults: MAX_RESULTS
       pageToken: resp.nextPageToken
+    ).data
     resp.items.forEach (item) ->
-      apiThrottle drive.files, 'delete', fileId: item.id
+      ps.push drive.files.delete fileId: item.id
     break unless resp.nextPageToken?
+  await Promise.all ps
   # folder empty; delete the folder and we're done
-  apiThrottle drive.files, 'delete', fileId: id
+  await drive.files.delete fileId: id
   'ok'
 
 export class Drive
   constructor: (@drive) ->
-    @rootFolder = (awaitOrEnsureFolder @drive, ROOT_FOLDER_NAME()).id
-    @ringhuntersFolder = (awaitOrEnsureFolder @drive, "#{Meteor.settings?.public?.chatName ? 'Ringhunters'} Uploads", @rootFolder).id
+    @rootFolder = (Promise.await(awaitOrEnsureFolder @drive, ROOT_FOLDER_NAME())).id
+    @ringhuntersFolder = (Promise.await(awaitOrEnsureFolder @drive, "#{Meteor.settings?.public?.chatName ? 'Ringhunters'} Uploads", @rootFolder)).id
   
   createPuzzle: (name) ->
-    folder = ensureFolder @drive, name, @rootFolder
+    {folder, permissionsPromise} = Promise.await ensureFolder @drive, name, @rootFolder
     # is the spreadsheet already there?
-    spreadsheet = ensure @drive, name, folder, spreadsheetSettings
-    doc = ensure @drive, name, folder, docSettings
+    spreadsheetP = ensure @drive, name, folder, spreadsheetSettings
+    docP = ensure @drive, name, folder, docSettings
+    [spreadsheet, doc, p] = Promise.await Promise.all [spreadsheetP, docP, permissionsPromise]
     return {
       id: folder.id
       spreadId: spreadsheet.id
@@ -210,62 +205,68 @@ export class Drive
     }
 
   findPuzzle: (name) ->
-    resp = apiThrottle @drive.children, 'list',
+    resp = (Promise.await @drive.children.list
       folderId: @rootFolder
       q: "title=#{quote name} and mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
       maxResults: 1
+    ).data
     folder = resp.items[0]
     return null unless folder?
-    # TODO: batch these requests together.
     # look for spreadsheet
-    spread = apiThrottle @drive.children, 'list',
+    spreadP = @drive.children.list
       folderId: folder.id
       q: "title=#{quote WORKSHEET_NAME name}"
       maxResults: 1
-    doc = apiThrottle @drive.children, 'list',
+    docP = @drive.children.list
       folderId: folder.id
       q: "title=#{quote DOC_NAME name}"
       maxResults: 1
+    [spread, doc] = Promise.await Promise.all [spreadP, docP]
     return {
       id: folder.id
-      spreadId: spread.items[0]?.id
-      docId: doc.items[0]?.id
+      spreadId: spread.data.items[0]?.id
+      docId: doc.data.items[0]?.id
     }
 
   listPuzzles: ->
-    results = []
     resp = {}
+    results = []
     loop
-      resp = apiThrottle @drive.children, 'list',
+      resp = (Promise.await @drive.children.list
         folderId: @rootFolder
         q: "mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
         maxResults: MAX_RESULTS
         pageToken: resp.nextPageToken
+      ).data
       results.push resp.items...
       break unless resp.nextPageToken?
     results
 
   renamePuzzle: (name, id, spreadId, docId) ->
-    apiThrottle @drive.files, 'patch',
+    ps = [@drive.files.patch
       fileId: id
       resource:
         title: name
+    ]
     if spreadId?
-      apiThrottle @drive.files, 'patch',
+      ps.push(@drive.files.patch
         fileId: spreadId
         resource:
           title: WORKSHEET_NAME name
+      )
     if docId?
-      apiThrottle @drive.files, 'patch',
+      ps.push(@drive.files.patch
         fileId: docId
         resource:
           title: DOC_NAME name
+      )
+    Promise.await Promise.all ps
     'ok'
 
-  deletePuzzle: (id) -> rmrfFolder @drive, id
+  deletePuzzle: (id) -> Promise.await rmrfFolder @drive, id
 
   # purge `rootFolder` and everything in it
-  purge: -> rmrfFolder @drive, rootFolder
+  purge: -> Promise.await rmrfFolder @drive, rootFolder
 
 # generate functions
 skip = (type) -> -> console.warn "Skipping Google Drive operation:", type
