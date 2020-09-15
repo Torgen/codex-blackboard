@@ -52,12 +52,10 @@
     {{/if}}{{#if solved}}<div class="dupe">Already Solved</div>{{/if}}</td>
     <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}
       {{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}
-      {{#unless callinTypeIs "answer"}}
-        <div class="interaction">{{callinType callin_type}}</div>
-      {{/unless}}
+      {{>callin_type_dropdown}}
       {{#unless callinTypeIs "expected callback"}}
         {{#if hunt_link}}
-          <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-info btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
+          <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-primary btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
             <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
           </a> 
         {{/if}}
@@ -78,6 +76,22 @@
     <td class="text-warning">Log in to resolve answers in queue.</td>
     {{/if}}
   </tr>
+</template>
+
+<template name="callin_type_dropdown">
+  <div class="btn-group">
+    <button class="btn btn-info dropdown-toggle bb-callin-type-dropdown {{#unless equal status "pending"}}disabled{{/unless}}" data-toggle="{{#if equal status "pending"}}dropdown{{/if}}" title="{{callinType callin_type}}">
+      {{callinTypeAbbrev callin_type}}
+      {{#if equal status "pending"}}<span class="caret"></span>{{/if}}
+    </button>
+    <ul class="dropdown-menu text-left">
+    {{#each ct in callinTypes}}
+      <li title="{{tooltip ct}}"><a data-callin-type="{{ct}}" href="#">
+        {{typeName ct}}
+      </a></li>
+    {{/each}}
+    </ul>
+  </div>
 </template>
 
 <template name="callin_resolution_buttons">

@@ -47,7 +47,7 @@
         <tr>
           <td class="answer">{{answer}}</td>
           <td class="bb-callin-metadata">
-            <span class="label label-info" title="{{callinType callin_type}}">{{callinTypeAbbrev callin_type}}</span>
+            {{> callin_type_dropdown}}
             {{#let since=(pretty_ts timestamp=created style="seconds_since")}}
               <i class="fas fa-{{#if less since 1200}}hourglass-start
                                 {{else if less since 2400}}hourglass-half

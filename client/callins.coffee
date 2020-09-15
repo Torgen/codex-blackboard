@@ -108,6 +108,15 @@ Template.callin_row.events
         submitted_to_hq: true
         submitted_by: Meteor.userId()
 
+Template.callin_type_dropdown.events
+  'click a[data-callin-type]': (event, template) ->
+    Meteor.call 'setField',
+      type: 'callins'
+      object: @_id
+      fields:
+        callin_type: event.currentTarget.dataset.callinType
+
+
 Template.callin_resolution_buttons.helpers
   allowsResponse: -> @callin.callin_type isnt callin_types.ANSWER
   allowsIncorrect: -> @callin.callin_type isnt callin_types.EXPECTED_CALLBACK

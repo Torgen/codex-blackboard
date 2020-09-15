@@ -168,26 +168,31 @@ Template.puzzle_callin_modal.onCreated ->
 Template.puzzle_callin_modal.onRendered ->
   @$("input[name='callin_type'][value='#{@type.get()}']").prop('checked', true)
 
+callinTypesHelpers = (template) ->
+  template.helpers
+    typeName: (type) -> switch (type ? Template.instance().type.get())
+      when callin_types.ANSWER then 'Answer'
+      when callin_types.INTERACTION_REQUEST then 'Interaction Request'
+      when callin_types.MESSAGE_TO_HQ then 'Message to HQ'
+      when callin_types.EXPECTED_CALLBACK then 'Expected Callback'
+      else ''
+    tooltip: (type) -> switch type
+      when callin_types.ANSWER then 'The solution to the puzzle. Fingers crossed!'
+      when callin_types.INTERACTION_REQUEST then 'An intermediate string that may trigger a skit, physical puzzle, or creative challenge.'
+      when callin_types.MESSAGE_TO_HQ then 'Any other reason for contacting HQ, including spending clue currency and reporting an error.'
+      when callin_types.EXPECTED_CALLBACK then 'We will be contacted by HQ. No immediate action is required of the oncall.'
+      else ''
+    callinTypes: -> [
+      callin_types.ANSWER,
+      callin_types.INTERACTION_REQUEST,
+      callin_types.MESSAGE_TO_HQ,
+      callin_types.EXPECTED_CALLBACK]
+
+callinTypesHelpers(Template.puzzle_callin_modal)
 Template.puzzle_callin_modal.helpers
   type: -> Template.instance().type.get()
   typeIs: (type) -> Template.instance().type.get() is type
-  typeName: (type) -> switch (type ? Template.instance().type.get())
-    when callin_types.ANSWER then 'Answer'
-    when callin_types.INTERACTION_REQUEST then 'Interaction Request'
-    when callin_types.MESSAGE_TO_HQ then 'Message to HQ'
-    when callin_types.EXPECTED_CALLBACK then 'Expected Callback'
-    else ''
-  tooltip: (type) -> switch type
-    when callin_types.ANSWER then 'The solution to the puzzle. Fingers crossed!'
-    when callin_types.INTERACTION_REQUEST then 'An intermediate string that may trigger a skit, physical puzzle, or creative challenge.'
-    when callin_types.MESSAGE_TO_HQ then 'Any other reason for contacting HQ, including spending clue currency and reporting an error.'
-    when callin_types.EXPECTED_CALLBACK then 'We will be contacted by HQ. No immediate action is required of the oncall.'
-    else ''
-  callinTypes: -> [
-    callin_types.ANSWER,
-    callin_types.INTERACTION_REQUEST,
-    callin_types.MESSAGE_TO_HQ,
-    callin_types.EXPECTED_CALLBACK]
+callinTypesHelpers(Template.callin_type_dropdown)
 
 Template.puzzle_callin_modal.events
   'change input[name="callin_type"]': (event, template) ->
