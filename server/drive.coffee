@@ -30,7 +30,7 @@ Promise.await do ->
     else
       auth = await google.auth.getClient scopes: SCOPES
     # record the API and auth info
-    api = google.drive {version: 'v2', auth}
+    api = google.drive {version: 'v3', auth}
     share.drive = new Drive api
     console.log "Google Drive authorized and activated"
   catch error

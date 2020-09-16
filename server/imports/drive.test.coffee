@@ -6,30 +6,23 @@ import sinon from 'sinon'
 import { Drive } from './drive.coffee'
 import { Readable } from 'stream'
 
-GIVEN_OWNER_PERM =
-  withLink: false
-  role: 'writer'
-  type: 'user'
-  value: 'foo@bar.baz'
-
-RECEIVED_OWNER_PERM = 
-  withLink: false
+OWNER_PERM =
+  allowFileDiscovery: true
   role: 'writer'
   type: 'user'
   emailAddress: 'foo@bar.baz'
 
 EVERYONE_PERM =
   # edit permissions for anyone with link
-  withLink: true
+  allowFileDiscovery: false
   role: 'writer'
   type: 'anyone'
-defaultPerms =  [EVERYONE_PERM, GIVEN_OWNER_PERM]
-receivedPerms = [RECEIVED_OWNER_PERM, EVERYONE_PERM]
+
+defaultPerms =  [EVERYONE_PERM, OWNER_PERM]
 
 describe 'drive', ->
   clock = null
   api = null
-  children = null
   files = null
   permissions = null
 
@@ -38,16 +31,14 @@ describe 'drive', ->
       now: 7
       toFake: ['Date', 'setTimeout', 'clearTimeout']
     api =
-      children:
-        list: ->
       files:
-        insert: ->
+        create: ->
         delete: ->
-        patch: ->
+        list: ->
+        update: ->
       permissions:
         list: ->
-        insert: ->
-    children = sinon.mock(api.children)
+        create: ->
     files = sinon.mock(api.files)
     permissions = sinon.mock(api.permissions)
     Meteor.settings.folder = 'Test Folder'
@@ -58,52 +49,51 @@ describe 'drive', ->
 
   it 'propagates errors', ->
     sinon.replace share, 'DO_BATCH_PROCESSING', false
-    children.expects('list').once().rejects code: 400
+    files.expects('list').once().rejects code: 400
     chai.assert.throws ->
       new Drive api
 
   testCase = (perms) ->
     it 'creates folder when batch is enabled', ->
       sinon.replace share, 'DO_BATCH_PROCESSING', true
-      children.expects('list').withArgs sinon.match
-        folderId: 'root'
-        q: 'title=\'Test Folder\''
-        maxResults: 1
+      files.expects('list').withArgs sinon.match
+        q: 'name=\'Test Folder\' and \'root\' in parents'
+        pageSize: 1
       .resolves data: items: []
-      files.expects('insert').withArgs sinon.match
+      files.expects('create').withArgs sinon.match
         resource:
-          title: 'Test Folder'
+          name: 'Test Folder'
           mimeType: 'application/vnd.google-apps.folder'
       .resolves data:
         id: 'hunt'
-        title: 'Test Folder'
+        name: 'Test Folder'
         mimeType: 'application/vnd.google-apps.folder'
       permissions.expects('list').withArgs sinon.match
         fileId: 'hunt'
       .resolves data: items: []
       perms.forEach (perm) ->
-        permissions.expects('insert').withArgs sinon.match
+        permissions.expects('create').withArgs sinon.match
           fileId: 'hunt'
           resource: perm
         .resolves data: {}
-      children.expects('list').withArgs sinon.match
-        folderId: 'hunt'
-        q: 'title=\'Ringhunters Uploads\''
-        maxResults: 1
+      files.expects('list').withArgs sinon.match
+        q: 'name=\'Ringhunters Uploads\' and \'hunt\' in parents'
+        pageSize: 1
       .resolves data: items: []
-      files.expects('insert').withArgs sinon.match
+      files.expects('create').withArgs sinon.match
         resource:
-          title: 'Ringhunters Uploads'
+          name: 'Ringhunters Uploads'
           mimeType: 'application/vnd.google-apps.folder'
+          parents: sinon.match.some sinon.match id: 'hunt'
       .resolves data:
         id: 'uploads'
-        title: 'Ringhunters Uploads'
+        name: 'Ringhunters Uploads'
         mimeType: 'application/vnd.google-apps.folder'
       permissions.expects('list').withArgs sinon.match
         fileId: 'uploads'
       .resolves data: items: []
       perms.forEach (perm) ->
-        permissions.expects('insert').withArgs sinon.match
+        permissions.expects('create').withArgs sinon.match
           fileId: 'uploads'
           resource: perm
         .resolves data:{}
@@ -113,22 +103,20 @@ describe 'drive', ->
       drive = null
       beforeEach ->
         sinon.replace share, 'DO_BATCH_PROCESSING', false
-        children.expects('list').withArgs sinon.match
-          folderId: 'root'
-          q: 'title=\'Test Folder\''
-          maxResults: 1
+        files.expects('list').withArgs sinon.match
+          q: 'name=\'Test Folder\' and \'root\' in parents'
+          pageSize: 1
         .resolves data: items: [
           id: 'hunt'
-          title: 'Test Folder'
+          name: 'Test Folder'
           mimeType: 'application/vnd.google-apps.folder'
         ]
-        children.expects('list').withArgs sinon.match
-          folderId: 'hunt'
-          q: 'title=\'Ringhunters Uploads\''
-          maxResults: 1
+        files.expects('list').withArgs sinon.match
+          q: 'name=\'Ringhunters Uploads\' and \'hunt\' in parents'
+          pageSize: 1
         .resolves data: items: [
           id: 'uploads'
-          title: 'Ringhunters Uploads'
+          name: 'Ringhunters Uploads'
           mimeType: 'application/vnd.google-apps.folder'
           parents: [id: 'hunt']
         ]
@@ -136,170 +124,156 @@ describe 'drive', ->
 
       describe 'createPuzzle', ->
         it 'creates', ->
-          children.expects('list').withArgs sinon.match
-            folderId: 'hunt'
-            q: 'title=\'New Puzzle\''
-            maxResults: 1
+          files.expects('list').withArgs sinon.match
+            q: 'name=\'New Puzzle\' and \'hunt\' in parents'
+            pageSize: 1
           .resolves data: items: []
-          files.expects('insert').withArgs sinon.match
+          files.expects('create').withArgs sinon.match
             resource:
-              title: 'New Puzzle'
+              name: 'New Puzzle'
               mimeType: 'application/vnd.google-apps.folder'
               parents: sinon.match.some sinon.match id: 'hunt'
           .resolves data:
             id: 'newpuzzle'
-            title: 'New Puzzle'
+            name: 'New Puzzle'
             mimeType: 'application/vnd.google-apps.folder'
             parents: [id: 'hunt']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newpuzzle'
           .resolves data: items: []
           perms.forEach (perm) ->
-            permissions.expects('insert').withArgs sinon.match
+            permissions.expects('create').withArgs sinon.match
               fileId: 'newpuzzle'
               resource: perm
             .resolves data: {}
-          children.expects('list').withArgs sinon.match
-            folderId: 'newpuzzle'
-            maxResults: 1
-            q: "title='Worksheet: New Puzzle' and mimeType='application/vnd.google-apps.spreadsheet'"
+          files.expects('list').withArgs sinon.match
+            pageSize: 1
+            q: "name='Worksheet: New Puzzle' and mimeType='application/vnd.google-apps.spreadsheet' and \'newpuzzle\' in parents"
           .resolves data: items: []
           sheet = sinon.match
-            title: 'Worksheet: New Puzzle'
-            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            name: 'Worksheet: New Puzzle'
+            mimeType: 'application/vnd.google-apps.spreadsheet'
             parents: sinon.match.some sinon.match id: 'newpuzzle'
-          files.expects('insert').withArgs sinon.match
-            body: sheet
+          files.expects('create').withArgs sinon.match
             resource: sheet
-            convert: true
             media: sinon.match
               mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
               body: sinon.match.instanceOf Readable
           .resolves data:
             id: 'newsheet'
-            title: 'Worksheet: New Puzzle'
+            name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
             parents: [id: 'newpuzzle']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newsheet'
           .resolves data: items: []
           perms.forEach (perm) ->
-            permissions.expects('insert').withArgs sinon.match
+            permissions.expects('create').withArgs sinon.match
               fileId: 'newsheet'
               resource: perm
             .resolves data: {}
-          children.expects('list').withArgs sinon.match
-            folderId: 'newpuzzle'
-            maxResults: 1
-            q: "title='Notes: New Puzzle' and mimeType='application/vnd.google-apps.document'"
+          files.expects('list').withArgs sinon.match
+            pageSize: 1
+            q: "name='Notes: New Puzzle' and mimeType='application/vnd.google-apps.document' and \'newpuzzle\' in parents"
           .resolves data: items: []
           doc = sinon.match
-            title: 'Notes: New Puzzle'
-            mimeType: 'text/plain'
+            name: 'Notes: New Puzzle'
+            mimeType: 'application/vnd.google-apps.document'
             parents: sinon.match.some sinon.match id: 'newpuzzle'
-          files.expects('insert').withArgs sinon.match
-            body: doc
+          files.expects('create').withArgs sinon.match
             resource: doc
-            convert: true
             media: sinon.match
               mimeType: 'text/plain'
               body: 'Put notes here.'
           .resolves data:
             id: 'newdoc'
-            title: 'Worksheet: New Puzzle'
+            name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
             parents: [id: 'newpuzzle']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newdoc'
           .resolves data: items: []
           perms.forEach (perm) ->
-            permissions.expects('insert').withArgs sinon.match
+            permissions.expects('create').withArgs sinon.match
               fileId: 'newdoc'
               resource: perm
             .resolves data: {}
           drive.createPuzzle 'New Puzzle'
 
         it 'returns existing', ->
-          children.expects('list').withArgs sinon.match
-            folderId: 'hunt'
-            q: 'title=\'New Puzzle\''
-            maxResults: 1
+          files.expects('list').withArgs sinon.match
+            q: 'name=\'New Puzzle\' and \'hunt\' in parents'
+            pageSize: 1
           .resolves data: items: [
             id: 'newpuzzle'
-            title: 'New Puzzle'
+            name: 'New Puzzle'
             mimeType: 'application/vnd.google-apps.folder'
             parents: [id: 'hunt']
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newpuzzle'
-          .resolves data: items: receivedPerms
-          children.expects('list').withArgs sinon.match
-            folderId: 'newpuzzle'
-            maxResults: 1
-            q: "title='Worksheet: New Puzzle' and mimeType='application/vnd.google-apps.spreadsheet'"
+          .resolves data: items: defaultPerms
+          files.expects('list').withArgs sinon.match
+            pageSize: 1
+            q: "name='Worksheet: New Puzzle' and mimeType='application/vnd.google-apps.spreadsheet' and 'newpuzzle' in parents"
           .resolves data: items: [
             id: 'newsheet'
-            title: 'Worksheet: New Puzzle'
+            name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
             parents: [id: 'newpuzzle']
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newsheet'
-          .resolves data: items: receivedPerms
-          children.expects('list').withArgs sinon.match
-            folderId: 'newpuzzle'
-            maxResults: 1
-            q: "title='Notes: New Puzzle' and mimeType='application/vnd.google-apps.document'"
+          .resolves data: items: defaultPerms
+          files.expects('list').withArgs sinon.match
+            pageSize: 1
+            q: "name='Notes: New Puzzle' and mimeType='application/vnd.google-apps.document' and 'newpuzzle' in parents"
           .resolves data: items: [
             id: 'newdoc'
-            title: 'Notes: New Puzzle'
+            name: 'Notes: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
             parents: [id: 'newpuzzle']
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newdoc'
-          .resolves data: items: receivedPerms
+          .resolves data: items: defaultPerms
           drive.createPuzzle 'New Puzzle'
 
       describe 'findPuzzle', ->
         it 'returns null when no puzzle', ->
-          children.expects('list').withArgs sinon.match 
-            folderId: 'hunt'
-            q: 'title=\'New Puzzle\' and mimeType=\'application/vnd.google-apps.folder\''
-            maxResults: 1
+          files.expects('list').withArgs sinon.match 
+            q: 'name=\'New Puzzle\' and mimeType=\'application/vnd.google-apps.folder\' and \'hunt\' in parents'
+            pageSize: 1
             # pageToken: undefined
           .resolves data: items: []
           chai.assert.isNull drive.findPuzzle 'New Puzzle'
         
         it 'returns spreadsheet and doc', ->
-          children.expects('list').withArgs sinon.match 
-            folderId: 'hunt'
-            q: 'title=\'New Puzzle\' and mimeType=\'application/vnd.google-apps.folder\''
-            maxResults: 1
+          files.expects('list').withArgs sinon.match 
+            q: 'name=\'New Puzzle\' and mimeType=\'application/vnd.google-apps.folder\' and \'hunt\' in parents'
+            pageSize: 1
             # pageToken: undefined
           .resolves data: items: [
             id: 'newpuzzle'
-            title: 'New Puzzle'
+            name: 'New Puzzle'
             mimeType: 'application/vnd.google-apps.folder'
             parents: [id: 'hunt']
           ]
-          children.expects('list').withArgs sinon.match
-            folderId: 'newpuzzle'
-            maxResults: 1
-            q: "title='Worksheet: New Puzzle'"
+          files.expects('list').withArgs sinon.match
+            pageSize: 1
+            q: "name='Worksheet: New Puzzle' and \'newpuzzle\' in parents"
           .resolves data: items: [
             id: 'newsheet'
-            title: 'Worksheet: New Puzzle'
+            name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
             parents: [id: 'newpuzzle']
           ]
-          children.expects('list').withArgs sinon.match
-            folderId: 'newpuzzle'
-            maxResults: 1
-            q: "title='Notes: New Puzzle'"
+          files.expects('list').withArgs sinon.match
+            pageSize: 1
+            q: "name='Notes: New Puzzle' and 'newpuzzle' in parents"
           .resolves data: items: [
             id: 'newdoc'
-            title: 'Notes: New Puzzle'
+            name: 'Notes: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
             parents: [id: 'newpuzzle']
           ]
@@ -311,60 +285,56 @@ describe 'drive', ->
       it 'listPuzzles returns list', ->
         item1 =
           id: 'newpuzzle'
-          title: 'New Puzzle'
+          name: 'New Puzzle'
           mimeType: 'application/vnd.google-apps.folder'
           parents: [id: 'hunt']
         item2 =
           id: 'oldpuzzle'
-          title: 'Old Puzzle'
+          name: 'Old Puzzle'
           mimeType: 'application/vnd.google-apps.folder'
           parents: [id: 'hunt']
-        children.expects('list').withArgs sinon.match 
-          folderId: 'hunt'
-          q: 'mimeType=\'application/vnd.google-apps.folder\''
-          maxResults: 200
+        files.expects('list').withArgs sinon.match 
+          q: 'mimeType=\'application/vnd.google-apps.folder\' and \'hunt\' in parents'
+          pageSize: 200
           # pageToken: undefined
         .resolves data:
           items: [item1]
           nextPageToken: 'token'
-        children.expects('list').withArgs sinon.match 
-          folderId: 'hunt'
-          q: 'mimeType=\'application/vnd.google-apps.folder\''
-          maxResults: 200
+        files.expects('list').withArgs sinon.match 
+          q: 'mimeType=\'application/vnd.google-apps.folder\' and \'hunt\' in parents'
+          pageSize: 200
           pageToken: 'token'
         .resolves data:
           items: [item2]
         chai.assert.sameDeepOrderedMembers drive.listPuzzles(), [item1, item2]
 
       it 'renamePuzzle renames', ->
-        files.expects('patch').withArgs sinon.match
+        files.expects('update').withArgs sinon.match
           fileId: 'newpuzzle'
-          resource: sinon.match title: 'Old Puzzle'
+          resource: sinon.match name: 'Old Puzzle'
         .resolves data: {}
-        files.expects('patch').withArgs sinon.match
+        files.expects('update').withArgs sinon.match
           fileId: 'newsheet'
-          resource: sinon.match title: 'Worksheet: Old Puzzle'
+          resource: sinon.match name: 'Worksheet: Old Puzzle'
         .resolves data: {}
-        files.expects('patch').withArgs sinon.match
+        files.expects('update').withArgs sinon.match
           fileId: 'newdoc'
-          resource: sinon.match title: 'Notes: Old Puzzle'
+          resource: sinon.match name: 'Notes: Old Puzzle'
         .resolves data: {}
         drive.renamePuzzle 'Old Puzzle', 'newpuzzle', 'newsheet', 'newdoc'
 
       it 'deletePuzzle deletes', ->
-        children.expects('list').withArgs sinon.match
-          folderId: 'newpuzzle'
-          q: 'mimeType=\'application/vnd.google-apps.folder\''
-          maxResults: 200
+        files.expects('list').withArgs sinon.match
+          q: 'mimeType=\'application/vnd.google-apps.folder\' and \'newpuzzle\' in parents'
+          pageSize: 200
         .resolves data: items: []  # Puzzles don't have folders
-        children.expects('list').withArgs sinon.match
-          folderId: 'newpuzzle'
-          q: 'mimeType!=\'application/vnd.google-apps.folder\''
-          maxResults: 200
+        files.expects('list').withArgs sinon.match
+          q: 'mimeType!=\'application/vnd.google-apps.folder\' and \'newpuzzle\' in parents'
+          pageSize: 200
         .resolves data:
           items: [
             id: 'newsheet'
-            title: 'Worksheet: New Puzzle'
+            name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
             parents: [id: 'newpuzzle']
           ]
@@ -372,15 +342,14 @@ describe 'drive', ->
         files.expects('delete').withArgs sinon.match
           fileId: 'newsheet'
         .resolves data: {}
-        children.expects('list').withArgs sinon.match
-          folderId: 'newpuzzle'
-          q: 'mimeType!=\'application/vnd.google-apps.folder\''
-          maxResults: 200
+        files.expects('list').withArgs sinon.match
+          q: 'mimeType!=\'application/vnd.google-apps.folder\' and \'newpuzzle\' in parents'
+          pageSize: 200
           pageToken: 'token'
         .resolves data:
           items: [
             id: 'newdoc'
-            title: 'Notes: New Puzzle'
+            name: 'Notes: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
             parents: [id: 'newpuzzle']
           ]

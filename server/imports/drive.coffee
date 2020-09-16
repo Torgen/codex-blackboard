@@ -21,15 +21,13 @@ SPREADSHEET_TEMPLATE = Assets.getBinary 'spreadsheet-template.xlsx'
 quote = (str) -> "'#{str.replace(/([\'\\])/g, '\\$1')}'"
 
 samePerm = (p, pp) ->
-  (p.withLink or false) is (pp.withLink or false) and \
+  (p.allowFileDiscovery or true) is (pp.allowFileDiscovery or true) and \
   p.role is pp.role and \
   p.type is pp.type and \
   if p.type is 'anyone'
     true
-  else if ('value' of p) and ('value' of pp)
-    (p.value is pp.value)
-  else  # returned permissions have emailAddress, not value.
-    (p.type is 'user' and p.value is CODEX_ACCOUNT() and pp.emailAddress is CODEX_ACCOUNT())
+  else
+    (p.emailAddress is pp.emailAddress)
 
 ensurePermissions = (drive, id) ->
   # give permissions to both anyone with link and to the primary
@@ -37,24 +35,24 @@ ensurePermissions = (drive, id) ->
   # order to be able to rename the folder
   perms = [
     # edit permissions for anyone with link
-    withLink: true
+    allowFileDiscovery: false
     role: 'writer'
     type: 'anyone'
   ]
   if CODEX_ACCOUNT()?
     perms.push
       # edit permissions to codex account
-      withLink: false
+      allowFileDiscovery: true
       role: 'writer'
       type: 'user'
-      value: CODEX_ACCOUNT()
+      emailAddress: CODEX_ACCOUNT()
   resp = (await drive.permissions.list fileId: id).data
   ps = []
   perms.forEach (p) ->
     # does this permission already exist?
     exists = resp.items.some (pp) -> samePerm p, pp
     unless exists
-      ps.push drive.permissions.insert
+      ps.push drive.permissions.create
         fileId: id
         resource: p
   await Promise.all ps
@@ -81,19 +79,16 @@ docSettings =
   uploadTemplate: -> 'Put notes here.'
   
 ensure = (drive, name, folder, settings) ->
-  doc = (await drive.children.list
-    folderId: folder.id
-    q: "title=#{quote settings.titleFunc name} and mimeType=#{quote settings.driveMimeType}"
-    maxResults: 1
+  doc = (await drive.files.list
+    q: "name=#{quote settings.titleFunc name} and mimeType=#{quote settings.driveMimeType} and #{quote folder.id} in parents"
+    pageSize: 1
   ).data.items[0]
   unless doc?
     doc =
-      title: settings.titleFunc name
-      mimeType: settings.uploadMimeType
+      name: settings.titleFunc name
+      mimeType: settings.driveMimeType
       parents: [id: folder.id]
-    doc = (await drive.files.insert
-      convert: true
-      body: doc
+    doc = (await drive.files.create
       resource: doc
       media:
         mimeType: settings.uploadMimeType
@@ -105,10 +100,9 @@ ensure = (drive, name, folder, settings) ->
 awaitFolder = (drive, name, parent) ->
   triesLeft = 5
   loop
-    resp = (await drive.children.list
-      folderId: parent
-      q: "title=#{quote name}"
-      maxResults: 1
+    resp = (await drive.files.list
+      q: "name=#{quote name} and #{quote parent} in parents"
+      pageSize: 1
     ).data
     if resp.items.length > 0
       console.log "#{name} found"
@@ -123,20 +117,19 @@ awaitFolder = (drive, name, parent) ->
 
 ensureFolder = (drive, name, parent) ->
   # check to see if the folder already exists
-  resp = (await drive.children.list
-    folderId: parent or 'root'
-    q: "title=#{quote name}"
-    maxResults: 1
+  resp = (await drive.files.list
+    q: "name=#{quote name} and #{quote (parent or 'root')} in parents"
+    pageSize: 1
   ).data
   if resp.items.length > 0
     resource = resp.items[0]
   else
     # create the folder
     resource =
-      title: name
+      name: name
       mimeType: GDRIVE_FOLDER_MIME_TYPE
     resource.parents = [id: parent] if parent
-    resource = (await drive.files.insert(resource: resource)).data
+    resource = (await drive.files.create(resource: resource)).data
   # give the new folder the right permissions
   {
     folder: resource
@@ -162,10 +155,9 @@ rmrfFolder = (drive, id) ->
   ps = []
   loop
     # delete subfolders
-    resp = (await drive.children.list
-      folderId: id
-      q: "mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
-      maxResults: MAX_RESULTS
+    resp = (await drive.files.list
+      q: "mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE} and #{quote id} in parents"
+      pageSize: MAX_RESULTS
       pageToken: resp.nextPageToken
     ).data
     resp.items.forEach (item) ->
@@ -173,10 +165,9 @@ rmrfFolder = (drive, id) ->
     break unless resp.nextPageToken?
   loop
     # delete non-folder stuff
-    resp = (await drive.children.list
-      folderId: id
-      q: "mimeType!=#{quote GDRIVE_FOLDER_MIME_TYPE}"
-      maxResults: MAX_RESULTS
+    resp = (await drive.files.list
+      q: "mimeType!=#{quote GDRIVE_FOLDER_MIME_TYPE} and #{quote id} in parents"
+      pageSize: MAX_RESULTS
       pageToken: resp.nextPageToken
     ).data
     resp.items.forEach (item) ->
@@ -205,22 +196,19 @@ export class Drive
     }
 
   findPuzzle: (name) ->
-    resp = (Promise.await @drive.children.list
-      folderId: @rootFolder
-      q: "title=#{quote name} and mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
-      maxResults: 1
+    resp = (Promise.await @drive.files.list
+      q: "name=#{quote name} and mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE} and #{quote @rootFolder} in parents"
+      pageSize: 1
     ).data
     folder = resp.items[0]
     return null unless folder?
     # look for spreadsheet
-    spreadP = @drive.children.list
-      folderId: folder.id
-      q: "title=#{quote WORKSHEET_NAME name}"
-      maxResults: 1
-    docP = @drive.children.list
-      folderId: folder.id
-      q: "title=#{quote DOC_NAME name}"
-      maxResults: 1
+    spreadP = @drive.files.list
+      q: "name=#{quote WORKSHEET_NAME name} and #{quote folder.id} in parents"
+      pageSize: 1
+    docP = @drive.files.list
+      q: "name=#{quote DOC_NAME name} and #{quote folder.id} in parents"
+      pageSize: 1
     [spread, doc] = Promise.await Promise.all [spreadP, docP]
     return {
       id: folder.id
@@ -232,10 +220,9 @@ export class Drive
     resp = {}
     results = []
     loop
-      resp = (Promise.await @drive.children.list
-        folderId: @rootFolder
-        q: "mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE}"
-        maxResults: MAX_RESULTS
+      resp = (Promise.await @drive.files.list
+        q: "mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE} and #{quote @rootFolder} in parents"
+        pageSize: MAX_RESULTS
         pageToken: resp.nextPageToken
       ).data
       results.push resp.items...
@@ -243,22 +230,22 @@ export class Drive
     results
 
   renamePuzzle: (name, id, spreadId, docId) ->
-    ps = [@drive.files.patch
+    ps = [@drive.files.update
       fileId: id
       resource:
-        title: name
+        name: name
     ]
     if spreadId?
-      ps.push(@drive.files.patch
+      ps.push(@drive.files.update
         fileId: spreadId
         resource:
-          title: WORKSHEET_NAME name
+          name: WORKSHEET_NAME name
       )
     if docId?
-      ps.push(@drive.files.patch
+      ps.push(@drive.files.update
         fileId: docId
         resource:
-          title: DOC_NAME name
+          name: DOC_NAME name
       )
     Promise.await Promise.all ps
     'ok'
