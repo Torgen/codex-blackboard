@@ -198,6 +198,15 @@ Template.messages.helpers
             not m.useless_cmd) or \
         doesMentionNick(m) or \
         ('true' isnt reactiveLocalStorage.getItem 'nobot')
+  presence_too_old: ->
+    return false unless reactiveLocalStorage.getItem('hideOldPresence') is 'true'
+    # If a message is too old, it will always be too old unless the option changes,
+    # so don't re-evaluate the calculation every minute.
+    result = Tracker.nonreactive =>
+      @message.timestamp < Session.get('currentTime') - 3600
+    if !result
+      Session.get 'currentTime'
+    return result
   messages: ->
     room_name = Session.get 'room_name'
     # I will go out on a limb and say we need this because transform uses

@@ -160,9 +160,11 @@
     {{#each messages}}{{scrollHack}}
       {{#if message.dawn_of_time}}<!-- Channel creation -->
       {{else if message.presence}}
-        <div class="bb-message-presence {{message.presence}}" title="{{pretty_ts message.timestamp}}: {{cleanup message.body}}" data-read="{{#unless read}}un{{/unless}}read">
-          {{gravatar id=email image="wavatar" size=14 }}{{message.nick}}
-        </div>
+        {{#unless presence_too_old}}
+          <div class="bb-message-presence {{message.presence}}" title="{{pretty_ts message.timestamp}}: {{cleanup message.body}}" data-read="{{#unless read}}un{{/unless}}read">
+            {{gravatar id=email image="wavatar" size=14 }}{{message.nick}}
+          </div>
+        {{/unless}}
       {{else if message.system}}
         <div class="bb-message-system" data-read="{{#unless read}}un{{/unless}}read">
           <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
