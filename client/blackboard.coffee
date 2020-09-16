@@ -75,27 +75,9 @@ okCancelEvents = share.okCancelEvents = (selector, callbacks) ->
   events
 
 ######### general properties of the blackboard page ###########
-compactMode = ->
-  editing = Meteor.userId() and Session.get 'canEdit'
-  ('true' is reactiveLocalStorage.getItem 'compactMode') and not editing
-
-Template.registerHelper 'nCols', ->
-  if compactMode()
-    2
-  else if Meteor.userId() and (Session.get 'canEdit')
-    3
-  else
-    5
-
-Template.registerHelper 'compactMode', compactMode
 
 Template.blackboard.helpers
   sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
-  hideSolved: -> 'true' is reactiveLocalStorage.getItem 'hideSolved'
-  hideSolvedFaves: -> 'true' is reactiveLocalStorage.getItem 'hideSolvedFaves'
-  hideSolvedMeta: -> 'true' is reactiveLocalStorage.getItem 'hideSolvedMeta'
-  hideStatus: -> 'true' is reactiveLocalStorage.getItem 'hideStatus'
-  stuckToTop: -> 'true' is reactiveLocalStorage.getItem 'stuckToTop'
   whoseGitHub: -> settings.WHOSE_GITHUB
 
 # Notifications
@@ -237,30 +219,12 @@ Template.blackboard.onRendered ->
     Meteor.defer () ->
       $("##{editing.split('/').join '-'}").focus()
 
-doBoolean = (name, newVal) ->
-  reactiveLocalStorage.setItem name, newVal
-
 Template.blackboard.events
-  'click .bb-display-settings li a': (event, template) ->
-    # Stop the dropdown from closing.
-    event.stopPropagation()
   "click .bb-sort-order button": (event, template) ->
     reverse = $(event.currentTarget).attr('data-sortReverse') is 'true'
-    doBoolean 'sortReverse', reverse
-  "change .bb-hide-solved input": (event, template) ->
-    doBoolean 'hideSolved', event.target.checked
-  "change .bb-hide-solved-meta input": (event, template) ->
-    doBoolean 'hideSolvedMeta', event.target.checked
-  "change .bb-hide-solved-faves input": (event, template) ->
-    doBoolean 'hideSolvedFaves', event.target.checked
-  "change .bb-compact-mode input": (event, template) ->
-    doBoolean 'compactMode', event.target.checked
-  "change .bb-boring-mode input": (event, template) ->
-    doBoolean 'boringMode', event.target.checked
-  "change .bb-stuck-to-top input": (event, template) ->
-    doBoolean 'stuckToTop', event.target.checked
+    reactiveLocalStorage.setItem 'sortReverse', reverse
   "click .bb-hide-status": (event, template) ->
-    doBoolean 'hideStatus', ('true' isnt reactiveLocalStorage.getItem 'hideStatus')
+    reactiveLocalStorage.setItem 'hideStatus', ('true' isnt reactiveLocalStorage.getItem 'hideStatus')
   "click .bb-add-round": (event, template) ->
     alertify.prompt "Name of new round:", (e,str) ->
       return unless e # bail if cancelled
@@ -457,7 +421,6 @@ Template.blackboard_meta.helpers
     return model.Presence.find
       room_name: ("rounds/"+this.round?._id)
     , sort: ["nick"]
-  compactMode: compactMode
   stuck: share.model.isStuck
   numHidden: ->
     return 0 unless 'true' is reactiveLocalStorage.getItem 'hideSolved'
@@ -499,7 +462,6 @@ Template.blackboard_puzzle_cells.helpers
     return model.Presence.find
       room_name: ("puzzles/"+@puzzle?._id)
     , sort: ["nick"]
-  compactMode: compactMode
   stuck: share.model.isStuck
   allMetas: ->
     return [] unless @

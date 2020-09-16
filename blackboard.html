@@ -85,51 +85,7 @@
             </button>
           </div>
           {{#unless canEdit}}
-            <div class="btn-group btn-group-vertical text-right bb-display-settings">
-              <button class="btn btn-small btn-info dropdown-toggle" data-toggle="dropdown">
-                <i class="fas fa-sliders-h"></i>
-                Display Settings
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu pull-left bb-display-settings-list">
-                <li><a name="bb-hide-solved">
-                  <label class="checkbox bb-hide-solved" title="Hide solved puzzles, excluding metas within rounds">
-                    <input type="checkbox" id="bb-hide-solved-input" checked="{{hideSolved}}">
-                    Hide solved puzzles
-                  </label>
-                </a></li>
-                <li><a name="bb-hide-solved-meta">
-                  <label class="checkbox bb-hide-solved-meta" title="Hide solved metapuzzles within rounds, even if unsolved puzzles feed them">
-                    <input type="checkbox" id="bb-hide-solved-meta-input" checked="{{hideSolvedMeta}}">
-                    Hide solved metas
-                  </label>
-                </a></li>
-                <li><a name="bb-hide-solved-faves">
-                  <label class="checkbox bb-hide-solved-faves" title="Hide solved puzzles in the favorite group regardless of above settings">
-                    <input type="checkbox" id="bb-hide-solved-faves" checked="{{hideSolvedFaves}}">
-                    Hide solved Favorites
-                  </label>
-                </a></li>
-                <li><a name="bb-compact-mode">
-                  <label class="checkbox bb-compact-mode" title="Hide all info except puzzle name, links, and solution">
-                    <input type="checkbox" id="bb-compact-mode" checked="{{compactMode}}">
-                    Compact mode
-                  </label>
-                </a></li>
-                <li><a name="bb-boring-mode">
-                  <label class="checkbox bb-boring-mode" title="Use greyscale instead of random or custom colors for metas">
-                    <input type="checkbox" id="bb-boring-mode" checked="{{boringMode}}">
-                    Less Colorful
-                  </label>
-                </a></li>
-                <li><a name="bb-stuck-to-top">
-                  <label class="checkbox bb-stuck-to-top" title="Add a group to the top of the table with all stuck puzzles">
-                    <input type="checkbox" id="bb-stuck-to-top" checked="{{stuckToTop}}">
-                    Prioritize Stuck
-                  </label>
-                </a></li>
-              </ul>
-            </div>
+            {{> options_dropdown}}
           {{/unless}}
         </div>
       </div>
