@@ -50,7 +50,7 @@ ensurePermissions = (drive, id) ->
   ps = []
   perms.forEach (p) ->
     # does this permission already exist?
-    exists = resp.items.some (pp) -> samePerm p, pp
+    exists = resp.permissions.some (pp) -> samePerm p, pp
     unless exists
       ps.push drive.permissions.create
         fileId: id
@@ -82,7 +82,7 @@ ensure = (drive, name, folder, settings) ->
   doc = (await drive.files.list
     q: "name=#{quote settings.titleFunc name} and mimeType=#{quote settings.driveMimeType} and #{quote folder.id} in parents"
     pageSize: 1
-  ).data.items[0]
+  ).data.files[0]
   unless doc?
     doc =
       name: settings.titleFunc name
@@ -104,9 +104,9 @@ awaitFolder = (drive, name, parent) ->
       q: "name=#{quote name} and #{quote parent} in parents"
       pageSize: 1
     ).data
-    if resp.items.length > 0
+    if resp.files.length > 0
       console.log "#{name} found"
-      return resp.items[0]
+      return resp.files[0]
     else if triesLeft < 1
       console.log "#{name} never existed"
       throw 'never existed'
@@ -121,8 +121,8 @@ ensureFolder = (drive, name, parent) ->
     q: "name=#{quote name} and #{quote (parent or 'root')} in parents"
     pageSize: 1
   ).data
-  if resp.items.length > 0
-    resource = resp.items[0]
+  if resp.files.length > 0
+    resource = resp.files[0]
   else
     # create the folder
     resource =
@@ -160,7 +160,7 @@ rmrfFolder = (drive, id) ->
       pageSize: MAX_RESULTS
       pageToken: resp.nextPageToken
     ).data
-    resp.items.forEach (item) ->
+    resp.files.forEach (item) ->
       ps.push rmrfFolder item.id
     break unless resp.nextPageToken?
   loop
@@ -170,7 +170,7 @@ rmrfFolder = (drive, id) ->
       pageSize: MAX_RESULTS
       pageToken: resp.nextPageToken
     ).data
-    resp.items.forEach (item) ->
+    resp.files.forEach (item) ->
       ps.push drive.files.delete fileId: item.id
     break unless resp.nextPageToken?
   await Promise.all ps
@@ -200,7 +200,7 @@ export class Drive
       q: "name=#{quote name} and mimeType=#{quote GDRIVE_FOLDER_MIME_TYPE} and #{quote @rootFolder} in parents"
       pageSize: 1
     ).data
-    folder = resp.items[0]
+    folder = resp.files[0]
     return null unless folder?
     # look for spreadsheet
     spreadP = @drive.files.list
@@ -212,8 +212,8 @@ export class Drive
     [spread, doc] = Promise.await Promise.all [spreadP, docP]
     return {
       id: folder.id
-      spreadId: spread.data.items[0]?.id
-      docId: doc.data.items[0]?.id
+      spreadId: spread.data.files[0]?.id
+      docId: doc.data.files[0]?.id
     }
 
   listPuzzles: ->
@@ -225,7 +225,7 @@ export class Drive
         pageSize: MAX_RESULTS
         pageToken: resp.nextPageToken
       ).data
-      results.push resp.items...
+      results.push resp.files...
       break unless resp.nextPageToken?
     results
 
