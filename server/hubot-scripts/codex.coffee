@@ -155,13 +155,14 @@ share.hubot.codex = (robot) ->
 ## PUZZLES
 
 # newPuzzle
-  robot.commands.push 'bot <puzzle> is a new [meta]puzzle in <round/meta> - Updates codex blackboard'
-  robot.respond (rejoin thingRE,/\ is a new (meta|puzzle|metapuzzle) in(?: (round|meta))? /,thingRE,/$/i), (msg) ->
+  robot.commands.push 'bot <puzzle> is a new [meta]puzzle in <round/meta> [with link <url>]- Updates codex blackboard'
+  robot.respond (rejoin thingRE,/\ is a new (meta|puzzle|metapuzzle) in(?: (round|meta))? /,thingRE,'(?:',/ with (?:url|link) /,thingRE,')?',/$/i), (msg) ->
     pname = strip msg.match[1]
     ptype = msg.match[2]
     rname = strip msg.match[4]
     tname = undefined
     round = undefined
+    url = strip msg.match[5]
     who = msg.envelope.user.id
     if rname is 'this' and not msg.match[3]
       round = objectFromRoom msg
@@ -185,7 +186,8 @@ share.hubot.codex = (robot) ->
         return
     extra =
       name: pname
-      who: who
+    if url?
+      extra.link = url
     if round.type is 'rounds'
       extra.round = round.object._id
     else if round.type is 'puzzles'
@@ -225,11 +227,15 @@ share.hubot.codex = (robot) ->
 ## ROUNDS
 
 # newRound
-  robot.commands.push 'bot <round> is a new round - Updates codex blackboard'
-  robot.respond (rejoin thingRE,/\ is a new round$/i), (msg) ->
+  robot.commands.push 'bot <round> is a new round [with link <url>] - Updates codex blackboard'
+  robot.respond (rejoin thingRE,/\ is a new round/,'(?:',/ with (?:url|link) /,thingRE,')?',/$/i), (msg) ->
     rname = strip msg.match[1]
+    url = strip msg.match[2]
     who = msg.envelope.user.id
-    round = callAs "newRound", who, name: rname
+    body = name: rname
+    if url?
+      body.link = url
+    round = callAs "newRound", who, body
     round_url = Meteor._relativeToSiteRootUrl "/rounds/#{round._id}"
     msg.reply {useful: true, bodyIsHtml: true}, "Okay, I created round <a class='rounds-link' href='#{UI._escape round_url}'>#{UI._escape rname}</a>."
     msg.finish()

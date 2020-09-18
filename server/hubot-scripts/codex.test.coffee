@@ -601,6 +601,27 @@ describe 'codex hubot script', ->
       await waitForDocument model.Puzzles, {_id: mid, puzzles: puzz._id}, {}
       await waitForDocument model.Rounds, {_id: rid, puzzles: [mid, puzz._id]}, {}
 
+    it 'created with specified link', ->
+      mid = model.Puzzles.insert
+        name: 'Even This Poem'
+        canon: 'even_this_poem'
+        feedsInto: []
+      rid = model.Rounds.insert
+        name: 'Elliptic Curve'
+        canon: 'elliptic_curve'
+        puzzles: [mid]
+      model.Messages.insert
+        nick: 'torgen'
+        room_name: 'general/0'
+        timestamp: Date.now()
+        body: 'bot Latino Alphabet is a new puzzle in even this poem with url https://bluedot.sg/puzz/la'
+      puzz = await waitForDocument model.Puzzles, {name: 'Latino Alphabet'},
+        canon: 'latino_alphabet'
+        feedsInto: [mid]
+        link: 'https://bluedot.sg/puzz/la'
+      await waitForDocument model.Puzzles, {_id: mid, puzzles: puzz._id}, {}
+      await waitForDocument model.Rounds, {_id: rid, puzzles: [mid, puzz._id]}, {}
+
     it 'creates in this meta', ->
       mid = model.Puzzles.insert
         name: 'Even This Poem'
@@ -788,6 +809,24 @@ describe 'codex hubot script', ->
         puzzles: []
         sort_key: 7
         link: 'https://moliday.holasses/round/elliptic_curve'
+
+    it 'creates round with specified link', ->
+      RoundUrlPrefix.ensure()
+      impersonating 'testbot', -> RoundUrlPrefix.set 'https://moliday.holasses/round'
+      model.Messages.insert
+        nick: 'torgen'
+        room_name: 'general/0'
+        timestamp: Date.now()
+        body: 'bot Elliptic Curve is a new round with link https://moliday.holasses/circular'
+      waitForDocument model.Rounds, { name: 'Elliptic Curve' },
+        canon: 'elliptic_curve'
+        created: 7
+        created_by: 'torgen'
+        touched: 7
+        touched_by: 'torgen'
+        puzzles: []
+        sort_key: 7
+        link: 'https://moliday.holasses/circular'
 
   describe 'deleteRound', ->
     it 'deletes empty round', ->
