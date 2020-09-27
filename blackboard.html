@@ -116,16 +116,18 @@
             {{/if}}
           {{/let}}
         {{/if}}
-        {{#let faves=favorites}}
-          {{#if faves.count}}
-            <tbody>
-              <tr><th colspan="{{nCols}}" id="favorites"><h2>Favorite Puzzles</h2></th></tr>
-              {{#each faves}}
-                {{>blackboard_puzzle _id=_id puzzle=this}}
-              {{/each}}
-            </tbody>
-          {{/if}}
-        {{/let}}
+        {{#unless canEdit}}
+          {{#let faves=favorites}}
+            {{#if faves.count}}
+              <tbody>
+                <tr><th colspan="{{nCols}}" id="favorites"><h2>Favorite Puzzles</h2></th></tr>
+                {{#each faves}}
+                  {{>blackboard_puzzle _id=_id puzzle=this}}
+                {{/each}}
+              </tbody>
+            {{/if}}
+          {{/let}}
+        {{/unless}}
         {{#each rounds}}
           {{> blackboard_round}}
         {{/each}}
@@ -145,63 +147,67 @@
 </template>
 
 <template name="blackboard_round">
-  <tbody>
-  <tr><th colspan="{{nCols}}" id="round{{_id}}">
-    <h2 class="bb-editable" data-bbedit="rounds/{{_id}}/title">
-    {{#if editing "rounds" _id "title"}}
-      <input type="text" id="rounds-{{_id}}-title"
-            value="{{name}}"
-            class="input-block-level" />
-    {{else}}
+  {{#let m=metas u=unassigned}}
+    {{#if any m.length u.length canEdit (not hideSolvedMeta)}}
+      <tbody>
+      <tr><th colspan="{{nCols}}" id="round{{_id}}">
+        <h2 class="bb-editable" data-bbedit="rounds/{{_id}}/title">
+        {{#if editing "rounds" _id "title"}}
+          <input type="text" id="rounds-{{_id}}-title"
+                value="{{name}}"
+                class="input-block-level" />
+        {{else}}
+          {{#if canEdit}}
+            <i class="bb-delete-icon fas fa-times pull-left"
+              title="Delete this round"></i>
+            <i class="bb-edit-icon fas fa-pencil-alt pull-right"
+              title="Edit the name of this round"></i>
+          {{else}}
+            {{link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
+            {{#if link}}<a class="pull-right" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
+          {{/if}}
+        {{name}}
+        {{/if}}
+        </h2>
+      {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
+      {{>blackboard_link}}
       {{#if canEdit}}
-        <i class="bb-delete-icon fas fa-times pull-left"
-          title="Delete this round"></i>
-        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-          title="Edit the name of this round"></i>
-      {{else}}
-        {{link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
-        {{#if link}}<a class="pull-right" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
+        <div class="bb-round-buttons" data-bbedit="rounds/{{_id}}">
+          <div class="btn-group">
+            <button class="btn btn-mini btn-inverse bb-add-meta">
+              <i class="fas fa-plus"></i>
+              Add new meta to this round
+            </button>
+            <button class="btn btn-mini btn-inverse dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="bb-add-puzzle">Add unassigned puzzle</a></li>
+            </ul>
+          </div>
+          <button class="btn btn-mini btn-inverse bb-add-tag">
+            <i class="fas fa-tag"></i>
+            Add new tag to this round
+          </button>
+          <button class="btn btn-mini btn-inverse bb-move-down">
+            <i class="fas fa-arrow-down"></i>
+            Move round down
+          </button>
+          <button class="btn btn-mini btn-inverse bb-move-up">
+            <i class="fas fa-arrow-up"></i>
+            Move round up
+          </button>
+        </div>
       {{/if}}
-    {{name}}
+      </th></tr></tbody>
+      {{#each m}}
+        {{> blackboard_meta }}
+      {{/each}}
+      {{#with u}}
+        {{> blackboard_unassigned }}
+      {{/with}}
     {{/if}}
-    </h2>
-  {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
-  {{>blackboard_link}}
-  {{#if canEdit}}
-    <div class="bb-round-buttons" data-bbedit="rounds/{{_id}}">
-      <div class="btn-group">
-        <button class="btn btn-mini btn-inverse bb-add-meta">
-          <i class="fas fa-plus"></i>
-          Add new meta to this round
-        </button>
-        <button class="btn btn-mini btn-inverse dropdown-toggle" data-toggle="dropdown">
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="bb-add-puzzle">Add unassigned puzzle</a></li>
-        </ul>
-      </div>
-      <button class="btn btn-mini btn-inverse bb-add-tag">
-        <i class="fas fa-tag"></i>
-        Add new tag to this round
-      </button>
-      <button class="btn btn-mini btn-inverse bb-move-down">
-        <i class="fas fa-arrow-down"></i>
-        Move round down
-      </button>
-      <button class="btn btn-mini btn-inverse bb-move-up">
-        <i class="fas fa-arrow-up"></i>
-        Move round up
-      </button>
-    </div>
-  {{/if}}
-  </th></tr></tbody>
-  {{#each metas}}
-    {{> blackboard_meta }}
-  {{/each}}
-  {{#with unassigned}}
-    {{> blackboard_unassigned }}
-  {{/with}}
+  {{/let}}
 </template>
 
 <template name="blackboard_unassigned">
