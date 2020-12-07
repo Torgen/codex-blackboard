@@ -84,9 +84,7 @@ sudo mongo --eval 'rs.initiate({_id: "meteor", members: [{_id: 0, host: "127.0.0
 
 sudo systemctl enable codex-batch.service
   
-sudo add-apt-repository -y ppa:certbot/certbot
-sudo apt-get update
-sudo apt-get install -y certbot
+sudo snap install --classic certbot
 
 sudo certbot certonly --standalone -d $domainname
 
