@@ -25,9 +25,6 @@ set -e
 cd $HOME
 curl https://install.meteor.com/ | sh
 
-# mongodb requires a high ulimit.
-sudo ulimit -n 64000
-
 # Set up apt
 sudo apt-get install gnupg
 wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
