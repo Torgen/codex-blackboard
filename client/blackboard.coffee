@@ -1,5 +1,6 @@
 'use strict'
 
+import jitsiUrl from './imports/jitsi.coffee'
 import { nickEmail } from './imports/nickEmail.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
@@ -476,6 +477,8 @@ Template.blackboard_puzzle_cells.helpers
   canChangeMeta: -> not @puzzles or @puzzles.length is 0
   unfedMetas: ->
     return model.Puzzles.find(puzzles: {$exists: true, $ne: @_id})
+  jitsiLink: ->
+    return jitsiUrl "puzzles", @puzzle?._id
 
 colorHelper = -> model.getTag @, 'color'
 

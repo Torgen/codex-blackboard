@@ -40,9 +40,14 @@
       <i class="fas fa-file"></i>
     </a>
   {{/if}}
-    <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "info"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/info"  title="Info">
-      <i class="fas fa-info-circle"></i>
+  <a class="{{../type}}-link {{#if active}}{{#if currentViewIs "info"}}current{{/if}}{{/if}}" href="/{{../type}}/{{../id}}/info"  title="Info">
+    <i class="fas fa-info-circle"></i>
+  </a>
+  {{#with jitsiUrl}}
+    <a href="{{this}}" target="jitsi" title="Jitsi Video Call">
+      <i class="fas fa-video"></i>
     </a>
+  {{/with}}
   {{> header_breadcrumb_chat ..}}
 </template>
 

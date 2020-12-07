@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from '../lib/imports/canonical.coffee'
+import jitsiUrl from './imports/jitsi.coffee'
 import { emailFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
@@ -316,6 +317,7 @@ Template.header_breadcrumb_callins.helpers
 
 Template.header_breadcrumb_extra_links.helpers
   active: -> active.call(Template.parentData(1))
+  jitsiUrl: -> jitsiUrl Template.parentData(1).type, Template.parentData(1).id
 
 Template.header_breadcrumb_round.onCreated ->
   @autorun =>
