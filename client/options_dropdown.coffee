@@ -22,6 +22,11 @@ Template.registerHelper 'stuckToTop', -> 'true' is reactiveLocalStorage.getItem 
 Template.registerHelper 'noBot', -> 'true' is reactiveLocalStorage.getItem 'nobot'
 Template.registerHelper 'hideOldPresence', -> 'true' is reactiveLocalStorage.getItem 'hideOldPresence'
 
+Template.options_dropdown.helpers
+  jitsi: share.settings.JITSI_SERVER?
+  startVideoMuted: -> 'false' isnt reactiveLocalStorage.getItem 'startVideoMuted'
+  startAudioMuted: -> 'false' isnt reactiveLocalStorage.getItem 'startAudioMuted'
+
 Template.options_dropdown.events
   'click .bb-display-settings li a': (event, template) ->
     # Stop the dropdown from closing.
@@ -42,3 +47,7 @@ Template.options_dropdown.events
     reactiveLocalStorage.setItem 'nobot', event.target.checked
   'change .bb-hide-old-presence input': (event, template) ->
     reactiveLocalStorage.setItem 'hideOldPresence', event.target.checked
+  'change .bb-start-video-muted input': (event, template) ->
+    reactiveLocalStorage.setItem 'startVideoMuted', event.target.checked
+  'change .bb-start-audio-muted input': (event, template) ->
+    reactiveLocalStorage.setItem 'startAudioMuted', event.target.checked

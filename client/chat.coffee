@@ -387,8 +387,10 @@ Template.embedded_chat.onRendered ->
             'raisehand', 'videoquality', 'filmstrip', 'feedback', 'shortcuts', \
             'tileview', 'videobackgroundblur', 'help', 'hangup' ]
         configOverwrite:
-          startWithAudioMuted: true
-          startWithVideoMuted: true
+          # These properties are reactive, but changing them won't make us reload the room
+          # because newRoom will be the same as @jitsiRoom.
+          startWithAudioMuted: 'false' isnt reactiveLocalStorage.getItem 'startAudioMuted'
+          startWithVideoMuted: 'false' isnt reactiveLocalStorage.getItem 'startVideoMuted'
           prejoinPageEnabled: false
           enableTalkWhileMuted: false
       )

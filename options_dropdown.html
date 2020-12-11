@@ -56,6 +56,21 @@
           Hide Old Presence
         </label>
       </a></li>
+      {{#if jitsi}}
+        <li class="nav-header">Jitsi</li>
+        <li><a name="bb-start-audio-muted">
+          <label class="checkbox bb-start-audio-muted" title="Join Jitsi meetings with audio muted">
+            <input type="checkbox" name="bb-start-audio-muted" checked="{{startAudioMuted}}">
+            Start Audio Muted
+          </label>
+        </a></li>
+        <li><a name="bb-start-video-muted">
+          <label class="checkbox bb-start-video-muted" title="Join Jitsi meetings with video muted">
+            <input type="checkbox" name="bb-start-video-muted" checked="{{startVideoMuted}}">
+            Start Video Muted
+          </label>
+        </a></li>
+      {{/if}}
     </ul>
   </div>
 </template>
