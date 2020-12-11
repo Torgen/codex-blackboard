@@ -355,6 +355,8 @@ Meteor.startup ->
 Template.embedded_chat.onCreated ->
   @show_presence = new ReactiveVar false
   @jitsi = new ReactiveVar null
+  # Intentionally staying out of the meeting.
+  @jitsiLeft = new ReactiveVar false
 
 gravatarUrl = ->
   $.gravatar(emailFromNickObject(Meteor.user()),
@@ -366,6 +368,7 @@ gravatarUrl = ->
 Template.embedded_chat.onRendered ->
   @autorun =>
     return unless jitsiLoaded.get()
+    return if @jitsiLeft.get()
     newRoom = jitsiRoom Session.get('type'), Session.get('id')
     jitsi = @jitsi.get()
     if jitsi?
@@ -382,13 +385,17 @@ Template.embedded_chat.onRendered ->
           TOOLBAR_BUTTONS: ['microphone', 'camera', 'desktop', 'fullscreen', \
             'fodeviceselection', 'profile', 'sharedvideo', 'settings', \
             'raisehand', 'videoquality', 'filmstrip', 'feedback', 'shortcuts', \
-            'tileview', 'videobackgroundblur', 'help']
+            'tileview', 'videobackgroundblur', 'help', 'hangup' ]
         configOverwrite:
           startWithAudioMuted: true
           startWithVideoMuted: true
           prejoinPageEnabled: false
           enableTalkWhileMuted: false
       )
+      @jitsi.get().on 'videoConferenceLeft', =>
+        @jitsiLeft.set true
+        @jitsi.get()?.dispose()
+        @jitsi.set null
   # If you reload the page the content of the user document won't be loaded yet.
   # The check that newroom is different from the current room means the display
   # name won't be set yet. This allows the display name and avatar to be set when
@@ -417,6 +424,8 @@ Template.embedded_chat.helpers
   nickAndName: (nick) ->
     user = Meteor.users.findOne canonical nick ? {nickname: nick}
     nickAndName user
+  canJitsi: ->
+    return jitsiRoom(Session.get('type'), Session.get('id'))? and Template.instance().jitsiLeft.get()
   jitsiSize: ->
     # Set up dependencies
     return unless Template.instance().jitsi.get()?
@@ -426,6 +435,8 @@ Template.embedded_chat.events
   'click .bb-show-whos-here': (event, template) ->
     rvar = template.show_presence
     rvar.set(not rvar.get())
+  'click .bb-join-jitsi': (event, template) ->
+    template.jitsiLeft.set false
 
 # Utility functions
 
