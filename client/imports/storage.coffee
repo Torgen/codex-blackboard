@@ -16,6 +16,10 @@ class StorageWrapper
     @storage.setItem key, value
     @invalidate key
 
+  removeItem: (key) ->
+    @storage.removeItem key
+    @invalidate key
+
   getItem: (key) ->
     @depend key
     @storage.getItem key

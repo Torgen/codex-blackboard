@@ -357,6 +357,18 @@ Template.embedded_chat.onCreated ->
   @jitsi = new ReactiveVar null
   # Intentionally staying out of the meeting.
   @jitsiLeft = new ReactiveVar false
+  @jitsiInOtherTab = ->
+    jitsiTabUUID = reactiveLocalStorage.getItem 'jitsiTabUUID'
+    jitsiTabUUID? and jitsiTabUUID isnt settings.CLIENT_UUID
+  @leaveJitsi = ->
+    @jitsiLeft.set true
+    @jitsi.get()?.dispose()
+    @jitsi.set null
+    @jitsiRoom = null
+  @unsetCurrentJitsi = ->
+    if settings.CLIENT_UUID is reactiveLocalStorage.getItem 'jitsiTabUUID'
+      reactiveLocalStorage.removeItem 'jitsiTabUUID'
+  $(window).on('unload', @unsetCurrentJitsi)
 
 gravatarUrl = ->
   $.gravatar(emailFromNickObject(Meteor.user()),
@@ -369,6 +381,9 @@ Template.embedded_chat.onRendered ->
   @autorun =>
     return unless jitsiLoaded.get()
     return if @jitsiLeft.get()
+    if @jitsiInOtherTab()
+      @leaveJitsi()
+      return
     newRoom = jitsiRoom Session.get('type'), Session.get('id')
     jitsi = @jitsi.get()
     if jitsi?
@@ -395,9 +410,9 @@ Template.embedded_chat.onRendered ->
           enableTalkWhileMuted: false
       )
       @jitsi.get().on 'videoConferenceLeft', =>
-        @jitsiLeft.set true
-        @jitsi.get()?.dispose()
-        @jitsi.set null
+        @leaveJitsi()
+        reactiveLocalStorage.removeItem 'jitsiTabUUID'
+      reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
   # If you reload the page the content of the user document won't be loaded yet.
   # The check that newroom is different from the current room means the display
   # name won't be set yet. This allows the display name and avatar to be set when
@@ -411,6 +426,8 @@ Template.embedded_chat.onRendered ->
       avatarUrl: gravatarUrl()
 
 Template.embedded_chat.onDestroyed ->
+  @unsetCurrentJitsi()
+  $(window).off('unload', @unsetCurrentJitsi)
   @jitsi.get()?.dispose()
 
 nickAndName = (user) -> 
@@ -428,6 +445,7 @@ Template.embedded_chat.helpers
     nickAndName user
   canJitsi: ->
     return jitsiRoom(Session.get('type'), Session.get('id'))? and Template.instance().jitsiLeft.get()
+  otherJitsi: -> Template.instance().jitsiInOtherTab()
   jitsiSize: ->
     # Set up dependencies
     return unless Template.instance().jitsi.get()?
@@ -438,6 +456,7 @@ Template.embedded_chat.events
     rvar = template.show_presence
     rvar.set(not rvar.get())
   'click .bb-join-jitsi': (event, template) ->
+    reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
     template.jitsiLeft.set false
 
 # Utility functions
