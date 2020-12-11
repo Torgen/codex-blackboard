@@ -25,7 +25,7 @@ settings.CHAT_LIMIT_INCREMENT = server.chatLimitIncrement ? 100
 
 # Used to generate video chat links
 # No default; if unset, don't generate links.
-settings.JITSI_SERVER = server.jitsiServer
+settings.JITSI_SERVER = server.jitsi?.server
 
 # -- Performance settings --
 
