@@ -142,9 +142,10 @@ html.fullHeight {
           }
           .bb-chat-presence-block {
             position: absolute;
-            bottom: ~"calc(36px + var(--jitsi-height, 0))";
+            bottom: ~"calc(36px + var(--jitsi-height, 0px))";
             left: 0;
             right: 0;
+            width: 100%;
             max-height: 150px;
             overflow: auto;
             background: white;
@@ -155,7 +156,7 @@ html.fullHeight {
             }
           }
           #bb-jitsi-container {
-            height: var(--jitsi-height, 0);
+            height: var(--jitsi-height, 0px);
             position: absolute;
             bottom: 0;
             left: 0;
