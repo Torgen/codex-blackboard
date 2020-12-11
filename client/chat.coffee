@@ -1,6 +1,7 @@
 'use strict'
 
-import { nickEmail } from './imports/nickEmail.coffee'
+import { jitsiRoom } from './imports/jitsi.coffee'
+import { nickEmail, emailFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
@@ -339,19 +340,87 @@ Template.chat_header.helpers
   room_name: -> prettyRoomName()
   whos_here: whos_here_helper
 
+# We need settings to load the jitsi api since it's conditional and the domain
+# is variable. This means we can't put it in the head, and putting it in the
+# body can mean the embedded chat is already rendered when it loads.
+# Therefore we set this ReactiveVar if/when it's finished loading so we
+# can retry the appropriate autorun once it loads.
+jitsiLoaded = new ReactiveVar false
+
+Meteor.startup ->
+  return unless settings.JITSI_SERVER
+  $.getScript "https://#{settings.JITSI_SERVER}/external_api.js", ->
+    jitsiLoaded.set true  
+
 Template.embedded_chat.onCreated ->
   @show_presence = new ReactiveVar false
+  @jitsi = new ReactiveVar null
+
+gravatarUrl = ->
+  $.gravatar(emailFromNickObject(Meteor.user()),
+    image: 'wavatar'
+    size: 200
+    secure: true
+  ).attr('src')
+
+Template.embedded_chat.onRendered ->
+  @autorun =>
+    return unless jitsiLoaded.get()
+    newRoom = jitsiRoom Session.get('type'), Session.get('id')
+    jitsi = @jitsi.get()
+    if jitsi?
+      return if newRoom is @jitsiRoom
+      jitsi.dispose()
+      @jitsi.set null
+      @jitsiRoom = null
+    if newRoom?
+      @jitsiRoom = newRoom
+      @jitsi.set new JitsiMeetExternalAPI(settings.JITSI_SERVER,
+        roomName: newRoom
+        parentNode: @find '#bb-jitsi-container'
+        interfaceConfigOverwrite:
+          TOOLBAR_BUTTONS: ['microphone', 'camera', 'desktop', 'fullscreen', \
+            'fodeviceselection', 'profile', 'sharedvideo', 'settings', \
+            'raisehand', 'videoquality', 'filmstrip', 'feedback', 'shortcuts', \
+            'tileview', 'videobackgroundblur', 'help']
+        configOverwrite:
+          startWithAudioMuted: true
+          startWithVideoMuted: true
+          prejoinPageEnabled: false
+          enableTalkWhileMuted: false
+      )
+  # If you reload the page the content of the user document won't be loaded yet.
+  # The check that newroom is different from the current room means the display
+  # name won't be set yet. This allows the display name and avatar to be set when
+  # they become available. (It also updates them if they change.)
+  @autorun =>
+    user = Meteor.user()
+    jitsi = @jitsi.get()
+    return unless jitsi?
+    jitsi.executeCommands
+      displayName: nickAndName user
+      avatarUrl: gravatarUrl()
+
+Template.embedded_chat.onDestroyed ->
+  @jitsi.get()?.dispose()
+
+nickAndName = (user) -> 
+  if user?.real_name?
+    "#{user.real_name} (#{user.nickname})"
+  else
+    user.nickname
 
 Template.embedded_chat.helpers
   show_presence: -> Template.instance().show_presence.get()
   whos_here: whos_here_helper
   email: -> nickEmail @nick
   nickAndName: (nick) ->
-    n = Meteor.users.findOne canonical nick
-    if n?.real_name?
-      "#{n.real_name} (#{n.nickname or nick})"
-    else
-      n.nickname or nick
+    user = Meteor.users.findOne canonical nick ? {nickname: nick}
+    nickAndName user
+  jitsiSize: ->
+    # Set up dependencies
+    return unless Template.instance().jitsi.get()?
+    Math.floor(share.Splitter.hsize.get() * 9 / 16)
 
 Template.embedded_chat.events
   'click .bb-show-whos-here': (event, template) ->
