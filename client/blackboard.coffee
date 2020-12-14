@@ -76,9 +76,62 @@ okCancelEvents = share.okCancelEvents = (selector, callbacks) ->
 
 ######### general properties of the blackboard page ###########
 
+setCompare = (was, will) ->
+  return true if not was? and not will?
+  return false if not was? or not will?
+  was.size is will.size and [...was].every(v -> will.has v)
+
+Template.blackboard.onCreated ->
+  @userSearch = new ReactiveVar null
+  @foundAccounts = new ReactiveVar null, setCompare
+  @foundPuzzles = new ReactiveVar null, setCompare
+  @autorun =>
+    userSearch = @userSearch.get()
+    console.log userSearch
+    if not userSearch?
+      @foundAccounts.set null
+      return
+    c = Meteor.users.find
+      $or: [
+        { nickname: { $regex: ".*#{userSearch}.*"}},
+        { real_name: { $regex: ".*#{userSearch}.*"}},
+      ]
+    , fields: { _id: 1 }
+    @foundAccounts.set new Set(c.map (v) -> v._id)
+  @autorun =>
+    foundAccounts = @foundAccounts.get()
+    if not foundAccounts?
+      @foundPuzzles.set null
+      return
+    p = model.Presence.find
+      nick: $in: [...foundAccounts]
+    res = new Set
+    p.forEach (pres) ->
+      match = pres.room_name.match /puzzles\/(.*)/
+      console.log match
+      return unless match?
+      console.log match[1]
+      res.add match[1]
+    console.log res
+    @foundPuzzles.set res
+
 Template.blackboard.helpers
   sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
   whoseGitHub: -> settings.WHOSE_GITHUB
+  filter: -> Template.instance().userSearch.get()?
+  searchResults: ->
+    model.Puzzles.findOne(_id: id) for id from Template.instance().foundPuzzles.get() ? []
+
+Template.blackboard.events
+  'click .puzzle-working .button-group:not(.open) .bb-show-filter-by-user': (event, template) ->
+    Meteor.defer -> template.find('.bb-filter-by-user').focus()
+  'click .puzzle-working .dropdown-menu *': (event, template) ->
+    event.stopPropagation()
+  'keyup .bb-filter-by-user': (event, template) ->
+    return unless event.keyCode is 13
+    template.userSearch.set (event.target.value or null)
+  'click .bb-clear-filter-by-user': (event, template) ->
+    template.userSearch.set null
 
 # Notifications
 notificationStreams = [

@@ -98,39 +98,60 @@
             <th class="puzzle-answer">Solution</th>
             <th class="puzzle-status">Status</th>
             {{#unless canEdit}}
-            <th class="puzzle-working">Working on this</th>
+            <th class="puzzle-working">Working on this
+              <span class="button-group">
+                <a name="bb-show-filter-by-user" class="dropdown-toggle bb-show-filter-by-user" data-toggle="dropdown"><i class="fas fa-search"></i></a>
+                <ul class="bb-filter-by-user-dropdown dropdown-menu">
+                  <li class="form-search">
+                    <div class="input-append">
+                      <input type="text" class="search-query bb-filter-by-user">
+                      <button class="btn bb-clear-filter-by-user"><i class="fas fa-times"></i></button>
+                    </div>
+                  </li>
+                </ul>
+              </span>
+            </th>
             <th class="puzzle-update">Last update</th>
             {{/unless}}
           </tr>
           {{/unless}}
         </thead>
-        {{#if stuckToTop}}
-          {{#let stucks=stuckPuzzles}}
-            {{#if stucks.count}}
-              <tbody>
-                <tr><th colspan="{{nCols}}" id="stucks"><h2>Stuck Puzzles</h2></th></tr>
-                {{#each stucks}}
-                  {{>blackboard_puzzle _id=_id puzzle=this}}
-                {{/each}}
-              </tbody>
-            {{/if}}
-          {{/let}}
+        {{#if filter}}
+          <tbody>
+            <tr><th colspan="{{nCols}}" id="searchResults"><h2>Search Results</h2></th></tr>
+            {{#each searchResults}}
+              {{>blackboard_puzzle _id=_id puzzle=this}}
+            {{/each}}
+          </tbody>
+        {{else}}
+          {{#if stuckToTop}}
+            {{#let stucks=stuckPuzzles}}
+              {{#if stucks.count}}
+                <tbody>
+                  <tr><th colspan="{{nCols}}" id="stucks"><h2>Stuck Puzzles</h2></th></tr>
+                  {{#each stucks}}
+                    {{>blackboard_puzzle _id=_id puzzle=this}}
+                  {{/each}}
+                </tbody>
+              {{/if}}
+            {{/let}}
+          {{/if}}
+          {{#unless canEdit}}
+            {{#let faves=favorites}}
+              {{#if faves.count}}
+                <tbody>
+                  <tr><th colspan="{{nCols}}" id="favorites"><h2>Favorite Puzzles</h2></th></tr>
+                  {{#each faves}}
+                    {{>blackboard_puzzle _id=_id puzzle=this}}
+                  {{/each}}
+                </tbody>
+              {{/if}}
+            {{/let}}
+          {{/unless}}
+          {{#each rounds}}
+            {{> blackboard_round}}
+          {{/each}}
         {{/if}}
-        {{#unless canEdit}}
-          {{#let faves=favorites}}
-            {{#if faves.count}}
-              <tbody>
-                <tr><th colspan="{{nCols}}" id="favorites"><h2>Favorite Puzzles</h2></th></tr>
-                {{#each faves}}
-                  {{>blackboard_puzzle _id=_id puzzle=this}}
-                {{/each}}
-              </tbody>
-            {{/if}}
-          {{/let}}
-        {{/unless}}
-        {{#each rounds}}
-          {{> blackboard_round}}
-        {{/each}}
       </table>
     </div><!-- bb-tables -->
   {{else vertical_splitter false}}
