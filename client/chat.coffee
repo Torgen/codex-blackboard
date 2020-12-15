@@ -424,6 +424,17 @@ Template.embedded_chat.onRendered ->
     jitsi.executeCommands
       displayName: nickAndName user
       avatarUrl: gravatarUrl()
+  # The moderator should set the conference subject.
+  @autorun =>
+    jitsi = @jitsi.get()
+    return unless jitsi?
+    subject = if 'puzzles' is Session.get 'type'
+      model.Puzzles.findOne(Session.get 'id').name ? 'Puzzle'
+    else if '0' is Session.get 'id'
+      settings.GENERAL_ROOM_NAME
+    else
+      'Video Call'
+    jitsi.executeCommand 'subject', subject
 
 Template.embedded_chat.onDestroyed ->
   @unsetCurrentJitsi()
