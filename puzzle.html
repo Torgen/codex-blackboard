@@ -1,9 +1,8 @@
 <template name="puzzle_info">
 <div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
-  <h1>{{puzzle.name}} {{>favorite puzzle}}</h1>
-  <h2>{{capType}}
+  <h1>{{puzzle.name}} {{>favorite puzzle}}
     {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">link<i class="fas fa-expand-arrows-alt"></i></a>){{/if}}
-  </h2>
+  </h1>
 </div>
 <table><tbody>
 {{#with puzzle}}
@@ -61,7 +60,7 @@
               {{#with submitted_by}}
                 <span title="Submitted by {{nickOrName this}}">
                   <i class="fas fa-phone"></i>
-                  {{gravatar id=nickEmail image="wavatar" size=20}}
+                  {{gravatar id=nickEmail size=20}}
                 </span>
               {{/with}}
             {{else}}
