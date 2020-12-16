@@ -612,8 +612,8 @@ Template.messages_input.events
           return $message.val "#{botuser()._id} "
         if re.test('/m bot') or re.test('/msg bot')
           return $message.val "/msg #{botuser()._id} "
-    if event.which is 38 and event.target.selectionEnd is 0
-      # 38 is arrow up. Checking that the cursor is at the start of the box.
+    if ['Up', 'ArrowUp'].includes(event.key) and event.target.selectionEnd is 0
+      # Checking that the cursor is at the start of the box.
       query =
         room_name: Session.get 'room_name'
         nick: Meteor.userId()
@@ -628,7 +628,7 @@ Template.messages_input.events
         event.target.value = format_body msg
         event.target.setSelectionRange 0, 0
       return
-    if event.which is 40 and event.target.selectionStart is event.target.value.length
+    if ['Down', 'ArrowDown'].includes(event.key) and event.target.selectionStart is event.target.value.length
       # 40 is arrow down. Checking that the cursor is at the end of the box.
       return unless template.history_ts?
       # Pushing down only means anything if you're in history.
