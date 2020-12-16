@@ -504,7 +504,7 @@ $(window).scroll (event) ->
     console.log ' html scrollTop', html.scrollTop, 'scrollTopMax', html.scrollTopMax, 'scrollHeight', html.scrollHeight, 'clientHeight', html.clientHeight
   instachat.scrolledToBottom = atBottom
 
-Template.messages_input.submit = (message) ->
+Template.messages_input.onCreated -> @submit = (message) ->
   return unless message
   args =
     room_name: Session.get 'room_name'
@@ -573,7 +573,15 @@ Template.messages_input.submit = (message) ->
   # on the newMessage call, which makes the below ineffective.  But leave
   # it here in case we turn latency compensation back on.
   Tracker.afterFlush -> scrollMessagesView()
+  @history_ts = null
   return
+
+format_body = (msg) ->
+  if msg.action
+    return "/me #{msg.body}"
+  if msg.to?
+    return "/msg #{msg.to} #{msg.body}"
+  msg.body
 
 Template.messages_input.events
   "keydown textarea": (event, template) ->
@@ -604,6 +612,43 @@ Template.messages_input.events
           return $message.val "#{botuser()._id} "
         if re.test('/m bot') or re.test('/msg bot')
           return $message.val "/msg #{botuser()._id} "
+    if event.which is 38 and event.target.selectionEnd is 0
+      # 38 is arrow up. Checking that the cursor is at the start of the box.
+      query =
+        room_name: Session.get 'room_name'
+        nick: Meteor.userId()
+        system: $ne: true
+        bodyIsHtml: $ne: true
+      if template.history_ts?
+        query.timestamp = $lt: template.history_ts
+      msg = model.Messages.findOne query,
+        sort: timestamp: -1
+      if msg?
+        template.history_ts = msg.timestamp
+        event.target.value = format_body msg
+        event.target.setSelectionRange 0, 0
+      return
+    if event.which is 40 and event.target.selectionStart is event.target.value.length
+      # 40 is arrow down. Checking that the cursor is at the end of the box.
+      return unless template.history_ts?
+      # Pushing down only means anything if you're in history.
+      query =
+        room_name: Session.get 'room_name'
+        nick: Meteor.userId()
+        system: $ne: true
+        bodyIsHtml: $ne: true
+        timestamp: $gt: template.history_ts
+      msg = model.Messages.findOne query,
+        sort: timestamp: 1
+      if msg?
+        template.history_ts = msg.timestamp
+        body = format_body msg
+        event.target.value = body
+        event.target.setSelectionRange body.length, body.length
+      else
+        event.target.value = ''
+        template.history_ts = null
+      return
 
     # implicit submit on enter (but not shift-enter or ctrl-enter)
     return unless event.which is 13 and not (event.shiftKey or event.ctrlKey)
@@ -611,7 +656,7 @@ Template.messages_input.events
     $message = $ event.currentTarget
     message = $message.val()
     $message.val ""
-    Template.messages_input.submit message
+    template.submit message
   'blur #messageInput': (event, template) ->
     # alert for unread messages
     instachat.alertWhenUnreadMessages = true
