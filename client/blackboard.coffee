@@ -87,7 +87,6 @@ Template.blackboard.onCreated ->
   @foundPuzzles = new ReactiveVar null, setCompare
   @autorun =>
     userSearch = @userSearch.get()
-    console.log userSearch
     if not userSearch?
       @foundAccounts.set null
       return
@@ -108,11 +107,8 @@ Template.blackboard.onCreated ->
     res = new Set
     p.forEach (pres) ->
       match = pres.room_name.match /puzzles\/(.*)/
-      console.log match
       return unless match?
-      console.log match[1]
       res.add match[1]
-    console.log res
     @foundPuzzles.set res
 
 Template.blackboard.helpers
