@@ -49,6 +49,13 @@ class PresenceManager
           bodyIsHtml: false
           room_name: presence.room_name
           timestamp: model.UTCNow()
+      changed: (newDoc, oldDoc) ->
+        match = oldDoc.room_name.match(/puzzles\/(.*)/)
+        return unless match?
+        timeDiff = newDoc.timestamp - oldDoc.timestamp
+        return unless timeDiff > 0
+        model.Puzzles.update {_id: match[1], solved: null},
+          $inc: solverTime: timeDiff
     # turn on presence notifications once initial observation set has been
     # processed. (observe doesn't return on server until initial observation
     # is complete.)

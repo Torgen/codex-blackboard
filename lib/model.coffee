@@ -84,6 +84,9 @@ if Meteor.isServer
 #   solved:  timestamp -- null (not missing or zero) if not solved
 #            (actual answer is in a tag w/ name "Answer")
 #   solved_by:  timestamp of Nick who confirmed the answer
+#   solverTime: aggregate milliseconds spent in chat while not solved.
+#               Derived from chat presence, so more frequent checkins give
+#               higher accuracy.
 #   incorrectAnswers: [ { answer: "Wrong", who: "answer submitter",
 #                         backsolve: ..., provided: ..., timestamp: ... }, ... ]
 #   tags: status: { name: "Status", value: "stuck" }, ... 
@@ -979,8 +982,10 @@ doc_id_to_link = (id) ->
       Presence.upsert
         nick: @userId
         room_name: args.room_name
-      , $set:
+      ,
+        $max:
           timestamp: UTCNow()
+        $set:
           present: args.present or false
       return unless args.present
       # only set foreground if true or foreground_uuid matches; this

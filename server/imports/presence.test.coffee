@@ -132,3 +132,35 @@ describe 'presence', ->
         room_name: 'general/0'
         body: 'Dan Rosart left the room.'
         timestamp: 7
+
+  describe 'update', ->
+    it 'updates unsolved puzzle', ->
+      model.Presence.insert
+        nick: 'torgen'
+        room_name: 'puzzles/foo'
+        timestamp: 6
+        present: true
+      model.Puzzles.insert
+        _id: 'foo'
+        solverTime: 45
+      presence = watchPresence()
+      model.Presence.update {nick: 'torgen', room_name:'puzzles/foo'},
+        $set: timestamp: 15
+      waitForDocument model.Puzzles, {_id: 'foo', solverTime: 54}, {}
+
+    it 'ignores solved puzzle', ->
+      model.Presence.insert
+        nick: 'torgen'
+        room_name: 'puzzles/foo'
+        timestamp: 6
+        present: true
+      model.Puzzles.insert
+        _id: 'foo'
+        solverTime: 45
+        solved: 80
+      presence = watchPresence()
+      model.Presence.update {nick: 'torgen', room_name:'puzzles/foo'},
+        $set: timestamp: 15
+      await delay 200
+      chai.assert.deepInclude model.Puzzles.findOne('foo'),
+        solverTime: 45
