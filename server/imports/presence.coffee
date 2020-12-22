@@ -50,6 +50,7 @@ class PresenceManager
           room_name: presence.room_name
           timestamp: model.UTCNow()
       changed: (newDoc, oldDoc) ->
+        return if newDoc.bot
         match = oldDoc.room_name.match(/puzzles\/(.*)/)
         return unless match?
         timeDiff = newDoc.timestamp - oldDoc.timestamp

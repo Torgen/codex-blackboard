@@ -112,6 +112,7 @@ class BlackboardAdapter extends Hubot.Adapter
       room_name: 'general/0'
       present: true
       foreground: true
+      bot: true
     keepalive()
     @keepalive = Meteor.setInterval keepalive, 30*1000 # every 30s refresh presence
     
@@ -171,6 +172,7 @@ class BlackboardAdapter extends Hubot.Adapter
         room_name: envelope.room
         present: true
         foreground: true
+        bot: true
     props = Object.create(null)
     lines = []
     while strings.length > 0

@@ -237,6 +237,8 @@ if Meteor.isServer
 #   foreground: boolean (true if user's tab is still in foreground)
 #   foreground_uuid: identity of client with tab in foreground
 #   present: boolean (true if user is present, false if not)
+#   bot: true if this is a bot user. Used to ignore bot presence for
+#        aggregating solver minutes spent on a puzzle.
 Presence = BBCollection.presence = new Mongo.Collection "presence"
 if Meteor.isServer
   Presence._ensureIndex {nick: 1, room_name:1}, {unique:true, dropDups:true}
@@ -968,6 +970,7 @@ doc_id_to_link = (id) ->
         present: Match.Optional Boolean
         foreground: Match.Optional Boolean
         uuid: Match.Optional NonEmptyString
+        bot: Match.Optional Boolean
       # we're going to do the db operation only on the server, so that we
       # can safely use mongo's 'upsert' functionality.  otherwise
       # Meteor seems to get a little confused as it creates presence
@@ -979,26 +982,26 @@ doc_id_to_link = (id) ->
       # IN METEOR 0.6.6 upsert support was added to the client.  So let's
       # try to do this on both sides now.
       #return unless Meteor.isServer
+      set_doc =
+        present: args.present or false
+      if args.bot
+        set_doc.bot = true
+      if args.present and args.foreground
+        set_doc.foreground = true
+        set_doc.foreground_uuid = args.uuid
+
       Presence.upsert
         nick: @userId
         room_name: args.room_name
       ,
         $max:
           timestamp: UTCNow()
-        $set:
-          present: args.present or false
+        $set: set_doc
       return unless args.present
       # only set foreground if true or foreground_uuid matches; this
       # prevents bouncing if user has two tabs open, and one is foregrounded
       # and the other is not.
-      if args.foreground
-        Presence.update
-          nick: @userId
-          room_name: args.room_name
-        , $set:
-          foreground: true
-          foreground_uuid: args.uuid
-      else # only update 'foreground' if uuid matches
+      unless args.foreground # only update 'foreground' if uuid matches
         Presence.update
           nick: @userId
           room_name: args.room_name
