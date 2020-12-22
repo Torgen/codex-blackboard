@@ -148,6 +148,21 @@ describe 'presence', ->
         $set: timestamp: 15
       waitForDocument model.Puzzles, {_id: 'foo', solverTime: 54}, {}
 
+    it 'ignores bot user', ->
+      model.Presence.insert
+        nick: 'botto'
+        room_name: 'puzzles/foo'
+        timestamp: 6
+        present: true
+        bot: true
+      model.Puzzles.insert
+        _id: 'foo'
+        solverTime: 45
+      presence = watchPresence()
+      model.Presence.update {nick: 'torgen', room_name:'puzzles/foo'},
+        $set: timestamp: 15
+      waitForDocument model.Puzzles, {_id: 'foo', solverTime: 45}, {}
+
     it 'ignores solved puzzle', ->
       model.Presence.insert
         nick: 'torgen'
