@@ -38,7 +38,24 @@ describe 'setAnswer', ->
         solved: null
         solved_by: null
         confirmed_by: null
+        solverTime: 14
         tags: technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
+      model.Presence.insert
+        room_name: "puzzles/#{id}"
+        nick: 'torgen'
+        timestamp: 2
+        present: true
+      model.Presence.insert
+        room_name: "puzzles/#{id}"
+        nick: 'botto'
+        timestamp: 0
+        bot: true
+        present: true
+      model.Presence.insert
+        room_name: "puzzles/#{id}"
+        nick: 'idle'
+        timestamp: -120001
+        present: true
     it 'fails without login', ->
       chai.assert.throws ->
         Meteor.call 'setAnswer',
@@ -68,6 +85,7 @@ describe 'setAnswer', ->
           solved: 7
           solved_by: 'cjb'
           confirmed_by: 'cjb'
+          solverTime: 60027
           tags:
             answer: {name: 'Answer', value: 'bar', touched: 7, touched_by: 'cjb'}
             technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
@@ -98,6 +116,7 @@ describe 'setAnswer', ->
         solved: 2
         solved_by: 'cscott'
         confirmed_by: 'torgen'
+        solverTime: 0
         tags:
           answer: {name: 'Answer', value: 'qux', touched: 2, touched_by: 'torgen'}
           technology:{name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
@@ -120,6 +139,7 @@ describe 'setAnswer', ->
         solved: 7
         solved_by: 'cjb'
         confirmed_by: 'cjb'
+        solverTime: 0
         tags:
           answer: {name: 'Answer', value: 'bar', touched: 7, touched_by: 'cjb'}
           technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
@@ -151,9 +171,26 @@ describe 'setAnswer', ->
         solved: 2
         solved_by: 'cscott'
         confirmed_by: 'torgen'
+        solverTime: 14
         tags:
           answer: {name: 'Answer', value: 'bar', touched: 2, touched_by: 'torgen'}
           technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
+      model.Presence.insert
+        room_name: "puzzles/#{id}"
+        nick: 'torgen'
+        timestamp: 2
+        present: true
+      model.Presence.insert
+        room_name: "puzzles/#{id}"
+        nick: 'botto'
+        timestamp: 0
+        bot: true
+        present: true
+      model.Presence.insert
+        room_name: "puzzles/#{id}"
+        nick: 'idle'
+        timestamp: -120001
+        present: true
       ret = callAs 'setAnswer', 'cjb',
         target: id
         answer: 'bar'
@@ -173,6 +210,7 @@ describe 'setAnswer', ->
         solved: 2
         solved_by: 'cscott'
         confirmed_by: 'torgen'
+        solverTime: 14
         tags:
           answer: {name: 'Answer', value: 'bar', touched: 2, touched_by: 'torgen'}
           technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}

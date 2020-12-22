@@ -1208,14 +1208,28 @@ doc_id_to_link = (id) ->
       oldAnswer = Puzzles.findOne(id)?.tags.answer?.value
       if oldAnswer is args.answer
         return false
-
       now = UTCNow()
-      updateDoc = $set:
-        solved: now
-        solved_by: @userId
-        confirmed_by: @userId
-        touched: now
-        touched_by: @userId
+      # Accumulate solver time for currrent presence
+      solverTime = 0
+      Presence.find({present: true, room_name: "puzzles/#{id}", bot: $ne: true}).forEach (present) ->
+        since = now - present.timestamp
+        console.log present.nick, since
+        if since < PRESENCE_KEEPALIVE_MINUTES*60*1000
+          # If it's been less than one keepalive interval since you checked in, assume you're still here
+          solverTime += since
+        else
+          # On average you left halfway through the keepalive period.
+          solverTime += since - PRESENCE_KEEPALIVE_MINUTES*30*1000
+
+      updateDoc =
+        $set:
+          solved: now
+          solved_by: @userId
+          confirmed_by: @userId
+          touched: now
+          touched_by: @userId
+        $inc:
+          solverTime: solverTime
       c = CallIns.findOne(target: id, callin_type: callin_types.ANSWER, answer: args.answer)
       if c?
         updateDoc.$set.solved_by = c.created_by
@@ -1247,6 +1261,7 @@ doc_id_to_link = (id) ->
       , updateDoc
       return false if updated is 0
       oplog "Found an answer (#{args.answer.toUpperCase()}) to", 'puzzles', id, @userId, 'answers'
+
       # cancel any entries on the call-in queue for this puzzle
       CallIns.update {target_type: 'puzzles', target: id, status: 'pending', callin_type: callin_types.ANSWER, answer: args.answer},
         $set: status: 'accepted'
