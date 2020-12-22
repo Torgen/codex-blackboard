@@ -159,7 +159,7 @@ describe 'presence', ->
         _id: 'foo'
         solverTime: 45
       presence = watchPresence()
-      model.Presence.update {nick: 'torgen', room_name:'puzzles/foo'},
+      model.Presence.update {nick: 'botto', room_name:'puzzles/foo'},
         $set: timestamp: 15
       waitForDocument model.Puzzles, {_id: 'foo', solverTime: 45}, {}
 
