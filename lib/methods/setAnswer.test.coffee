@@ -54,7 +54,7 @@ describe 'setAnswer', ->
       model.Presence.insert
         room_name: "puzzles/#{id}"
         nick: 'idle'
-        timestamp: -120001
+        timestamp: -130001
         present: true
     it 'fails without login', ->
       chai.assert.throws ->
@@ -85,7 +85,7 @@ describe 'setAnswer', ->
           solved: 7
           solved_by: 'cjb'
           confirmed_by: 'cjb'
-          solverTime: 60027
+          solverTime: 70027
           tags:
             answer: {name: 'Answer', value: 'bar', touched: 7, touched_by: 'cjb'}
             technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
@@ -189,7 +189,7 @@ describe 'setAnswer', ->
       model.Presence.insert
         room_name: "puzzles/#{id}"
         nick: 'idle'
-        timestamp: -120001
+        timestamp: -130001
         present: true
       ret = callAs 'setAnswer', 'cjb',
         target: id

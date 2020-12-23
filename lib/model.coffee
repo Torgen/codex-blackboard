@@ -1214,8 +1214,8 @@ doc_id_to_link = (id) ->
       solverTime = 0
       Presence.find({present: true, room_name: "puzzles/#{id}", bot: $ne: true}).forEach (present) ->
         since = now - present.timestamp
-        if since < PRESENCE_KEEPALIVE_MINUTES*60*1000
-          # If it's been less than one keepalive interval since you checked in, assume you're still here
+        if since < (PRESENCE_KEEPALIVE_MINUTES*60+10)*1000
+          # If it's been less than one keepalive interval, plus some skew, since you checked in, assume you're still here
           solverTime += since
         else
           # On average you left halfway through the keepalive period.
