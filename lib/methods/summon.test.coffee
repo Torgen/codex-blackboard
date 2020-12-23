@@ -120,12 +120,14 @@ describe 'summon', ->
       chai.assert.lengthOf msgs, 1
       chai.assert.include msgs[0].body, ': Stuck like glue ('
       chai.assert.include msgs[0].body, 'Foo'
+      chai.assert.notInclude msgs[0].body, 'solver-minutes'
 
     it "notifies puzzle chat", ->
       msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf msgs, 1
       chai.assert.include msgs[0].body, ': Stuck like glue'
       chai.assert.notInclude msgs[0].body, 'Foo'
+      chai.assert.notInclude msgs[0].body, 'solver-minutes'
 
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', stream: 'stuck', type: 'puzzles', id: id}).fetch(), 1
@@ -168,12 +170,14 @@ describe 'summon', ->
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': Stuck ('
         chai.assert.include msgs[0].body, 'Foo'
+        chai.assert.notInclude msgs[0].body, 'solver-minutes'
 
       it "notifies puzzle chat", ->
         msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': Stuck'
         chai.assert.notInclude msgs[0].body, 'Foo'
+        chai.assert.notInclude msgs[0].body, 'solver-minutes'
 
       it 'oplogs', ->
         chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', stream: 'stuck', type: 'puzzles', id: id}).fetch(), 1
@@ -199,12 +203,14 @@ describe 'summon', ->
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': stucK like glue ('
         chai.assert.include msgs[0].body, 'Foo'
+        chai.assert.notInclude msgs[0].body, 'solver-minutes'
 
       it "notifies puzzle chat", ->
         msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': stucK like glue'
         chai.assert.notInclude msgs[0].body, 'Foo'
+        chai.assert.notInclude msgs[0].body, 'solver-minutes'
 
       it 'oplogs', ->
         chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', stream: 'stuck', type: 'puzzles', id: id}).fetch(), 1
@@ -230,6 +236,7 @@ describe 'summon', ->
         chai.assert.lengthOf msgs, 1
         chai.assert.include msgs[0].body, ': no idea ('
         chai.assert.notInclude msgs[0].body, 'Stuck'
+        chai.assert.notInclude msgs[0].body, 'solver-minutes'
         chai.assert.include msgs[0].body, 'Foo'
 
       it "notifies puzzle chat", ->
@@ -238,6 +245,51 @@ describe 'summon', ->
         chai.assert.include msgs[0].body, ': no idea'
         chai.assert.notInclude msgs[0].body, 'Stuck'
         chai.assert.notInclude msgs[0].body, 'Foo'
+        chai.assert.notInclude msgs[0].body, 'solver-minutes'
 
       it 'oplogs', ->
         chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', stream: 'stuck', type: 'puzzles', id: id}).fetch(), 1
+  
+  describe 'with solver time', ->
+    id = null
+    ret = null
+    beforeEach ->
+      id = model.Puzzles.insert
+        name: 'Foo'
+        canon: 'foo'
+        created: 1
+        created_by: 'cscott'
+        touched: 2
+        touched_by: 'cjb'
+        solved: null
+        solved_by: null
+        solverTime: 1920004
+        tags: status: {name: 'Status', value: 'everything is fine', touched: 2, touched_by: 'cjb'}
+      ret = callAs 'summon', 'torgen',
+        object: id
+        how: 'Stuck like glue'
+    it 'returns nothing', ->
+      chai.assert.isUndefined ret
+
+    it 'updates document', ->
+      chai.assert.deepInclude model.Puzzles.findOne(id),
+        touched: 7
+        touched_by: 'torgen'
+        tags: status: {name: 'Status', value: 'Stuck like glue', touched: 7, touched_by: 'torgen'}
+
+    it 'notifies main chat', ->
+      msgs = model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch()
+      chai.assert.lengthOf msgs, 1
+      chai.assert.include msgs[0].body, ': Stuck like glue ('
+      chai.assert.include msgs[0].body, 'Foo'
+      chai.assert.include msgs[0].body, '32 solver-minutes'
+
+    it "notifies puzzle chat", ->
+      msgs = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
+      chai.assert.lengthOf msgs, 1
+      chai.assert.include msgs[0].body, ': Stuck like glue'
+      chai.assert.notInclude msgs[0].body, 'Foo'
+      chai.assert.notInclude msgs[0].body, 'solver-minutes'
+
+    it 'oplogs', ->
+      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', stream: 'stuck', type: 'puzzles', id: id}).fetch(), 1

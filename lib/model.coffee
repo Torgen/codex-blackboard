@@ -1125,7 +1125,10 @@ doc_id_to_link = (id) ->
         room_name: "puzzles/#{id}"
       objUrl = # see Router.urlFor
         Meteor._relativeToSiteRootUrl "/puzzles/#{id}"
-      body = "has requested help: #{UI._escape rawhow} (puzzle <a class=\"puzzles-link\" href=\"#{objUrl}\">#{UI._escape obj.name}</a>)"
+      solverTimePart = if obj.solverTime?
+        "; #{Math.floor(obj.solverTime / 60000)} solver-minutes"
+      else ''
+      body = "has requested help: #{UI._escape rawhow} (puzzle <a class=\"puzzles-link\" href=\"#{objUrl}\">#{UI._escape obj.name}</a>#{solverTimePart})"
       Meteor.call 'newMessage',
         action: true
         bodyIsHtml: true
