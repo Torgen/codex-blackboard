@@ -11,7 +11,7 @@
     "cytoscape-fcose": "^1.2.0",
     "cytoscape-layout-utilities": "^1.0.2",
     "delay": "^4.4.0",
-    "googleapis": "^40.0.1",
+    "googleapis": "^66.0.0",
     "hubot": "^3.3.2",
     "hubot-help": "^1.0.1",
     "mail-listener5": "^2.0.2",
