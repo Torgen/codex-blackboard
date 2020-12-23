@@ -111,6 +111,8 @@ Template.blackboard.onCreated ->
       return unless match?
       res.add match[1]
     @foundPuzzles.set res
+  @autorun =>
+    @subscribe 'solved-puzzle-time'
 
 Template.blackboard.helpers
   sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
@@ -528,6 +530,9 @@ Template.blackboard_puzzle_cells.helpers
     return model.Puzzles.find(puzzles: {$exists: true, $ne: @_id})
   jitsiLink: ->
     return jitsiUrl "puzzles", @puzzle?._id
+  solverMinutes: ->
+    return unless @puzzle.solverTime?
+    Math.floor(@puzzle.solverTime / 60000)
 
 colorHelper = -> model.getTag @, 'color'
 

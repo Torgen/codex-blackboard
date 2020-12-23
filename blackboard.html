@@ -458,6 +458,7 @@
       </td>
       <td class="puzzle-update">
         {{#if puzzle.solved}}solved {{pretty_ts timestamp=puzzle.solved style="brief duration"}}
+          {{#with solverMinutes}}<br><i class="fas fa-user-clock"></i> {{this}} solver-minutes{{/with}}
         {{else if stuck puzzle}}stuck since {{pretty_ts timestamp=puzzle.tags.status.touched style="brief duration"}}
         {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
         {{/if}}

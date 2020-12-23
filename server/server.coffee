@@ -44,6 +44,11 @@ Meteor.publish 'all-roundsandpuzzles', loginRequired -> [
   model.Rounds.find(), @puzzleQuery({})
 ]
 
+Meteor.publish 'solved-puzzle-time', loginRequired -> model.Puzzles.find
+  solved: $exists: true
+,
+  fields: solverTime: 1
+
 # Login not required for this because it's needed for nick autocomplete.
 Meteor.publish 'all-nicks', ->
   Meteor.users.find {}, fields:

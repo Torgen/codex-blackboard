@@ -115,6 +115,7 @@ if Meteor.isServer
   Puzzles._ensureIndex {canon: 1}, {unique:true, dropDups:true}
   Puzzles._ensureIndex {feedsInto: 1}
   Puzzles._ensureIndex {puzzles: 1}
+  Puzzles._ensureIndex {solved: 1}, {partialFilterExpression: solved: $exists: true}
 
 # CallIns are:
 #   _id: mongodb id
@@ -1213,7 +1214,6 @@ doc_id_to_link = (id) ->
       solverTime = 0
       Presence.find({present: true, room_name: "puzzles/#{id}", bot: $ne: true}).forEach (present) ->
         since = now - present.timestamp
-        console.log present.nick, since
         if since < PRESENCE_KEEPALIVE_MINUTES*60*1000
           # If it's been less than one keepalive interval since you checked in, assume you're still here
           solverTime += since
