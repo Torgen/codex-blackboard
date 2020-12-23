@@ -17,7 +17,7 @@
     "mail-listener5": "^2.0.1",
     "node-forge": "^0.10.0",
     "node-random-name": "^1.0.1",
-    "sanitize-html": "^1.21.1",
+    "sanitize-html": "^2.3.0",
     "twit": "^2.2.11"
   },
   "devDependencies": {
