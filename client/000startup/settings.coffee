@@ -25,12 +25,7 @@ settings.CHAT_LIMIT_INCREMENT = server.chatLimitIncrement ? 100
 
 # Used to generate video chat links
 # No default; if unset, don't generate links.
-settings.JITSI_SERVER = server.jitsi?.server
-
-# Puzzle rooms use meteor IDs, so they're not guessable. Static rooms like
-# general and callins don't, so they would be guessable; use this shared
-# secret so they aren't.
-settings.JITSI_STATIC_ROOM = server.jitsi?.staticRoom
+settings.JITSI_SERVER = server.jitsi?.server ? server.jitsiServer
 
 # -- Performance settings --
 

@@ -44,7 +44,7 @@ class Setting
   ensure: ->
     Settings.upsert @canon,
       $setOnInsert:
-        value: @default
+        value: @convert(@default)
         touched: Date.now()
 
 parse_boolean = (x) ->
@@ -64,6 +64,9 @@ url_matcher = Match.Where (url) ->
   unless u.protocol is 'https:' or u.protocol is 'http:'
     throw new Match.Error "Invalid URL protocol #{u.protocol} in URL #{url}"
   true
+
+path_component_matcher = Match.Where (s) ->
+  /^[-_a-zA-Z0-9]*$/.test(s)
 
 id = (x) -> x
 
@@ -97,6 +100,14 @@ export MaximumMemeLength = new Setting(
   140,
   Match.Integer,
   parseInt
+)
+
+export StaticJitsiMeeting = new Setting(
+  'Static Jitsi Meeting',
+  'The name of the jitsi room to use for the blackboard and callins page',
+  if Meteor.isServer then (Meteor.settings?.jitsi?.staticRoom ? process.env.STATIC_JITSI_ROOM ? '') else '',
+  path_component_matcher,
+  canonical
 )
 
 Object.freeze all_settings

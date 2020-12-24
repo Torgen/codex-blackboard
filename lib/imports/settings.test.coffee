@@ -104,6 +104,27 @@ describe 'settings', ->
           value: 286
           touched: 7
           touched_by: 'torgen'
+    
+    describe 'of path component', ->
+      uuid = '469a2d19-8a0C-4650-8621-7077a6de8ee6'
+      it 'allows uuid', ->
+        impersonating 'torgen', ->
+          settings.StaticJitsiMeeting.set uuid
+        chai.assert.deepEqual settings.Settings.findOne('static_jitsi_meeting'),
+          _id: 'static_jitsi_meeting'
+          value: uuid
+          touched: 7
+          touched_by: 'torgen'
+
+      it 'canonicalizes', ->
+        impersonating 'torgen', ->
+          settings.StaticJitsiMeeting.set 'it\'s ya boy Voynich'
+        chai.assert.deepEqual settings.Settings.findOne('static_jitsi_meeting'),
+          _id: 'static_jitsi_meeting'
+          value: 'its_ya_boy_voynich'
+          touched: 7
+          touched_by: 'torgen'
+
   
   describe 'get', ->
     it 'allows legacy values', ->
