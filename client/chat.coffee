@@ -360,6 +360,10 @@ Template.embedded_chat.onCreated ->
   @jitsi = new ReactiveVar null
   # Intentionally staying out of the meeting.
   @jitsiLeft = new ReactiveVar false
+  @jitsiPinType = new ReactiveVar null
+  @jitsiPinId = new ReactiveVar null
+  @jitsiType = -> @jitsiPinType.get() ? Session.get 'type'
+  @jitsiId = -> @jitsiPinId.get() ? Session.get 'id'
   @jitsiInOtherTab = ->
     jitsiTabUUID = reactiveLocalStorage.getItem 'jitsiTabUUID'
     jitsiTabUUID? and jitsiTabUUID isnt settings.CLIENT_UUID
@@ -367,6 +371,8 @@ Template.embedded_chat.onCreated ->
     @jitsiLeft.set true
     @jitsi.get()?.dispose()
     @jitsi.set null
+    @jitsiPinType.set null
+    @jitsiPinId.set null
     @jitsiRoom = null
   @unsetCurrentJitsi = ->
     if settings.CLIENT_UUID is reactiveLocalStorage.getItem 'jitsiTabUUID'
@@ -380,6 +386,14 @@ gravatarUrl = ->
     secure: true
   ).attr('src')
 
+jitsiRoomSubject = (type, id) ->
+  if 'puzzles' is type
+    model.Puzzles.findOne(id).name ? 'Puzzle'
+  else if '0' is id
+    settings.GENERAL_ROOM_NAME
+  else
+    'Video Call'
+
 Template.embedded_chat.onRendered ->
   @autorun =>
     return unless jitsiLoaded.get()
@@ -387,7 +401,7 @@ Template.embedded_chat.onRendered ->
     if @jitsiInOtherTab()
       @leaveJitsi()
       return
-    newRoom = jitsiRoom Session.get('type'), Session.get('id')
+    newRoom = jitsiRoom @jitsiType(), @jitsiId()
     jitsi = @jitsi.get()
     if jitsi?
       return if newRoom is @jitsiRoom
@@ -431,15 +445,10 @@ Template.embedded_chat.onRendered ->
   @autorun =>
     jitsi = @jitsi.get()
     return unless jitsi?
-    subject = if 'puzzles' is Session.get 'type'
-      model.Puzzles.findOne(Session.get 'id').name ? 'Puzzle'
-    else if '0' is Session.get 'id'
-      settings.GENERAL_ROOM_NAME
-    else
-      'Video Call'
-    jitsi.executeCommand 'subject', subject
+    jitsi.executeCommand 'subject', jitsiRoomSubject(@jitsiType(), @jitsiId())
 
 Template.embedded_chat.onDestroyed ->
+  console.log 'onDestroyed'
   @unsetCurrentJitsi()
   $(window).off('unload', @unsetCurrentJitsi)
   @jitsi.get()?.dispose()
@@ -457,6 +466,7 @@ Template.embedded_chat.helpers
   nickAndName: (nick) ->
     user = Meteor.users.findOne canonical nick ? {nickname: nick}
     nickAndName user
+  inJitsi: -> Template.instance().jitsi.get()?
   canJitsi: ->
     return jitsiRoom(Session.get('type'), Session.get('id'))? and Template.instance().jitsiLeft.get()
   otherJitsi: -> Template.instance().jitsiInOtherTab()
@@ -464,6 +474,14 @@ Template.embedded_chat.helpers
     # Set up dependencies
     return unless Template.instance().jitsi.get()?
     Math.floor(share.Splitter.hsize.get() * 9 / 16)
+  jitsiPinSet: -> Template.instance().jitsiPinType.get()?
+  usingJitsiPin: ->
+    instance = Template.instance()
+    console.log jitsiRoom(instance.jitsiType(), instance.jitsiId()), jitsiRoom(Session.get('type'), Session.get('id'))
+    jitsiRoom(instance.jitsiType(), instance.jitsiId()) isnt jitsiRoom(Session.get('type'), Session.get('id'))
+  pinnedRoomName: ->
+    instance = Template.instance()
+    jitsiRoomSubject instance.jitsiType(), instance.jitsiId()
 
 Template.embedded_chat.events
   'click .bb-show-whos-here': (event, template) ->
@@ -472,6 +490,12 @@ Template.embedded_chat.events
   'click .bb-join-jitsi': (event, template) ->
     reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
     template.jitsiLeft.set false
+  'click .bb-jitsi-pin': (event, template) ->
+    template.jitsiPinType.set Session.get 'type'
+    template.jitsiPinId.set Session.get 'id'
+  'click .bb-jitsi-unpin': (event, template) ->
+    template.jitsiPinType.set null
+    template.jitsiPinId.set null
 
 # Utility functions
 

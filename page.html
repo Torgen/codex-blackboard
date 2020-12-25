@@ -44,30 +44,25 @@ function onGoogleApiLoad() {
 <!-- common header -->
   {{> header }}
 
+
 <!-- page contents -->
-  {{#if currentPageEquals "blackboard"}}
-    {{> blackboard }}
-  {{/if}}
-  {{#if currentPageEquals "round"}}
-    {{> puzzle }}
-  {{/if}}
-  {{#if currentPageEquals "puzzle"}}
-    {{> puzzle }}
-  {{/if}}
-  {{#if currentPageEquals "chat"}}
-    {{> chat }}
-  {{/if}}
-  {{#if currentPageEquals "oplog"}}
-    {{> oplog }}
-  {{/if}}
-  {{#if currentPageEquals "callins"}}
-    {{> callins }}
-  {{/if}}
-  {{#if currentPageEquals "quip"}}
-    {{> quip }}
-  {{/if}}
-  {{#if currentPageEquals "facts"}}
-    {{> facts }}
+  {{#if splitter}}
+    <div class="row-fluid bb-puzzleround" id="bb-{{currentPage}}" style="background-color: {{color}};">
+      {{#horizontal_splitter}}
+        {{>Template.dynamic template=currentPage}}
+      {{else vertical_splitter (not topRight)}}
+        {{>Template.dynamic template=topRight}}
+      {{else}}
+        {{> embedded_chat}}
+        <div class="bb-chat-pop-out {{#if not topRight}}in-margin{{/if}}">
+          <a href="/chat/{{type}}/{{id}}" class="chat-link bb-pop-out"
+              target="chat0"><i class="fas fa-expand-arrows-alt"></i>
+        Pop out</a>
+        </div>
+      {{/horizontal_splitter}}
+    </div>
+  {{else}}
+    {{>Template.dynamic template=currentPage}}
   {{/if}}
 
 <!-- add footer here? -->

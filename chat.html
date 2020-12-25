@@ -49,13 +49,28 @@
         <i class="fas fa-address-card"></i>
       </button>
       {{#if canJitsi}}
-        <button class="btn btn-mini btn-inverse bb-join-jitsi" title="Connect to Jitsi meeting.{{#if otherJitsi}} This will diconnect another tab from its meeting.{{/if}}">
+        <button class="btn btn-mini btn-inverse bb-join-jitsi" title="Connect to Jitsi meeting.{{#if otherJitsi}} This will disconnect another tab from its meeting.{{/if}}">
           <i class="fas fa-video"></i>
         </button>
       {{/if}}
       {{> messages_input }}
     </div>
-    <div id="bb-jitsi-container"></div>
+    <div id="bb-jitsi-container">
+      {{#if inJitsi}}
+        <div class="bb-pin-overlay">
+          <a href="#" class="{{#if jitsiPinSet}}bb-jitsi-unpin {{#if usingJitsiPin}}bb-jitsi-pin-used{{/if}}{{else}}bb-jitsi-pin{{/if}}"
+            title="{{#if usingJitsiPin}}You are pinned to the Jitsi meeting for {{pinnedRoomName}}.
+Clicking here will join the meeting for your current page.
+            {{else if jitsiPinSet}}You are pinned to the Jitsi meeting for this page.
+You will stay in this meeting if you navigate to another page.
+            {{else}}If you navigate to another page you will join the Jitsi meeting for that page.
+Click here to stay in this meeting instead.{{/if}}">
+            {{#if usingJitsiPin}}{{pinnedRoomName}}{{/if}}
+            <i class="fas fa-thumbtack"></i>
+          </a>
+        </div>
+      {{/if}}
+    </div>
   </div>
 </template>
 

@@ -71,6 +71,13 @@ Template.registerHelper 'nullToZero', (x) -> x ? 0
 
 Template.registerHelper 'canGoFullScreen', -> $('body').get(0)?.requestFullscreen?
 
+Template.page.helpers
+  splitter: -> Session.get 'splitter'
+  topRight: -> Session.get 'topRight'
+  type: -> Session.get 'type'
+  id: -> Session.get 'id'
+  color: -> Session.get 'color'
+
 # subscribe to the all-names feed all the time
 Meteor.subscribe 'all-names'
 # subscribe to all nicks all the time
@@ -244,22 +251,26 @@ BlackboardRouter = Backbone.Router.extend
 
   BlackboardPage: ->
     scrollAfter =>
-      this.Page("blackboard", "general", "0")
+      @Page "blackboard", "general", "0", true
       Session.set
+        color: 'white'
         canEdit: undefined
         editing: undefined
+        topRight: 'blackboard_status_grid'
 
   EditPage: ->
     scrollAfter =>
-      this.Page("blackboard", "general", "0")
+      @Page "blackboard", "general", "0", true
       Session.set
+        color: 'white'
         canEdit: true
         editing: undefined
+        topRight: 'blackboard_status_grid'
 
   GraphPage: -> @Page 'graph', 'general', '0'
 
   PuzzlePage: (id, view=null) ->
-    this.Page("puzzle", "puzzles", id)
+    @Page "puzzle", "puzzles", id, true
     Session.set
       timestamp: 0
       view: view
@@ -275,7 +286,10 @@ BlackboardRouter = Backbone.Router.extend
     this.Page("oplog", "oplog", "0")
 
   CallInPage: ->
-    this.Page("callins", "callins", "0")
+    @Page "callins", "callins", "0", true
+    Session.set
+      color: 'white'
+      topRight: null
 
   QuipPage: (id) ->
     this.Page("quip", "quips", id)
@@ -300,7 +314,7 @@ BlackboardRouter = Backbone.Router.extend
     r = share.loadtest.start which, cb
     cb(r) if r? # immediately navigate if method is synchronous
 
-  Page: (page, type, id) ->
+  Page: (page, type, id, splitter) ->
     old_room = Session.get 'room_name'
     new_room = "#{type}/#{id}"
     if old_room isnt new_room
@@ -309,6 +323,7 @@ BlackboardRouter = Backbone.Router.extend
         room_name: new_room
         limit: settings.INITIAL_CHAT_LIMIT
     Session.set
+      splitter: splitter ? false
       currentPage: page
       type: type
       id: id

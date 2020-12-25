@@ -74,6 +74,15 @@ Template.puzzle_info.helpers
         {name: tag.name, value: tag.value, meta: meta.name}
     [].concat r...
 
+Template.puzzle_info_frame.helpers
+  data: ->
+    r = {}
+    puzzle = r.puzzle = model.Puzzles.findOne Session.get 'id'
+    round = r.round = model.Rounds.findOne puzzles: puzzle?._id
+    r.isMeta = puzzle?.puzzles?
+    r.stuck = model.isStuck puzzle
+    r.capType = capType puzzle
+    return r
 
 Template.puzzle.helpers
   data: ->
@@ -85,7 +94,6 @@ Template.puzzle.helpers
     r.capType = capType puzzle
     return r
   currentViewIs: (view) -> currentViewIs @puzzle, view
-  color: -> color @puzzle if @puzzle
   docLoaded: -> Template.instance().docLoaded.get()
 
 Template.puzzle.events 
@@ -117,6 +125,20 @@ Template.puzzle.onCreated ->
     @subscribe 'puzzle-by-id', id
     @subscribe 'round-for-puzzle', id
     @subscribe 'puzzles-by-meta', id
+  @autorun =>
+    if Session.equals 'view', 'info'
+      Session.set 'topRight', null
+    else
+      Session.set 'topRight', 'puzzle_info_frame'
+  @autorun =>
+    id = Session.get 'id'
+    return unless id
+    puzzle = model.Puzzles.findOne id,
+      fields: 'tags.color.value': 1
+    if puzzle?
+      Session.set 'color', color puzzle
+    else
+      Session.set 'color', 'white'
 
 Template.puzzle_summon_button.helpers
   stuck: -> model.isStuck this

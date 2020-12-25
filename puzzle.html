@@ -1,4 +1,5 @@
 <template name="puzzle_info">
+<div class="bb-puzzle-frame" style="background-color: {{color}}">
 <div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
   <h1>{{puzzle.name}} {{>favorite puzzle}}
     {{#if puzzle.link}}(<a href="{{puzzle.link}}" target="_blank">link<i class="fas fa-expand-arrows-alt"></i></a>){{/if}}
@@ -91,71 +92,64 @@
   {{/with}}{{/each}}
 </tbody></table>
 {{/let}}{{/if}}
+</div>
 </template>
 
 <template name="puzzle">
 {{#with data}}
-<div class="row-fluid bb-puzzleround" style="{{#unless boringMode}}background: {{color}}{{/unless}}">
- <!-- this is a puzzle page -->
-{{#horizontal_splitter}}
-  <div class="bb-pop-full-menu">
-    {{#if currentViewIs "spreadsheet"}}
-      {{#if puzzle.spreadsheet}}
-        <a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Open spreadsheet in new window"><i class='fas fa-external-link-alt'></i></a>
-      {{/if}}
-    {{else if currentViewIs "doc"}}
-      {{#if puzzle.doc}}
-        <a href="{{doc_link puzzle.doc}}" target="_blank" title="Open document in new window"><i class='fas fa-external-link-alt'></i></a>
-      {{/if}}
-    {{else if currentViewIs "puzzle"}}
-      {{#if puzzle.link}}
-        <a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class='fas fa-external-link-alt'></i></a>
-      {{/if}}
+<div class="bb-pop-full-menu">
+  {{#if currentViewIs "spreadsheet"}}
+    {{#if puzzle.spreadsheet}}
+      <a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Open spreadsheet in new window"><i class='fas fa-external-link-alt'></i></a>
     {{/if}}
-    {{#if canGoFullScreen}}
-      <a href="#" class="bb-go-fullscreen" title="Full screen"><i class='fas fa-expand-arrows-alt'></i></a>
+  {{else if currentViewIs "doc"}}
+    {{#if puzzle.doc}}
+      <a href="{{doc_link puzzle.doc}}" target="_blank" title="Open document in new window"><i class='fas fa-external-link-alt'></i></a>
     {{/if}}
-  </div>
-  {{#if puzzle.spreadsheet}}
-    {{! hide iframe when not current view for faster tab change }}
-    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{spread_link puzzle.spreadsheet}}?widget=true&chrome=false&rm=embedded'
-            style="{{#unless currentViewIs "spreadsheet"}}display:none{{/unless}}"></iframe>
-  {{/if}}
-  {{#if puzzle.doc}}
-    {{! Because of a bug in google docs when you load a doc in ain iframe with
-        display: none, then make it visible, we have to load the doc lazily.
-        Spreadsheets don't seem to have the same bug, so we can load them
-        eagerly.}}
-    {{#if docLoaded}}
-      {{! hide iframe when not current view for faster tab change }}
-      <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{doc_link puzzle.doc}}?widget=true&chrome=false&rm=embedded'
-              style="{{#unless currentViewIs "doc"}}display:none{{/unless}}"></iframe>
+  {{else if currentViewIs "puzzle"}}
+    {{#if puzzle.link}}
+      <a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class='fas fa-external-link-alt'></i></a>
     {{/if}}
   {{/if}}
-  {{#if embeddable puzzle.link}}
-    {{! hide iframe when not current view for faster tab change }}
-    <iframe class="bb-puzzle-frame" frameborder='0' src='{{puzzle.link}}'
-            style="{{#unless currentViewIs "puzzle"}}display:none;{{/unless}}"></iframe>
+  {{#if canGoFullScreen}}
+    <a href="#" class="bb-go-fullscreen" title="Full screen"><i class='fas fa-expand-arrows-alt'></i></a>
   {{/if}}
-  {{#if currentViewIs "info"}}
-    <div class="bb-puzzle-frame">{{> puzzle_info}}</div>
-  {{/if}}
-{{else vertical_splitter (currentViewIs "info")}}
-  {{> puzzle_info }}
-{{else}}
-  {{> embedded_chat}}
-  <div class="bb-chat-pop-out {{#if currentViewIs "info"}}in-margin{{/if}}">
-    <a href="/chat/puzzles/{{puzzle._id}}" class="chat-link bb-pop-out"
-        target="chat{{puzzle._id}}"><i class="fas fa-external-link-alt"></i>
-  Pop out</a>
-  </div>
-{{/horizontal_splitter}}
-{{#with puzzle}}
-{{> puzzle_summon_modal}}
-{{> puzzle_callin_modal}}
-{{/with}}
 </div>
+{{#if puzzle.spreadsheet}}
+  {{! hide iframe when not current view for faster tab change }}
+  <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{spread_link puzzle.spreadsheet}}?widget=true&chrome=false&rm=embedded'
+          style="{{#unless currentViewIs "spreadsheet"}}display:none{{/unless}}"></iframe>
+{{/if}}
+{{#if puzzle.doc}}
+  {{! Because of a bug in google docs when you load a doc in ain iframe with
+      display: none, then make it visible, we have to load the doc lazily.
+      Spreadsheets don't seem to have the same bug, so we can load them
+      eagerly.}}
+  {{#if docLoaded}}
+    {{! hide iframe when not current view for faster tab change }}
+    <iframe class="bb-spreadsheet-frame" frameborder='0' src='{{doc_link puzzle.doc}}?widget=true&chrome=false&rm=embedded'
+            style="{{#unless currentViewIs "doc"}}display:none{{/unless}}"></iframe>
+  {{/if}}
+{{/if}}
+{{#if embeddable puzzle.link}}
+  {{! hide iframe when not current view for faster tab change }}
+  <iframe class="bb-puzzle-frame" frameborder='0' src='{{puzzle.link}}'
+          style="{{#unless currentViewIs "puzzle"}}display:none;{{/unless}}"></iframe>
+{{/if}}
+{{#if currentViewIs "info"}}
+  {{> puzzle_info}}
+{{/if}}
+{{#with puzzle}}
+  {{> puzzle_summon_modal}}
+  {{> puzzle_callin_modal}}
 {{/with}}
+{{/with}}
+</template>
+
+<template name="puzzle_info_frame">
+  {{#with data}}
+    {{>puzzle_info}}
+  {{/with}}
 </template>
 
 <template name="puzzle_summon_button">
