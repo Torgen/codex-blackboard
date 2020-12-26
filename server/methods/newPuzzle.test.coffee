@@ -1,7 +1,7 @@
 'use strict'
 
 # Will access contents via share
-import '../model.coffee'
+import '/lib/model.coffee'
 # Test only works on server side; move to /server if you add client tests.
 import { callAs, impersonating } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
