@@ -5,6 +5,7 @@ node_js:
 env:
   global:
     - COVERALLS_PARALLEL=true
+    - TEST_BROWSER_DRIVER=puppeteer
 
   matrix:
     - TEST_SCRIPT=coverage.lcov
