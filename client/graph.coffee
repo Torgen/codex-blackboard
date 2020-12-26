@@ -94,6 +94,7 @@ Template.graph.onRendered ->
       p = lay.promiseOn 'layoutstop'
       lay.run()
       await p
+      @cy.container().dispatchEvent new Event('render')
       if @status is 'running'
         @status = 'idle'
         break
