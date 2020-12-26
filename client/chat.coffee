@@ -448,7 +448,6 @@ Template.embedded_chat.onRendered ->
     jitsi.executeCommand 'subject', jitsiRoomSubject(@jitsiType(), @jitsiId())
 
 Template.embedded_chat.onDestroyed ->
-  console.log 'onDestroyed'
   @unsetCurrentJitsi()
   $(window).off('unload', @unsetCurrentJitsi)
   @jitsi.get()?.dispose()
