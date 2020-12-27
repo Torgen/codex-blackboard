@@ -54,7 +54,7 @@
       {{/unless}}
     </td>
     <td>{{pretty_ts this.created}}</td>
-    <td>{{#with lastAttempt}}{{pretty_ts timestamp}} <small>({{pretty_ts timestamp=timestamp style="brief duration"}})</small>{{else}}-{{/with}}</td>
+    <td>{{#with lastAttempt}}{{pretty_ts this}} <small>({{pretty_ts timestamp=this style="brief duration"}})</small>{{else}}-{{/with}}</td>
     {{#if mynick}}
       <td>
         {{#if callinTypeIs "expected callback"}}N/A{{else}}

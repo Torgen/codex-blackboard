@@ -70,7 +70,7 @@ describe 'newRound', ->
         puzzles: []
         link: 'https://puzzlehunt.mit.edu/foo'
         tags: {}
-      ['solved', 'solved_by', 'incorrectAnswers', 'drive', 'spreadsheet', 'doc'].forEach (prop) =>
+      ['solved', 'solved_by', 'drive', 'spreadsheet', 'doc'].forEach (prop) =>
         chai.assert.notProperty round, prop
   
   it 'derives link', ->

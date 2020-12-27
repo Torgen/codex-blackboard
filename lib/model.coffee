@@ -56,11 +56,6 @@ LastAnswer = BBCollection.last_answer = \
 #   sort_key: timestamp. Initially created, but can be traded to other rounds.
 #   touched: timestamp -- records edits to tag, order, group, etc.
 #   touched_by: canon of Nick with last touch
-#   solved:  timestamp -- null (not missing or zero) if not solved
-#            (actual answer is in a tag w/ name "Answer")
-#   solved_by:  timestamp of Nick who confirmed the answer
-#   incorrectAnswers: [ { answer: "Wrong", who: "answer submitter",
-#                         backsolve: ..., provided: ..., timestamp: ... }, ... ]
 #   tags: status: { name: "Status", value: "stuck" }, ... 
 #   puzzles: [ array of puzzle _ids, in order ]
 #            Preserving order is why this is a list here and not a foreign key
@@ -87,8 +82,6 @@ if Meteor.isServer
 #   solverTime: aggregate milliseconds spent in chat while not solved.
 #               Derived from chat presence, so more frequent checkins give
 #               higher accuracy.
-#   incorrectAnswers: [ { answer: "Wrong", who: "answer submitter",
-#                         backsolve: ..., provided: ..., timestamp: ... }, ... ]
 #   tags: status: { name: "Status", value: "stuck" }, ... 
 #   drive: optional google drive folder id
 #   spreadsheet: optional google spreadsheet id
@@ -131,6 +124,7 @@ if Meteor.isServer
 #   backsolve: true/false
 #   provided: true/false
 #   status: one of 'pending', 'accepted', 'rejected', or 'cancelled'.
+#   resolved: (optional) timestamp when status became not pending.
 #   response: (optional) response from HQ to this callin
 CallIns = BBCollection.callins = new Mongo.Collection "callins"
 if Meteor.isServer
@@ -477,7 +471,6 @@ doc_id_to_link = (id) ->
         "#{puzzle_prefix}#{canonical(args.name)}"
       feedsInto = args.feedsInto or []
       extra =
-        incorrectAnswers: []
         solved: null
         solved_by: null
         drive: args.drive or null
@@ -770,7 +763,9 @@ doc_id_to_link = (id) ->
           body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
       else
         check response, Match.Optional String
-        updateBody = status: 'accepted'
+        updateBody =
+          status: 'accepted'
+          resolved: UTCNow()
         extra = if response?
           updateBody.response = response
           " with response \"#{response}\""
@@ -827,7 +822,9 @@ doc_id_to_link = (id) ->
         throw new Meteor.Error(400, 'expected callback can\'t be incorrect')
       else
         check response, Match.Optional String
-        updateBody = status: 'rejected'
+        updateBody =
+          status: 'rejected'
+          resolved: UTCNow()
         extra = if response?
           updateBody.response = response
           " with response \"#{response}\""
@@ -866,7 +863,9 @@ doc_id_to_link = (id) ->
         oplog "Canceled call-in of #{callin.answer} for", 'puzzles', \
             callin.target, @userId
       CallIns.update _id: args.id, status: 'pending',
-        $set: status: 'cancelled'
+        $set:
+          status: 'cancelled'
+          resolved: UTCNow()
 
     locateNick: (args) ->
       check @userId, NonEmptyString
@@ -1040,7 +1039,7 @@ doc_id_to_link = (id) ->
       now = UTCNow()
       # disallow modifications to the following fields; use other APIs for these
       for f in ['name','canon','created','created_by','solved','solved_by',
-               'tags','puzzles','incorrectAnswers', 'feedsInto',
+               'tags','puzzles', 'feedsInto',
                'located','located_at',
                'priv_located','priv_located_at','priv_located_order']
         delete args.fields[f]

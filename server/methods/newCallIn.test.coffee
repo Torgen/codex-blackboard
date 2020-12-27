@@ -65,7 +65,6 @@ describe 'newCallIn', ->
           solved: null
           solved_by: null
           tags: {}
-          incorrectAnswers: []
           feedsInto: []
 
       it 'fails without login', ->
@@ -171,7 +170,6 @@ describe 'newCallIn', ->
         solved: null
         solved_by: null
         tags: {}
-        incorrectAnswers: []
         feedsInto: []
       p = model.Puzzles.insert
         name: 'Foo'
@@ -183,7 +181,6 @@ describe 'newCallIn', ->
         solved: null
         solved_by: null
         tags: {}
-        incorrectAnswers: []
         feedsInto: [meta]
       model.Puzzles.update meta, $push: puzzles: p
       r = model.Rounds.insert
@@ -249,7 +246,6 @@ describe 'newCallIn', ->
           solved: null
           solved_by: null
           tags: {}
-          incorrectAnswers: []
           feedsInto: []
 
       it 'fails without login', ->
@@ -378,7 +374,6 @@ describe 'newCallIn', ->
           solved: null
           solved_by: null
           tags: {}
-          incorrectAnswers: []
           feedsInto: []
 
       it 'fails without login', ->
@@ -507,7 +502,6 @@ describe 'newCallIn', ->
           solved: null
           solved_by: null
           tags: {}
-          incorrectAnswers: []
           feedsInto: []
 
       it 'fails without login', ->

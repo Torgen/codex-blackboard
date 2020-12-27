@@ -48,7 +48,6 @@ describe 'renamePuzzle', ->
         touched_by: 'torgen'
         solved: null
         solved_by: null
-        incorrectAnswers: []
         link: 'https://puzzlehunt.mit.edu/foo'
         drive: 'fid'
         spreadsheet: 'sid'
@@ -100,7 +99,6 @@ describe 'renamePuzzle', ->
         touched_by: 'torgen'
         solved: null
         solved_by: null
-        incorrectAnswers: []
         link: 'https://puzzlehunt.mit.edu/foo'
         drive: 'f1'
         spreadsheet: 's1'
@@ -115,7 +113,6 @@ describe 'renamePuzzle', ->
         touched_by: 'cscott'
         solved: null
         solved_by: null
-        incorrectAnswers: []
         link: 'https://puzzlehunt.mit.edu/foo'
         drive: 'f2'
         spreadsheet: 's2'

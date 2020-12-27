@@ -14,7 +14,6 @@ puzzleQuery = (query) ->
       touched_by: 1
       solved: 1
       solved_by: 1
-      incorrectAnswers: 1
       tags: 1
       drive: 1
       spreadsheet: 1
@@ -171,7 +170,7 @@ Meteor.publish 'starred-messages', loginRequired (room_name) ->
     sort: [["timestamp", "asc"]]
 
 Meteor.publish 'callins', loginRequired ->
-  model.CallIns.find {status: 'pending'},
+  model.CallIns.find {status: $in: ['pending', 'rejected']},
     sort: [["created","asc"]]
 
 Meteor.publish 'quips', loginRequired ->

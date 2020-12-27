@@ -126,7 +126,6 @@ describe 'correctCallIn', ->
         solved_by: null
         confirmed_by: null
         tags: {}
-        incorrectAnswers: []
         feedsInto: []
         puzzles: [puzzle]
       model.Puzzles.update puzzle, $push: feedsInto: meta
@@ -271,7 +270,6 @@ describe 'correctCallIn', ->
         solved_by: null
         confirmed_by: null
         tags: {}
-        incorrectAnswers: []
         feedsInto: []
         puzzles: [puzzle]
       model.Puzzles.update puzzle, $push: feedsInto: meta
@@ -410,7 +408,6 @@ describe 'correctCallIn', ->
         solved_by: null
         confirmed_by: null
         tags: {}
-        incorrectAnswers: []
         feedsInto: []
         puzzles: [puzzle]
       model.Puzzles.update puzzle, $push: feedsInto: meta
@@ -551,7 +548,6 @@ describe 'correctCallIn', ->
         solved_by: null
         confirmed_by: null
         tags: {}
-        incorrectAnswers: []
         feedsInto: []
         puzzles: [puzzle]
       model.Puzzles.update puzzle, $push: feedsInto: meta

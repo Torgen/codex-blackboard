@@ -47,7 +47,6 @@ describe 'deletePuzzle', ->
       touched_by: 'torgen'
       solved: null
       solved_by: null
-      incorrectAnswers: []
       tags: {}
       drive: 'ffoo'
       spreadsheet: 'sfoo'
@@ -61,7 +60,6 @@ describe 'deletePuzzle', ->
       touched_by: 'torgen'
       solved: null
       solved_by: null
-      incorrectAnswers: []
       tags: {}
       puzzles: [id]
       drive: 'fmeta'
@@ -117,7 +115,6 @@ describe 'deletePuzzle', ->
         touched_by: 'cjb'
         solved: null
         solved_by: null
-        incorrectAnswers: []
         puzzles: []
         tags: {}
         drive: 'fmeta'

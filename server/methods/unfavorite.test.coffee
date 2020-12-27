@@ -49,7 +49,6 @@ describe 'unfavorite', ->
         touched_by: 'torgen'
         solved: null
         solved_by: null
-        incorrectAnswers: []
         link: 'https://puzzlehunt.mit.edu/foo'
         drive: 'fid'
         spreadsheet: 'sid'
@@ -89,7 +88,6 @@ describe 'unfavorite', ->
         touched_by: 'torgen'
         solved: null
         solved_by: null
-        incorrectAnswers: []
         favorites:
           torgen: true
           cscott: true
@@ -134,7 +132,6 @@ describe 'unfavorite', ->
         touched_by: 'torgen'
         solved: null
         solved_by: null
-        incorrectAnswers: []
         favorites:
           torgen: true
           cjb: true
