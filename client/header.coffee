@@ -189,14 +189,6 @@ Template.connection_button.events
   "click .failed, click .offline": (event, template) ->
     Meteor.reconnect()
 
-fillMetas = (metas, currentid) ->
-  puzzle = model.Puzzles.findOne currentid
-  if puzzle?.feedsInto?
-    for p in puzzle.feedsInto
-      unless metas[p]?
-        metas[p] = p
-        fillMetas metas, p
-
 ############## breadcrumbs #######################
 
 crumbs_equal = (x, y) ->
