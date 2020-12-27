@@ -288,8 +288,10 @@ describe 'setAnswer', ->
     it 'updates callins', ->
       chai.assert.include model.CallIns.findOne(cid1),
         status: 'accepted'
+        resolved: 7
       chai.assert.include model.CallIns.findOne(cid2),
         status: 'cancelled'
+        resolved: 7
 
     it 'doesn\'t oplog for callins', ->
       chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'callins'}).fetch(), 0

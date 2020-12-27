@@ -61,6 +61,7 @@ describe 'cancelCallIn', ->
       c = model.CallIns.findOne()
       chai.assert.include c,
         status: 'cancelled'
+        resolved: 7
     
     it 'oplogs', ->
       chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle}).fetch(), 1

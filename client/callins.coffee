@@ -78,6 +78,7 @@ Template.callins_quip.events
 Template.callin_row.helpers
   lastAttempt: ->
     return null unless @puzzle?
+    console.log model.CallIns.findOne {target_type: 'puzzles', target: @puzzle._id, status: 'rejected'}
     model.CallIns.findOne {target_type: 'puzzles', target: @puzzle._id, status: 'rejected'},
       sort: resolved: -1
       limit: 1

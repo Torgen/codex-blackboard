@@ -1266,9 +1266,13 @@ doc_id_to_link = (id) ->
 
       # cancel any entries on the call-in queue for this puzzle
       CallIns.update {target_type: 'puzzles', target: id, status: 'pending', callin_type: callin_types.ANSWER, answer: args.answer},
-        $set: status: 'accepted'
+        $set:
+          status: 'accepted'
+          resolved: now
       CallIns.update {target_type: 'puzzles', target: id, status: 'pending'},
-        $set: status: 'cancelled'
+        $set:
+          status: 'cancelled'
+          resolved: now
       ,
         multi: true
       return true
@@ -1291,7 +1295,9 @@ doc_id_to_link = (id) ->
       # cancel any matching entries on the call-in queue for this puzzle
       # The 'pending' status means this should be unique if present.
       CallIns.update {target_type: 'puzzles', callin_type: callin_types.ANSWER, target: id, status: 'pending', answer: args.answer},
-        $set: status: 'rejected'
+        $set:
+          status: 'rejected'
+          resolved: now
       return true
 
     deleteAnswer: (args) ->
