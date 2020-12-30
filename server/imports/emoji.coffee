@@ -1,13 +1,6 @@
-# emoji name to codepoint map, from https://github.com/github/gemoji
-# compatible with https://www.webpagefx.com/tools/emoji-cheat-sheet/
-# kept server-side so we don't have to send the whole mapping to every
-# client.
-import * as db from './emoji.json'
 
-emojiMap = new Map()
-db.default.forEach (entry) ->
-  entry.aliases.forEach (a) ->
-    emojiMap.set(a, entry.emoji)
+
+import emojiMap from 'gemoji/name-to-emoji'
 
 # We might consider substituting an <i> tag from
 # http://ellekasai.github.io/twemoji-awesome/
@@ -16,4 +9,4 @@ db.default.forEach (entry) ->
 # stored in the DB.
 export default emojify = (s) ->
   s.replace /:([+]?[-a-z0-9_]+):/g, (full, name) ->
-   emojiMap.get(name) or full
+   emojiMap[name] or full
