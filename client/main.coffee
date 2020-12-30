@@ -252,7 +252,7 @@ BlackboardRouter = Backbone.Router.extend
     scrollAfter =>
       @Page "blackboard", "general", "0", true
       Session.set
-        color: 'white'
+        color: 'inherit'
         canEdit: undefined
         editing: undefined
         topRight: 'blackboard_status_grid'
@@ -261,7 +261,7 @@ BlackboardRouter = Backbone.Router.extend
     scrollAfter =>
       @Page "blackboard", "general", "0", true
       Session.set
-        color: 'white'
+        color: 'inherit'
         canEdit: true
         editing: undefined
         topRight: 'blackboard_status_grid'
@@ -287,7 +287,7 @@ BlackboardRouter = Backbone.Router.extend
   CallInPage: ->
     @Page "callins", "callins", "0", true
     Session.set
-      color: 'white'
+      color: 'inherit'
       topRight: null
 
   QuipPage: (id) ->

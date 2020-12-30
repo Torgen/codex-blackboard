@@ -114,6 +114,10 @@ html.fullHeight {
           /* chat stylin' */
           background: url('/img/grid_noise.png');
           background-attachment: fixed;
+          @media (prefers-color-scheme: dark) {
+            background-blend-mode: soft-light;
+            background-color: var(--bg-color);
+          }
           overflow: hidden;
           .bb-message-container, .bb-chat-messages { .border-box; }
           .bb-message-container {
@@ -181,7 +185,7 @@ html.fullHeight {
           }
           .bb-chat-pop-out {
             position: absolute; top: 0; right: 14px;
-            background: white;
+            background: var(--bg-color);
             border: 1px solid #888;
             padding-left: 2px; padding-right: 4px;
             border-bottom-left-radius: 5px;
