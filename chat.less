@@ -1,5 +1,5 @@
 .navbar-inverse {
-    box-shadow: 0px 2px 4px #777;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
 }
 
 .bb-chat-callin {
@@ -15,7 +15,7 @@
 
 .bb-content-area {
   background-color: var(--bg-color);
-  box-shadow: 0px 2px 4px #777;
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
 }
 .bb-puzzleround {
   .bb-content-area;
@@ -140,7 +140,7 @@
       margin-bottom: 0;
       color: #666;
       
-      @media (prefers-color-scheme: dark) {
+      .darkMode & {
         color: #999;
       }
     }
@@ -148,7 +148,7 @@
   .bb-message-pm {
     --bb-message-pm-color: rgb(232, 237, 255);
     
-    @media (prefers-color-scheme: dark) {
+    .darkMode & {
       --bb-message-pm-color: rgb(40, 60, 78);
     }
     .bb-message-body {
@@ -191,7 +191,7 @@
     font-weight: bold; background: #eee; color: #444;
     padding: 2px 0;
     
-    @media (prefers-color-scheme: dark) {
+    .darkMode & {
       background: #444;
       color: #eee;
     }
@@ -210,7 +210,7 @@
   .bb-message-last-read {
     color: #33f;
     border-bottom: 2px solid #66f;
-    @media (prefers-color-scheme: dark) {
+    .darkMode & {
       color: #ddf;
       border-bottom: 2px solid #99f;
     }
@@ -366,7 +366,7 @@ table.poll {
 
 .highlight-nick {
   color: #0000ff;
-  @media (prefers-color-scheme: dark) {
+  .darkMode & {
     color: #99f;
   }
 }

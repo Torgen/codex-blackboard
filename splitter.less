@@ -22,176 +22,177 @@ html.fullHeight {
   #bb-body, #bb-content, .bb-puzzleround,
   .bb-splitter, .bb-splitter > div, .bb-splitter iframe,
   .bb-top-content > div, .bb-vsplitter { .border-box; }
-  /* splitter! */
-  .bb-puzzleround {
-    position: relative; /* establish positioning context */
-    width: 100%;
-    padding-left: 0px; padding-right: 0px;
-    .bb-splitter { /* vertical */
-      position: relative;
-      display: flex;
-      flex-direction: row;
-      padding-right: var(--right-column);
+}
+
+/* splitter! */
+.bb-puzzleround {
+  position: relative; /* establish positioning context */
+  width: 100%;
+  padding-left: 0px; padding-right: 0px;
+  .bb-splitter { /* vertical */
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    padding-right: var(--right-column);
+    @media (max-width: 767px) {
+      padding-right: initial;
+    }
+    &, & > div { height:100%; }
+    .bb-left-header {
+      padding-left: 2px; padding-right: 2px;
+    }
+    .bb-splitter-handle {
+      background: #ccc url('/img/vgrabber.gif') no-repeat center;
+      &:hover { background-color: #aaa; }
+    }
+    & > .bb-splitter-handle {
+      width: 6px;
+      cursor: ew-resize;
+      right: var(--right-column);
       @media (max-width: 767px) {
-        padding-right: initial;
+        display: none;
       }
-      &, & > div { height:100%; }
+    }
+    &.active {
+      & > .bb-splitter-handle { background-color: #e88; }
+      .bb-left-content, .bb-right-content { pointer-events: none; }
+    }
+    & > .bb-left-content { 
+      overflow-y: auto;
+      left: 0; top: 0;
+      .bb-pop-full-menu {
+        &:empty {
+          display: none;
+        }
+        position: absolute;
+        right: var(--right-column);
+        margin-right: 6px;
+        background: white;
+        border: 1px solid #888;
+        padding-left: 2px; padding-right: 4px;
+        padding-top: 5px;
+      }
       .bb-left-header {
-        padding-left: 2px; padding-right: 2px;
+        position: absolute; right: 100%; writing-mode: vertical-lr; top:10px;
+      }
+      iframe {
+        padding-top: 5px; /* was 26px, but we're chosing to overlap header */
+        margin-bottom: -5px;
+        border-top: none;
+      }
+    }
+    table:not(.table-bordered) {
+      tr > td:first-child { text-align: right }
+      td.rightanswer, td.wronganswer { font-weight: bold }
+    }
+    /* horizontal splitter in right half */
+    .bb-right-content {
+      position: absolute;
+      right: 0px;
+      width: var(--right-column);
+      @media (max-width: 767px) {
+        display: none;
+      }
+      .bb-top-right-content, .bb-bottom-right-content {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
       }
       .bb-splitter-handle {
-        background: #ccc url('/img/vgrabber.gif') no-repeat center;
-        &:hover { background-color: #aaa; }
-      }
-      & > .bb-splitter-handle {
-        width: 6px;
-        cursor: ew-resize;
-        right: var(--right-column);
-        @media (max-width: 767px) {
-          display: none;
-        }
+        height: 6px;
+        background-image: url('/img/hgrabber.gif');
+        cursor: ns-resize;
+        position: absolute;
+        left: 0; right: 0;
+        bottom: 300px;
       }
       &.active {
-        & > .bb-splitter-handle { background-color: #e88; }
-        .bb-left-content, .bb-right-content { pointer-events: none; }
+        .bb-splitter-handle { background-color: #e88; }
+        .bb-top-right-content, .bb-bottom-right-content { pointer-events: none; }
       }
-      & > .bb-left-content { 
-        overflow-y: auto;
-        left: 0; top: 0;
-        .bb-pop-full-menu {
-          &:empty {
-            display: none;
-          }
-          position: absolute;
-          right: var(--right-column);
-          margin-right: 6px;
-          background: white;
-          border: 1px solid #888;
-          padding-left: 2px; padding-right: 4px;
-          padding-top: 5px;
-        }
-        .bb-left-header {
-          position: absolute; right: 100%; writing-mode: vertical-lr; top:10px;
-        }
-        iframe {
-          padding-top: 5px; /* was 26px, but we're chosing to overlap header */
-          margin-bottom: -5px;
-          border-top: none;
-        }
-      }
-      table:not(.table-bordered) {
-        tr > td:first-child { text-align: right }
-        td.rightanswer, td.wronganswer { font-weight: bold }
-      }
-      /* horizontal splitter in right half */
-      .bb-right-content {
+      .bb-bottom-right-content {
         position: absolute;
-        right: 0px;
-        width: var(--right-column);
-        @media (max-width: 767px) {
-          display: none;
+        right: 0; bottom: 0;
+        /* chat stylin' */
+        background: url('/img/grid_noise.png');
+        background-attachment: fixed;
+        .darkMode & {
+          background-blend-mode: soft-light;
+          background-color: var(--bg-color);
         }
-        .bb-top-right-content, .bb-bottom-right-content {
-          width: 100%;
-          height: 100%;
+        overflow: hidden;
+        .bb-message-container, .bb-chat-messages { .border-box; }
+        .bb-message-container {
           overflow: auto;
-        }
-        .bb-splitter-handle {
-          height: 6px;
-          background-image: url('/img/hgrabber.gif');
-          cursor: ns-resize;
           position: absolute;
           left: 0; right: 0;
-          bottom: 300px;
+          top: 0; bottom: ~"calc(36px + var(--jitsi-height, 0px))";
         }
-        &.active {
-          .bb-splitter-handle { background-color: #e88; }
-          .bb-top-right-content, .bb-bottom-right-content { pointer-events: none; }
+        .bb-chat-messages {
+          padding: 5px 2px 0 2px;
+          margin-bottom: 0;
         }
-        .bb-bottom-right-content {
+        .bb-chat-footer {
           position: absolute;
-          right: 0; bottom: 0;
-          /* chat stylin' */
-          background: url('/img/grid_noise.png');
-          background-attachment: fixed;
-          @media (prefers-color-scheme: dark) {
-            background-blend-mode: soft-light;
-            background-color: var(--bg-color);
+          left: 0; right: 0; margin-left: 0; margin-right: 0;
+          bottom: var(--jitsi-height, 0); height: 36px;
+          background: url('/img/irongrip.png');
+          #messageForm { flex-grow: 1; padding-left: 0; padding-right: 10px;}
+          #messageInput { margin-top: 3px; }
+          .bb-show-whos-here {
+            flex-grow: 0;
+            i {display: block; }
           }
-          overflow: hidden;
-          .bb-message-container, .bb-chat-messages { .border-box; }
-          .bb-message-container {
-            overflow: auto;
+          display: flex;
+          flex-direction: row;
+        }
+        .bb-chat-presence-block {
+          position: absolute;
+          bottom: ~"calc(36px + var(--jitsi-height, 0px))";
+          left: 0;
+          right: 0;
+          width: 100%;
+          max-height: 150px;
+          overflow: auto;
+          background: white;
+          opacity: .85;
+          border-top: 1px solid black;
+          .bb-avatar {
+            width: 48px;
+          }
+        }
+        #bb-jitsi-container {
+          height: var(--jitsi-height, 0px);
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          .bb-pin-overlay {
             position: absolute;
-            left: 0; right: 0;
-            top: 0; bottom: ~"calc(36px + var(--jitsi-height, 0px))";
-          }
-          .bb-chat-messages {
-            padding: 5px 2px 0 2px;
-            margin-bottom: 0;
-          }
-          .bb-chat-footer {
-            position: absolute;
-            left: 0; right: 0; margin-left: 0; margin-right: 0;
-            bottom: var(--jitsi-height, 0); height: 36px;
-            background: url('/img/irongrip.png');
-            #messageForm { flex-grow: 1; padding-left: 0; padding-right: 10px;}
-            #messageInput { margin-top: 3px; }
-            .bb-show-whos-here {
-              flex-grow: 0;
-              i {display: block; }
-            }
-            display: flex;
-            flex-direction: row;
-          }
-          .bb-chat-presence-block {
-            position: absolute;
-            bottom: ~"calc(36px + var(--jitsi-height, 0px))";
-            left: 0;
-            right: 0;
-            width: 100%;
-            max-height: 150px;
-            overflow: auto;
+            top: 0; right: 0;
             background: white;
-            opacity: .85;
-            border-top: 1px solid black;
-            .bb-avatar {
-              width: 48px;
-            }
-          }
-          #bb-jitsi-container {
-            height: var(--jitsi-height, 0px);
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            .bb-pin-overlay {
-              position: absolute;
-              top: 0; right: 0;
-              background: white;
-              border: 1px solid #888;
-              padding-left: 2px; padding-right: 4px;
-              border-bottom-left-radius: 5px;
-              .bb-jitsi-pin {
-                color: grey;
-              }
-              .bb-jitsi-unpin {
-                color: #49afcd;
-                &.bb-jitsi-pin-used {
-                  color: red;
-                }
-              }
-            }
-          }
-          .bb-chat-pop-out {
-            position: absolute; top: 0; right: 14px;
-            background: var(--bg-color);
             border: 1px solid #888;
             padding-left: 2px; padding-right: 4px;
             border-bottom-left-radius: 5px;
-            &.in-margin {
-              padding-top: 5px;
+            .bb-jitsi-pin {
+              color: grey;
             }
+            .bb-jitsi-unpin {
+              color: #49afcd;
+              &.bb-jitsi-pin-used {
+                color: red;
+              }
+            }
+          }
+        }
+        .bb-chat-pop-out {
+          position: absolute; top: 0; right: 14px;
+          background: var(--bg-color);
+          border: 1px solid #888;
+          padding-left: 2px; padding-right: 4px;
+          border-bottom-left-radius: 5px;
+          &.in-margin {
+            padding-top: 5px;
           }
         }
       }

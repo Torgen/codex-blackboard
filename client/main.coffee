@@ -70,6 +70,28 @@ Template.registerHelper 'nullToZero', (x) -> x ? 0
 
 Template.registerHelper 'canGoFullScreen', -> $('body').get(0)?.requestFullscreen?
 
+darkModeDefault = do ->
+  darkModeQuery = window.matchMedia '(prefers-color-scheme: dark)'
+  res = new ReactiveVar darkModeQuery.matches
+  darkModeQuery.addEventListener 'change', (e) ->
+    res.set e.matches
+  res
+
+darkMode = ->
+  darkModeOverride = reactiveLocalStorage.getItem 'darkMode'
+  if darkModeOverride?
+    return darkModeOverride is 'true'
+  darkModeDefault.get()
+
+Tracker.autorun ->
+  dark = darkMode()
+  if dark
+    $('body').addClass 'darkMode'
+  else
+    $('body').removeClass 'darkMode'
+
+Template.registerHelper 'darkMode', darkMode
+
 Template.page.helpers
   splitter: -> Session.get 'splitter'
   topRight: -> Session.get 'topRight'

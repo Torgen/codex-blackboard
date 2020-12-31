@@ -57,17 +57,13 @@ body {
   --stuck-yellow: #ff0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  @media (prefers-color-scheme: dark) {
+  &.darkMode {
     background-blend-mode: soft-light;
     --bg-color: #222;
     --text-color: #f8f8f8;
     --slightly-lighter: rgba(0,0,0,0.65);
     --much-lighter: rgba(0,0,0,0.55);
     --stuck-yellow: #550;
-    a {
-      color: hsl(200,100%,80%);
-      &:hover {color: hsl(200.2,100%,95.1%);}
-    }
     .modal, .modal-footer {
       color: var(--text-color);
       background-color: var(--bg-color);
@@ -76,6 +72,10 @@ body {
       color: #aaa;
     }
   }
+}
+.darkMode a:not(.btn) {
+  color: hsl(200,100%,80%);
+  &:hover {color: hsl(200.2,100%,95.1%);}
 }
 // For mobile devices which actually support native emojis:
 body.has-emojis {
@@ -200,7 +200,7 @@ body.has-emojis {
 
 #bb-body {
   padding-top: @navbar-height;
-  &.compactHeader { padding-top: @navbar-height - 40px; }
+  &.compactHeader { padding-top: @navbar-height - 21px; }
 }
 
 .bb-buttonbar {
@@ -285,7 +285,6 @@ input[type=color] {
 .bb-top-right-content .bb-status-grid {
   position: relative;
   background: var(--bg-color);
-  margin-top: 10px;
   overflow-y: auto;
   @media(max-width: 980px) {
     margin-left: 0px;
@@ -323,7 +322,7 @@ input[type=color] {
   }
   .bb-status-solved {
     background:#AAFF99;
-    @media (prefers-color-scheme: dark) {
+    .darkMode & {
       background: hsl(110,100%,30%);
     }
   }
@@ -358,7 +357,7 @@ input[type=color] {
 }
 #bb-tables {
   background: var(--bg-color);
-  margin-top: 10px;
+  margin-top: -5px;
   padding-bottom: 30px;
   padding-left: 15px;
   padding-right: 15px;
@@ -457,11 +456,8 @@ input[type=color] {
     tr.meta, tr.metafooter {
       --tr-bg: var(--slightly-lighter);
       .boring & {
-        background: #f8f8f8;
-        @media (prefers-color-scheme: dark) {
-          background: #333;
-        }
-        &.bb-status-stuck { background: #CC0; }
+        background: var(--bg-color);
+        &.bb-status-stuck { background: var(--stuck-yellow); }
       }
       .bb-puzzle-title {
         font-weight: bold;
