@@ -6,6 +6,20 @@
       <span class="caret"></span>
     </button>
     <ul class="dropdown-menu pull-left bb-display-settings-list nav-list">
+      <li class="nav-header">Colors</li>
+      <li><a name="bb-dark-mode" title="Whether to use the light{{#unless darkMode}} (current){{/unless}} or dark{{#if darkMode}} (current){{/if}} color scheme.">
+        <span class="btn-group">
+          <button title="Light" class="btn btn-mini btn-warning {{#unless darkMode}}active disabled{{/unless}}" data-darkmode="false"><i class="fas fa-sun"></i></button>
+          <button title="Dark" class="btn btn-mini btn-primary {{#if darkMode}}active disabled{{/if}}" data-darkmode="true"><i class="fas fa-moon"></i></button>
+        </span>
+        Color scheme
+      </a></li>
+      <li><a name="bb-boring-mode">
+        <label class="checkbox bb-boring-mode" title="Use greyscale instead of random or custom colors for metas">
+          <input type="checkbox" name="bb-boring-mode" checked="{{boringMode}}">
+          Less Colorful
+        </label>
+      </a></li>
       <li class="nav-header">Blackboard</li>
       <li><a name="bb-hide-solved">
         <label class="checkbox bb-hide-solved" title="Hide solved puzzles, excluding metas within rounds">
@@ -29,12 +43,6 @@
         <label class="checkbox bb-compact-mode" title="Hide all info except puzzle name, links, and solution">
           <input type="checkbox" name="bb-compact-mode" checked="{{compactMode}}">
           Compact mode
-        </label>
-      </a></li>
-      <li><a name="bb-boring-mode">
-        <label class="checkbox bb-boring-mode" title="Use greyscale instead of random or custom colors for metas">
-          <input type="checkbox" name="bb-boring-mode" checked="{{boringMode}}">
-          Less Colorful
         </label>
       </a></li>
       <li><a name="bb-stuck-to-top">
