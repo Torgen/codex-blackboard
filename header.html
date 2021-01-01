@@ -310,7 +310,7 @@
   </div>
   <div class="modal-body">
     <form id="nickPick" class="form-horizontal">
-      <div class="control-group" id="passwordInputGroup">
+      <div class="control-group" id="passwordInputGroup" data-argument="password">
         <label class="control-label" for="passwordInput">Team Password</label>
         <div class="controls">
           <input type="password" id="passwordInput" autocomplete="password"
@@ -319,7 +319,7 @@
           <span class="help-inline">(same for everyone)</span>
         </div>
       </div>
-      <div class="control-group" id="nickInputGroup">
+      <div class="control-group" id="nickInputGroup" data-argument="nickname">
         <label class="control-label" for="nickInput">Nick</label>
         <div class="controls">
           <div class="input-prepend">
@@ -331,7 +331,7 @@
           <span class="help-inline">(1-20 characters)</span>
         </div>
       </div>
-      <div class="control-group">
+      <div class="control-group" data-argument="real_name">
         <label class="control-label" for="nickRealname">Real Name</label>
         <div class="controls">
           <input type="text" id="nickRealname" autocomplete="name"
@@ -340,7 +340,7 @@
           <span class="help-inline">(optional)</span>
         </div>
       </div>
-      <div class="control-group">
+      <div class="control-group" data-argument="gravatar">
         <label class="control-label" for="nickEmail">Email
             <div class="gravatar"></div></label>
         <div class="controls">

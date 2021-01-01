@@ -9,14 +9,20 @@ Meteor.users.deny
 
 Accounts.registerLoginHandler 'codex', (options) ->
   check options,
-    nickname: StringWithLength {min: 1, max: 20}
-    real_name: StringWithLength max: 100
-    gravatar: StringWithLength max: 100
+    nickname: String
+    real_name: String
+    gravatar: String
     password: String
+  unless Match.test options.nickname, StringWithLength(min: 1, max: 20)
+    throw new Meteor.Error 401, "Nickname must be 1-20 characters long", field: 'nickname'
+  unless Match.test options.real_name, StringWithLength(max: 100)
+    throw new Meteor.Error 401, "Real name must be at most 100 characters", field: 'real_name'
+  unless Match.test options.gravatar, StringWithLength(max: 100)
+    throw new Meteor.Error 401, "Email address for gravatar must be at most 100 characters", field: 'gravatar'
 
   if PASSWORD?
     unless options.password is PASSWORD
-      throw new Meteor.Error 401, 'Wrong password'
+      throw new Meteor.Error 401, 'Wrong password', field: 'password'
 
   canon = canonical options.nickname
 
@@ -31,6 +37,6 @@ Accounts.registerLoginHandler 'codex', (options) ->
       bot_wakeup: $exists: false
     , $set: profile
   catch error
-    throw new Meteor.Error 401, 'Can\'t impersonate the bot'
+    throw new Meteor.Error 401, 'Can\'t impersonate the bot', field: 'nickname'
 
   return { userId: canon }

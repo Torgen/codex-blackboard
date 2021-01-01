@@ -504,6 +504,9 @@ Template.header_nickmodal_contents.events
         le = $("#loginError")
         if err.reason?
           le.text err.reason
+        if err.details?.field?
+          template.$('[data-argument]').removeClass 'error'
+          template.$("[data-argument=\"#{err.details.field}\"]").addClass 'error'
     return false
 
 ############## confirmation dialog ########################
