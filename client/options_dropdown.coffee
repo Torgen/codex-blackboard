@@ -31,7 +31,7 @@ Template.options_dropdown.events
   'click .bb-display-settings li a': (event, template) ->
     # Stop the dropdown from closing.
     event.stopPropagation()
-  'click a[name=bb-dark-mode] [data-darkmode]:not(.disabled)': (event, template) ->
+  'click a[name="bb-dark-mode"] [data-darkmode]:not(.disabled)': (event, template) ->
     reactiveLocalStorage.setItem 'darkMode', event.target.dataset.darkmode
   'change .bb-hide-solved input': (event, template) ->
     reactiveLocalStorage.setItem 'hideSolved', event.target.checked
