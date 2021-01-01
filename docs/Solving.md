@@ -128,6 +128,8 @@ Even though every puzzle page has a link to enter an answer on it, there are sev
 * Solving a puzzle typically unlocks new puzzles, and it is often the responsibility of whoever operates the call-in queue to add these puzzles to the
   blackboard, so using the queue ensures they know they should do it.
 
+Team leadership may give updated guidance depending on the circumstances of the hunt. For example, late at night there may not be anyone operating the call-in queue, so you have no choice but to do it yourself, but using the queue is still preferred as it preserves history.
+
 Sometimes a puzzle generates a phrase which you have to call in which is not the answer. Often this describes some kind of creative task which must be completed, but it can also be used when HQ needs to deliver some physical artifact, and they want to do so when you are ready to receive it, and not the moment you unlock the puzzle. For this type of call-in, use the command `bot request interaction <message>`. The hunt site may provide a separate form for this type of call-in, and this ensures the on-call knows to enter it in that box. Also, when it is accepted, they will not accidentally set the answer to the puzzle to the given string, and they can enter any response directly from the call-ins page.
 
 If you need to interact with HQ for any other reason, such as reporting a mistake, telling them you're stuck for reasons beyond your control, or requesting that hint points be spent, use the command `bot tell hq <message>`.
