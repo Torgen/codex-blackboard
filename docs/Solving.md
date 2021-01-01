@@ -26,7 +26,7 @@ The main blackboard page and every puzzle page have their own Jitsi meeting. (Un
 
 Favorite Puzzles and Mechanics
 ==============================
-Selecting one or more mechanics from the **Favorite Mechanics** dropdown at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in a special **Favorite Puzzles** section above all other rounds. A summary of the meaning of each mechanic can be found [here](./Mechanics.md). If you **Enable Notifications**, you can be notified when a puzzle is marked as involving any of those mechanics.
+Selecting one or more mechanics from the **Favorite Mechanics** dropdown at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in a special **Favorite Puzzles** section above all other rounds. A summary of the meaning of each mechanic can be found [here](./Mechanics.md). If you **Enable Notifications**, you will be notified when a puzzle is marked as involving any of those mechanics.
 
 Regardless of mechanics, you can make any puzzle show up in the **Favorite Puzzles** section by clicking the heart either in its grid row or on the info panel on its puzzle page. 
 
