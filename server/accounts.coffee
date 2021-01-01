@@ -35,14 +35,15 @@ Accounts.registerLoginHandler 'codex', (options) ->
   check options,
     nickname: String
     real_name: String
-    gravatar: String
+    gravatar_md5: Match.Optional String
     password: String
   unless Match.test options.nickname, StringWithLength(min: 1, max: 20)
     throw new Meteor.Error 401, "Nickname must be 1-20 characters long", field: 'nickname'
   unless Match.test options.real_name, StringWithLength(max: 100)
     throw new Meteor.Error 401, "Real name must be at most 100 characters", field: 'real_name'
-  unless Match.test options.gravatar, StringWithLength(max: 100)
-    throw new Meteor.Error 401, "Email address for gravatar must be at most 100 characters", field: 'gravatar'
+  if options.gravatar_md5?
+    unless /[a-f0-9]{32}/.test options.gravatar_md5
+      options.gravatar_md5 = null
 
   if PASSWORD?
     unless options.password is PASSWORD
@@ -51,7 +52,7 @@ Accounts.registerLoginHandler 'codex', (options) ->
   canon = canonical options.nickname
 
   profile = nickname: options.nickname
-  profile.gravatar = options.gravatar if options.gravatar
+  profile.gravatar_md5 = options.gravatar_md5 if options.gravatar_md5
   profile.real_name = options.real_name if options.real_name
   profile['services.codex.password_used'] = sha1 options.password
 

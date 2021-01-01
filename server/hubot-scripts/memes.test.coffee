@@ -25,7 +25,7 @@ describe 'memes hubot script', ->
       toFake: ["Date"]
     # can't use plain hubot because this script uses priv, which isn't part of
     # the standard message class or adapter.
-    robot = new Robot 'testbot'
+    robot = new Robot 'testbot', 'testbot@testbot.test'
     share.hubot.memes robot
     robot.run()
     clock.tick 1

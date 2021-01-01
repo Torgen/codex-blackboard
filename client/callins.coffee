@@ -1,6 +1,6 @@
 'use strict'
 
-import { nickEmail } from './imports/nickEmail.coffee'
+import { nickHash } from './imports/nickEmail.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
@@ -92,7 +92,6 @@ Template.callin_row.helpers
       fields: {}
     )?
   callinTypeIs: (type) -> @callin_type is type
-  nickEmail: -> nickEmail @
 
 Template.callin_row.events
   "change .bb-submitted-to-hq": (event, template) ->

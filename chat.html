@@ -35,7 +35,7 @@
         <tbody>
           {{#each whos_here}}
           <tr>
-            <td class="bb-avatar">{{gravatar id=email size=48}}</td>
+            <td class="bb-avatar">{{>gravatar nick=nick size=48}}</td>
             <td>{{nickAndName nick}}</td>
             <td>{{nickLocation nick}}</td>
           </tr>
@@ -118,9 +118,9 @@ Click here to stay in this meeting instead.{{/if}}">
     {{#if message.tweet}}
       <img src="{{message.tweet.avatar}}" class="media-object pull-left img-rounded" width=48 height=48>
     {{else if message.mail}}
-       {{gravatar id=message.nick size=48 classes="media-object pull-left img-rounded" }}
+       {{>gravatar_hash gravatar_md5=(md5 message.nick) size=48 classes="media-object pull-left img-rounded" }}
     {{else}}
-      {{gravatar id=email size=48 classes="media-object pull-left img-rounded" }}
+      {{>gravatar nick=message.nick size=48 classes="media-object pull-left img-rounded" }}
     {{/if}}
     <div class="media-body bb-message-body">
       <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
@@ -159,7 +159,7 @@ Click here to stay in this meeting instead.{{/if}}">
           <td class="option"><button class="btn btn-mini {{#if yours}}active{{/if}}" data-option="{{_id}}">{{text}}</button></td>
           <td class="results">
             {{#if show_votes}}
-              {{#each votes}}{{gravatar id=email size=20 title=(nickOrName _id)}}{{/each}}
+              {{#each votes}}{{>gravatar nick=_id size=20 title=(nickOrName _id)}}{{/each}}
             {{else}}
               <div class="progress"><div class="bar {{#if leading}}bar-success{{/if}}" style="width: {{width}}%">{{votes.length}}</div></div>
             {{/if}}
@@ -187,7 +187,7 @@ Click here to stay in this meeting instead.{{/if}}">
       {{else if message.presence}}
         {{#unless presence_too_old}}
           <div class="bb-message-presence {{message.presence}}" title="{{pretty_ts message.timestamp}}: {{cleanup message.body}}" data-read="{{#unless read}}un{{/unless}}read">
-            {{gravatar id=email size=14 }}{{message.nick}}
+            {{>gravatar nick=message.nick size=14 }}{{message.nick}}
           </div>
         {{/unless}}
       {{else if message.system}}
@@ -201,7 +201,7 @@ Click here to stay in this meeting instead.{{/if}}">
           <div class="bb-message-action" data-nick="{{message.nick}}" data-read="{{#unless read}}un{{/unless}}read">
             <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
             {{> message_delete_button}}
-            {{gravatar id=email size=14 }}
+            {{>gravatar nick=message.nick size=14 }}
             <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{cleanup message.body}}
           </div>
         {{else}}

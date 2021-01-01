@@ -20,7 +20,7 @@ describe 'brain hubot script', ->
       toFake: ["Date", 'setInterval', 'clearInterval']
     # can't use plain hubot because this script uses priv, which isn't part of
     # the standard message class or adapter.
-    robot = new Robot 'testbot'
+    robot = new Robot 'testbot', 'testbot@testbot.test'
 
   afterEach ->
     robot.shutdown()

@@ -1,0 +1,14 @@
+<!-- data context is:
+  nick: the canonicalized nickname of the user
+  size: image size in pixels
+  classes (optional): any extra css classes to set on the image
+  title (optional): title attribute to set on the image
+ -->
+<template name="gravatar">
+  {{> gravatar_hash gravatar_md5=gravatar_md5 size=size classes=classes title=title}}
+</template>
+
+<!-- data context is the same as gravatar, except without nick, and with gravatar_md5, the md5 sum of the email address. -->
+<template name="gravatar_hash">
+  <img src="{{gravatarUrl}}" width="{{size}}" height="{{size}}" class="{{classes}}" title="{{title}}" />
+</template>

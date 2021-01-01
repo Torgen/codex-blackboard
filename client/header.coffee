@@ -1,8 +1,9 @@
 'use strict'
 
 import canonical from '../lib/imports/canonical.coffee'
+import md5 from '/lib/imports/md5.coffee'
 import jitsiUrl from './imports/jitsi.coffee'
-import { emailFromNickObject } from './imports/nickEmail.coffee'
+import { hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
@@ -88,16 +89,6 @@ Template.registerHelper 'lotsOfPeople', (args) ->
   count = (keyword_or_positional 'count', args).count
   return count > 4
 
-# gravatars
-Template.registerHelper 'gravatar', (args) ->
-  args = keyword_or_positional 'id', args
-  args.secure = true
-  args.image ?= 'wavatar'
-  g = $.gravatar(args.id, args)
-  # hacky cross-platform version of 'outerHTML'
-  html = $('<div>').append( g.eq(0).clone() ).html()
-  return new Spacebars.SafeString(html)
-
 today_fmt = Intl.DateTimeFormat navigator.language,
   hour: 'numeric'
   minute: 'numeric'
@@ -160,7 +151,7 @@ Template.header_loginmute.helpers
       name: user.nickname
       canon: user._id
       realname: user.real_name or user.nickname
-      gravatar: emailFromNickObject user
+      gravatar_md5: hashFromNickObject user
     }
 
 Template.header_loginmute.events
@@ -442,6 +433,7 @@ Template.header_nickmodal_contents.onCreated ->
   @suppressRender = new ReactiveVar Meteor.loggingIn()
   @autorun =>
     @suppressRender.set false unless Meteor.loggingIn()
+  @gravatarHash = new ReactiveVar md5('')
   # we'd need to subscribe to 'all-nicks' here if we didn't have a permanent
   # subscription to it (in main.coffee)
   this.typeaheadSource = (query,process) =>
@@ -452,27 +444,24 @@ Template.header_nickmodal_contents.onCreated ->
     n = if query then Meteor.users.findOne canonical query else undefined
     if (n or options?.force)
       realname = n?.real_name
-      gravatar = n?.gravatar
       $('#nickRealname').val(realname or '')
-      $('#nickEmail').val(gravatar or '')
+      $('#nickEmail').val('')
     this.updateGravatar(query)
   this.updateGravatar = (q) =>
-    email = $('#nickEmail').val() or "#{q or model.canonical($('#nickInput').val())}@#{settings.DEFAULT_HOST}"
-    gravatar = $.gravatar email,
-      image: 'wavatar' # 'monsterid'
-      classes: 'img-polaroid'
-      secure: true
-    container = $(this.find('.gravatar'))
-    if container.find('img').length
-      container.find('img').attr('src', gravatar.attr('src'))
-    else
-      container.append(gravatar)
+    console.log 'updateing gravatar'
+    if $('#nickEmail').val()
+      @gravatarHash.set md5 $('#nickEmail').val()
+      return
+    unless q?
+      q = _id: model.canonical($('#nickInput').val())
+    @gravatarHash.set hashFromNickObject q
 nickInput = new Tracker.Dependency
 Template.header_nickmodal_contents.helpers
   suppressRender: -> Template.instance().suppressRender.get()
   disabled: ->
     nickInput.depend()
     Meteor.loggingIn() or not $('#nickInput').val()
+  hash: -> Template.instance().gravatarHash.get()
 Template.header_nickmodal_contents.onRendered ->
   $('#nickSuccess').val('false')
   $('#nickPickModal').modal keyboard: false, backdrop:"static"
@@ -498,8 +487,7 @@ Template.header_nickmodal_contents.events
     $('#nickEmail').select() if event.which is 13
   "keydown #nickEmail": (event, template) ->
     $('#nickPick').submit() if event.which is 13
-  "input #nickEmail": (event, template) ->
-    template.updateGravatar()
+  "input #nickEmail": _.debounce ((event, template) -> template.updateGravatar()), 500
   'submit #nickPick': (event, template) ->
     nick = $("#nickInput").val().replace(/^\s+|\s+$/g,"") #trim
     return false unless nick

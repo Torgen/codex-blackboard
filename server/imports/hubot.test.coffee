@@ -20,7 +20,7 @@ describe 'hubot', ->
     clock = sinon.useFakeTimers
       now: 7
       toFake: ["setInterval", "clearInterval", "Date"]
-    robot = new Robot 'testbot'
+    robot = new Robot 'testbot', 'testbot@testbot.test'
 
   afterEach ->
     robot.shutdown()

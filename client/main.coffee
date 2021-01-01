@@ -1,6 +1,6 @@
 'use strict'
 
-import { nickEmail } from './imports/nickEmail.coffee'
+import { gravatarUrl, nickHash, md5 } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
 import { mechanics } from '../lib/imports/mechanics.coffee'
@@ -45,6 +45,8 @@ Template.registerHelper 'editing', (args..., options) ->
   canEdit = options?.hash?.canEdit or (Session.get 'canEdit')
   return false unless Meteor.userId() and canEdit
   return Session.equals 'editing', args.join('/')
+
+Template.registerHelper 'md5', md5
 
 Template.registerHelper 'linkify', (contents) ->
   contents = chat.convertURLsToLinksAndImages(UI._escape(contents))
@@ -201,10 +203,9 @@ Meteor.startup ->
       return unless Notification?.permission is 'granted'
       return unless share.notification.get(msg.stream)
       return if suppress
-      gravatar = $.gravatar nickEmail(msg.nick),
-        image: 'wavatar'
+      gravatar = gravatarUrl
+        gravatar_md5: nickHash(msg.nick)
         size: 192
-        secure: true
       body = msg.body
       if msg.type and msg.id
         body = "#{body} #{share.model.pretty_collection(msg.type)}
@@ -217,7 +218,7 @@ Meteor.startup ->
       share.notification.notify msg.nick,
         body: body
         tag: msg._id
-        icon: gravatar[0].src
+        icon: gravatar
         data: data
   Tracker.autorun ->
     return unless allPuzzlesHandle?.ready()

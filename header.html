@@ -193,11 +193,7 @@
      <div class="btn-group{{#if compactHeader}} bb-login{{/if}}">
       <a class="btn btn-small btn-inverse dropdown-toggle"
          data-toggle="dropdown" href="#">
-       {{#if sessionNick.gravatar}}
-       {{gravatar id=sessionNick.gravatar size=16}}
-       {{else}}
-       <i class="fas fa-user"></i>
-       {{/if}}
+       {{>gravatar nick=sessionNick.canon size=16}}
        {{#if sessionNick.realname}}
          {{sessionNick.realname}}
        {{else}}
@@ -339,7 +335,7 @@
           </div>
           <div class="control-group" data-argument="gravatar">
             <label class="control-label" for="nickEmail">Email
-                <div class="gravatar"></div></label>
+                <div class="gravatar">{{>gravatar_hash gravatar_md5=hash size=80 classes="img-polaroid"}}</div></label>
             <div class="controls">
               <input type="email" id="nickEmail" autocomplete="email"
                       placeholder="user@host.org" maxlength=100 />

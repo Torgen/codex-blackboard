@@ -61,7 +61,7 @@
               {{#with submitted_by}}
                 <span title="Submitted by {{nickOrName this}}">
                   <i class="fas fa-phone"></i>
-                  {{gravatar id=nickEmail size=20}}
+                  {{>gravatar nick=this size=20}}
                 </span>
               {{/with}}
             {{else}}

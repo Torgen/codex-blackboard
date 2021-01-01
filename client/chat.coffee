@@ -1,7 +1,7 @@
 'use strict'
 
 import jitsiUrl, { jitsiRoom } from './imports/jitsi.coffee'
-import { nickEmail, emailFromNickObject } from './imports/nickEmail.coffee'
+import { gravatarUrl, hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
@@ -129,7 +129,6 @@ Template.poll.onCreated ->
 
 Template.poll.helpers
   show_votes: -> Template.instance().show_votes.get()
-  email: -> nickEmail @_id
   options: ->
     poll = model.Polls.findOne @
     return unless poll?
@@ -161,7 +160,6 @@ Template.poll.events
 messageTransform = (m) ->
   _id: m._id
   message: m
-  email: nickEmail m.nick
   read: ->
     # Since a message can go from unread to read, but never the other way,
     # use a nonreactive read at first. If it's unread, then do a reactive read
@@ -379,13 +377,6 @@ Template.embedded_chat.onCreated ->
       reactiveLocalStorage.removeItem 'jitsiTabUUID'
   $(window).on('unload', @unsetCurrentJitsi)
 
-gravatarUrl = ->
-  $.gravatar(emailFromNickObject(Meteor.user()),
-    image: 'wavatar'
-    size: 200
-    secure: true
-  ).attr('src')
-
 jitsiRoomSubject = (type, id) ->
   if 'puzzles' is type
     model.Puzzles.findOne(id).name ? 'Puzzle'
@@ -442,7 +433,9 @@ Template.embedded_chat.onRendered ->
     return unless jitsi?
     jitsi.executeCommands
       displayName: nickAndName user
-      avatarUrl: gravatarUrl()
+      avatarUrl: gravatarUrl
+        gravatar_md5: hashFromNickObject user
+        size: 200
   # The moderator should set the conference subject.
   @autorun =>
     jitsi = @jitsi.get()
@@ -463,7 +456,6 @@ nickAndName = (user) ->
 Template.embedded_chat.helpers
   show_presence: -> Template.instance().show_presence.get()
   whos_here: whos_here_helper
-  email: -> nickEmail @nick
   nickAndName: (nick) ->
     user = Meteor.users.findOne canonical nick ? {nickname: nick}
     nickAndName user

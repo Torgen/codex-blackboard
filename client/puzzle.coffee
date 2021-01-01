@@ -1,6 +1,5 @@
 'use strict'
 
-import { nickEmail } from './imports/nickEmail.coffee'
 import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
@@ -54,7 +53,6 @@ Template.puzzle_info.helpers
     ,
       sort: {created: 1}
   callin_status: -> callin_types.past_status_message @status, @callin_type
-  nickEmail: -> nickEmail @
 
   unsetcaredabout: ->
     return unless @puzzle

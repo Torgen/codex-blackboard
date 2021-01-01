@@ -58,7 +58,7 @@
     {{#if mynick}}
       <td>
         {{#if callinTypeIs "expected callback"}}N/A{{else}}
-        <input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{gravatar id=nickEmail size=20 title=(nickOrName this)}}{{/with}}
+        <input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{>gravatar nick=this size=20 title=(nickOrName this)}}{{/with}}
         {{/if}}
       </td>
       <td class="form-inline">

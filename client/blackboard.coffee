@@ -1,7 +1,7 @@
 'use strict'
 
 import jitsiUrl from './imports/jitsi.coffee'
-import { nickEmail } from './imports/nickEmail.coffee'
+import { nickHash } from './imports/nickEmail.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
@@ -253,9 +253,6 @@ Template.blackboard.events
     if href.match /^#/
       event.preventDefault()
       $(href).get(0)?.scrollIntoView block: 'center', behavior: 'smooth'
-
-Template.nick_presence.helpers
-  email: -> nickEmail @nick
 
 share.find_bbedit = (event) ->
   edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')

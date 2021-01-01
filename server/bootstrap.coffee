@@ -1,6 +1,7 @@
 'use strict'
 model = share.model
 import { callAs, impersonating } from './imports/impersonate.coffee'
+import md5 from '/lib/imports/md5.coffee'
 
 # if the database is empty on server start, create some sample data.
 # (useful during development; disable this before hunt)
@@ -17,16 +18,16 @@ SAMPLE_NICKS = [
   _id: 'cscott'
   nickname: 'cscott'
   real_name: 'C. Scott'
-  gravatar: 'user@host.org'
+  gravatar_md5: md5 'user@host.org'
 ,
   _id: 'zachary'
   nickname: 'zachary'
-  gravatar: 'z@x.org'
+  gravatar_md5: md5 'z@x.org'
 ,
   _id: 'kwal'
   nickname: 'kwal'
   real_name: 'Kevin Wallace'
-  gravatar: 'kevin@pentabarf.net'
+  gravatar_md5: md5 'kevin@pentabarf.net'
 ]
 SAMPLE_QUIPS = [
   text: "A codex is a book made up of a number of sheets of paper, vellum, papyrus, or similar, with hand-written content"
