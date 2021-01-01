@@ -14,5 +14,11 @@
     left:0px;
   }
   &.indifferent::before { color: transparent; }
-  &.favorite::before { color: red; }
+  &.favorite::before {
+    color: red;
+    .darkMode & {
+      color: fuchsia;
+    }
+  }
+
 }
