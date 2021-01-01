@@ -116,8 +116,11 @@ There is a dropdown menu in the puzzle info panel labeled `Mechanics` containing
 Answering
 ---------
 When you think you know the answer to a puzzle, request that it be called in either by clicking the "Request call-in" button in the header, or using the bot: `bot call in what a rush`.
-You can call in an answer for a different puzzle by giving the puzzle name in the command: `bot call in what a rush for fraternity massacre`.
+
+You can call in an answer for a different puzzle by giving the puzzle name in the command: `bot call in what a rush for fraternity massacre`
+
 If you backsolved the answer, indicate this in the call-in request: `bot call in what a rush backsolved`
+
 If you received the answer by performing some task, indicate this in the call-in request: `bot call in what a rush provided`
 
 Even though every puzzle page has a link to enter an answer on it, there are several reasons to use the call-in queue instead:
