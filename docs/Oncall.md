@@ -12,7 +12,7 @@ If you're solving in a room with a projector or other large communal display, th
 
 First Shift
 ===========
-If you're oncall when the hunt starts, there are some [dynamic settings](Dynamic-Settings) you will want to set, as they will improve the experience for yourself, future oncalls, and your solvers. Set them as appropriate as soon as you know the appropriate values.
+If you're oncall when the hunt starts, there are some [dynamic settings](Dynamic-Settings.md) you will want to set, as they will improve the experience for yourself, future oncalls, and your solvers. Set them as appropriate as soon as you know the appropriate values.
 
 Calling In Answers
 ==================
@@ -71,12 +71,12 @@ To create a non-meta puzzle in a round that doesn't feed into any metas using th
 the "New Meta" button and choose "New uncategorized puzzle" in the dropdown. Using the bot, say: `bot PUZZLE NAME is a new
 puzzle in ROUND NAME`. In the round's chat room, you can say `this` instead of the meta's name.
 
-Both the new round and new puzzle commands support a `with link X` or `with url X` suffix that explicitly sets the url for the puzzle. If you don't set this explicitly, and someone set the [Puzzle URL Prefix](Dynamic-Settings#puzzle-url-prefix) or [Round URL Prefix](Dynamic-Settings#round-url-prefix) dynamic settings, the blackboard will attempt to guess the URL based on the puzzle/round name, but it may be wrong. (For example, for some hunts the metapuzzles are under a different path from the leaf puzzles.) If you create a puzzle without explicitly setting the URL and the guess is incorrect, you can set the link one of these ways:
+Both the new round and new puzzle commands support a `with link X` or `with url X` suffix that explicitly sets the url for the puzzle. If you don't set this explicitly, and someone set the [Puzzle URL Prefix](Dynamic-Settings.md#puzzle-url-prefix) or [Round URL Prefix](Dynamic-Settings.md#round-url-prefix) dynamic settings, the blackboard will attempt to guess the URL based on the puzzle/round name, but it may be wrong. (For example, for some hunts the metapuzzles are under a different path from the leaf puzzles.) If you create a puzzle without explicitly setting the URL and the guess is incorrect, you can set the link one of these ways:
 * In edit mode, click the pencil to the right of the URL next to the "Hunt Site Link" label in the puzzle's table entry, then paste the URL into the text box.
 * Using the bot, say: `bot set link for ROUND OR PUZZLE NAME to URL`. In the chat room for the round or puzzle, you can elide the `for ROUND OR PUZZLE NAME` part. If those settings weren't set, but you now know that they could be, you might set them now to save yourself trouble later.
 
 
-After adding a new puzzle, if you have time, try to determine if it has any of the mechanics described on the [Mechanics](Mechanics) page. A dropdown with checkboxes for these mechanics is available both in the info pane on the puzzle page, and in the puzzle's table row when in edit mode on the blackboard's top page. (There are no bot commands for managing mechanics.)
+After adding a new puzzle, if you have time, try to determine if it has any of the mechanics described on the [Mechanics](Mechanics.md) page. A dropdown with checkboxes for these mechanics is available both in the info pane on the puzzle page, and in the puzzle's table row when in edit mode on the blackboard's top page. (There are no bot commands for managing mechanics.)
 
 If a meta has a strongly associated color (e.g. the emotions in the 2018 hunt or the character classes in the 2017 hunt),
 you can set its color on the blackboard. If you don't choose a color, or the meta doesn't have a natural one, the blackboard

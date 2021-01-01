@@ -24,7 +24,7 @@ Defaults:
 
 Favorite Puzzles and Mechanics
 ==============================
-Selecting one or more mechanics from the "Favorite Mechanics" dropdown at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in a special "Favorite Puzzles" section above all other rounds. A summary of the meaning of each can be found [here](./Mechanics).  You can make any puzzle show up in that section by clicking the heart either in its grid row or on the info panel on its puzzle page. If you enable notifications, you can be notified when a puzzle is marked as involving any of those mechanics.
+Selecting one or more mechanics from the "Favorite Mechanics" dropdown at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in a special "Favorite Puzzles" section above all other rounds. A summary of the meaning of each can be found [here](./Mechanics.md).  You can make any puzzle show up in that section by clicking the heart either in its grid row or on the info panel on its puzzle page. If you enable notifications, you can be notified when a puzzle is marked as involving any of those mechanics.
 
 Notifications
 =============
@@ -111,7 +111,7 @@ you will set them using the chat bot. For example, say `bot set theme to basebal
 Mechanics
 ---------
 
-There is a dropdown menu in the puzzle info panel labeled `Mechanics` containing some recurring mechanics, listed [here](./Mechanics). If you find a puzzle has one of these mechanics, check it in the dropdown so that your team members who like puzzles with those mechanics can be notified that their skills are required.
+There is a dropdown menu in the puzzle info panel labeled `Mechanics` containing some recurring mechanics, listed [here](./Mechanics.md). If you find a puzzle has one of these mechanics, check it in the dropdown so that your team members who like puzzles with those mechanics can be notified that their skills are required.
 
 Answering
 ---------

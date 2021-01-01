@@ -5,9 +5,9 @@ codex-blackboard
 [![Coverage Status](https://coveralls.io/repos/github/Torgen/codex-blackboard/badge.svg?branch=master)](https://coveralls.io/github/Torgen/codex-blackboard?branch=master)
 
 Meteor app for coordinating solving for our MIT Mystery Hunt team. See the wiki for instructions on:
-* [Building and managing a server](https://github.com/Torgen/codex-blackboard/wiki/Operations)
-* [Using the server as a solver](https://github.com/Torgen/codex-blackboard/wiki/Solving)
-* [Updating data on the server as an on-call](https://github.com/Torgen/codex-blackboard/wiki/Oncall)
+* [Building and managing a server](./docs/Operations.md)
+* [Using the server as a solver](./docs/Solving.md)
+* [Updating data on the server as an on-call](./docs/Oncall.md)
   
 Developing
 ==========
