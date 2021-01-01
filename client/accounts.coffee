@@ -3,7 +3,9 @@
 import {md5} from '/lib/imports/md5.coffee'
 
 Meteor.loginWithCodex = (nickname, real_name, gravatar, password, callback) ->
-  gravatar_md5 = if gravatar then md5(gravatar) else null
+  args = {nickname, real_name, password}
+  if gravatar
+    args.gravatar_md5 = md5(gravatar)
   Accounts.callLoginMethod
-    methodArguments: [{nickname, real_name, gravatar_md5, password}]
+    methodArguments: [args]
     userCallback: callback

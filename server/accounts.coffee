@@ -35,7 +35,7 @@ Accounts.registerLoginHandler 'codex', (options) ->
   check options,
     nickname: String
     real_name: String
-    gravatar_md5: Match.Maybe String
+    gravatar_md5: Match.Optional String
     password: String
   unless Match.test options.nickname, StringWithLength(min: 1, max: 20)
     throw new Meteor.Error 401, "Nickname must be 1-20 characters long", field: 'nickname'
