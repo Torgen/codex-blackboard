@@ -439,6 +439,9 @@ uploadToDriveFolder = share.uploadToDriveFolder = (folder, callback) ->
 ############## nick selection ####################
 
 Template.header_nickmodal_contents.onCreated ->
+  @suppressRender = new ReactiveVar Meteor.loggingIn()
+  @autorun =>
+    @suppressRender.set false unless Meteor.loggingIn()
   # we'd need to subscribe to 'all-nicks' here if we didn't have a permanent
   # subscription to it (in main.coffee)
   this.typeaheadSource = (query,process) =>
@@ -466,6 +469,7 @@ Template.header_nickmodal_contents.onCreated ->
       container.append(gravatar)
 nickInput = new Tracker.Dependency
 Template.header_nickmodal_contents.helpers
+  suppressRender: -> Template.instance().suppressRender.get()
   disabled: ->
     nickInput.depend()
     Meteor.loggingIn() or not $('#nickInput').val()
