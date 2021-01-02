@@ -18,6 +18,8 @@ XLSX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sh
 MAX_RESULTS = 200
 SPREADSHEET_TEMPLATE = Assets.getBinary 'spreadsheet-template.xlsx'
 
+PERMISSION_LIST_FIELDS = ("permissions/#{x}" for x in ['role', 'type', 'emailAddress', 'allowFileDiscovery']).join()
+
 quote = (str) -> "'#{str.replace(/([\'\\])/g, '\\$1')}'"
 
 samePerm = (p, pp) ->
@@ -45,7 +47,7 @@ ensurePermissions = (drive, id) ->
       role: 'writer'
       type: 'user'
       emailAddress: CODEX_ACCOUNT()
-  resp = (await drive.permissions.list fileId: id).data
+  resp = (await drive.permissions.list({fileId: id, fields: PERMISSION_LIST_FIELDS})).data
   ps = []
   perms.forEach (p) ->
     # does this permission already exist?

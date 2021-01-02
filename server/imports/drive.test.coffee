@@ -17,6 +17,8 @@ EVERYONE_PERM =
   role: 'writer'
   type: 'anyone'
 
+PERMISSION_LIST_FIELDS = "permissions/role,permissions/type,permissions/emailAddress,permissions/allowFileDiscovery"
+
 defaultPerms =  [EVERYONE_PERM, OWNER_PERM]
 
 describe 'drive', ->
@@ -69,6 +71,7 @@ describe 'drive', ->
         mimeType: 'application/vnd.google-apps.folder'
       permissions.expects('list').withArgs sinon.match
         fileId: 'hunt'
+        fields: PERMISSION_LIST_FIELDS
       .resolves data: permissions: []
       perms.forEach (perm) ->
         permissions.expects('create').withArgs sinon.match
@@ -90,6 +93,7 @@ describe 'drive', ->
         mimeType: 'application/vnd.google-apps.folder'
       permissions.expects('list').withArgs sinon.match
         fileId: 'uploads'
+        fields: PERMISSION_LIST_FIELDS
       .resolves data: permissions: []
       perms.forEach (perm) ->
         permissions.expects('create').withArgs sinon.match
@@ -139,6 +143,7 @@ describe 'drive', ->
             parents: ['hunt']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newpuzzle'
+            fields: PERMISSION_LIST_FIELDS
           .resolves data: permissions: []
           perms.forEach (perm) ->
             permissions.expects('create').withArgs sinon.match
@@ -165,6 +170,7 @@ describe 'drive', ->
             parents: ['newpuzzle']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newsheet'
+            fields: PERMISSION_LIST_FIELDS
           .resolves data: permissions: []
           perms.forEach (perm) ->
             permissions.expects('create').withArgs sinon.match
@@ -191,6 +197,7 @@ describe 'drive', ->
             parents: ['newpuzzle']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newdoc'
+            fields: PERMISSION_LIST_FIELDS
           .resolves data: permissions: []
           perms.forEach (perm) ->
             permissions.expects('create').withArgs sinon.match
@@ -211,6 +218,7 @@ describe 'drive', ->
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newpuzzle'
+            fields: PERMISSION_LIST_FIELDS
           .resolves data: permissions: defaultPerms
           files.expects('list').withArgs sinon.match
             pageSize: 1
@@ -223,6 +231,7 @@ describe 'drive', ->
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newsheet'
+            fields: PERMISSION_LIST_FIELDS
           .resolves data: permissions: defaultPerms
           files.expects('list').withArgs sinon.match
             pageSize: 1
@@ -235,6 +244,7 @@ describe 'drive', ->
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newdoc'
+            fields: PERMISSION_LIST_FIELDS
           .resolves data: permissions: defaultPerms
           drive.createPuzzle 'New Puzzle'
 
