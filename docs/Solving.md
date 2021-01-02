@@ -60,11 +60,9 @@ The bot has some just-for-fun plugins installed, like a meme generator. If you w
 Quips
 -----
 Quips are funny things to say when we answer phone calls from HQ. We do this because HQ should have fun too.
-It also encourages HQ to not delay our callbacks too much if we call in a bunch of wrong answers.  You
-can add a quip to the queue two ways:
+It also encourages HQ to not delay our callbacks too much if we call in a bunch of wrong answers.
 
-* At the `/quips/new` route relative to the root of the blackboard
-* Asking the bot to do it. For example, `bot new quip Codex is my co-dump stat`.
+Add a quip to the queue by asking the bot to do it. For example, `bot new quip Codex is my co-dump stat`.
 
 The list of quips is shown to whomever is manning the call-in queue. Whoever is manning the call-in queue will be given
 a selection of not-recently-used quips to choose from.
