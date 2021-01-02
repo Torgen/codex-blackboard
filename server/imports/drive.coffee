@@ -42,7 +42,6 @@ ensurePermissions = (drive, id) ->
   if CODEX_ACCOUNT()?
     perms.push
       # edit permissions to codex account
-      allowFileDiscovery: true
       role: 'writer'
       type: 'user'
       emailAddress: CODEX_ACCOUNT()
