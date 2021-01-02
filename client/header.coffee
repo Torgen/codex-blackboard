@@ -446,9 +446,8 @@ Template.header_nickmodal_contents.onCreated ->
       realname = n?.real_name
       $('#nickRealname').val(realname or '')
       $('#nickEmail').val('')
-    this.updateGravatar(query)
+    this.updateGravatar(n)
   this.updateGravatar = (q) =>
-    console.log 'updateing gravatar'
     if $('#nickEmail').val()
       @gravatarHash.set md5 $('#nickEmail').val()
       return
