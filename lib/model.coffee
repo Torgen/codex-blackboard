@@ -1079,20 +1079,21 @@ doc_id_to_link = (id) ->
         type: ValidType
         object: IdOrObject
       id = args.object._id or args.object
+      name = canonical(args.name)
       # bail to deleteAnswer if this is the 'answer' tag.
-      if canonical(args.name) is 'answer'
+      if name is 'answer'
         return Meteor.call "deleteAnswer",
           type: args.type
           target: args.object
-      if canonical(args.name) is 'link'
+      if name is 'link'
         args.fields = { link: null }
         return Meteor.call 'setField', args
       args.now = UTCNow() # don't let caller lie about the time
       updateDoc = $set:
         touched: args.now
         touched_by: @userId
-      deleteTagInternal updateDoc, args.name
-      0 < collection(args.type).update id, updateDoc
+      deleteTagInternal updateDoc, name
+      0 < collection(args.type).update {_id: id, "tags.#{name}": $exists: true}, updateDoc
 
     summon: (args) ->
       check @userId, NonEmptyString

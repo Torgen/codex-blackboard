@@ -297,6 +297,36 @@ share.hubot.codex = (robot) ->
     msg.reply useful: true, "The #{tag_name} for #{target.object.name} is now \"#{tag_value}\"."
     msg.finish()
 
+  robot.commands.push 'bot unset <tag> [of <puzzle|round>] - Removes information from blackboard'
+  robot.respond (rejoin /unset (?:the )?/,thingRE,'(',/\ (?:of|for) (?:(puzzle|round) )?/,thingRE,')?',/$/i), (msg) ->
+    tag_name = strip msg.match[1]
+    who = msg.envelope.user.id
+    if msg.match[2]?
+      descriptor =
+        if msg.match[3]?
+          "a #{share.model.pretty_collection msg.match[3]}"
+        else
+          'anything'
+      type = if msg.match[3]? then msg.match[3].replace(/\s+/g,'')+'s'
+      target = callAs 'getByName', who,
+        name: strip msg.match[4]
+        optional_type: type
+      if not target?
+        msg.reply useful: true, "I can't find #{descriptor} called \"#{strip msg.match[4]}\"."
+        return msg.finish()
+    else
+      target = objectFromRoom msg
+      return unless target?
+    res = callAs 'deleteTag', who,
+      type: target.type
+      object: target.object._id
+      name: tag_name
+    if res
+      msg.reply useful: true, "The #{tag_name} for #{target.object.name} is now unset."
+    else
+      msg.reply useful: true, "#{target.object.name} didn't have #{tag_name} set!"
+    msg.finish()
+
 # Stuck
   robot.commands.push 'bot stuck[ on <puzzle>][ because <reason>] - summons help and marks puzzle as stuck on the blackboard'
   robot.respond (rejoin 'stuck(?: on ',thingRE,')?(?: because ',thingRE,')?',/$/i), (msg) ->
