@@ -86,7 +86,7 @@ ensure = (drive, name, folder, settings) ->
     doc =
       name: settings.titleFunc name
       mimeType: settings.driveMimeType
-      parents: [id: folder.id]
+      parents: [folder.id]
     doc = (await drive.files.create
       resource: doc
       media:
@@ -127,7 +127,7 @@ ensureFolder = (drive, name, parent) ->
     resource =
       name: name
       mimeType: GDRIVE_FOLDER_MIME_TYPE
-    resource.parents = [id: parent] if parent
+    resource.parents = [parent] if parent
     resource = (await drive.files.create(resource: resource)).data
   # give the new folder the right permissions
   {

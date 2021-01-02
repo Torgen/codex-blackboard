@@ -7,7 +7,6 @@ import { Drive } from './drive.coffee'
 import { Readable } from 'stream'
 
 OWNER_PERM =
-  allowFileDiscovery: true
   role: 'writer'
   type: 'user'
   emailAddress: 'foo@bar.baz'
@@ -84,7 +83,7 @@ describe 'drive', ->
         resource:
           name: 'Ringhunters Uploads'
           mimeType: 'application/vnd.google-apps.folder'
-          parents: sinon.match.some sinon.match id: 'hunt'
+          parents: sinon.match.some sinon.match  'hunt'
       .resolves data:
         id: 'uploads'
         name: 'Ringhunters Uploads'
@@ -118,7 +117,7 @@ describe 'drive', ->
           id: 'uploads'
           name: 'Ringhunters Uploads'
           mimeType: 'application/vnd.google-apps.folder'
-          parents: [id: 'hunt']
+          parents: ['hunt']
         ]
         drive = new Drive api
 
@@ -132,12 +131,12 @@ describe 'drive', ->
             resource:
               name: 'New Puzzle'
               mimeType: 'application/vnd.google-apps.folder'
-              parents: sinon.match.some sinon.match id: 'hunt'
+              parents: sinon.match.some sinon.match  'hunt'
           .resolves data:
             id: 'newpuzzle'
             name: 'New Puzzle'
             mimeType: 'application/vnd.google-apps.folder'
-            parents: [id: 'hunt']
+            parents: ['hunt']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newpuzzle'
           .resolves data: permissions: []
@@ -153,7 +152,7 @@ describe 'drive', ->
           sheet = sinon.match
             name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
-            parents: sinon.match.some sinon.match id: 'newpuzzle'
+            parents: sinon.match.some sinon.match  'newpuzzle'
           files.expects('create').withArgs sinon.match
             resource: sheet
             media: sinon.match
@@ -163,7 +162,7 @@ describe 'drive', ->
             id: 'newsheet'
             name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
-            parents: [id: 'newpuzzle']
+            parents: ['newpuzzle']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newsheet'
           .resolves data: permissions: []
@@ -179,7 +178,7 @@ describe 'drive', ->
           doc = sinon.match
             name: 'Notes: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
-            parents: sinon.match.some sinon.match id: 'newpuzzle'
+            parents: sinon.match.some sinon.match  'newpuzzle'
           files.expects('create').withArgs sinon.match
             resource: doc
             media: sinon.match
@@ -189,7 +188,7 @@ describe 'drive', ->
             id: 'newdoc'
             name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
-            parents: [id: 'newpuzzle']
+            parents: ['newpuzzle']
           permissions.expects('list').withArgs sinon.match
             fileId: 'newdoc'
           .resolves data: permissions: []
@@ -208,7 +207,7 @@ describe 'drive', ->
             id: 'newpuzzle'
             name: 'New Puzzle'
             mimeType: 'application/vnd.google-apps.folder'
-            parents: [id: 'hunt']
+            parents: ['hunt']
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newpuzzle'
@@ -220,7 +219,7 @@ describe 'drive', ->
             id: 'newsheet'
             name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
-            parents: [id: 'newpuzzle']
+            parents: ['newpuzzle']
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newsheet'
@@ -232,7 +231,7 @@ describe 'drive', ->
             id: 'newdoc'
             name: 'Notes: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
-            parents: [id: 'newpuzzle']
+            parents: ['newpuzzle']
           ]
           permissions.expects('list').withArgs sinon.match
             fileId: 'newdoc'
@@ -257,7 +256,7 @@ describe 'drive', ->
             id: 'newpuzzle'
             name: 'New Puzzle'
             mimeType: 'application/vnd.google-apps.folder'
-            parents: [id: 'hunt']
+            parents: ['hunt']
           ]
           files.expects('list').withArgs sinon.match
             pageSize: 1
@@ -266,7 +265,7 @@ describe 'drive', ->
             id: 'newsheet'
             name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
-            parents: [id: 'newpuzzle']
+            parents: ['newpuzzle']
           ]
           files.expects('list').withArgs sinon.match
             pageSize: 1
@@ -275,7 +274,7 @@ describe 'drive', ->
             id: 'newdoc'
             name: 'Notes: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
-            parents: [id: 'newpuzzle']
+            parents: ['newpuzzle']
           ]
           chai.assert.include drive.findPuzzle('New Puzzle'),
             id: 'newpuzzle'
@@ -287,12 +286,12 @@ describe 'drive', ->
           id: 'newpuzzle'
           name: 'New Puzzle'
           mimeType: 'application/vnd.google-apps.folder'
-          parents: [id: 'hunt']
+          parents: ['hunt']
         item2 =
           id: 'oldpuzzle'
           name: 'Old Puzzle'
           mimeType: 'application/vnd.google-apps.folder'
-          parents: [id: 'hunt']
+          parents: ['hunt']
         files.expects('list').withArgs sinon.match 
           q: 'mimeType=\'application/vnd.google-apps.folder\' and \'hunt\' in parents'
           pageSize: 200
@@ -336,7 +335,7 @@ describe 'drive', ->
             id: 'newsheet'
             name: 'Worksheet: New Puzzle'
             mimeType: 'application/vnd.google-apps.spreadsheet'
-            parents: [id: 'newpuzzle']
+            parents: ['newpuzzle']
           ]
           nextPageToken: 'token'
         files.expects('delete').withArgs sinon.match
@@ -351,7 +350,7 @@ describe 'drive', ->
             id: 'newdoc'
             name: 'Notes: New Puzzle'
             mimeType: 'application/vnd.google-apps.document'
-            parents: [id: 'newpuzzle']
+            parents: ['newpuzzle']
           ]
         files.expects('delete').withArgs sinon.match
           fileId: 'newdoc'
