@@ -169,8 +169,7 @@ html.fullHeight {
           right: 0;
           .bb-pin-overlay {
             position: absolute;
-            top: 0; right: 0;
-            background: white;
+            background: var(--bg-color);
             border: 1px solid #888;
             padding-left: 2px; padding-right: 4px;
             border-bottom-left-radius: 5px;
@@ -181,6 +180,12 @@ html.fullHeight {
               color: #49afcd;
               &.bb-jitsi-pin-used {
                 color: red;
+              }
+            }
+            .bb-jitsi-cap-height {
+              color: grey;
+              &.capped {
+                color: #49afcd;
               }
             }
           }

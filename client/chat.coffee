@@ -474,7 +474,10 @@ Template.embedded_chat.helpers
   jitsiSize: ->
     # Set up dependencies
     return unless Template.instance().jitsi.get()?
-    Math.floor(share.Splitter.hsize.get() * 9 / 16)
+    sizeWouldBe = Math.floor(share.Splitter.hsize.get() * 9 / 16)
+    if 'true' is reactiveLocalStorage.getItem 'capJitsiHeight'
+      return Math.min 50, sizeWouldBe
+    sizeWouldBe
   jitsiPinSet: -> Template.instance().jitsiPinType.get()?
   usingJitsiPin: ->
     instance = Template.instance()
@@ -482,6 +485,7 @@ Template.embedded_chat.helpers
   pinnedRoomName: ->
     instance = Template.instance()
     jitsiRoomSubject instance.jitsiType(), instance.jitsiId()
+  jitsiHeightCapped: -> 'true' is reactiveLocalStorage.getItem 'capJitsiHeight'
 
 Template.embedded_chat.events
   'click .bb-show-whos-here': (event, template) ->
@@ -496,6 +500,10 @@ Template.embedded_chat.events
   'click .bb-jitsi-unpin': (event, template) ->
     template.jitsiPinType.set null
     template.jitsiPinId.set null
+  'click .bb-jitsi-cap-height:not(.capped)': (event, template) ->
+    reactiveLocalStorage.setItem 'capJitsiHeight', true
+  'click .bb-jitsi-cap-height.capped': (event, template) ->
+    reactiveLocalStorage.setItem 'capJitsiHeight', false
 
 # Utility functions
 
