@@ -2,6 +2,7 @@
 return unless share.DO_BATCH_PROCESSING
 
 import canonical from '../lib/imports/canonical.coffee'
+import md5 from '/lib/imports/md5.coffee'
 import { canonicalTags, getTag } from '../lib/imports/tags.coffee'
 import watchPresence from './imports/presence.coffee'
 
@@ -20,6 +21,13 @@ model.CallIns.update
 try
   Promise.await model.CallIns.rawCollection().dropIndex('target_1_answer_1')
 # No problem if it doesn't exist.
+
+Meteor.users.find(gravatar: $exists: true).forEach (doc) ->
+  Meteor.users.update doc._id,
+    $set:
+      gravatar_md5: md5 doc.gravatar
+    $unset:
+      gravatar: true
 
 # helper function: like _.throttle, but always ensures `wait` of idle time
 # between invocations.  This ensures that we stay chill even if a single
