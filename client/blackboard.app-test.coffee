@@ -27,6 +27,7 @@ describe 'blackboard', ->
     chai.assert.isNotNull $("##{civId._id}").html()
 
 describe 'login', ->
+  @timeout 10000
   it 'only sends email hash', ->
     await login 'testy', 'Teresa Tybalt', 'fake@artifici.al', ''
     await waitForSubscriptions()
