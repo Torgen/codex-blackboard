@@ -26,3 +26,12 @@ describe 'blackboard', ->
     civId = share.model.Rounds.findOne name: 'Civilization'
     chai.assert.isNotNull $("##{civId._id}").html()
 
+describe 'login', ->
+  it 'only sends email hash', ->
+    await login 'testy', 'Teresa Tybalt', 'fake@artifici.al', ''
+    await waitForSubscriptions()
+    chai.assert.isUndefined Meteor.users.findOne('testy').gravatar
+    chai.assert.equal Meteor.users.findOne('testy').gravatar_md5, 'a24f643d34150c3b4053989db38251c9'
+
+  afterEach ->
+    logout()
