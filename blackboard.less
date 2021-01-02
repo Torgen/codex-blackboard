@@ -52,6 +52,7 @@ body {
   }
   --bg-color: #f8f8f8;
   --text-color: #333;
+  --barely-darker: rgba(0,0,0,0.10);
   --slightly-lighter: rgba(255,255,255,0.75);
   --much-lighter:  rgba(255,255,255,0.85);
   --stuck-yellow: #ff0;
@@ -61,6 +62,7 @@ body {
     background-blend-mode: soft-light;
     --bg-color: #222;
     --text-color: #f8f8f8;
+    --barely-darker: rgba(255,255,255,0.10);
     --slightly-lighter: rgba(0,0,0,0.65);
     --much-lighter: rgba(0,0,0,0.55);
     --stuck-yellow: #550;
@@ -186,6 +188,15 @@ body.has-emojis {
 }
 .bb-puzzle-frame {
   height: 100%;
+}
+.bb-puzzle-info-tags {
+  td {
+    padding: 0px 0.5em;
+    vertical-align: top;
+  }
+}
+.bb-callin-history, .bb-puzzle-info-tags {
+  tbody tr:nth-child(even), thead tr { background-color: var(--barely-darker);}
 }
 .bb-chat-messages {
   margin-bottom: 26px; /* 41px navbar - 15px padding on #bb-body */
