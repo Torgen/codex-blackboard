@@ -111,8 +111,8 @@ mechanics(./Mechanics.md>. Marking a puzzle with a specific mechanic will both
 add this information to the blackboard an notify any team members who have
 favorited this mechanic.
  
-Puzzle Chat (Promoting important messages about the puzzle
-----------------------------------------------------------
+Puzzle Chat (Promoting important messages about the puzzle)
+-----------------------------------------------------------
 The puzzle chat has an additional feature: Messages can be starred.
  
 Clicking the star next to a chat message, causes it to become part of the puzzle info panel.
