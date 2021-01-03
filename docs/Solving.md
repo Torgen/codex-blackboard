@@ -167,29 +167,42 @@ Please don't use these tags unless you are the team operator:
 * `link`: The URL of the puzzle on the hunt site. This should be set when the puzzle is created.
  
 
-Answering
----------
-When you think you know the answer to a puzzle, request that it be called in either by clicking the **Request Call-In Button Button** in the header, or using the bot: `bot call in what a rush`.
- 
-You can call in an answer for a different puzzle by giving the puzzle name in the command: `bot call in what a rush for fraternity massacre`
- 
-If you backsolved the answer, indicate this in the call-in request: `bot call in what a rush backsolved`
- 
-If you received the answer by performing some task, indicate this in the call-in request: `bot call in what a rush provided`
- 
+HQ interactions requests (including answers)
+--------------------------------------------
+When you think you need to interact with HQ, request the interaction by clicking the **Request Call-In Button** in the header of every puzzle, or using the bot.
+
+Prefer using the **Call-in Button** for anything other than a basic answer submission. It is usually, easier, and sertinly less error-prone.  
+
+If a file needs to be uploaded, please upload it to drive yourself.  The upload button is on the far right of the puzzle header.  If you can't (no Google account), ask someone to do it for you in the main chat.  Once the file is uploaded, call-in that we should expect a callback from HQ.
+
+Calling in using the bot:
+* This puzzle: `bot call in what a rush`
+* Backsolved: `bot call in what a rush backsolved`
+* Answer provided by HQ, e.g. after a video submission: `bot call in what a rush provided`
+* Non-answer provided by HQ, e.g. you are ready to receive physical components: `bot request interaction the woodchuck chucks charles`
+* Reporting a puzzle error, spending hint points, hunt site issues, etc., `bot tell hq <message>`
+* HQ will be calling for some other reason (e.g. you uploaded a video for HQ): `bot expect callback <reason>`.
+
+If you are not in that puzzle's chat, you can call in the answer from any chat by specifying the puzzle name:
+* Another puzzle: `bot call in what a rush for fraternity massacre backsolved`
+
+
+Why shouldn't I just use the answer space on the puzzle?
+--------------------------------------------------------
 Even though every puzzle page has a link to enter an answer on it, there are several reasons to use the call-in queue instead:
 * Historically, HQ has called back to confirm answers. The person receiving the call needs to know to expect this call and what the answer was.
-* There may be hard or soft rate limits on calling in answers. Attempting wild guesses or duplicate answers may hinder the team's ability to
-  call in answers for that puzzle, or other puzzles.
-* Incorrect answers that used the queue are recorded in the blackboard so later solvers can see what was tried.
-* Solving a puzzle typically unlocks new puzzles, and it is often the responsibility of whoever operates the call-in queue to add these puzzles to the
-  blackboard, so using the queue ensures they know they should do it.
+* There may be hard or soft rate limits on calling in answers. Attempting wild guesses or duplicate answers may 
+  hinder the team's ability to call in answers for that puzzle, or other puzzles.
+* Incorrect answers are recorded in the blackboard so later solvers can see what was tried.
+
+* Solving a puzzle typically unlocks new puzzles.  It is often the responsibility of the call-in queue operator
+  to add these puzzles to the blackboard.  Using the queue ensures they know they should do it.
+
+* The hunt site may provide a separate form for event interactions. The team operator will know where to 
+  enter the request, an update the blackboard.  Any responses from HQ will be forwarded to the 
+  solvers -- usually to the puzzle chat.
+
+**If no one is around to run the Call-in queue**, e.g. late at night, you have no choice but to submit the 
+answer yourself. It is still better to do it through the call-in queue.  It preserves history and has buttons
+to update the blackboard for right/wrong answers.  The queue is accessible from the lower left of the main blackboard.  Please don't use it unless you are on duty, or there is no one on duty.
  
-Team leadership may give updated guidance depending on the circumstances of the hunt. For example, late at night there may not be anyone operating the call-in queue, so you have no choice but to do it yourself, but using the queue is still preferred as it preserves history.
- 
-Sometimes a puzzle requires you to call in a phrase which is not the answer. The phrase tells HQ that you are ready for the next step, e.g. to receive
-the physical components, or to do a skit. For this type of call-in, use the command `bot request interaction <message>`. The hunt site may provide a separate form for this type of call-in, and this ensures the on-call knows to enter it in that box. This also prevents the puzzle from being marked as solved, tracks that the request was made, and allows any response from HQ to be forwarded to the solvers.
- 
-If you need to interact with HQ for any other reason, such as reporting a mistake, telling them you're stuck for reasons beyond your control, or requesting that hint points be spent, use the command `bot tell hq <message>`.
- 
-If you expect HQ to call the current on-call for some reason that doesn't require the on-call to take any action, you can add a no-op entry to the queue with the command `bot expect callback <reason>`. For example, if the creative task told you to upload a video to a dropbox link, you may do that yourself (instead of requiring the on-call to download a large video, then upload it), then use this call-in type to tell the on-call that you have done so and HQ will be calling about it.
