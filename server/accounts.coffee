@@ -1,11 +1,35 @@
 'use strict'
 import canonical from '../lib/imports/canonical.coffee'
+import { md } from 'node-forge'
 import { StringWithLength } from '../lib/imports/match.coffee'
 
 PASSWORD = Meteor.settings?.password ? process.env.TEAM_PASSWORD 
 
 Meteor.users.deny
   update: -> true
+
+sha1 = (x) ->
+  md.sha1.create().update(x).digest().toHex()
+
+if share.DO_BATCH_PROCESSING
+  if PASSWORD?
+    sha_password = sha1 PASSWORD
+    Meteor.startup ->
+      Meteor.users.update
+        'services.resume': $exists: true
+        'services.codex.password_used': $exists: false
+      ,
+        $set: 'services.codex.password_used': sha_password
+      ,
+        multi: true
+      Meteor.users.update
+        'services.resume': $exists: true
+        'services.codex.password_used': $ne: sha_password
+      ,
+        $unset: 'services.resume': ''
+      ,
+        multi: true
+      
 
 Accounts.registerLoginHandler 'codex', (options) ->
   check options,
@@ -29,6 +53,7 @@ Accounts.registerLoginHandler 'codex', (options) ->
   profile = nickname: options.nickname
   profile.gravatar = options.gravatar if options.gravatar
   profile.real_name = options.real_name if options.real_name
+  profile['services.codex.password_used'] = sha1 options.password
 
   # If you have the team password, we'll create an account for you.
   try
