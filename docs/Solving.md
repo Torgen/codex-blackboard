@@ -27,7 +27,7 @@ When you first log into the blackboard, you join the main Jitsi Meeting. (You ma
 You can only be in one Jitsi Meeting at a time.
  
 * Audio/Video settings
-  * By default, you enter meetings with your microphone muted and your camera disabled.
+  * **By default, you enter meetings with your microphone muted and your camera disabled.**
   * To change your mute/video status within a meeting, click on the mic or video icon in that meeting.
   * To change your default mute/video status, click on the Settings Dropdown at the top of any blackboard page, and toggle the appropriate option.
  
