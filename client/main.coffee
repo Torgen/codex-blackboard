@@ -178,16 +178,26 @@ finishSetupNotifications = ->
     share.notification.set(stream, def) unless share.notification.get(stream)?
 
 Meteor.startup ->
-  now = share.model.UTCNow() + 3
+  now = new ReactiveVar share.model.UTCNow()
+  update = do ->
+    next = now.get()
+    push = _.debounce (-> now.set next), 1000
+    (newNext) ->
+      if newNext > next
+        next = newNext
+        push()
   suppress = true
   Tracker.autorun ->
-    return if share.notification.count() is 0 # unsubscribes
-    # Limits spam if you 
-    Meteor.subscribe 'oplogs-since', now,
-      onStop: -> suppress = true
+    if share.notification.count() is 0
+      suppress = true
+      return
+    else if suppress
+      now.set share.model.UTCNow()
+    Meteor.subscribe 'oplogs-since', now.get(),
       onReady: -> suppress = false
-  share.model.Messages.find({room_name: 'oplog/0', timestamp: $gte: now}).observeChanges
-    added: (id, msg) ->
+  share.model.Messages.find({room_name: 'oplog/0', timestamp: $gt: now.get()}).observe
+    added: (msg) ->
+      update msg.timestamp
       return unless Notification?.permission is 'granted'
       return unless share.notification.get(msg.stream)
       return if suppress
@@ -206,7 +216,7 @@ Meteor.startup ->
         data = url: share.Router.urlFor msg.type, msg.id
       share.notification.notify msg.nick,
         body: body
-        tag: id
+        tag: msg._id
         icon: gravatar[0].src
         data: data
   Tracker.autorun ->
