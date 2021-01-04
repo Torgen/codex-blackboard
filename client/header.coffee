@@ -513,3 +513,33 @@ confirmationDialog = share.confirmationDialog = (options) ->
   Template.header_confirmmodal_contents.options = -> options
   Template.header_confirmmodal_contents.cancel = true
   Session.set 'confirmModalVisible', (options or Object.create(null))
+
+RECENT_GENERAL_LIMIT = 2
+
+############## operation/chat log in header ####################
+Template.header_lastchats.helpers
+  lastchats: ->
+    model.Messages.find {
+      room_name: @, system: {$ne: true}, bodyIsHtml: {$ne: true}, nick: {$ne: botuser()?._id}
+    }, {sort: [["timestamp","desc"]], limit: RECENT_GENERAL_LIMIT}
+  msgbody: ->
+    if this.bodyIsHtml then new Spacebars.SafeString(this.body) else this.body
+  roomname: ->
+    if @ is 'general/0'
+      settings.GENERAL_ROOM_NAME
+    else
+      'Updates'
+  roomicon: ->
+    if @ is 'oplog/0'
+      'newspaper'
+    else
+      'comments'
+
+# subscribe when this template is in use/unsubscribe when it is destroyed
+Template.header_lastchats.onCreated ->
+  return if settings.BB_DISABLE_RINGHUNTERS_HEADER
+  @autorun =>
+  if Template.instance().data is 'general/0'
+    @subscribe 'recent-header-messages'
+  else
+    @subscribe 'recent-messages', 'oplog/0', 2

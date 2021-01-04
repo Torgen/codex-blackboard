@@ -139,6 +139,7 @@
     {{> Template.dynamic template=crumb_template}}
   {{/each}}
   <li class="fill">
+    {{> header_lastchats "oplog/0"}}
   {{#if currentPageEquals "chat"}}
     {{> chat_header }}
   {{/if}}
@@ -219,6 +220,30 @@
           class="{{connectStatus.status}} btn {{style}}">
     <span class="bb-statuslight"></span>
   </button>
+</template>
+
+<template name="header_lastchats">
+<!-- Last chat bar -->
+  <div class="bb-lastchat">
+    <div class="rooms fas fa-{{roomicon}}" title={{roomname}}>
+    </div>
+    <div class="chats">
+    {{#each lastchats}}
+    <p class="messageRow">
+    <span class="timestamp">{{pretty_ts timestamp}}</span>
+    {{#if oplog}}
+      {{msgbody}} {{link id}} {{#if nick}} (<strong title="{{nickOrName nick}}">{{nick}}</strong>){{/if}}
+    {{else if action}}
+      <strong title="{{nickOrName nick}}">{{nick}}</strong> {{msgbody}}
+    {{else}}
+      <strong title="{{nickOrName nick}}">{{nick}}:</strong>
+      {{#if to}}/msg <span title="{{nickOrName to}}">{{to}}</span>{{/if}}
+      {{msgbody}}
+    {{/if}}
+    </p>
+    {{/each}}
+    </div>
+  </div>
 </template>
 
 <template name="header_nickmodal_contents">

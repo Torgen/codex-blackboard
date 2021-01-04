@@ -246,30 +246,41 @@ body.has-emojis {
 .bb-breadcrumbs .tooltip-inner { .bb-buttonbar .tooltip-inner; }
 .bb-breadcrumbs .tooltip.bottom .tooltip-arrow { .bb-buttonbar .tooltip.bottom .tooltip-arrow; }
 
-.bb-lastchat, .bb-lastupdate {
+.bb-lastchat {
   margin-bottom: @vert-padding;
   margin-top: @vert-padding;
-  padding: 0 (15px + @right-size) 0 (14px + @left-size);
-  & > .left { margin-left: (-@left-size); }
-  & > .right { margin-right: (-@right-size);
-                text-align: right;
-                a[title], a[data-original-title] { position:relative; }
-    .bb-pop-out { font-size: 80%; }
+  display: flex;
+  flex-flow: row nowrap;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: hidden;
+  .messageRow {
+    .ellipsis;
+    margin-top: 0;
+    margin-bottom: 0;
+    font: 90%;
+    line-height: 1.25;
   }
-  &, .messageRow { .ellipsis; }
-}
-.bb-lastchat .messageRow {
-  margin-top: 0;
-  margin-bottom: 0;
-  font: 90%;
-  line-height: 1.25;
-}
-.bb-lastchat > .right { line-height: 16px; }
-.bb-lastchat, .bb-lastupdate {
+  .rooms{
+    width: min-content;
+    white-space: initial;
+    font-weight: bold;
+    font-size: 32px;
+    line-height: 32px;
+    padding-left: 15px;
+    padding-right: 8px;
+    display: flex;
+    flex-direction: column-reverse;
+    color: white; /* not --text-color; header is always dark. */
+  }
+  .chats {
+    display: flex;
+    flex-direction: column-reverse;
+    .ellipsis;
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
   .timestamp { color: #555; }
-}
-.bb-lastupdate {
-  .comma-list { text-transform: uppercase; }
 }
 .bb-chat-presence {
   .ellipsis;
