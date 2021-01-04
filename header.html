@@ -1,13 +1,6 @@
 <template name="header">
 
 <div class="navbar navbar-inverse navbar-fixed-top bb-topbar">
-  <div class="navbar-inner">
-    {{> header_loginmute}}
-    {{> header_lastupdates}}
-    {{#unless compactHeader}}
-      {{> header_lastchats}}
-    {{/unless}}
-  </div>
   {{> header_breadcrumbs}}
 </div>
 </template>
@@ -150,28 +143,20 @@
     {{> chat_header }}
   {{/if}}
   </li>
-  {{#if currentPageEquals "round"}}
-    {{> header_breadcrumbs_unsolved_buttons round}}
-  {{else if currentPageEquals "puzzle"}}
-    {{> header_breadcrumbs_unsolved_buttons puzzle}}
-  {{/if}}
   {{#if drive}}
     {{#if picker}}
 <li class="bb-drive-buttons">
+  <div class="btn-group">
   <button type="button"
           class="bb-upload-file btn btn-inverse">
     <i class="fas fa-file-upload"></i><span class="bb-omit-when-narrow"> Upload file</span>
   </button>
+  </div>
 </li>
     {{/if}}
-<li class="bb-drive-buttons">
-  <span>
-  <a class="bb-drive-link btn btn-inverse"
-     title="Open Drive Folder"
-     target="_blank"
-     href="{{drive_link drive}}"><i class="fab fa-google-drive"></i></a></span>
-</li>
   {{/if}}
+<li class="divider-vertical"></li>
+{{> header_loginmute}}
 </ul>
 <div class="fill"></div>
 </div>
@@ -179,40 +164,14 @@
 
 <template name="header_breadcrumbs_unsolved_buttons">
 {{#unless solved}}
-<li class="bb-drive-buttons">
 {{> puzzle_callin_button}}{{> puzzle_summon_button}}
-</li>
 {{/unless}}
 </template>
 
 <template name="header_loginmute">
+  <li>
 <!-- login/mute buttons -->
-  <div class="bb-buttonbar pull-right">
-   <div>
-    {{#if sessionNick}}
-     <div class="btn-group{{#if compactHeader}} bb-login{{/if}}">
-      <a class="btn btn-small btn-inverse dropdown-toggle"
-         data-toggle="dropdown" href="#">
-       {{>gravatar nick=sessionNick.canon size=16}}
-       {{#if sessionNick.realname}}
-         {{sessionNick.realname}}
-       {{else}}
-         {{sessionNick.name}}
-       {{/if}}
-       <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu pull-right">
-       <li><a href="#" class="bb-logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
-      </ul>
-     </div>
-    {{else}}
-    <button class="btn btn-small btn-inverse bb-login">
-     <i class="fas fa-user"></i>
-     Log in to {{#if currentPageEquals "chat"}}chat{{else}}edit{{/if}}
-    </button>
-    {{/if}}
-   </div>
-   <div class="btn-toolbar">
+  <div class="bb-buttonbar">
 {{#if currentPageEquals "blackboard"}}
     <div class="btn-group">
      <button title="Protect page" data-canEdit="false"
@@ -228,13 +187,31 @@
     {{> options_dropdown}}
 {{/if}}
     <div class="btn-group">
-     <button title="{{volumeTitle}}" class="mute btn btn-small btn-inverse">
-      <span class="fas {{volumeIcon}}"></span>
-     </button>
      {{> connection_button style="btn-small btn-inverse"}}
     </div>
-   </div>
   </div>
+  </li>
+  <li class="dropdown">
+    {{#if sessionNick}}
+      <a class="dropdown-toggle"
+         data-toggle="dropdown" href="#">
+       {{>gravatar nick=sessionNick.canon size=16}}
+       <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu pull-right">
+        <li class="disabled"><a name="nickname">Nickname: {{sessionNick.name}}</a></li>
+        {{#if sessionNick.realname}}
+          <li class="disabled"><a name="realname">Real name: {{sessionNick.realname}}</a></li>
+        {{/if}}
+        <li><a href="#" class="bb-logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+      </ul>
+    {{else}}
+    <button class="btn btn-small btn-inverse bb-login">
+     <i class="fas fa-user"></i>
+     Log in to {{#if currentPageEquals "chat"}}chat{{else}}edit{{/if}}
+    </button>
+    {{/if}}
+  </li>
 </template>
 
 <template name="connection_button">
@@ -242,57 +219,6 @@
           class="{{connectStatus.status}} btn {{style}}">
     <span class="bb-statuslight"></span>
   </button>
-</template>
-
-<template name="header_lastupdates">
-<!-- Last update bar -->
-  <div class="bb-lastupdate">
-    <span class="right pull-right">
-    <a href="/oplogs" class="oplogs-link"
-       title="Complete blackboard update log">more...</a>
-    </span>
-    <span class="left pull-left label label-inverse">
-    Last update:
-    </span>
-    <span class="center">
-    {{#with lastupdates}}
-    <span class="timestamp">{{pretty_ts timestamp}}</span>
-    {{message}}
-    <span class="comma-list">{{#each objects}}{{link id}}{{/each}}</span>
-    {{#if nick}} (<strong title="{{nickOrName nick}}">{{nick}}</strong>){{/if}}
-    {{/with}}
-    </span>
-  </div>
-</template>
-
-<template name="header_lastchats">
-<!-- Last chat bar -->
-  <div class="bb-lastchat">
-    <div class="right pull-right">
-      <a href="/chat/general/0" class="chat-link"
-         title="Complete {{roomname}} chat">more...</a><br/>
-      <a href="/chat/general/0" class="chat-link bb-pop-out"
-         title="Pop out {{roomname}} chat"
-         target="chat0">pop out <i class="fas fa-external-link-alt"></i></a>
-    </div>
-    <span class="left pull-left label label-inverse">
-      {{roomname}}:
-    </span>
-    <span class="center">
-    {{#each lastchats}}
-    <p class="messageRow">
-    <span class="timestamp">{{pretty_ts timestamp}}</span>
-    {{#if action}}
-      <strong title="{{nickOrName nick}}">{{nick}}</strong> {{msgbody}}
-    {{else}}
-      <strong title="{{nickOrName nick}}">{{nick}}:</strong>
-      {{#if to}}/msg <span title="{{nickOrName to}}">{{to}}</span>{{/if}}
-      {{msgbody}}
-    {{/if}}
-    </p>
-    {{/each}}
-    </span>
-  </div>
 </template>
 
 <template name="header_nickmodal_contents">

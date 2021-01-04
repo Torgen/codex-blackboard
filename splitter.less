@@ -65,18 +65,18 @@ html.fullHeight {
           display: none;
         }
         position: absolute;
-        right: var(--right-column);
+        right: ~"calc(var(--right-column) + 16px)";
         margin-right: 6px;
         background: var(--bg-color);
         border: 1px solid #888;
         padding-left: 2px; padding-right: 4px;
-        padding-top: 5px;
+        padding-top: 0px;
       }
       .bb-left-header {
         position: absolute; right: 100%; writing-mode: vertical-lr; top:10px;
       }
       iframe {
-        padding-top: 5px; /* was 26px, but we're chosing to overlap header */
+        padding-top: 0px;
         margin-bottom: -5px;
         border-top: none;
       }

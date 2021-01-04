@@ -40,7 +40,7 @@
           border-radius: @radius;
 }
 
-@navbar-height: 101px; /* was 69px */
+@navbar-height: 40px;
 
 body {
   background: url('/img/grid_noise.png');
@@ -78,9 +78,11 @@ body {
     }
   }
 }
-.darkMode a:not(.btn) {
-  color: hsl(200,100%,80%);
-  &:hover {color: hsl(200.2,100%,95.1%);}
+.darkMode {
+  a:not(.btn), a.btn-link {
+    color: hsl(200,100%,80%);
+    &:hover {color: hsl(200.2,100%,95.1%);}
+  }
 }
 // For mobile devices which actually support native emojis:
 body.has-emojis {
@@ -129,10 +131,6 @@ body.has-emojis {
       }
     }
   }
-}
-
-.bb-chat-messages {
-  padding-top: 40px; /* allow space for breadcrumbs in navbar */
 }
 .bb-puzzleround {
   padding-right: 2px; padding-left: 2px;
@@ -206,7 +204,7 @@ body.has-emojis {
   tbody tr:nth-child(even), thead tr { background-color: var(--barely-darker);}
 }
 .bb-chat-messages {
-  margin-bottom: 26px; /* 41px navbar - 15px padding on #bb-body */
+  margin-bottom: 41px; /* 41px navbar - 15px padding on #bb-body */
 }
 .bb-chat-callin, .bb-puzzleround {
   .bb-summon-form {
@@ -221,15 +219,13 @@ body.has-emojis {
 
 #bb-body {
   padding-top: @navbar-height;
-  &.compactHeader { padding-top: @navbar-height - 21px; }
 }
 
 .bb-buttonbar {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   text-align: right;
   padding-right: 5px;
-  .compactHeader & { flex-direction: row; }
   .btn-group { text-align: left; }
   .btn-toolbar { margin-top: 0; margin-bottom: 0; }
   .tooltip-inner {
@@ -624,16 +620,12 @@ input[type=color] {
   .navbar-fixed-bottom { margin-top: 0; }
   .navbar-fixed-top {
     padding: 0;
-    .navbar-inner { padding: 0px; }
   }
   #bb-content > .navbar-fixed-top {
     position: absolute;
   }
   #messages {
-    padding-top: @navbar-height - 20px;
-    .compactHeader & {
-      padding-top: 22px;
-    }
+    padding-top: @navbar-height;
     /* Need this amount of specificity to override .row-fluid rule. */
     #bb-body .bb-splitter & { padding-top: 0px; }
   }
@@ -643,7 +635,7 @@ input[type=color] {
     padding-top: 0px;
     padding-bottom: 0;
     #bb-content > #bb-blackboard {
-      padding-top: @navbar-height - 40px;
+      padding-top: 0px;
     }
   }
   .bb-hide-status {
@@ -712,7 +704,7 @@ input[type=color] {
     display: none;
   }
   #bb-body #bb-content > #bb-blackboard {
-    padding-top: @navbar-height - 40px;
+    padding-top: 0px;
   }
 }
 

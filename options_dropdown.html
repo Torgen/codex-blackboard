@@ -1,8 +1,8 @@
 <template name="options_dropdown">
   <div class="btn-group text-left bb-display-settings">
-    <button class="btn btn-small btn-info dropdown-toggle" data-toggle="dropdown" title="Display Settings">
+    <button class="btn btn-small btn-info dropdown-toggle" data-toggle="dropdown" title="Settings">
       <i class="fas fa-sliders-h"></i>
-      <span class="bb-display-settings-title">Display Settings</span>
+      <span class="bb-display-settings-title">Settings</span>
       <span class="caret"></span>
     </button>
     <ul class="dropdown-menu pull-left bb-display-settings-list nav-list">
@@ -51,6 +51,12 @@
           Prioritize Stuck
         </label>
       </a></li>
+      <li><a name="bb-nosfx">
+        <label class="checkbox bb-sfx-mute" title="Silence sound effects. Doesn't affect Jitsi meetings.">
+          <input type="checkbox" name="bb-sfx-mute" checked="{{sfxMute}}">
+          Mute Sound Effects
+        </label>
+      </a></li>
       <li class="nav-header">Chat</li>
       <li><a name="bb-nobot">
         <label class="checkbox bb-bot-mute" title="Silence fun bot responses like memes, but not useful ones like announcements and command replies">
@@ -75,7 +81,7 @@
         <li><a name="bb-start-video-muted">
           <label class="checkbox bb-start-video-muted" title="Join Jitsi meetings with video muted">
             <input type="checkbox" name="bb-start-video-muted" checked="{{startVideoMuted}}">
-            Start Video Muted
+            Start Video Disabled
           </label>
         </a></li>
       {{/if}}

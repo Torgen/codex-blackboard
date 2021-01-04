@@ -8,7 +8,6 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 model = share.model # import
 settings = share.settings # import
 
-NAVBAR_HEIGHT = 73 # keep in sync with @navbar-height in blackboard.less
 SOUND_THRESHOLD_MS = 30*1000 # 30 seconds
 
 blackboard = {} # store page global state

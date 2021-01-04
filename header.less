@@ -55,7 +55,7 @@
       margin: 0px;
       border-bottom: 1px solid black;
       box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
-      li {
+      & > li {
         display: flex;
         flex-grow: 0;
         flex-shrink: 0;
@@ -78,6 +78,7 @@
         a:not(.current) i:not(.current):hover {
           border-bottom: 1px solid white;
         }
+        .btn-group .caret { border-top-color:white; border-bottom-color: white;}
         &.dropdown.open > ul.dropdown-menu {
           display: flex;
           background: url('/img/irongrip.png');
@@ -87,10 +88,11 @@
             display: flex;
             flex-flow: row nowrap;
             color: #c4c4c4;
-            a {
+            a[href] {
               color: #c4c4c4;
-              &:hover { background: none; }
+              &:hover { background: none; color: white;}
             }
+            a + a { padding-left: 0px; margin-left: -10px; }
           }
         }
       }

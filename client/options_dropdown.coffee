@@ -20,6 +20,7 @@ Template.registerHelper 'hideSolvedMeta', -> 'true' is reactiveLocalStorage.getI
 Template.registerHelper 'hideStatus', -> 'true' is reactiveLocalStorage.getItem 'hideStatus'
 Template.registerHelper 'stuckToTop', -> 'true' is reactiveLocalStorage.getItem 'stuckToTop'
 Template.registerHelper 'noBot', -> 'true' is reactiveLocalStorage.getItem 'nobot'
+Template.registerHelper 'sfxMute', -> 'true' is reactiveLocalStorage.getItem 'mute'
 Template.registerHelper 'hideOldPresence', -> 'true' is reactiveLocalStorage.getItem 'hideOldPresence'
 
 Template.options_dropdown.helpers
@@ -47,6 +48,8 @@ Template.options_dropdown.events
     reactiveLocalStorage.setItem 'stuckToTop', event.target.checked
   'change .bb-bot-mute input': (event, template) ->
     reactiveLocalStorage.setItem 'nobot', event.target.checked
+  'change .bb-sfx-mute input': (event, template) ->
+    reactiveLocalStorage.setItem 'mute', event.target.checked
   'change .bb-hide-old-presence input': (event, template) ->
     reactiveLocalStorage.setItem 'hideOldPresence', event.target.checked
   'change .bb-start-video-muted input': (event, template) ->

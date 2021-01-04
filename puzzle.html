@@ -1,9 +1,14 @@
 <template name="puzzle_info">
 <div class="bb-puzzle-frame">
 <div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
-  <h1>{{puzzle.name}} {{>favorite puzzle}}
-    {{#if puzzle.link}}<nobr>(<a href="{{puzzle.link}}" target="_blank">link<i class="fas fa-external-link-alt"></i></a>)</nobr>{{/if}}
-  </h1>
+  <h1>{{puzzle.name}}</h1>
+  <h2>
+    {{>favorite puzzle}}
+    {{#if puzzle.link}}<a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class="fas fa-link"></i></a>{{/if}}
+    {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}"><i class="fab fa-google-drive"></i></a>{{/if}}
+    {{> header_breadcrumbs_unsolved_buttons puzzle}}
+    
+  </h2>
 </div>
 <table class="bb-puzzle-info-tags"><tbody>
 {{#with puzzle}}
@@ -153,7 +158,7 @@
 </template>
 
 <template name="puzzle_summon_button">
-<button class="btn {{#if currentPageEquals "chat"}}btn-small{{/if}} bb-summon-btn {{#if stuck}}stuck{{else}}unstuck{{/if}} btn-inverse">
+<button class="btn btn-small bb-summon-btn {{#if stuck}}stuck{{else}}unstuck{{/if}} btn-inverse">
 {{#unless currentPageEquals "chat"}}<i class="fas fa-{{#if stuck}}lightbulb{{else}}ambulance{{/if}}"></i>{{/unless}}
 {{#if stuck}}Clear STUCK status{{else}}Flag as STUCK{{/if}}
 </button>
@@ -222,9 +227,9 @@
 </template>
 
 <template name="puzzle_callin_button">
-<button class="btn {{#if currentPageEquals "chat"}}btn-small{{/if}} bb-callin-btn btn-inverse">
-{{! TODO: after bootstrap upgrade, change icon to earphone }}
-{{#unless currentPageEquals "chat"}}<i class="fas fa-phone"></i>{{/unless}}
+<button class="btn btn-small bb-callin-btn btn-inverse"
+  title="Request call-in">
+<i class="fas fa-phone"></i>
 Request Call-In
 </button>
 </template>

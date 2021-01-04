@@ -7,15 +7,6 @@
       {{> puzzle_callin_modal}}
       {{> puzzle_summon_modal}}
     {{/with}}
-  <div class="bb-chat-callin {{#if solved}}solved{{/if}}">
-    {{#if solved}}Solved
-    {{else}}
-      {{#with object}}
-        {{> puzzle_callin_button}}
-        {{> puzzle_summon_button}}
-      {{/with}}
-    {{/if}}
-  </div>
   {{/if}}
   <div class="navbar navbar-inverse navbar-fixed-bottom bb-chat-footer">
     <div class="navbar-inner">

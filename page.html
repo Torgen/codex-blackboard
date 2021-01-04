@@ -24,7 +24,7 @@ function onGoogleApiLoad() {
     {{#if currentPageEquals "graph"}}
       {{>graph}}
     {{else}}
-      <div id="bb-body" class="{{#if boringMode}}boring{{/if}} {{#if compactHeader}}compactHeader{{/if}}">
+      <div id="bb-body" class="{{#if boringMode}}boring{{/if}}">
         {{> page }}
       </div>
       {{> header_confirmmodal}}
