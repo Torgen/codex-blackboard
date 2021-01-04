@@ -1,14 +1,14 @@
 <template name="puzzle_info">
 <div class="bb-puzzle-frame">
 <div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
-  <h1>{{puzzle.name}}</h1>
   <h2>
+    {{> header_breadcrumbs_unsolved_buttons puzzle}}
+    {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}"><i class="fab fa-google-drive"></i></a>{{/if}}
     {{>favorite puzzle}}
     {{#if puzzle.link}}<a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class="fas fa-link"></i></a>{{/if}}
-    {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}"><i class="fab fa-google-drive"></i></a>{{/if}}
-    {{> header_breadcrumbs_unsolved_buttons puzzle}}
-    
   </h2>
+  
+  <h1>{{puzzle.name}}</h1>
 </div>
 <table class="bb-puzzle-info-tags"><tbody>
 {{#with puzzle}}
