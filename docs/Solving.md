@@ -50,7 +50,7 @@ displayed at the very top of the page.  The chat can be popped out from any of t
  
 If you're not sure what you should be doing, this is a good place to ask.
 
-In addition to the main chat, each puzzle page has it's own chat.
+In addition to the main chat, each puzzle page has its own chat.
 
 There are times when you want everyone working on a puzzle to see certain information. 
 The easiest way to do this is to send a message and then **Promote the Message** by clicking the **star icon** next to it.  This causes the message to display in the  puzzle info panel. (Or the main blackboard if the message was in the main chat.) e.g.
