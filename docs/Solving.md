@@ -43,7 +43,7 @@ of events you wish to receive notifications for:
 * **Favorite Mechanics**: A puzzle has been marked as using one of your **Favorite Mechanics**. Clicking this notification will take you to the puzzle page. Enabled by default.
  
 Chat 
-=========
+====
 The main chat is shown on almost every page. On the main blackboard page it is in the lower right. On
 puzzle pages, the last two lines of the main chat and/or oplog (new rounds/puzzle announcements) are
 displayed at the very top of the page.  The chat can be popped out from any of the pages if you want to see more.
@@ -67,7 +67,7 @@ A new **Favorite Puzzles Section** displays at the top of your blackboard page i
 Every puzzle has a heart icon in both its blackboard grid row and in the info panel on its puzzle page. Clicking the heart adds the puzzle to your personal list of favorites. Clicking it again removes it from your list.
 </details>
 <details>
-  <summary>Mark mechanics as favorites to discover puzzles you'll enjoy solving.</summary>
+  <summary>Mark mechanics as favorites to discover puzzles involving those mechanics.</summary>
 
 Selecting one or more [mechanics](./Mechanics.md) from the **Favorite Mechanics Dropdown** at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in your favorites. 
  
@@ -102,7 +102,7 @@ The pane can be made "full screen", or popped out using the icons in the upper r
 In this case "full screen" means hiding the puzzle page header, thereby giving more solving space.
 </details>
 
-The *Mechanics Dropdown* in the puzzle info pane should be used to mark puzzles involving that [mechanic](./Mechanics.md).  e.g. Cryptics.  This will both add the information to the blackboard an notify any 
+The **Mechanics Dropdown** in the puzzle info pane should be used to mark puzzles involving that [mechanic](./Mechanics.md).  e.g. Cryptics.  This will both add the information to the blackboard an notify any 
 team members who have favorited this mechanic.
 
 Solving
@@ -113,9 +113,11 @@ some useful formulas--for example, converting between numbers and letters, and s
 If you want to try something destructive, duplicate an existing tab and add your name to the tab's title.
  
 If several people want to work on a puzzle offline, leave a chat message so remote people know what's going on. Click the star on a message to save it.
+
+If you aren't making any more progress on your current puzzle, the "Mark as STUCK" button will send a call for help in the main chat room,
+and to anyone who has requested to be notified about stuck puzzles. Hopefully someone will arrive soon with fresh ideas.
  
-Tags
-----
+### Tags
 Puzzles can be tagged with additional information. These tags are displayed on the main blackboard page
 and in the info panel on the puzzle page. Adding tags makes it more likely that the right people look at a
 puzzle. They are also useful to convey state to others working on the puzzle. (Especially if you get stuck.)
@@ -199,7 +201,7 @@ to update the blackboard for right/wrong answers.  The queue is accessible from 
 
  
 Quips
------
+=====
 Quips are funny things to say when we answer phone calls from HQ. We do this because HQ should have fun too.
 It also encourages HQ to not delay our callbacks too much if we call in a bunch of wrong answers.
  
