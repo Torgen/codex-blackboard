@@ -1,12 +1,13 @@
 Logging In
 ==========
 The login screen contains the following fields:
-* **Team Password** (required): You should get this from wherever you got the URL for the blackboard site, whether that was
-  a classroom blackboard/whiteboard, a Slack channel, or a mailing list.
+* **Team Password** (required): You should get this from wherever you got the URL for the blackboard site, 
+  whether that was a classroom blackboard/whiteboard, a Slack channel, or a mailing list.
 * **Nickname** (required): This can be up to 20 characters.
 * **Real Name** (optional): If you don't set this, your nickname will be shown with your chat messages instead.
-* **Email Address** (optional): This is used only to look up your [Gravatar](https://en.gravatar.com/). It is never sent to
-  the server or shared with teammates. If you don't have a Gravatar, a geometric "Wavatar" will be generated for you instead.
+* **Email Address** (optional): This is used only to look up your [Gravatar](https://en.gravatar.com/). It is 
+  never sent to the server or shared with teammates. If you don't have a Gravatar, a geometric "Wavatar" 
+  will be generated for you instead.
  
 Individual accounts don't have their own passwords. You are trusted not to impersonate one another.
 Be careful with the team password. A bad actor can freely create accounts, so there is no way to
@@ -19,33 +20,16 @@ The main blackboard page and every puzzle page have their own Jitsi meeting.
  
 When you first log into the blackboard, you join the main Jitsi Meeting. (You may need to grant audio/video permissions).
  
-* Changing Meetings
+* Changing Meetings (You can only be in one Jitsi Meeting at a time.)
   * Within a browser tab, the Jitsi meeting moves with you. If you open a new page, you move to that meeting.
   * To pin yourself to a specific meeting, click the pin icon within that meeting.
   * To join a specific meeting, click the video icon in the chat line for that page.
- 
-You can only be in one Jitsi Meeting at a time.
- 
+  
 * Audio/Video settings
   * **By default, you enter meetings with your microphone muted and your camera disabled.**
   * To change your mute/video status within a meeting, click on the mic or video icon in that meeting.
   * To change your default mute/video status, click on the Settings Dropdown at the top of any blackboard page, and toggle the appropriate option.
- 
-
-Favorite Puzzles and Mechanics
-==============================
-A new **Favorite Puzzles Section** displays at the top of your blackboard page if you have any favorite puzzles.
- 
-A puzzle can become a favorite in two ways:
-* Clicking on a puzzle's heart icon makes it a favorite. The icon appears both in the blackboard grid row and in the info panel on its puzzle page.
-* Selecting one or more [mechanics](./Mechanics.md) from the **Favorite Mechanics Dropdown** at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in your favorites. 
- 
-If you **Enable Notifications**, you will be notified when a puzzle is marked as involving any of those mechanics.
- 
-You can **Hide Solved Favorites**  via the **Settings Dropdown**.
- 
-An alternate use of the Favorites area is to heart the puzzles you work on, so you can easily get back to them later.
- 
+  
 Notifications
 =============
 You can opt into desktop notifications by clicking the **Enable Notifications Button** at the top of the blackboard. This
@@ -53,37 +37,47 @@ will trigger the browser's notification permission dialog. Once you've enabled n
 of events you wish to receive notifications for:
 * **Announcements**: General messages for everyone. Enabled by default.
 * **Answers**: A puzzle was correctly answered. The answer will be included in the message. Clicking this notification will take you to the puzzle page. Enabled by default.
-* **Callins**: Someone is requesting an answer be called in for a puzzle. The answer will be included in the message. Clicking this notification will take you to the Call-Ins page. Disabled by default.
+* **Callins**: Someone is requesting an answer be called in for a puzzle. The answer will be included in the message. Clicking this notification will take you to the **Call-Ins** page. Disabled by default.
 * **New Puzzles**: A puzzle was unlocked. Clicking this notification will take you to the puzzle page. Disabled by default.
 * **Stuck Puzzles**: A puzzle was marked as stuck. Clicking this notification will take you to the puzzle page. Disabled by default.
 * **Favorite Mechanics**: A puzzle has been marked as using one of your **Favorite Mechanics**. Clicking this notification will take you to the puzzle page. Enabled by default.
  
-Main Chat
+Chat 
 =========
 The main chat is shown on almost every page. On the main blackboard page it is in the lower right. On
-puzzle pages, the last two lines of the main chat are displayed at the very top of the page.
-The chat can be popped out from any of the pages if you want to see more.
+puzzle pages, the last two lines of the main chat and/or oplog (new rounds/puzzle announcements) are
+displayed at the very top of the page.  The chat can be popped out from any of the pages if you want to see more.
  
 If you're not sure what you should be doing, this is a good place to ask.
- 
 
-Shut up, Bot!
--------------
-The bot has some just-for-fun plugins installed, like a meme generator. If you would rather not see these messages, the
-**Settings Dropdown** contains a **Hide Bot Tomfoolery** option that will hide them. This doesn't affect important messages like responses to commands.
+In addition to the main chat, each puzzle page has it's own chat.
+
+There are times when you want everyone working on a puzzle to see certain information. 
+The easiest way to do this is to send a message and then **Promote the Message** by clicking the **star icon** next to it.  This causes the message to display in the  puzzle info panel. (Or the main blackboard if the message was in the main chat.) e.g.
+- All entries are surfers, the colors are their national colors.
+- https://www.surfingwiki.com/wiki/Famous_surfers
+
+The bot sometimes generates silly messages, e.g. memes.  These can be hidden via the **Settings Dropdown** option **Hide Bot Tomfoolery**. 
+
+Favorite Puzzles and Mechanics
+==============================
+A new **Favorite Puzzles Section** displays at the top of your blackboard page if you have any favorite puzzles.
+
+<details>
+  <summary>How to mark puzzles and mechanics as favorites</summary>
+<br>
  
-Quips
------
-Quips are funny things to say when we answer phone calls from HQ. We do this because HQ should have fun too.
-It also encourages HQ to not delay our callbacks too much if we call in a bunch of wrong answers.
+A puzzle can become a favorite in two ways:
+* Clicking on a puzzle's heart icon makes it a favorite. The icon appears both in the blackboard grid row and in the info panel on its puzzle page.
+* Selecting one or more mechanics(./Mechanics.md) from the **Favorite Mechanics Dropdown** at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in your favorites. 
  
-Adding quips:
-* The easiest way to add a quip is to ask the bot to do it. For example, `bot new quip Codex is my co-dump stat`.
-* If you are adding many quips, you can go to \<your hunt site\>/quips/new. E.g. funnyhunters.com/quips/new
+If you **Enable Notifications**, you will be notified when a puzzle is marked as involving any of those mechanics.
  
-The list of quips is shown to whomever is manning the call-in queue. Whoever is manning the call-in queue will be given
-a selection of not-recently-used quips to choose from.
- 
+You can **Hide Solved Favorites**  via the **Settings Dropdown**.
+ </details>
+An alternate use of the Favorites area is to heart the puzzles you work on, so you can easily get back to them later.
+
+
 The Puzzle Page
 ===============
 The default view for every puzzle is five sections:
@@ -94,8 +88,11 @@ The default view for every puzzle is five sections:
 5) A pane with the jitsi meeting (Lower right)
  
 You can resize the panes (but not the header); your changes will be remembered.
+
+<details>
+  <summary>Details about the individual panes</summary>
   
-Looking at the panes in more detail:
+Looking at some of the panes in more detail:
    
 The header pane always has a mini-main room chat, breadcrumbs, and general blackboard controls.
 There is always a breadcrumb for this puzzle, and for the main blackboard. If this puzzle feeds 
@@ -105,22 +102,10 @@ The content of the main pane can be changed by clicking an icon in this puzzles 
 The icons are: puzzle from the hunt website, spreadsheet, doc, puzzle info pane and puzzle chat. 
 The pane can be made "full screen", or popped out using the icons in the upper right of the main pane. 
 In this case "full screen" means hiding the puzzle page header, thereby giving more solving space.
-      
-The puzzle info pane includes a *Mechanics Dropdown* containing some
-[mechanics](./Mechanics.md). Marking a puzzle with a specific mechanic will both
-add this information to the blackboard an notify any team members who have
-favorited this mechanic.
- 
-Puzzle Chat (Promoting important messages about the puzzle)
------------------------------------------------------------
-The puzzle chat has an additional feature: Messages can be starred.
- 
-Clicking the star next to a chat message, causes it to become part of the puzzle info panel.
-This is useful for messsages that should be read by anyone working on the puzzle, now or later. e.g.
-- All entries are surfers.
-- The colors corelates to their national flags.
-- We think the sort order is world championship wins.
- 
+</details>
+
+The *Mechanics Dropdown* in the puzzle info pane should be used to mark puzzles involving that [mechanic](./Mechanics.md).  e.g. Cryptics.  This will both add the information to the blackboard an notify any 
+team members who have favorited this mechanic.
 
 Solving
 -------
@@ -136,14 +121,16 @@ Tags
 Puzzles can be tagged with additional information. These tags are displayed on the main blackboard page
 and in the info panel on the puzzle page. Adding tags makes it more likely that the right people look at a
 puzzle. They are also useful to convey state to others working on the puzzle. (Especially if you get stuck.)
- 
+
+<details>
+  <summary>Details about how to set flags.</summary>
+<br>
 To set a tag on a puzzle, go to the chat for that puzzle and type:
 `bot set <tag> to <value>` e.g. `bot set theme to baseball`. 
 You can use any string as a tag name.
- 
+  
 To unset a flag **TODO**.
  
-
 Certain tag names have special handling:
 * `status`: Your current progress. This is displayed on the blackboard. <br>
   If the status starts with "Stuck", a call for help will be printed in the main chat
@@ -165,7 +152,7 @@ Tags for metapuzzles:
 Please don't use these tags unless you are the team operator:
 * `answer`: Don't set this directly. Click the **Request Call-In Button** instead. See "Answering" below for why.
 * `link`: The URL of the puzzle on the hunt site. This should be set when the puzzle is created.
- 
+</details>
 
 HQ interactions requests (including answers)
 --------------------------------------------
@@ -173,9 +160,11 @@ When you think you need to interact with HQ, request the interaction by clicking
 
 Prefer using the **Call-in Button** for anything other than a basic answer submission. It is usually, easier, and sertinly less error-prone.  
 
-If a file needs to be uploaded, please upload it yourself, following whatever instructions were given by HQ. Once the file is uploaded, call-in that we should expect a callback from HQ.
+If a file needs to be uploaded, please upload it to drive yourself.  The upload button is on the far right of the puzzle header.  If you can't (no Google account), ask someone to do it for you in the main chat.  Once the file is uploaded, call-in that we should expect a callback from HQ.
 
-Calling in using the bot:
+<details>
+  <summary>Calling in using the bot:</summary>
+The Command to call in using the bot:
 * This puzzle: `bot call in what a rush`
 * Backsolved: `bot call in what a rush backsolved`
 * Answer provided by HQ, e.g. after a video submission: `bot call in what a rush provided`
@@ -185,10 +174,10 @@ Calling in using the bot:
 
 If you are not in that puzzle's chat, you can call in the answer from any chat by specifying the puzzle name:
 * Another puzzle: `bot call in what a rush for fraternity massacre backsolved`
-
-
-Why shouldn't I just use the answer space on the puzzle?
---------------------------------------------------------
+</details>
+  
+<details>
+  <summary><strong>Why shouldn't I submit the answer directly on the puzzle hunt site?</strong></summary>
 Even though every puzzle page has a link to enter an answer on it, there are several reasons to use the call-in queue instead:
 * Historically, HQ has called back to confirm answers. The person receiving the call needs to know to expect this call and what the answer was.
 * There may be hard or soft rate limits on calling in answers. Attempting wild guesses or duplicate answers may 
@@ -201,8 +190,24 @@ Even though every puzzle page has a link to enter an answer on it, there are sev
 * The hunt site may provide a separate form for event interactions. The team operator will know where to 
   enter the request, an update the blackboard.  Any responses from HQ will be forwarded to the 
   solvers -- usually to the puzzle chat.
+</details>
 
+<details>
+    <summary><strong>What do I do if no one is around to run the Call-in queue?</strong></summary>
 **If no one is around to run the Call-in queue**, e.g. late at night, you have no choice but to submit the 
 answer yourself. It is still better to do it through the call-in queue.  It preserves history and has buttons
 to update the blackboard for right/wrong answers.  The queue is accessible from the lower left of the main blackboard.  Please don't use it unless you are on duty, or there is no one on duty.
+</details>
+
  
+Quips
+-----
+Quips are funny things to say when we answer phone calls from HQ. We do this because HQ should have fun too.
+It also encourages HQ to not delay our callbacks too much if we call in a bunch of wrong answers.
+ 
+Adding quips:
+* The easiest way to add a quip is to ask the bot to do it. For example, `bot new quip Codex is my co-dump stat`.
+* If you are adding many quips, you can go to \<your hunt site\>/quips/new. E.g. funnyhunters.com/quips/new
+ 
+The list of quips is shown to whomever is manning the call-in queue. Whoever is manning the call-in queue will be given
+a selection of not-recently-used quips to choose from.
