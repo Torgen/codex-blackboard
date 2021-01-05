@@ -107,7 +107,7 @@ The pane can be made "full screen", or popped out using the icons in the upper r
 In this case "full screen" means hiding the puzzle page header, thereby giving more solving space.
       
 The puzzle info pane includes a *Mechanics Dropdown* containing some
-mechanics(./Mechanics.md>. Marking a puzzle with a specific mechanic will both
+[mechanics](./Mechanics.md). Marking a puzzle with a specific mechanic will both
 add this information to the blackboard an notify any team members who have
 favorited this mechanic.
  
