@@ -160,7 +160,7 @@ When you think you need to interact with HQ, request the interaction by clicking
 
 Prefer using the **Call-in Button** for anything other than a basic answer submission. It is usually, easier, and sertinly less error-prone.  
 
-If a file needs to be uploaded, please upload it to drive yourself.  The upload button is on the far right of the puzzle header.  If you can't (no Google account), ask someone to do it for you in the main chat.  Once the file is uploaded, call-in that we should expect a callback from HQ.
+If a file needs to be uploaded, please upload it yourself, following the instructions from HQ.  Once the file is uploaded, call-in that we should expect a callback from HQ.
 
 <details>
   <summary>Calling in using the bot:</summary>
