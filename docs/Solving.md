@@ -114,7 +114,7 @@ If you want to try something destructive, duplicate an existing tab and add your
  
 If several people want to work on a puzzle offline, leave a chat message so remote people know what's going on. Click the star on a message to save it.
 
-If you aren't making any more progress on your current puzzle, the "Mark as STUCK" button will send a call for help in the main chat room,
+If you aren't making any more progress on your current puzzle, the **Flag as STUCK Button** will send a call for help in the main chat room,
 and to anyone who has requested to be notified about stuck puzzles. Hopefully someone will arrive soon with fresh ideas.
  
 ### Tags
@@ -138,7 +138,7 @@ Certain tag names have special handling:
   (Using the **Flag as Stuck Button**, right above the puzzle info panel, is often easier and more thorough.)
  
 Tags for metapuzzles:
-* `color`: Sets the background color for this meta's row in the blackboard table. The rows of all puzzles associated to this meta will be shaded a lighter version of the color. Any css color name or format is accepted. (blue, #deadmeat)
+* `color`: Sets the background color for this meta's row in the blackboard table. The rows of all puzzles associated to this meta will be shaded a lighter version of the color. Any css color name or format is accepted. (blue, #beefee)
 
 * `cares about`: Give the name of a concept that every feeder puzzle should provide for this meta. e.g. Temperature.<br>
   Three things will happen when this flag is set. 
