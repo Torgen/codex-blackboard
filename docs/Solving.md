@@ -62,20 +62,18 @@ The bot sometimes generates silly messages, e.g. memes.  These can be hidden via
 Favorite Puzzles and Mechanics
 ==============================
 A new **Favorite Puzzles Section** displays at the top of your blackboard page if you have any favorite puzzles.
-
 <details>
-  <summary>How to mark puzzles and mechanics as favorites</summary>
-<br>
- 
-A puzzle can become a favorite in two ways:
-* Clicking on a puzzle's heart icon makes it a favorite. The icon appears both in the blackboard grid row and in the info panel on its puzzle page.
-* Selecting one or more [mechanics](./Mechanics.md) from the **Favorite Mechanics Dropdown** at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in your favorites. 
+  <summary>Mark a puzzle as a favorite to find it easily later.</summary>
+Every puzzle has a heart icon in both its blackboard grid row and in the info panel on its puzzle page. Clicking the heart adds the puzzle to your personal list of favorites. Clicking it again removes it from your list.
+</details>
+<details>
+  <summary>Mark mechanics as favorites to discover puzzles you'll enjoy solving.</summary>
+
+Selecting one or more [mechanics](./Mechanics.md) from the **Favorite Mechanics Dropdown** at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in your favorites. 
  
 If you **Enable Notifications**, you will be notified when a puzzle is marked as involving any of those mechanics.
- 
-You can **Hide Solved Favorites**  via the **Settings Dropdown**.
  </details>
-An alternate use of the Favorites area is to heart the puzzles you work on, so you can easily get back to them later.
+You can **Hide Solved Favorites**  via the **Settings Dropdown**.
 
 
 The Puzzle Page
@@ -123,14 +121,14 @@ and in the info panel on the puzzle page. Adding tags makes it more likely that 
 puzzle. They are also useful to convey state to others working on the puzzle. (Especially if you get stuck.)
 
 <details>
-  <summary>Details about how to set flags.</summary>
+  <summary>Details about how to set tags.</summary>
 <br>
 To set a tag on a puzzle, go to the chat for that puzzle and type:
 `bot set <tag> to <value>` e.g. `bot set theme to baseball`. 
 You can use any string as a tag name.
-  
-To unset a flag **TODO**.
- 
+
+To unset a tag, go to the chat for that puzzle and type: `bot unset <tag>`
+
 Certain tag names have special handling:
 * `status`: Your current progress. This is displayed on the blackboard. <br>
   If the status starts with "Stuck", a call for help will be printed in the main chat
