@@ -2,6 +2,7 @@
 
 import { gravatarUrl, nickHash, md5 } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
+import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
 import { mechanics } from '../lib/imports/mechanics.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
@@ -32,6 +33,7 @@ do -> for v in ['currentPage']
 Template.registerHelper 'abbrev', abbrev
 Template.registerHelper 'callinType', human_readable
 Template.registerHelper 'callinTypeAbbrev', ctabbrev
+Template.registerHelper 'canonical', canonical
 Template.registerHelper 'currentPageEquals', (arg) ->
   # register a more precise dependency on the value of currentPage
   Session.equals 'currentPage', arg

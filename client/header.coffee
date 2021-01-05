@@ -359,6 +359,7 @@ Template.header_breadcrumbs.helpers
       Session.get 'RINGHUNTERS_FOLDER'
     when 'puzzles'
       model.Puzzles.findOne(Session.get 'id')?.drive
+  generalChat: -> Session.equals 'room_name', 'general/0'
 
 Template.header_breadcrumbs.events
   "click .bb-upload-file": (event, template) ->
@@ -519,8 +520,9 @@ RECENT_GENERAL_LIMIT = 2
 ############## operation/chat log in header ####################
 Template.header_lastchats.helpers
   lastchats: ->
+    console.log @
     model.Messages.find {
-      room_name: @, system: {$ne: true}, bodyIsHtml: {$ne: true}, nick: {$ne: botuser()?._id}
+      room_name: @, system: {$ne: true}, bodyIsHtml: {$ne: true},
     }, {sort: [["timestamp","desc"]], limit: RECENT_GENERAL_LIMIT}
   msgbody: ->
     if this.bodyIsHtml then new Spacebars.SafeString(this.body) else this.body
@@ -539,7 +541,22 @@ Template.header_lastchats.helpers
 Template.header_lastchats.onCreated ->
   return if settings.BB_DISABLE_RINGHUNTERS_HEADER
   @autorun =>
-  if Template.instance().data is 'general/0'
-    @subscribe 'recent-header-messages'
-  else
-    @subscribe 'recent-messages', 'oplog/0', 2
+    console.log Template.instance().data
+    if Template.instance().data is 'general/0'
+      @subscribe 'recent-header-messages'
+    else
+      @subscribe 'recent-messages', 'oplog/0', 2
+
+
+Template.header_lastchats_switcher.onCreated ->
+  @oplog = new ReactiveVar true
+  @interval = Meteor.setInterval(=>
+    @oplog.set (not @oplog.get())
+  , 10000)
+
+Template.header_lastchats_switcher.helpers
+  oplog: -> Template.instance().oplog.get()
+
+  
+Template.header_lastchats_switcher.onDestroyed ->
+  Meteor.clearInterval @interval

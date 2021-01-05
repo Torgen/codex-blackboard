@@ -139,7 +139,11 @@
     {{> Template.dynamic template=crumb_template}}
   {{/each}}
   <li class="fill">
-    {{> header_lastchats "oplog/0"}}
+    {{#if generalChat}}
+      {{> header_lastchats "oplog/0"}}
+    {{else}}
+      {{>header_lastchats_switcher}}
+    {{/if}}
   {{#if currentPageEquals "chat"}}
     {{> chat_header }}
   {{/if}}
@@ -225,7 +229,7 @@
 
 <template name="header_lastchats">
 <!-- Last chat bar -->
-  <div class="bb-lastchat">
+  <div class="bb-lastchat" id="bb-lastchat-{{canonical this}}">
     <div class="rooms fas fa-{{roomicon}}" title={{roomname}}>
     </div>
     <div class="chats">
@@ -244,6 +248,13 @@
     </p>
     {{/each}}
     </div>
+  </div>
+</template>
+
+<template name="header_lastchats_switcher">
+  <div class="bb-lastchat-switcher {{#if oplog}}oplog{{/if}}">
+    {{> header_lastchats "general/0"}}
+    {{> header_lastchats "oplog/0"}}
   </div>
 </template>
 
