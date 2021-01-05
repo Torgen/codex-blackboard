@@ -69,7 +69,7 @@ A new **Favorite Puzzles Section** displays at the top of your blackboard page i
  
 A puzzle can become a favorite in two ways:
 * Clicking on a puzzle's heart icon makes it a favorite. The icon appears both in the blackboard grid row and in the info panel on its puzzle page.
-* Selecting one or more mechanics(./Mechanics.md) from the **Favorite Mechanics Dropdown** at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in your favorites. 
+* Selecting one or more [mechanics](./Mechanics.md) from the **Favorite Mechanics Dropdown** at the top of the blackboard will cause puzzles which are marked as involving any of those mechanics to appear in your favorites. 
  
 If you **Enable Notifications**, you will be notified when a puzzle is marked as involving any of those mechanics.
  
