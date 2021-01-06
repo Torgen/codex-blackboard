@@ -111,7 +111,12 @@
         overflow: hidden;
         position: relative;
         & > .bb-lastchat {
+          /* This makes it take up exactly all the space in the li,
+             but it doesn't count toward the li's size so the li
+             can shrink to 0 if necessary. */
           position: absolute;
+          left: 0;
+          right:0;
         }
       }
       .bb-drive-buttons {
