@@ -535,7 +535,7 @@ Template.header_lastchats.helpers
     else
       settings.GENERAL_ROOM_NAME
   roomicon: ->
-    if @ is 'oplog/0'
+    query = if Session.equals('room_name', 'general/0')
       'newspaper'
     else
       'comments'
