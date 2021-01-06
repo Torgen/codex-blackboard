@@ -29,7 +29,7 @@
 
 .bb-abbrev-when-narrow::before {
   content: attr(data-full);
-  @media (max-width: 767px)  {
+  @media (max-width: 1200px)  {
     content: attr(data-abbrev);
   }
 }
@@ -270,12 +270,12 @@ body.has-emojis {
     font-size: 32px;
     line-height: 32px;
     padding-left: 15px;
-    padding-right: 8px;
     display: flex;
     flex-direction: column-reverse;
     color: white; /* not --text-color; header is always dark. */
   }
   .chats {
+    padding-left: 8px;
     display: flex;
     flex-direction: column-reverse;
     .ellipsis;
@@ -622,7 +622,8 @@ input[type=color] {
 
 /* Desktop large
 ------------------------- */
-@media (min-width: 1200px) {
+@media (max-width: 1440px) {
+  .nav li .bb-omit-when-narrow { display: none; }
 }
 
 /* Desktop
@@ -633,9 +634,7 @@ input[type=color] {
   .navbar-fixed-bottom { margin-top: 0; }
   .navbar-fixed-top {
     padding: 0;
-  }
-  #bb-content > .navbar-fixed-top {
-    position: absolute;
+    position: fixed;
   }
   #messages {
     padding-top: @navbar-height;
@@ -645,7 +644,6 @@ input[type=color] {
   .bb-puzzleround { padding-top: 0 !important; }
   .bb-chat-footer { margin-left: -20px; margin-right: -20px; }
   #bb-body {
-    padding-top: 0px;
     padding-bottom: 0;
     #bb-content > #bb-blackboard {
       padding-top: 0px;
@@ -664,21 +662,6 @@ input[type=color] {
   /* fixup fullHeight stuff */
   html.fullHeight {
     body { padding-right: 0; padding-left: 0; }
-    #bb-content {
-      & > .bb-topbar {
-        position: absolute;
-        top: 0;
-        left: 0; right: 0; width: auto;
-        padding: 0;
-        margin: 0;
-      }
-      & > .bb-puzzleround {
-        position: absolute;
-        left: 20px; right: 20px; width: auto;
-        top: 69px; bottom: 3px; height: auto;
-        padding-top: 0;
-      }
-    }
   }
 }
 
@@ -719,6 +702,7 @@ input[type=color] {
   #bb-body #bb-content > #bb-blackboard {
     padding-top: 0px;
   }
+  #bb-body .bb-left-content .bb-pop-full-menu { right: 16px;}
 }
 
 @media (min-width: 481px) and (max-width: 980px) {
