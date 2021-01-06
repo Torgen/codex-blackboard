@@ -520,43 +520,61 @@ RECENT_GENERAL_LIMIT = 2
 ############## operation/chat log in header ####################
 Template.header_lastchats.helpers
   lastchats: ->
-    console.log @
+    query = if Session.equals('room_name', 'general/0')
+      'oplog/0'
+    else
+      $in: ['oplog/0', 'general/0']
     model.Messages.find {
-      room_name: @, system: {$ne: true}, bodyIsHtml: {$ne: true},
+      room_name: query, system: {$ne: true}, bodyIsHtml: {$ne: true}, nick: {$ne: botuser()}
     }, {sort: [["timestamp","desc"]], limit: RECENT_GENERAL_LIMIT}
   msgbody: ->
     if this.bodyIsHtml then new Spacebars.SafeString(this.body) else this.body
   roomname: ->
-    if @ is 'general/0'
-      settings.GENERAL_ROOM_NAME
-    else
+    if Session.equals('room_name', 'general/0')
       'Updates'
+    else
+      settings.GENERAL_ROOM_NAME
   roomicon: ->
     if @ is 'oplog/0'
       'newspaper'
     else
       'comments'
+  icon_label: ->
+    if /Added/.test @body
+      if @type is 'puzzles'
+        ['puzzle-piece', 'success']
+      else if @type is 'rounds'
+        ['globe', 'success']
+      else if @type is 'quips'
+        ['comment-dots']
+      else
+        ['plus']
+    else if /Deleted answer/.test @body
+      ['sad-tear', 'important']
+    else if /Deleted/.test @body
+      ['trash-alt', 'info']
+    else if /Renamed/.test @body
+      ['id-badge', 'info']
+    else if /New.*submitted for/.test @body
+      ['phone', 'success']
+    else if /Canceled call-in/.test @body
+      ['phone-slash', 'important']
+    else if /Help requested/.test @body
+      ['ambulance', 'warning']
+    else if /Help request cancelled/.test @body
+      ['lightbulb', 'success']
+    else if /Found an answer/.test @body
+      ['trophy', 'success']
+    else if /reports incorrect answer/.test @body
+      ['heart-broken', 'important']
+    else if @stream is 'announcements'
+      ['bullhorn', 'info']
+    else
+      ['exclamation-circle']
 
 # subscribe when this template is in use/unsubscribe when it is destroyed
 Template.header_lastchats.onCreated ->
   return if settings.BB_DISABLE_RINGHUNTERS_HEADER
   @autorun =>
-    console.log Template.instance().data
-    if Template.instance().data is 'general/0'
-      @subscribe 'recent-header-messages'
-    else
-      @subscribe 'recent-messages', 'oplog/0', 2
-
-
-Template.header_lastchats_switcher.onCreated ->
-  @oplog = new ReactiveVar true
-  @interval = Meteor.setInterval(=>
-    @oplog.set (not @oplog.get())
-  , 10000)
-
-Template.header_lastchats_switcher.helpers
-  oplog: -> Template.instance().oplog.get()
-
-  
-Template.header_lastchats_switcher.onDestroyed ->
-  Meteor.clearInterval @interval
+    this.subscribe 'recent-messages', 'oplog/0', 2
+    @subscribe 'recent-header-messages' unless Session.equals('room_name', 'general/0')
