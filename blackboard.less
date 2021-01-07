@@ -116,9 +116,16 @@ body.has-emojis {
   }
   ul {
     margin-left: 5px;
+    display: flex;
+    flex-flow: column nowrap;
+    min-height: 100%;
     li {
       display: block;
-      a {
+      flex-grow: 0;
+      &.fill {
+        flex-grow: 1;
+      }
+      a, .btn-link {
         display: block;
         &.bb-wiki { text-align: center; }
       }

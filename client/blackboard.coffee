@@ -212,6 +212,8 @@ Template.blackboard.helpers
     model.Puzzles.find query
   stuckPuzzles: -> model.Puzzles.find
     'tags.status.value': /^stuck/i
+  hasJitsiLocalStorage: ->
+    reactiveLocalStorage.getItem 'jitsiLocalStorage'
 
 Template.blackboard_status_grid.helpers
   rounds: round_helper
@@ -246,6 +248,8 @@ Template.blackboard.onDestroyed ->
 Template.blackboard.events
   "click .bb-menu-button .btn": (event, template) ->
     template.$('.bb-menu-drawer').modal 'show'
+  'click .bb-menu-drawer a.bb-clear-jitsi-storage': (event, template) ->
+    reactiveLocalStorage.removeItem 'jitsiLocalStorage'
   'click .bb-menu-drawer a': (event, template) ->
     template.$('.bb-menu-drawer').modal 'hide'
     href = event.target.getAttribute 'href'

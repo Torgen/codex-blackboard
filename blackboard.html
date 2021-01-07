@@ -22,6 +22,11 @@
     <li><a href="#unassigned{{_id}}"><i class="fas fa-chevron-right"></i>Unassigned</a></li>
     {{/if}}
     {{/each}}
+    <li class="fill"></li>
+    {{#if hasJitsiLocalStorage}}
+      <li class="nav-header">Troubleshooting</li>
+      <li><a href="#" class="bb-clear-jitsi-storage" title="Jitsi can sometimes store so much data in local storage that when it tries to pass it to the iframe, it exceeds the browser's URL size limit. Click here to clear that storage.">Clear Jitsi Local Storage</a></li>
+    {{/if}}
   </ul>
 </div>
 <!-- puzzles w/ index -->
