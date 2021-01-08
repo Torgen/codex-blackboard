@@ -183,6 +183,7 @@ if Meteor.isServer
 #   oplog:  boolean (true for semi-automatic operation log message)
 #   presence: optional string ('join'/'part' for presence-change only)
 #   bot_ignore: optional boolean (true for messages from e.g. email or twitter)
+#   header_ignore: optional boolean (don't show in header)
 #   to:   destination of pm (optional)
 #   poll: _id of poll (optional)
 #   starred: boolean. Pins this message to the top of the puzzle page or blackboard.
@@ -683,7 +684,9 @@ doc_id_to_link = (id) ->
         provided: !!args.provided
         status: 'pending'
       , {suppressLog:true}
-      msg = action: true
+      msg =
+        action: true
+        header_ignore: true
       # send to the general chat
       msg.body = body(specifyPuzzle: true)
       unless args?.suppressRoom is "general/0"
@@ -789,7 +792,7 @@ doc_id_to_link = (id) ->
       # one message to the general chat
       delete msg.room_name
       msg.body += " (#{puzzle.name})" if puzzle?.name?
-      Meteor.call 'newMessage', msg
+      Meteor.call 'newMessage', {msg..., header_ignore: true}
 
       if callin.callin_type is callin_types.ANSWER
         # one message to the each metapuzzle's chat
@@ -847,7 +850,7 @@ doc_id_to_link = (id) ->
       # one message to the general chat
       delete msg.room_name
       msg.body += " (#{puzzle.name})" if puzzle.name?
-      Meteor.call 'newMessage', msg
+      Meteor.call 'newMessage', {msg..., header_ignore: true}
       puzzle.feedsInto.forEach (meta) ->
         msg.room_name = "puzzles/#{meta}"
         Meteor.call 'newMessage', msg
@@ -914,6 +917,7 @@ doc_id_to_link = (id) ->
         room_name: Match.Optional NonEmptyString
         useful: Match.Optional Boolean
         bot_ignore: Match.Optional Boolean
+        header_ignore: Match.Optional Boolean
         suppressLastRead: Match.Optional Boolean
       return if this.isSimulation # suppress flicker
       suppress = args.suppressLastRead
@@ -1133,6 +1137,7 @@ doc_id_to_link = (id) ->
         action: true
         bodyIsHtml: true
         body: body
+        header_ignore: true
       return
 
     unsummon: (args) ->
@@ -1163,6 +1168,7 @@ doc_id_to_link = (id) ->
       Meteor.call 'newMessage',
         action: true
         body: body
+        header_ignore: true
       return
 
     getRoundForPuzzle: (puzzle) ->

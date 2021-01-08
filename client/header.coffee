@@ -525,7 +525,7 @@ Template.header_lastchats.helpers
     else
       $in: ['oplog/0', 'general/0']
     model.Messages.find {
-      room_name: query, system: {$ne: true}, bodyIsHtml: {$ne: true}, nick: {$ne: botuser()}
+      room_name: query, system: {$ne: true}, bodyIsHtml: {$ne: true}, header_ignore: {$ne: true}
     }, {sort: [["timestamp","desc"]], limit: RECENT_GENERAL_LIMIT}
   msgbody: ->
     if this.bodyIsHtml then new Spacebars.SafeString(this.body) else this.body

@@ -157,6 +157,7 @@ class BlackboardAdapter extends Hubot.Adapter
       room_name: 'general/0'
       action: true
       bot_ignore: true
+      header_ignore: true
     @emit 'connected'
 
   # Public: Raw method for shutting the bot down.

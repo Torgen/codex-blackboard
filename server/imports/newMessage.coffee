@@ -32,6 +32,9 @@ export newMessage = (newMsg) ->
     room_name: NonEmptyString
     useful: Match.Optional Boolean
     bot_ignore: Match.Optional Boolean
+    # True for messages generated in main chat room as part of events that also generate oplogs.
+    # Since oplogs are always in the header, these are redundant there, but should be in the chat room itself.
+    header_ignore: Match.Optional Boolean
     # Present only in messages received via IMAP.
     # Nick will be sender's address.
     mail: Match.Optional

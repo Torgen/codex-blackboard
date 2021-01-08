@@ -154,6 +154,7 @@ Meteor.publish 'recent-header-messages', loginRequired ->
     system: $ne: true
     bodyIsHtml: $ne: true
     deleted: $ne: true
+    header_ignore: $ne: true
     $or: [ {to: null}, {to: @userId}, {nick: @userId }]
   ,
     sort: [['timestamp', 'desc']]
