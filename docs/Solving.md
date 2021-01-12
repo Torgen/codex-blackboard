@@ -29,6 +29,12 @@ When you first log into the blackboard, you join the main Jitsi Meeting. (You ma
   * **By default, you enter meetings with your microphone muted and your camera disabled.**
   * To change your mute/video status within a meeting, click on the mic or video icon in that meeting.
   * To change your default mute/video status, click on the Settings Dropdown at the top of any blackboard page, and toggle the appropriate option.
+
+* It's broken!
+  * Normally the meeting URL for a puzzle is generated automatically from the randomly generated puzzle ID.
+  * Sometimes a specific meeting URL will have issues when other meetings are fine, possibly because of issues on the Jitsi server hosting that meeting.
+  * You can force a different meeting URL by (setting the `jitsi` tag)[#tags] on a puzzle.
+  * You can also use this to cause multiple puzzles to share one meeting, if that would be useful.
   
 Notifications
 =============

@@ -5,10 +5,14 @@ import { StaticJitsiMeeting } from '/lib/imports/settings.coffee'
 
 export jitsiRoom = (roomType, roomId) ->
   return unless roomId
+  meeting = "#{roomType}_#{roomId}"
   if roomId is '0'
     return unless StaticJitsiMeeting.get()
-    return "#{canonical(share.settings.TEAM_NAME)}_#{StaticJitsiMeeting.get()}"
-  "#{canonical(share.settings.TEAM_NAME)}_#{roomType}_#{roomId}"
+    meeting = StaticJitsiMeeting.get()
+  else
+    override = share.model.collection(roomType)?.findOne(_id: roomId)?.tags?.jitsi?.value
+    meeting = override if override?
+  "#{canonical(share.settings.TEAM_NAME)}_#{meeting}"
 
 export default jitsiUrl = (roomType, roomId) ->
   return unless share.settings.JITSI_SERVER
