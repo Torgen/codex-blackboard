@@ -7,7 +7,7 @@
     "@babel/runtime": "^7.12.5",
     "coffeescript": "^2.5.1",
     "css-color-names": "1.0.1",
-    "cytoscape": "^3.17.1",
+    "cytoscape": "^3.18.0",
     "cytoscape-fcose": "^2.0.0",
     "cytoscape-layout-utilities": "^1.0.2",
     "delay": "^4.4.0",
