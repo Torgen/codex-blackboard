@@ -12,23 +12,6 @@ model = share.model
 # Was in lib/model.coffee, but that meant it was loaded on the client even
 # though it could never run there.
 
-model.CallIns.update
-  status: null
-,
-  $set: status: 'pending'
-,
-  multi: true
-try
-  Promise.await model.CallIns.rawCollection().dropIndex('target_1_answer_1')
-# No problem if it doesn't exist.
-
-Meteor.users.find(gravatar: $exists: true).forEach (doc) ->
-  Meteor.users.update doc._id,
-    $set:
-      gravatar_md5: md5 doc.gravatar
-    $unset:
-      gravatar: true
-
 # helper function: like _.throttle, but always ensures `wait` of idle time
 # between invocations.  This ensures that we stay chill even if a single
 # execution of the function starts to exceed `wait`.
