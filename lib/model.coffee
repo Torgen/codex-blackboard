@@ -4,7 +4,7 @@ import canonical from './imports/canonical.coffee'
 import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
-import { RoundUrlPrefix, PuzzleUrlPrefix } from './imports/settings.coffee'
+import { RoundUrlPrefix, PuzzleUrlPrefix, UrlSeparator } from './imports/settings.coffee'
 import * as callin_types from './imports/callin_types.coffee'
 if Meteor.isServer
   {newMessage, ensureDawnOfTime} = require('/server/imports/newMessage.coffee')
@@ -431,9 +431,10 @@ doc_id_to_link = (id) ->
     newRound: (args) ->
       check @userId, NonEmptyString
       round_prefix = RoundUrlPrefix.get()
+      url_separator = UrlSeparator.get()
       link = if round_prefix
         round_prefix += '/' unless round_prefix.endsWith '/'
-        "#{round_prefix}#{canonical(args.name)}"
+        "#{round_prefix}#{canonical(args.name).replace('_', url_separator)}"
       r = newObject "rounds", {args..., who: @userId},
         puzzles: []
         link: args.link or link
@@ -463,9 +464,10 @@ doc_id_to_link = (id) ->
         mechanics: Match.Optional [IsMechanic]
       throw new Meteor.Error(404, "bad round") unless Rounds.findOne(args.round)?
       puzzle_prefix = PuzzleUrlPrefix.get()
+      url_separator = UrlSeparator.get()
       link = if puzzle_prefix
         puzzle_prefix += '/' unless puzzle_prefix.endsWith '/'
-        "#{puzzle_prefix}#{canonical(args.name)}"
+        "#{puzzle_prefix}#{canonical(args.name).replace('_', url_separator)}"
       feedsInto = args.feedsInto or []
       extra =
         incorrectAnswers: []
