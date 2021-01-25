@@ -78,6 +78,14 @@ export EmbedPuzzles = new Setting(
   parse_boolean
 )
 
+export UrlSeparator = new Setting(
+  'URL Separator',
+  'The character used to replace spaces in the puzzle/round URL.  Defaults to _',
+  '_',
+  Match.String,
+  id
+)
+
 export PuzzleUrlPrefix = new Setting(
   'Puzzle URL Prefix',
   'If set, used as the prefix for new puzzles. Otherwise, they must be set manually',
