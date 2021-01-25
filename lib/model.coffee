@@ -1049,7 +1049,7 @@ doc_id_to_link = (id) ->
           type: args.type
           target: args.object
           answer: args.value
-      if canonical(args.name) is 'link'
+      if canonical(args.name) is 'link' or canonical(args.name) is 'url'
         args.fields = { link: args.value }
         return Meteor.call 'setField', args
       args.now = UTCNow() # don't let caller lie about the time
