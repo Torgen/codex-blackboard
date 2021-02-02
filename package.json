@@ -10,7 +10,7 @@
     "cytoscape": "^3.18.0",
     "cytoscape-fcose": "^2.0.0",
     "cytoscape-layout-utilities": "^1.0.2",
-    "delay": "^4.4.1",
+    "delay": "^5.0.0",
     "denodeify": "^1.2.1",
     "gemoji": "^6.1.0",
     "googleapis": "^67.0.0",
