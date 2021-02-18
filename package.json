@@ -13,7 +13,7 @@
     "delay": "^5.0.0",
     "denodeify": "^1.2.1",
     "gemoji": "^6.1.0",
-    "googleapis": "^67.0.0",
+    "googleapis": "^67.1.0",
     "hubot": "^3.3.2",
     "hubot-help": "^1.0.1",
     "mail-listener5": "^2.0.2",
