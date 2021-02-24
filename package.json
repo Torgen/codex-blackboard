@@ -4,7 +4,7 @@
   "description": "codex-blackboard ================",
   "main": "index.js",
   "dependencies": {
-    "@babel/runtime": "^7.13.2",
+    "@babel/runtime": "^7.13.6",
     "coffeescript": "^2.5.1",
     "css-color-names": "1.0.1",
     "cytoscape": "^3.18.0",
