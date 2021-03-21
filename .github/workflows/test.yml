@@ -14,6 +14,7 @@ jobs:
           - coverage.lcov
           - coverage.full.lcov
     steps:
+    - uses: technote-space/auto-cancel-redundant-workflow@v1
     - uses: actions/checkout@master
     - name: Use Node.js 12.x
       uses: actions/setup-node@master
