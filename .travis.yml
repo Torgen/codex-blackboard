@@ -1,0 +1,29 @@
+language: node_js
+node_js:
+ - 12
+
+env:
+  global:
+    - COVERALLS_PARALLEL=true
+    - TEST_BROWSER_DRIVER=puppeteer
+
+  matrix:
+    - TEST_SCRIPT=coverage.lcov
+    - TEST_SCRIPT=coverage.full.lcov
+
+cache:
+  directories:
+    - node_modules
+    - $HOME/.meteor/
+
+before_install:
+  - curl https://install.meteor.com | /bin/sh
+
+script:
+  - ~/.meteor/meteor npm run-script $TEST_SCRIPT
+
+after_success:
+  - cat .coverage/lcov.info | node_modules/coveralls/bin/coveralls.js
+
+notifications:
+  webhooks: https://coveralls.io/webhook
