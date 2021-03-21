@@ -1,7 +1,7 @@
 codex-blackboard
 ================
 
-![Build Status](./actions/workflows/test.yml/badge.svg)
+![Build Status](https://github.com/Torgen/codex-blackboard/actions/workflows/test.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/Torgen/codex-blackboard/badge.svg?branch=master)](https://coveralls.io/github/Torgen/codex-blackboard?branch=master)
 
 Meteor app for coordinating solving for our MIT Mystery Hunt team. See the wiki for instructions on:
