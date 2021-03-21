@@ -35,6 +35,20 @@
 </section>
 </template>
 
+<template name="callin_copy_and_go">
+  {{! Arguments:
+        callin: callin oiject
+        hunt_link: url of the puzzle on the hunt page.
+  }}
+  {{#unless equal callin.callin_type "expected callback"}}
+    {{#if hunt_link}}
+      <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-primary btn-mini" data-clipboard-target="#answer-{{callin._id}}" title="copy, mark submitted, and go">
+        <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
+      </a> 
+    {{/if}}
+  {{/unless}}
+</template>
+
 <template name="callin_row">
   <tr data-bbedit="{{_id}}">
     <td>{{link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{link target}}{{#if hunt_link}}
@@ -45,13 +59,7 @@
     <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}
       {{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}
       {{>callin_type_dropdown}}
-      {{#unless callinTypeIs "expected callback"}}
-        {{#if hunt_link}}
-          <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-primary btn-mini" data-clipboard-target="#answer-{{_id}}" title="copy, mark submitted, and go">
-            <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
-          </a> 
-        {{/if}}
-      {{/unless}}
+      {{>callin_copy_and_go callin=this hunt_link=hunt_link}}
     </td>
     <td>{{pretty_ts this.created}}</td>
     <td>{{#with lastAttempt}}{{pretty_ts this}} <small>({{pretty_ts timestamp=this style="brief duration"}})</small>{{else}}-{{/with}}</td>
@@ -99,7 +107,7 @@
       <button class="btn btn-warning bb-callin-cancel{{#if compact}} btn-mini{{/if}}" title="{{cancel_message}}"><i class="fas fa-trash"></i></button>
     </div>
   {{else}}
-    <div class="btn-group">
+    <div class="btn-group bb-callin-resolution">
       <button class="btn btn-success bb-callin-correct{{#if compact}} btn-mini{{/if}}" title="{{#if compact}}{{accept_message}}{{/if}}">
         {{#if compact}}<i class="fas fa-check"></i>{{else}}{{accept_message}}{{/if}}
       </button>

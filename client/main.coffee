@@ -178,6 +178,7 @@ finishSetupNotifications = ->
     share.notification.set(stream, def) unless share.notification.get(stream)?
 
 Meteor.startup ->
+  new Clipboard '.copy-and-go'
   now = new ReactiveVar share.model.UTCNow()
   update = do ->
     next = now.get()

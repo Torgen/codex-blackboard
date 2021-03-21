@@ -50,7 +50,7 @@
       <tbody>
       {{#each cs}}
         <tr>
-          <td class="answer">{{answer}}</td>
+          <td id="answer-{{_id}}" class="answer">{{answer}}</td>
           <td class="bb-callin-metadata">
             {{> callin_type_dropdown}}
             {{#let since=(pretty_ts timestamp=created style="seconds_since")}}
@@ -64,10 +64,12 @@
             {{#if equal status "pending"}}
               {{>callin_resolution_buttons callin=this compact=true}}
               {{#with submitted_by}}
-                <span title="Submitted by {{nickOrName this}}">
+                <span class="bb-answer-submitter" title="Submitted by {{nickOrName this}}">
                   <i class="fas fa-phone"></i>
                   {{>gravatar nick=this size=20}}
                 </span>
+              {{else}}
+                {{>callin_copy_and_go callin=this hunt_link=../puzzle.link}}
               {{/with}}
             {{else}}
               <span class="btn disabled active btn-mini btn-{{#if equal status "accepted"}}success
