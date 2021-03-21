@@ -92,7 +92,7 @@
 <template name="header_breadcrumb_puzzle">
   <li class="{{#if active}}active{{/if}}">
     <a href="/puzzles/{{id}}" class="puzzles-link">
-      <i class="fas fa-book"></i><span class="bb-omit-when-narrow"> Puzzle:</span> <span class="bb-abbrev-when-narrow" data-full="{{puzzle.name}}" data-abbrev="{{abbrev puzzle.name}}"></span>
+      <i class="fas fa-book"></i><span class="bb-omit-when-narrow"> Puzzle:</span> <span class="bb-puzzle-name bb-abbrev-when-narrow" data-full="{{puzzle.name}}" data-abbrev="{{abbrev puzzle.name}}"></span>
     </a>
     {{> header_breadcrumb_extra_links puzzle}}
   </li>

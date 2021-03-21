@@ -169,6 +169,16 @@
   .failed &, .offline & { --glyph: "\f057"; color: #F00; }
   .waiting & { --glyph: "\f110"; animation: fa-spin 2s infinite steps(8); color: #F80; }
 }
+
+.bb-puzzle-name:before {
+  display: inline-block;
+  vertical-align: bottom;
+  white-space: nowrap;
+  max-width: 20em;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+
 #bb-body {
   .timestamp { font-size: 10px; }
 }
