@@ -1,0 +1,59 @@
+on: ["push", "pull_request"]
+
+name: Test
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      COVERALLS_PARALLEL: true
+      TEST_BROWSER_DRIVER: puppeteer
+    strategy:
+      matrix:
+        test_script:
+          - coverage.lcov
+          - coverage.full.lcov
+    steps:
+    - uses: actions/checkout@master
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@master
+      with:
+        version: 12.x
+    - uses: actions/cache@v1
+      id: cache-meteor
+      with:
+        path: ~/.meteor
+        key: ${{ runner.os }}-meteor-install-${{ hashFiles('.meteor/versions') }}
+    - uses: meteorengineer/setup-meteor@v1
+      if: steps.cache-meteor.outputs.cache-hit != 'true'
+      with:
+        meteor-release: '2.1'
+    - uses: actions/cache@v1
+      id: cache-npm
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: npm install
+      run: meteor npm install
+
+    - name: Test ${{ matrix.test_script }}
+      run: meteor npm run-script ${{ matrix.test_script }}
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.test_script }}
+        parallel: true
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
