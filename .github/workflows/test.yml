@@ -20,13 +20,7 @@ jobs:
       uses: actions/setup-node@master
       with:
         node-version: 12.x
-    - uses: actions/cache@v1
-      id: cache-meteor
-      with:
-        path: ~/.meteor
-        key: ${{ runner.os }}-meteor-install-${{ hashFiles('.meteor/versions') }}
     - uses: meteorengineer/setup-meteor@v1
-      if: steps.cache-meteor.outputs.cache-hit != 'true'
       with:
         meteor-release: '2.1'
     - uses: actions/cache@v1
