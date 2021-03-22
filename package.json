@@ -20,7 +20,7 @@
     "meteor-node-stubs": "^1.0.2",
     "node-forge": "^0.10.0",
     "node-random-name": "^1.0.1",
-    "sanitize-html": "^2.3.2",
+    "sanitize-html": "^2.3.3",
     "twit": "^2.2.11"
   },
   "devDependencies": {
