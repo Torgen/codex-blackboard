@@ -4,10 +4,14 @@
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
 class Dimension
-  constructor: (@targetClass, @posProperty, @splitterProperty) ->
+  constructor: (@targetClass, @posProperty, @splitterProperty, @limitVar) ->
     @dragging = new ReactiveVar false
     @size = new ReactiveVar 300
-  get: () -> Math.max @size.get(), 0
+  get: () -> 
+    limit = Math.max @size.get(), 0
+    if @limitVar?
+      limit = Math.min limit, @limitVar.get()
+    limit
   set: (size) ->
     if not size?
       size = 300
@@ -30,9 +34,12 @@ class Dimension
     pane.addClass('active')
     $(document).bind('mousemove', mouseMove).bind('mouseup', mouseUp)
 
+windowHeight = new ReactiveVar window.innerHeight - 46
+window.addEventListener 'resize', ->
+  windowHeight.set window.innerHeight - 46
 
 Splitter = share.Splitter =
-  vsize: new Dimension '.bb--right-content', 'pageY', 'vsize'
+  vsize: new Dimension '.bb-right-content', 'pageY', 'vsize', windowHeight
   hsize: new Dimension  '.bb-splitter', 'pageX', 'hsize'
   handleEvent: (event, template) ->
     console.log event.currentTarget unless Meteor.isProduction
