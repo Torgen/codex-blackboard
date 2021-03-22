@@ -354,6 +354,15 @@ Template.blackboard_round.helpers
     r.reverse() if 'true' is reactiveLocalStorage.getItem 'sortReverse'
     return r
   unassigned: unassigned_helper
+  showRound: ->
+    return true if Session.get('editing')?
+    return true unless 'true' is reactiveLocalStorage.getItem 'hideSolvedMeta'
+    for id, index in @puzzles
+      puzzle = model.Puzzles.findOne({_id: id, solved: {$eq: null}, $or: [{feedsInto: {$size: 0}}, {puzzles: {$ne: null}}]})
+      return true if puzzle?
+    return false
+
+
 
 Template.blackboard_round.events
   'click .bb-round-buttons .bb-move-down': (event, template) ->

@@ -163,8 +163,8 @@
 </template>
 
 <template name="blackboard_round">
-  {{#let m=metas u=unassigned}}
-    {{#if any m.length u.length canEdit (not hideSolvedMeta)}}
+  {{#if showRound}}
+    {{#let m=metas u=unassigned}}
       <tbody>
       <tr><th colspan="{{nCols}}" id="round{{_id}}">
         <h2 class="bb-editable" data-bbedit="rounds/{{_id}}/title">
@@ -222,8 +222,8 @@
       {{#with u}}
         {{> blackboard_unassigned }}
       {{/with}}
-    {{/if}}
-  {{/let}}
+    {{/let}}
+  {{/if}}
 </template>
 
 <template name="blackboard_unassigned">
