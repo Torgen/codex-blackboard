@@ -212,6 +212,8 @@ if Meteor.isServer
 Messages = BBCollection.messages = new Mongo.Collection "messages"
 if Meteor.isServer
   Messages._ensureIndex {to:1, room_name:1, timestamp:-1}, {}
+  Messages._ensureIndex {to:1, timestamp:-1},
+    partialFilterExpression: to: $exists: true
   Messages._ensureIndex {nick:1, room_name:1, timestamp:-1}, {}
   Messages._ensureIndex {room_name:1, timestamp:-1}, {}
   Messages._ensureIndex {room_name:1, starred: -1, timestamp: 1},

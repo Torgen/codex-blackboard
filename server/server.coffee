@@ -151,12 +151,11 @@ Meteor.publish 'recent-messages', loginRequired (room_name, limit) ->
 # and presence messages and anything with an HTML body.
 Meteor.publish 'recent-header-messages', loginRequired ->
   model.Messages.find
-    room_name: 'general/0'
     system: $ne: true
     bodyIsHtml: $ne: true
     deleted: $ne: true
     header_ignore: $ne: true
-    $or: [ {to: null}, {to: @userId}, {nick: @userId }]
+    $or: [ {room_name: 'general/0', to: null}, {to: @userId}, {room_name: 'general/0', nick: @userId }]
   ,
     sort: [['timestamp', 'desc']]
     limit: 2

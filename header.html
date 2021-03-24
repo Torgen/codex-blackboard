@@ -237,8 +237,12 @@
     {{else if action}}
       <strong title="{{nickOrName nick}}">{{nick}}</strong> {{msgbody}}
     {{else}}
+      {{#unless equal room_name "general/0"}}({{link puzzle_id}}){{/unless}}
+      {{#if equal to currentUser._id}}
+        <i class="fas fa-people-arrows"></i>
+      {{/if}}
       <strong title="{{nickOrName nick}}">{{nick}}:</strong>
-      {{#if to}}/msg <span title="{{nickOrName to}}">{{to}}</span>{{/if}}
+      {{#if to}}{{#unless equal to currentUser._id}}/msg {{to}}{{/unless}}{{/if}}
       {{msgbody}}
     {{/if}}
     </p>

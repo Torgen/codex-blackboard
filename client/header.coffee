@@ -520,12 +520,11 @@ RECENT_GENERAL_LIMIT = 2
 ############## operation/chat log in header ####################
 Template.header_lastchats.helpers
   lastchats: ->
-    query = if Session.equals('room_name', 'general/0')
-      'oplog/0'
-    else
-      $in: ['oplog/0', 'general/0']
+    options = [{room_name: 'oplog/0'}, {to: Meteor.userId()}]
+    unless Session.equals('room_name', 'general/0')
+      options.push room_name: 'general/0'
     model.Messages.find {
-      room_name: query, system: {$ne: true}, bodyIsHtml: {$ne: true}, header_ignore: {$ne: true}
+      $or: options, system: {$ne: true}, bodyIsHtml: {$ne: true}, header_ignore: {$ne: true}
     }, {sort: [["timestamp","desc"]], limit: RECENT_GENERAL_LIMIT}
   msgbody: ->
     if this.bodyIsHtml then new Spacebars.SafeString(this.body) else this.body
@@ -539,6 +538,7 @@ Template.header_lastchats.helpers
       'newspaper'
     else
       'comments'
+  puzzle_id: -> @room_name.match(/puzzles\/(.*)/)[1]
   icon_label: ->
     if /Added/.test @body
       if @type is 'puzzles'
@@ -577,4 +577,4 @@ Template.header_lastchats.onCreated ->
   return if settings.BB_DISABLE_RINGHUNTERS_HEADER
   @autorun =>
     this.subscribe 'recent-messages', 'oplog/0', 2
-    @subscribe 'recent-header-messages' unless Session.equals('room_name', 'general/0')
+    @subscribe 'recent-header-messages'
