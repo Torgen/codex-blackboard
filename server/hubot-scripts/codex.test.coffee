@@ -662,6 +662,28 @@ describe 'codex hubot script', ->
       await waitForDocument model.Rounds, {_id: rid, puzzles: [mid, puzz._id]}, {}
       chai.assert.deepInclude model.Puzzles.findOne(mid), puzzles: []
 
+    it 'fails when one exists by that name', ->
+      mid = model.Puzzles.insert
+        name: 'Even This Poem'
+        canon: 'even_this_poem'
+        feedsInto: []
+        puzzles: []
+      rid = model.Rounds.insert
+        name: 'Elliptic Curve'
+        canon: 'elliptic_curve'
+        puzzles: [mid]
+      model.Messages.insert
+        nick: 'torgen'
+        room_name: 'general/0'
+        timestamp: Date.now()
+        body: 'bot Even this poem is a new puzzle in elliptic curve'
+      await waitForDocument model.Messages, {body: $regex: /torgen: There's already.*a puzzle named Even This Poem/},
+        nick: 'testbot'
+        timestamp: 7
+        room_name: 'general/0'
+        useful: true
+      chai.assert.deepInclude model.Rounds.findOne(rid), puzzles: [mid]
+
     it 'creates in this round', ->
       mid = model.Puzzles.insert
         name: 'Even This Poem'
@@ -827,6 +849,22 @@ describe 'codex hubot script', ->
         puzzles: []
         sort_key: 7
         link: 'https://moliday.holasses/circular'
+
+    it 'fails when one exists by that name', ->
+      rid = model.Rounds.insert
+        name: 'Elliptic Curve'
+        canon: 'elliptic_curve'
+        puzzles: []
+      model.Messages.insert
+        nick: 'torgen'
+        room_name: 'general/0'
+        timestamp: Date.now()
+        body: 'bot elliptic curve is a new round'
+      await waitForDocument model.Messages, {body: $regex: /torgen: There's already.*a round named Elliptic Curve/},
+        nick: 'testbot'
+        timestamp: 7
+        room_name: 'general/0'
+        useful: true
 
   describe 'deleteRound', ->
     it 'deletes empty round', ->

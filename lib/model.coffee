@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from './imports/canonical.coffee'
+import isDuplicateError from './imports/duplicate.coffee'
 import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
@@ -262,12 +263,9 @@ spread_id_to_link = (id) ->
 doc_id_to_link = (id) ->
   "https://docs.google.com/document/d/#{id}/edit"
 
-(->
+do ->
   # private helpers, not exported
   unimplemented = -> throw new Meteor.Error(500, "Unimplemented")
-
-  isDuplicateError = (error) ->
-    Meteor.isServer and error?.name in ['MongoError', 'BulkWriteError'] and error?.code==11000
 
   # a key of BBCollection
   ValidType = Match.Where (x) ->
@@ -305,13 +303,7 @@ doc_id_to_link = (id) ->
       tags: canonicalTags(args.tags or [], args.who)
     for own key,value of (extra or Object.create(null))
       object[key] = value
-    try
-      object._id = collection(type).insert object
-    catch error
-      if isDuplicateError error
-        # duplicate key, fetch the real thing
-        return collection(type).findOne({canon:canonical(args.name)})
-      throw error # something went wrong, who knows what, pass it on
+    object._id = collection(type).insert object
     unless options.suppressLog
       oplog "Added", type, object._id, args.who, \
           if type in ['puzzles', 'rounds'] \
@@ -1414,7 +1406,6 @@ doc_id_to_link = (id) ->
         name: NonEmptyString
       id = args.object._id or args.object
       newDriveFolder id, args.name
-)()
 
 UTCNow = -> Date.now()
 

@@ -23,6 +23,7 @@ import {rejoin, strip, thingRE, objectFromRoom } from '../imports/botutil.coffee
 import { callAs, impersonating } from '../imports/impersonate.coffee'
 import { all_settings } from '/lib/imports/settings.coffee'
 import canonical from '/lib/imports/canonical.coffee'
+import isDuplicateError from '/lib/imports/duplicate.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
 share.hubot.codex = (robot) ->
@@ -200,7 +201,20 @@ share.hubot.codex = (robot) ->
       return
     if ptype isnt 'puzzle'
       extra.puzzles = []
-    puzzle = callAs "newPuzzle", who, extra
+    try
+      puzzle = callAs "newPuzzle", who, extra
+    catch error
+      if isDuplicateError error
+        existing = callAs "getByName", who,
+          name: pname
+          type: 'puzzles'
+        puzz_url = Meteor._relativeToSiteRootUrl "/puzzles/#{existing.object._id}"
+        msg.reply {useful: true, bodyIsHtml: true}, "There's already <a class='puzzles-link' href='#{UI._escape puzz_url}'>a puzzle named #{UI._escape existing.object.name}</a>."
+      else
+        console.log error
+        msg.reply {useful: true}, "There was an error creating that puzzle."
+      msg.finish()
+      return
     puzz_url = Meteor._relativeToSiteRootUrl "/puzzles/#{puzzle._id}"
     parent_url = Meteor._relativeToSiteRootUrl "/#{round.type}/#{round.object._id}"
     msg.reply {useful: true, bodyIsHtml: true}, "Okay, I added <a class='puzzles-link' href='#{UI._escape puzz_url}'>#{UI._escape puzzle.name}</a> to <a class='#{round.type}-link' href='#{UI._escape parent_url}'>#{UI._escape round.object.name}</a>."
@@ -235,7 +249,20 @@ share.hubot.codex = (robot) ->
     body = name: rname
     if url?
       body.link = url
-    round = callAs "newRound", who, body
+    try
+      round = callAs "newRound", who, body
+    catch error
+      if isDuplicateError error
+        existing = callAs "getByName", who,
+          name: rname
+          type: 'rounds'
+        round_url = Meteor._relativeToSiteRootUrl "/rounds/#{existing.object._id}"
+        msg.reply {useful: true, bodyIsHtml: true}, "There's already <a class='round-link' href='#{UI._escape round_url}'>a round named #{UI._escape existing.object.name}</a>."
+      else
+        console.log error
+        msg.reply {useful: true}, "There was an error creating that puzzle."
+      msg.finish()
+      return
     round_url = Meteor._relativeToSiteRootUrl "/rounds/#{round._id}"
     msg.reply {useful: true, bodyIsHtml: true}, "Okay, I created round <a class='rounds-link' href='#{UI._escape round_url}'>#{UI._escape rname}</a>."
     msg.finish()

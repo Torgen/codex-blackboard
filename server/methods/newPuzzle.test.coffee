@@ -7,6 +7,7 @@ import { callAs, impersonating } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
+import isDuplicateError from '/lib/imports/duplicate.coffee'
 import { PuzzleUrlPrefix } from '/lib/imports/settings.coffee'
 
 model = share.model
@@ -151,7 +152,7 @@ describe 'newPuzzle', ->
   describe 'when one exists with that name', ->
     round = round
     id1 = null
-    id2 = null
+    error = null
     beforeEach ->
       id1 = model.Puzzles.insert
         name: 'Foo'
@@ -175,13 +176,15 @@ describe 'newPuzzle', ->
         touched: 1
         touched_by: 'cjb'
         puzzles: [id1]
-      id2 = callAs 'newPuzzle', 'cjb',
-        name: 'Foo'
-        round: round
-      ._id
+      try
+        callAs 'newPuzzle', 'cjb',
+          name: 'Foo'
+          round: round
+      catch err
+        error = err
     
-    it 'returns existing puzzle', ->
-      chai.assert.equal id1, id2
+    it 'throws duplicate error', ->
+      chai.assert.isTrue isDuplicateError(error), "#{error}"
 
     it 'doesn\'t touch', ->
       chai.assert.include model.Puzzles.findOne(id1),

@@ -7,6 +7,7 @@ import { callAs, impersonating } from '../../server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
+import isDuplicateError from '/lib/imports/duplicate.coffee'
 import { RoundUrlPrefix } from '/lib/imports/settings.coffee'
 
 model = share.model
@@ -93,7 +94,7 @@ describe 'newRound', ->
 
   describe 'when one has that name', ->
     id1 = null
-    id2 = null
+    error = null
     beforeEach ->
       id1 = model.Rounds.insert
         name: 'Foo'
@@ -105,19 +106,21 @@ describe 'newRound', ->
         puzzles: ['yoy']
         link: 'https://puzzlehunt.mit.edu/foo'
         tags: {}
-      id2 = callAs 'newRound', 'cjb',
-        name: 'Foo'
-      ._id
+      try
+        callAs 'newRound', 'cjb',
+          name: 'Foo'
+      catch err
+        error = err
 
-    it 'returns existing round', ->
-      chai.assert.equal id1, id2
+    it 'throws duplicate error', ->
+      chai.assert.isTrue isDuplicateError(error), "#{error}"
 
     it 'doesn\'t touch', ->
-      chai.assert.include model.Rounds.findOne(id2),
+      chai.assert.include model.Rounds.findOne(id1),
         created: 1
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
 
     it 'doesn\'t oplog', ->
-      chai.assert.lengthOf model.Messages.find({id: id2, type: 'rounds'}).fetch(), 0
+      chai.assert.lengthOf model.Messages.find({id: id1, type: 'rounds'}).fetch(), 0
