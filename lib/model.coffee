@@ -1430,7 +1430,6 @@ share.model =
   pretty_collection: pretty_collection
   getTag: getTag
   isStuck: isStuck
-  canonical: canonical
   drive_id_to_link: drive_id_to_link
   spread_id_to_link: spread_id_to_link
   doc_id_to_link: doc_id_to_link

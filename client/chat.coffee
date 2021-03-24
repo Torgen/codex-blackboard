@@ -511,14 +511,14 @@ doesMentionNick = (doc, raw_nick=Meteor.userId()) ->
   return false unless doc.body?
   return false if doc.system # system messages don't count as mentions
   return true if doc.nick is 'thehunt' # special alert for team email!
-  nick = model.canonical raw_nick
+  nick = canonical raw_nick
   return false if nick is doc.nick # messages from yourself don't count
   return true if doc.to is nick # PMs to you count
   n = Meteor.users.findOne nick
   realname = n?.real_name
   return false if doc.bodyIsHtml # XXX we could fix this
   # case-insensitive match of canonical nick
-  (new RegExp (regex_escape model.canonical nick), "i").test(doc.body) or \
+  (new RegExp (regex_escape canonical nick), "i").test(doc.body) or \
     # case-sensitive match of non-canonicalized nick
     doc.body.indexOf(raw_nick) >= 0 or \
     # These things are treated as mentions for everyone
@@ -684,7 +684,7 @@ Template.messages_input.onCreated -> @submit = (message) ->
       [to, rest] = rest.split(/\s+([^]*)/, 2)
       missingMessage = (not rest)
       while rest
-        n = Meteor.users.findOne model.canonical to
+        n = Meteor.users.findOne canonical to
         break if n
         if to is 'bot' # allow 'bot' as a shorthand for 'codexbot'
           to = botuser()._id

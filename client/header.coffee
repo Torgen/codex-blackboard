@@ -1,6 +1,6 @@
 'use strict'
 
-import canonical from '../lib/imports/canonical.coffee'
+import canonical from '/lib/imports/canonical.coffee'
 import md5 from '/lib/imports/md5.coffee'
 import jitsiUrl from './imports/jitsi.coffee'
 import { hashFromNickObject } from './imports/nickEmail.coffee'
@@ -447,7 +447,7 @@ Template.header_nickmodal_contents.onCreated ->
       @gravatarHash.set md5 $('#nickEmail').val()
       return
     unless q?
-      q = _id: model.canonical($('#nickInput').val())
+      q = _id: canonical($('#nickInput').val())
     @gravatarHash.set hashFromNickObject q
 nickInput = new Tracker.Dependency
 Template.header_nickmodal_contents.helpers

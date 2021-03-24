@@ -1,5 +1,6 @@
 'use strict'
 
+import canonical from '/lib/imports/canonical.coffee'
 import jitsiUrl from './imports/jitsi.coffee'
 import { nickHash } from './imports/nickEmail.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
@@ -415,17 +416,17 @@ processBlackboardEdit =
       return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon}
     t = model.collection(n.type).findOne(id).tags[canon]
     Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value}, (error,result) ->
-      if (canon isnt model.canonical(text)) and (not error)
+      if (canon isnt canonical(text)) and (not error)
         Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)
     t = model.collection(n.type).findOne(id).tags[canon]
     # special case for 'status' tag, which might not previously exist
     for special in ['Status', 'Answer']
-      if (not t) and canon is model.canonical(special)
+      if (not t) and canon is canonical(special)
         t =
           name: special
-          canon: model.canonical(special)
+          canon: canonical special
           value: ''
     # set tag (overwriting previous value)
     Meteor.call 'setTag', {type:n.type, object:id, name:t.name, value:text}
