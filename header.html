@@ -237,7 +237,8 @@
     {{else if action}}
       <strong title="{{nickOrName nick}}">{{nick}}</strong> {{msgbody}}
     {{else}}
-      {{#unless equal room_name "general/0"}}({{link puzzle_id}}){{/unless}}
+      {{#if equal room_name "callins/0"}}(<a class="callins-link" href="/callins">Callin Queue</a>)
+      {{else unless equal room_name "general/0"}}({{link puzzle_id}}){{/if}}
       {{#if equal to currentUser._id}}
         <i class="fas fa-people-arrows"></i>
       {{/if}}
