@@ -12,7 +12,7 @@
     "cytoscape-layout-utilities": "^1.0.2",
     "delay": "^5.0.0",
     "denodeify": "^1.2.1",
-    "gemoji": "^6.1.0",
+    "gemoji": "^7.0.0",
     "googleapis": "^68.0.0",
     "hubot": "^3.3.2",
     "hubot-help": "^1.0.1",
