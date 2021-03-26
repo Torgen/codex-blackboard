@@ -59,6 +59,7 @@ Click here to stay in this meeting instead.{{/if}}">
             {{#if usingJitsiPin}}{{pinnedRoomName}}{{/if}}
             <i class="fas fa-thumbtack"></i>
           </a>
+          {{#if usingJitsiPin}}<a class="puzzles-link" href="{{pinnedRoomUrl}}" title="Return to {{pinnedRoomName}}"><i class="fas fa-undo"></i></a>{{/if}}
           <a href="#" class="bb-jitsi-cap-height {{#if jitsiHeightCapped}}capped{{/if}}" title="Limit jitsi meeting to 50 pixels high"><i class="fas fa-compress-alt"></i></a>
           <a href="{{jitsiUrl}}" class="bb-pop-jitsi" target="jitsi" title="Open this meeting in another tab"><i class="fas fa-external-link-alt"></i></a>
         </div>

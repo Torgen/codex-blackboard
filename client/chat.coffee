@@ -478,6 +478,11 @@ Template.embedded_chat.helpers
   pinnedRoomName: ->
     instance = Template.instance()
     jitsiRoomSubject instance.jitsiType(), instance.jitsiId()
+  pinnedRoomUrl: ->
+    instance = Template.instance()
+    return Meteor._relativeToSiteRootUrl '/' if instance.jitsiType() is 'general'
+    share.Router.urlFor instance.jitsiType(), instance.jitsiId()
+
   jitsiHeightCapped: -> 'true' is reactiveLocalStorage.getItem 'capJitsiHeight'
 
 Template.embedded_chat.events
