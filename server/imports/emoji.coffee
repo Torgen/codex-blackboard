@@ -1,6 +1,6 @@
+'use strict'
 
-
-import emojiMap from 'gemoji/name-to-emoji'
+import {nameToEmoji} from 'gemoji'
 
 # We might consider substituting an <i> tag from
 # http://ellekasai.github.io/twemoji-awesome/
@@ -9,4 +9,4 @@ import emojiMap from 'gemoji/name-to-emoji'
 # stored in the DB.
 export default emojify = (s) ->
   s.replace /:([+]?[-a-z0-9_]+):/g, (full, name) ->
-   emojiMap[name] or full
+   nameToEmoji[name] or full
