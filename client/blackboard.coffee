@@ -80,9 +80,15 @@ okCancelEvents = share.okCancelEvents = (selector, callbacks) ->
 setCompare = (was, will) ->
   return true if not was? and not will?
   return false if not was? or not will?
-  was.size is will.size and [...was].every(v -> will.has v)
+  was.size is will.size and [...was].every((v) -> will.has v)
 
 Template.blackboard.onCreated ->
+  @typeahead = (query,process) =>
+    result = new Set
+    for n from Meteor.users.find(bot_wakeup: $exists: false)
+      result.add n.nickname
+      result.add n.real_name if n.real_name?
+    [...result]
   @userSearch = new ReactiveVar null
   @foundAccounts = new ReactiveVar null, setCompare
   @foundPuzzles = new ReactiveVar null, setCompare
@@ -113,6 +119,13 @@ Template.blackboard.onCreated ->
     @foundPuzzles.set res
   @autorun =>
     @subscribe 'solved-puzzle-time'
+
+Template.blackboard.onRendered ->
+  $('input.bb-filter-by-user').typeahead
+    source: @typeahead
+    updater: (item) =>
+      @userSearch.set item
+      return item
 
 Template.blackboard.helpers
   sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
