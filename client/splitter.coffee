@@ -29,7 +29,7 @@ class Dimension
     mouseUp = (muevt) =>
       pane.removeClass('active')
       $(document).unbind('mousemove', mouseMove).unbind('mouseup', mouseUp)
-      reactiveLocalStorage.setItem "splitter.#{@splitterProperty}", @size.get()
+      reactiveLocalStorage.setItem "splitter.h#{heightRange()}.#{@splitterProperty}", @size.get()
       @dragging.set false
     pane.addClass('active')
     $(document).bind('mousemove', mouseMove).bind('mouseup', mouseUp)
@@ -37,6 +37,9 @@ class Dimension
 windowHeight = new ReactiveVar window.innerHeight - 46
 window.addEventListener 'resize', ->
   windowHeight.set window.innerHeight - 46
+heightRange = ->
+  wh = windowHeight.get() + 46
+  wh - wh % 300
 
 Splitter = share.Splitter =
   vsize: new Dimension '.bb-right-content', 'pageY', 'vsize', windowHeight
@@ -53,7 +56,7 @@ Splitter = share.Splitter =
     x = Splitter[dim]
     return if x.dragging.get()
     console.log "about to set #{dim}"
-    val = reactiveLocalStorage.getItem "splitter.#{dim}"
+    val = reactiveLocalStorage.getItem "splitter.h#{heightRange()}.#{dim}"
     return unless val?
     x.set val
 
