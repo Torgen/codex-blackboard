@@ -125,6 +125,7 @@ notificationDefaults =
   'new-puzzles': false
   stuck: false
   'favorite-mechanics': true
+  'private-messages': true
 
 countDependency = new Tracker.Dependency
 
@@ -235,6 +236,31 @@ Meteor.startup ->
             tag: "#{id}/#{mech}"
             data: url: share.Router.urlFor 'puzzles', id
     faveSuppress = false
+  Tracker.autorun ->
+    return unless allPuzzlesHandle?.ready()
+    return unless Session.equals 'notifications', 'granted'
+    return unless share.notification.get 'private-messages'
+    me = Meteor.user()?._id
+    return unless me?
+    now = share.model.UTCNow()  # Intentionally not reactive
+    share.model.Messages.find(to: me, timestamp: $gt: now).observeChanges
+      added: (id, message) ->
+        [room_name, url] = if message.room_name is 'general/0'
+          [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
+        else if message.room_name is 'callins/0'
+          ['Callin Queue', Meteor._relativeToSiteRootUrl '/callins']
+        else
+          pid = message.room_name.match(/puzzles\/(.*)/)[1]
+          ["Puzzle \"#{share.model.Puzzles.findOne(pid).name}\"", share.Router.urlFor 'puzzles', pid]
+        gravatar = gravatarUrl
+          gravatar_md5: nickHash(message.nick)
+          size: 192
+        share.notification.notify "Private message from #{message.nick} in #{room_name}",
+          body: message.body
+          tag: id
+          data: {url}
+          icon: gravatar
+  
   unless Notification?
     Session.set 'notifications', 'denied'
     return
