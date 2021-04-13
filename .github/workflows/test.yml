@@ -28,7 +28,7 @@ jobs:
     - uses: meteorengineer/setup-meteor@v1
       if: steps.cache-meteor.outputs.cache-hit != 'true'
       with:
-        meteor-release: '2.1'
+        meteor-release: '2.1.1'
     - uses: actions/cache@v1
       id: cache-npm
       with:
