@@ -14,7 +14,7 @@
 # To find the proper values for an email address, try the imap-autoconfig
 # package.
 
-import { MailListener } from 'mail-listener5'
+import { MailListener } from 'mail-listener6'
 import { newMessage } from './imports/newMessage.coffee'
 
 watch = Meteor.settings?.watch ? {}
