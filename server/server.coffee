@@ -50,7 +50,7 @@ Meteor.publish 'solved-puzzle-time', loginRequired -> model.Puzzles.find
   fields: solverTime: 1
 
 # Login not required for this because it's needed for nick autocomplete.
-Meteor.publish 'all-nicks', ->
+Meteor.publish null, ->
   Meteor.users.find {}, fields:
     priv_located: 0
     priv_located_at: 0
@@ -59,7 +59,7 @@ Meteor.publish 'all-nicks', ->
     favorite_mechanics: 0
 
 # Login required for this since it returns you.
-Meteor.publish 'me', loginRequired ->
+Meteor.publish null, loginRequired ->
   Meteor.users.find @userId, fields:
     services: 0
     priv_located_order: 0
@@ -179,7 +179,7 @@ Meteor.publish 'quips', loginRequired ->
     sort: [["last_used","asc"]]
 
 # synthetic 'all-names' collection which maps ids to type/name/canon
-Meteor.publish 'all-names', loginRequired ->
+Meteor.publish null, loginRequired ->
   self = this
   handles = [ 'rounds', 'puzzles', 'quips' ].map (type) ->
     model.collection(type).find({}).observe

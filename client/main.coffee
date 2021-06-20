@@ -99,12 +99,6 @@ Template.page.helpers
   id: -> Session.get 'id'
   color: -> Session.get 'color'
 
-# subscribe to the all-names feed all the time
-Meteor.subscribe 'all-names'
-# subscribe to all nicks all the time
-Meteor.subscribe 'all-nicks'
-# Subscribe to yourself all the time
-Meteor.subscribe 'me'
 # we might subscribe to all-roundsandpuzzles, too.
 allPuzzlesHandle = null
 if settings.BB_SUB_ALL
