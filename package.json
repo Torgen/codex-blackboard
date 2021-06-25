@@ -8,7 +8,7 @@
     "coffeescript": "^2.5.1",
     "css-color-names": "1.0.1",
     "cytoscape": "^3.19.0",
-    "cytoscape-fcose": "^2.0.0",
+    "cytoscape-fcose": "^2.1.0",
     "cytoscape-layout-utilities": "^1.1.1",
     "delay": "^5.0.0",
     "denodeify": "^1.2.1",
