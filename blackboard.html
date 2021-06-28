@@ -291,6 +291,7 @@
         <i class="bb-edit-icon fas fa-pencil-alt pull-right"
             title="Edit the name of this puzzle"></i>
       {{else}}
+        <span class="collapse-toggle"></span>
         {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
         {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
         {{link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="fas fa-comments"}}
@@ -483,14 +484,16 @@
   {{#if showMeta}}
   <tbody class="meta" id="m{{puzzle._id}}" data-puzzle-id="{{puzzle._id}}"
          style="{{#unless boringMode}}background-color: {{color}}{{/unless}}">
-    <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}}">
+    <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}} {{#if collapsed}}collapsed{{/if}}">
       {{> blackboard_puzzle_cells}}
     </tr>
-    {{#each puzzles}}
-      {{> blackboard_puzzle}}
-    {{else unless num_puzzles}}
-      <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
-    {{/each}}
+    {{#if any canEdit (not collapsed)}}
+      {{#each puzzles}}
+        {{> blackboard_puzzle}}
+      {{else unless num_puzzles}}
+        <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
+      {{/each}}
+    {{/if}}
   {{#if canEdit}}
   <tr class="metafooter"><td colspan="{{nCols}}">
     <div class="bb-meta-buttons" data-bbedit="puzzles/{{puzzle._id}}">
@@ -500,10 +503,12 @@
       </button>
     </div>
   </td></tr>
-  {{else with numHidden}}
-    <tr class="metafooter"><td colspan="{{nCols}}">
-      <span class="num-hidden">({{this}} puzzle{{#if plural this}}s{{/if}} hidden)</span>
-    </td></tr>
+  {{else unless collapsed}}
+    {{#with numHidden}}
+      <tr class="metafooter"><td colspan="{{nCols}}">
+        <span class="num-hidden">({{this}} puzzle{{#if plural this}}s{{/if}} hidden)</span>
+      </td></tr>
+    {{/with}}
   {{/if}}
   </tbody>
   {{/if}}

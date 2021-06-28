@@ -483,6 +483,10 @@ Template.blackboard_meta.events
         feedsInto: [puzzId]
         round: roundId,
       (error,r)-> throw error if error
+  'click tr.meta.collapsed .collapse-toggle': (event, template) ->
+    reactiveLocalStorage.setItem "collapsed_meta.#{template.data.puzzle._id}", false
+  'click tr.meta:not(.collapsed) .collapse-toggle': (event, template) ->
+    reactiveLocalStorage.setItem "collapsed_meta.#{template.data.puzzle._id}", true
 
 Template.blackboard_meta.helpers
   color: -> puzzleColor @puzzle if @puzzle?
@@ -510,6 +514,7 @@ Template.blackboard_meta.helpers
       x = model.Puzzles.findOne id
       continue unless x?.solved?
     y.length
+  collapsed: -> 'true' is reactiveLocalStorage.getItem "collapsed_meta.#{@puzzle._id}"
 
 
 Template.blackboard_puzzle_cells.events
