@@ -166,7 +166,7 @@
   {{#if showRound}}
     {{#let m=metas u=unassigned}}
       <tbody>
-      <tr><th colspan="{{nCols}}" id="round{{_id}}">
+      <tr><th colspan="{{nCols}}" id="round{{_id}}" class="bb-round-header {{#if collapsed}}collapsed{{/if}}">
         <h2 class="bb-editable" data-bbedit="rounds/{{_id}}/title">
         {{#if editing "rounds" _id "title"}}
           <input type="text" id="rounds-{{_id}}-title"
@@ -179,6 +179,7 @@
             <i class="bb-edit-icon fas fa-pencil-alt pull-right"
               title="Edit the name of this round"></i>
           {{else}}
+            <span class="collapse-toggle"></span>
             {{link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
             {{#if link}}<a class="pull-right" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
           {{/if}}
@@ -216,12 +217,14 @@
         </div>
       {{/if}}
       </th></tr></tbody>
-      {{#each m}}
-        {{> blackboard_meta }}
-      {{/each}}
-      {{#with u}}
-        {{> blackboard_unassigned }}
-      {{/with}}
+      {{#if any canEdit (not collapsed)}}
+        {{#each m}}
+          {{> blackboard_meta }}
+        {{/each}}
+        {{#with u}}
+          {{> blackboard_unassigned }}
+        {{/with}}
+      {{/if}}
     {{/let}}
   {{/if}}
 </template>

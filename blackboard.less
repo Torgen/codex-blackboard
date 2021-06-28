@@ -397,6 +397,16 @@ input[type=color] {
   left: unset;
   right: 0;
 }
+.can-collapse() {
+  .collapse-toggle::before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f138";
+  }
+  &:not(.collapsed) .collapse-toggle::before {
+    content: "\f13a";
+  }
+}
 #bb-tables {
   background: var(--bg-color);
   margin-top: -5px;
@@ -494,6 +504,9 @@ input[type=color] {
   }
   tr.bb-status-stuck {
     background-color: var(--stuck-yellow);
+  }
+  .bb-round-header {
+    .can-collapse();
   }
   .bb-puzzle {
     margin-bottom: 0;
