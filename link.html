@@ -1,0 +1,15 @@
+<template name="link">
+  {{#unless target}}
+    {{id}}
+  {{else if editing}}
+    {{text}}
+  {{else}}
+    <a href="{{#if chat}}/chat{{/if}}/{{target.type}}/{{id}}" class="{{#if chat}}chat{{else}}{{target.type}}{{/if}}-link {{class}}" title="{{title}}">
+      {{#if icon}}
+        <i class="{{icon}}" title="{{#unless title}}{{text}}{{/unless}}"></i>
+      {{else}}
+        {{text}}
+      {{/if}}
+    </a>
+  {{/unless}}
+</template>

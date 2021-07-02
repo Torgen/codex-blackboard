@@ -90,7 +90,7 @@
   <tr><th>Puzzle in round</th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
   {{#each puzzle.puzzles}}{{#with getPuzzle}}
     <tr>
-      <td>{{link _id}}</td>
+      <td>{{>link id=_id}}</td>
       <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
       {{#each t in cares}}
         <td>{{tag t.name}}</td>

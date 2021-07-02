@@ -20,28 +20,6 @@ keyword_or_positional = share.keyword_or_positional = (name, args) ->
   a[name] = args
   return a
 
-# link various types of objects
-Template.registerHelper 'link', (args) ->
-  args = keyword_or_positional 'id', args
-  return "" unless args.id
-  n = model.Names.findOne(args.id)
-  return args.id.slice(0,8) unless n
-  return ('' + (args.text ? n.name)) if args.editing
-  extraclasses = if args.class then (' '+args.class) else ''
-  title = ''
-  if args.title?
-    title = ' title="' + \
-      args.title.replace(/[&\"]/g, (c) -> '&#' + c.charCodeAt(0) + ';') + '"'
-  prefix = if args.chat then '/chat' else ''
-  type = if args.chat then 'chat' else n.type
-  link = "<a href='#{prefix}/#{n.type}/#{n._id}' class='#{type}-link#{extraclasses}' #{title}>"
-  if args.icon
-    link += "<i class='#{args.icon}'></i>"
-  else
-    link += UI._escape('' + (args.text ? n.name))
-  link += '</a>'
-  return new Spacebars.SafeString(link)
-
 do ->
   clickHandler = (event, template) ->
     return unless event.button is 0 # check right-click

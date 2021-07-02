@@ -180,7 +180,7 @@
               title="Edit the name of this round"></i>
           {{else}}
             <span class="collapse-toggle"></span>
-            {{link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
+            {{>link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
             {{#if link}}<a class="pull-right" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
           {{/if}}
         {{name}}
@@ -245,14 +245,14 @@
   <table>
   <tbody>
     {{#each rounds}}
-    <tr><th colspan=2 class="bb-status-grid-round bb-status-{{#if solved}}solved{{else if stuck this}}stuck{{else}}unsolved{{/if}}">{{link id=_id}}</th></tr>
+    <tr><th colspan=2 class="bb-status-grid-round bb-status-{{#if solved}}solved{{else if stuck this}}stuck{{else}}unsolved{{/if}}">{{>link id=_id}}</th></tr>
       {{#each metas}}
       <tr>
         <td class="bb-status-grid-meta bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
-            {{link id=puzzle._id title="meta" text=puzzle.name}}
+            {{>link id=puzzle._id}}
         </td><td class="bb-status-grid-puzzles">
         {{#each puzzles puzzle.puzzles}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
-            {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
+            {{>link id=puzzle._id title=puzzle.name text=puzzle_num}}
         </div>{{/each}}</td>
       </tr>
       {{/each}}
@@ -262,7 +262,7 @@
           <td class="bb-status-grid-meta bb-status-unsolved">Unassigned</td>
           <td class="bb-status-grid-puzzles">
           {{#each puzzles this}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
-            {{link id=puzzle._id title=puzzle.name text=puzzle_num}}
+            {{>link id=puzzle._id title=puzzle.name text=puzzle_num}}
           </div>{{/each}}</td>
         </tr>
         {{/if}}
@@ -274,7 +274,7 @@
 
 <template name="blackboard_othermeta_link">
   <span class="bb-othermeta">{{#with color}}<span class="bb-colorbox" style="background-color: {{this}}"></span>{{/with}}
-  {{link _id}}</span>
+  {{>link id=_id}}</span>
 </template>
 
 <template name="blackboard_puzzle_cells">
@@ -294,12 +294,12 @@
         <span class="collapse-toggle"></span>
         {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
         {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
-        {{link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="fas fa-comments"}}
+        {{>link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="fas fa-comments"}}
         {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" title="Link to hunt site"><i class="fas fa-puzzle-piece"></i></a>{{/if}}
         {{#with jitsiLink}}<a class="pull-right" href="{{this}}" title="Link to video call" target="jitsi"><i class="fas fa-video"></i></a>{{/with}}
         {{>favorite puzzle}}
       {{/if}}
-      {{link id=puzzle._id editing=canEdit}}
+      {{>link id=puzzle._id editing=canEdit}}
     {{/if}}
     </div>
     {{#if canEdit}}

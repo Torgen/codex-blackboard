@@ -233,12 +233,12 @@
     <p class="messageRow">
     <span class="timestamp">{{pretty_ts timestamp}}</span>
     {{#if oplog}}
-      {{#with icon_label}}<span class="badge{{#with this.[1]}} badge-{{this}}{{/with}}"><i class="fas fa-{{this.[0]}}"></i></span>{{/with}}{{msgbody}} {{link id}} {{#if nick}} (<strong title="{{nickOrName nick}}">{{nick}}</strong>){{/if}}
+      {{#with icon_label}}<span class="badge{{#with this.[1]}} badge-{{this}}{{/with}}"><i class="fas fa-{{this.[0]}}"></i></span>{{/with}}{{msgbody}} {{>link id=id}} {{#if nick}} (<strong title="{{nickOrName nick}}">{{nick}}</strong>){{/if}}
     {{else if action}}
       <strong title="{{nickOrName nick}}">{{nick}}</strong> {{msgbody}}
     {{else}}
       {{#if equal room_name "callins/0"}}(<a class="callins-link" href="/callins">Callin Queue</a>)
-      {{else unless equal room_name "general/0"}}({{link puzzle_id}}){{/if}}
+      {{else unless equal room_name "general/0"}}({{>link id=puzzle_id}}){{/if}}
       {{#if equal to currentUser._id}}
         <i title="Private Message" class="fas fa-people-arrows"></i>
       {{/if}}

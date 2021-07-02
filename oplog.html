@@ -14,7 +14,7 @@
   <div class="bb-oplog">
     <span class="timestamp">{{pretty_ts this.timestamp}}</span>
     {{body}} {{prettyType}}
-    {{link id}}
+    {{>link id=id}}
     {{#if nick}} (<strong title="{{nickOrName nick}}">{{nick}}</strong>){{/if}}
   </div>
   {{/unless}}

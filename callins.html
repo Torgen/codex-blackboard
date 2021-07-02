@@ -51,7 +51,7 @@
 
 <template name="callin_row">
   <tr data-bbedit="{{_id}}">
-    <td>{{link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{link target}}{{#if hunt_link}}
+    <td>{{>link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{>link target}}{{#if hunt_link}}
     <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
             target="_blank">on&nbsp;hunt&nbsp;site
     </a></small>
@@ -130,7 +130,7 @@
         {{#if currentPageEquals "callins"}}
         <button class="btn btn-success bb-quip-next">Use</button>
         {{/if}}
-        {{link id=_id text="Edit" class="btn" title=name}}
+        {{>link id=_id text="Edit" class="btn" title=name}}
         <button class="btn bb-quip-punt">Punt</button>
         <!--<button class="btn bb-quip-remove">Remove</button>-->
       </div>
