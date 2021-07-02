@@ -3,7 +3,6 @@
 model = share.model # import
 
 Template.link.onCreated ->
-  console.log Template.currentData()
   @autorun =>
     @target = model.Names.findOne(Template.currentData().id)
 
