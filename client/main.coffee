@@ -236,8 +236,8 @@ Meteor.startup ->
     return unless share.notification.get 'private-messages'
     me = Meteor.user()?._id
     return unless me?
-    now = share.model.UTCNow()  # Intentionally not reactive
-    share.model.Messages.find(to: me, timestamp: $gt: now).observeChanges
+    arnow = share.model.UTCNow()  # Intentionally not reactive
+    share.model.Messages.find(to: me, timestamp: $gt: arnow).observeChanges
       added: (id, message) ->
         [room_name, url] = if message.room_name is 'general/0'
           [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
