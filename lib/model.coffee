@@ -239,6 +239,7 @@ if Meteor.isServer
 #        aggregating solver minutes spent on a puzzle.
 #   clients: list of:
 #     connection_id: id of the connection the user is present on
+#     subscription_id: a rendomly generated ID for each subscription
 #     timestamp: The time of the last keepalive for this connection
 Presence = BBCollection.presence = new Mongo.Collection 'scoped_presence'
 if Meteor.isServer

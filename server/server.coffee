@@ -75,56 +75,35 @@ Meteor.publish 'presence-for-room', loginRequired (room_name) ->
     timestamp: 0
     clients: 0
 
-Meteor.onConnection (conn) ->
-  conn.presence_scopes = new Map()
-
 Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
   check room_name, NonEmptyString
   check scope, NonEmptyString
-  subscribe_time = model.UTCNow()
-  console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{subscribe_time}" if DEBUG
-  do =>
-    old_presence = @connection.presence_scopes.get(scope)
-    if old_presence?
-      if old_presence.room_name is room_name and old_presence.subscribe_time < subscribe_time
-        console.log "Updating #{@userId}'s subscription to #{scope}:#{room_name} to #{subscribe_time}" if DEBUG
-        old_presence.subscribe_time = subscribe_time
-        return  # skip keepalive since it already exists, but still set up onStop.
-      else
-        console.log "#{@userId} was subscribed to #{scope}:#{old_presence.room_name}" if DEBUG
-        model.Presence.update {nick: @userId, room_name: old_presence.room_name, scope},
-          $pull: clients: connection_id: @connection.id
-        Meteor.clearInterval old_presence.interval
-    keepalive = =>
-      now = model.UTCNow()
-      model.Presence.upsert {nick: @userId, room_name, scope},
-        $setOnInsert:
-          joined_timestamp: now
-        $set: timestamp: now
-        $push: clients:
-          connection_id: @connection.id
-          timestamp: now
-      model.Presence.update {nick: @userId, room_name, scope},
-        $pull: clients:
-          connection_id: @connection.id
-          timestamp: $lt: now
-    keepalive()
-    @connection.presence_scopes.set scope,
-      room_name: room_name
-      interval: Meteor.setInterval keepalive, (model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
-      subscribe_time: subscribe_time
+  subscription_id = Random.id()
+  console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{model.UTCNow()}, id #{@connection.id}:#{subscription_id}" if DEBUG
+  keepalive = =>
+    now = model.UTCNow()
+    model.Presence.upsert {nick: @userId, room_name, scope},
+      $setOnInsert:
+        joined_timestamp: now
+      $set: timestamp: now
+      $push: clients:
+        connection_id: @connection.id
+        subscription_id: subscription_id
+        timestamp: now
+    model.Presence.update {nick: @userId, room_name, scope},
+      $pull: clients:
+        connection_id: @connection.id
+        subscription_id: subscription_id
+        timestamp: $lt: now
+  keepalive()
+  interval = Meteor.setInterval keepalive, (model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
   @onStop =>
-    console.log "#{@userId} unsubscribing from #{scope}:#{room_name}" if DEBUG
-    old_presence = @connection.presence_scopes.get(scope)
-    return unless old_presence?
-    if old_presence.room_name is room_name
-      unless old_presence.subscribe_time is subscribe_time
-        console.log "#{@userId} had updated their subscription to #{scope}:#{room_name}" if DEBUG
-        return
-      Meteor.clearInterval old_presence.interval
-      @connection.presence_scopes.delete scope
-      model.Presence.update {nick: @userId, room_name, scope},
-        $pull: clients: connection_id: @connection.id
+    console.log "#{@userId} unsubscribing from #{scope}:#{room_name}, id #{@connection.id}:#{subscription_id}" if DEBUG
+    Meteor.clearInterval interval
+    model.Presence.update {nick: @userId, room_name, scope},
+      $pull: clients:
+        connection_id: @connection.id
+        subscription_id: subscription_id
   @ready()
 
 Meteor.publish 'settings', loginRequired -> Settings.find()
