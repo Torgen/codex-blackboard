@@ -315,7 +315,7 @@ Template.messages.events
 
 whos_here_helper = ->
   roomName = Session.get('type') + '/' + Session.get('id')
-  return model.Presence.find {room_name: roomName}, {sort:["nick"]}
+  return model.Presence.find {room_name: roomName, scope: 'chat'}, {sort: ['joined_timestamp']}
 
 Template.chat_header.helpers
   room_name: -> prettyRoomName()
@@ -372,6 +372,7 @@ Template.embedded_chat.onRendered ->
     if @jitsiInOtherTab()
       @leaveJitsi()
       return
+    @subscribe 'register-presence', "#{@jitsiType()}/#{@jitsiId()}", 'jitsi'
     newRoom = jitsiRoom @jitsiType(), @jitsiId()
     jitsi = @jitsi.get()
     if jitsi?

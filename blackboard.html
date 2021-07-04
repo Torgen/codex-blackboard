@@ -515,8 +515,8 @@
 </template>
 
 <template name="nick_presence">
-<span class="nick {{#unless foreground}}background{{/unless}} {{#if nickNear nick}}near{{/if}}"
-      title="{{nickOrName nick}}{{nickLocation nick}}">{{> gravatar nick=nick size=14 }}</span>
+<span class="nick {{#unless jitsi}}background{{/unless}} {{#if nickNear _id}}near{{/if}}"
+      title="{{nickOrName _id}}{{nickLocation _id}}">{{> gravatar nick=_id size=14 }}</span>
 </template>
 
 <template name="blackboard_puzzle">

@@ -605,7 +605,8 @@ input[type=color] {
     }
 
     .puzzle-working {
-      .background { color: #ccc; }
+      .nick.background { opacity: 60% }
+      .nick:not(.background) + .nick.background { margin-left: 6px; }
     }
     td.puzzle-update {
       font-size: 85%;

@@ -13,6 +13,8 @@ SOUND_THRESHOLD_MS = 30*1000 # 30 seconds
 
 blackboard = {} # store page global state
 
+presenceIndex = new Map
+
 Meteor.startup ->
   if typeof Audio is 'function' # for phantomjs
     blackboard.newAnswerSound = new Audio(Meteor._relativeToSiteRootUrl '/sound/that_was_easy.wav')
@@ -111,6 +113,7 @@ Template.blackboard.onCreated ->
       return
     p = model.Presence.find
       nick: $in: [...foundAccounts]
+      scope: $in: ['chat', 'jitsi']
     res = new Set
     p.forEach (pres) ->
       match = pres.room_name.match /puzzles\/(.*)/
@@ -503,10 +506,6 @@ Template.blackboard_meta.helpers
     p.filter (pp) -> !pp.puzzle.solved?
   tag: (name) ->
     return (model.getTag this.round, name) or ''
-  whos_working: ->
-    return model.Presence.find
-      room_name: ("rounds/"+this.round?._id)
-    , sort: ["nick"]
   stuck: share.model.isStuck
   numHidden: ->
     return 0 unless 'true' is reactiveLocalStorage.getItem 'hideSolved'
@@ -546,9 +545,12 @@ Template.blackboard_puzzle_cells.helpers
   tags: tagHelper
   hexify: (v) -> cssColorToHex v
   whos_working: ->
-    return model.Presence.find
-      room_name: ("puzzles/"+@puzzle?._id)
-    , sort: ["nick"]
+    return [] unless @puzzle?
+    coll = presenceIndex.get("puzzles/#{@puzzle._id}")
+    unless coll?
+      coll = new Mongo.Collection null
+      presenceIndex.set("puzzles/#{@puzzle._id}", coll)
+    return coll.find {}, sort: {jitsi: -1, joined_timestamp: 1}
   stuck: share.model.isStuck
   allMetas: ->
     return [] unless @
@@ -645,10 +647,37 @@ Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information
-Template.blackboard.onCreated -> this.autorun =>
-  this.subscribe 'all-presence'
-  return if settings.BB_SUB_ALL
-  this.subscribe 'all-roundsandpuzzles'
+Template.blackboard.onCreated ->
+  @autorun =>
+    @subscribe 'all-presence'
+    return if settings.BB_SUB_ALL
+    @subscribe 'all-roundsandpuzzles'
+  @autorun ->
+    console.log 'observing'
+    model.Presence.find(scope: $in: ['chat', 'jitsi']).observe
+      added: (doc) ->
+        console.log doc
+        coll = presenceIndex.get doc.room_name
+        unless coll?
+          coll = new Mongo.Collection null
+          presenceIndex.set doc.room_name, coll
+        coll.upsert doc.nick,
+          $min: joined_timestamp: doc.joined_timestamp
+          $max:
+            jitsi: +(doc.scope is 'jitsi')
+            chat: +(doc.scope is 'chat')
+      removed: (doc) ->
+        console.log doc
+        coll = presenceIndex.get doc.room_name
+        return unless coll?
+        coll.update doc.nick,
+          $min:
+            jitsi: +(doc.scope isnt 'jitsi')
+            chat: +(doc.scope isnt 'chat')
+        coll.remove {_id: doc.nick, jitsi: 0, chat: 0}
+
+Template.blackboard.onDestroyed ->
+  presenceIndex.clear()
 
 # Update 'currentTime' every minute or so to allow pretty_ts to magically
 # update
