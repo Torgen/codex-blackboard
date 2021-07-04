@@ -653,10 +653,8 @@ Template.blackboard.onCreated ->
     return if settings.BB_SUB_ALL
     @subscribe 'all-roundsandpuzzles'
   @autorun ->
-    console.log 'observing'
     model.Presence.find(scope: $in: ['chat', 'jitsi']).observe
       added: (doc) ->
-        console.log doc
         coll = presenceIndex.get doc.room_name
         unless coll?
           coll = new Mongo.Collection null
@@ -667,7 +665,6 @@ Template.blackboard.onCreated ->
             jitsi: +(doc.scope is 'jitsi')
             chat: +(doc.scope is 'chat')
       removed: (doc) ->
-        console.log doc
         coll = presenceIndex.get doc.room_name
         return unless coll?
         coll.update doc.nick,
