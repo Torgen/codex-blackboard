@@ -22,6 +22,7 @@ puzzleQuery = (query) ->
       "favorites.#{@userId}": 1
       mechanics: 1
       puzzles: 1
+      order_by: 1
       feedsInto: 1
 
 loginRequired = (f) -> ->

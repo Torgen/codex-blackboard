@@ -95,6 +95,9 @@ if Meteor.isServer
 #   puzzles: array of puzzle _ids for puzzles that feed into this.
 #            absent if this isn't a meta. empty if it is, but nothing feeds into
 #            it yet.
+#   order_by: If this is a meta, how to sort puzzles in it.
+#     If unset/empty, use the order in the puzzles array.
+#     If 'name', alphabetically by name
 #   feedsInto: array of puzzle ids for metapuzzles this feeds into. Can be empty.
 #   if a has b in its feedsInto, then b should have a in its puzzles.
 #   This is kept denormalized because the lack of indexes in Minimongo would
@@ -1041,6 +1044,8 @@ do ->
                'located','located_at',
                'priv_located','priv_located_at','priv_located_order']
         delete args.fields[f]
+      if args.fields.order_by
+        check args.fields.order_by, Match.OneOf EqualsString(''), EqualsString('name')
       args.fields.touched = now
       args.fields.touched_by = @userId
       collection(args.type).update id, $set: args.fields

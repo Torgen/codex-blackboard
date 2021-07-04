@@ -365,6 +365,19 @@
             <td><input class="bb-set-is-meta" type="checkbox" checked={{isMeta}} /></td>
           </tr>
           {{/if}}
+          {{#if isMeta}}
+          <tr>
+            <td>Sort Order:</td>
+            <td><div class="btn-group bb-puzzle-order">
+              <button class="btn btn-mini {{#unless order_by}}active{{/unless}}" data-sort-order="" title="Manual">
+                <i class="fas fa-exchange-alt fa-rotate-90"></i>
+              </button>
+              <button class="btn btn-mini {{#if equal order_by "name"}}active{{/if}}" data-sort-order="name" title="Alphabetical">
+                <i class="fas fa-sort-alpha-down"></i>
+              </button>
+            </div></td>
+          </tr>
+          {{/if}}
           <tr>
             <td>Feeds Into:</td>
             <td class="bb-editable" data-bbedit="feedsInto/{{_id}}">
@@ -488,8 +501,8 @@
       {{> blackboard_puzzle_cells}}
     </tr>
     {{#if any canEdit (not collapsed)}}
-      {{#each puzzles}}
-        {{> blackboard_puzzle}}
+      {{#each p in puzzles}}
+        {{> blackboard_puzzle _id=p._id puzzle=p.puzzle draggable=(not puzzle.order_by)}}
       {{else unless num_puzzles}}
         <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
       {{/each}}
@@ -520,7 +533,7 @@
 </template>
 
 <template name="blackboard_puzzle">
-  <tr class="puzzle {{#if stuck puzzle}}bb-status-stuck{{/if}}" draggable="{{canEdit}}" data-puzzle-id="{{puzzle._id}}">
+  <tr class="puzzle {{#if stuck puzzle}}bb-status-stuck{{/if}}" draggable="{{all canEdit draggable}}" data-puzzle-id="{{puzzle._id}}">
     {{> blackboard_puzzle_cells}}
  </tr>
 </template>
