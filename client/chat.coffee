@@ -637,9 +637,8 @@ Template.messages_input.onCreated -> @submit = (message) ->
       args.to = args.nick
       args.action = true
       whos_here = \
-        model.Presence.find({room_name: args.room_name}, {sort:["nick"]}) \
-        .fetch().map (obj) ->
-          if obj.foreground then obj.nick else "(#{obj.nick})"
+        model.Presence.find({room_name: args.room_name, scope: 'chat'}, {sort:["nick"]}) \
+        .fetch().map (obj) -> obj.nick
       if whos_here.length == 0
         whos_here = "nobody"
       else if whos_here.length == 1
