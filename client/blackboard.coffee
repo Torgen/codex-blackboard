@@ -495,8 +495,8 @@ Template.blackboard_meta.helpers
     if @puzzle.order_by
       filter =
         feedsInto: @puzzle._id
-      if 'true' is reactiveLocalStorage.getItem 'hideSolved'
-        filter.solved = $exists: false
+      if not (Session.get 'canEdit') and 'true' is reactiveLocalStorage.getItem 'hideSolved'
+        filter.solved = $eq: null
       return model.Puzzles.find filter,
         sort: {"#{@puzzle.order_by}": 1}
         transform: (p) -> {_id: p._id, puzzle: p}
