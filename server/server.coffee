@@ -2,6 +2,9 @@
 model = share.model # import
 import canonical from '/lib/imports/canonical.coffee'
 import { Settings } from '/lib/imports/settings.coffee'
+import { NonEmptyString } from '/lib/imports/match.coffee'
+
+DEBUG = !Meteor.isProduction
 
 puzzleQuery = (query) -> 
   model.Puzzles.find query,
@@ -38,8 +41,6 @@ Meteor.publish = ((publish) ->
     publish.call(Meteor, name, func2)
 )(Meteor.publish) if false # disable by default
 
-
-
 Meteor.publish 'all-roundsandpuzzles', loginRequired -> [
   model.Rounds.find(), @puzzleQuery({})
 ]
@@ -65,17 +66,66 @@ Meteor.publish null, loginRequired ->
     priv_located_order: 0
 
 Meteor.publish 'all-presence', loginRequired ->
-  # strip out unnecessary fields from presence (esp timestamp) to avoid wasted
-  # updates to clients
-  model.Presence.find {present: true}, fields:
+  # strip out unnecessary fields from presence to avoid wasted updates to clients
+  model.Presence.find {}, fields:
     timestamp: 0
-    foreground_uuid: 0
-    present: 0
+    clients: 0
 Meteor.publish 'presence-for-room', loginRequired (room_name) ->
-  model.Presence.find {present: true, room_name: room_name}, fields:
+  model.Presence.find {room_name, scope: 'chat'}, fields:
     timestamp: 0
-    foreground_uuid: 0
-    present: 0
+    clients: 0
+
+Meteor.onConnection (conn) ->
+  conn.presence_scopes = new Map()
+
+Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
+  check room_name, NonEmptyString
+  check scope, NonEmptyString
+  subscribe_time = model.UTCNow()
+  console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{subscribe_time}" if DEBUG
+  do =>
+    old_presence = @connection.presence_scopes.get(scope)
+    if old_presence?
+      if old_presence.room_name is room_name and old_presence.subscribe_time < subscribe_time
+        console.log "Updating #{@userId}'s subscription to #{scope}:#{room_name} to #{subscribe_time}" if DEBUG
+        old_presence.subscribe_time = subscribe_time
+        return  # skip keepalive since it already exists, but still set up onStop.
+      else
+        console.log "#{@userId} was subscribed to #{scope}:#{old_presence.room_name}" if DEBUG
+        model.Presence.update {nick: @userId, room_name: old_presence.room_name, scope},
+          $pull: clients: connection_id: @connection.id
+        Meteor.clearInterval old_presence.interval
+    keepalive = =>
+      now = model.UTCNow()
+      model.Presence.upsert {nick: @userId, room_name, scope},
+        $setOnInsert:
+          joined_timestamp: now
+        $set: timestamp: now
+        $push: clients:
+          connection_id: @connection.id
+          timestamp: now
+      model.Presence.update {nick: @userId, room_name, scope},
+        $pull: clients:
+          connection_id: @connection.id
+          timestamp: $lt: now
+    keepalive()
+    @connection.presence_scopes.set scope,
+      room_name: room_name
+      interval: Meteor.setInterval keepalive, (model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
+      subscribe_time: subscribe_time
+  @onStop =>
+    console.log "#{@userId} unsubscribing from #{scope}:#{room_name}" if DEBUG
+    old_presence = @connection.presence_scopes.get(scope)
+    return unless old_presence?
+    if old_presence.room_name is room_name
+      unless old_presence.subscribe_time is subscribe_time
+        console.log "#{@userId} had updated their subscription to #{scope}:#{room_name}" if DEBUG
+        return
+      Meteor.clearInterval old_presence.interval
+      @connection.presence_scopes.delete scope
+      model.Presence.update {nick: @userId, room_name, scope},
+        $pull: clients: connection_id: @connection.id
+  @ready()
 
 Meteor.publish 'settings', loginRequired -> Settings.find()
 

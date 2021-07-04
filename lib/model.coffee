@@ -232,17 +232,18 @@ if Meteor.isServer
 # Chat room presence
 #   nick: canonicalized string, as in Messages
 #   room_name: string, as in Messages
-#   timestamp: timestamp -- when user was last seen in room
-#   foreground: boolean (true if user's tab is still in foreground)
-#   foreground_uuid: identity of client with tab in foreground
-#   present: boolean (true if user is present, false if not)
+#   scope: what kind of presence this is. e.g. "chat", "jitsi"
+#   joined_timestamp: timestamp the user joined the room
+#   timestamp: 
 #   bot: true if this is a bot user. Used to ignore bot presence for
 #        aggregating solver minutes spent on a puzzle.
-Presence = BBCollection.presence = new Mongo.Collection "presence"
+#   clients: list of:
+#     connection_id: id of the connection the user is present on
+#     timestamp: The time of the last keepalive for this connection
+Presence = BBCollection.presence = new Mongo.Collection 'scoped_presence'
 if Meteor.isServer
-  Presence._ensureIndex {nick: 1, room_name:1}, {unique:true, dropDups:true}
-  Presence._ensureIndex {timestamp:-1}, {}
-  Presence._ensureIndex {present:1, room_name:1}, {}
+  Presence._ensureIndex {room_name:1, nick: 1, scope: 1}, {unique:true, dropDups:true}
+  Presence._ensureIndex {"clients.timestamp": 1}, {}
 
 # this reverses the name given to Mongo.Collection; that is the
 # 'type' argument is the name of a server-side Mongo collection.
@@ -960,53 +961,6 @@ do ->
         room_name: args.room_name
       , $max:
         timestamp: args.timestamp
-
-    setPresence: (args) ->
-      check @userId, NonEmptyString
-      check args, ObjectWith
-        room_name: NonEmptyString
-        present: Match.Optional Boolean
-        foreground: Match.Optional Boolean
-        uuid: Match.Optional NonEmptyString
-        bot: Match.Optional Boolean
-      # we're going to do the db operation only on the server, so that we
-      # can safely use mongo's 'upsert' functionality.  otherwise
-      # Meteor seems to get a little confused as it creates presence
-      # entries on the client that don't exist on the server.
-      # (meteor does better when it's reconciling the *contents* of
-      # documents, not their existence) (this is also why we added the
-      # 'presence' field instead of deleting entries outright when
-      # a user goes away)
-      # IN METEOR 0.6.6 upsert support was added to the client.  So let's
-      # try to do this on both sides now.
-      #return unless Meteor.isServer
-      set_doc =
-        present: args.present or false
-      if args.bot
-        set_doc.bot = true
-      if args.present and args.foreground
-        set_doc.foreground = true
-        set_doc.foreground_uuid = args.uuid
-
-      Presence.upsert
-        nick: @userId
-        room_name: args.room_name
-      ,
-        $max:
-          timestamp: UTCNow()
-        $set: set_doc
-      return unless args.present
-      # only set foreground if true or foreground_uuid matches; this
-      # prevents bouncing if user has two tabs open, and one is foregrounded
-      # and the other is not.
-      unless args.foreground # only update 'foreground' if uuid matches
-        Presence.update
-          nick: @userId
-          room_name: args.room_name
-          foreground_uuid: args.uuid
-        , $set:
-          foreground: args.foreground or false
-      return
 
     get: (type, id) ->
       check @userId, NonEmptyString

@@ -109,11 +109,22 @@ class BlackboardAdapter extends Hubot.Adapter
         bot_wakeup: share.model.UTCNow()
       $unset: services: ''
     # register our presence in general chat
-    keepalive = => callAs 'setPresence', @botname,
-      room_name: 'general/0'
-      present: true
-      foreground: true
-      bot: true
+    @present = (room_name) =>
+      now = share.model.UTCNow()
+      share.model.Presence.upsert {scope: 'chat', room_name: room_name, nick: @botname},
+        $set:
+          timestamp: now
+          bot: true
+        $setOnInsert:
+          joined_timestamp: now
+        $push: clients:
+          connection_id: 'hubot_adapter'
+          timestamp: now
+      share.model.Presence.update {scope: 'chat', room_name: room_name, nick: @botname},
+        $pull: clients: 
+          connection_id: 'hubot_adapter'
+          timestamp: $lt: now
+    keepalive = => @present 'general/0'
     keepalive()
     @keepalive = Meteor.setInterval keepalive, 30*1000 # every 30s refresh presence
     
@@ -170,11 +181,7 @@ class BlackboardAdapter extends Hubot.Adapter
   sendHelper: Meteor.bindEnvironment (envelope, strings, map) ->
     # be present in the room
     try
-      callAs 'setPresence', @botname,
-        room_name: envelope.room
-        present: true
-        foreground: true
-        bot: true
+      @present envelope.room
     props = Object.create(null)
     lines = []
     while strings.length > 0

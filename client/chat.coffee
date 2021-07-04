@@ -229,29 +229,12 @@ Template.messages.helpers
     touchSelfScroll() # ignore scroll events caused by DOM update
     maybeScrollMessagesView()
 
-instachat.keepalive = ->
-  Meteor.call "setPresence",
-    room_name: Session.get "room_name"
-    present: true
-    foreground: isVisible() # foreground/background tab status
-    uuid: settings.CLIENT_UUID # identify this tab
-
-clearKeepalive = ->
-  if instachat.keepaliveInterval?
-    Meteor.clearInterval instachat.keepaliveInterval
-    instachat.keepaliveInterval = undefined
-
 cleanupChat = ->
   try
     favicon.reset()
   instachat.mutationObserver?.disconnect()
   instachat.readObserver?.disconnect()
   instachat.bottomObserver?.disconnect()
-  clearKeepalive()
-  if false # causes bouncing. just let it time out.
-    Meteor.call "setPresence",
-      room_name: Session.get "room_name"
-      present: false
 
 Template.messages.onDestroyed ->
   cleanupChat()
@@ -266,12 +249,9 @@ Template.messages.onCreated ->
     # put this in a separate autorun so it's not invalidated needlessly when
     # the limit changes.
     room_name = Session.get 'room_name'
-    clearKeepalive()
     return unless room_name
     @subscribe 'presence-for-room', room_name
-    instachat.keepalive()
-    instachat.keepaliveInterval = \
-      Meteor.setInterval instachat.keepalive, (model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
+    @subscribe 'register-presence', room_name, 'chat'
     
   @autorun =>
     invalidator = =>
@@ -819,7 +799,6 @@ Template.chat.onCreated ->
   this.autorun =>
     $("title").text("Chat: "+prettyRoomName())
   this.autorun =>
-    instachat.keepalive?()
     updateLastRead() if isVisible() and instachat.ready
 
 Template.chat.onRendered ->

@@ -32,15 +32,12 @@ describe 'hubot', ->
   it 'is present in main room', ->
     robot.run()
     chai.assert.include model.Presence.findOne(nick: 'testbot', room_name: 'general/0'),
-      present: true
       timestamp: 7
     clock.tick 15000
     chai.assert.include model.Presence.findOne(nick: 'testbot', room_name: 'general/0'),
-      present: true
       timestamp: 7
     clock.tick 15000
     chai.assert.include model.Presence.findOne(nick: 'testbot', room_name: 'general/0'),
-      present: true
       timestamp: 30007
 
   it 'announces presence', ->

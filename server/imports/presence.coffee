@@ -8,17 +8,22 @@ class PresenceManager
   constructor: ->
     # Presence
     # ensure old entries are timed out after 2*PRESENCE_KEEPALIVE_MINUTES
-    # some leeway here to account for client/server time drift
     @interval = Meteor.setInterval ->
       #console.log "Removing entries older than", (UTCNow() - 5*60*1000)
       removeBefore = model.UTCNow() - (2*model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
-      model.Presence.remove timestamp: $lt: removeBefore
+      model.Presence.update
+        "clients.timestamp": $lt: removeBefore
+      ,
+        $pull: clients: {timestamp: $lt: removeBefore}
     , 60*1000
 
     # generate automatic "<nick> entered <room>" and <nick> left room" messages
     # as the presence set changes
     initiallySuppressPresence = true
-    @handle = model.Presence.find(present: true).observe
+    @noclients = model.Presence.find(clients: []).observe
+      added: (presence) ->
+        model.Presence.remove presence._id
+    @joinpart = model.Presence.find({scope: 'chat'}, {fields: {clients: 0}}).observe
       added: (presence) ->
         return if initiallySuppressPresence
         return if presence.room_name is 'oplog/0'
@@ -33,7 +38,7 @@ class PresenceManager
           body: "#{name} joined the room."
           bodyIsHtml: false
           room_name: presence.room_name
-          timestamp: presence.timestamp
+          timestamp: presence.joined_timestamp
       removed: (presence) ->
         return if initiallySuppressPresence
         return if presence.room_name is 'oplog/0'
@@ -63,7 +68,8 @@ class PresenceManager
     initiallySuppressPresence = false
 
   stop: ->
-    @handle.stop()
+    @noclients.stop()
+    @joinpart.stop()
     Meteor.clearInterval @interval
 
 export default watchPresence = -> return new PresenceManager
