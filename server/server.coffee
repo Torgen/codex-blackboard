@@ -85,7 +85,7 @@ Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
     model.Presence.upsert {nick: @userId, room_name, scope},
       $setOnInsert:
         joined_timestamp: now
-      $set: timestamp: now
+      $max: timestamp: now
       $push: clients:
         connection_id: @connection.id
         subscription_id: subscription_id
@@ -100,10 +100,14 @@ Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
   @onStop =>
     console.log "#{@userId} unsubscribing from #{scope}:#{room_name}, id #{@connection.id}:#{subscription_id}" if DEBUG
     Meteor.clearInterval interval
-    model.Presence.update {nick: @userId, room_name, scope},
-      $pull: clients:
-        connection_id: @connection.id
-        subscription_id: subscription_id
+    now = model.UTCNow()
+    Meteor.setTimeout =>
+      model.Presence.update {nick: @userId, room_name, scope},
+        $max: timestamp: now
+        $pull: clients:
+          connection_id: @connection.id
+          subscription_id: subscription_id
+    , 2000
   @ready()
 
 Meteor.publish 'settings', loginRequired -> Settings.find()
