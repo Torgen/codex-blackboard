@@ -433,8 +433,15 @@ Template.blackboard_meta.events
 Template.blackboard_meta.helpers
   color: -> puzzleColor @puzzle if @puzzle?
   showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolvedMeta') or (!this.puzzle?.solved?)
-  # the following is a map() instead of a direct find() to preserve order
   puzzles: ->
+    if @puzzle.order_by
+      filter =
+        feedsInto: @puzzle._id
+      if not (Session.get 'canEdit') and 'true' is reactiveLocalStorage.getItem 'hideSolved'
+        filter.solved = $eq: null
+      return model.Puzzles.find filter,
+        sort: {"#{@puzzle.order_by}": 1}
+        transform: (p) -> {_id: p._id, puzzle: p}
     p = ({
       _id: id
       parent: @_id
@@ -469,6 +476,11 @@ Template.blackboard_puzzle_cells.events
   'click .bb-feed-meta a[data-puzzle-id]': (event, template) ->
     Meteor.call 'feedMeta', template.data.puzzle._id, event.target.dataset.puzzleId
     event.preventDefault()
+  'click button[data-sort-order]': (event, template) ->
+    Meteor.call 'setField',
+      type: 'puzzles'
+      object: template.data.puzzle._id
+      fields: order_by: event.currentTarget.dataset.sortOrder
 
 tagHelper = ->
   isRound = not ('feedsInto' of this)
