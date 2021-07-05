@@ -1,21 +1,3 @@
-PREAMBLE
-========
-
-There are two "right" ways to deploy a Meteor app in production:
-
-1. Use `meteor deploy` to run it on Galaxy, Meteor's Appengine-like wrapper around AWS EC2 instances.
-2. Use `meteor build` to generate a tarball containing the compiled app, then deploy it as you might any Node.js app.
-
-While Galaxy has some nice features for long-running apps, such as Websockets-aware load balancing and SSL termination,
-it's expensive compared to raw VMs and the DevOps features matter more for an app that will be used for months, not days.
-As such, option 2 is preferable for us. Note that there's no option 3 involving `meteor run`. This is development mode,
-even if you minify the code using the `--production` flag.
-
-Both options 1 and 2 require that you provide a MongoDB instance with replication enabled. For either option this can be
-MongoDB Atlas, which provides a free tier that should suffice for the data size involved in the hunt; for option 2, if
-you're running the app on a single VM, this can instead be a locally-running instance. The instructions below set up the
-latter.
-
 SETTING UP A COMPUTE ENGINE VM
 ==============================
 
@@ -133,3 +115,12 @@ sudo mv /opt/codex /opt/codex-bad
 sudo mv /opt/codex-old /opt/codex
 sudo systemctl start codex.target
 ```
+
+DIRECT DATABASE ACCESS
+======================
+
+If something happens during the hunt where you need to edit the database in a way that the app itself doesn't support,
+running the `mongo` command line tool on the server will give you a javascript shell connected to the database.
+
+After the hunt, if you wish to preserve the database as it was at the end of the hunt, the `mongodump` will save a
+snapshot. You can later use `mongorestore` to restore from that snapshot.
