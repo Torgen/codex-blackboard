@@ -20,23 +20,23 @@ CREATING THE APP
 3. [Create and download](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) a JSON key file for
    your service account. **Do NOT store it in your Git repository or anywhere public!**
 4. Create a settings JSON file for your app. **Do NOT store it in your Git repository or anywhere public!**. It should look
-   like the following; 
+   like the following; replace text in <>.
     ```json
     {
       "jitsi": {
-        "staticRoom": <a non-guessable name for the general Jitsi meeting; meet.jit.si will suggest one.>
+        "staticRoom": "<a non-guessable name for the general Jitsi meeting; meet.jit.si will suggest one.>"
       },
-      "folder": <name of the Google drive folder for this hunt. Default is "MIT Mystery Hunt" + the current year>,
-      "password": <the password your team will use to log in>,
-      "key": <the value of "private_key" in the downloaded service account key JSON file>,
-      "email": <the value of "client_email" in the downloaded service account key JSON file>,
+      "folder": "<name of the Google drive folder for this hunt. Default is 'MIT Mystery Hunt' + the current year>",
+      "password": "<the password your team will use to log in>",
+      "key": "<the value of 'private_key' in the downloaded service account key JSON file>",
+      "email": "<the value of 'client_email' in the downloaded service account key JSON file>",
       "public": {
-        "defaultHost": <(optional) The domain name for generating gravatars for users who don't enter an email address>,
-        "whoseGitHub": "Torgen" <change to your Github account if you forked the repository>,
-        "teamName": <The name of your team; defaults to "Codex">,
-        "namePlaceholder": <The suggested real name in the login window (optional)>, 
-        "chatName": <The name of your main chatroom; defaults to "Ringhunters">,
-        "jitsiServer": "meet.jit.si" <unset if you don't want to use Jitsi>
+        "defaultHost": "<(optional) The domain name for generating gravatars for users who don't enter an email address>",
+        "whoseGitHub": "Torgen",  // For the "issues" link; change to your Github account if you forked the repository.
+        "teamName": "<The name of your team; defaults to 'Codex'>",
+        "namePlaceholder": "<The suggested real name in the login window (optional)>", 
+        "chatName": "<The name of your main chatroom; defaults to 'Ringhunters'>",
+        "jitsiServer": "meet.jit.si" // unset if you don't want to use Jitsi.
       }
     }
     ```
