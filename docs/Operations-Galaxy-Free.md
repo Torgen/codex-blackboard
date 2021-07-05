@@ -20,7 +20,7 @@ CREATING THE APP
 3. [Create and download](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) a JSON key file for
    your service account. **Do NOT store it in your Git repository or anywhere public!**
 4. Create a settings JSON file for your app. **Do NOT store it in your Git repository or anywhere public!**. It should look
-   like the following; replace text in <>.
+   like the following; replace/remove all text in <>.
     ```json
     {
       "jitsi": {
@@ -32,11 +32,11 @@ CREATING THE APP
       "email": "<the value of 'client_email' in the downloaded service account key JSON file>",
       "public": {
         "defaultHost": "<(optional) The domain name for generating gravatars for users who don't enter an email address>",
-        "whoseGitHub": "Torgen",  // For the "issues" link; change to your Github account if you forked the repository.
+        "whoseGitHub": "<For the issues link in the sidebar. Set to your github account if you forked the repo, or 'Torgen' if not>",
         "teamName": "<The name of your team; defaults to 'Codex'>",
         "namePlaceholder": "<The suggested real name in the login window (optional)>", 
         "chatName": "<The name of your main chatroom; defaults to 'Ringhunters'>",
-        "jitsiServer": "meet.jit.si" // unset if you don't want to use Jitsi.
+        "jitsiServer": "meet.jit.si <or unset if you don't want to use jitsi>"
       }
     }
     ```
