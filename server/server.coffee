@@ -115,6 +115,31 @@ Meteor.publish 'settings', loginRequired -> Settings.find()
 
 Meteor.publish 'lastread', loginRequired (room_name) -> model.LastRead.find {nick: @userId, room_name}
 
+Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
+  check puzzle_id, NonEmptyString
+  @added 'puzzles', puzzle_id, {}
+  lastChat = model.Messages.find 
+    room_name: "puzzles/#{puzzle_id}"
+    $or: [ {to: null}, {to: @userId}, {nick: @userId }]
+    deleted: $ne: true
+    presence: null
+  ,
+    fields: timestamp: 1
+    sort: timestamp: -1
+    limit: 1
+  .observe
+    added: (doc) => @changed 'puzzles', puzzle_id, {last_message_timestamp: doc.timestamp}
+  lastRead = model.LastRead.find
+    room_name: "puzzles/#{puzzle_id}"
+    nick: @userId
+  .observe
+    added: (doc) => @changed 'puzzles', puzzle_id, {last_read_timestamp: doc.timestamp}
+    changed: (doc) => @changed 'puzzles', puzzle_id, {last_read_timestamp: doc.timestamp}
+  @onStop ->
+    lastChat.stop()
+    lastRead.stop()
+  @ready()
+
 # this is for the "that was easy" sound effect
 # everyone is subscribed to this all the time
 Meteor.publish 'last-answered-puzzle', loginRequired ->

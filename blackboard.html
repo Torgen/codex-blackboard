@@ -148,7 +148,7 @@
               <tbody>
                 <tr><th colspan="{{nCols}}" id="favorites"><h2>Favorite Puzzles</h2></th></tr>
                 {{#each faves}}
-                  {{>blackboard_puzzle _id=_id puzzle=this}}
+                  {{>blackboard_favorite_puzzle}}
                 {{/each}}
               </tbody>
             {{/if}}
@@ -160,6 +160,11 @@
       {{/if}}
     </table>
   </div><!-- bb-tables -->
+</template>
+
+<!-- this exists to add a subscription. -->
+<template name="blackboard_favorite_puzzle">
+  {{>blackboard_puzzle _id=_id puzzle=this}}
 </template>
 
 <template name="blackboard_round">
@@ -475,6 +480,11 @@
           {{#with solverMinutes}}<br><i class="fas fa-user-clock"></i> {{this}} solver-minutes{{/with}}
         {{else if stuck puzzle}}stuck since {{pretty_ts timestamp=puzzle.tags.status.touched style="brief duration"}}
         {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
+        {{/if}}
+        {{#if puzzle.last_message_timestamp}}
+          <div class="bb-recent-puzzle-chat {{#if new_message}}updated{{/if}}">
+            last chat {{pretty_ts timestamp=puzzle.last_message_timestamp style="brief duration"}}
+          </div>
         {{/if}}
       </td>
     {{/unless}}

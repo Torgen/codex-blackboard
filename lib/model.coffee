@@ -99,12 +99,16 @@ if Meteor.isServer
 #     If unset/empty, use the order in the puzzles array.
 #     If 'name', alphabetically by name
 #   feedsInto: array of puzzle ids for metapuzzles this feeds into. Can be empty.
-#   if a has b in its feedsInto, then b should have a in its puzzles.
-#   This is kept denormalized because the lack of indexes in Minimongo would
-#   make it inefficient to query on the client, and because we want to control
-#   the order within a meta.
-#   Note that this allows arbitrarily many meta puzzles. Also, there is no
-#   requirement that a meta be fed only by puzzles in the same round.
+#     if a has b in its feedsInto, then b should have a in its puzzles.
+#     This is kept denormalized because the lack of indexes in Minimongo would
+#     make it inefficient to query on the client, and because we want to control
+#     the order within a meta.
+#     Note that this allows arbitrarily many meta puzzles. Also, there is no
+#     requirement that a meta be fed only by puzzles in the same round.
+#   last_message_timestamp: (synthetic, client only, optional) Timestamp of the
+#     last non-presence chat message in this puzzle's channel visible to you.
+#   last_read_timestamp: (synthetic, client only, optional) Your last read
+#      timestamp in this puzzle's channel.
 # If you add fields to this that should be visible on the client, also add them
 # to the fields map in puzzleQuery in server/server.coffee.
 Puzzles = BBCollection.puzzles = new Mongo.Collection "puzzles"
