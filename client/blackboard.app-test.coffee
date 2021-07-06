@@ -1,6 +1,6 @@
 'use strict'
 
-import {waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
 describe 'blackboard', ->
@@ -16,7 +16,7 @@ describe 'blackboard', ->
     await waitForSubscriptions()
     # there should be a table header for the Civilization round.
     civId = share.model.Rounds.findOne name: 'Civilization'
-    chai.assert.isNotNull $("##{civId._id}").html()
+    chai.assert.isDefined $("#round#{civId._id}").html()
 
   it 'renders in edit mode', ->
     share.Router.EditPage()
@@ -24,19 +24,23 @@ describe 'blackboard', ->
     await afterFlushPromise()
     # there should be a table header for the Civilization round.
     civId = share.model.Rounds.findOne name: 'Civilization'
-    chai.assert.isNotNull $("##{civId._id}").html()
+    chai.assert.isDefined $("#round#{civId._id}").html()
 
   it 'makes a puzzle a favorite', ->
     share.Router.BlackboardPage()
     await waitForSubscriptions()
+    await afterFlushPromise()
     chai.assert.isUndefined $('#favorites').html()
     # there should be a table header for the Civilization round.
     granary = share.model.Puzzles.findOne name: 'Granary Of Ur'
     bank = share.model.Puzzles.findOne name: 'Letter Bank'
-    $("#m#{granary._id} tr[data-puzzle-id='#{bank._id}'] .bb-favorite-button").click()
+    chai.assert.isDefined $("#m#{granary._id} tr[data-puzzle-id=\"#{bank._id}\"] .bb-favorite-button").html()
+    $("#m#{granary._id} tr[data-puzzle-id=\"#{bank._id}\"] .bb-favorite-button").click()
+    await waitForMethods()
     await waitForSubscriptions()
     await afterFlushPromise()
-    chai.assert.isNotNull $('#favorites').html()
+    chai.assert.isDefined $('#favorites').html()
+    chai.assert.isDefined $("tr[data-puzzle-id=\"#{bank._id}\"] .bb-recent-puzzle-chat").html()
 
 describe 'login', ->
   @timeout 10000

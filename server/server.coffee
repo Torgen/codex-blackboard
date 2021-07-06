@@ -129,12 +129,13 @@ Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
     limit: 1
   .observe
     added: (doc) => @changed 'puzzles', puzzle_id, {last_message_timestamp: doc.timestamp}
+  lastReadCallback = (doc) => @changed 'puzzles', puzzle_id, {last_read_timestamp: doc.timestamp}
   lastRead = model.LastRead.find
     room_name: "puzzles/#{puzzle_id}"
     nick: @userId
   .observe
-    added: (doc) => @changed 'puzzles', puzzle_id, {last_read_timestamp: doc.timestamp}
-    changed: (doc) => @changed 'puzzles', puzzle_id, {last_read_timestamp: doc.timestamp}
+    added: (doc) => lastReadCallback
+    changed: (doc) => lastReadCallback
   @onStop ->
     lastChat.stop()
     lastRead.stop()
