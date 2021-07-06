@@ -26,6 +26,18 @@ describe 'blackboard', ->
     civId = share.model.Rounds.findOne name: 'Civilization'
     chai.assert.isNotNull $("##{civId._id}").html()
 
+  it 'makes a puzzle a favorite', ->
+    share.Router.BlackboardPage()
+    await waitForSubscriptions()
+    chai.assert.isUndefined $('#favorites').html()
+    # there should be a table header for the Civilization round.
+    granary = share.model.Puzzles.findOne name: 'Granary Of Ur'
+    bank = share.model.Puzzles.findOne name: 'Letter Bank'
+    $("#m#{granary._id} tr[data-puzzle-id='#{bank._id}'] .bb-favorite-button").click()
+    await waitForSubscriptions()
+    await afterFlushPromise()
+    chai.assert.isNotNull $('#favorites').html()
+
 describe 'login', ->
   @timeout 10000
   it 'only sends email hash', ->
