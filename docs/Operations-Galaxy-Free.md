@@ -27,6 +27,7 @@ CREATING THE APP
         "staticRoom": "<a non-guessable name for the general Jitsi meeting; meet.jit.si will suggest one.>"
       },
       "folder": "<name of the Google drive folder for this hunt. Default is 'MIT Mystery Hunt' + the current year>",
+      "driveowner": "<(optional) email address to share all Google Drive folder/files with>",
       "password": "<the password your team will use to log in>",
       "key": "<the value of 'private_key' in the downloaded service account key JSON file>",
       "email": "<the value of 'client_email' in the downloaded service account key JSON file>",
