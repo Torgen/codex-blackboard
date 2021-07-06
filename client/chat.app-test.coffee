@@ -14,7 +14,9 @@ describe 'chat', ->
   it 'general chat', ->
     share.Router.ChatPage('general', '0')
     await waitForSubscriptions()
-    afterFlushPromise()
+    await afterFlushPromise()
+    chai.assert.isDefined $('a[href^="https://codexian.us"]').html()
+    chai.assert.isDefined $('img[src^="https://memegen.link/doge"]').html()
 
   it 'puzzle chat', ->
     id = share.model.Puzzles.findOne(name: 'Temperance')._id

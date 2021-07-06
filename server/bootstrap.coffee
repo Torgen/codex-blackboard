@@ -12,7 +12,10 @@ SAMPLE_CHATS = [
   body: "Have we found the coin yet?  Seriously."
 ,
   nick: "cscott"
-  body: "This is a very very long line which should hopefully wrap and that will show that we're doing all this correctly. Let's keep going here. More and more stuff! Wow."
+  body: "This is a very very long line which should hopefully wrap and that will show that we're doing all this correctly. Let's keep going here. More and more stuff! Wow.",
+,
+  nick: 'zachary'
+  body: "This message won't be a followup, and will have a url https://codexian.us and an image https://memegen.link/doge/much_coverage/very_test.jpg to test those chat features."
 ]
 SAMPLE_NICKS = [
   _id: 'cscott'
