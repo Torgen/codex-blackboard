@@ -534,24 +534,9 @@ convertURLsToLinksAndImages = (html, id) ->
     linkOrLinkedImage url, "#{id}-#{count++}"
 
 isVisible = share.isVisible = do ->
-  hidden = "hidden"
-  visibilityChange = "visibilitychange"
-  if typeof document.hidden isnt "undefined"
-    hidden = "hidden"
-    visibilityChange = "visibilitychange"
-  else if typeof document.mozHidden isnt "undefined"
-    hidden = "mozHidden"
-    visibilityChange = "mozvisibilitychange"
-  else if typeof document.msHidden isnt "undefined"
-    hidden = "msHidden"
-    visibilityChange = "msvisibilitychange"
-  else if typeof document.webkitHidden isnt "undefined"
-    hidden = "webkitHidden"
-    visibilityChange = "webkitvisibilitychange"
-
   _visible = new ReactiveVar()
-  onVisibilityChange = -> _visible.set !(document[hidden] or false)
-  document.addEventListener visibilityChange, onVisibilityChange, false
+  onVisibilityChange = -> _visible.set !(document.hidden or false)
+  document.addEventListener 'visibilitychange', onVisibilityChange, false
   onVisibilityChange()
   -> _visible.get()
 
