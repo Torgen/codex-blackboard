@@ -49,6 +49,27 @@ describe 'blackboard', ->
       await afterFlushPromise()
       chai.assert.isBelow mathsJQ().offset().top, cheatersJQ().offset().top, 'after up'
 
+    it 'alphabetizes within a meta', ->
+      share.Router.EditPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      # there should be a table header for the Civilization round.
+      disgust = share.model.Puzzles.findOne name: 'Disgust'
+      clueless = share.model.Puzzles.findOne name: 'Clueless'
+      aka = share.model.Puzzles.findOne name: 'AKA'
+      disgustJQ = $ "#m#{disgust._id}"
+      cluelessJQ =  disgustJQ.find "tr[data-puzzle-id=\"#{clueless._id}\"]"
+      akaJQ = disgustJQ.find "tr[data-puzzle-id=\"#{aka._id}\"]"
+      chai.assert.isBelow cluelessJQ.offset().top, akaJQ.offset().top, 'before reorder'
+      disgustJQ.find('button[data-sort-order="name"]').click()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      chai.assert.isAbove cluelessJQ.offset().top, akaJQ.offset().top, 'after alpha'
+      disgustJQ.find('button[data-sort-order=""]').click()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      chai.assert.isBelow cluelessJQ.offset().top, akaJQ.offset().top, 'after manual'
+
 describe 'login', ->
   @timeout 10000
   it 'only sends email hash', ->
