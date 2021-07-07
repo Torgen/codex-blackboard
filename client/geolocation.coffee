@@ -2,6 +2,7 @@
 
 import canonical from '../lib/imports/canonical.coffee'
 import botuser from './imports/botuser.coffee'
+import keyword_or_positional from './improts/keyword_or_positional.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -72,7 +73,7 @@ isNickNear = share.isNickNear = (nick) ->
   return dist <= GEOLOCATION_NEAR_DISTANCE
 
 Template.registerHelper 'nickNear', (args) ->
-  args = share.keyword_or_positional 'nick', args
+  args = keyword_or_positional 'nick', args
   isNickNear args.nick
 
 CODEXBOT_LOCATIONS = [
@@ -88,7 +89,7 @@ CODEXBOT_LOCATIONS = [
 ]
 
 Template.registerHelper 'nickLocation', (args) ->
-  args = share.keyword_or_positional 'nick', args
+  args = keyword_or_positional 'nick', args
   return '' if canonical(args.nick) is Meteor.userId() # that's me!
   if args.nick is botuser()._id
     idx = Math.floor(Session.get('currentTime') / (10*60*1000))
