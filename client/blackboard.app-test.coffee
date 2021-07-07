@@ -27,13 +27,27 @@ describe 'blackboard', ->
     await afterFlushPromise()
     chai.assert.isBelow $("#round#{civ._id}").offset().top, $("#round#{emo._id}").offset().top
 
-  it 'renders in edit mode', ->
-    share.Router.EditPage()
-    await waitForSubscriptions()
-    await afterFlushPromise()
-    # there should be a table header for the Civilization round.
-    civId = share.model.Rounds.findOne name: 'Civilization'
-    chai.assert.isNotNull $("##{civId._id}").html()
+  describe 'in edit mode', ->
+
+    it 'allows reordering puzzles', ->
+      share.Router.EditPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      # there should be a table header for the Civilization round.
+      wall_street = share.model.Puzzles.findOne name: 'Wall Street'
+      maths = share.model.Puzzles.findOne name: 'Advanced Maths'
+      cheaters = share.model.Puzzles.findOne name: 'Cheaters Never Prosper'
+      mathsJQ = -> $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{maths._id}\"]"
+      cheatersJQ = -> $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{cheaters._id}\"]"
+      chai.assert.isBelow mathsJQ().offset().top, cheatersJQ().offset().top, 'before reorder'
+      mathsJQ().find('button.bb-move-down').click()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      chai.assert.isAbove mathsJQ().offset().top, cheatersJQ().offset().top, 'after down'
+      mathsJQ().find('button.bb-move-up').click()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      chai.assert.isBelow mathsJQ().offset().top, cheatersJQ().offset().top, 'after up'
 
 describe 'login', ->
   @timeout 10000
