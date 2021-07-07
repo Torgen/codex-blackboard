@@ -2,7 +2,7 @@
 
 import canonical from '../lib/imports/canonical.coffee'
 import botuser from './imports/botuser.coffee'
-import keyword_or_positional from './improts/keyword_or_positional.coffee'
+import keyword_or_positional from './imports/keyword_or_positional.coffee'
 
 model = share.model # import
 settings = share.settings # import
