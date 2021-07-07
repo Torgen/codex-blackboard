@@ -357,6 +357,10 @@ Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
     Session.set 'editing', undefined # not editing anything anymore
 )
 
+Template.blackboard_favorite_puzzle.onCreated ->
+  @autorun =>
+    @subscribe 'last-puzzle-room-message', Template.currentData()._id
+
 Template.blackboard_round.helpers
   # the following is a map() instead of a direct find() to preserve order
   metas: ->
@@ -380,8 +384,6 @@ Template.blackboard_round.helpers
       puzzle = model.Puzzles.findOne({_id: id, solved: {$eq: null}, $or: [{feedsInto: {$size: 0}}, {puzzles: {$ne: null}}]})
       return true if puzzle?
     return false
-
-
 
 Template.blackboard_round.events
   'click .bb-round-buttons .bb-move-down': (event, template) ->
@@ -582,6 +584,8 @@ Template.blackboard_puzzle_cells.helpers
   solverMinutes: ->
     return unless @puzzle.solverTime?
     Math.floor(@puzzle.solverTime / 60000)
+  new_message: ->
+    not @puzzle.last_read_timestamp? or @puzzle.last_read_timestamp < @puzzle.last_message_timestamp
 
 colorHelper = -> model.getTag @, 'color'
 

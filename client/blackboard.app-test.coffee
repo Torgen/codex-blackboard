@@ -1,6 +1,6 @@
 'use strict'
 
-import {waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
 describe 'blackboard', ->
@@ -69,6 +69,22 @@ describe 'blackboard', ->
       await waitForSubscriptions()
       await afterFlushPromise()
       chai.assert.isBelow cluelessJQ.offset().top, akaJQ.offset().top, 'after manual'
+
+  it 'makes a puzzle a favorite', ->
+    share.Router.BlackboardPage()
+    await waitForSubscriptions()
+    await afterFlushPromise()
+    chai.assert.isUndefined $('#favorites').html()
+    # there should be a table header for the Civilization round.
+    granary = share.model.Puzzles.findOne name: 'Granary Of Ur'
+    bank = share.model.Puzzles.findOne name: 'Letter Bank'
+    chai.assert.isDefined $("#m#{granary._id} tr[data-puzzle-id=\"#{bank._id}\"] .bb-favorite-button").html()
+    $("#m#{granary._id} tr[data-puzzle-id=\"#{bank._id}\"] .bb-favorite-button").click()
+    await waitForMethods()
+    await waitForSubscriptions()
+    await afterFlushPromise()
+    chai.assert.isDefined $('#favorites').html()
+    chai.assert.isDefined $("tr[data-puzzle-id=\"#{bank._id}\"] .bb-recent-puzzle-chat").html()
 
 describe 'login', ->
   @timeout 10000
