@@ -37,17 +37,17 @@ describe 'blackboard', ->
       wall_street = share.model.Puzzles.findOne name: 'Wall Street'
       maths = share.model.Puzzles.findOne name: 'Advanced Maths'
       cheaters = share.model.Puzzles.findOne name: 'Cheaters Never Prosper'
-      mathsJQ = -> $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{maths._id}\"]"
-      cheatersJQ = -> $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{cheaters._id}\"]"
-      chai.assert.isBelow mathsJQ().offset().top, cheatersJQ().offset().top, 'before reorder'
-      mathsJQ().find('button.bb-move-down').click()
+      mathsJQ = $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{maths._id}\"]"
+      cheatersJQ = $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{cheaters._id}\"]"
+      chai.assert.isBelow mathsJQ.offset().top, cheatersJQ.offset().top, 'before reorder'
+      mathsJQ.find('button.bb-move-down').click()
       await waitForSubscriptions()
       await afterFlushPromise()
-      chai.assert.isAbove mathsJQ().offset().top, cheatersJQ().offset().top, 'after down'
-      mathsJQ().find('button.bb-move-up').click()
+      chai.assert.isAbove mathsJQ.offset().top, cheatersJQ.offset().top, 'after down'
+      mathsJQ.find('button.bb-move-up').click()
       await waitForSubscriptions()
       await afterFlushPromise()
-      chai.assert.isBelow mathsJQ().offset().top, cheatersJQ().offset().top, 'after up'
+      chai.assert.isBelow mathsJQ.offset().top, cheatersJQ.offset().top, 'after up'
 
     it 'alphabetizes within a meta', ->
       share.Router.EditPage()
