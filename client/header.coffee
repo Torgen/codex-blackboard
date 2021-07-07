@@ -63,10 +63,6 @@ Template.registerHelper 'nickOrName', (args) ->
   n = Meteor.users.findOne canonical nick
   return n?.real_name or n?.nickname or nick
 
-Template.registerHelper 'lotsOfPeople', (args) ->
-  count = (keyword_or_positional 'count', args).count
-  return count > 4
-
 today_fmt = Intl.DateTimeFormat navigator.language,
   hour: 'numeric'
   minute: 'numeric'
