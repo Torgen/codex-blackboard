@@ -18,8 +18,12 @@ describe 'chat', ->
     chai.assert.isDefined $('a[href^="https://codexian.us"]').html()
     chai.assert.isDefined $('img[src^="https://memegen.link/doge"]').html()
 
-  it 'puzzle chat', ->
+  it 'updates read marker', ->
     id = share.model.Puzzles.findOne(name: 'Temperance')._id
     share.Router.ChatPage('puzzles', id)
     await waitForSubscriptions()
-    afterFlushPromise()
+    await afterFlushPromise()
+    chai.assert.isUndefined $('.bb-message-last-read').html()
+    $('#messageInput').focus()
+    await afterFlushPromise()
+    chai.assert.isDefined $('.bb-message-last-read').html()
