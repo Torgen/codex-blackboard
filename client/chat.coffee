@@ -67,8 +67,8 @@ instachat["scrolledToBottom"]        = true
 instachat['readMarker'] = $ '<div class="bb-message-last-read">read</div>'
 instachat["mutationObserver"] = new MutationObserver (recs, obs) ->
   for rec in recs
-    if [rec.addedNodes..., rec.removedNodes...].some (x) -> x instanceof Element
-      console.log rec unless Meteor.isProduction
+    unless Meteor.isProduction
+      console.log rec if [rec.addedNodes..., rec.removedNodes...].some (x) -> x instanceof Element
     # previous element's followup status can't be affected by changes after it;
     assignMessageFollowupList rec.addedNodes
     nextEl = rec.nextSibling
