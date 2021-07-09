@@ -328,17 +328,49 @@ table.poll {
   margin: 0; font-size: .8em; color: #aaa; padding: 1px 4px!important;
 }
 
-.bb-chat-footer {
-  &.navbar-inverse .navbar-inner {
-    //background-image:url(/img/darkdenim3.png);
+
+.bb-chat-presence-block {
+  position: absolute;
+  bottom: ~"calc(36px + var(--jitsi-height, 0px))";
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-height: 150px;
+  overflow: auto;
+  background: white;
+  opacity: .85;
+  border-top: 1px solid black;
+  .bb-avatar {
+    width: 48px;
   }
-  form {
-    padding-left: 15px;
-    padding-right: 15px;
+}
+
+.bb-chat-footer {
+  height: 36px;
+  background: url('/img/irongrip.png');
+  display: flex;
+  flex-direction: row;
+  #messageForm {
+    flex-grow: 1;
+    padding-left: 0;
+    padding-right: 10px;
     textarea {
       overflow: hidden;
       margin-bottom: 0; margin-top: 5px;
       resize: none; height: 30px;
+    }
+  }
+  #messageInput { margin-top: 3px; }
+  .bb-show-whos-here {
+    flex-grow: 0;
+    i {display: block; }
+  }
+}
+@media(min-width: 981px) {
+  #bb-content > #messages {
+    & > .bb-message, & > .bb-message-action {
+      margin-left: 20px;
+      margin-right: 20px;
     }
   }
 }

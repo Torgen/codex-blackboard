@@ -8,12 +8,9 @@
       {{> puzzle_summon_modal}}
     {{/with}}
   {{/if}}
-  <div class="navbar navbar-inverse navbar-fixed-bottom bb-chat-footer">
-    <div class="navbar-inner">
-      {{> messages_input}}
-    </div>
+  <div class="navbar navbar-inverse navbar-fixed-bottom">
+    {{>messages_input}}
   </div>
-
 </template>
 
 <template name="embedded_chat">
@@ -21,31 +18,13 @@
     <div class="bb-message-container">
       {{> messages }}
     </div>
-    {{#if show_presence}}
-      <table class="bb-chat-presence-block" title="Who's here?">
-        <tbody>
-          {{#each whos_here}}
-          <tr>
-            <td class="bb-avatar">{{>gravatar nick=nick size=48}}</td>
-            <td>{{nickAndName nick}}</td>
-            <td>{{nickLocation nick}}</td>
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
-    {{/if}}
-    <div class="bb-chat-input bb-chat-footer">
-      <button class="btn btn-mini btn-inverse bb-show-whos-here {{#if show_presence}}active{{/if}}">
-        <i class="fas fa-angle-double-{{#if show_presence}}down{{else}}up{{/if}}"></i>
-        <i class="fas fa-address-card"></i>
-      </button>
+    {{#messages_input}}
       {{#if canJitsi}}
         <button class="btn btn-mini btn-inverse bb-join-jitsi" title="Connect to Jitsi meeting.{{#if otherJitsi}} This will disconnect another tab from its meeting.{{/if}}">
           <i class="fas fa-video"></i>
         </button>
       {{/if}}
-      {{> messages_input }}
-    </div>
+    {{/messages_input}}
     <div id="bb-jitsi-container">
       {{#if inJitsi}}
         <div class="bb-pin-overlay">
@@ -68,25 +47,32 @@ Click here to stay in this meeting instead.{{/if}}">
   </div>
 </template>
 
-<template name="chat_header">
-  <div class="navbar-text bb-chat-presence">
-    <span class="label label-inverse">
-    Hunters present ({{whos_here.count}}):
-    </span>
-    <span class="comma-list">
-      {{#each whos_here}}{{> nick_presence }}{{/each}}
-    </span>
-  </div>
-</template>
-
 <template name="messages_input">
-  {{#if mynick}}
-  <form id="messageForm" class="navbar-form">
-    <textarea id="messageInput" class="input-block-level" rows="1"
-            placeholder="Type your message and press enter..."
-            autocomplete="off" ></textarea>
-  </form>
+  {{#if show_presence}}
+    <table class="bb-chat-presence-block" title="Who's here?">
+      <tbody>
+        {{#each whos_here}}
+        <tr>
+          <td class="bb-avatar">{{>gravatar nick=nick size=48}}</td>
+          <td>{{nickAndName nick}}</td>
+          <td>{{nickLocation nick}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
   {{/if}}
+  <div class="bb-chat-input bb-chat-footer">
+    <button class="btn btn-mini btn-inverse bb-show-whos-here {{#if show_presence}}active{{/if}}">
+      <i class="fas fa-angle-double-{{#if show_presence}}down{{else}}up{{/if}}"></i>
+      <i class="fas fa-address-card"></i>
+    </button>
+    {{>Template.contentBlock}}
+    <form id="messageForm" class="navbar-form">
+      <textarea id="messageInput" class="input-block-level" rows="1"
+              placeholder="Type your message and press enter..."
+              autocomplete="off" ></textarea>
+    </form>
+  </div>
 </template>
 
 <template name="message_delete_button">
@@ -164,7 +150,7 @@ Click here to stay in this meeting instead.{{/if}}">
 </template>
 
 <template name="messages">
-  <div id="messages" class="row-fluid bb-chat-messages {{#if mynick}}can-modify-star{{/if}}">
+  <div id="messages" class="bb-chat-messages {{#if mynick}}can-modify-star{{/if}}">
     {{#if ready}}
       {{#if startOfChannel}}
         <button disabled="" class="btn btn-small btn-block btn-info bb-chat-start">No earlier messages</button>

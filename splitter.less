@@ -135,31 +135,7 @@ html.fullHeight {
         .bb-chat-footer {
           position: absolute;
           left: 0; right: 0; margin-left: 0; margin-right: 0;
-          bottom: var(--jitsi-height, 0); height: 36px;
-          background: url('/img/irongrip.png');
-          #messageForm { flex-grow: 1; padding-left: 0; padding-right: 10px;}
-          #messageInput { margin-top: 3px; }
-          .bb-show-whos-here {
-            flex-grow: 0;
-            i {display: block; }
-          }
-          display: flex;
-          flex-direction: row;
-        }
-        .bb-chat-presence-block {
-          position: absolute;
-          bottom: ~"calc(36px + var(--jitsi-height, 0px))";
-          left: 0;
-          right: 0;
-          width: 100%;
-          max-height: 150px;
-          overflow: auto;
-          background: white;
-          opacity: .85;
-          border-top: 1px solid black;
-          .bb-avatar {
-            width: 48px;
-          }
+          bottom: var(--jitsi-height, 0);
         }
         #bb-jitsi-container {
           height: var(--jitsi-height, 0px);

@@ -687,12 +687,10 @@ input[type=color] {
     position: fixed;
   }
   #messages {
-    padding-top: @navbar-height;
     /* Need this amount of specificity to override .row-fluid rule. */
     #bb-body .bb-splitter & { padding-top: 0px; }
   }
   .bb-puzzleround { padding-top: 0 !important; }
-  .bb-chat-footer { margin-left: -20px; margin-right: -20px; }
   #bb-body {
     padding-bottom: 0;
     #bb-content > #bb-blackboard {
@@ -734,6 +732,8 @@ input[type=color] {
   /* Remove any padding from the body */
   body {
     padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
   #roomName { width:85px; } /* narrow room name input */
   .bb-omit-when-narrow, .puzzle-working, .puzzle-update { display: none !important; }
@@ -757,7 +757,7 @@ input[type=color] {
 
 @media (min-width: 481px) and (max-width: 980px) {
   /* re-fix the chat footer to the bottom */
-  .bb-chat-footer.navbar-fixed-bottom {
+  .navbar-fixed-bottom {
     position: fixed;
     margin-left: 0; margin-right: 0;
     .navbar-inner { padding: 0; margin-bottom: -1px;}

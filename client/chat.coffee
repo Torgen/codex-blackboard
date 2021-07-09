@@ -51,7 +51,13 @@ assignMessageFollowupList = (nodeList) ->
   prev = if nodeList.length > 0 then nodeList[0].previousElementSibling
   for n in nodeList when n instanceof Element
     prev = assignMessageFollowup n, prev
+    assignReadMarker n
   return prev
+
+assignReadMarker = (element) ->
+  return unless element.dataset.read is 'read'
+  return unless element.nextElementSibling?.dataset?.read is 'unread'
+  $(instachat.readMarker).insertAfter element
 
 # Globals
 instachat = {}
@@ -61,7 +67,8 @@ instachat["scrolledToBottom"]        = true
 instachat['readMarker'] = $ '<div class="bb-message-last-read">read</div>'
 instachat["mutationObserver"] = new MutationObserver (recs, obs) ->
   for rec in recs
-    console.log rec unless Meteor.isProduction
+    if [rec.addedNodes..., rec.removedNodes...].some (x) -> x instanceof Element
+      console.log rec unless Meteor.isProduction
     # previous element's followup status can't be affected by changes after it;
     assignMessageFollowupList rec.addedNodes
     nextEl = rec.nextSibling
@@ -71,9 +78,7 @@ instachat["mutationObserver"] = new MutationObserver (recs, obs) ->
   return
 instachat["readObserver"] = new MutationObserver (recs, obs) ->
   for rec in recs
-    continue unless rec.target.dataset.read is 'read'
-    continue unless rec.target.nextElementSibling?.dataset.read is 'unread'
-    $(instachat.readMarker).insertAfter rec.target
+    assignReadMarker rec.target
 
 # Favicon instance, used for notifications
 # (first add host to path)
@@ -207,6 +212,9 @@ Template.messages.helpers
       Session.get 'currentTime'
     return result
   messages: ->
+    console.log Template.instance().waitForObservers.get()
+    return [] unless Template.instance().waitForObservers.get()
+    console.log 'not skipping'
     room_name = Session.get 'room_name'
     # I will go out on a limb and say we need this because transform uses
     # doesMentionNick and transforms aren't usually reactive, so we need to
@@ -237,6 +245,7 @@ cleanupChat = ->
   instachat.bottomObserver?.disconnect()
 
 Template.messages.onDestroyed ->
+  console.log 'destroyed'
   cleanupChat()
   hideMessageAlert()
 
@@ -244,6 +253,8 @@ Template.messages.onDestroyed ->
 $(window).unload -> cleanupChat()
 
 Template.messages.onCreated ->
+  console.log 'created'
+  @waitForObservers = new ReactiveVar false
   instachat.scrolledToBottom = true
   @autorun =>
     # put this in a separate autorun so it's not invalidated needlessly when
@@ -288,6 +299,7 @@ Template.messages.onCreated ->
     Tracker.onInvalidate invalidator
 
 Template.messages.onRendered ->
+  console.log 'rendered'
   chatBottom = document.getElementById('chat-bottom')
   if window.IntersectionObserver and chatBottom?
     instachat.bottomObserver = new window.IntersectionObserver (entries) ->
@@ -296,12 +308,16 @@ Template.messages.onRendered ->
     instachat.bottomObserver.observe(chatBottom)
   if settings.FOLLOWUP_STYLE is "js"
     # observe future changes
-    $("#messages").each ->
+    @$("#messages").each ->
       console.log "Observing #{this}" unless Meteor.isProduction
       instachat.mutationObserver.observe(this, {childList: true})
   
-  $("#messages").each ->
+  @$("#messages").each ->
+    console.log "Observing #{@} which has #{@childElementCount} children"
+
     instachat.readObserver.observe(this, {attributes: true, attributeFilter: ['data-read'], subtree: true})
+
+  Meteor.defer => @waitForObservers.set true
 
 Template.messages.events
   'click .bb-chat-load-more': (event, template) ->
@@ -317,10 +333,6 @@ whos_here_helper = ->
   roomName = Session.get('type') + '/' + Session.get('id')
   return model.Presence.find {room_name: roomName, scope: 'chat'}, {sort: ['joined_timestamp']}
 
-Template.chat_header.helpers
-  room_name: -> prettyRoomName()
-  whos_here: whos_here_helper
-
 # We need settings to load the jitsi api since it's conditional and the domain
 # is variable. This means we can't put it in the head, and putting it in the
 # body can mean the embedded chat is already rendered when it loads.
@@ -334,7 +346,6 @@ Meteor.startup ->
     jitsiLoaded.set true  
 
 Template.embedded_chat.onCreated ->
-  @show_presence = new ReactiveVar false
   @jitsi = new ReactiveVar null
   # Intentionally staying out of the meeting.
   @jitsiLeft = new ReactiveVar false
@@ -435,11 +446,6 @@ nickAndName = (user) ->
     user.nickname
 
 Template.embedded_chat.helpers
-  show_presence: -> Template.instance().show_presence.get()
-  whos_here: whos_here_helper
-  nickAndName: (nick) ->
-    user = Meteor.users.findOne canonical nick ? {nickname: nick}
-    nickAndName user
   inJitsi: -> Template.instance().jitsi.get()?
   canJitsi: ->
     return jitsiRoom(Session.get('type'), Session.get('id'))? and Template.instance().jitsiLeft.get()
@@ -467,9 +473,6 @@ Template.embedded_chat.helpers
   jitsiHeightCapped: -> 'true' is reactiveLocalStorage.getItem 'capJitsiHeight'
 
 Template.embedded_chat.events
-  'click .bb-show-whos-here': (event, template) ->
-    rvar = template.show_presence
-    rvar.set(not rvar.get())
   'click .bb-join-jitsi': (event, template) ->
     reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
     template.jitsiLeft.set false
@@ -608,72 +611,81 @@ $(window).scroll (event) ->
     console.log ' html scrollTop', html.scrollTop, 'scrollTopMax', html.scrollTopMax, 'scrollHeight', html.scrollHeight, 'clientHeight', html.clientHeight
   instachat.scrolledToBottom = atBottom
 
-Template.messages_input.onCreated -> @submit = (message) ->
-  return unless message
-  args =
-    room_name: Session.get 'room_name'
-    body: message
-  [word1, rest] = message.split(/\s+([^]*)/, 2)
-  switch word1
-    when "/me"
-      args.body = rest
-      args.action = true
-    when "/users", "/show", "/list"
-      args.to = args.nick
-      args.action = true
-      whos_here = \
-        model.Presence.find({room_name: args.room_name, scope: 'chat'}, {sort:["nick"]}) \
-        .fetch().map (obj) -> obj.nick
-      if whos_here.length == 0
-        whos_here = "nobody"
-      else if whos_here.length == 1
-        whos_here = whos_here[0]
-      else if whos_here.length == 2
-        whos_here = whos_here.join(' and ')
-      else
-        whos_here[whos_here.length-1] = 'and ' + whos_here[whos_here.length-1]
-        whos_here = whos_here.join(', ')
-      args.body = "looks around and sees: #{whos_here}"
-    when "/join"
-      args.to = @userId
-      args.action = true
-      return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
-        if (not result?) and GENERAL_ROOM_REGEX.test(rest.trim())
-          result = {type:'general',object:_id:'0'}
-        if error? or not result?
-          args.body = "tried to join an unknown chat room"
-          return Meteor.call 'newMessage', args
-        hideMessageAlert()
-        joinRoom result.type, result.object._id
-    when "/msg", "/m"
-      # find who it's to
-      [to, rest] = rest.split(/\s+([^]*)/, 2)
-      missingMessage = (not rest)
-      while rest
-        n = Meteor.users.findOne canonical to
-        break if n
-        if to is 'bot' # allow 'bot' as a shorthand for 'codexbot'
-          to = botuser()._id
-          continue
-        [extra, rest] = rest.split(/\s+([^]*)/, 2)
-        to += ' ' + extra
-      if n
+Template.messages_input.helpers
+  show_presence: -> Template.instance().show_presence.get()
+  whos_here: whos_here_helper
+  nickAndName: (nick) ->
+    user = Meteor.users.findOne canonical nick ? {nickname: nick}
+    nickAndName user
+
+Template.messages_input.onCreated ->
+  @show_presence = new ReactiveVar false
+  @submit = (message) ->
+    return unless message
+    args =
+      room_name: Session.get 'room_name'
+      body: message
+    [word1, rest] = message.split(/\s+([^]*)/, 2)
+    switch word1
+      when "/me"
         args.body = rest
-        args.to = to
-      else
-        # error: unknown user
-        # record this attempt as a PM to yourself
-        args.to = @userId
-        args.body = "tried to /msg an UNKNOWN USER: #{message}"
-        args.body = "tried to say nothing: #{message}" if missingMessage
         args.action = true
-  Meteor.call 'newMessage', args # updates LastRead as a side-effect
-  # for flicker prevention, we are currently not doing latency-compensation
-  # on the newMessage call, which makes the below ineffective.  But leave
-  # it here in case we turn latency compensation back on.
-  Tracker.afterFlush -> scrollMessagesView()
-  @history_ts = null
-  return
+      when "/users", "/show", "/list"
+        args.to = args.nick
+        args.action = true
+        whos_here = \
+          model.Presence.find({room_name: args.room_name, scope: 'chat'}, {sort:["nick"]}) \
+          .fetch().map (obj) -> obj.nick
+        if whos_here.length == 0
+          whos_here = "nobody"
+        else if whos_here.length == 1
+          whos_here = whos_here[0]
+        else if whos_here.length == 2
+          whos_here = whos_here.join(' and ')
+        else
+          whos_here[whos_here.length-1] = 'and ' + whos_here[whos_here.length-1]
+          whos_here = whos_here.join(', ')
+        args.body = "looks around and sees: #{whos_here}"
+      when "/join"
+        args.to = @userId
+        args.action = true
+        return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
+          if (not result?) and GENERAL_ROOM_REGEX.test(rest.trim())
+            result = {type:'general',object:_id:'0'}
+          if error? or not result?
+            args.body = "tried to join an unknown chat room"
+            return Meteor.call 'newMessage', args
+          hideMessageAlert()
+          joinRoom result.type, result.object._id
+      when "/msg", "/m"
+        # find who it's to
+        [to, rest] = rest.split(/\s+([^]*)/, 2)
+        missingMessage = (not rest)
+        while rest
+          n = Meteor.users.findOne canonical to
+          break if n
+          if to is 'bot' # allow 'bot' as a shorthand for 'codexbot'
+            to = botuser()._id
+            continue
+          [extra, rest] = rest.split(/\s+([^]*)/, 2)
+          to += ' ' + extra
+        if n
+          args.body = rest
+          args.to = to
+        else
+          # error: unknown user
+          # record this attempt as a PM to yourself
+          args.to = @userId
+          args.body = "tried to /msg an UNKNOWN USER: #{message}"
+          args.body = "tried to say nothing: #{message}" if missingMessage
+          args.action = true
+    Meteor.call 'newMessage', args # updates LastRead as a side-effect
+    # for flicker prevention, we are currently not doing latency-compensation
+    # on the newMessage call, which makes the below ineffective.  But leave
+    # it here in case we turn latency compensation back on.
+    Tracker.afterFlush -> scrollMessagesView()
+    @history_ts = null
+    return
 
 format_body = (msg) ->
   if msg.action
@@ -683,6 +695,9 @@ format_body = (msg) ->
   msg.body
 
 Template.messages_input.events
+  'click .bb-show-whos-here': (event, template) ->
+    rvar = template.show_presence
+    rvar.set(not rvar.get())
   "keydown textarea": (event, template) ->
     # tab completion
     if event.which is 9 # tab
