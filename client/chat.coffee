@@ -212,9 +212,7 @@ Template.messages.helpers
       Session.get 'currentTime'
     return result
   messages: ->
-    console.log Template.instance().waitForObservers.get()
     return [] unless Template.instance().waitForObservers.get()
-    console.log 'not skipping'
     room_name = Session.get 'room_name'
     # I will go out on a limb and say we need this because transform uses
     # doesMentionNick and transforms aren't usually reactive, so we need to
@@ -245,7 +243,6 @@ cleanupChat = ->
   instachat.bottomObserver?.disconnect()
 
 Template.messages.onDestroyed ->
-  console.log 'destroyed'
   cleanupChat()
   hideMessageAlert()
 
@@ -253,7 +250,6 @@ Template.messages.onDestroyed ->
 $(window).unload -> cleanupChat()
 
 Template.messages.onCreated ->
-  console.log 'created'
   @waitForObservers = new ReactiveVar false
   instachat.scrolledToBottom = true
   @autorun =>
@@ -299,7 +295,6 @@ Template.messages.onCreated ->
     Tracker.onInvalidate invalidator
 
 Template.messages.onRendered ->
-  console.log 'rendered'
   chatBottom = document.getElementById('chat-bottom')
   if window.IntersectionObserver and chatBottom?
     instachat.bottomObserver = new window.IntersectionObserver (entries) ->
@@ -313,8 +308,6 @@ Template.messages.onRendered ->
       instachat.mutationObserver.observe(this, {childList: true})
   
   @$("#messages").each ->
-    console.log "Observing #{@} which has #{@childElementCount} children"
-
     instachat.readObserver.observe(this, {attributes: true, attributeFilter: ['data-read'], subtree: true})
 
   Meteor.defer => @waitForObservers.set true
