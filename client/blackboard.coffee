@@ -5,6 +5,7 @@ import jitsiUrl from './imports/jitsi.coffee'
 import { nickHash } from './imports/nickEmail.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
+import PuzzleDrag from './imports/puzzle_drag.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -596,8 +597,6 @@ Template.blackboard_unfeed_meta.events
   'click .bb-unfeed-icon': (event, template) ->
     Meteor.call 'unfeedMeta', template.data.puzzle._id, template.data.meta._id
 
-PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
-
 dragdata = null
 
 Template.blackboard_puzzle.helpers
@@ -607,57 +606,14 @@ Template.blackboard_puzzle.events
   'dragend tr.puzzle': (event, template) ->
     dragdata = null
   'dragstart tr.puzzle': (event, template) ->
+    return unless Session.get 'canEdit'
     event = event.originalEvent
-    rect = event.target.getBoundingClientRect()
-    unless Meteor.isProduction
-      console.log "event Y #{event.clientY} rect #{JSON.stringify rect}"
-      console.log @puzzle._id
-    dragdata =
-      id: @puzzle._id
-      fromTop: event.clientY - rect.top
-      fromBottom: rect.bottom - event.clientY
-    dragdata.meta = Template.parentData(1).puzzle?._id
-    dragdata.round = Template.parentData(2)?._id
-    console.log "meta id #{dragdata.meta}, round id #{dragdata.round}"
-    dt = event.dataTransfer
-    dt.setData PUZZLE_MIME_TYPE, dragdata.id
-    dt.effectAllowed = 'move'
+    dragdata = new PuzzleDrag @puzzle, Template.parentData(1).puzzle, Template.parentData(2), event.target, event.clientY, event.dataTransfer
   'dragover tr.puzzle': (event, template) ->
+    return unless Session.get 'canEdit'
     event = event.originalEvent
-    return unless event.dataTransfer.types.includes PUZZLE_MIME_TYPE
-    myId = template.data.puzzle._id
-    if dragdata.id is myId
-      event.preventDefault()  # Drop okay
-      return  # ... but nothing to do
-    parentData = Template.parentData(1)
-    meta = Template.parentData(1).puzzle
-    round = Template.parentData(2)
-    return unless meta?._id is dragdata.meta
-    return unless round?._id is dragdata.round
-    event.preventDefault()
-    parent = meta or round
-    myIndex = parent.puzzles.indexOf myId
-    itsIndex = parent.puzzles.indexOf dragdata.id
-    diff = itsIndex - myIndex
-    rect = event.target.getBoundingClientRect()
-    clientY = event.clientY
-    args = null
-    if clientY - rect.top < dragdata.fromTop
-      return if diff == -1
-      args = before: myId
-    else if rect.bottom - clientY < dragdata.fromBottom
-      return if diff == 1
-      args = after: myId
-    else if diff > 1
-      args = after: myId
-    else if diff < -1
-      args = before: myId
-    else
-      return
-    if meta?
-      Meteor.call 'moveWithinMeta', dragdata.id, meta._id, args
-    else if round?
-      Meteor.call 'moveWithinRound', dragdata.id, round._id, args
+    if dragdata?.dragover template.data.puzzle, Template.parentData(1).puzzle, Template.parentData(2), event.target, event.clientY, event.dataTransfer
+      event.preventDefault()
 
 Template.blackboard_tags.helpers { tags: tagHelper }
 Template.puzzle_info.helpers { tags: tagHelper }
