@@ -59,7 +59,8 @@ Meteor.startup ->
 
     # Civilization Round, 2011
     impersonating WHO, ->
-      civ = Meteor.call 'newRound', {name: 'Civilization'},
+      civ = Meteor.call 'newRound',
+        name: 'Civilization',
         link: 'https://www.mit.edu/~puzzle/2011/puzzles/civilization/'
       # TODO(torgen): when default meta exists, remvoe/rename it.
       palimpsest = Meteor.call 'newPuzzle',
@@ -227,7 +228,8 @@ Meteor.startup ->
 
     # Emotion round, 2018
     impersonating WHO, ->
-      emotions = Meteor.call 'newRound', {name: 'Emotions and Memories'},
+      emotions = Meteor.call 'newRound',
+        name: 'Emotions and Memories'
         link: 'https://web.mit.edu/puzzle/www/2018/full/island/index.html'
       joy = Meteor.call 'newPuzzle',
         name: 'Joy'
