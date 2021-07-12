@@ -197,6 +197,12 @@ callinTypesHelpers = (template) ->
       when callin_types.MESSAGE_TO_HQ then 'Message to HQ'
       when callin_types.EXPECTED_CALLBACK then 'Expected Callback'
       else ''
+    typeNameVerb: (type) -> switch (type ? Template.instance().type.get())
+      when callin_types.ANSWER then 'Answer to call in'
+      when callin_types.INTERACTION_REQUEST then 'Interaction to request'
+      when callin_types.MESSAGE_TO_HQ then 'Message to send HQ'
+      when callin_types.EXPECTED_CALLBACK then 'Callback to expect'
+      else ''
     tooltip: (type) -> switch type
       when callin_types.ANSWER then 'The solution to the puzzle. Fingers crossed!'
       when callin_types.INTERACTION_REQUEST then 'An intermediate string that may trigger a skit, physical puzzle, or creative challenge.'

@@ -242,25 +242,38 @@ Request Call-In
     <h3>Request a call-in</h3>
   </div>
   <div class="modal-body">
-    <form class="form">
-      <label>{{typeName}} to call in:</label>
-      <input type="text" class="bb-callin-answer" placeholder="{{typeName}}">
-      <label>Callin Type</label>
-      {{#each callin_type in callinTypes}}
-        <label class="radio inline" title="{{tooltip callin_type}}">
-          <input type="radio" id="bb-callin-type-{{callin_type}}" value="{{callin_type}}" name="callin_type" checked="{{#unless @index}}checked{{/unless}}">
-          {{typeName callin_type}}
-        </label>
-      {{/each}}
+    <form class="form-horizontal">
+      <div class="control-group">
+        <label class="control-label">{{typeNameVerb}}:</label>
+        <div class="controls">
+          <input type="text" class="bb-callin-answer" id="bb-callin-answer" placeholder="{{typeName}}">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Callin Type:</label>
+        <div class="controls">
+          {{#each callin_type in callinTypes}}
+            <label class="radio inline" title="{{tooltip callin_type}}">
+              <input type="radio" id="bb-callin-type-{{callin_type}}" value="{{callin_type}}" name="callin_type" checked="{{#unless @index}}checked{{/unless}}">
+              {{typeName callin_type}}
+            </label>
+          {{/each}}
+        </div>
+      </div>
       {{#if typeIs "answer"}}
-        <label class="checkbox" title="We derived this answer from a metapuzzle rather than the text of the puzzle itself.">
-          <input type="checkbox" value="backsolve"> Backsolved?
-        </label>
-        <label class="checkbox">
-          <input type="checkbox" value="provided"> Answer provided by HQ?
-          <!-- ie, because we brought a physical object to HQ, won a
-              game, or cashed in points -->
-        </label>
+        <div class="control-group">
+          <label class="control-label">Provenance</label>
+          <div class="controls">
+            <label class="checkbox" title="We derived this answer from a metapuzzle rather than the text of the puzzle itself.">
+              <input type="checkbox" value="backsolve"> Backsolved?
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" value="provided"> Answer provided by HQ?
+              <!-- ie, because we brought a physical object to HQ, won a
+                  game, or cashed in points -->
+            </label>
+          </div>
+        </div>
       {{/if}}
     </form>
   </div>
