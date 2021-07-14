@@ -18,7 +18,7 @@ possibleViews = (puzzle) ->
   x = []
   x.push 'spreadsheet' if puzzle?.spreadsheet?
   x.push 'puzzle' if embeddable puzzle?.link
-  x.push 'info'
+  x.splice (if /Mobi/.test(navigator.userAgent) then 0 else x.length), 0, 'info'
   x.push 'doc' if puzzle?.doc?
   x
 currentViewIs = (puzzle, view) ->
