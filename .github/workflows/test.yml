@@ -19,10 +19,10 @@ jobs:
           - coverage.full.lcov
     steps:
     - uses: actions/checkout@master
-    - name: Use Node.js 12.x
+    - name: Use Node.js 14.x
       uses: actions/setup-node@master
       with:
-        node-version: 12.x
+        node-version: 14.x
     - uses: actions/cache@v1
       id: cache-meteor
       with:
@@ -31,7 +31,7 @@ jobs:
     - uses: meteorengineer/setup-meteor@v1
       if: steps.cache-meteor.outputs.cache-hit != 'true'
       with:
-        meteor-release: '2.2.1'
+        meteor-release: '2.3.2'
     - uses: actions/cache@v1
       id: cache-npm
       with:
