@@ -192,18 +192,35 @@
   </li>
   <li class="dropdown" id="bb-avatar-dropdown">
     {{#if sessionNick}}
-      <a class="dropdown-toggle"
-         data-toggle="dropdown" href="#">
-       {{>gravatar nick=sessionNick.canon size=24}}
-       <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu pull-right">
-        <li class="disabled"><a name="nickname">Nickname: {{sessionNick.name}}</a></li>
-        {{#if sessionNick.realname}}
-          <li class="disabled"><a name="realname">Real name: {{sessionNick.realname}}</a></li>
-        {{/if}}
-        <li><a href="#" class="bb-logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
-      </ul>
+      {{#let unread=unreadPrivateMessages}}
+        <a class="dropdown-toggle"
+          data-toggle="dropdown" href="#">
+        {{>gravatar nick=sessionNick.canon size=24}}
+        <span class="caret"></span>
+        <span class="badge badge-important">{{unread}}</span>
+        </a>
+        <div class="dropdown-menu pull-right" id="bb-avatar-dropdown-content">
+          <ul class="dropdown-menu pull-right">
+            <li class="disabled"><a name="nickname">Nickname: {{sessionNick.name}}</a></li>
+            {{#if sessionNick.realname}}
+              <li class="disabled"><a name="realname">Real name: {{sessionNick.realname}}</a></li>
+            {{/if}}
+            <li><a href="#" class="bb-logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+          </ul>
+          <div class="dropdown-menu">
+            {{#with privateMessages}}
+              <h5>Private Messages{{#if unread}} (<a href="#" id="bb-mark-private-read">Mark all read</a>){{/if}}</h5>
+              <div class="bb-chat-messages">
+                {{#each this}}
+                  {{>media_message}}
+                {{/each}}
+              </div>
+            {{else}}
+              <h5>No Private Messages</h5>
+            {{/with}}
+          </div>
+        </div>
+      {{/let}}
     {{else}}
     <button class="btn btn-small btn-inverse bb-login">
      <i class="fas fa-user"></i>

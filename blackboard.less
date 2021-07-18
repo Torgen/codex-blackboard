@@ -14,11 +14,6 @@
   src: local('Open Sans Emoji'), local('OpenSansEmoji'), url('../fonts/OpenSansEmoji.ttf') format('truetype');
 }
 
-.ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .comma-list {
   & > *::after { content: ", "; }
   & > *:last-child::after { content:""; }
@@ -83,6 +78,9 @@ body {
   a:not(.btn), a.btn-link {
     color: hsl(200,100%,80%);
     &:hover {color: hsl(200.2,100%,95.1%);}
+  }
+  .disabled > a {
+    color: #999;
   }
 }
 // For mobile devices which actually support native emojis:
@@ -228,10 +226,6 @@ body.has-emojis {
   }
 }
 
-@left-size: 85px;
-@right-size: 45px;
-@vert-padding: 4px;
-
 #bb-body {
   padding-top: @navbar-height;
 }
@@ -260,52 +254,6 @@ body.has-emojis {
 
 .bb-breadcrumbs .tooltip-inner { .bb-buttonbar .tooltip-inner; }
 .bb-breadcrumbs .tooltip.bottom .tooltip-arrow { .bb-buttonbar .tooltip.bottom .tooltip-arrow; }
-
-.bb-lastchat {
-  margin-bottom: @vert-padding;
-  margin-top: @vert-padding;
-  display: flex;
-  flex-flow: row nowrap;
-  flex-grow: 1;
-  flex-shrink: 1;
-  overflow: hidden;
-  .messageRow {
-    .ellipsis;
-    margin-top: 0;
-    margin-bottom: 0;
-    font-size:14px;
-    line-height:16px;
-    height:16px;
-    .badge { line-height:12px; }
-  }
-  .rooms{
-    width: min-content;
-    white-space: initial;
-    font-weight: bold;
-    font-size: 32px;
-    line-height: 32px;
-    padding-left: 15px;
-    display: flex;
-    flex-direction: column-reverse;
-    color: white; /* not --text-color; header is always dark. */
-  }
-  .chats {
-    padding-left: 8px;
-    display: flex;
-    flex-direction: column-reverse;
-    .ellipsis;
-    flex-grow: 1;
-    flex-shrink: 1;
-  }
-  .timestamp { color: #555; }
-}
-.bb-chat-presence {
-  .ellipsis;
-  /* tweak the height by 1px to get text baselines to line up. */
-  /* yes, this is incredibly anal. */
-  padding-top: 1px;
-  margin-bottom: -1px;
-}
 
 .answer {
   text-transform: uppercase;
@@ -781,7 +729,7 @@ input[type=color] {
   }
   #bb-body {
     .bb-blackboard-h1 { display: none; }
-    .bb-lastchat, .bb-lastupdate {
+    .bb-lastchat {
       padding-left: 0px;
       padding-right: 50px;
       font-size: 75%;

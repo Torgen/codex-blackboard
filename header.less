@@ -1,3 +1,5 @@
+@nav-height: 40px;
+
 #bb-body .navbar-fixed-top {
   height: 100%;
   display: flex;
@@ -20,140 +22,169 @@
     border: 0px;
     li .dropdown-menu::after { border-bottom-color: #333 }
   }
-  .bb-breadcrumbs {
-    position: relative;
-    display: flex;
-    flex-flow: column nowrap;
-    overflow-x: auto;
-    flex-grow: 1;
-    flex-shrink: 1;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-    .fill {
-      flex-grow: 1;
-      flex-shrink: 1;
-    }
-    .nav {
-      &.bb-omit-when-narrow {
-        @media (max-width: 767px) {
-          display: flex !important;
-          top: -40px;
-        }
-      }
-      height: 40px;
-      display: flex;
-      width: -webkit-max-content;
-      width: -moz-max-content;
-      width: max-content;
-      min-width: 100%;
-      flex-flow: row nowrap;
-      justify-content: stretch;
-      float: none;
-      margin: 0px;
-      border-bottom: 1px solid black;
-      box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
-      #bb-avatar-dropdown {
-        & > a {
-          padding-top: 8px;
-          padding-bottom: 8px;
-          padding-left: 10px;
-        }
-        .caret {
-          margin-top: 10px;
-        }
-      }
-      & > li {
-        display: flex;
-        flex-grow: 0;
-        flex-shrink: 0;
-        @media (max-width: 767px) {
-          & > a {
-            padding-left: 10px;
-            padding-right: 10px;
-          }
-        }
-        & > a + a {
-          padding-left: 0px;
-          margin-left: -10px;
-          @media (max-width: 767px) {
-            margin-left: -5px;
-          }
-        }
-        i.current, .current i {
-          border-bottom: 2px solid white;
-        }
-        a:not(.current) i:not(.current):hover {
-          border-bottom: 1px solid white;
-        }
-        .btn-group .caret { border-top-color:white; border-bottom-color: white;}
-        &.dropdown.open > ul.dropdown-menu {
-          display: flex;
-          background: url('/img/irongrip.png');
-          color: #c4c4c4;
-          flex-flow: column nowrap;
-          & > li {
-            display: flex;
-            flex-flow: row nowrap;
-            color: #c4c4c4;
-            a[href] {
-              color: #c4c4c4;
-              &:hover { background: none; color: white;}
-            }
-            a + a { padding-left: 0px; margin-left: -10px; }
-          }
-        }
-      }
-      & > .fill {
-        flex-grow: 1;
-        flex-shrink: 1;
-        overflow: hidden;
-        position: relative;
-        & > .bb-lastchat {
-          /* This makes it take up exactly all the space in the li,
-             but it doesn't count toward the li's size so the li
-             can shrink to 0 if necessary. */
-          position: absolute;
-          left: 0;
-          right:0;
-        }
-      }
-      .bb-drive-buttons {
-        .bb-drive-link + .tooltip .tooltip-arrow {
-          left: auto; right: 20px;
-        }
-      }
-    }
-  }
-  .bb-lastupdate, .bb-lastchat {
-    /* add some subtle highlighting to tie the 'more' links to the
-     * left-hand content */
-    &:hover {
-      background: rgba(0,0,0,0.1);
-      border-radius: 5px;
-    }
-  }
-  .bot {
-    background-position: 0 0;
-    margin-top: -2px;
-    height: 20px;
-  }
-  .icon-bot-on {
-    .bot;
-    background-image: url('/img/robot-on.png');
-  }
-  .icon-bot-off {
-    .bot;
-    background-image: url('/img/robot-off.png');
-  }
   .bb-display-settings {
     .bb-display-settings-title {display: none;}
     .dropdown-menu {
       left: initial;
       right: 0;
     }
+  }
+}
+.bb-breadcrumbs {
+  position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow-x: auto;
+  flex-grow: 1;
+  flex-shrink: 1;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  .fill {
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+  .nav {
+    &.bb-omit-when-narrow {
+      @media (max-width: 767px) {
+        display: flex !important;
+        top: calc(-1 * @nav-height);
+      }
+    }
+    height: @nav-height;
+    display: flex;
+    width: -webkit-max-content;
+    width: -moz-max-content;
+    width: max-content;
+    min-width: 100%;
+    flex-flow: row nowrap;
+    justify-content: stretch;
+    float: none;
+    margin: 0px;
+    border-bottom: 1px solid black;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
+    #bb-avatar-dropdown {
+      & > a {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        padding-left: 10px;
+      }
+      .caret {
+        margin-top: 10px;
+      }
+    }
+    & > li {
+      display: flex;
+      flex-grow: 0;
+      flex-shrink: 0;
+      @media (max-width: 767px) {
+        & > a {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+      }
+      & > a + a {
+        padding-left: 0px;
+        margin-left: -10px;
+        @media (max-width: 767px) {
+          margin-left: -5px;
+        }
+      }
+      i.current, .current i {
+        border-bottom: 2px solid white;
+      }
+      a:not(.current) i:not(.current):hover {
+        border-bottom: 1px solid white;
+      }
+      .btn-group .caret { border-top-color:white; border-bottom-color: white;}
+      &.dropdown.open .dropdown-menu {
+        display: flex;
+        background: url('/img/irongrip.png');
+        color: #c4c4c4;
+        flex-flow: column nowrap;
+        & > li {
+          display: flex;
+          flex-flow: row nowrap;
+          color: #c4c4c4;
+          a[href] {
+            color: #c4c4c4;
+            &:hover { background: none; color: white;}
+          }
+          a + a { padding-left: 0px; margin-left: -10px; }
+        }
+      }
+    }
+    & > .fill {
+      flex-grow: 1;
+      flex-shrink: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .bb-drive-buttons {
+      .bb-drive-link + .tooltip .tooltip-arrow {
+        left: auto; right: 20px;
+      }
+    }
+  }
+}
+
+.ellipsis() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@vert-padding: 4px;
+
+.bb-lastchat {
+  margin-bottom: @vert-padding;
+  margin-top: @vert-padding;
+  display: flex;
+  flex-flow: row nowrap;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: hidden;
+  /* This makes it take up exactly all the space in the li,
+     but it doesn't count toward the li's size so the li
+     can shrink to 0 if necessary. */
+  position: absolute;
+  left: 0;
+  right:0;
+  .messageRow {
+    .ellipsis();
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size:14px;
+    line-height:16px;
+    height:16px;
+    .badge { line-height:12px; }
+  }
+  .rooms {
+    width: min-content;
+    white-space: initial;
+    font-weight: bold;
+    font-size: 32px;
+    line-height: 32px;
+    padding-left: 15px;
+    display: flex;
+    flex-direction: column-reverse;
+    color: white; /* not --text-color; header is always dark. */
+  }
+  .chats {
+    .ellipsis();
+    padding-left: 8px;
+    display: flex;
+    flex-direction: column-reverse;
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+  .timestamp { color: #555; }
+  /* add some subtle highlighting to tie the 'more' links to the
+    * left-hand content */
+  &:hover {
+    background: rgba(0,0,0,0.1);
+    border-radius: 5px;
   }
 }
 .bb-statuslight {
@@ -169,6 +200,82 @@
   .connecting & { --glyph: "\f1ce"; animation: fa-spin 2s infinite linear; color: #FF0; }
   .failed &, .offline & { --glyph: "\f057"; color: #F00; }
   .waiting & { --glyph: "\f110"; animation: fa-spin 2s infinite steps(8); color: #F80; }
+}
+#bb-avatar-dropdown .badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+#bb-avatar-dropdown-content {
+  display: none;
+  background: transparent;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  border: none;
+  align-items: flex-start;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  pointer-events: none;
+  .open > & {
+    display: flex;
+  }
+  flex-direction: row-reverse;
+  position: fixed;
+  top: @nav-height;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  & > * {
+    pointer-events: auto;
+    position: static;
+    margin-top: 0;
+    border-radius: 6px;
+    margin-right: 2px;
+    z-index: 1040;
+  }
+  div {
+    margin-bottom: 0;
+  }
+  & > div {
+    width: 480px;
+    max-height: ~"calc(100% - 12px)";
+    padding-left: 5px;
+    padding-right: 5px;
+    & > h5 {
+      margin: 4px 20px;
+    }
+    overflow-y: hidden;
+    @media (max-width: 767px) {
+      margin-top: 2px;
+      margin-left: 2px;
+      width: unset;
+      flex-shrink: 1;
+      max-height: unset;
+      & > h5 {
+        text-align: right;
+      }
+    }
+  }
+  .bb-chat-messages {
+    overflow-y: auto;
+  }
+  .media {
+    overflow: visible;
+  }
+  .bb-message-body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
 }
 
 .bb-puzzle-name:before {

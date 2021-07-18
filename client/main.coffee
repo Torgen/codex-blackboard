@@ -28,6 +28,7 @@ Template.registerHelper 'any', (a..., options) ->
 Template.registerHelper 'all', (a..., options) ->
   a.every (x) -> x
 Template.registerHelper 'not', (a) -> not a
+Template.registerHelper 'split', (value, delimiter) -> value.split(delimiter)
 
 # session variables we want to make available from all templates
 do -> for v in ['currentPage']
@@ -57,6 +58,7 @@ Template.registerHelper 'linkify', (contents) ->
   return new Spacebars.SafeString(contents)
 
 Template.registerHelper 'teamName', -> settings.TEAM_NAME
+Template.registerHelper 'generalRoomName', -> settings.GENERAL_ROOM_NAME
 
 Template.registerHelper 'namePlaceholder', -> settings.NAME_PLACEHOLDER
 

@@ -7,6 +7,7 @@ import { hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
+import convertURLsToLinksAndImages from './imports/linkify.coffee'
 import './imports/timestamp.coffee'
 
 model = share.model # import
@@ -58,6 +59,19 @@ Template.registerHelper 'nickOrName', (args) ->
   n = Meteor.users.findOne canonical nick
   return n?.real_name or n?.nickname or nick
 
+privateMessageTransform = (msg) ->
+  _id: msg._id
+  message: msg
+  cleanup: (body) ->
+    unless msg.bodyIsHtml
+      body = UI._escape body
+      body = body.replace /\n|\r\n?/g, '<br/>'
+      body = convertURLsToLinksAndImages body, "#{msg._id}-priv"
+    new Spacebars.SafeString(body)
+  read: ->
+    msg.timestamp >= model.LastRead.findOne({nick: Meteor.userId(), room_name: 'private'})?.timestamp
+  showRoom: true
+
 ############## log in/protect/mute panel ####################
 Template.header_loginmute.helpers
   sessionNick: -> # TODO(torgen): replace with currentUser
@@ -69,6 +83,19 @@ Template.header_loginmute.helpers
       realname: user.real_name or user.nickname
       gravatar_md5: hashFromNickObject user
     }
+  unreadPrivateMessages: ->
+    count = model.Messages.find
+      to: Meteor.userId()
+      timestamp: $gt: model.LastRead.findOne(room_name: 'private')?.timestamp ? 0
+    .count()
+    count = "9+" if count > 9
+    count unless count is 0
+  privateMessages: ->
+    model.Messages.find
+      to: Meteor.userId()
+    ,
+      sort: timestamp: -1
+      transform: privateMessageTransform
 
 Template.header_loginmute.events
   "click .bb-logout": (event, template) ->
@@ -78,6 +105,12 @@ Template.header_loginmute.events
     share.Router.navigate "/edit", {trigger: true}
   "click .bb-protect": (event, template) ->
     share.Router.navigate "/", {trigger: true}
+  'click #bb-mark-private-read': (event, template) ->
+    event.preventDefault()
+    latest = model.Messages.findOne({to: Meteor.userId()}, {sort: timestamp: -1}).timestamp
+    Meteor.call 'updateLastRead',
+      room_name: 'private'
+      timestamp: latest
 
 Template.connection_button.helpers
   connectStatus: Meteor.status

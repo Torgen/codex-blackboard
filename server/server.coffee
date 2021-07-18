@@ -66,6 +66,13 @@ Meteor.publish null, loginRequired ->
     services: 0
     priv_located_order: 0
 
+# Private messages to you
+Meteor.publish null, loginRequired ->
+  [
+    model.Messages.find {to: @userId, deleted: $ne: true}
+    model.LastRead.find {room_name: 'private', nick: @userId}
+  ]
+
 Meteor.publish 'all-presence', loginRequired ->
   # strip out unnecessary fields from presence to avoid wasted updates to clients
   model.Presence.find {}, fields:
@@ -215,7 +222,8 @@ Meteor.publish 'recent-header-messages', loginRequired ->
     bodyIsHtml: $ne: true
     deleted: $ne: true
     header_ignore: $ne: true
-    $or: [ {room_name: 'general/0', to: null}, {to: @userId}, {room_name: 'general/0', nick: @userId }]
+    room_name: 'general/0'
+    $or: [ {to: null},  {nick: @userId }]
   ,
     sort: [['timestamp', 'desc']]
     limit: 2

@@ -114,9 +114,13 @@ Click here to stay in this meeting instead.{{/if}}">
           Mail from {{#with message.mail.sender_name}}{{this}}{{else}}{{message.nick}}{{/with}} <i class="fas fa-envelope"></i> {{message.mail.subject}}
         {{else}}
           <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span>
-              {{#if message.to}}
-        <small>(Private message to {{nickOrName message.to}})</small>
-              {{/if}}
+          {{#if message.to}}
+            <small>(Private message{{#unless equal message.to currentUser._id}}
+              to {{>gravatar nick=message.to size=12}}{{nickOrName message.to}}{{/unless}}{{#if showRoom}}{{#let splitroom=(split message.room_name "/")}}
+              in {{#if equal splitroom.[0] "general"}}<a href="/" class="blackboard-link">{{generalRoomName}}</a>
+              {{else if equal splitroom.[0] "callins"}}<a href="/callins" class="callins-link">Callin Queue</a>
+              {{else}}{{>link id=splitroom.[1]}}{{/if}} <a href="/chat/{{message.room_name}}" class="chat-link" target="pmchat" title="Open Chat in new window"><i class="fas fa-comments"></i> <i class="fas fa-external-link-alt"></i></a>{{/let}}{{/if}})</small>
+          {{/if}}
         {{/if}}
       </h5>
       {{cleanup message.body}}

@@ -234,7 +234,6 @@ if Meteor.isServer
 LastRead = BBCollection.lastread = new Mongo.Collection "lastread"
 if Meteor.isServer
   LastRead._ensureIndex {nick:1, room_name:1}, {unique:true, dropDups:true}
-  LastRead._ensureIndex {nick:1}, {} # be safe
 
 # Chat room presence
 #   nick: canonicalized string, as in Messages
