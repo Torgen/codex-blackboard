@@ -69,7 +69,7 @@ privateMessageTransform = (msg) ->
       body = convertURLsToLinksAndImages body, "#{msg._id}-priv"
     new Spacebars.SafeString(body)
   read: ->
-    msg.timestamp <= model.LastRead.findOne({nick: Meteor.userId(), room_name: 'private'})?.timestamp
+    msg.timestamp <= model.LastRead.findOne('private')?.timestamp || msg.timestamp <= model.LastRead.findOne(msg.room_name)?.timestamp
   showRoom: true
 
 ############## log in/protect/mute panel ####################
@@ -86,8 +86,8 @@ Template.header_loginmute.helpers
   unreadPrivateMessages: ->
     count = model.Messages.find
       to: Meteor.userId()
-      timestamp: $gt: model.LastRead.findOne(room_name: 'private')?.timestamp ? 0
-    .count()
+      timestamp: $gt: model.LastRead.findOne('private')?.timestamp ? 0
+    .fetch().filter((msg) -> msg.timestamp > (model.LastRead.findOne(msg.room_name)?.timestamp ? 0)).length
     count = "9+" if count > 9
     count unless count is 0
   privateMessages: ->

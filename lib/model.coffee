@@ -231,6 +231,7 @@ if Meteor.isServer
 #   nick: canonicalized string, as in Messages
 #   room_name: string, as in Messages
 #   timestamp: timestamp of last read message
+# On the client, _id is room_name.
 LastRead = BBCollection.lastread = new Mongo.Collection "lastread"
 if Meteor.isServer
   LastRead._ensureIndex {nick:1, room_name:1}, {unique:true, dropDups:true}

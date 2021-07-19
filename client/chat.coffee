@@ -809,8 +809,7 @@ Template.messages.onCreated -> @autorun ->
     return hideMessageAlert()
   Tracker.onInvalidate hideMessageAlert
   # watch the last read and update the session
-  Meteor.subscribe 'lastread', room_name
-  lastread = model.LastRead.findOne {nick, room_name}
+  lastread = model.LastRead.findOne room_name
   unless lastread
     Session.set 'lastread', undefined
     return hideMessageAlert()
