@@ -69,7 +69,7 @@ privateMessageTransform = (msg) ->
       body = convertURLsToLinksAndImages body, "#{msg._id}-priv"
     new Spacebars.SafeString(body)
   read: ->
-    msg.timestamp >= model.LastRead.findOne({nick: Meteor.userId(), room_name: 'private'})?.timestamp
+    msg.timestamp <= model.LastRead.findOne({nick: Meteor.userId(), room_name: 'private'})?.timestamp
   showRoom: true
 
 ############## log in/protect/mute panel ####################

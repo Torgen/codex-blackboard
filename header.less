@@ -271,10 +271,18 @@
   }
   .media {
     overflow: visible;
+    --bg-color: inherit;
+    margin-left: 1px;
+    margin-right: 1px;
   }
   .bb-message-body {
-    background-color: var(--bg-color);
     color: var(--text-color);
+  }
+  [data-read="unread"] {
+    --bg-color: cornsilk;
+    .darkMode & {
+      --bg-color: #3b3b22;
+    }
   }
 }
 

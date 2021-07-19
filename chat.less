@@ -115,13 +115,16 @@
       border-color: transparent;
       border-style: solid;
       border-width: @chat-arrow-size @chat-arrow-size @chat-arrow-size 0;
-      border-right-color: white;
     }
     &:before {
       border-width: (@chat-arrow-size + 2px) (@chat-arrow-size + 1px) (@chat-arrow-size + 2px) 0;
       border-right-color: #ccc;
       top: @chat-arrow-height - 2px;
       left: @gravatar-size + 10px - @chat-arrow-size;
+    }
+    &:after {
+      --bg-color: inherit;
+      border-right-color: var(--bg-color);
     }
   }
   .bb-message-body {
@@ -143,15 +146,11 @@
     }
   }
   .bb-message-pm {
-    --bb-message-pm-color: rgb(232, 237, 255);
+    --bg-color: rgb(232, 237, 255);
     
     .darkMode & {
-      --bb-message-pm-color: rgb(40, 60, 78);
+      --bg-color: rgb(40, 60, 78);
     }
-    .bb-message-body {
-      background-color: var(--bb-message-pm-color);
-    }
-    &.media:after { border-right-color: var(--bb-message-pm-color); }
   }
   .bb-message-presence {
     display: inline-block;

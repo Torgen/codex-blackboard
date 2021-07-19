@@ -115,7 +115,7 @@ Click here to stay in this meeting instead.{{/if}}">
         {{else}}
           <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span>
           {{#if message.to}}
-            <small>(Private message{{#unless equal message.to currentUser._id}}
+            <small>(Private{{#unless equal message.to currentUser._id}}
               to {{>gravatar nick=message.to size=12}}{{nickOrName message.to}}{{/unless}}{{#if showRoom}}{{#let splitroom=(split message.room_name "/")}}
               in {{#if equal splitroom.[0] "general"}}<a href="/" class="blackboard-link">{{generalRoomName}}</a>
               {{else if equal splitroom.[0] "callins"}}<a href="/callins" class="callins-link">Callin Queue</a>
