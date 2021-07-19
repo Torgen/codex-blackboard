@@ -964,11 +964,12 @@ do ->
       check args, ObjectWith
         room_name: NonEmptyString
         timestamp: Number
-      LastRead.upsert
+      query = 
         nick: @userId
         room_name: args.room_name
-      , $max:
-        timestamp: args.timestamp
+      if @isSimulation
+        query._id = args.room_name
+      LastRead.upsert query, $max: timestamp: args.timestamp
 
     get: (type, id) ->
       check @userId, NonEmptyString
