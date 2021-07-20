@@ -208,6 +208,10 @@ if Meteor.isServer
 #   deleted: boolean. True if message was deleted. 'Deleted' messages aren't
 #            actually deleted because that could screw up the 'last read' line;
 #            they're just not rendered.
+#   from_chat_subscription: true if this message was returned by the recent messages
+#       subscription. Allows rendering only the contiguous messages, without messages
+#       from other subscriptions like personal private messages or starred messages
+#       appearing out of context. (optional, synthetic, client only)
 #
 # Messages which are part of the operation log have `nick`, `message`,
 # and `timestamp` set to describe what was done, when, and by who.

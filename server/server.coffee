@@ -214,13 +214,22 @@ Meteor.publish 'puzzles-by-meta', loginRequired (id) -> @puzzleQuery feedsInto: 
 
 # get recent messages
 Meteor.publish 'recent-messages', loginRequired (room_name, limit) ->
-  model.Messages.find
+  handle = model.Messages.find
     room_name: room_name
     $or: [ {to: null}, {to: @userId}, {nick: @userId }]
     deleted: $ne: true
   ,
     sort: [['timestamp', 'desc']]
     limit: limit
+  .observeChanges
+    added: (id, fields) =>
+      @added 'messages', id, {fields..., from_chat_subscription: true}
+    changed: (id, fields) =>
+      @changed 'messages', id, fields
+    removed: (id) =>
+      @removed 'messages', id
+  @onStop -> handle.stop()
+  @ready()
 
 # Special subscription for the recent chats header because it ignores system
 # and presence messages and anything with an HTML body.

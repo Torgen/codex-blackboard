@@ -191,7 +191,7 @@ Template.messages.helpers
             Template.instance().subscriptionsReady()
   # The dawn of time message has ID equal to the room name because it's
   # efficient to find it that way on the client, where there are no indexes.
-  startOfChannel: -> model.Messages.findOne(_id: Session.get 'room_name')?
+  startOfChannel: -> model.Messages.findOne(_id: Session.get 'room_name', from_chat_subscription: true)?
   usefulEnough: (m) ->
     # test Session.get('nobot') last to get a fine-grained dependency
     # on the `nobot` session variable only for 'useless' messages
@@ -219,7 +219,7 @@ Template.messages.helpers
     # doesMentionNick and transforms aren't usually reactive, so we need to
     # recompute them if you log in as someone else.
     Meteor.userId()
-    return model.Messages.find {room_name},
+    return model.Messages.find {room_name, from_chat_subscription: true},
       sort: [['timestamp','asc']]
       transform: messageTransform
       
@@ -712,6 +712,7 @@ Template.messages_input.events
         nick: Meteor.userId()
         system: $ne: true
         bodyIsHtml: $ne: true
+        from_chat_subscription: true
       if template.history_ts?
         query.timestamp = $lt: template.history_ts
       msg = model.Messages.findOne query,
@@ -731,6 +732,7 @@ Template.messages_input.events
         system: $ne: true
         bodyIsHtml: $ne: true
         timestamp: $gt: template.history_ts
+        from_chat_subscription: true
       msg = model.Messages.findOne query,
         sort: timestamp: 1
       if msg?
@@ -761,6 +763,7 @@ Template.messages_input.events
 updateLastRead = ->
   lastMessage = model.Messages.findOne
     room_name: Session.get 'room_name'
+    from_chat_subscription: true
   ,
     sort: [['timestamp','desc']]
   return unless lastMessage
@@ -822,6 +825,7 @@ Template.messages.onCreated -> @autorun ->
     room_name: room_name
     nick: $ne: nick
     timestamp: $gt: lastread.timestamp
+    from_chat_subscription: true
   .observe
     added: (item) ->
       return if item.system
