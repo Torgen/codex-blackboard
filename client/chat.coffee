@@ -596,9 +596,50 @@ Template.messages_input.helpers
   nickAndName: (nick) ->
     user = Meteor.users.findOne canonical nick ? {nickname: nick}
     nickAndName user
+  typeaheadResults: ->
+    query = Template.instance().query.get()
+    return unless query
+    q = {$regex: query, $options: 'i'}
+    Meteor.users.find
+      $or: [{nickname: q}, {real_name: q}]
+    ,
+      limit: 8
+      fields: _id: 1
+
+MSG_PATTERN = /^\/m(sg)? ([A-Za-z_0-9]*)$/
+MSG_AT_START_PATTERN = /^\/m(sg)? /
+AT_MENTION_PATTERN = /(^|[\s])@([A-Za-z_0-9]*)$/
 
 Template.messages_input.onCreated ->
   @show_presence = new ReactiveVar false
+  @query = new ReactiveVar null
+  @updateTypeahead = =>
+    i = @$('#messageInput')
+    v = i.val()
+    ss = i.prop 'selectionStart'
+    se = i.prop 'selectionEnd'
+    console.log v, ss, se
+    if ss isnt se
+      @query.set null
+      return
+    tv = v.substring ss
+    nextSpace = tv.search /[\s]/
+    consider = if nextSpace is -1 then v else v.substring 0, (ss + nextSpace)
+    console.log consider
+    match = consider.match MSG_PATTERN
+    if match
+      @query.set match[2]
+      return
+    if MSG_AT_START_PATTERN.test v
+      # no mentions in private messages.
+      @query.set null
+      return
+    match = consider.match AT_MENTION_PATTERN
+    if match
+      @query.set match[2]
+    else
+      @query.set null
+    
   @submit = (message) ->
     return unless message
     args =
@@ -678,33 +719,6 @@ Template.messages_input.events
     rvar = template.show_presence
     rvar.set(not rvar.get())
   "keydown textarea": (event, template) ->
-    # tab completion
-    if event.which is 9 # tab
-      event.preventDefault() # prevent tabbing away from input field
-      $message = $ event.currentTarget
-      message = $message.val()
-      if message
-        re = new RegExp "^#{regex_escape message}", "i"
-        for present in whos_here_helper().fetch()
-          n = Meteor.users.findOne present.nick
-          realname = n?.real_name
-          if re.test present.nick
-            return $message.val "#{present.nick}: "
-          else if realname and re.test realname
-            return $message.val "#{realname}: "
-          else if re.test "@#{present.nick}"
-            return $message.val "@#{present.nick} "
-          else if realname and re.test "@#{realname}"
-            return $message.val "@#{realname} "
-          else if re.test("/m #{present.nick}") or \
-                  re.test("/msg #{present.nick}") or \
-                  realname and (re.test("/m #{realname}") or \
-                                re.test("/msg #{realname}"))
-            return $message.val "/msg #{present.nick} "
-        if re.test('bot')
-          return $message.val "#{botuser()._id} "
-        if re.test('/m bot') or re.test('/msg bot')
-          return $message.val "/msg #{botuser()._id} "
     if ['Up', 'ArrowUp'].includes(event.key) and event.target.selectionEnd is 0
       # Checking that the cursor is at the start of the box.
       query =
@@ -746,12 +760,12 @@ Template.messages_input.events
       return
 
     # implicit submit on enter (but not shift-enter or ctrl-enter)
-    return unless event.which is 13 and not (event.shiftKey or event.ctrlKey)
-    event.preventDefault() # prevent insertion of enter
-    $message = $ event.currentTarget
-    message = $message.val()
-    $message.val ""
-    template.submit message
+    if event.which is 13 and not (event.shiftKey or event.ctrlKey)
+      event.preventDefault() # prevent insertion of enter
+      $message = $ event.currentTarget
+      message = $message.val()
+      $message.val ""
+      template.submit message
   'blur #messageInput': (event, template) ->
     # alert for unread messages
     instachat.alertWhenUnreadMessages = true
@@ -759,6 +773,8 @@ Template.messages_input.events
     updateLastRead() if instachat.ready # skip during initial load
     instachat.alertWhenUnreadMessages = false
     hideMessageAlert()
+  'keyup/click/touchend/mouseup #messageInput': (event, template) ->
+    template.updateTypeahead()
 
 updateLastRead = ->
   lastMessage = model.Messages.findOne

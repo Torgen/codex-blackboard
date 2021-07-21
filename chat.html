@@ -67,7 +67,14 @@ Click here to stay in this meeting instead.{{/if}}">
       <i class="fas fa-address-card"></i>
     </button>
     {{>Template.contentBlock}}
-    <form id="messageForm" class="navbar-form">
+    <form id="messageForm" class="navbar-form dropup">
+      {{#with typeaheadResults}}
+        <ul id="messageInputTypeahead" class="typeahead dropdown-menu">
+          {{#each this}}
+            <li><a href="#" data-value="{{_id}}">{{>gravatar nick=_id size=14}} {{nickAndName _id}}</a></li>
+          {{/each}}
+        </ul>
+      {{/with}}
       <textarea id="messageInput" class="input-block-level" rows="1"
               placeholder="Type your message and press enter..."
               autocomplete="off" ></textarea>

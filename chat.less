@@ -357,6 +357,12 @@ table.poll {
       margin-bottom: 0; margin-top: 5px;
       resize: none; height: 30px;
     }
+    .typeahead {
+      display: block;
+      &:empty {
+        display: none;
+      }
+    }
   }
   #messageInput { margin-top: 3px; }
   .bb-show-whos-here {
