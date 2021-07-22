@@ -618,14 +618,12 @@ Template.messages_input.onCreated ->
     v = i.val()
     ss = i.prop 'selectionStart'
     se = i.prop 'selectionEnd'
-    console.log v, ss, se
     if ss isnt se
       @query.set null
       return
     tv = v.substring ss
     nextSpace = tv.search /[\s]/
     consider = if nextSpace is -1 then v else v.substring 0, (ss + nextSpace)
-    console.log consider
     match = consider.match MSG_PATTERN
     if match
       @query.set match[2]
@@ -639,6 +637,28 @@ Template.messages_input.onCreated ->
       @query.set match[2]
     else
       @query.set null
+
+  @confirmTypeahead = (nick) =>
+    @query.set null
+    i = @$('#messageInput')
+    v = i.val()
+    ss = i.prop 'selectionStart'
+    tv = v.substring ss
+    nextSpace = tv.search /[\s]/
+    consider = if nextSpace is -1 then v else v.substring 0, (ss + nextSpace)
+    match = consider.match MSG_PATTERN
+    if match
+      i.val v.substring(0, match[0].length - match[2].length) + nick + ' ' + v.substring(consider.length)
+      newCaret = match[0].length - match[2].length + nick.length + 1
+      i.focus()
+      i[0].setSelectionRange newCaret, newCaret
+      return
+    match = consider.match AT_MENTION_PATTERN
+    if match
+      i.val v.substring(0, consider.length - match[2].length) + nick + ' ' + v.substring(consider.length)
+      newCaret = consider.length - match[2].length + nick.length + 1
+      i.focus()
+      i[0].setSelectionRange newCaret, newCaret
     
   @submit = (message) ->
     return unless message
@@ -775,6 +795,10 @@ Template.messages_input.events
     hideMessageAlert()
   'keyup/click/touchend/mouseup #messageInput': (event, template) ->
     template.updateTypeahead()
+  'click #messageInputTypeahead a[data-value]': (event, template) ->
+    event.preventDefault()
+    template.confirmTypeahead event.currentTarget.dataset.value
+
 
 updateLastRead = ->
   lastMessage = model.Messages.findOne
