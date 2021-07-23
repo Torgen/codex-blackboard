@@ -71,7 +71,9 @@ Click here to stay in this meeting instead.{{/if}}">
       {{#with typeaheadResults}}
         <ul id="messageInputTypeahead" class="typeahead dropdown-menu">
           {{#each this}}
-            <li><a href="#" data-value="{{_id}}">{{>gravatar nick=_id size=14}} {{nickAndName _id}}</a></li>
+            <li class="{{#if selected _id}}active{{/if}}"><a href="#" data-value="{{_id}}">{{>gravatar nick=_id size=14}} {{nickAndName _id}}</a></li>
+          {{else}}
+            <li class="disabled"><a name="nomatch">No matches</a></li>
           {{/each}}
         </ul>
       {{/with}}

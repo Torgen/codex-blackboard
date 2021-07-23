@@ -596,15 +596,9 @@ Template.messages_input.helpers
   nickAndName: (nick) ->
     user = Meteor.users.findOne canonical nick ? {nickname: nick}
     nickAndName user
-  typeaheadResults: ->
-    query = Template.instance().query.get()
-    return unless query
-    q = {$regex: query, $options: 'i'}
-    Meteor.users.find
-      $or: [{nickname: q}, {real_name: q}]
-    ,
-      limit: 8
-      fields: _id: 1
+  typeaheadResults: -> Template.instance().queryCursor.get()
+  selected: (id) -> 
+    return Template.instance().selected.get() is id
 
 MSG_PATTERN = /^\/m(sg)? ([A-Za-z_0-9]*)$/
 MSG_AT_START_PATTERN = /^\/m(sg)? /
@@ -613,33 +607,82 @@ AT_MENTION_PATTERN = /(^|[\s])@([A-Za-z_0-9]*)$/
 Template.messages_input.onCreated ->
   @show_presence = new ReactiveVar false
   @query = new ReactiveVar null
-  @updateTypeahead = =>
+  @queryCursor = new ReactiveVar null
+  @selected = new ReactiveVar null
+
+  @setQuery = (query) ->
+    return if @query.get() is query
+    @query.set query
+    unless query
+      @queryCursor.set null
+      @selected.set null
+      return
+    qdoc = {$regex: query, $options: 'i'}
+    c = Meteor.users.find
+      $or: [{_id: qdoc}, {real_name: qdoc}]
+    ,
+      limit: 8
+      fields: _id: 1
+    @queryCursor.set c
+    s = @selected.get()
+    l = c.map (x) -> x._id 
+    return if l.includes s
+    @selected.set l[0]
+
+  @moveActive = (offset) =>
+    s = @selected.get()
+    return unless s?
+    c = @queryCursor.get()
+    return unless c?
+    l = c.map (x) -> x._id
+    i = offset + l.indexOf s
+    i = l.length - 1 if i < 0
+    i = 0 if i >= l.length
+    @selected.set l[i]
+
+  @autorun =>
+    c = @queryCursor.get()
+    return unless c
+    c.observe
+      removedAt: (old, at) =>
+        @activateFirst() if @selected.get() is old._id
+
+  @activateFirst = ->
+    c = @queryCursor.get()
+    unless c
+      @selected.set null
+      return
+    id = c.fetch()[0]
+    @selected.set id?._id
+
+  @updateTypeahead = ->
     i = @$('#messageInput')
     v = i.val()
     ss = i.prop 'selectionStart'
     se = i.prop 'selectionEnd'
     if ss isnt se
-      @query.set null
+      @setQuery null
       return
     tv = v.substring ss
     nextSpace = tv.search /[\s]/
     consider = if nextSpace is -1 then v else v.substring 0, (ss + nextSpace)
     match = consider.match MSG_PATTERN
     if match
-      @query.set match[2]
-      return
-    if MSG_AT_START_PATTERN.test v
+      @setQuery match[2]
+    else if MSG_AT_START_PATTERN.test v
       # no mentions in private messages.
-      @query.set null
+      @setQuery null
       return
-    match = consider.match AT_MENTION_PATTERN
-    if match
-      @query.set match[2]
     else
-      @query.set null
+      match = consider.match AT_MENTION_PATTERN
+      if match
+        @setQuery match[2]
+      else
+        @setQuery null
+        return
 
-  @confirmTypeahead = (nick) =>
-    @query.set null
+  @confirmTypeahead = (nick) ->
+    @setQuery null
     i = @$('#messageInput')
     v = i.val()
     ss = i.prop 'selectionStart'
@@ -739,53 +782,74 @@ Template.messages_input.events
     rvar = template.show_presence
     rvar.set(not rvar.get())
   "keydown textarea": (event, template) ->
-    if ['Up', 'ArrowUp'].includes(event.key) and event.target.selectionEnd is 0
-      # Checking that the cursor is at the start of the box.
-      query =
-        room_name: Session.get 'room_name'
-        nick: Meteor.userId()
-        system: $ne: true
-        bodyIsHtml: $ne: true
-        from_chat_subscription: true
-      if template.history_ts?
-        query.timestamp = $lt: template.history_ts
-      msg = model.Messages.findOne query,
-        sort: timestamp: -1
-      if msg?
-        template.history_ts = msg.timestamp
-        event.target.value = format_body msg
-        event.target.setSelectionRange 0, 0
-      return
-    if ['Down', 'ArrowDown'].includes(event.key) and event.target.selectionStart is event.target.value.length
-      # 40 is arrow down. Checking that the cursor is at the end of the box.
-      return unless template.history_ts?
-      # Pushing down only means anything if you're in history.
-      query =
-        room_name: Session.get 'room_name'
-        nick: Meteor.userId()
-        system: $ne: true
-        bodyIsHtml: $ne: true
-        timestamp: $gt: template.history_ts
-        from_chat_subscription: true
-      msg = model.Messages.findOne query,
-        sort: timestamp: 1
-      if msg?
-        template.history_ts = msg.timestamp
-        body = format_body msg
-        event.target.value = body
-        event.target.setSelectionRange body.length, body.length
-      else
-        event.target.value = ''
-        template.history_ts = null
-      return
+    if ['Up', 'ArrowUp'].includes(event.key) 
+      if template.query.get()?
+        event.preventDefault()
+        template.moveActive -1
+      else if event.target.selectionEnd is 0
+        # Checking that the cursor is at the start of the box.
+        query =
+          room_name: Session.get 'room_name'
+          nick: Meteor.userId()
+          system: $ne: true
+          bodyIsHtml: $ne: true
+          from_chat_subscription: true
+        if template.history_ts?
+          query.timestamp = $lt: template.history_ts
+        msg = model.Messages.findOne query,
+          sort: timestamp: -1
+        if msg?
+          template.history_ts = msg.timestamp
+          event.target.value = format_body msg
+          event.target.setSelectionRange 0, 0
+        return
+    if ['Down', 'ArrowDown'].includes(event.key)
+      if template.query.get()?
+        event.preventDefault()
+        template.moveActive 1
+      else if event.target.selectionStart is event.target.value.length
+        # 40 is arrow down. Checking that the cursor is at the end of the box.
+        return unless template.history_ts?
+        # Pushing down only means anything if you're in history.
+        query =
+          room_name: Session.get 'room_name'
+          nick: Meteor.userId()
+          system: $ne: true
+          bodyIsHtml: $ne: true
+          timestamp: $gt: template.history_ts
+          from_chat_subscription: true
+        msg = model.Messages.findOne query,
+          sort: timestamp: 1
+        if msg?
+          template.history_ts = msg.timestamp
+          body = format_body msg
+          event.target.value = body
+          event.target.setSelectionRange body.length, body.length
+        else
+          event.target.value = ''
+          template.history_ts = null
+        return
 
-    # implicit submit on enter (but not shift-enter or ctrl-enter)
     if event.which is 13 and not (event.shiftKey or event.ctrlKey)
       event.preventDefault() # prevent insertion of enter
-      $message = $ event.currentTarget
-      message = $message.val()
-      $message.val ""
-      template.submit message
+      s = template.selected.get()
+      if s?
+        # Autocomplete if relevant.
+        template.confirmTypeahead s
+      else
+        # implicit submit on enter (but not shift-enter or ctrl-enter)
+        $message = $ event.currentTarget
+        message = $message.val()
+        $message.val ""
+        template.submit message
+
+    # Tab also autocompletes
+    if event.key is 'Tab'
+      s = template.selected.get()
+      if s?
+        event.preventDefault()
+        template.confirmTypeahead s
+
   'blur #messageInput': (event, template) ->
     # alert for unread messages
     instachat.alertWhenUnreadMessages = true
@@ -798,7 +862,10 @@ Template.messages_input.events
   'click #messageInputTypeahead a[data-value]': (event, template) ->
     event.preventDefault()
     template.confirmTypeahead event.currentTarget.dataset.value
-
+  'mouseenter #messageInputTypeahead': (event, template) ->
+    template.selected.set null
+  'mouseleave #messageInputTypeahead': (event, template) ->
+    template.activateFirst()
 
 updateLastRead = ->
   lastMessage = model.Messages.findOne
