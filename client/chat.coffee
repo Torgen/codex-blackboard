@@ -623,6 +623,7 @@ Template.messages_input.onCreated ->
     ,
       limit: 8
       fields: _id: 1
+      sort: {_id: 1}
     @queryCursor.set c
     s = @selected.get()
     l = c.map (x) -> x._id 

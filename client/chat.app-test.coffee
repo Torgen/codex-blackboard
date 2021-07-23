@@ -56,3 +56,58 @@ describe 'chat', ->
     chai.assert.equal input.val(), '', 'after second down'
     input.trigger $.Event('keydown', {key: 'Down'})
     chai.assert.equal input.val(), '', 'after third down'
+
+  describe 'typeahead', ->
+
+    it 'accepts keyboard commands', ->
+      id = share.model.Puzzles.findOne(name: 'Disgust')._id
+      share.Router.ChatPage('puzzles', id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '/m a'
+      input.click()
+      await afterFlushPromise()
+      a = $ '#messageInputTypeahead li.active a'
+      chai.assert.equal 'kwal', a.data('value'), 'initial'
+      input.trigger $.Event('keydown', {key: 'Down'})
+      await afterFlushPromise()
+      a = $ '#messageInputTypeahead li.active a'
+      chai.assert.equal 'testy', a.data('value'), 'one down'
+      input.trigger $.Event('keydown', {key: 'Up'})
+      await afterFlushPromise()
+      a = $ '#messageInputTypeahead li.active a'
+      chai.assert.equal 'kwal', a.data('value'), 'up after down'
+      input.trigger $.Event('keydown', {key: 'Up'})
+      await afterFlushPromise()
+      a = $ '#messageInputTypeahead li.active a'
+      chai.assert.equal 'zachary', a.data('value'), 'wraparound up'
+      input.trigger $.Event('keydown', {key: 'Down'})
+      await afterFlushPromise()
+      a = $ '#messageInputTypeahead li.active a'
+      chai.assert.equal 'kwal', a.data('value'), 'wraparound down'
+      input.trigger $.Event('keydown', {key: 'Tab'})
+      await afterFlushPromise()
+      chai.assert.equal input.val(), '/m kwal '
+      chai.assert.equal input[0].selectionStart, 8
+      typeahead = $ '#messageInputTypeahead'
+      chai.assert.equal 0, typeahead.length
+
+    it 'allows clicks', ->
+      id = share.model.Puzzles.findOne(name: 'Space Elevator')._id
+      share.Router.ChatPage('puzzles', id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val 'Yo @es hmu'
+      input[0].setSelectionRange 4, 4
+      input.click()
+      await afterFlushPromise()
+      $('a[data-value="testy"]').click()
+      await afterFlushPromise()
+      chai.assert.equal input.val(), 'Yo @testy  hmu'
+      chai.assert.equal input[0].selectionStart, 10
+      typeahead = $ '#messageInputTypeahead'
+      chai.assert.equal 0, typeahead.length
+
+
