@@ -223,8 +223,8 @@
       {{/if}}
       </th></tr></tbody>
       {{#if any canEdit (not collapsed)}}
-        {{#each m}}
-          {{> blackboard_meta _id=_id puzzle=puzzle reorderable=true}}
+        {{#each meta in m}}
+          {{> blackboard_meta _id=meta._id puzzle=meta.puzzle reorderable=true}}
         {{/each}}
         {{#with u}}
           {{> blackboard_unassigned }}

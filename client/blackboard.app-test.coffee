@@ -70,6 +70,48 @@ describe 'blackboard', ->
       await afterFlushPromise()
       chai.assert.isBelow cluelessJQ.offset().top, akaJQ.offset().top, 'after manual'
 
+    it 'allows creating puzzles with buttons', ->
+      share.Router.EditPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      fill_alertify = (text) ->
+        $('#alertify-text').val(text)
+        $('#alertify-ok').click()
+      $('button.bb-add-round').click()
+      fill_alertify 'Created Round'
+      await waitForMethods()
+      await afterFlushPromise()
+      round = share.model.Rounds.findOne name: 'Created Round'
+      chai.assert.isOk round, 'round'
+      $("#round#{round._id} button.bb-add-meta").click()
+      fill_alertify 'Created Meta'
+      await waitForMethods()
+      await afterFlushPromise()
+      meta = share.model.Puzzles.findOne name: 'Created Meta'
+      chai.assert.isOk meta, 'meta'
+      chai.assert.isArray meta.puzzles
+      $("#m#{meta._id} .bb-meta-buttons .bb-add-puzzle").click()
+      fill_alertify 'Directly Created'
+      await waitForMethods()
+      await afterFlushPromise()
+      direct = share.model.Puzzles.findOne name: 'Directly Created'
+      chai.assert.isOk direct, 'direct'
+      chai.assert.include direct.feedsInto, meta._id
+      $("#round#{round._id} .bb-add-puzzle").click()
+      fill_alertify 'Indirectly Created'
+      await waitForMethods()
+      await afterFlushPromise()
+      indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
+      chai.assert.isOk indirect, 'indirect'
+      chai.assert.notInclude indirect.feedsInto, meta._id
+      $("#unassigned#{round._id} [data-bbedit=\"feedsInto/#{indirect._id}\"]").click()
+      await afterFlushPromise()
+      $("#unassigned#{round._id} [data-bbedit=\"feedsInto/#{indirect._id}\"] [data-puzzle-id=\"#{meta._id}\"]").click()
+      await waitForMethods()
+      await afterFlushPromise()
+      indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
+      chai.assert.include indirect.feedsInto, meta._id
+
   it 'makes a puzzle a favorite', ->
     share.Router.BlackboardPage()
     await waitForSubscriptions()
@@ -85,6 +127,7 @@ describe 'blackboard', ->
     await afterFlushPromise()
     chai.assert.isDefined $('#favorites').html()
     chai.assert.isDefined $("tr[data-puzzle-id=\"#{bank._id}\"] .bb-recent-puzzle-chat").html()
+
 
 describe 'login', ->
   @timeout 10000
