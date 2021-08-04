@@ -26,6 +26,7 @@ Template.registerHelper "equal", (a, b) -> a is b
 Template.registerHelper "less", (a, b) -> a < b
 Template.registerHelper 'any', (a..., options) ->
   a.some (x) -> x
+Template.registerHelper 'includes', (haystack, needle) -> haystack?.includes needle 
 Template.registerHelper 'all', (a..., options) ->
   a.every (x) -> x
 Template.registerHelper 'not', (a) -> not a
@@ -63,7 +64,7 @@ Template.registerHelper 'generalRoomName', -> settings.GENERAL_ROOM_NAME
 
 Template.registerHelper 'namePlaceholder', -> settings.NAME_PLACEHOLDER
 
-Template.registerHelper 'mynick', -> Meteor.user()?.nickname
+Template.registerHelper 'mynick', -> Meteor.userId()
 
 Template.registerHelper 'boringMode', -> 'true' is reactiveLocalStorage.getItem 'boringMode'
 

@@ -31,6 +31,7 @@ export newMessage = (newMsg) ->
     poll: Match.Optional NonEmptyString
     room_name: NonEmptyString
     useful: Match.Optional Boolean
+    mention: Match.Optional [String]
     bot_ignore: Match.Optional Boolean
     # True for messages generated in main chat room as part of events that also generate oplogs.
     # Since oplogs are always in the header, these are redundant there, but should be in the chat room itself.
@@ -62,6 +63,7 @@ export newMessage = (newMsg) ->
     newMsg.body = emojify newMsg.body
   newMsg.to = canonical newMsg.to if newMsg.to?
   newMsg.timestamp = Date.now()
+  newMsg.mention = newMsg.mention?.map canonical
   ensureDawnOfTime newMsg.room_name
   newMsg._id = share.model.Messages.insert newMsg
   return newMsg

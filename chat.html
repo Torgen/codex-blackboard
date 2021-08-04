@@ -100,7 +100,7 @@ Click here to stay in this meeting instead.{{/if}}">
 </template>
 
 <template name="media_message">
-  <div class="bb-message media{{#if message.to}} bb-message-pm{{/if}}{{#if message.mail}} bb-message-mail{{/if}}{{#if message.tweet}} bb-message-tweet{{/if}}{{#if message.starred}} starred{{/if}}"
+  <div class="bb-message media {{#if message.to}}bb-message-pm{{else if includes message.mention mynick}}bb-message-mention-me{{/if}}{{#if message.mail}} bb-message-mail{{/if}}{{#if message.tweet}} bb-message-tweet{{/if}}{{#if message.starred}} starred{{/if}}"
        data-nick="{{message.nick}}" data-pm-to="{{message.to}}" data-read="{{#unless read}}un{{/unless}}read">
     {{#if message.tweet}}
       <img src="{{message.tweet.avatar}}" class="media-object pull-left img-rounded" width=48 height=48>
@@ -126,6 +126,11 @@ Click here to stay in this meeting instead.{{/if}}">
           {{#if message.to}}
             <small>(Private{{#unless equal message.to currentUser._id}}
               to {{>gravatar nick=message.to size=12}}{{nickOrName message.to}}{{/unless}}{{#if showRoom}}{{#let splitroom=(split message.room_name "/")}}
+              in {{#if equal splitroom.[0] "general"}}<a href="/" class="home-link">{{generalRoomName}}</a>
+              {{else if equal splitroom.[0] "callins"}}<a href="/callins" class="callins-link">Callin Queue</a>
+              {{else}}{{>link id=splitroom.[1]}}{{/if}} <a href="/chat/{{message.room_name}}" class="chat-link bb-pop-out" target="pmchat" title="Open Chat in new window"><i class="fas fa-comments"></i> <i class="fas fa-external-link-alt"></i></a>{{/let}}{{/if}})</small>
+          {{else if includes message.mention mynick}}
+            <small>(Mentioned you{{#if showRoom}}{{#let splitroom=(split message.room_name "/")}}
               in {{#if equal splitroom.[0] "general"}}<a href="/" class="home-link">{{generalRoomName}}</a>
               {{else if equal splitroom.[0] "callins"}}<a href="/callins" class="callins-link">Callin Queue</a>
               {{else}}{{>link id=splitroom.[1]}}{{/if}} <a href="/chat/{{message.room_name}}" class="chat-link bb-pop-out" target="pmchat" title="Open Chat in new window"><i class="fas fa-comments"></i> <i class="fas fa-external-link-alt"></i></a>{{/let}}{{/if}})</small>

@@ -926,6 +926,7 @@ do ->
         bot_ignore: Match.Optional Boolean
         header_ignore: Match.Optional Boolean
         suppressLastRead: Match.Optional Boolean
+        mention: Match.Optional [String]
       return if this.isSimulation # suppress flicker
       suppress = args.suppressLastRead
       delete args.suppressLastRead
