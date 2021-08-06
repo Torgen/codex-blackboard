@@ -763,6 +763,13 @@ Template.messages_input.onCreated ->
           args.body = "tried to /msg an UNKNOWN USER: #{message}"
           args.body = "tried to say nothing: #{message}" if missingMessage
           args.action = true
+    unless args.to?
+      # Can't mention someone in a private message
+      mentions = for match from args.body.matchAll /(^|[\s])@([a-zA-Z_0-9]*)([\s.?!,]|$)/g
+        canon = canonical match[2]
+        continue unless Meteor.users.findOne(canon)?
+        canon
+      args.mention = mentions if mentions.length
     Meteor.call 'newMessage', args # updates LastRead as a side-effect
     # for flicker prevention, we are currently not doing latency-compensation
     # on the newMessage call, which makes the below ineffective.  But leave

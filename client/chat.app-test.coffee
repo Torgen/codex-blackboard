@@ -110,4 +110,62 @@ describe 'chat', ->
       typeahead = $ '#messageInputTypeahead'
       chai.assert.equal 0, typeahead.length
 
+  describe 'submit', ->
 
+    it 'mentions', ->
+      id = share.model.Puzzles.findOne(name: 'Showcase')._id
+      share.Router.ChatPage('puzzles', id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '@kwal you hear about @Cscott?'
+      input.trigger $.Event 'keydown', which: 13
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      msg = share.model.Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
+      chai.assert.deepInclude msg,
+        mention: ['kwal', 'cscott']
+
+    it 'nonexistent mentions', ->
+      id = share.model.Puzzles.findOne(name: 'Soooo Cute!')._id
+      share.Router.ChatPage('puzzles', id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '@kwal exists but @flibby does not'
+      input.trigger $.Event 'keydown', which: 13
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      msg = share.model.Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
+      chai.assert.deepEqual msg.mention, ['kwal']
+
+    it 'action', ->
+      id = share.model.Puzzles.findOne(name: 'This SHOULD Be Easy')._id
+      share.Router.ChatPage('puzzles', id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '/me heard about @Cscott'
+      input.trigger $.Event 'keydown', which: 13
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      msg = share.model.Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
+      chai.assert.deepInclude msg,
+        action: true
+        mention: ['cscott']
+        body: 'heard about @Cscott'
+
+    it 'messages', ->
+      id = share.model.Puzzles.findOne(name: 'Charm School')._id
+      share.Router.ChatPage('puzzles', id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '/msg kwal you hear about @Cscott?'
+      input.trigger $.Event 'keydown', which: 13
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      msg = share.model.Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
+      chai.assert.deepInclude msg,
+        to: 'kwal'
+      chai.assert.isNotOk msg.mention
