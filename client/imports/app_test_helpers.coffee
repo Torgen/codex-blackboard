@@ -14,7 +14,7 @@ export waitForSubscriptions = -> new Promise (resolve) ->
   , 200
 
 export waitForMethods = -> new Promise (resolve) ->
-  Meteor.call 'wait', resolve
+  Meteor.apply 'wait', [], {wait: true}, resolve
 
 # Tracker.afterFlush runs code when all consequent of a tracker based change
 #   (such as a route change) have occured. This makes it a promise.
