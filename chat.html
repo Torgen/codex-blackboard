@@ -194,7 +194,7 @@ Click here to stay in this meeting instead.{{/if}}">
         </div>
       {{else if usefulEnough message}}
         {{#if message.action}}
-          <div class="bb-message-action" data-nick="{{message.nick}}" data-read="{{#unless read}}un{{/unless}}read">
+          <div class="bb-message-action {{#if includes message.mention mynick}}bb-message-mention-me{{/if}}" data-nick="{{message.nick}}" data-read="{{#unless read}}un{{/unless}}read">
             <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
             {{> message_delete_button}}
             {{>gravatar nick=message.nick size=14 }}
