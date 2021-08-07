@@ -208,6 +208,7 @@ if Meteor.isServer
 #   deleted: boolean. True if message was deleted. 'Deleted' messages aren't
 #            actually deleted because that could screw up the 'last read' line;
 #            they're just not rendered.
+#   mention: optional array of user IDs mentioned in the message.
 #   from_chat_subscription: true if this message was returned by the recent messages
 #       subscription. Allows rendering only the contiguous messages, without messages
 #       from other subscriptions like personal private messages or starred messages
@@ -230,6 +231,7 @@ if Meteor.isServer
   Messages._ensureIndex {room_name:1, starred: -1, timestamp: 1},
     partialFilterExpression: starred: true
   Messages._ensureIndex {timestamp: 1}, {}
+  Messages._ensureIndex {mention: 1}, {}
 
 # Last read message for a user in a particular chat room
 #   nick: canonicalized string, as in Messages

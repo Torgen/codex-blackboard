@@ -68,6 +68,8 @@ Meteor.publish null, loginRequired ->
 
 # Private messages to you
 Meteor.publish null, loginRequired -> model.Messages.find {to: @userId, deleted: $ne: true}
+# Messages that mention you
+Meteor.publish null, loginRequired -> model.Messages.find {mention: @userId, deleted: $ne: true}
 
 # Your presence in all rooms, with _id changed to room_name.
 Meteor.publish null, loginRequired ->
