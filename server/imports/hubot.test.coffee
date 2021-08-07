@@ -183,11 +183,12 @@ describe 'hubot', ->
       nick: 'torgen'
       room_name: 'general/0'
       body: 'testbot hello'
-    await waitForDocument model.Messages, {body: 'torgen: hello yourself', to: $exists: false},
+    await waitForDocument model.Messages, {body: '@torgen: hello yourself', to: $exists: false},
       timestamp: 9
       nick: 'testbot'
       room_name: 'general/0'
       bot_ignore: true
+      mention: ['torgen']
     chai.assert.include model.Messages.findOne(id), useless_cmd: true
 
   it 'replies to private messages privately', ->

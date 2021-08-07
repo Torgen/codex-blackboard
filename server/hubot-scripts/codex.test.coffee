@@ -53,9 +53,10 @@ describe 'codex hubot script', ->
         timestamp: Date.now()
         body: 'bot the answer to latino alphabet is linear abeja'
       waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-        body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+        body: '@torgen: I can\'t find a puzzle called "latino alphabet".'
         room_name: 'puzzles/12345abcde'
         useful: true
+        mention: ['torgen']
 
     it 'sets answer', ->
       model.Puzzles.insert
@@ -134,10 +135,11 @@ describe 'codex hubot script', ->
         room_name: 'puzzles/12345abcde'
         timestamp: Date.now()
         body: 'bot the answer to latino alphabet is linear abeja'
-      await waitForDocument model.Messages, {nick: 'testbot', body: /^torgen:/},
+      await waitForDocument model.Messages, {nick: 'testbot', body: /^@torgen:/},
         timestamp: 7
         useful: true
         room_name: 'puzzles/12345abcde'
+        mention: ['torgen']
       chai.assert.deepInclude model.Puzzles.findOne(_id: '12345abcde'),
         touched: 3
         touched_by: 'cjb'
@@ -183,9 +185,10 @@ describe 'codex hubot script', ->
         timestamp: Date.now()
         body: 'bot delete answer for latino alphabet'
       waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-        body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+        body: '@torgen: I can\'t find a puzzle called "latino alphabet".'
         room_name: 'general/0'
         useful: true
+        mention: ['torgen']
 
   describe 'newCallIn', ->
     describe 'of answer', ->
@@ -280,9 +283,10 @@ describe 'codex hubot script', ->
             timestamp: Date.now()
             body: 'bot call in linear abeja'
           await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-            body: 'torgen: You need to tell me which puzzle this is for.'
+            body: '@torgen: You need to tell me which puzzle this is for.'
             room_name: 'general/0'
             useful: true
+            mention: ['torgen']
           chai.assert.isUndefined model.CallIns.findOne()
 
         it 'fails when puzzle does not exist', ->
@@ -292,9 +296,10 @@ describe 'codex hubot script', ->
             timestamp: Date.now()
             body: 'bot call in linear abeja for latino alphabet'
           await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-            body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+            body: '@torgen: I can\'t find a puzzle called "latino alphabet".'
             room_name: 'general/0'
             useful: true
+            mention: ['torgen']
           chai.assert.isUndefined model.CallIns.findOne()
 
         it 'allows specifying puzzle', ->
@@ -367,9 +372,10 @@ describe 'codex hubot script', ->
             timestamp: Date.now()
             body: 'bot request interaction linear abeja'
           await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-            body: 'torgen: You need to tell me which puzzle this is for.'
+            body: '@torgen: You need to tell me which puzzle this is for.'
             room_name: 'general/0'
             useful: true
+            mention: ['torgen']
           chai.assert.isUndefined model.CallIns.findOne()
 
         it 'fails when puzzle does not exist', ->
@@ -379,9 +385,10 @@ describe 'codex hubot script', ->
             timestamp: Date.now()
             body: 'bot request interaction linear abeja for latino alphabet'
           await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-            body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+            body: '@torgen: I can\'t find a puzzle called "latino alphabet".'
             room_name: 'general/0'
             useful: true
+            mention: ['torgen']
           chai.assert.isUndefined model.CallIns.findOne()
 
         it 'allows specifying puzzle', ->
@@ -454,9 +461,10 @@ describe 'codex hubot script', ->
             timestamp: Date.now()
             body: 'bot tell HQ linear abeja'
           await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-            body: 'torgen: You need to tell me which puzzle this is for.'
+            body: '@torgen: You need to tell me which puzzle this is for.'
             room_name: 'general/0'
             useful: true
+            mention: ['torgen']
           chai.assert.isUndefined model.CallIns.findOne()
 
         it 'fails when puzzle does not exist', ->
@@ -466,9 +474,10 @@ describe 'codex hubot script', ->
             timestamp: Date.now()
             body: 'bot tell HQ linear abeja for latino alphabet'
           await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-            body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+            body: '@torgen: I can\'t find a puzzle called "latino alphabet".'
             room_name: 'general/0'
             useful: true
+            mention: ['torgen']
           chai.assert.isUndefined model.CallIns.findOne()
 
         it 'allows specifying puzzle', ->
@@ -541,9 +550,10 @@ describe 'codex hubot script', ->
             timestamp: Date.now()
             body: 'bot expect callback linear abeja'
           await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-            body: 'torgen: You need to tell me which puzzle this is for.'
+            body: '@torgen: You need to tell me which puzzle this is for.'
             room_name: 'general/0'
             useful: true
+            mention: ['torgen']
           chai.assert.isUndefined model.CallIns.findOne()
 
         it 'fails when puzzle does not exist', ->
@@ -553,9 +563,10 @@ describe 'codex hubot script', ->
             timestamp: Date.now()
             body: 'bot expect callback linear abeja for latino alphabet'
           await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-            body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+            body: '@torgen: I can\'t find a puzzle called "latino alphabet".'
             room_name: 'general/0'
             useful: true
+            mention: ['torgen']
           chai.assert.isUndefined model.CallIns.findOne()
 
         it 'allows specifying puzzle', ->
@@ -677,11 +688,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot Even this poem is a new puzzle in elliptic curve'
-      await waitForDocument model.Messages, {body: $regex: /torgen: There's already.*a puzzle named Even This Poem/},
+      await waitForDocument model.Messages, {body: $regex: /@torgen: There's already.*a puzzle named Even This Poem/},
         nick: 'testbot'
         timestamp: 7
         room_name: 'general/0'
         useful: true
+        mention: ['torgen']
       chai.assert.deepInclude model.Rounds.findOne(rid), puzzles: [mid]
 
     it 'creates in this round', ->
@@ -742,11 +754,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot Latino Alphabet is a new puzzle in this'
-      await waitForDocument model.Messages, {body: 'torgen: You need to tell me which puzzle this is for.'},
+      await waitForDocument model.Messages, {body: '@torgen: You need to tell me which puzzle this is for.'},
         nick: 'testbot'
         timestamp: 7
         room_name: 'general/0'
         useful: true
+        mention: ['torgen']
       chai.assert.deepInclude model.Puzzles.findOne(mid), puzzles: []
       chai.assert.deepInclude model.Rounds.findOne(rid), puzzles: [mid]
 
@@ -777,11 +790,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot Latino Alphabet is a new puzzle in elliptic curve'
-      waitForDocument model.Messages, {body: 'torgen: I can\'t find anything called "elliptic curve".'},
+      waitForDocument model.Messages, {body: '@torgen: I can\'t find anything called "elliptic curve".'},
         nick: 'testbot'
         timestamp: 7
         room_name: 'general/0'
         useful: true
+        mention: ['torgen']
 
   describe 'deletePuzzle', ->
     it 'deletes puzzle', ->
@@ -794,11 +808,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot delete puzzle foo'
-      await waitForDocument model.Messages, { body: 'torgen: Okay, I deleted "Foo".' },
+      await waitForDocument model.Messages, { body: '@torgen: Okay, I deleted "Foo".' },
         nick: 'testbot'
         room_name: 'general/0'
         timestamp: 7
         useful: true
+        mention: ['torgen']
       chai.assert.isUndefined model.Puzzles.findOne _id: pid
 
     it 'fails when puzzle does not exist', ->
@@ -807,11 +822,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot delete puzzle foo'
-      waitForDocument model.Messages, { body: 'torgen: I can\'t find a puzzle called "foo".' },
+      waitForDocument model.Messages, { body: '@torgen: I can\'t find a puzzle called "foo".' },
         nick: 'testbot'
         room_name: 'general/0'
         timestamp: 7
         useful: true
+        mention: ['torgen']
 
   describe 'newRound', ->
     it 'creates round', ->
@@ -860,11 +876,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot elliptic curve is a new round'
-      await waitForDocument model.Messages, {body: $regex: /torgen: There's already.*a round named Elliptic Curve/},
+      await waitForDocument model.Messages, {body: $regex: /@torgen: There's already.*a round named Elliptic Curve/},
         nick: 'testbot'
         timestamp: 7
         room_name: 'general/0'
         useful: true
+        mention: ['torgen']
 
   describe 'deleteRound', ->
     it 'deletes empty round', ->
@@ -877,11 +894,12 @@ describe 'codex hubot script', ->
         room_name: 'callins/0'
         timestamp: Date.now()
         body: 'bot delete round elliptic curve'
-      await waitForDocument model.Messages, { body: 'torgen: Okay, I deleted round "Elliptic Curve".' },
+      await waitForDocument model.Messages, { body: '@torgen: Okay, I deleted round "Elliptic Curve".' },
         nick: 'testbot'
         timestamp: 7
         room_name: 'callins/0'
         useful: true
+        mention: ['torgen']
       chai.assert.isUndefined model.Rounds.findOne _id: rid
 
     it 'fails when round contains puzzles', ->
@@ -894,11 +912,12 @@ describe 'codex hubot script', ->
         room_name: 'callins/0'
         timestamp: Date.now()
         body: 'bot delete round elliptic curve'
-      await waitForDocument model.Messages, { body: 'torgen: Couldn\'t delete round. (Are there still puzzles in it?)' },
+      await waitForDocument model.Messages, { body: '@torgen: Couldn\'t delete round. (Are there still puzzles in it?)' },
         nick: 'testbot'
         timestamp: 7
         room_name: 'callins/0'
         useful: true
+        mention: ['torgen']
       chai.assert.isObject model.Rounds.findOne _id: rid
 
     it 'fails when round does not exist', ->
@@ -907,11 +926,12 @@ describe 'codex hubot script', ->
         room_name: 'callins/0'
         timestamp: Date.now()
         body: 'bot delete round elliptic curve'
-      waitForDocument model.Messages, { body: 'torgen: I can\'t find a round called "elliptic curve".' },
+      waitForDocument model.Messages, { body: '@torgen: I can\'t find a round called "elliptic curve".' },
         nick: 'testbot'
         timestamp: 7
         room_name: 'callins/0'
         useful: true
+        mention: ['torgen']
 
   describe 'newQuip', ->
     it 'adds quip', ->
@@ -1067,10 +1087,11 @@ describe 'codex hubot script', ->
           room_name: 'general/0'
           timestamp: Date.now()
           body: 'bot set Color to blue'
-        waitForDocument model.Messages, {body: 'torgen: You need to tell me which puzzle this is for.'},
+        waitForDocument model.Messages, {body: '@torgen: You need to tell me which puzzle this is for.'},
           nick: 'testbot'
           room_name: 'general/0'
           timestamp: 7
+          mention: ['torgen']
 
       it 'fails when target does not exist', ->
         model.Messages.insert
@@ -1078,10 +1099,11 @@ describe 'codex hubot script', ->
           room_name: 'general/0'
           timestamp: Date.now()
           body: 'bot set Color for latino alphabet to blue'
-        waitForDocument model.Messages, {body: 'torgen: I can\'t find anything called "latino alphabet".'},
+        waitForDocument model.Messages, {body: '@torgen: I can\'t find anything called "latino alphabet".'},
           nick: 'testbot'
           room_name: 'general/0'
           timestamp: 7
+          mention: ['torgen']
 
       it 'allows specifying puzzle', ->
         model.Puzzles.insert
@@ -1187,10 +1209,11 @@ describe 'codex hubot script', ->
           room_name: 'puzzles/12345abcde'
           timestamp: Date.now()
           body: 'bot unset Color'
-        waitForDocument model.Messages, {body: 'torgen: Latino Alphabet didn\'t have Color set!'},
+        waitForDocument model.Messages, {body: '@torgen: Latino Alphabet didn\'t have Color set!'},
           nick: 'testbot'
           room_name: 'puzzles/12345abcde'
           timestamp: 7
+          mention: ['torgen']
             
     describe 'in round room', ->
       it 'infers round', ->
@@ -1259,10 +1282,11 @@ describe 'codex hubot script', ->
           room_name: 'rounds/12345abcde'
           timestamp: Date.now()
           body: 'bot unset Color'
-        waitForDocument model.Messages, {body: 'torgen: Latino Alphabet didn\'t have Color set!'},
+        waitForDocument model.Messages, {body: '@torgen: Latino Alphabet didn\'t have Color set!'},
           nick: 'testbot'
           room_name: 'rounds/12345abcde'
           timestamp: 7
+          mention: ['torgen']
 
     describe 'in general room', ->
       it 'fails when target is not specified', ->
@@ -1271,10 +1295,11 @@ describe 'codex hubot script', ->
           room_name: 'general/0'
           timestamp: Date.now()
           body: 'bot unset Color'
-        waitForDocument model.Messages, {body: 'torgen: You need to tell me which puzzle this is for.'},
+        waitForDocument model.Messages, {body: '@torgen: You need to tell me which puzzle this is for.'},
           nick: 'testbot'
           room_name: 'general/0'
           timestamp: 7
+          mention: ['torgen']
 
       it 'fails when target does not exist', ->
         model.Messages.insert
@@ -1282,10 +1307,11 @@ describe 'codex hubot script', ->
           room_name: 'general/0'
           timestamp: Date.now()
           body: 'bot unset Color for latino alphabet'
-        waitForDocument model.Messages, {body: 'torgen: I can\'t find anything called "latino alphabet".'},
+        waitForDocument model.Messages, {body: '@torgen: I can\'t find anything called "latino alphabet".'},
           nick: 'testbot'
           room_name: 'general/0'
           timestamp: 7
+          mention: ['torgen']
 
       it 'allows specifying puzzle', ->
         model.Puzzles.insert
@@ -1422,9 +1448,10 @@ describe 'codex hubot script', ->
           timestamp: Date.now()
           body: 'bot stuck because maparium is closed'
         waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-          body: 'torgen: You need to tell me which puzzle this is for.'
+          body: '@torgen: You need to tell me which puzzle this is for.'
           room_name: 'general/0'
           useful: true
+          mention: ['torgen']
 
       it 'fails on round', ->
         model.Rounds.insert
@@ -1438,9 +1465,10 @@ describe 'codex hubot script', ->
           timestamp: Date.now()
           body: 'bot stuck on latino alphabet because maparium is closed'
         await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-          body: 'torgen: I don\'t know what "latino alphabet" is.'
+          body: '@torgen: I don\'t know what "latino alphabet" is.'
           room_name: 'general/0'
           useful: true
+          mention: ['torgen']
         chai.assert.deepInclude model.Rounds.findOne('12345abcde'),
           tags: {}
 
@@ -1457,9 +1485,10 @@ describe 'codex hubot script', ->
           timestamp: Date.now()
           body: 'bot stuck because maparium is closed'
         waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-          body: 'torgen: Only puzzles can be stuck.'
+          body: '@torgen: Only puzzles can be stuck.'
           room_name: 'rounds/12345abcde'
           useful: true
+          mention: ['torgen']
 
   describe 'unstuck', ->
     describe 'in puzzle room', ->
@@ -1560,9 +1589,10 @@ describe 'codex hubot script', ->
           timestamp: Date.now()
           body: 'bot unstuck'
         waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-          body: 'torgen: You need to tell me which puzzle this is for.'
+          body: '@torgen: You need to tell me which puzzle this is for.'
           room_name: 'general/0'
           useful: true
+          mention: ['torgen']
 
       it 'fails when no such puzzle', ->
         model.Messages.insert
@@ -1571,9 +1601,10 @@ describe 'codex hubot script', ->
           timestamp: Date.now()
           body: 'bot unstuck on latino alphabet'
         waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-          body: 'torgen: I don\'t know what "latino alphabet" is.'
+          body: '@torgen: I don\'t know what "latino alphabet" is.'
           room_name: 'general/0'
           useful: true
+          mention: ['torgen']
 
     describe 'in round room', ->
       it 'fails without puzzle', ->
@@ -1593,9 +1624,10 @@ describe 'codex hubot script', ->
           timestamp: Date.now()
           body: 'bot unstuck'
         waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
-          body: 'torgen: Only puzzles can be stuck.'
+          body: '@torgen: Only puzzles can be stuck.'
           room_name: 'rounds/12345abcde'
           useful: true
+          mention: ['torgen']
 
   describe 'announce', ->
     it 'creates announcement', ->
@@ -1637,11 +1669,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot poll "Vote for me!" OK'
-      waitForDocument model.Messages, {body: 'torgen: Must have between 2 and 5 options.' },
+      waitForDocument model.Messages, {body: '@torgen: Must have between 2 and 5 options.' },
         nick: 'testbot'
         timestamp: 7
         room_name: 'general/0'
         useful: true
+        mention: ['torgen']
 
     it 'forbids more than five options', ->
       model.Messages.insert
@@ -1649,11 +1682,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot poll "Best dwarf" Grumpy Happy Sleepy Sneezy Dopey Bashful Doc'
-      waitForDocument model.Messages, {body: 'torgen: Must have between 2 and 5 options.' },
+      waitForDocument model.Messages, {body: '@torgen: Must have between 2 and 5 options.' },
         nick: 'testbot'
         timestamp: 7
         room_name: 'general/0'
         useful: true
+        mention: ['torgen']
   
   describe 'global list', ->
     it 'lists global settings', ->
@@ -1678,11 +1712,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot global set maximum meme length to 97'
-      await waitForDocument model.Messages, {body: 'torgen: OK, set maximum meme length to 97'},
+      await waitForDocument model.Messages, {body: '@torgen: OK, set maximum meme length to 97'},
         nick: 'testbot'
         room_name: 'general/0'
         timestamp: 7
         useful: true
+        mention: ['torgen']
       chai.assert.equal 97, MaximumMemeLength.get()
 
     it 'sets boolean', ->
@@ -1691,11 +1726,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot global set embed puzzles to false'
-      await waitForDocument model.Messages, {body: 'torgen: OK, set embed puzzles to false'},
+      await waitForDocument model.Messages, {body: '@torgen: OK, set embed puzzles to false'},
         nick: 'testbot'
         room_name: 'general/0'
         timestamp: 7
         useful: true
+        mention: ['torgen']
       chai.assert.isFalse EmbedPuzzles.get()
 
     it 'sets url', ->
@@ -1704,11 +1740,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot global set round url prefix to https://moliday.holasses/round'
-      await waitForDocument model.Messages, {body: 'torgen: OK, set round url prefix to https://moliday.holasses/round'},
+      await waitForDocument model.Messages, {body: '@torgen: OK, set round url prefix to https://moliday.holasses/round'},
         nick: 'testbot'
         room_name: 'general/0'
         timestamp: 7
         useful: true
+        mention: ['torgen']
       chai.assert.equal 'https://moliday.holasses/round', RoundUrlPrefix.get()
 
     it 'fails when setting does not exist', ->
@@ -1717,11 +1754,12 @@ describe 'codex hubot script', ->
         room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot global set background color to black'
-      waitForDocument model.Messages, {body: 'torgen: Sorry, I don\'t know the setting \'background color\'.'},
+      waitForDocument model.Messages, {body: '@torgen: Sorry, I don\'t know the setting \'background color\'.'},
         nick: 'testbot'
         room_name: 'general/0'
         timestamp: 7
         useful: true
+        mention: ['torgen']
 
     describe 'when value has wrong format for setting', ->
       it 'fails for boolean', ->
@@ -1730,11 +1768,12 @@ describe 'codex hubot script', ->
           room_name: 'general/0'
           timestamp: Date.now()
           body: 'bot global set embed puzzles to maybe'
-        await waitForDocument model.Messages, {body: /^torgen: Sorry, there was an error:/},
+        await waitForDocument model.Messages, {body: /^@torgen: Sorry, there was an error:/},
           nick: 'testbot'
           room_name: 'general/0'
           timestamp: 7
           useful: true
+          mention: ['torgen']
         chai.assert.isTrue EmbedPuzzles.get()
 
       it 'fails for url', ->
@@ -1743,11 +1782,12 @@ describe 'codex hubot script', ->
           room_name: 'general/0'
           timestamp: Date.now()
           body: 'bot global set round url prefix to twelve'
-        await waitForDocument model.Messages, {body: /^torgen: Sorry, there was an error:/},
+        await waitForDocument model.Messages, {body: /^@torgen: Sorry, there was an error:/},
           nick: 'testbot'
           room_name: 'general/0'
           timestamp: 7
           useful: true
+          mention: ['torgen']
         chai.assert.equal '', RoundUrlPrefix.get()
 
       it 'fails for number', ->
@@ -1756,9 +1796,10 @@ describe 'codex hubot script', ->
           room_name: 'general/0'
           timestamp: Date.now()
           body: 'bot global set maximum meme length to twelve'
-        await waitForDocument model.Messages, {body: /^torgen: Sorry, there was an error:/},
+        await waitForDocument model.Messages, {body: /^@torgen: Sorry, there was an error:/},
           nick: 'testbot'
           room_name: 'general/0'
           timestamp: 7
           useful: true
+          mention: ['torgen']
         chai.assert.equal 140, MaximumMemeLength.get()

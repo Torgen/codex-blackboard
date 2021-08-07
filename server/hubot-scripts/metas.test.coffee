@@ -65,8 +65,9 @@ describe 'metas hubot script', ->
               body: "bot #{before}this #{after} #{descriptor}"
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
-              body: 'torgen: this was already a meta.'
+              body: '@torgen: this was already a meta.'
               useful: true
+              mention: ['torgen']
               
           it 'can specify puzzle', ->
             model.Puzzles.insert
@@ -102,8 +103,9 @@ describe 'metas hubot script', ->
               body: "bot #{before}even this poem #{after} #{descriptor}"
             await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
-              body: 'torgen: I can\'t find a puzzle called "even this poem".'
+              body: '@torgen: I can\'t find a puzzle called "even this poem".'
               useful: true
+              mention: ['torgen']
             chai.assert.isUndefined model.Puzzles.findOne('12345abcde').puzzles
 
         describe 'in general room', ->
@@ -115,8 +117,9 @@ describe 'metas hubot script', ->
               body: "bot #{before}this #{after} #{descriptor}"
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'general/0'
-              body: 'torgen: You need to tell me which puzzle this is for.'
+              body: '@torgen: You need to tell me which puzzle this is for.'
               useful: true
+              mention: ['torgen']
               
           it 'can specify puzzle', ->
             model.Puzzles.insert
@@ -166,8 +169,9 @@ describe 'metas hubot script', ->
               body: "bot this #{verb} a #{descriptor}"
             await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
-              body: 'torgen: 1 puzzle feeds into Latino Alphabet. It must be a meta.'
+              body: '@torgen: 1 puzzle feeds into Latino Alphabet. It must be a meta.'
               useful: true
+              mention: ['torgen']
             chai.assert.deepInclude model.Puzzles.findOne('12345abcde'),
               puzzles: ['a']
 
@@ -185,8 +189,9 @@ describe 'metas hubot script', ->
               body: "bot this #{verb} a #{descriptor}"
             await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
-              body: 'torgen: 3 puzzles feed into Latino Alphabet. It must be a meta.'
+              body: '@torgen: 3 puzzles feed into Latino Alphabet. It must be a meta.'
               useful: true
+              mention: ['torgen']
             chai.assert.deepInclude model.Puzzles.findOne('12345abcde'),
               puzzles: ['a', 'b', 'c']
 
@@ -203,8 +208,9 @@ describe 'metas hubot script', ->
               body: "bot this #{verb} a #{descriptor}"
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
-              body: 'torgen: this already wasn\'t a meta.'
+              body: '@torgen: this already wasn\'t a meta.'
               useful: true
+              mention: ['torgen']
 
           it 'can specify puzzle', ->
             model.Puzzles.insert
@@ -244,8 +250,9 @@ describe 'metas hubot script', ->
               body: "bot even this poem #{verb} a #{descriptor}"
             await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
-              body: 'torgen: I can\'t find a puzzle called "even this poem".'
+              body: '@torgen: I can\'t find a puzzle called "even this poem".'
               useful: true
+              mention: ['torgen']
             chai.assert.deepInclude model.Puzzles.findOne('12345abcde'),
               puzzles: []
 
@@ -258,8 +265,9 @@ describe 'metas hubot script', ->
               body: "bot this #{verb} a #{descriptor}"
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'general/0'
-              body: 'torgen: You need to tell me which puzzle this is for.'
+              body: '@torgen: You need to tell me which puzzle this is for.'
               useful: true
+              mention: ['torgen']
 
           it 'can specify puzzle', ->
             model.Puzzles.insert
@@ -373,8 +381,9 @@ describe 'metas hubot script', ->
           body: 'bot this feeds into even this poem'
         await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
           room_name: 'general/0'
-          body: 'torgen: You need to tell me which puzzle this is for.'
+          body: '@torgen: You need to tell me which puzzle this is for.'
           useful: true
+          mention: ['torgen']
         chai.assert.isUndefined model.Puzzles.findOne('fghij67890').puzzles
 
       it 'fails to feed that into this', ->
@@ -392,8 +401,9 @@ describe 'metas hubot script', ->
           body: 'bot latino alphabet feeds into this'
         await waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
           room_name: 'general/0'
-          body: 'torgen: You need to tell me which puzzle this is for.'
+          body: '@torgen: You need to tell me which puzzle this is for.'
           useful: true
+          mention: ['torgen']
         chai.assert.deepInclude model.Puzzles.findOne('12345abcde'),
           feedsInto: []
           touched: 2
@@ -472,8 +482,9 @@ describe 'metas hubot script', ->
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
               timestamp: 7
-              body: 'torgen: this already didn\'t feed into even this poem.'
+              body: '@torgen: this already didn\'t feed into even this poem.'
               useful: true
+              mention: ['torgen']
 
           it 'fails when that does not exist', ->
             model.Puzzles.insert
@@ -489,8 +500,9 @@ describe 'metas hubot script', ->
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
               timestamp: 7
-              body: 'torgen: I can\'t find a puzzle called "even this poem".'
+              body: '@torgen: I can\'t find a puzzle called "even this poem".'
               useful: true
+              mention: ['torgen']
 
         describe 'that from this', ->
           it 'removes that', ->
@@ -538,8 +550,9 @@ describe 'metas hubot script', ->
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
               timestamp: 7
-              body: 'torgen: latino alphabet already didn\'t feed into this.'
+              body: '@torgen: latino alphabet already didn\'t feed into this.'
               useful: true
+              mention: ['torgen']
               
           it 'fails when that does not exist', ->
             model.Puzzles.insert
@@ -556,8 +569,9 @@ describe 'metas hubot script', ->
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/12345abcde'
               timestamp: 7
-              body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+              body: '@torgen: I can\'t find a puzzle called "latino alphabet".'
               useful: true
+              mention: ['torgen']
 
         describe 'that from the other', ->
           it 'removes that', ->
@@ -623,8 +637,9 @@ describe 'metas hubot script', ->
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/0000000000'
               timestamp: 7
-              body: 'torgen: latino alphabet already didn\'t feed into even this poem.'
+              body: '@torgen: latino alphabet already didn\'t feed into even this poem.'
               useful: true
+              mention: ['torgen']
 
           it 'fails when that does not exist', ->
             model.Puzzles.insert
@@ -648,8 +663,9 @@ describe 'metas hubot script', ->
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/0000000000'
               timestamp: 7
-              body: 'torgen: I can\'t find a puzzle called "latino alphabet".'
+              body: '@torgen: I can\'t find a puzzle called "latino alphabet".'
               useful: true
+              mention: ['torgen']
 
           it 'fails when the other does not exist', ->
             model.Puzzles.insert
@@ -672,8 +688,9 @@ describe 'metas hubot script', ->
             waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
               room_name: 'puzzles/0000000000'
               timestamp: 7
-              body: 'torgen: I can\'t find a puzzle called "even this poem".'
+              body: '@torgen: I can\'t find a puzzle called "even this poem".'
               useful: true
+              mention: ['torgen']
 
       describe 'in general room', ->
         it 'fails to remove this from that', ->
@@ -695,8 +712,9 @@ describe 'metas hubot script', ->
             body: "bot this #{verb} feed into even this poem"
           waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
             room_name: 'general/0'
-            body: 'torgen: You need to tell me which puzzle this is for.'
+            body: '@torgen: You need to tell me which puzzle this is for.'
             useful: true
+            mention: ['torgen']
 
         it 'fails to remove that from this', ->
           model.Puzzles.insert
@@ -717,8 +735,9 @@ describe 'metas hubot script', ->
             body: "bot latino alphabet #{verb} feed into this"
           waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
             room_name: 'general/0'
-            body: 'torgen: You need to tell me which puzzle this is for.'
+            body: '@torgen: You need to tell me which puzzle this is for.'
             useful: true
+            mention: ['torgen']
 
         it 'removes that from the other', ->
           model.Puzzles.insert

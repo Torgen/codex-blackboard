@@ -34,8 +34,8 @@ class BlackboardAdapter extends Hubot.Adapter
     @sendHelper envelope, strings, (string, props) =>
       console.log "send #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
       if envelope.message.direct and (not props.useful)
-        unless string.startsWith(envelope.user.id)
-          string = "#{envelope.user.id}: #{string}"
+        unless string.startsWith("@#{envelope.user.id}")
+          string = "@#{envelope.user.id}: #{string}"
       callAs "newMessage", @botname, Object.assign {}, props,
         body: string
         room_name: envelope.room
@@ -79,7 +79,7 @@ class BlackboardAdapter extends Hubot.Adapter
     if envelope.message.private
       @priv envelope, strings...
     else
-      @send envelope, tweakStrings(strings, (str) -> "#{envelope.user.id}: #{str}")...
+      @send envelope, [{mention: [envelope.user.id]}, ...tweakStrings(strings, (str) -> "@#{envelope.user.id}: #{str}")]...
 
   # Public: Raw method for setting a topic on the chat source. Extend this.
   #
