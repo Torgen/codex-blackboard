@@ -202,7 +202,7 @@
   .failed &, .offline & { --glyph: "\f057"; color: #F00; }
   .waiting & { --glyph: "\f110"; animation: fa-spin 2s infinite steps(8); color: #F80; }
 }
-#bb-avatar-dropdown .badge {
+#bb-avatar-dropdown .dropdown-toggle .badge {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -275,6 +275,10 @@
     --bg-color: inherit;
     margin-left: 1px;
     margin-right: 1px;
+  }
+  .bb-message-action {
+    background: var(--bg-color);
+    color: var(--text-color);
   }
   .bb-message-body {
     color: var(--text-color);

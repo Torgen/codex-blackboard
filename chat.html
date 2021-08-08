@@ -137,11 +137,13 @@ Click here to stay in this meeting instead.{{/if}}">
           {{/if}}
         {{/if}}
       </h5>
+      {{#if message.action}}*** {{/if}}
       {{cleanup message.body}}
       {{#if message.tweet.quote}}
         <h6>in reply to @<a href="https://twitter.com/{{message.tweet.quote_nick}}" target="_blank">{{message.tweet.quote_nick}}</a>'s <a href="https://twitter.com/{{message.tweet.quote_nick}}/status/{{message.tweet.quote_id_str}}" target="_blank">tweet</a>:</h6>
         <blockquote>{{cleanup message.tweet.quote}}</blockquote>
-      {{/if}}
+      {{/if}}      
+      {{#if message.action}} ***{{/if}}
       {{#if message.poll}}{{> poll message.poll}}{{/if}}
     </div> 
   </div>  

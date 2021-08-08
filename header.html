@@ -192,12 +192,15 @@
   </li>
   <li class="dropdown" id="bb-avatar-dropdown">
     {{#if sessionNick}}
-      {{#let unread=unreadPrivateMessages}}
-        <a class="dropdown-toggle"
-          data-toggle="dropdown" href="#">
+      {{#let unread_private=unreadPrivateMessages unread_mentions=unreadMentions}}
+        <a class="dropdown-toggle" href="#">
         {{>gravatar nick=sessionNick.canon size=24}}
         <span class="caret"></span>
-        <span class="badge badge-important">{{unread}}</span>
+        {{#if unread_private}}
+          <span class="badge badge-important">{{clamp unread_private 9}}</span>
+        {{else if unread_mentions}}
+          <span class="badge badge-warning">{{clamp unread_mentions 9}}</span>
+        {{/if}}
         </a>
         <div class="dropdown-menu pull-right" id="bb-avatar-dropdown-content">
           <ul class="dropdown-menu pull-right">
@@ -207,17 +210,34 @@
             {{/if}}
             <li><a href="#" class="bb-logout"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
           </ul>
-          <div class="dropdown-menu">
-            {{#with privateMessages}}
-              <h5>Private Messages{{#if unread}} (<a href="#" id="bb-mark-private-read">Mark all read</a>){{/if}}</h5>
-              <div class="bb-chat-messages">
-                {{#each this}}
+          <div class="dropdown-menu tabbable">
+            <ul class="nav nav-inverse nav-tabs">
+              <li class="{{#if isVisible "private"}}active{{/if}}" data-tab="private"><a name="">
+                Private Messages{{#if unread_private}} <span class="badge badge-important">{{unread_private}}</span>{{/if}}
+              </a></li>
+              <li class="{{#if isVisible "mention"}}active{{/if}}" data-tab="mention"><a name="">
+                Mentions{{#if unread_mentions}} <span class="badge badge-warning">{{unread_mentions}}</span>{{/if}}
+              </a></li>
+              {{#if any unread_private unread_mentions}}
+                <li><a href="#" id="bb-mark-private-read">Mark all read</a></li>
+              {{/if}}
+            </ul>
+            <div class="tab-content">
+              <div class="bb-chat-messages tab-pane {{#if isVisible "private"}}active{{/if}}">
+                {{#each privateMessages}}
                   {{>media_message}}
+                {{else}}
+                  <h5>No Private Messages</h5>
                 {{/each}}
               </div>
-            {{else}}
-              <h5>No Private Messages</h5>
-            {{/with}}
+              <div class="bb-chat-messages tab-pane {{#if isVisible "mention"}}active{{/if}}">
+                {{#each mentions}}
+                  {{>media_message}}
+                {{else}}
+                  <h5>No Mentions</h5>
+                {{/each}}
+              </div>
+            </div>
           </div>
         </div>
       {{/let}}

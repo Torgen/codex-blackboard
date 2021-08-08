@@ -72,6 +72,9 @@ privateMessageTransform = (msg) ->
     msg.timestamp <= model.LastRead.findOne('private')?.timestamp || msg.timestamp <= model.LastRead.findOne(msg.room_name)?.timestamp
   showRoom: true
 
+Template.header_loginmute.onCreated ->
+  @visibleTab = new ReactiveVar 'private'
+
 ############## log in/protect/mute panel ####################
 Template.header_loginmute.helpers
   sessionNick: -> # TODO(torgen): replace with currentUser
@@ -88,14 +91,37 @@ Template.header_loginmute.helpers
       to: Meteor.userId()
       timestamp: $gt: model.LastRead.findOne('private')?.timestamp ? 0
     .fetch().filter((msg) -> msg.timestamp > (model.LastRead.findOne(msg.room_name)?.timestamp ? 0)).length
-    count = "9+" if count > 9
     count unless count is 0
+  unreadMentions: ->
+    count = model.Messages.find
+      mention: Meteor.userId()
+      timestamp: $gt: model.LastRead.findOne('private')?.timestamp ? 0
+    .fetch().filter((msg) -> msg.timestamp > (model.LastRead.findOne(msg.room_name)?.timestamp ? 0)).length
+    count unless count is 0
+  clamp: (value, limit) ->
+    console.log value, limit
+    return unless value
+    return "#{limit}+" if value > limit
+    value
   privateMessages: ->
     model.Messages.find
       to: Meteor.userId()
     ,
       sort: timestamp: -1
       transform: privateMessageTransform
+  mentions: ->
+    model.Messages.find
+      mention: Meteor.userId()
+    ,
+      sort: timestamp: -1
+      transform: privateMessageTransform
+  isVisible: (tabname) ->
+    Template.instance().visibleTab.get() is tabname
+
+clickOutsideAvatarDropdownHandler = (event) ->
+  return if event.target.closest '#bb-avatar-dropdown'
+  $('#bb-avatar-dropdown').removeClass 'open'
+  $('body').off 'click', clickOutsideAvatarDropdownHandler
 
 Template.header_loginmute.events
   "click .bb-logout": (event, template) ->
@@ -105,12 +131,22 @@ Template.header_loginmute.events
     share.Router.navigate "/edit", {trigger: true}
   "click .bb-protect": (event, template) ->
     share.Router.navigate "/", {trigger: true}
+  'click li[data-tab]:not(.active)': (event, template) ->
+    template.visibleTab.set event.currentTarget.dataset.tab
   'click #bb-mark-private-read': (event, template) ->
     event.preventDefault()
-    latest = model.Messages.findOne({to: Meteor.userId()}, {sort: timestamp: -1}).timestamp
+    latest = model.Messages.findOne({$or: [{to: Meteor.userId()}, {mention: Meteor.userId()}]}, {sort: timestamp: -1}).timestamp
     Meteor.call 'updateLastRead',
       room_name: 'private'
       timestamp: latest
+  'click #bb-avatar-dropdown > .dropdown-toggle': (event, template) ->
+    dropdown = template.$('#bb-avatar-dropdown')
+    open = dropdown.hasClass 'open'
+    dropdown.toggleClass 'open'
+    if open
+      $('body').off 'click', clickOutsideAvatarDropdownHandler
+    else
+      $('body').on 'click', clickOutsideAvatarDropdownHandler
 
 Template.connection_button.helpers
   connectStatus: Meteor.status

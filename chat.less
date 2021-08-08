@@ -82,23 +82,21 @@
       content: "\f2ed";
     }
   }
-  .starred .bb-message-star {
-    &::after {
-      color: grey;
-    }
-    &::before {
-      color: palegoldenrod;
-    }
+  .bb-message-star::after {
+    color: grey;
+  }
+  .starred .bb-message-star::before {
+    color: palegoldenrod;
   } 
+  .bb-message:not(.starred) .bb-message-star::before {
+    color: transparent;
+  }
   &.can-modify-star {
     .bb-message-star::after {
       color: var(--text-color);
     }
     .starred .bb-message-star::before {
       color: gold;
-    }
-    .bb-message:not(.starred) .bb-message-star::before {
-      color: transparent;
     }
   }
   .media {
