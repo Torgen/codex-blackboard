@@ -6,6 +6,7 @@ import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
 import { mechanics } from '../lib/imports/mechanics.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
+import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
 
 settings = share.settings # import
@@ -253,8 +254,11 @@ Meteor.startup ->
         gravatar = gravatarUrl
           gravatar_md5: nickHash(message.nick)
           size: 192
+        body = message.body
+        if message.bodyIsHtml
+          body = textify body
         share.notification.notify "Private message from #{message.nick} in #{room_name}",
-          body: message.body
+          body: body
           tag: id
           data: {url}
           icon: gravatar
