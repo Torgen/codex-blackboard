@@ -243,7 +243,7 @@ Meteor.startup ->
     me = Meteor.user()?._id
     return unless me?
     arnow = share.model.UTCNow()  # Intentionally not reactive
-    share.model.Messages.find(to: me, timestamp: $gt: arnow).observeChanges
+    share.model.Messages.find({$or: [{to: me}, {mention: me}], timestamp: $gt: arnow}).observeChanges
       added: (id, message) ->
         [room_name, url] = if message.room_name is 'general/0'
           [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
@@ -258,7 +258,11 @@ Meteor.startup ->
         body = message.body
         if message.bodyIsHtml
           body = textify body
-        share.notification.notify "Private message from #{message.nick} in #{room_name}",
+        description = if message.to?
+          "Private message from #{message.nick} in #{room_name}"
+        else
+          "Mentioned by #{message.nick} in #{room_name}"
+        share.notification.notify description,
           body: body
           tag: id
           data: {url}

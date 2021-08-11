@@ -157,7 +157,7 @@ notificationStreams = [
   {name: 'answers', label: "Answers"}
   {name: 'stuck', label: 'Stuck Puzzles'}
   {name: 'favorite-mechanics', label: 'Favorite Mechanics'}
-  {name: 'private-messages', label: 'Private Messages'}
+  {name: 'private-messages', label: 'Private Messages/Mentions'}
 ]
 
 notificationStreamsEnabled = ->
