@@ -244,14 +244,19 @@ Meteor.startup ->
     return unless me?
     arnow = share.model.UTCNow()  # Intentionally not reactive
     share.model.Messages.find({$or: [{to: me}, {mention: me}], timestamp: $gt: arnow}).observeChanges
-      added: (id, message) ->
+      added: (msgid, message) ->
         [room_name, url] = if message.room_name is 'general/0'
           [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
         else if message.room_name is 'callins/0'
           ['Callin Queue', Meteor._relativeToSiteRootUrl '/callins']
         else
-          pid = message.room_name.match(/puzzles\/(.*)/)[1]
-          ["Puzzle \"#{share.model.Puzzles.findOne(pid).name}\"", share.Router.urlFor 'puzzles', pid]
+          [type, id] = message.room_name.split '/'
+          target = share.model.Names.findOne id
+          if target.type is type
+            pretty_type = share.model.pretty_collection(type).replace /^[a-z]/, (x) -> x.toUpperCase()
+            ["#{pretty_type} \"#{target.name}\"", share.Router.urlFor type, id]
+          else
+            [message.room_name, share.Router.chatUrlFor message.room_name]
         gravatar = gravatarUrl
           gravatar_md5: nickHash(message.nick)
           size: 192
@@ -264,7 +269,7 @@ Meteor.startup ->
           "Mentioned by #{message.nick} in #{room_name}"
         share.notification.notify description,
           body: body
-          tag: id
+          tag: msgid
           data: {url}
           icon: gravatar
   
