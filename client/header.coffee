@@ -7,7 +7,6 @@ import { hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
-import convertURLsToLinksAndImages from './imports/linkify.coffee'
 import './imports/timestamp.coffee'
 
 model = share.model # import
@@ -62,12 +61,6 @@ Template.registerHelper 'nickOrName', (args) ->
 privateMessageTransform = (msg) ->
   _id: msg._id
   message: msg
-  cleanup: (body) ->
-    unless msg.bodyIsHtml
-      body = UI._escape body
-      body = body.replace /\n|\r\n?/g, '<br/>'
-      body = convertURLsToLinksAndImages body, "#{msg._id}-priv"
-    new Spacebars.SafeString(body)
   read: ->
     msg.timestamp <= model.LastRead.findOne('private')?.timestamp || msg.timestamp <= model.LastRead.findOne(msg.room_name)?.timestamp
   showRoom: true

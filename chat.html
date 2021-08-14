@@ -134,16 +134,22 @@ Click here to stay in this meeting instead.{{/if}}">
         {{/if}}
       </h5>
       {{#if message.action}}*** {{/if}}
-      {{cleanup message.body}}
-      {{#if message.tweet.quote}}
-        <h6>in reply to @<a href="https://twitter.com/{{message.tweet.quote_nick}}" target="_blank">{{message.tweet.quote_nick}}</a>'s <a href="https://twitter.com/{{message.tweet.quote_nick}}/status/{{message.tweet.quote_id_str}}" target="_blank">tweet</a>:</h6>
-        <blockquote>{{cleanup message.tweet.quote}}</blockquote>
-      {{/if}}      
+      {{#if message.tweet}}
+        {{{message.body}}}
+        {{#if message.tweet.quote}}
+          <h6>in reply to @<a href="https://twitter.com/{{message.tweet.quote_nick}}" target="_blank">{{message.tweet.quote_nick}}</a>'s <a href="https://twitter.com/{{message.tweet.quote_nick}}/status/{{message.tweet.quote_id_str}}" target="_blank">tweet</a>:</h6>
+          <blockquote>{{{message.tweet.quote}}}</blockquote>
+        {{/if}}
+      {{else}}
+        {{>chat_format_body body=message.body bodyIsHtml=message.bodyIsHtml}}
+      {{/if}}  
       {{#if message.action}} ***{{/if}}
       {{#if message.poll}}{{> poll message.poll}}{{/if}}
     </div> 
   </div>  
 </template>
+
+<template name="chat_format_body"><!--each-->{{#each chunk in chunks}}<!--dynamic-->{{>dynamic_no_whitespace template=(chunk_template chunk.type) data=chunk.content}}<!--/dynamic-->{{/each}}<!--/each--></template>
 
 <template name="poll">
   <table class="poll">
@@ -180,7 +186,7 @@ Click here to stay in this meeting instead.{{/if}}">
       {{#if message.dawn_of_time}}<!-- Channel creation -->
       {{else if message.presence}}
         {{#unless presence_too_old}}
-          <div class="bb-message-presence {{message.presence}}" title="{{pretty_ts message.timestamp}}: {{cleanup message.body}}" data-read="{{#unless read}}un{{/unless}}read">
+          <div class="bb-message-presence {{message.presence}}" title="{{pretty_ts message.timestamp}}: {{message.body}}" data-read="{{#unless read}}un{{/unless}}read">
             {{>gravatar nick=message.nick size=16 }}{{message.nick}}
           </div>
         {{/unless}}
@@ -188,7 +194,7 @@ Click here to stay in this meeting instead.{{/if}}">
         <div class="bb-message-system" data-read="{{#unless read}}un{{/unless}}read">
           <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
           {{> message_delete_button}}
-          {{cleanup message.body}}
+          {{message.body}}
         </div>
       {{else if usefulEnough message}}
         {{#if message.action}}
@@ -196,7 +202,7 @@ Click here to stay in this meeting instead.{{/if}}">
             <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
             {{> message_delete_button}}
             {{>gravatar nick=message.nick size=16 }}
-            <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{cleanup message.body}}
+            <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{>chat_format_body body=message.body bodyIsHtml=message.bodyIsHtml}}
           </div>
         {{else}}
           {{> media_message }}

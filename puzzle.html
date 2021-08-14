@@ -22,7 +22,7 @@
   <tr><td>{{cares.name}}:</td><td class="wanted">(wanted by <span title="{{cares.meta}}">{{abbrev cares.meta}}</span>)</td></tr>
 {{/each}}
 {{#each mtag in metatags}}
-  <tr><td>{{mtag.name}}:<br><i>(from <span title="{{mtag.meta}}">{{abbrev mtag.meta}}</span>)</i></td><td>{{mtag.value}}</td></tr>
+  <tr><td>{{mtag.name}}:<br><i>(from <span title="{{mtag.meta}}">{{abbrev mtag.meta}}</span>)</i></td><td>{{>text_chunks mtag.value}}</td></tr>
 {{/each}}
 {{#with puzzle}}
   {{#each tags}}
@@ -30,7 +30,7 @@
       <td class="tagname">{{name}}:</td>
       <td class="tagvalue">
         {{#if equal canon "color"}}<span class="bb-colorbox" style="background-color: {{value}}"></span>{{/if}}
-        {{value}}
+        {{>text_chunks value}}
       </td>
     </tr>
   {{/each}}

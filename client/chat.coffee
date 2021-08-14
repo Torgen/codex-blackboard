@@ -6,7 +6,7 @@ import { gravatarUrl, hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
-import convertURLsToLinksAndImages from './imports/linkify.coffee'
+import {chunk_text, chunk_html} from './imports/chunk_text.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -172,12 +172,6 @@ messageTransform = (m) ->
     unless result
       Session.get 'lastread'
     result
-  cleanup: (body) ->
-    unless m.bodyIsHtml
-      body = UI._escape body
-      body = body.replace /\n|\r\n?/g, '<br/>'
-      body = convertURLsToLinksAndImages body, m._id
-    new Spacebars.SafeString(body)
 
 # Template Binding
 Template.messages.helpers
@@ -516,6 +510,18 @@ imageScrollHack = window.imageScrollHack = (img) ->
 
 Template.media_message.events
   'mouseenter .bb-message-body .inline-image': (event, template) -> imageScrollHack(event.currentTarget)
+
+Template.chat_format_body.helpers
+  chunks: ->
+    if @bodyIsHtml
+      chunk_html @body
+    else
+      chunk_text @body
+  chunk_template: (type) ->
+    if type is 'url'
+      'text_chunk_url_image'
+    else
+      "text_chunk_#{type}"
 
 # unstick from bottom if the user manually scrolls
 $(window).scroll (event) ->
@@ -910,7 +916,6 @@ do ->
 # exports
 share.chat =
   favicon: favicon
-  convertURLsToLinksAndImages: convertURLsToLinksAndImages
   hideMessageAlert: hideMessageAlert
   joinRoom: joinRoom
   # for debugging

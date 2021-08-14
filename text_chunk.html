@@ -1,0 +1,21 @@
+
+<template name="dynamic_no_whitespace">{{
+  #with chooseTemplate template}}{{
+    # .. ../data}}{{
+      > Template.contentBlock}}{{
+    / ..}}{{
+  /with}}</template>
+
+<template name="text_chunks">{{#each chunk in chunks}}{{>dynamic_no_whitespace template=(concat "text_chunk_" chunk.type) data=chunk.content}}{{/each}}</template>
+
+<template name="text_chunk_break"><br></template>
+
+<template name="text_chunk_mention"><span title="{{nickOrName this}}">@{{>gravatar nick=this size=14}}{{this}}</span></template>
+
+<template name="text_chunk_html">{{{this}}}</template>
+
+<template name="text_chunk_text">{{this}}</template>
+
+<template name="text_chunk_url"><a href="{{url}}" target="_blank">{{original}}</a></template>
+
+<template name="text_chunk_url_image"><a href="{{url}}" target="_blank">{{#if image original}}<img src="{{url}}" class="inline-image image-loading" onload="window.imageScrollHack(this)" >{{else}}{{original}}{{/if}}</a></template>
