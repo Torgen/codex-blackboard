@@ -356,6 +356,7 @@ Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
 
 Template.blackboard_favorite_puzzle.onCreated ->
   @autorun =>
+    return unless Blaze._globalHelpers['visibleColumns']().some ({_id}) -> _id is 'update'
     @subscribe 'last-puzzle-room-message', Template.currentData()._id
 
 Template.blackboard_round.helpers
@@ -519,7 +520,6 @@ Template.blackboard_meta.helpers
     y.length
   collapsed: -> 'true' is reactiveLocalStorage.getItem "collapsed_meta.#{@puzzle._id}"
 
-
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
     if event.target.checked
@@ -553,14 +553,6 @@ Template.blackboard_puzzle_cells.helpers
     return (model.getTag @puzzle, name) or ''
   tags: tagHelper
   hexify: (v) -> cssColorToHex v
-  whos_working: ->
-    return [] unless @puzzle?
-    coll = presenceIndex.get("puzzles/#{@puzzle._id}")
-    unless coll?
-      coll = new Mongo.Collection null
-      presenceIndex.set("puzzles/#{@puzzle._id}", coll)
-    return coll.find {}, sort: {jitsi: -1, joined_timestamp: 1}
-  stuck: share.model.isStuck
   allMetas: ->
     return [] unless @
     (model.Puzzles.findOne x) for x in @feedsInto
@@ -576,11 +568,29 @@ Template.blackboard_puzzle_cells.helpers
     return model.Puzzles.find(puzzles: {$exists: true, $ne: @_id})
   jitsiLink: ->
     return jitsiUrl "puzzles", @puzzle?._id
+
+Template.blackboard_column_body_answer.helpers
+  answer: -> (model.getTag @puzzle, 'answer') or ''
+
+Template.blackboard_column_body_status.helpers
+  status: -> (model.getTag @puzzle, 'status') or ''
+
+Template.blackboard_column_body_update.helpers
+  stuck: share.model.isStuck
   solverMinutes: ->
     return unless @puzzle.solverTime?
     Math.floor(@puzzle.solverTime / 60000)
   new_message: ->
     not @puzzle.last_read_timestamp? or @puzzle.last_read_timestamp < @puzzle.last_message_timestamp
+
+Template.blackboard_column_body_working.helpers
+  whos_working: ->
+    return [] unless @puzzle?
+    coll = presenceIndex.get("puzzles/#{@puzzle._id}")
+    unless coll?
+      coll = new Mongo.Collection null
+      presenceIndex.set("puzzles/#{@puzzle._id}", coll)
+    return coll.find {}, sort: {jitsi: -1, joined_timestamp: 1}
 
 colorHelper = -> model.getTag @, 'color'
 
@@ -615,7 +625,6 @@ Template.puzzle_info.helpers { tags: tagHelper }
 # Subscribe to all group, round, and puzzle information
 Template.blackboard.onCreated ->
   @autorun =>
-    @subscribe 'all-presence'
     return if settings.BB_SUB_ALL
     @subscribe 'all-roundsandpuzzles'
   @autorun ->
@@ -641,6 +650,10 @@ Template.blackboard.onCreated ->
 
 Template.blackboard.onDestroyed ->
   presenceIndex.clear()
+
+Template.blackboard_column_header_working.onCreated ->
+  @autorun =>
+    @subscribe 'all-presence'
 
 # Update 'currentTime' every minute or so to allow pretty_ts to magically
 # update

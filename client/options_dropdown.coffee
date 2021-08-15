@@ -5,13 +5,33 @@ compactMode = ->
   editing = Meteor.userId() and Session.get 'canEdit'
   ('true' is reactiveLocalStorage.getItem 'compactMode') and not editing
 
-Template.registerHelper 'nCols', ->
-  if compactMode()
-    2
-  else if Meteor.userId() and (Session.get 'canEdit')
-    3
+currentColumns = new ReactiveVar []
+visibleColumns = new ReactiveVar []
+visibleColumnsForHelper = new ReactiveVar []
+visibleColumnsWhenEditing = new Set ['answer', 'status']
+
+Tracker.autorun ->
+  cols = reactiveLocalStorage.getItem 'currentColumns'
+  col_array = if cols?
+    cols.split ','
   else
-    5
+    ['answer', 'status', 'working', 'update']
+  currentColumns.set col_array
+
+Tracker.autorun ->
+  visible_array = if compactMode()
+    ['answer']
+  else if Meteor.userId() and (Session.get 'canEdit')
+    currentColumns.get().filter (x) -> visibleColumnsWhenEditing.has x
+  else
+    currentColumns.get()
+  visibleColumns.set visible_array
+
+Tracker.autorun ->
+  visibleColumnsForHelper.set visibleColumns.get().map (x) -> {_id: x}
+
+Template.registerHelper 'nCols', ->
+  1 + visibleColumns.get().length
 
 Template.registerHelper 'compactMode', compactMode
 Template.registerHelper 'hideSolved', -> 'true' is reactiveLocalStorage.getItem 'hideSolved'
@@ -22,6 +42,8 @@ Template.registerHelper 'stuckToTop', -> 'true' is reactiveLocalStorage.getItem 
 Template.registerHelper 'noBot', -> 'true' is reactiveLocalStorage.getItem 'nobot'
 Template.registerHelper 'sfxMute', -> 'true' is reactiveLocalStorage.getItem 'mute'
 Template.registerHelper 'hideOldPresence', -> 'true' is reactiveLocalStorage.getItem 'hideOldPresence'
+# If iterating over a list without _id fields, the key is index, which makes insertions render oddly.
+Template.registerHelper 'visibleColumns', -> visibleColumnsForHelper.get()
 
 Template.options_dropdown.helpers
   jitsi: share.settings.JITSI_SERVER?
@@ -56,3 +78,8 @@ Template.options_dropdown.events
     reactiveLocalStorage.setItem 'startVideoMuted', event.target.checked
   'change .bb-start-audio-muted input': (event, template) ->
     reactiveLocalStorage.setItem 'startAudioMuted', event.target.checked
+  'change input[data-column-visibility]': (event, template) ->
+    reactiveLocalStorage.setItem 'currentColumns', template.$('input[data-column-visibility]:checked').map(-> @dataset.columnVisibility).get().join(',')
+
+Template.options_dropdown_column_checkbox.helpers
+  columnVisible: -> currentColumns.get().includes @
