@@ -156,7 +156,7 @@ describe 'blackboard', ->
       $("#confirmModal .bb-confirm-ok").click()
       await waitForMethods()
       deleted = bank()
-      chai.assert.notOk initial.tags.meme
+      chai.assert.notOk deleted.tags.meme
 
   it 'makes a puzzle a favorite', ->
     share.Router.BlackboardPage()
