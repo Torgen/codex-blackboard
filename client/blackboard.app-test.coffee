@@ -27,6 +27,17 @@ describe 'blackboard', ->
     await afterFlushPromise()
     chai.assert.isBelow $("#round#{civ._id}").offset().top, $("#round#{emo._id}").offset().top
 
+  it 'navigates to puzzle on click', ->
+    share.Router.BlackboardPage()
+    await waitForSubscriptions()
+    isss = share.model.Puzzles.findOne name: 'Interstellar Spaceship'
+    chai.assert.isOk isss
+    $("#m#{isss._id} tr.meta .puzzles-link").trigger $.Event 'click', {button: 0}
+    await afterFlushPromise()
+    chai.assert.equal Session.get('currentPage'), 'puzzle'
+    chai.assert.equal Session.get('type'), 'puzzles'
+    chai.assert.equal Session.get('id'), isss._id
+
   describe 'in edit mode', ->
 
     it 'allows reordering puzzles', ->
