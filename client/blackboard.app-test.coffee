@@ -3,6 +3,11 @@
 import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
+
+fill_alertify = (text) ->
+  $('#alertify-text').val(text)
+  $('#alertify-ok').click()
+
 describe 'blackboard', ->
   @timeout 10000
   before ->
@@ -85,9 +90,6 @@ describe 'blackboard', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
-      fill_alertify = (text) ->
-        $('#alertify-text').val(text)
-        $('#alertify-ok').click()
       $('button.bb-add-round').click()
       fill_alertify 'Created Round'
       await waitForMethods()
@@ -123,6 +125,39 @@ describe 'blackboard', ->
       indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
       chai.assert.include indirect.feedsInto, meta._id
 
+    it 'adds and deletes tags', ->
+      share.Router.EditPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      bank = -> share.model.Puzzles.findOne name: 'Letter Bank'
+      initial = bank()
+      chai.assert.notOk initial.tags.meme
+      $("[data-puzzle-id=\"#{initial._id}\"] .bb-add-tag").first().click()
+      fill_alertify 'Meme'
+      creation = bank()
+      await waitForMethods()
+      chai.assert.include creation.tags.meme,
+        name: 'Meme'
+        value: ''
+        touched_by: 'testy'
+      await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"]").first().click()
+      await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] input").first().val('yuno accept deposits?').focusout()
+      await waitForMethods()
+      edit = bank()
+      chai.assert.include edit.tags.meme,
+        name: 'Meme'
+        value: 'yuno accept deposits?'
+        touched_by: 'testy'
+      await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] .bb-delete-icon").first().click()
+      await afterFlushPromise()
+      $("#confirmModal .bb-confirm-ok").click()
+      await waitForMethods()
+      deleted = bank()
+      chai.assert.notOk initial.tags.meme
+
   it 'makes a puzzle a favorite', ->
     share.Router.BlackboardPage()
     await waitForSubscriptions()
@@ -138,7 +173,6 @@ describe 'blackboard', ->
     await afterFlushPromise()
     chai.assert.isDefined $('#favorites').html()
     chai.assert.isDefined $("tr[data-puzzle-id=\"#{bank._id}\"] .bb-recent-puzzle-chat").html()
-
 
 describe 'login', ->
   @timeout 10000
