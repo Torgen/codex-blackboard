@@ -1,6 +1,6 @@
 'use strict'
 
-import {waitForSubscriptions, waitForMethods, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
 describe 'chat', ->
@@ -169,3 +169,44 @@ describe 'chat', ->
       chai.assert.deepInclude msg,
         to: 'kwal'
       chai.assert.isNotOk msg.mention
+
+  describe 'polls', ->
+    it 'lets you change your vote', ->
+      id = share.model.Puzzles.findOne(name: 'Amateur Hour')._id
+      share.Router.ChatPage('puzzles', id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      poll = await promiseCall 'newPoll', "puzzles/#{id}", 'Flip a coin', ['heads', 'tails']
+      await waitForSubscriptions()  # when the message with the poll renders, the subscription to the poll also happens.
+      await afterFlushPromise()
+      results = $('#messages td.results .bar')
+      chai.assert.equal results.length, 2
+      chai.assert.equal results[0].style.width, '0%'
+      chai.assert.equal results[1].style.width, '0%'
+      await promiseCall 'setField',
+        type: 'polls'
+        object: poll
+        fields:
+          votes:
+            cscott:
+              canon: 'heads'
+              timestamp: 1
+            kwal:
+              canon: 'tails'
+              timestamp: 2
+            zachary:
+              canon: 'heads'
+              timestamp: 3
+      await afterFlushPromise()
+      chai.assert.equal results[0].style.width, '100%'
+      chai.assert.equal results[1].style.width, '50%'
+      $('button[data-option="tails"').click()
+      await waitForMethods()
+      await afterFlushPromise()
+      chai.assert.equal results[0].style.width, '100%'
+      chai.assert.equal results[1].style.width, '100%'
+      $('button[data-option="heads"').click()
+      await waitForMethods()
+      await afterFlushPromise()
+      chai.assert.equal results[0].style.width, '100%'
+      chai.assert.equal results[1].style.width, '33.3333%'

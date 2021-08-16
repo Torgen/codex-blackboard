@@ -23,3 +23,5 @@ export afterFlushPromise = denodeify(Tracker.afterFlush)
 export login = denodeify(Meteor.loginWithCodex)
 
 export logout = denodeify(Meteor.logout)
+
+export promiseCall = denodeify(Meteor.call)
