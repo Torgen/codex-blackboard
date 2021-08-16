@@ -40,9 +40,6 @@ share.hubot.codex = (robot) ->
       name: name
       optional_type: "puzzles"
     if not target
-      target = callAs "getByName", who,
-        name: name
-    if not target
       msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
       return msg.finish()
     res = callAs "setAnswer", who,
@@ -77,9 +74,7 @@ share.hubot.codex = (robot) ->
     if name?
       target = callAs "getByName", who,
         name: name
-        optional_type: type ? "puzzles"
-      if not target and not type?
-        target = callAs "getByName", who, name: name
+        optional_type: 'puzzles'
       if not target
         msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
         return msg.finish()
@@ -115,9 +110,7 @@ share.hubot.codex = (robot) ->
     if name?
       target = callAs "getByName", who,
         name: name
-        optional_type: type ? "puzzles"
-      if not target and not type?
-        target = callAs "getByName", who, name: name
+        optional_type: 'puzzles'
       if not target
         msg.reply useful: true, "I can't find a puzzle called \"#{name}\"."
         return msg.finish()
