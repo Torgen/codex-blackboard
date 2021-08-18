@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from '../lib/imports/canonical.coffee'
+import { lat, lng, distance } from './imports/location.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
 
@@ -11,27 +12,6 @@ settings = share.settings # import
 
 GEOLOCATION_DISTANCE_THRESHOLD = 10/5280 # 10 feet
 GEOLOCATION_NEAR_DISTANCE = 1 # folks within a mile of you are "near"
-
-deg2rad = (deg) ->
-  deg * Math.PI / 180
-
-lng = (geojson) -> geojson.coordinates[0]
-lat = (geojson) -> geojson.coordinates[1]
-
-distance = (one, two) ->
-  [lat1,lon1,lat2,lon2] = [lat(one),lng(one),lat(two),lng(two)]
-  R = 6371.009 # Radius of the earth in km
-  Rmi = 3958.761 # Radius of the earth in miles
-  dLat = deg2rad(lat2 - lat1) # deg2rad below
-  dLon = deg2rad(lon2 - lon1)
-  a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2)
-
-  c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  d = Rmi * c # Distance in miles
-  return d
 
 updateLocation = do ->
   last = null
