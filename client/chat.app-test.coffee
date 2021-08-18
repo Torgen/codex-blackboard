@@ -23,10 +23,10 @@ describe 'chat', ->
     share.Router.ChatPage('puzzles', id)
     await waitForSubscriptions()
     await afterFlushPromise()
-    chai.assert.isUndefined $('.bb-message-last-read').html()
+    top = $('.bb-message-last-read').offset().top
     $('#messageInput').focus()
-    await afterFlushPromise()
-    chai.assert.isDefined $('.bb-message-last-read').html()
+    await waitForMethods()
+    chai.assert.isAbove $('.bb-message-last-read').offset().top, top, 'after'
 
   it 'scrolls through history', ->
     id = share.model.Puzzles.findOne(name: 'Joy')._id
