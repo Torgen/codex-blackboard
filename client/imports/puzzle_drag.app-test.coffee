@@ -10,7 +10,7 @@ import chai from 'chai'
 describe 'drag-and-drop', ->
   @timeout 10000
   before ->
-    login('testy', 'Teresa Tybalt', '', '')
+    login('testy', 'Teresa Tybalt', '', 'failphrase')
   
   after ->
     logout()

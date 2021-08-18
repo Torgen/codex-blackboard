@@ -31,7 +31,7 @@
   },
   "scripts": {
     "test": "meteor test --once --driver-package meteortesting:mocha",
-    "test.full": "meteor test --once --driver-package meteortesting:mocha --full-app",
+    "test.full": "meteor test --once --driver-package meteortesting:mocha --full-app --settings private/integration_test_settings.json",
     "coverage": "COVERAGE=1 COVERAGE_OUT_HTML=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
     "coverage.lcov": "COVERAGE=1 COVERAGE_OUT_LCOVONLY=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
     "coverage.full.lcov": "COVERAGE=1 COVERAGE_OUT_LCOVONLY=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm run-script test.full"

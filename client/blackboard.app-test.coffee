@@ -3,7 +3,6 @@
 import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
-
 fill_alertify = (text) ->
   $('#alertify-text').val(text)
   $('#alertify-ok').click()
@@ -11,7 +10,7 @@ fill_alertify = (text) ->
 describe 'blackboard', ->
   @timeout 10000
   before ->
-    login('testy', 'Teresa Tybalt', '', '')
+    login('testy', 'Teresa Tybalt', '', 'failphrase')
   
   after ->
     logout()
@@ -173,14 +172,3 @@ describe 'blackboard', ->
     await afterFlushPromise()
     chai.assert.isDefined $('#favorites').html()
     chai.assert.isDefined $("tr[data-puzzle-id=\"#{bank._id}\"] .bb-recent-puzzle-chat").html()
-
-describe 'login', ->
-  @timeout 10000
-  it 'only sends email hash', ->
-    await login 'testy', 'Teresa Tybalt', 'fake@artifici.al', ''
-    await waitForSubscriptions()
-    chai.assert.isUndefined Meteor.users.findOne('testy').gravatar
-    chai.assert.equal Meteor.users.findOne('testy').gravatar_md5, 'a24f643d34150c3b4053989db38251c9'
-
-  afterEach ->
-    logout()

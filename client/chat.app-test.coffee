@@ -6,7 +6,7 @@ import chai from 'chai'
 describe 'chat', ->
   @timeout 10000
   before ->
-    login('testy', 'Teresa Tybalt', '', '')
+    login('testy', 'Teresa Tybalt', '', 'failphrase')
   
   after ->
     logout()
