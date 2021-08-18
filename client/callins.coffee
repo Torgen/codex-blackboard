@@ -1,6 +1,5 @@
 'use strict'
 
-import { nickHash } from './imports/nickEmail.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
