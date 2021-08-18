@@ -1,9 +1,6 @@
 'use strict'
 return unless share.DO_BATCH_PROCESSING
 
-import canonical from '../lib/imports/canonical.coffee'
-import md5 from '/lib/imports/md5.coffee'
-import { canonicalTags, getTag } from '../lib/imports/tags.coffee'
 import watchPresence from './imports/presence.coffee'
 
 model = share.model
