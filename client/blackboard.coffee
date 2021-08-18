@@ -514,8 +514,6 @@ Template.blackboard_meta.helpers
     hideSolved = 'true' is reactiveLocalStorage.getItem 'hideSolved'
     return p if editing or !hideSolved
     p.filter (pp) -> !pp.puzzle.solved?
-  tag: (name) ->
-    return (model.getTag this.round, name) or ''
   stuck: share.model.isStuck
   numHidden: ->
     return 0 unless 'true' is reactiveLocalStorage.getItem 'hideSolved'
