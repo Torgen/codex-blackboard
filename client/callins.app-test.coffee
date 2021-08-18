@@ -1,6 +1,6 @@
 'use strict'
 
-import {waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
 describe 'callins', ->
@@ -11,8 +11,22 @@ describe 'callins', ->
   after ->
     logout()
 
-  it 'renders table', ->
+  it 'marks puzzle solved', ->
     share.Router.CallInPage()
     await waitForSubscriptions()
-    # there should be a table header for the Civilization round.
-    chai.assert.isNotNull $("bb-callin-table").html()
+    pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+    chai.assert.isNotOk pb.solved
+    chai.assert.isNotOk pb.tags.answer
+    await promiseCall 'newCallIn',
+      callin_type: 'answer'
+      target_type: 'puzzles'
+      target: pb._id
+      answer: 'teferi'
+    await afterFlushPromise()
+    correctButtons = $('.bb-callin-correct')
+    chai.assert.equal correctButtons.length, 1
+    correctButtons.click()
+    await waitForMethods()
+    pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+    chai.assert.isOk pb.solved
+    chai.assert.equal pb.tags.answer.value, 'teferi'
