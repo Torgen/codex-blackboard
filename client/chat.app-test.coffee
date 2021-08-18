@@ -17,6 +17,13 @@ describe 'chat', ->
     await afterFlushPromise()
     chai.assert.isDefined $('a[href^="https://codexian.us"]').html()
     chai.assert.isDefined $('img[src^="https://memegen.link/doge"]').html()
+    chai.assert.equal $('.bb-chat-presence-block').length, 0
+    $('.bb-show-whos-here').click()
+    await afterFlushPromise()
+    chai.assert.equal $('.bb-chat-presence-block tr').length, 2
+    $('.bb-show-whos-here').click()
+    await afterFlushPromise()
+    chai.assert.equal $('.bb-chat-presence-block').length, 0
 
   it 'updates read marker', ->
     id = share.model.Puzzles.findOne(name: 'Temperance')._id
