@@ -698,22 +698,6 @@ Template.messages_input.onCreated ->
       when "/me"
         args.body = rest
         args.action = true
-      when "/users", "/show", "/list"
-        args.to = args.nick
-        args.action = true
-        whos_here = \
-          model.Presence.find({room_name: args.room_name, scope: 'chat'}, {sort:["nick"]}) \
-          .fetch().map (obj) -> obj.nick
-        if whos_here.length == 0
-          whos_here = "nobody"
-        else if whos_here.length == 1
-          whos_here = whos_here[0]
-        else if whos_here.length == 2
-          whos_here = whos_here.join(' and ')
-        else
-          whos_here[whos_here.length-1] = 'and ' + whos_here[whos_here.length-1]
-          whos_here = whos_here.join(', ')
-        args.body = "looks around and sees: #{whos_here}"
       when "/join"
         args.to = @userId
         args.action = true
