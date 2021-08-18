@@ -7,7 +7,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import Robot from '../imports/hubot.coffee'
-import { waitForDocument } from '../imports/testutils.coffee'
+import { waitForDocument } from '/lib/imports/testutils.coffee'
 import { impersonating } from '../imports/impersonate.coffee'
 
 model = share.model

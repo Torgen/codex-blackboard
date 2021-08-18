@@ -7,7 +7,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import delay from 'delay'
-import { waitForDocument } from './testutils.coffee'
+import { waitForDocument } from '/lib/imports/testutils.coffee'
 import watchPresence from './presence.coffee'
 
 model = share.model

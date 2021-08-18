@@ -7,7 +7,7 @@ import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import Robot from './hubot.coffee'
 import delay from 'delay'
-import { waitForDocument } from './testutils.coffee'
+import { waitForDocument } from '/lib/imports//testutils.coffee'
 
 model = share.model
 
