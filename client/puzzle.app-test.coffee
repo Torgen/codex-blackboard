@@ -33,7 +33,7 @@ describe 'puzzle', ->
     id = null
     beforeEach ->
       await waitForSubscriptions()
-      id = share.model.Puzzles.findOne(name: 'Warm And Fuzzy')._id
+      id = share.model.Puzzles.findOne(name: 'Cross Words')._id
 
     it 'renders puzzle view', ->
       share.Router.PuzzlePage id, 'puzzle'
