@@ -583,6 +583,7 @@ Template.messages_input.helpers
   typeaheadResults: -> Template.instance().queryCursor.get()
   selected: (id) -> 
     return Template.instance().selected.get() is id
+  error: -> Template.instance().error.get()
 
 MSG_PATTERN = /^\/m(sg)? ([A-Za-z_0-9]*)$/
 MSG_AT_START_PATTERN = /^\/m(sg)? /
@@ -593,6 +594,7 @@ Template.messages_input.onCreated ->
   @query = new ReactiveVar null
   @queryCursor = new ReactiveVar null
   @selected = new ReactiveVar null
+  @error = new ReactiveVar null
 
   @setQuery = (query) ->
     return if @query.get() is query
@@ -689,7 +691,7 @@ Template.messages_input.onCreated ->
       i[0].setSelectionRange newCaret, newCaret
     
   @submit = (message) ->
-    return unless message
+    return false unless message
     args =
       room_name: Session.get 'room_name'
       body: message
@@ -699,16 +701,15 @@ Template.messages_input.onCreated ->
         args.body = rest
         args.action = true
       when "/join"
-        args.to = @userId
-        args.action = true
-        return Meteor.call 'getByName', {name: rest.trim()}, (error,result) ->
-          if (not result?) and GENERAL_ROOM_REGEX.test(rest.trim())
-            result = {type:'general',object:_id:'0'}
-          if error? or not result?
-            args.body = "tried to join an unknown chat room"
-            return Meteor.call 'newMessage', args
-          hideMessageAlert()
-          joinRoom result.type, result.object._id
+        result = model.Names.findOne {canon: canonical rest.trim(), type: $in: ['rounds', 'puzzles']}
+        if (not result?) and GENERAL_ROOM_REGEX.test(rest.trim())
+          result = {type:'general', _id:'0'}
+        if error? or not result?
+          @error.set 'unknown chat room'
+          return false
+        hideMessageAlert()
+        joinRoom result.type, result._id
+        return true
       when "/msg", "/m"
         # find who it's to
         [to, rest] = rest.split(/\s+([^]*)/, 2)
@@ -725,12 +726,12 @@ Template.messages_input.onCreated ->
           args.body = rest
           args.to = to
         else
-          # error: unknown user
-          # record this attempt as a PM to yourself
-          args.to = @userId
-          args.body = "tried to /msg an UNKNOWN USER: #{message}"
-          args.body = "tried to say nothing: #{message}" if missingMessage
-          args.action = true
+          error = if missingMessage
+            'tried to say nothing'
+          else
+            'Unknown recipient'
+          @error.set error
+          return false
     unless args.to?
       # Can't mention someone in a private message
       mentions = for match from args.body.matchAll /(^|[\s])@([a-zA-Z_0-9]*)([\s.?!,]|$)/g
@@ -744,7 +745,7 @@ Template.messages_input.onCreated ->
     # it here in case we turn latency compensation back on.
     Tracker.afterFlush -> scrollMessagesView()
     @history_ts = null
-    return
+    return true
 
 format_body = (msg) ->
   if msg.action
@@ -758,6 +759,7 @@ Template.messages_input.events
     rvar = template.show_presence
     rvar.set(not rvar.get())
   "keydown textarea": (event, template) ->
+    template.error.set null
     if ['Up', 'ArrowUp'].includes(event.key) 
       if template.query.get()?
         event.preventDefault()
@@ -816,8 +818,8 @@ Template.messages_input.events
         # implicit submit on enter (but not shift-enter or ctrl-enter)
         $message = $ event.currentTarget
         message = $message.val()
-        $message.val ""
-        template.submit message
+        if template.submit message
+          $message.val ""
 
     # Tab also autocompletes
     if event.key is 'Tab'

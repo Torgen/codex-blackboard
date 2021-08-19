@@ -64,6 +64,56 @@ describe 'chat', ->
     input.trigger $.Event('keydown', {key: 'Down'})
     chai.assert.equal input.val(), '', 'after third down'
 
+  describe '/join', ->
+    it 'joins puzzle', ->
+      puzz = share.model.Puzzles.findOne name: 'Painted Potsherds'
+      share.Router.ChatPage('general', '0')
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '/join painted potsherds'
+      input.trigger $.Event('keydown', {which: 13})
+      chai.assert.equal input.val(), ''
+      chai.assert.equal Session.get('type'), 'puzzles'
+      chai.assert.equal Session.get('id'), puzz._id
+
+    it 'joins round', ->
+      rnd = share.model.Rounds.findOne name: 'Civilization'
+      share.Router.ChatPage('general', '0')
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '/join civilization'
+      input.trigger $.Event('keydown', {which: 13})
+      chai.assert.equal input.val(), ''
+      chai.assert.equal Session.get('type'), 'rounds'
+      chai.assert.equal Session.get('id'), rnd._id
+
+    it 'joins general', ->
+      rnd = share.model.Rounds.findOne name: 'Civilization'
+      share.Router.ChatPage('rounds', rnd._id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '/join ringhunters'
+      input.trigger $.Event('keydown', {which: 13})
+      chai.assert.equal input.val(), ''
+      chai.assert.equal Session.get('type'), 'general'
+      chai.assert.equal Session.get('id'), 0
+
+    it 'joins puzzle', ->
+      share.Router.ChatPage('general', '0')
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '/join pelvic splanchnic ganglion'
+      input.trigger $.Event('keydown', {which: 13})
+      chai.assert.equal input.val(), '/join pelvic splanchnic ganglion'
+      chai.assert.equal Session.get('type'), 'general'
+      chai.assert.equal Session.get('id'), 0
+      await afterFlushPromise()
+      chai.assert.isTrue input.hasClass 'error'
+
   describe 'typeahead', ->
 
     it 'accepts keyboard commands', ->
@@ -176,6 +226,18 @@ describe 'chat', ->
       chai.assert.deepInclude msg,
         to: 'kwal'
       chai.assert.isNotOk msg.mention
+
+    it 'errors on message to nobody', ->
+      id = share.model.Puzzles.findOne(name: 'Charm School')._id
+      share.Router.ChatPage('puzzles', id)
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      input = $ '#messageInput'
+      input.val '/msg cromslor you hear about @Cscott?'
+      input.trigger $.Event 'keydown', which: 13
+      chai.assert.equal input.val(), '/msg cromslor you hear about @Cscott?'
+      await afterFlushPromise()
+      chai.assert.isTrue input.hasClass 'error'
 
   describe 'polls', ->
     it 'lets you change your vote', ->

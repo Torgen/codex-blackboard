@@ -77,9 +77,10 @@ Click here to stay in this meeting instead.{{/if}}">
           {{/each}}
         </ul>
       {{/with}}
-      <textarea id="messageInput" class="input-block-level" rows="1"
+      <textarea id="messageInput" class="input-block-level {{#if error}}error{{/if}}" rows="1"
               placeholder="Type your message and press enter..."
-              autocomplete="off" ></textarea>
+              autocomplete="off"></textarea>
+      <div class="tooltip fade top {{#if error}}in{{else}}out{{/if}}" style="top: -33px; left: 114.094px; display: block;"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{error}}</div></div>
     </form>
   </div>
 </template>

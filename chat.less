@@ -373,7 +373,13 @@ table.poll {
       display: block;
     }
   }
-  #messageInput { margin-top: 3px; }
+  #messageInput {
+    margin-top: 3px;
+    &.error {
+      background-color: pink;
+      border: 1px solid red;
+    }
+  }
   .bb-show-whos-here {
     flex-grow: 0;
     i {display: block; }
