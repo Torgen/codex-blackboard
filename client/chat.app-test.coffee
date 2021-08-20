@@ -65,6 +65,7 @@ describe 'chat', ->
     chai.assert.equal input.val(), '', 'after third down'
 
   it 'loads more', ->
+    @timeout 30000
     puzz = share.model.Puzzles.findOne name: 'Literary Collection'
     share.Router.ChatPage('puzzles', puzz._id)
     room = "puzzles/#{puzz._id}"
