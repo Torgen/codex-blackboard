@@ -64,6 +64,29 @@ describe 'chat', ->
     input.trigger $.Event('keydown', {key: 'Down'})
     chai.assert.equal input.val(), '', 'after third down'
 
+  it 'loads more', ->
+    puzz = share.model.Puzzles.findOne name: 'Literary Collection'
+    share.Router.ChatPage('puzzles', puzz._id)
+    room = "puzzles/#{puzz._id}"
+    await waitForSubscriptions()
+    await afterFlushPromise()
+    for _ in [1..125]
+      await promiseCall 'newMessage',
+        body: 'spam'
+        room_name: room
+      await promiseCall 'newMessage',
+        body: 'spams chat'
+        action: true
+        room_name: room
+    allMessages = $('#messages > *')
+    chai.assert.isAbove allMessages.length, 200
+    chai.assert.isBelow allMessages.length, 250
+    document.querySelector('.bb-chat-load-more').scrollIntoView()
+    $('.bb-chat-load-more').click()
+    await waitForSubscriptions()
+    allMessages = $('#messages > *')
+    chai.assert.isAbove allMessages.length, 250
+
   describe '/join', ->
     it 'joins puzzle', ->
       puzz = share.model.Puzzles.findOne name: 'Painted Potsherds'
