@@ -1,7 +1,6 @@
 'use strict'
 
 import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
-import { waitForDocument } from '/lib/imports/testutils.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import delay from 'delay'
@@ -133,7 +132,7 @@ describe 'notifications', ->
       body: "How you doin #{rand}"
     return {id: doors._id, rand}
   , ->
-  
+
   testcase 'mention', 'private-messages', (-> 'Mentioned by someoneelse in Puzzle "The Doors Of Cambridge"'), (({id, rand})-> sinon.match({body: "@testy How you doin #{rand}", icon: GRAVATAR_192, data: url: "/puzzles/#{id}"})), ->
     doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
     rand = Random.id()
