@@ -11,12 +11,13 @@ describe 'notifications', ->
   @timeout 10000
   other_conn = null
   before ->
-    login('testy', 'Teresa Tybalt', 'fake@artifici.al', 'failphrase')
+    await login('testy', 'Teresa Tybalt', 'fake@artifici.al', 'failphrase')
     other_conn = DDP.connect Meteor.absoluteUrl()
     await promiseCallOn other_conn, 'login',
       nickname: 'someoneelse'
       real_name: 'Someone Else'
       password: 'failphrase'
+    share.Router.BlackboardPage()
   
   after ->
     logout()
@@ -32,24 +33,6 @@ describe 'notifications', ->
 
       afterEach ->
         mock.verify()
-
-      it 'notifies when enabled', ->
-        v = null
-        try
-          Session.set 'notifications', 'granted'
-          share.notification.set stream, true
-          notify = mock.expects('notify')
-          p = new Promise (resolve) ->
-            notify.once().callsFake(-> resolve())
-          await afterFlushPromise()
-          await waitForSubscriptions()
-          v = await setup()
-          await p
-          sinon.assert.calledWith notify, title(v), settings(v)
-        finally
-          await cleanup(v) if v?
-          Session.set 'notifications', 'default'
-          share.notification.set stream, false
 
       it 'does not notify when granted but not enabled', ->
         v = null
@@ -75,6 +58,24 @@ describe 'notifications', ->
           await waitForSubscriptions()
           v = await setup()
           await delay 1000
+        finally
+          await cleanup(v) if v?
+          Session.set 'notifications', 'default'
+          share.notification.set stream, false
+
+      it 'notifies when enabled', ->
+        v = null
+        try
+          Session.set 'notifications', 'granted'
+          share.notification.set stream, true
+          notify = mock.expects('notify')
+          p = new Promise (resolve) ->
+            notify.once().callsFake(-> resolve())
+          await afterFlushPromise()
+          await waitForSubscriptions()
+          v = await setup()
+          await p
+          sinon.assert.calledWith notify, title(v), settings(v)
         finally
           await cleanup(v) if v?
           Session.set 'notifications', 'default'
