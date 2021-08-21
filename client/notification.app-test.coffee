@@ -1,20 +1,31 @@
 'use strict'
 
-import {waitForMethods, waitForSubscriptions, promiseCall, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import { waitForDocument } from '/lib/imports/testutils.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
+import delay from 'delay'
 
-GRAVATAR_192 = "https://secure.gravatar.com/avatar/a24f643d34150c3b4053989db38251c9.jpg?d=wavatar&s=192"
+GRAVATAR_192 = 'https://secure.gravatar.com/avatar/ec59d144f959e61bdf692ff0eb379d67.jpg?d=wavatar&s=192'
 
 describe 'notifications', ->
   @timeout 10000
+  other_conn = null
   before ->
     login('testy', 'Teresa Tybalt', 'fake@artifici.al', 'failphrase')
+    other_conn = DDP.connect Meteor.absoluteUrl()
+    await promiseCallOn other_conn, 'login',
+      nickname: 'someoneelse'
+      real_name: 'Someone Else'
+      password: 'failphrase'
   
   after ->
     logout()
+  
+  after ->
+    other_conn.disconnect()
 
-  testcase = (name, stream, title, settings, setup) ->
+  testcase = (name, stream, title, settings, setup, cleanup) ->
     describe name, ->
       mock = null
       beforeEach ->
@@ -24,41 +35,114 @@ describe 'notifications', ->
         mock.verify()
 
       it 'notifies when enabled', ->
+        v = null
         try
           Session.set 'notifications', 'granted'
           share.notification.set stream, true
-          mock.expects('notify').once().withArgs(title, settings)
+          notify = mock.expects('notify')
+          p = new Promise (resolve) ->
+            notify.once().callsFake(-> resolve())
           await afterFlushPromise()
           await waitForSubscriptions()
-          await setup()
+          v = await setup()
+          await p
+          sinon.assert.calledWith notify, title(v), settings(v)
         finally
+          await cleanup(v) if v?
           Session.set 'notifications', 'default'
           share.notification.set stream, false
 
       it 'does not notify when granted but not enabled', ->
+        v = null
         try
           Session.set 'notifications', 'granted'
           share.notification.set stream, false
           mock.expects('notify').never()
           await afterFlushPromise()
           await waitForSubscriptions()
-          await setup()
+          v = await setup()
+          await delay 1000
         finally
+          await cleanup(v) if v?
           Session.set 'notifications', 'default'
 
       it 'does not notify when not granted ', ->
+        v = null
         try
           Session.set 'notifications', 'denied'
           share.notification.set stream, true
           mock.expects('notify').never()
           await afterFlushPromise()
           await waitForSubscriptions()
-          await setup()
+          v = await setup()
+          await delay 1000
         finally
+          await cleanup(v) if v?
           Session.set 'notifications', 'default'
           share.notification.set stream, false
 
-  testcase 'announcement', 'announcements', 'testy', sinon.match({body: 'what\'s up guys', icon: GRAVATAR_192}), ->
-    promiseCall 'announce', 'what\'s up guys'
+  testcase 'announcement', 'announcements', (-> 'someoneelse'), (-> sinon.match({body: 'what\'s up guys', icon: GRAVATAR_192})), ->
+    promiseCallOn other_conn, 'announce', 'what\'s up guys'
+  , ->
+
+  testcase 'new puzzle', 'new-puzzles', (-> 'someoneelse'), ((v) -> sinon.match({body: 'Added puzzle Test Notification', icon: GRAVATAR_192, data: url: "/puzzles/#{v}"})), ->
+    round = share.model.Rounds.findOne name: 'Civilization'
+    obj = await promiseCallOn other_conn, 'newPuzzle',
+      name: 'Test Notification'
+      round: round._id
+    return obj._id
+  , (id) -> promiseCallOn other_conn, 'deletePuzzle', id
+
+  testcase 'new round', 'new-puzzles', (-> 'someoneelse'), ((v) -> sinon.match({body: 'Added round Test Notification', icon: GRAVATAR_192, data: url: "/rounds/#{v}"})), ->
+    obj = await promiseCallOn other_conn, 'newRound',
+      name: 'Test Notification'
+    return obj._id
+  , (id) -> promiseCallOn other_conn, 'deleteRound', id
+
+  testcase 'new callin', 'callins', (-> 'someoneelse'), (-> sinon.match({body: 'New answer knob submitted for puzzle The Doors Of Cambridge', icon: GRAVATAR_192, data: url: "/callins"})), ->
+    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    obj = await promiseCallOn other_conn, 'newCallIn',
+      target: doors._id
+      answer: 'knob'
+    return obj._id
+  , (id) -> promiseCallOn other_conn, 'cancelCallIn', id: id
+
+  testcase 'answer', 'answers', (-> 'someoneelse'), ((id)-> sinon.match({body: 'Found an answer (KNOB) to puzzle The Doors Of Cambridge', icon: GRAVATAR_192, data: url: "/puzzles/#{id}"})), ->
+    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    await promiseCallOn other_conn, 'setAnswer',
+      target: doors._id
+      answer: 'knob'
+    return doors._id
+  , (id) -> promiseCallOn other_conn, 'deleteAnswer', target: id
+
+  testcase 'mechanics', 'favorite-mechanics', (-> 'The Doors Of Cambridge'), ((id)-> sinon.match({body: 'Mechanic "Nikoli Variants" added to puzzle "The Doors Of Cambridge"', tag: "#{id}/nikoli_variants", data: url: "/puzzles/#{id}"})), ->
+    await promiseCall 'favoriteMechanic', 'nikoli_variants'
+    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    await promiseCallOn other_conn, 'addMechanic', doors._id, 'nikoli_variants'
+    return doors._id
+  , (id) ->
+    await promiseCall 'unfavoriteMechanic', 'nikoli_variants'
+    promiseCall 'removeMechanic', id, 'nikoli_variants'
+
+  testcase 'private message', 'private-messages', (-> 'Private message from someoneelse in Puzzle "The Doors Of Cambridge"'), (({id, rand})-> sinon.match({body: "How you doin #{rand}", icon: GRAVATAR_192, data: url: "/puzzles/#{id}"})), ->
+    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    rand = Random.id()
+    await promiseCallOn other_conn, 'newMessage',
+      room_name: "puzzles/#{doors._id}"
+      to: 'testy'
+      body: "How you doin #{rand}"
+    return {id: doors._id, rand}
+  , ->
+  
+  testcase 'mention', 'private-messages', (-> 'Mentioned by someoneelse in Puzzle "The Doors Of Cambridge"'), (({id, rand})-> sinon.match({body: "@testy How you doin #{rand}", icon: GRAVATAR_192, data: url: "/puzzles/#{id}"})), ->
+    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    rand = Random.id()
+    await promiseCallOn other_conn, 'newMessage',
+      room_name: "puzzles/#{doors._id}"
+      mention: ['testy']
+      body: "@testy How you doin #{rand}"
+    return {id: doors._id, rand}
+  , ->
+
 
         

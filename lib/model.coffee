@@ -682,7 +682,7 @@ do ->
           "#{description}, \"#{args.answer.toUpperCase()}\"" + \
           (if opts?.specifyPuzzle then " (#{name})" else "")
       id = args.target._id or args.target
-      newObject "callins", {name:"#{args.callin_type}:#{name}:#{args.answer}", who:@userId},
+      callin = newObject "callins", {name:"#{args.callin_type}:#{name}:#{args.answer}", who:@userId},
         callin_type: args.callin_type
         target: id
         target_type: args.target_type
@@ -714,6 +714,7 @@ do ->
             Meteor.call "newMessage", msg
       oplog "New #{args.callin_type} #{args.answer} submitted for", args.target_type, id, \
           @userId, 'callins'
+      return callin
 
     newQuip: (text) ->
       check @userId, NonEmptyString

@@ -199,7 +199,6 @@ Meteor.startup ->
       onReady: -> suppress = false
   share.model.Messages.find({room_name: 'oplog/0', timestamp: $gt: now.get()}).observe
     added: (msg) ->
-      console.log "#{msg}"
       update msg.timestamp
       return unless Session.equals 'notifications', 'granted'
       return unless share.notification.get(msg.stream)

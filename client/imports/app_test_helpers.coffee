@@ -25,3 +25,5 @@ export login = denodeify(Meteor.loginWithCodex)
 export logout = denodeify(Meteor.logout)
 
 export promiseCall = denodeify(Meteor.call)
+
+export promiseCallOn = (x, ...a) -> denodeify(x.call.bind(x))(a...)
