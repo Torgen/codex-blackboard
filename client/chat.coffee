@@ -184,7 +184,6 @@ messageTransform = (m) ->
 
 # Template Binding
 Template.messages.helpers
-  room_name: -> Session.get('room_name')
   ready: -> Session.equals('chatReady', true) and \
             Template.instance().subscriptionsReady()
   # The dawn of time message has ID equal to the room name because it's
