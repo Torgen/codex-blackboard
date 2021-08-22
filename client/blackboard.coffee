@@ -486,8 +486,8 @@ Template.blackboard_meta.events
       Meteor.call 'newPuzzle',
         name: str
         feedsInto: [puzzId]
-        round: roundId,
-      (error,r)-> throw error if error
+        round: roundId
+      , (error,r)-> throw error if error
   'click tr.meta.collapsed .collapse-toggle': (event, template) ->
     reactiveLocalStorage.setItem "collapsed_meta.#{template.data.puzzle._id}", false
   'click tr.meta:not(.collapsed) .collapse-toggle': (event, template) ->
