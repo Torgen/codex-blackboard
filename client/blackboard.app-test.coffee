@@ -1,7 +1,8 @@
 'use strict'
 
-import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForMethods, waitForSubscriptions, promiseCall, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
+import { reactiveLocalStorage } from './imports/storage.coffee'
 
 fill_alertify = (text) ->
   $('#alertify-text').val(text)
@@ -41,6 +42,39 @@ describe 'blackboard', ->
     chai.assert.equal Session.get('currentPage'), 'puzzle'
     chai.assert.equal Session.get('type'), 'puzzles'
     chai.assert.equal Session.get('id'), isss._id
+
+  it 'hides solved', ->
+    share.Router.BlackboardPage()
+    await waitForSubscriptions()
+
+    joy = share.model.Puzzles.findOne name: 'Joy'
+    chai.assert.isOk joy
+    $joy = $("#m#{joy._id}")
+    warm = share.model.Puzzles.findOne name: 'Warm And Fuzzy'
+    chai.assert.isOk warm
+    chai.assert.isOk $joy.find("tr[data-puzzle-id=\"#{warm._id}\"]")[0]
+    chai.assert.isNotOk $joy.find('.metafooter')[0]
+
+    await promiseCall 'setAnswer',
+      target: warm._id
+      answer: 'fleece'
+    await afterFlushPromise()
+    chai.assert.isOk $joy.find("tr[data-puzzle-id=\"#{warm._id}\"]")[0]
+    chai.assert.isNotOk $joy.find('.metafooter')[0]
+
+    reactiveLocalStorage.setItem 'hideSolved', 'true'
+    await afterFlushPromise()
+    chai.assert.isNotOk $joy.find("tr[data-puzzle-id=\"#{warm._id}\"]")[0]
+    chai.assert.isOk $joy.find('.metafooter')[0]
+    chai.assert.equal $joy.find('.metafooter .num-hidden').text(), '(1 puzzle hidden)'
+
+    await promiseCall 'deleteAnswer', target: warm._id
+    await afterFlushPromise()
+
+    chai.assert.isOk $joy.find("tr[data-puzzle-id=\"#{warm._id}\"]")[0]
+    chai.assert.isNotOk $joy.find('.metafooter')[0]
+
+    reactiveLocalStorage.setItem 'hideSolved', 'false'
 
   describe 'in edit mode', ->
 
