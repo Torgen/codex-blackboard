@@ -7,6 +7,39 @@ import delay from 'delay'
 
 GRAVATAR_192 = 'https://secure.gravatar.com/avatar/ec59d144f959e61bdf692ff0eb379d67.jpg?d=wavatar&s=192'
 
+describe 'notifications dropdown', ->
+  @timeout 10000
+  before ->
+    await login('testy', 'Teresa Tybalt', 'fake@artifici.al', 'failphrase')
+    share.Router.BlackboardPage()
+
+  after ->
+    logout()
+
+  it 'enables and disables clicked streams', ->
+    Session.set 'notifications', 'granted'
+    await afterFlushPromise()
+    try
+      chai.assert.equal $('.bb-notification-controls').css('display'), 'none'
+      $('.bb-notification-enabled + .dropdown-toggle').click()
+      chai.assert.equal $('.bb-notification-controls').css('display'), 'block'
+      chai.assert.isFalse $('input[data-notification-stream="new-puzzles"').prop('checked')
+      chai.assert.notEqual localStorage.getItem('notification.stream.new-puzzles'), 'true'
+      $('input[data-notification-stream="new-puzzles"').click()
+      await afterFlushPromise()
+      chai.assert.equal $('.bb-notification-controls').css('display'), 'block'
+      chai.assert.isTrue $('input[data-notification-stream="new-puzzles"').prop('checked')
+      chai.assert.equal localStorage.getItem('notification.stream.new-puzzles'), 'true'
+      $('input[data-notification-stream="new-puzzles"').click()
+      await afterFlushPromise()
+      chai.assert.equal $('.bb-notification-controls').css('display'), 'block'
+      chai.assert.isFalse $('input[data-notification-stream="new-puzzles"').prop('checked')
+      chai.assert.notEqual localStorage.getItem('notification.stream.new-puzzles'), 'true'
+      $('body').click()
+      chai.assert.equal $('.bb-notification-controls').css('display'), 'none'
+    finally
+      Session.set 'notifications', 'default'
+
 describe 'notifications', ->
   @timeout 10000
   other_conn = null
