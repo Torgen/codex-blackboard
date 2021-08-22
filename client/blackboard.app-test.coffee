@@ -48,7 +48,6 @@ describe 'blackboard', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
-      # there should be a table header for the Civilization round.
       wall_street = share.model.Puzzles.findOne name: 'Wall Street'
       maths = share.model.Puzzles.findOne name: 'Advanced Maths'
       cheaters = share.model.Puzzles.findOne name: 'Cheaters Never Prosper'
@@ -56,13 +55,45 @@ describe 'blackboard', ->
       cheatersJQ = $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{cheaters._id}\"]"
       chai.assert.isBelow mathsJQ.offset().top, cheatersJQ.offset().top, 'before reorder'
       mathsJQ.find('button.bb-move-down').click()
-      await waitForSubscriptions()
+      await waitForMethods()
       await afterFlushPromise()
       chai.assert.isAbove mathsJQ.offset().top, cheatersJQ.offset().top, 'after down'
       mathsJQ.find('button.bb-move-up').click()
-      await waitForSubscriptions()
+      await waitForMethods()
       await afterFlushPromise()
       chai.assert.isBelow mathsJQ.offset().top, cheatersJQ.offset().top, 'after up'
+
+    it 'allows reordering metas', ->
+      share.Router.EditPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      sadness = share.model.Puzzles.findOne name: 'Sadness'
+      fear = share.model.Puzzles.findOne name: 'Fear'
+
+      sadnessJQ = $ "#m#{sadness._id} tr.meta"
+      fearJQ = $ "#m#{fear._id} tr.meta"
+      chai.assert.isBelow sadnessJQ.offset().top, fearJQ.offset().top, 'before reorder'
+      sadnessJQ.find('button.bb-move-down').click()
+      await waitForMethods()
+      await afterFlushPromise()
+      chai.assert.isAbove sadnessJQ.offset().top, fearJQ.offset().top, 'after down'
+      sadnessJQ.find('button.bb-move-up').click()
+      await waitForMethods()
+      await afterFlushPromise()
+      chai.assert.isBelow sadnessJQ.offset().top, fearJQ.offset().top, 'after up'
+      $('button[data-sortreverse="true"]').click()
+      await afterFlushPromise()
+      chai.assert.isAbove sadnessJQ.offset().top, fearJQ.offset().top, 'after reverse'
+      sadnessJQ.find('button.bb-move-up').click()
+      await waitForMethods()
+      await afterFlushPromise()
+      chai.assert.isBelow sadnessJQ.offset().top, fearJQ.offset().top, 'after up reversed'
+      sadnessJQ.find('button.bb-move-down').click()
+      await waitForMethods()
+      await afterFlushPromise()
+      chai.assert.isAbove sadnessJQ.offset().top, fearJQ.offset().top, 'after down reversed'
+      $('button[data-sortreverse="false"]').click()
+      await afterFlushPromise()
 
     it 'alphabetizes within a meta', ->
       share.Router.EditPage()
@@ -77,11 +108,11 @@ describe 'blackboard', ->
       akaJQ = disgustJQ.find "tr[data-puzzle-id=\"#{aka._id}\"]"
       chai.assert.isBelow cluelessJQ.offset().top, akaJQ.offset().top, 'before reorder'
       disgustJQ.find('button[data-sort-order="name"]').click()
-      await waitForSubscriptions()
+      await waitForMethods()
       await afterFlushPromise()
       chai.assert.isAbove cluelessJQ.offset().top, akaJQ.offset().top, 'after alpha'
       disgustJQ.find('button[data-sort-order=""]').click()
-      await waitForSubscriptions()
+      await waitForMethods()
       await afterFlushPromise()
       chai.assert.isBelow cluelessJQ.offset().top, akaJQ.offset().top, 'after manual'
 
