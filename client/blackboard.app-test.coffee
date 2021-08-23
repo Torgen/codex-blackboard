@@ -215,6 +215,39 @@ describe 'blackboard', ->
         value: 'yuno accept deposits?'
         touched_by: 'testy'
       await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"]").first().click()
+      await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] input").first().val('yuno pay interest?').trigger new $.Event('keydown', which: 27)
+      await waitForMethods()
+      # no edit on escape
+      edit = bank()
+      chai.assert.include edit.tags.meme,
+        name: 'Meme'
+        value: 'yuno accept deposits?'
+        touched_by: 'testy'
+      await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"]").first().click()
+      await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] input").first().val('yuno pay interest?').trigger new $.Event('keyup', which: 13)
+      await waitForMethods()
+      # Edit on enter
+      edit = bank()
+      chai.assert.include edit.tags.meme,
+        name: 'Meme'
+        value: 'yuno pay interest?'
+        touched_by: 'testy'
+      await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"]").first().click()
+      await afterFlushPromise()
+      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] input").first().val('').trigger new $.Event('keyup', which: 13)
+      await waitForMethods()
+      # empty cancels
+      edit = bank()
+      chai.assert.include edit.tags.meme,
+        name: 'Meme'
+        value: 'yuno pay interest?'
+        touched_by: 'testy'
+      await afterFlushPromise()
       $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] .bb-delete-icon").first().click()
       await afterFlushPromise()
       $("#confirmModal .bb-confirm-ok").click()

@@ -346,6 +346,7 @@ Template.blackboard.events
     processBlackboardEdit[type]?(text, id, rest...) if text
 Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
   ok: (text, evt) ->
+    return if Session.equals 'editing', undefined  # already cancelled.
     # find the data-bbedit specification for this field
     edit = $(evt.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
     [type, id, rest...] = edit.split('/')
