@@ -91,10 +91,6 @@ Meteor.startup ->
     fontStyle: '700'
 
 Template.chat.helpers
-  ready: ->
-    type = Session.get 'type'
-    type is 'general' or \
-      (model.collection(type)?.findOne Session.get("id"))?
   object: ->
     type = Session.get 'type'
     type isnt 'general' and \
@@ -184,8 +180,7 @@ messageTransform = (m) ->
 
 # Template Binding
 Template.messages.helpers
-  ready: -> Session.equals('chatReady', true) and \
-            Template.instance().subscriptionsReady()
+  ready: -> Session.equals('chatReady', true) and Template.instance().subscriptionsReady()
   # The dawn of time message has ID equal to the room name because it's
   # efficient to find it that way on the client, where there are no indexes.
   startOfChannel: -> model.Messages.findOne(_id: Session.get 'room_name', from_chat_subscription: true)?
