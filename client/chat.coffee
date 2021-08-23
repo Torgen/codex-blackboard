@@ -308,9 +308,6 @@ Template.messages.events
   'click .bb-chat-load-more': (event, template) ->
     firstMessage = event.currentTarget.nextElementSibling
     offset = firstMessage.offsetTop
-    # Skip starred messages because they might be loaded by a different publish.
-    while firstMessage.classList.contains 'starred'
-      firstMessage = firstMessage.nextElementSibling
     template.limitRaise = [firstMessage, offset]
     Session.set 'limit', Session.get('limit') + settings.CHAT_LIMIT_INCREMENT
 
