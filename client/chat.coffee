@@ -189,12 +189,11 @@ Template.messages.helpers
     # on the `nobot` session variable only for 'useless' messages
     myNick = Meteor.userId()
     botnick = botuser()._id
-    m.nick is myNick or m.to is myNick or \
-        m.useful or \
-        (m.nick isnt 'via twitter' and m.nick isnt botnick and \
-            not m.useless_cmd) or \
-        doesMentionNick(m) or \
-        ('true' isnt reactiveLocalStorage.getItem 'nobot')
+    return true if m.nick is myNick
+    return true if doesMentionNick(m)
+    return true if m.useful
+    return true unless m.tweet? or m.nick is botnick or m.useless_cmd
+    return 'true' isnt reactiveLocalStorage.getItem 'nobot'
   presence_too_old: ->
     return false unless reactiveLocalStorage.getItem('hideOldPresence') is 'true'
     # If a message is too old, it will always be too old unless the option changes,
