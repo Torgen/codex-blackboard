@@ -159,10 +159,6 @@ notificationStreams = [
   {name: 'private-messages', label: 'Private Messages/Mentions'}
 ]
 
-notificationStreamsEnabled = ->
-  item.name for item in notificationStreams \
-    when share.notification?.get?(item.name)
-
 Template.blackboard.helpers
   notificationStreams: notificationStreams
   notificationsAsk: ->
