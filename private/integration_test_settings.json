@@ -1,3 +1,4 @@
 {
-  "password": "failphrase"
+  "password": "failphrase",
+  "jitsi": {"staticRoom": "whiteNoiseFoyer"}
 }

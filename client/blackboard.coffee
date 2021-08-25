@@ -1,7 +1,7 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
-import jitsiUrl from './imports/jitsi.coffee'
+import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'

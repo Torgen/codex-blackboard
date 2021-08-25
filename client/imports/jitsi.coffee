@@ -2,6 +2,7 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import { StaticJitsiMeeting } from '/lib/imports/settings.coffee'
+import { reactiveLocalStorage } from './storage.coffee'
 
 export jitsiRoom = (roomType, roomId) ->
   return unless roomId
@@ -14,7 +15,40 @@ export jitsiRoom = (roomType, roomId) ->
     meeting = override if override?
   "#{canonical(share.settings.TEAM_NAME)}_#{meeting}"
 
-export default jitsiUrl = (roomType, roomId) ->
+# We need settings to load the jitsi api since it's conditional and the domain
+# is variable. This means we can't put it in the head, and putting it in the
+# body can mean the embedded chat is already rendered when it loads.
+# Therefore we set this ReactiveVar if/when it's finished loading so we
+# can retry the appropriate autorun once it loads.
+jitsiLoaded = new ReactiveVar false
+
+Meteor.startup ->
+  return unless share.settings.JITSI_SERVER
+  $.getScript "https://#{share.settings.JITSI_SERVER}/external_api.js", ->
+    jitsiLoaded.set true  
+
+export createJitsiMeet = (room, container) ->
+  console.log 'real one called'
+  return null unless jitsiLoaded.get()
+  return new JitsiMeetExternalAPI share.settings.JITSI_SERVER,
+    roomName: room
+    parentNode: container
+    interfaceConfigOverwrite:
+      TOOLBAR_BUTTONS: ['microphone', 'camera', 'desktop', 'fullscreen', \
+        'fodeviceselection', 'profile', 'sharedvideo', 'settings', \
+        'raisehand', 'videoquality', 'filmstrip', 'feedback', 'shortcuts', \
+        'tileview', 'videobackgroundblur', 'help', 'hangup' ]
+      SHOW_CHROME_EXTENSION_BANNER: false
+    configOverwrite:
+      # These properties are reactive, but changing them won't make us reload the room
+      # because newRoom will be the same as @jitsiRoom.
+      startWithAudioMuted: 'false' isnt reactiveLocalStorage.getItem 'startAudioMuted'
+      startWithVideoMuted: 'false' isnt reactiveLocalStorage.getItem 'startVideoMuted'
+      prejoinPageEnabled: false
+      enableTalkWhileMuted: false
+      'analytics.disabled': true
+
+export jitsiUrl = (roomType, roomId) ->
   return unless share.settings.JITSI_SERVER
   room = jitsiRoom roomType, roomId
   return unless room?

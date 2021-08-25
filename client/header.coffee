@@ -2,7 +2,7 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import md5 from '/lib/imports/md5.coffee'
-import jitsiUrl from './imports/jitsi.coffee'
+import { jitsiUrl } from './imports/jitsi.coffee'
 import { hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'

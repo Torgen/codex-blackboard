@@ -1,6 +1,7 @@
 'use strict'
 
-import jitsiUrl, { jitsiRoom } from './imports/jitsi.coffee'
+# Cannot destructure for testing purposes.
+import jitsiModule, {jitsiUrl, jitsiRoom} from './imports/jitsi.coffee'
 import { gravatarUrl, hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
@@ -315,18 +316,6 @@ whos_here_helper = ->
   roomName = Session.get('type') + '/' + Session.get('id')
   return model.Presence.find {room_name: roomName, scope: 'chat'}, {sort: ['joined_timestamp']}
 
-# We need settings to load the jitsi api since it's conditional and the domain
-# is variable. This means we can't put it in the head, and putting it in the
-# body can mean the embedded chat is already rendered when it loads.
-# Therefore we set this ReactiveVar if/when it's finished loading so we
-# can retry the appropriate autorun once it loads.
-jitsiLoaded = new ReactiveVar false
-
-Meteor.startup ->
-  return unless settings.JITSI_SERVER
-  $.getScript "https://#{settings.JITSI_SERVER}/external_api.js", ->
-    jitsiLoaded.set true  
-
 Template.embedded_chat.onCreated ->
   @jitsi = new ReactiveVar null
   # Intentionally staying out of the meeting.
@@ -360,43 +349,36 @@ jitsiRoomSubject = (type, id) ->
 
 Template.embedded_chat.onRendered ->
   @autorun =>
-    return unless jitsiLoaded.get()
+    console.log 'onRendered autorun'
     return if @jitsiLeft.get()
+    console.log 'not left'
     if @jitsiInOtherTab()
       @leaveJitsi()
       return
-    @subscribe 'register-presence', "#{@jitsiType()}/#{@jitsiId()}", 'jitsi'
+    console.log 'not in other tab'
     newRoom = jitsiRoom @jitsiType(), @jitsiId()
     jitsi = @jitsi.get()
-    if jitsi?
-      return if newRoom is @jitsiRoom
+    if jitsi? and newRoom isnt @jitsiRoom
+      console.log 'was in jitsi'
       jitsi.dispose()
+      jitsi = null
       @jitsi.set null
       @jitsiRoom = null
     if newRoom?
-      @jitsiRoom = newRoom
-      @jitsi.set new JitsiMeetExternalAPI(settings.JITSI_SERVER,
-        roomName: newRoom
-        parentNode: @find '#bb-jitsi-container'
-        interfaceConfigOverwrite:
-          TOOLBAR_BUTTONS: ['microphone', 'camera', 'desktop', 'fullscreen', \
-            'fodeviceselection', 'profile', 'sharedvideo', 'settings', \
-            'raisehand', 'videoquality', 'filmstrip', 'feedback', 'shortcuts', \
-            'tileview', 'videobackgroundblur', 'help', 'hangup' ]
-          SHOW_CHROME_EXTENSION_BANNER: false
-        configOverwrite:
-          # These properties are reactive, but changing them won't make us reload the room
-          # because newRoom will be the same as @jitsiRoom.
-          startWithAudioMuted: 'false' isnt reactiveLocalStorage.getItem 'startAudioMuted'
-          startWithVideoMuted: 'false' isnt reactiveLocalStorage.getItem 'startVideoMuted'
-          prejoinPageEnabled: false
-          enableTalkWhileMuted: false
-          'analytics.disabled': true
-      )
-      @jitsi.get().on 'videoConferenceLeft', =>
-        @leaveJitsi()
-        reactiveLocalStorage.removeItem 'jitsiTabUUID'
-      reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
+      console.log 'new room'
+      unless jitsi?
+        console.log 'not already in room'
+        jitsi = jitsiModule.createJitsiMeet newRoom, @find '#bb-jitsi-container'
+
+        return unless jitsi?
+        console.log 'made jitsi'
+        @jitsiRoom = newRoom
+        @jitsi.set jitsi
+        jitsi.on 'videoConferenceLeft', =>
+          @leaveJitsi()
+          reactiveLocalStorage.removeItem 'jitsiTabUUID'
+        reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
+      @subscribe 'register-presence', "#{@jitsiType()}/#{@jitsiId()}", 'jitsi'
   # If you reload the page the content of the user document won't be loaded yet.
   # The check that newroom is different from the current room means the display
   # name won't be set yet. This allows the display name and avatar to be set when
@@ -417,6 +399,7 @@ Template.embedded_chat.onRendered ->
     jitsi.executeCommand 'subject', jitsiRoomSubject(@jitsiType(), @jitsiId())
 
 Template.embedded_chat.onDestroyed ->
+  console.log 'destroyed'
   @unsetCurrentJitsi()
   $(window).off('unload', @unsetCurrentJitsi)
   @jitsi.get()?.dispose()
