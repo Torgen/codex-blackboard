@@ -27,6 +27,7 @@ describe 'login', ->
       chai.assert.isOk $('.bb-submit')[0]
       $('.bb-submit').click()
       await waitForMethods()
+      await afterFlushPromise()
       chai.assert.isNotOk Meteor.userId()
       chai.assert.isTrue $('#passwordInputGroup')[0].classList.contains 'error'
       chai.assert.equal $('#loginError')[0].innerText, 'Wrong password'
@@ -38,6 +39,7 @@ describe 'login', ->
       chai.assert.isOk $('.bb-submit')[0]
       $('.bb-submit').click()
       await waitForMethods()
+      await afterFlushPromise()
       chai.assert.isNotOk Meteor.userId()
       chai.assert.isTrue $('#nickInputGroup')[0].classList.contains 'error'
       chai.assert.equal $('#loginError')[0].innerText, 'Nickname must be 1-20 characters long'
@@ -49,6 +51,7 @@ describe 'login', ->
       chai.assert.isOk $('.bb-submit')[0]
       $('.bb-submit').click()
       await waitForMethods()
+      await afterFlushPromise()
       chai.assert.isNotOk Meteor.userId()
       chai.assert.isTrue $('#nickInputGroup')[0].classList.contains 'error'
       chai.assert.equal $('#loginError')[0].innerText, 'Can\'t impersonate the bot'

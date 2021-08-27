@@ -34,7 +34,6 @@ describe 'jitsi', ->
   
   afterEach ->
     await logout()
-    await afterFlushPromise()
     sinon.verify()
 
   it 'uses static meeting name', ->
