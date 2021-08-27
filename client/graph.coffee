@@ -157,7 +157,7 @@ Template.graph.onRendered ->
         @cy.$id(id).data 'label', newDoc.name
     removed: (doc) =>
       startAdding()
-      id = "rounds_#{newDoc._id}"
+      id = "rounds_#{doc._id}"
       for puzzle_id in doc.puzzles
         detach id, puzzle_id
       @cy.remove "##{id}"
