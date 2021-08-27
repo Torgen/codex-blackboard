@@ -340,6 +340,7 @@ Template.embedded_chat.onCreated ->
   $(window).on('unload', @unsetCurrentJitsi)
 
 jitsiRoomSubject = (type, id) ->
+
   if 'puzzles' is type
     model.Puzzles.findOne(id).name ? 'Puzzle'
   else if '0' is id
@@ -349,29 +350,21 @@ jitsiRoomSubject = (type, id) ->
 
 Template.embedded_chat.onRendered ->
   @autorun =>
-    console.log 'onRendered autorun'
     return if @jitsiLeft.get()
-    console.log 'not left'
     if @jitsiInOtherTab()
       @leaveJitsi()
       return
-    console.log 'not in other tab'
     newRoom = jitsiRoom @jitsiType(), @jitsiId()
     jitsi = @jitsi.get()
     if jitsi? and newRoom isnt @jitsiRoom
-      console.log 'was in jitsi'
       jitsi.dispose()
       jitsi = null
       @jitsi.set null
       @jitsiRoom = null
     if newRoom?
-      console.log 'new room'
       unless jitsi?
-        console.log 'not already in room'
         jitsi = jitsiModule.createJitsiMeet newRoom, @find '#bb-jitsi-container'
-
         return unless jitsi?
-        console.log 'made jitsi'
         @jitsiRoom = newRoom
         @jitsi.set jitsi
         jitsi.on 'videoConferenceLeft', =>
@@ -396,10 +389,10 @@ Template.embedded_chat.onRendered ->
   @autorun =>
     jitsi = @jitsi.get()
     return unless jitsi?
-    jitsi.executeCommand 'subject', jitsiRoomSubject(@jitsiType(), @jitsiId())
+    try
+      jitsi.executeCommand 'subject', jitsiRoomSubject(@jitsiType(), @jitsiId())
 
 Template.embedded_chat.onDestroyed ->
-  console.log 'destroyed'
   @unsetCurrentJitsi()
   $(window).off('unload', @unsetCurrentJitsi)
   @jitsi.get()?.dispose()
