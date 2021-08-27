@@ -9,7 +9,7 @@ fill_alertify = (text) ->
   $('#alertify-ok').click()
 
 describe 'blackboard', ->
-  @timeout 10000
+  @timeout 20000
   before ->
     login('testy', 'Teresa Tybalt', '', 'failphrase')
   
