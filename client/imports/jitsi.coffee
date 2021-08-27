@@ -28,7 +28,6 @@ Meteor.startup ->
     jitsiLoaded.set true  
 
 export createJitsiMeet = (room, container) ->
-  console.log 'real one called'
   return null unless jitsiLoaded.get()
   return new JitsiMeetExternalAPI share.settings.JITSI_SERVER,
     roomName: room
