@@ -9,7 +9,7 @@ awaitRender = ->
       $('.bb-status-graph').one('render', resolve)
 
 describe 'graph', ->
-  @timeout 10000
+  @timeout 20000
 
   after ->
     logout()
