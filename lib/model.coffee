@@ -289,7 +289,7 @@ do ->
     check x, NonEmptyString
     Object::hasOwnProperty.call(BBCollection, x)
     
-  oplog = (message, type, id, who, stream=null) ->
+  oplog = (message, type, id, who, stream='') ->
     Messages.insert
       room_name: 'oplog/0'
       nick: canonical(who)
