@@ -92,8 +92,10 @@ Template.graph.onRendered ->
         quality: 'proof'
         nodeDimensionsIncludeLabels: true
       p = lay.promiseOn 'layoutstop'
+      console.log 'about to layout'
       lay.run()
       await p
+      console.log 'laid out, about to dispatch render'
       @cy.container().dispatchEvent new Event('render')
       if @status is 'running'
         @status = 'idle'
