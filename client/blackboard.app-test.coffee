@@ -1,6 +1,6 @@
 'use strict'
 
-import {waitForMethods, waitForSubscriptions, promiseCall, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
@@ -75,6 +75,62 @@ describe 'blackboard', ->
     chai.assert.isNotOk $joy.find('.metafooter')[0]
 
     reactiveLocalStorage.setItem 'hideSolved', 'false'
+
+  describe 'presence filter', ->
+    other_conn = null
+    puzz1 = null
+    puzz2 = null
+    before ->
+      puzz1 = share.model.Puzzles.findOne name: 'A Learning Path'
+      puzz2 = share.model.Puzzles.findOne name: 'Unfortunate AI'
+      other_conn = DDP.connect Meteor.absoluteUrl()
+      await promiseCallOn other_conn, 'login',
+        nickname: 'incognito'
+        real_name: 'Mister Snrub'
+        password: 'failphrase'
+      p1 = new Promise (resolve) ->
+        other_conn.subscribe 'register-presence', "puzzles/#{puzz1._id}", 'chat', onReady: resolve
+      p2 = new Promise (resolve) ->
+        other_conn.subscribe 'register-presence', "puzzles/#{puzz2._id}", 'jitsi', onReady: resolve
+      await Promise.all [p1,p2]
+      share.Router.BlackboardPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      $('.bb-show-filter-by-user').click()
+
+    afterEach ->
+      $('.bb-clear-filter-by-user').click()
+      $('.puzzle-working .button-group.open .bb-show-filter-by-user').click()
+      await afterFlushPromise()
+
+    checkPage = ->
+      chai.assert.isOk $('#searchResults')[0]
+      $puzz1 = $("[data-puzzle-id=\"#{puzz1._id}\"]")
+      chai.assert.equal $puzz1.length, 1
+      chai.assert.equal $puzz1.find('.nick.background[data-nick="incognito"]').length, 1
+      $puzz2 = $("[data-puzzle-id=\"#{puzz2._id}\"]")
+      chai.assert.equal $puzz2.length, 1
+      chai.assert.equal $puzz2.find('.nick[data-nick="incognito"]:not(.background)').length, 1
+      chai.assert.isNotOk $("[data-puzzle-id=\"#{share.model.Puzzles.findOne name: 'AKA'}\"]")[0]
+
+    it 'supports typeahead', ->
+      $('.bb-filter-by-user').val('cogn').trigger('keyup')
+      $('li[data-value="incognito"] a').click()
+      await afterFlushPromise()
+      checkPage()
+
+    it 'searches by nickname substring', ->
+      $('.bb-filter-by-user').val('cogn').trigger(new $.Event 'keyup', keyCode: 13)
+      await afterFlushPromise()
+      checkPage()
+
+    it 'searches by name substring', ->
+      $('.bb-filter-by-user').val('nru').trigger(new $.Event 'keyup', keyCode: 13)
+      await afterFlushPromise()
+      checkPage()
+
+    after ->
+      other_conn.disconnect()
 
   describe 'in edit mode', ->
 
