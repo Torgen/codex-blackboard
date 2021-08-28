@@ -102,7 +102,7 @@ Click here to stay in this meeting instead.{{/if}}">
 
 <template name="media_message">
   <div class="bb-message media {{#if message.to}}bb-message-pm{{else if includes message.mention mynick}}bb-message-mention-me{{/if}}{{#if message.mail}} bb-message-mail{{/if}}{{#if message.tweet}} bb-message-tweet{{/if}}{{#if message.starred}} starred{{/if}}"
-       data-nick="{{message.nick}}" data-pm-to="{{message.to}}" data-read="{{#unless read}}un{{/unless}}read">
+       data-nick="{{message.nick}}" data-pm-to="{{message.to}}" data-read="{{#unless read}}un{{/unless}}read" data-message-id="{{message._id}}">
     {{#if message.tweet}}
       <img src="{{message.tweet.avatar}}" class="media-object pull-left img-rounded" width=48 height=48>
     {{else if message.mail}}
