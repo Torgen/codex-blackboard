@@ -12,7 +12,7 @@
 
 <template name="text_chunk_mention"><span class="bb-mention {{#unless nickExists this}}bb-mention-nonexistent{{/unless}}"
     title="{{#if nickExists this}}{{nickOrName this}}{{else}}No user named {{this}} has logged in{{/if}}">{{
-  #if nickExists this}}{{>gravatar nick=this size=14}}{{else}}<i class="fas fa-user-slash"></i>{{/if}}@{{this}}</span></template>
+  #if nickExists this}}{{>gravatar nick=this size=16}}{{else}}<i class="fas fa-user-slash"></i>{{/if}}@{{this}}</span></template>
 
 <template name="text_chunk_html">{{{this}}}</template>
 
