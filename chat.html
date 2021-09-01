@@ -71,7 +71,7 @@ Click here to stay in this meeting instead.{{/if}}">
       {{#with typeaheadResults}}
         <ul id="messageInputTypeahead" class="typeahead dropdown-menu">
           {{#each this}}
-            <li class="{{#if selected _id}}active{{/if}}"><a href="#" data-value="{{_id}}">{{>gravatar nick=_id size=14}} {{nickAndName _id}}</a></li>
+            <li class="{{#if selected _id}}active{{/if}}"><a href="#" data-value="{{_id}}">{{>gravatar nick=_id size=16}} {{nickAndName _id}}</a></li>
           {{else}}
             <li class="disabled"><a name="nomatch">No matches</a></li>
           {{/each}}
@@ -181,7 +181,7 @@ Click here to stay in this meeting instead.{{/if}}">
       {{else if message.presence}}
         {{#unless presence_too_old}}
           <div class="bb-message-presence {{message.presence}}" title="{{pretty_ts message.timestamp}}: {{cleanup message.body}}" data-read="{{#unless read}}un{{/unless}}read">
-            {{>gravatar nick=message.nick size=14 }}{{message.nick}}
+            {{>gravatar nick=message.nick size=16 }}{{message.nick}}
           </div>
         {{/unless}}
       {{else if message.system}}
@@ -195,7 +195,7 @@ Click here to stay in this meeting instead.{{/if}}">
           <div class="bb-message-action {{#if includes message.mention mynick}}bb-message-mention-me{{/if}}" data-nick="{{message.nick}}" data-read="{{#unless read}}un{{/unless}}read">
             <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
             {{> message_delete_button}}
-            {{>gravatar nick=message.nick size=14 }}
+            {{>gravatar nick=message.nick size=16 }}
             <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{cleanup message.body}}
           </div>
         {{else}}
