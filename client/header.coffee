@@ -57,6 +57,8 @@ Template.registerHelper 'nickOrName', (args) ->
   nick = (keyword_or_positional 'nick', args).nick
   n = Meteor.users.findOne canonical nick
   return n?.real_name or n?.nickname or nick
+Template.registerHelper 'nickExists', (nick) ->
+  Meteor.users.findOne(_id: nick)?
 
 privateMessageTransform = (msg) ->
   _id: msg._id
