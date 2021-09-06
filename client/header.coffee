@@ -6,7 +6,6 @@ import { jitsiUrl } from './imports/jitsi.coffee'
 import { hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
-import convertURLsToLinksAndImages from './imports/linkify.coffee'
 import './imports/timestamp.coffee'
 
 model = share.model # import
@@ -57,16 +56,12 @@ Template.registerHelper 'nickOrName', (args) ->
   nick = (keyword_or_positional 'nick', args).nick
   n = Meteor.users.findOne canonical nick
   return n?.real_name or n?.nickname or nick
+Template.registerHelper 'nickExists', (nick) ->
+  Meteor.users.findOne(_id: nick)?
 
 privateMessageTransform = (msg) ->
   _id: msg._id
   message: msg
-  cleanup: (body) ->
-    unless msg.bodyIsHtml
-      body = UI._escape body
-      body = body.replace /\n|\r\n?/g, '<br/>'
-      body = convertURLsToLinksAndImages body, "#{msg._id}-priv"
-    new Spacebars.SafeString(body)
   read: ->
     msg.timestamp <= model.LastRead.findOne('private')?.timestamp || msg.timestamp <= model.LastRead.findOne(msg.room_name)?.timestamp
   showRoom: true

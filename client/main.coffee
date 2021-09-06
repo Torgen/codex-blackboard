@@ -58,10 +58,6 @@ Template.registerHelper 'editing', (args..., options) ->
 
 Template.registerHelper 'md5', md5
 
-Template.registerHelper 'linkify', (contents) ->
-  contents = chat.convertURLsToLinksAndImages(UI._escape(contents))
-  return new Spacebars.SafeString(contents)
-
 Template.registerHelper 'teamName', -> settings.TEAM_NAME
 Template.registerHelper 'generalRoomName', -> settings.GENERAL_ROOM_NAME
 

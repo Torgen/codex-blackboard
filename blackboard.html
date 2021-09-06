@@ -373,7 +373,7 @@
                   title="Change the value of this tag"></i>
               {{value}}
             {{else}}
-              {{linkify value}}
+              {{>text_chunks value}}
             {{/if}}
           </td>
         </tr>
@@ -603,7 +603,7 @@
            title="Edit the value of this tag"></i>
         {{value}}
       {{else if value}}
-        {{linkify value}}
+        {{>text_chunks value}}
       {{else}}
         &nbsp; {{! make sure right-hand side stays in place! }}
       {{/if}}
