@@ -1,6 +1,6 @@
 'use strict'
 
-import { reactiveLocalStorage } from './imports/storage.coffee'
+import { MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
 model = share.model # import
@@ -24,7 +24,7 @@ Meteor.startup ->
       added: (doc) ->
         return if initial
         console.log 'ding dong'
-        return if 'true' is reactiveLocalStorage.getItem 'mute'
+        return if MUTE_SOUND_EFFECTS.get()
         try
           await newCallInSound.play()
         catch err

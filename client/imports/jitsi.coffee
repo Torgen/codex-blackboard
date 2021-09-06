@@ -2,7 +2,7 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import { StaticJitsiMeeting } from '/lib/imports/settings.coffee'
-import { reactiveLocalStorage } from './storage.coffee'
+import { START_AUDIO_MUTED, START_VIDEO_MUTED } from './settings.coffee'
 
 export jitsiRoom = (roomType, roomId) ->
   return unless roomId
@@ -41,8 +41,8 @@ export createJitsiMeet = (room, container) ->
     configOverwrite:
       # These properties are reactive, but changing them won't make us reload the room
       # because newRoom will be the same as @jitsiRoom.
-      startWithAudioMuted: 'false' isnt reactiveLocalStorage.getItem 'startAudioMuted'
-      startWithVideoMuted: 'false' isnt reactiveLocalStorage.getItem 'startVideoMuted'
+      startWithAudioMuted: START_AUDIO_MUTED.get()
+      startWithVideoMuted: START_VIDEO_MUTED.get()
       prejoinPageEnabled: false
       enableTalkWhileMuted: false
       'analytics.disabled': true

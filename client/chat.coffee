@@ -5,6 +5,7 @@ import jitsiModule, {jitsiUrl, jitsiRoom} from './imports/jitsi.coffee'
 import { gravatarUrl, hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
+import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import convertURLsToLinksAndImages from './imports/linkify.coffee'
 
@@ -194,9 +195,9 @@ Template.messages.helpers
     return true if doesMentionNick(m)
     return true if m.useful
     return true unless m.tweet? or m.nick is botnick or m.useless_cmd
-    return 'true' isnt reactiveLocalStorage.getItem 'nobot'
+    return HIDE_USELESS_BOT_MESSAGES.get()
   presence_too_old: ->
-    return false unless reactiveLocalStorage.getItem('hideOldPresence') is 'true'
+    return false unless HIDE_OLD_PRESENCE.get()
     # If a message is too old, it will always be too old unless the option changes,
     # so don't re-evaluate the calculation every minute.
     result = Tracker.nonreactive =>
@@ -412,7 +413,7 @@ Template.embedded_chat.helpers
     # Set up dependencies
     return unless Template.instance().jitsi.get()?
     sizeWouldBe = Math.floor(share.Splitter.hsize.get() * 9 / 16)
-    if 'true' is reactiveLocalStorage.getItem 'capJitsiHeight'
+    if CAP_JITSI_HEIGHT.get()
       return Math.min 50, sizeWouldBe
     sizeWouldBe
   jitsiPinSet: -> Template.instance().jitsiPinType.get()?
@@ -428,8 +429,6 @@ Template.embedded_chat.helpers
     return Meteor._relativeToSiteRootUrl '/' if instance.jitsiType() is 'general'
     share.Router.urlFor instance.jitsiType(), instance.jitsiId()
 
-  jitsiHeightCapped: -> 'true' is reactiveLocalStorage.getItem 'capJitsiHeight'
-
 Template.embedded_chat.events
   'click .bb-join-jitsi': (event, template) ->
     reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
@@ -443,9 +442,9 @@ Template.embedded_chat.events
     template.jitsiPinType.set null
     template.jitsiPinId.set null
   'click .bb-jitsi-cap-height:not(.capped)': (event, template) ->
-    reactiveLocalStorage.setItem 'capJitsiHeight', true
+    CAP_JITSI_HEIGHT.set true
   'click .bb-jitsi-cap-height.capped': (event, template) ->
-    reactiveLocalStorage.setItem 'capJitsiHeight', false
+    CAP_JITSI_HEIGHT.set false
 
 # Utility functions
 
@@ -845,7 +844,7 @@ updateNotice = do ->
   [lastUnread, lastMention] = [0, 0]
   (unread, mention) ->
     if mention > lastMention and instachat.ready
-      unless 'true' is reactiveLocalStorage.getItem 'mute'
+      unless MUTE_SOUND_EFFECTS.get()
         instachat.messageMentionSound?.play?()?.catch? (err) -> console.error err.message, err
     # update title and favicon
     if mention > 0

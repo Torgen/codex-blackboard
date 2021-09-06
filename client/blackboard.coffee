@@ -3,6 +3,7 @@
 import canonical from '/lib/imports/canonical.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
+import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
 
@@ -31,7 +32,7 @@ Meteor.startup ->
       return unless doc.target? # 'no recent puzzle was solved'
       return if doc.target is oldDoc.target # answer changed, not really new
       console.log 'that was easy', doc, oldDoc
-      return if 'true' is reactiveLocalStorage.getItem 'mute'
+      return if MUTE_SOUND_EFFECTS.get()
       try
         await blackboard.newAnswerSound.play()
       catch err
@@ -131,7 +132,6 @@ Template.blackboard.onRendered ->
       return item
 
 Template.blackboard.helpers
-  sortReverse: -> 'true' is reactiveLocalStorage.getItem 'sortReverse'
   whoseGitHub: -> settings.WHOSE_GITHUB
   filter: -> Template.instance().userSearch.get()?
   searchResults: ->
@@ -188,7 +188,7 @@ Template.blackboard.events
     share.notification.set event.target.dataset.notificationStream, event.target.checked
 
 round_helper = ->
-  dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 'desc' else 'asc'
+  dir = if SORT_REVERSE.get() then 'desc' else 'asc'
   model.Rounds.find {}, sort: [["sort_key", dir]]
 meta_helper = ->
   # the following is a map() instead of a direct find() to preserve order
@@ -207,8 +207,7 @@ unassigned_helper = ->
     continue unless puzzle?
     { _id: id, puzzle: puzzle }
   editing = Meteor.userId() and (Session.get 'canEdit')
-  hideSolved = 'true' is reactiveLocalStorage.getItem 'hideSolved'
-  return p if editing or !hideSolved
+  return p if editing or !HIDE_SOLVED.get()
   p.filter (pp) -> !pp.puzzle.solved?
 
 ############## groups, rounds, and puzzles ####################
@@ -221,7 +220,7 @@ Template.blackboard.helpers
       {"favorites.#{Meteor.userId()}": true},
       mechanics: $in: Meteor.user().favorite_mechanics or []
     ]
-    if not Session.get('canEdit') and (('true' is reactiveLocalStorage.getItem 'hideSolved') or ('true' is reactiveLocalStorage.getItem 'hideSolvedFaves'))
+    if not Session.get('canEdit') and (HIDE_SOLVED.get() or HIDE_SOLVED_FAVES.get())
       query.solved = $eq: null
     model.Puzzles.find query
   stuckPuzzles: -> model.Puzzles.find
@@ -289,9 +288,7 @@ Template.blackboard.onRendered ->
 Template.blackboard.events
   "click .bb-sort-order button": (event, template) ->
     reverse = $(event.currentTarget).attr('data-sortReverse') is 'true'
-    reactiveLocalStorage.setItem 'sortReverse', reverse
-  "click .bb-hide-status": (event, template) ->
-    reactiveLocalStorage.setItem 'hideStatus', ('true' isnt reactiveLocalStorage.getItem 'hideStatus')
+    SORT_REVERSE.set reverse
   "click .bb-add-round": (event, template) ->
     alertify.prompt "Name of new round:", (e,str) ->
       return unless e # bail if cancelled
@@ -356,7 +353,7 @@ Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
 
 Template.blackboard_favorite_puzzle.onCreated ->
   @autorun =>
-    return unless Blaze._globalHelpers['visibleColumns']().some ({_id}) -> _id is 'update'
+    return unless VISIBLE_COLUMNS.get().includes('update')
     @subscribe 'last-puzzle-room-message', Template.currentData()._id
 
 Template.blackboard_round.helpers
@@ -371,13 +368,13 @@ Template.blackboard_round.helpers
         num_puzzles: puzzle.puzzles.length
         num_solved: model.Puzzles.find({_id: {$in: puzzle.puzzles}, solved: {$ne: null}}).length
       }
-    r.reverse() if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+    r.reverse() if SORT_REVERSE.get()
     return r
   collapsed: -> 'true' is reactiveLocalStorage.getItem "collapsed_round.#{@_id}"
   unassigned: unassigned_helper
   showRound: ->
     return true if Session.get('editing')?
-    return true unless 'true' is reactiveLocalStorage.getItem 'hideSolvedMeta'
+    return true unless HIDE_SOLVED_METAS.get()
     for id, index in @puzzles
       puzzle = model.Puzzles.findOne({_id: id, solved: {$eq: null}, $or: [{feedsInto: {$size: 0}}, {puzzles: {$ne: null}}]})
       return true if puzzle?
@@ -385,10 +382,10 @@ Template.blackboard_round.helpers
 
 Template.blackboard_round.events
   'click .bb-round-buttons .bb-move-down': (event, template) ->
-    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then -1 else 1
+    dir = if SORT_REVERSE.get() then -1 else 1
     Meteor.call 'moveRound', template.data._id, dir
   'click .bb-round-buttons .bb-move-up': (event, template) ->
-    dir = if 'true' is reactiveLocalStorage.getItem 'sortReverse' then 1 else -1
+    dir = if SORT_REVERSE.get() then 1 else -1
     Meteor.call 'moveRound', template.data._id, dir
   'click .bb-round-header.collapsed .collapse-toggle': (event, template) ->
     reactiveLocalStorage.setItem "collapsed_round.#{template.data._id}", false
@@ -468,12 +465,12 @@ Template.blackboard_meta.events
   'click tbody.meta tr.puzzle .bb-move-down': moveWithinMeta 1
   'click tbody.meta tr.meta .bb-move-up': (event, template) ->
     rel = 'before'
-    if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+    if SORT_REVERSE.get()
       rel = 'after'
     moveBeforePrevious 'tbody.meta', rel, event, template
   'click tbody.meta tr.meta .bb-move-down': (event, template) ->
     rel = 'after'
-    if 'true' is reactiveLocalStorage.getItem 'sortReverse'
+    if SORT_REVERSE.get()
       rel = 'before'
     moveAfterNext 'tbody.meta', rel, event, template
   'click .bb-meta-buttons .bb-add-puzzle': (event, template) ->
@@ -493,12 +490,12 @@ Template.blackboard_meta.events
 
 Template.blackboard_meta.helpers
   color: -> puzzleColor @puzzle if @puzzle?
-  showMeta: -> ('true' isnt reactiveLocalStorage.getItem 'hideSolvedMeta') or (!this.puzzle?.solved?)
+  showMeta: -> HIDE_SOLVED_METAS.get() or (!this.puzzle?.solved?)
   puzzles: ->
     if @puzzle.order_by
       filter =
         feedsInto: @puzzle._id
-      if not (Session.get 'canEdit') and 'true' is reactiveLocalStorage.getItem 'hideSolved'
+      if not (Session.get 'canEdit') and HIDE_SOLVED.get()
         filter.solved = $eq: null
       return model.Puzzles.find filter,
         sort: {"#{@puzzle.order_by}": 1}
@@ -508,12 +505,11 @@ Template.blackboard_meta.helpers
       puzzle: model.Puzzles.findOne(id) or { _id: id }
     } for id, index in this.puzzle.puzzles)
     editing = Meteor.userId() and (Session.get 'canEdit')
-    hideSolved = 'true' is reactiveLocalStorage.getItem 'hideSolved'
-    return p if editing or !hideSolved
+    return p if editing or !HIDE_SOLVED.get()
     p.filter (pp) -> !pp.puzzle.solved?
   stuck: share.model.isStuck
   numHidden: ->
-    return 0 unless 'true' is reactiveLocalStorage.getItem 'hideSolved'
+    return 0 unless HIDE_SOLVED.get()
     y = for id, index in @puzzle.puzzles
       x = model.Puzzles.findOne id
       continue unless x?.solved?

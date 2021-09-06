@@ -1,85 +1,41 @@
 'use strict'
-import { reactiveLocalStorage } from './imports/storage.coffee'
-
-compactMode = ->
-  editing = Meteor.userId() and Session.get 'canEdit'
-  ('true' is reactiveLocalStorage.getItem 'compactMode') and not editing
-
-currentColumns = new ReactiveVar []
-visibleColumns = new ReactiveVar []
-visibleColumnsForHelper = new ReactiveVar []
-visibleColumnsWhenEditing = new Set ['answer', 'status']
-
-Tracker.autorun ->
-  cols = reactiveLocalStorage.getItem 'currentColumns'
-  col_array = if cols?
-    cols.split ','
-  else
-    ['answer', 'status', 'working', 'update']
-  currentColumns.set col_array
-
-Tracker.autorun ->
-  visible_array = if compactMode()
-    ['answer']
-  else if Meteor.userId() and (Session.get 'canEdit')
-    currentColumns.get().filter (x) -> visibleColumnsWhenEditing.has x
-  else
-    currentColumns.get()
-  visibleColumns.set visible_array
-
-Tracker.autorun ->
-  visibleColumnsForHelper.set visibleColumns.get().map (x) -> {_id: x}
-
-Template.registerHelper 'nCols', ->
-  1 + visibleColumns.get().length
-
-Template.registerHelper 'compactMode', compactMode
-Template.registerHelper 'hideSolved', -> 'true' is reactiveLocalStorage.getItem 'hideSolved'
-Template.registerHelper 'hideSolvedFaves', -> 'true' is reactiveLocalStorage.getItem 'hideSolvedFaves'
-Template.registerHelper 'hideSolvedMeta', -> 'true' is reactiveLocalStorage.getItem 'hideSolvedMeta'
-Template.registerHelper 'hideStatus', -> 'true' is reactiveLocalStorage.getItem 'hideStatus'
-Template.registerHelper 'stuckToTop', -> 'true' is reactiveLocalStorage.getItem 'stuckToTop'
-Template.registerHelper 'noBot', -> 'true' is reactiveLocalStorage.getItem 'nobot'
-Template.registerHelper 'sfxMute', -> 'true' is reactiveLocalStorage.getItem 'mute'
-Template.registerHelper 'hideOldPresence', -> 'true' is reactiveLocalStorage.getItem 'hideOldPresence'
-# If iterating over a list without _id fields, the key is index, which makes insertions render oddly.
-Template.registerHelper 'visibleColumns', -> visibleColumnsForHelper.get()
+import { DARK_MODE, HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, STUCK_TO_TOP,
+HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS, HIDE_OLD_PRESENCE, LESS_COLORFUL,
+START_VIDEO_MUTED, START_AUDIO_MUTED, COMPACT_MODE, CURRENT_COLUMNS} from './imports/settings.coffee'
 
 Template.options_dropdown.helpers
   jitsi: share.settings.JITSI_SERVER?
-  startVideoMuted: -> 'false' isnt reactiveLocalStorage.getItem 'startVideoMuted'
-  startAudioMuted: -> 'false' isnt reactiveLocalStorage.getItem 'startAudioMuted'
 
 Template.options_dropdown.events
   'click .bb-display-settings li a': (event, template) ->
     # Stop the dropdown from closing.
     event.stopPropagation()
   'click a[name="bb-dark-mode"] [data-darkmode]:not(.disabled)': (event, template) ->
-    reactiveLocalStorage.setItem 'darkMode', event.currentTarget.dataset.darkmode
+    DARK_MODE.set event.currentTarget.dataset.darkmode
   'change .bb-hide-solved input': (event, template) ->
-    reactiveLocalStorage.setItem 'hideSolved', event.target.checked
+    HIDE_SOLVED.set event.target.checked
   'change .bb-hide-solved-meta input': (event, template) ->
-    reactiveLocalStorage.setItem 'hideSolvedMeta', event.target.checked
+    HIDE_SOLVED_METAS.set event.target.checked
   'change .bb-hide-solved-faves input': (event, template) ->
-    reactiveLocalStorage.setItem 'hideSolvedFaves', event.target.checked
+    HIDE_SOLVED_FAVES.set event.target.checked
   'change .bb-compact-mode input': (event, template) ->
-    reactiveLocalStorage.setItem 'compactMode', event.target.checked
+    COMPACT_MODE.set event.target.checked
   'change .bb-boring-mode input': (event, template) ->
-    reactiveLocalStorage.setItem 'boringMode', event.target.checked
+    LESS_COLORFUL.set event.target.checked
   'change .bb-stuck-to-top input': (event, template) ->
-    reactiveLocalStorage.setItem 'stuckToTop', event.target.checked
+    STUCK_TO_TOP.set event.target.checked
   'change .bb-bot-mute input': (event, template) ->
-    reactiveLocalStorage.setItem 'nobot', event.target.checked
+    HIDE_USELESS_BOT_MESSAGES.set event.target.checked
   'change .bb-sfx-mute input': (event, template) ->
-    reactiveLocalStorage.setItem 'mute', event.target.checked
+    MUTE_SOUND_EFFECTS.set event.target.checked
   'change .bb-hide-old-presence input': (event, template) ->
-    reactiveLocalStorage.setItem 'hideOldPresence', event.target.checked
+    HIDE_OLD_PRESENCE.set event.target.checked
   'change .bb-start-video-muted input': (event, template) ->
-    reactiveLocalStorage.setItem 'startVideoMuted', event.target.checked
+    START_VIDEO_MUTED.set event.target.checked
   'change .bb-start-audio-muted input': (event, template) ->
-    reactiveLocalStorage.setItem 'startAudioMuted', event.target.checked
+    START_AUDIO_MUTED.set event.target.checked
   'change input[data-column-visibility]': (event, template) ->
-    reactiveLocalStorage.setItem 'currentColumns', template.$('input[data-column-visibility]:checked').map(-> @dataset.columnVisibility).get().join(',')
+    CURRENT_COLUMNS.set template.$('input[data-column-visibility]:checked').map(-> @dataset.columnVisibility).get()
 
 Template.options_dropdown_column_checkbox.helpers
-  columnVisible: -> currentColumns.get().includes @
+  columnVisible: -> CURRENT_COLUMNS.get().includes @

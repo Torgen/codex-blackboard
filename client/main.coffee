@@ -8,6 +8,7 @@ import { mechanics } from '../lib/imports/mechanics.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
+import { DARK_MODE } from './imports/settings.coffee'
 
 settings = share.settings # import
 model = share.model
@@ -68,8 +69,6 @@ Template.registerHelper 'namePlaceholder', -> settings.NAME_PLACEHOLDER
 
 Template.registerHelper 'mynick', -> Meteor.userId()
 
-Template.registerHelper 'boringMode', -> 'true' is reactiveLocalStorage.getItem 'boringMode'
-
 Template.registerHelper 'embeddable', embeddable
 
 Template.registerHelper 'plural', (x) -> x != 1
@@ -78,27 +77,11 @@ Template.registerHelper 'nullToZero', (x) -> x ? 0
 
 Template.registerHelper 'canGoFullScreen', -> $('body').get(0)?.requestFullscreen?
 
-darkModeDefault = do ->
-  darkModeQuery = window.matchMedia '(prefers-color-scheme: dark)'
-  res = new ReactiveVar darkModeQuery.matches
-  darkModeQuery.addEventListener 'change', (e) ->
-    res.set e.matches
-  res
-
-darkMode = ->
-  darkModeOverride = reactiveLocalStorage.getItem 'darkMode'
-  if darkModeOverride?
-    return darkModeOverride is 'true'
-  darkModeDefault.get()
-
 Tracker.autorun ->
-  dark = darkMode()
-  if dark
+  if DARK_MODE.get()
     $('body').addClass 'darkMode'
   else
     $('body').removeClass 'darkMode'
-
-Template.registerHelper 'darkMode', darkMode
 
 Template.page.helpers
   splitter: -> Session.get 'splitter'

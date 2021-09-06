@@ -6,7 +6,6 @@ import { jitsiUrl } from './imports/jitsi.coffee'
 import { hashFromNickObject } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
-import { reactiveLocalStorage } from './imports/storage.coffee'
 import convertURLsToLinksAndImages from './imports/linkify.coffee'
 import './imports/timestamp.coffee'
 
