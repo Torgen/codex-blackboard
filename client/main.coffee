@@ -213,11 +213,15 @@ Meteor.startup ->
         data = url: '/callins'
       else if msg.stream isnt 'announcements'
         data = url: share.Router.urlFor msg.type, msg.id
+      # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
+      # notifications that already have sound effects.
+      silent = ('true' is reactiveLocalStorage.getItem 'mute') or ['callins', 'answers'].includes msg.stream
       share.notification.notify msg.nick,
         body: body
         tag: msg._id
         icon: gravatar
         data: data
+        silent: silent
   Tracker.autorun ->
     return unless allPuzzlesHandle?.ready()
     return unless Session.equals 'notifications', 'granted'
@@ -233,6 +237,7 @@ Meteor.startup ->
             body: "Mechanic \"#{mechanics[mech].name}\" added to puzzle \"#{puzzle.name}\""
             tag: "#{id}/#{mech}"
             data: url: share.Router.urlFor 'puzzles', id
+            silent: ('true' is reactiveLocalStorage.getItem 'mute')
     faveSuppress = false
   Tracker.autorun ->
     return unless allPuzzlesHandle?.ready()
@@ -270,6 +275,7 @@ Meteor.startup ->
           tag: msgid
           data: {url}
           icon: gravatar
+          silent: ('true' is reactiveLocalStorage.getItem 'mute')
   
   unless Notification?
     Session.set 'notifications', 'denied'
