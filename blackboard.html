@@ -101,9 +101,24 @@
         {{#unless compactMode}}
         <tr>
           <th class="puzzle-name">Name</th>
-          {{#each column in visibleColumns}}
-            {{> Template.dynamic template=(concat "blackboard_column_header_" column._id)}}
-          {{/each}}
+          <th class="puzzle-answer">Solution</th>
+          <th class="puzzle-status">Status</th>
+          {{#unless canEdit}}
+          <th class="puzzle-working">Working on this
+            <span class="button-group">
+              <a href="#" name="bb-show-filter-by-user" title="Filter puzzles by solver" class="dropdown-toggle bb-show-filter-by-user" data-toggle="dropdown"><i class="fas fa-search"></i></a>
+              <ul class="bb-filter-by-user-dropdown dropdown-menu">
+                <li class="form-search">
+                  <div class="input-append">
+                    <input type="text" class="search-query bb-filter-by-user">
+                    <button class="btn bb-clear-filter-by-user"><i class="fas fa-times"></i></button>
+                  </div>
+                </li>
+              </ul>
+            </span>
+          </th>
+          <th class="puzzle-update">Last update</th>
+          {{/unless}}
         </tr>
         {{/unless}}
       </thead>
@@ -145,34 +160,6 @@
       {{/if}}
     </table>
   </div><!-- bb-tables -->
-</template>
-
-<template name="blackboard_column_header_answer">
-  <th class="puzzle-answer">Solution</th>
-</template>
-
-<template name="blackboard_column_header_status">
-  <th class="puzzle-status">Status</th>
-</template>
-
-<template name="blackboard_column_header_working">
-  <th class="puzzle-working">Working on this
-    <span class="button-group">
-      <a href="#" name="bb-show-filter-by-user" title="Filter puzzles by solver" class="dropdown-toggle bb-show-filter-by-user" data-toggle="dropdown"><i class="fas fa-search"></i></a>
-      <ul class="bb-filter-by-user-dropdown dropdown-menu">
-        <li class="form-search">
-          <div class="input-append">
-            <input type="text" class="search-query bb-filter-by-user">
-            <button class="btn bb-clear-filter-by-user"><i class="fas fa-times"></i></button>
-          </div>
-        </li>
-      </ul>
-    </span>
-  </th>
-</template>
-
-<template name="blackboard_column_header_update">
-  <th class="puzzle-update">Last update</th>
 </template>
 
 <!-- this exists to add a subscription. -->
@@ -443,76 +430,65 @@
       {{>blackboard_link}}
     {{/with}}
   </div></td>
-  {{#each column in visibleColumns}}
-    {{> Template.dynamic template=(concat "blackboard_column_body_" column._id)}}
-  {{/each}}
-</template>
-
-<template name="blackboard_column_body_answer">
   <td class="puzzle-answer bb-editable"
       data-bbedit="tags/{{puzzle._id}}/answer/value">
     {{#if editing "tags" puzzle._id "answer" "value"}}
       <input type="text" id="tags-{{puzzle._id}}-answer-value"
-              value="{{answer}}"
+              value="{{tag "answer"}}"
               class="input-block-level" />
     {{else}}
       {{#if canEdit}}
         <i class="bb-edit-icon fas fa-pencil-alt pull-right"
             title="Change the answer of this puzzle"></i>
       {{/if}}
-      {{#if answer}}
+      {{#if tag "answer"}}
         {{#if canEdit}}
           <i class="bb-delete-icon fas fa-times pull-left"
               title="Delete the answer to this puzzle"></i>
         {{/if}}
-        <span class="answer">{{answer}}</span>
+        <span class="answer">{{tag "answer"}}</span>
       {{/if}}
     {{/if}}
   </td>
-</template>
-
-<template name="blackboard_column_body_status">
-  <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
-      data-bbedit="tags/{{puzzle._id}}/status/value">
-    {{#if editing "tags" puzzle._id "status" "value"}}
-      <input type="text" id="tags-{{puzzle._id}}-status-value"
-              value="{{status}}"
-              class="input-block-level" />
-    {{else}}
-      {{#unless puzzle.solved}}
-      {{#if canEdit}}
-        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-            title="Change the status of this puzzle"></i>
-        {{#if status}}
-          <i class="bb-delete-icon fas fa-times pull-left"
-              title="Delete the status message for this puzzle"></i>
+  {{#unless compactMode}}
+    <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
+        data-bbedit="tags/{{puzzle._id}}/status/value">
+      {{#if editing "tags" puzzle._id "status" "value"}}
+        <input type="text" id="tags-{{puzzle._id}}-status-value"
+                value="{{tag "status"}}"
+                class="input-block-level" />
+      {{else}}
+        {{#unless puzzle.solved}}
+        {{#if canEdit}}
+          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
+              title="Change the status of this puzzle"></i>
+          {{#if tag "status"}}
+            <i class="bb-delete-icon fas fa-times pull-left"
+                title="Delete the status message for this puzzle"></i>
+          {{/if}}
         {{/if}}
+        {{/unless}}
+        {{tag "status"}}
       {{/if}}
-      {{/unless}}
-      {{status}}
-    {{/if}}
-  </td>
-</template>
-
-<template name="blackboard_column_body_working">
-  <td class="puzzle-working">
-    {{#each whos_working}}{{> nick_presence }} {{/each}}
-  </td>
-</template>
-
-<template name="blackboard_column_body_update">
-  <td class="puzzle-update">
-    {{#if puzzle.solved}}solved {{pretty_ts timestamp=puzzle.solved style="brief duration"}}
-      {{#with solverMinutes}}<br><i class="fas fa-user-clock"></i> {{this}} solver-minutes{{/with}}
-    {{else if stuck puzzle}}stuck since {{pretty_ts timestamp=puzzle.tags.status.touched style="brief duration"}}
-    {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
-    {{/if}}
-    {{#if puzzle.last_message_timestamp}}
-      <div class="bb-recent-puzzle-chat {{#if new_message}}updated{{/if}}">
-        last chat {{pretty_ts timestamp=puzzle.last_message_timestamp style="brief duration"}}
-      </div>
-    {{/if}}
-  </td>
+    </td>
+    {{#unless canEdit}}
+      <td class="puzzle-working">
+        {{#each whos_working}}{{> nick_presence }} {{/each}}
+      </td>
+      <td class="puzzle-update">
+        {{#if puzzle.solved}}solved {{pretty_ts timestamp=puzzle.solved style="brief duration"}}
+          {{#with solverMinutes}}<br><i class="fas fa-user-clock"></i> {{this}} solver-minutes{{/with}}
+        {{else if stuck puzzle}}stuck since {{pretty_ts timestamp=puzzle.tags.status.touched style="brief duration"}}
+        {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
+        {{/if}}
+        {{#if puzzle.last_message_timestamp}}
+          <div class="bb-recent-puzzle-chat {{#if new_message}}updated{{/if}}">
+            last chat {{pretty_ts timestamp=puzzle.last_message_timestamp style="brief duration"}}
+          </div>
+        {{/if}}
+      </td>
+    {{/unless}}
+  {{/unless}}
 </template>
 
 <template name="blackboard_addmeta_entry">

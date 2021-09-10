@@ -34,8 +34,3 @@ Template.options_dropdown.events
     START_VIDEO_MUTED.set event.target.checked
   'change .bb-start-audio-muted input': (event, template) ->
     START_AUDIO_MUTED.set event.target.checked
-  'change input[data-column-visibility]': (event, template) ->
-    CURRENT_COLUMNS.set template.$('input[data-column-visibility]:checked').map(-> @dataset.columnVisibility).get()
-
-Template.options_dropdown_column_checkbox.helpers
-  columnVisible: -> CURRENT_COLUMNS.get().includes @

@@ -45,15 +45,6 @@
           Compact mode
         </label>
       </a></li>
-      <li class="dropdown-submenu">
-        <a name="custom-columns">Visible Columns</a>
-        <ul class="dropdown-menu">
-          {{#options_dropdown_column_checkbox "answer"}}Solution{{/options_dropdown_column_checkbox}}
-          {{#options_dropdown_column_checkbox "status"}}Status{{/options_dropdown_column_checkbox}}
-          {{#options_dropdown_column_checkbox "working"}}Working On This{{/options_dropdown_column_checkbox}}
-          {{#options_dropdown_column_checkbox "update"}}Last Update{{/options_dropdown_column_checkbox}}
-        </ul>
-      </li>
       <li><a name="bb-stuck-to-top">
         <label class="checkbox bb-stuck-to-top" title="Add a group to the top of the table with all stuck puzzles">
           <input type="checkbox" name="bb-stuck-to-top" checked="{{stuckToTop}}">
@@ -96,12 +87,4 @@
       {{/if}}
     </ul>
   </div>
-</template>
-
-<template name="options_dropdown_column_checkbox">
-  <!-- data context is name of column, i.e. what's after "puzzle-" in the class -->
-  <li><a name="answer-column"><label class="checkbox">
-    <input data-column-visibility="{{this}}" type="checkbox" checked="{{columnVisible}}">
-    {{> Template.contentBlock}}
-  </label></a></li>
 </template>

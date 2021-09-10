@@ -32,8 +32,6 @@ Template.registerHelper 'all', (a..., options) ->
   a.every (x) -> x
 Template.registerHelper 'not', (a) -> not a
 Template.registerHelper 'split', (value, delimiter) -> value.split(delimiter)
-Template.registerHelper 'concat', (a..., options) ->
-  a.join(options.delimiter ? '')
 
 # session variables we want to make available from all templates
 do -> for v in ['currentPage']
