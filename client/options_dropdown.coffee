@@ -3,6 +3,14 @@ import { DARK_MODE, HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, STUCK_TO_
 HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS, HIDE_OLD_PRESENCE, LESS_COLORFUL,
 START_VIDEO_MUTED, START_AUDIO_MUTED, COMPACT_MODE, CURRENT_COLUMNS} from './imports/settings.coffee'
 
+Template.registerHelper 'nCols', ->
+  if COMPACT_MODE.get()
+    2
+  else if Meteor.userId() and (Session.get 'canEdit')
+    3
+  else
+    5
+
 Template.options_dropdown.helpers
   jitsi: share.settings.JITSI_SERVER?
 
