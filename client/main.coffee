@@ -8,7 +8,7 @@ import { mechanics } from '../lib/imports/mechanics.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
-import { DARK_MODE } from './imports/settings.coffee'
+import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 
 settings = share.settings # import
 model = share.model
@@ -198,7 +198,7 @@ Meteor.startup ->
         data = url: share.Router.urlFor msg.type, msg.id
       # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
       # notifications that already have sound effects.
-      silent = ('true' is reactiveLocalStorage.getItem 'mute') or ['callins', 'answers'].includes msg.stream
+      silent = MUTE_SOUND_EFFECTS.get() or ['callins', 'answers'].includes msg.stream
       share.notification.notify msg.nick,
         body: body
         tag: msg._id
@@ -220,7 +220,7 @@ Meteor.startup ->
             body: "Mechanic \"#{mechanics[mech].name}\" added to puzzle \"#{puzzle.name}\""
             tag: "#{id}/#{mech}"
             data: url: share.Router.urlFor 'puzzles', id
-            silent: ('true' is reactiveLocalStorage.getItem 'mute')
+            silent: MUTE_SOUND_EFFECTS.get()
     faveSuppress = false
   Tracker.autorun ->
     return unless allPuzzlesHandle?.ready()
@@ -258,7 +258,7 @@ Meteor.startup ->
           tag: msgid
           data: {url}
           icon: gravatar
-          silent: ('true' is reactiveLocalStorage.getItem 'mute')
+          silent: MUTE_SOUND_EFFECTS.get()
   
   unless Notification?
     Session.set 'notifications', 'denied'
