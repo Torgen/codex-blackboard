@@ -209,6 +209,9 @@ if Meteor.isServer
 #            actually deleted because that could screw up the 'last read' line;
 #            they're just not rendered.
 #   mention: optional array of user IDs mentioned in the message.
+#   announced_at: timestamp a message was announced. (This is done to messages in
+#                 main chat by starring them for the first time.)
+#   announced_by: Who announced the message. Might not be the same as who said it.
 #   from_chat_subscription: true if this message was returned by the recent messages
 #       subscription. Allows rendering only the contiguous messages, without messages
 #       from other subscriptions like personal private messages or starred messages
@@ -232,6 +235,8 @@ if Meteor.isServer
     partialFilterExpression: starred: true
   Messages._ensureIndex {timestamp: 1}, {}
   Messages._ensureIndex {mention: 1}, {}
+  Messages._ensureIndex {announced_at: 1},
+    partialFilterExpression: announced_at: $exists: true
 
 # Last read message for a user in a particular chat room
 #   nick: canonicalized string, as in Messages
@@ -958,7 +963,7 @@ do ->
       check @userId, NonEmptyString
       check id, NonEmptyString
       check starred, Boolean
-      Messages.update (
+      num = Messages.update (
         _id: id
         to: null
         system: $in: [false, null]
@@ -966,6 +971,16 @@ do ->
         oplog: $in: [false, null]
         presence: null
       ), $set: {starred: starred or null}
+      if starred and num > 0
+        # If it's in general chat, announce it if it hasn't been announced before
+        Messages.update
+          _id: id
+          room_name: 'general/0'
+          announced_at: null
+        , $set:
+          announced_at: UTCNow()
+          announced_by: @userId
+      return num
 
     updateLastRead: (args) ->
       check @userId, NonEmptyString
