@@ -917,11 +917,6 @@ do ->
       n = Meteor.users.update @userId, $pull: favorite_mechanics: mechanic
       throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
 
-    announce: (body) ->
-      check @userId, NonEmptyString
-      check body, NonEmptyString
-      oplog body, null, null, @userId, 'announcements'
-
     newMessage: (args) ->
       check @userId, NonEmptyString
       check args,

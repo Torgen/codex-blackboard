@@ -1629,19 +1629,6 @@ describe 'codex hubot script', ->
           useful: true
           mention: ['torgen']
 
-  describe 'announce', ->
-    it 'creates announcement', ->
-      model.Messages.insert
-        nick: 'torgen'
-        room_name: 'general/0'
-        timestamp: Date.now()
-        body: 'bot announce Oops was brought to you by erasers'
-      waitForDocument model.Messages, {room_name: 'oplog/0', stream: 'announcements'},
-        nick: 'torgen'
-        oplog: true
-        action: true
-        body: 'Announcement: Oops was brought to you by erasers'
-
   describe 'poll', ->
     it 'creates poll', ->
       model.Messages.insert

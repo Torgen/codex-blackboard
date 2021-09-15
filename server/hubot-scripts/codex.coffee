@@ -401,11 +401,6 @@ share.hubot.codex = (robot) ->
       msg.reply useful: true, "Call for help cancelled"
     msg.finish()
 
-  robot.commands.push 'bot announce <message>'
-  robot.respond /announce (.*)$/i, (msg) ->
-    callAs 'announce', msg.envelope.user.id, "Announcement: #{msg.match[1]}"
-    msg.finish()
-
   wordOrQuote = /([^\"\'\s]+|\"[^\"]+\"|\'[^\']+\')/
 
   robot.commands.push 'bot poll "Your question" "option 1" "option 2"...'

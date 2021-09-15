@@ -199,7 +199,7 @@ Meteor.startup ->
       data = undefined
       if msg.stream is 'callins'
         data = url: '/callins'
-      else if msg.stream isnt 'announcements'
+      else
         data = url: share.Router.urlFor msg.type, msg.id
       # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
       # notifications that already have sound effects.
