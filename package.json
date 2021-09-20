@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.15.4",
-    "coffeescript": "^2.5.1",
+    "coffeescript": "^2.6.0",
     "css-color-names": "1.0.1",
     "cytoscape": "^3.19.1",
     "cytoscape-fcose": "^2.1.0",
