@@ -159,8 +159,7 @@ finishSetupNotifications = ->
   for stream, def of notificationDefaults
     share.notification.set(stream, def) unless share.notification.get(stream)?
 
-Meteor.startup ->
-  new Clipboard '.copy-and-go'
+debouncedUpdate = ->
   now = new ReactiveVar share.model.UTCNow()
   update = do ->
     next = now.get()
@@ -169,6 +168,14 @@ Meteor.startup ->
       if newNext > next
         next = newNext
         push()
+  {now, update}
+
+Meteor.startup ->
+  new Clipboard '.copy-and-go'
+
+Meteor.startup ->
+  # Notifications based on oplogs
+  {now, update} = debouncedUpdate()
   suppress = true
   Tracker.autorun ->
     if share.notification.count() is 0
@@ -194,7 +201,7 @@ Meteor.startup ->
       data = undefined
       if msg.stream is 'callins'
         data = url: '/callins'
-      else if msg.stream isnt 'announcements'
+      else
         data = url: share.Router.urlFor msg.type, msg.id
       # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
       # notifications that already have sound effects.
@@ -205,6 +212,9 @@ Meteor.startup ->
         icon: gravatar
         data: data
         silent: silent
+
+Meteor.startup ->
+  # Notifications on favrite mechanics
   Tracker.autorun ->
     return unless allPuzzlesHandle?.ready()
     return unless Session.equals 'notifications', 'granted'
@@ -222,6 +232,9 @@ Meteor.startup ->
             data: url: share.Router.urlFor 'puzzles', id
             silent: MUTE_SOUND_EFFECTS.get()
     faveSuppress = false
+
+Meteor.startup ->
+  # Notifications on private messages and mentions
   Tracker.autorun ->
     return unless allPuzzlesHandle?.ready()
     return unless Session.equals 'notifications', 'granted'
@@ -259,7 +272,46 @@ Meteor.startup ->
           data: {url}
           icon: gravatar
           silent: MUTE_SOUND_EFFECTS.get()
+
+Meteor.startup ->
+  # Notifications on announcements
+  {now, update} = debouncedUpdate()
+  suppress = true
+  Tracker.autorun ->
+    return unless Session.equals 'notifications', 'granted'
+    unless share.notification.get 'announcements'
+      suppress = true
+      return
+    else if suppress
+      now.set share.model.UTCNow()
+    Meteor.subscribe 'announcements-since', now.get(),
+      onReady: -> suppress = false
+    share.model.Messages.find({announced_at: $gt: now.get()}).observe
+      added: (msg) ->
+        update msg.announced_at
+        return unless Session.equals 'notifications', 'granted'
+        return unless share.notification.get 'announcements'
+        return if suppress
+        gravatar = gravatarUrl
+          gravatar_md5: nickHash(msg.nick)
+          size: 192
+        body = msg.body
+        if msg.type and msg.id
+          body = "#{body} #{share.model.pretty_collection(msg.type)}
+                  #{share.model.collection(msg.type).findOne(msg.id)?.name}"
+        data = url: Meteor._relativeToSiteRootUrl '/'
+        # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
+        # notifications that already have sound effects.
+        silent = MUTE_SOUND_EFFECTS.get()
+        share.notification.notify "Announcement by #{msg.nick}",
+          body: body
+          tag: msg._id
+          icon: gravatar
+          data: data
+          silent: silent
   
+Meteor.startup ->
+  # Prep notifications
   unless Notification?
     Session.set 'notifications', 'denied'
     return

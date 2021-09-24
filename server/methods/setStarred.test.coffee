@@ -24,27 +24,82 @@ describe 'setStarred', ->
   beforeEach ->
     resetDatabase()
 
-  [null, true].forEach (was_starred) =>
-    describe "starred was #{was_starred}", ->
-      [false, true].forEach (set_starred) =>
-        describe "set to #{set_starred}", ->
-          id = null
-          beforeEach ->
-            id = model.Messages.insert
-              nick: 'torgen'
-              body: 'nobody star this'
-              timestamp: 5
-              room_name: 'general/0'
-              starred: was_starred
-          it 'fails without login', ->
-            chai.assert.throws ->
-              Meteor.call 'setStarred', id, set_starred
-            , Match.Error
-          describe 'when logged in', ->
-            it 'succeeds', ->
-              callAs 'setStarred', 'cjb', id, set_starred
-              chai.assert.include model.Messages.findOne(id),
-                starred: set_starred or null
+  it 'fails without login', ->
+    id = model.Messages.insert
+      nick: 'torgen'
+      body: 'nobody star this'
+      timestamp: 5
+      room_name: 'general/0'
+    chai.assert.throws ->
+      Meteor.call 'setStarred', id, true
+    , Match.Error
+
+  describe 'in main room', ->
+    it 'announces on star', ->
+      id = model.Messages.insert
+        nick: 'torgen'
+        body: 'nobody star this'
+        timestamp: 5
+        room_name: 'general/0'
+      callAs 'setStarred', 'cjb', id, true
+      chai.assert.include model.Messages.findOne(id),
+        starred: true
+        announced_at: 7
+        announced_by: 'cjb'
+
+    it 'leaves announced on unstar', ->
+      id = model.Messages.insert
+        nick: 'torgen'
+        body: 'nobody star this'
+        timestamp: 5
+        room_name: 'general/0'
+        announced_at: 6
+        announced_by: 'cjb'
+      callAs 'setStarred', 'cjb', id, false
+      chai.assert.include model.Messages.findOne(id),
+        starred: null
+        announced_at: 6
+        announced_by: 'cjb'
+
+    it 'does not reannounce on re-star', ->
+      id = model.Messages.insert
+        nick: 'torgen'
+        body: 'nobody star this'
+        timestamp: 5
+        room_name: 'general/0'
+        starred: false
+        announced_at: 6
+        announced_by: 'kwal'
+      callAs 'setStarred', 'cjb', id, true
+      chai.assert.include model.Messages.findOne(id),
+        starred: true
+        announced_at: 6
+        announced_by: 'kwal'
+
+  describe 'in other room', ->
+    it 'stars but does not announce', ->
+      id = model.Messages.insert
+        nick: 'torgen'
+        body: 'nobody star this'
+        timestamp: 5
+        room_name: 'callins/0'
+      callAs 'setStarred', 'cjb', id, true
+      msg = model.Messages.findOne(id)
+      chai.assert.include msg,
+        starred: true
+      chai.assert.notProperty msg, 'announced_at'
+      chai.assert.notProperty msg, 'announced_by'
+
+    it 'unstars', ->
+      id = model.Messages.insert
+        nick: 'torgen'
+        body: 'nobody star this'
+        timestamp: 5
+        room_name: 'callins/0'
+      callAs 'setStarred', 'cjb', id, false
+      chai.assert.include model.Messages.findOne(id),
+        starred: null
+
   it 'fails on unstarrable', ->
     id = model.Messages.insert
       nick: 'torgen'

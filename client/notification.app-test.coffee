@@ -114,8 +114,9 @@ describe 'notifications', ->
           Session.set 'notifications', 'default'
           share.notification.set stream, false
 
-  testcase 'announcement', 'announcements', (-> 'someoneelse'), (-> sinon.match({body: 'what\'s up guys', icon: GRAVATAR_192})), ->
-    promiseCallOn other_conn, 'announce', 'what\'s up guys'
+  testcase 'starred in main', 'announcements', (-> 'Announcement by someoneelse'), (-> sinon.match({body: 'what\'s up guys', icon: GRAVATAR_192})), ->
+    msg = await promiseCallOn other_conn, 'newMessage', body: 'what\'s up guys'
+    promiseCallOn other_conn, 'setStarred', msg._id, true
   , ->
 
   testcase 'new puzzle', 'new-puzzles', (-> 'someoneelse'), ((v) -> sinon.match({body: 'Added puzzle Test Notification', icon: GRAVATAR_192, data: url: "/puzzles/#{v}"})), ->

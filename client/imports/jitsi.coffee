@@ -24,6 +24,7 @@ jitsiLoaded = new ReactiveVar false
 
 Meteor.startup ->
   return unless share.settings.JITSI_SERVER
+  $('body').addClass('using-jitsi')
   $.getScript "https://#{share.settings.JITSI_SERVER}/external_api.js", ->
     jitsiLoaded.set true  
 

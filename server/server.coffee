@@ -71,6 +71,10 @@ Meteor.publish null, loginRequired -> model.Messages.find {to: @userId, deleted:
 # Messages that mention you
 Meteor.publish null, loginRequired -> model.Messages.find {mention: @userId, deleted: $ne: true}
 
+Meteor.publish 'announcements-since', loginRequired (since) -> model.Messages.find
+  announced_at: $gt: since
+  deleted: $ne: true
+
 # Your presence in all rooms, with _id changed to room_name.
 Meteor.publish null, loginRequired ->
   idToRoom = new Map

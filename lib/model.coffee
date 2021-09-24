@@ -63,10 +63,10 @@ LastAnswer = BBCollection.last_answer = \
 #            in the puzzle.
 Rounds = BBCollection.rounds = new Mongo.Collection "rounds"
 if Meteor.isServer
-  Rounds._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  Rounds._ensureIndex {puzzles: 1}
-  Rounds._ensureIndex {sort_key: 1}
-  Rounds._ensureIndex {sort_key: -1}
+  Rounds.createIndex {canon: 1}, {unique:true, dropDups:true}
+  Rounds.createIndex {puzzles: 1}
+  Rounds.createIndex {sort_key: 1}
+  Rounds.createIndex {sort_key: -1}
 
 # Puzzles are:
 #   _id: mongodb id
@@ -113,10 +113,10 @@ if Meteor.isServer
 # to the fields map in puzzleQuery in server/server.coffee.
 Puzzles = BBCollection.puzzles = new Mongo.Collection "puzzles"
 if Meteor.isServer
-  Puzzles._ensureIndex {canon: 1}, {unique:true, dropDups:true}
-  Puzzles._ensureIndex {feedsInto: 1}
-  Puzzles._ensureIndex {puzzles: 1}
-  Puzzles._ensureIndex {solved: 1}, {partialFilterExpression: solved: $exists: true}
+  Puzzles.createIndex {canon: 1}, {unique:true, dropDups:true}
+  Puzzles.createIndex {feedsInto: 1}
+  Puzzles.createIndex {puzzles: 1}
+  Puzzles.createIndex {solved: 1}, {partialFilterExpression: solved: $exists: true}
 
 # CallIns are:
 #   _id: mongodb id
@@ -136,9 +136,9 @@ if Meteor.isServer
 #   response: (optional) response from HQ to this callin
 CallIns = BBCollection.callins = new Mongo.Collection "callins"
 if Meteor.isServer
-  CallIns._ensureIndex {status: 1, created: 1}
-  CallIns._ensureIndex {status: 1, target_type: 1, target: 1, callin_type: 1, answer: 1}, {unique:true, dropDups:true, partialFilterExpression: {status: 'pending'}}
-  CallIns._ensureIndex {target_type: 1, target: 1, created: 1}
+  CallIns.createIndex {status: 1, created: 1}
+  CallIns.createIndex {status: 1, target_type: 1, target: 1, callin_type: 1, answer: 1}, {unique:true, dropDups:true, partialFilterExpression: {status: 'pending'}}
+  CallIns.createIndex {target_type: 1, target: 1, created: 1}
 
 # Quips are:
 #   _id: mongodb id
@@ -149,7 +149,7 @@ if Meteor.isServer
 #   use_count: integer
 Quips = BBCollection.quips = new Mongo.Collection "quips"
 if Meteor.isServer
-  Quips._ensureIndex {last_used: 1}, {}
+  Quips.createIndex {last_used: 1}, {}
 
 # Polls are:
 #   _id: mongodb id
@@ -176,12 +176,12 @@ Polls = BBCollection.polls = new Mongo.Collection "polls"
 #   favorite_mechanics: list of favorite mechanics in canonical form.
 #     Only served to yourself.
 if Meteor.isServer
-  Meteor.users._ensureIndex {priv_located_order: 1},
+  Meteor.users.createIndex {priv_located_order: 1},
     partialFilterExpression:
       priv_located_order: { $exists: true }
   # We don't push the index to the client, so it's okay to have it update
   # frequently.
-  Meteor.users._ensureIndex {priv_located_at: '2dsphere'}, {}
+  Meteor.users.createIndex {priv_located_at: '2dsphere'}, {}
 
 # Messages
 #   body: string
@@ -209,6 +209,9 @@ if Meteor.isServer
 #            actually deleted because that could screw up the 'last read' line;
 #            they're just not rendered.
 #   mention: optional array of user IDs mentioned in the message.
+#   announced_at: timestamp a message was announced. (This is done to messages in
+#                 main chat by starring them for the first time.)
+#   announced_by: Who announced the message. Might not be the same as who said it.
 #   from_chat_subscription: true if this message was returned by the recent messages
 #       subscription. Allows rendering only the contiguous messages, without messages
 #       from other subscriptions like personal private messages or starred messages
@@ -223,15 +226,17 @@ if Meteor.isServer
 # JS Notification API 'tag' for deduping and selective muting.
 Messages = BBCollection.messages = new Mongo.Collection "messages"
 if Meteor.isServer
-  Messages._ensureIndex {to:1, room_name:1, timestamp:-1}, {}
-  Messages._ensureIndex {to:1, timestamp:-1},
+  Messages.createIndex {to:1, room_name:1, timestamp:-1}, {}
+  Messages.createIndex {to:1, timestamp:-1},
     partialFilterExpression: to: $exists: true
-  Messages._ensureIndex {nick:1, room_name:1, timestamp:-1}, {}
-  Messages._ensureIndex {room_name:1, timestamp:-1}, {}
-  Messages._ensureIndex {room_name:1, starred: -1, timestamp: 1},
+  Messages.createIndex {nick:1, room_name:1, timestamp:-1}, {}
+  Messages.createIndex {room_name:1, timestamp:-1}, {}
+  Messages.createIndex {room_name:1, starred: -1, timestamp: 1},
     partialFilterExpression: starred: true
-  Messages._ensureIndex {timestamp: 1}, {}
-  Messages._ensureIndex {mention: 1}, {}
+  Messages.createIndex {timestamp: 1}, {}
+  Messages.createIndex {mention: 1}, {}
+  Messages.createIndex {announced_at: 1},
+    partialFilterExpression: announced_at: $exists: true
 
 # Last read message for a user in a particular chat room
 #   nick: canonicalized string, as in Messages
@@ -240,7 +245,7 @@ if Meteor.isServer
 # On the client, _id is room_name.
 LastRead = BBCollection.lastread = new Mongo.Collection "lastread"
 if Meteor.isServer
-  LastRead._ensureIndex {nick:1, room_name:1}, {unique:true, dropDups:true}
+  LastRead.createIndex {nick:1, room_name:1}, {unique:true, dropDups:true}
 
 # Chat room presence
 #   nick: canonicalized string, as in Messages
@@ -256,8 +261,8 @@ if Meteor.isServer
 #     timestamp: The time of the last keepalive for this connection
 Presence = BBCollection.presence = new Mongo.Collection 'scoped_presence'
 if Meteor.isServer
-  Presence._ensureIndex {scope: 1, room_name:1, nick: 1}, {unique:true, dropDups:true}
-  Presence._ensureIndex {"clients.timestamp": 1}, {}
+  Presence.createIndex {scope: 1, room_name:1, nick: 1}, {unique:true, dropDups:true}
+  Presence.createIndex {"clients.timestamp": 1}, {}
 
 # this reverses the name given to Mongo.Collection; that is the
 # 'type' argument is the name of a server-side Mongo collection.
@@ -912,11 +917,6 @@ do ->
       n = Meteor.users.update @userId, $pull: favorite_mechanics: mechanic
       throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
 
-    announce: (body) ->
-      check @userId, NonEmptyString
-      check body, NonEmptyString
-      oplog body, null, null, @userId, 'announcements'
-
     newMessage: (args) ->
       check @userId, NonEmptyString
       check args,
@@ -958,7 +958,7 @@ do ->
       check @userId, NonEmptyString
       check id, NonEmptyString
       check starred, Boolean
-      Messages.update (
+      num = Messages.update (
         _id: id
         to: null
         system: $in: [false, null]
@@ -966,6 +966,16 @@ do ->
         oplog: $in: [false, null]
         presence: null
       ), $set: {starred: starred or null}
+      if starred and num > 0
+        # If it's in general chat, announce it if it hasn't been announced before
+        Messages.update
+          _id: id
+          room_name: 'general/0'
+          announced_at: null
+        , $set:
+          announced_at: UTCNow()
+          announced_by: @userId
+      return num
 
     updateLastRead: (args) ->
       check @userId, NonEmptyString

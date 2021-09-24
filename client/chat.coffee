@@ -260,24 +260,27 @@ Template.messages.onCreated ->
     onReady = =>
       instachat.ready = true
       Session.set 'chatReady', true
-      return unless @limitRaise?
-      [[firstMessage, offset], @limitRaise] = [@limitRaise, undefined]
-      Tracker.afterFlush =>
-        # only scroll if the button is visible, since it means we were at the
-        # top and are still there. If we were anywhere else, the window would
-        # have stayed put.
-        messages = @$('#messages')[0]
-        chatStart = @$('.bb-chat-load-more, .bb-chat-start')[0]
-        return unless chatStart.getBoundingClientRect().bottom > messages.offsetTop
-        # We can't just scroll the last new thing into view because of the header.
-        # we have to find the thing whose offset top is as much above the message
-        # we want to keep in view as the offset top of the messages element.
-        # We would have to loop to find firstMessage's index in messages.children,
-        # so just iterate backwards. Shouldn't take too long to find ~100 pixels.
-        currMessage = firstMessage
-        while currMessage? and firstMessage.offsetTop - currMessage.offsetTop < offset
-          currMessage = currMessage.previousElementSibling
-        currMessage?.scrollIntoView()
+      if @limitRaise?
+        [[firstMessage, offset], @limitRaise] = [@limitRaise, undefined]
+        Tracker.afterFlush =>
+          # only scroll if the button is visible, since it means we were at the
+          # top and are still there. If we were anywhere else, the window would
+          # have stayed put.
+          messages = @$('#messages')[0]
+          chatStart = @$('.bb-chat-load-more, .bb-chat-start')[0]
+          return unless chatStart.getBoundingClientRect().bottom > messages.offsetTop
+          # We can't just scroll the last new thing into view because of the header.
+          # we have to find the thing whose offset top is as much above the message
+          # we want to keep in view as the offset top of the messages element.
+          # We would have to loop to find firstMessage's index in messages.children,
+          # so just iterate backwards. Shouldn't take too long to find ~100 pixels.
+          currMessage = firstMessage
+          while currMessage? and firstMessage.offsetTop - currMessage.offsetTop < offset
+            currMessage = currMessage.previousElementSibling
+          currMessage?.scrollIntoView()
+      else
+        Tracker.afterFlush =>
+          @$(".bb-message[data-read=\"unread\"]:is(.bb-message-mention-me,[data-pm-to=\"#{Meteor.userId}\"])")[0]?.scrollIntoView()
     @subscribe 'recent-messages', room_name, Session.get('limit'),
       onReady: onReady
     Tracker.onInvalidate invalidator

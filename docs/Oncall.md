@@ -114,11 +114,15 @@ with being on-call for callins or adding new puzzles.
 
 Announcements
 =============
-You can announce something to all users who have turned on notifications and have the announcements stream enabled with the `announce` bot command.
-```
-/msg bot announce The hunt has started!
-```
-The message will also appear in the latest updates panel in the header for users who don't have the notification enabled.
+Starring a message in the main chatroom pins it above the puzzles table so that anyone joining the page sees it immediately.
+It also generates a notification for anyone who has notification enabled in general and for the `announcements` stream,
+which is enabled by default. A single message is only announced once, even if it's unstarred and restarred.
+
+Once a message is obsolete, you can unstar it to remove it from the main pane. To prevent messages from being unstarred
+accidentally, you have to be in edit mode (click the unlock icon in the header) to unstar messages in the table panel.
+You can always unstar messages in the chat panel, but you have to scroll far enough back in the chat history to find it.
+
+Starring messages in other rooms does not generate an announcement, but does pin that message where it will be easily seen.
 
 Polls
 =====

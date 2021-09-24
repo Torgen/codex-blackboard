@@ -566,7 +566,9 @@ input[type=color] {
     }
 
     .puzzle-working {
-      .nick.background { opacity: 0.6; }
+      .using-jitsi & .nick.background {
+        opacity: 0.6;
+      }
       .nick:not(.background) + .nick.background { margin-left: 6px; }
     }
     td.puzzle-update {

@@ -549,8 +549,6 @@ Template.header_lastchats.helpers
       ['trophy', 'success']
     else if /reports incorrect answer/.test @body
       ['heart-broken', 'important']
-    else if @stream is 'announcements'
-      ['bullhorn', 'info']
     else
       ['exclamation-circle']
 
