@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.15.4",
-    "coffeescript": "^2.6.0",
+    "coffeescript": "^2.6.1",
     "css-color-names": "1.0.1",
     "cytoscape": "^3.19.1",
     "cytoscape-fcose": "^2.1.0",
@@ -13,14 +13,14 @@
     "delay": "^5.0.0",
     "denodeify": "^1.2.1",
     "gemoji": "^7.0.0",
-    "googleapis": "^87.0.0",
+    "googleapis": "^88.2.0",
     "hubot": "^3.3.2",
     "hubot-help": "^1.0.1",
     "mail-listener6": "^2.0.3",
     "meteor-node-stubs": "^1.1.0",
     "node-forge": "^0.10.0",
     "node-random-name": "^1.0.1",
-    "sanitize-html": "^2.5.1",
+    "sanitize-html": "^2.5.2",
     "twit": "^2.2.11"
   },
   "devDependencies": {
