@@ -489,7 +489,7 @@ Template.blackboard_meta.events
 
 Template.blackboard_meta.helpers
   color: -> puzzleColor @puzzle if @puzzle?
-  showMeta: -> HIDE_SOLVED_METAS.get() or (!this.puzzle?.solved?)
+  showMeta: -> !HIDE_SOLVED_METAS.get() or (!this.puzzle?.solved?)
   puzzles: ->
     if @puzzle.order_by
       filter =
