@@ -34,7 +34,7 @@ export default class DriveChangeWatcher
         console.log "got #{data.changes.length} changes:"
         updates = new Map()  # key: puzzle id, value: max modifiedTime of file with it as parent
         created = new Map()  # key: file ID, value: {name, mimeType, webViewLink, channel}
-        promises = data.changes.map (changeType, fileId, file: {name, mimeType, parents, createdTime, modifiedTime, webViewLink}) =>
+        promises = data.changes.map ({changeType, fileId, file: {name, mimeType, parents, createdTime, modifiedTime, webViewLink}} =>
           return unless changeType is 'file'
           moddedAt = Date.parse modifiedTime
           createdAt = Date.parse createdTime
@@ -45,13 +45,11 @@ export default class DriveChangeWatcher
           else
             puzzle = await model.Puzzles.rawCollection().findOne {drive: $in: parents}
             return unless puzzle?
-            # don't tell everyone about the automatic files.
-            return if puzzle.spreadsheet is fileId or puzzle.doc is fileId
             puzzleId = puzzle._id
-            channel = "puzzles/#{puzzleId}"
-          if puzzleId? and moddedAt > pollStart
-            updates.set(puzzlesId, moddedAt) unless updates.get(puzzleId) > moddedAt
-          if createdAt > pollStart and not created.has fileId
+            channel = "puzzles/#{puzzleId}" unless puzzle.spreadsheet is fileId or puzzle.doc is fileId
+          if puzzleId? and moddedAt > @lastPoll
+            updates.set(puzzleId, moddedAt) unless updates.get(puzzleId) > moddedAt
+          if channel? and createdAt > @lastPoll and not created.has fileId
             created.set fileId, {name, mimeType, webViewLink, channel}
         if data.nextPageToken?
           token = data.nextPageToken
@@ -59,7 +57,7 @@ export default class DriveChangeWatcher
           Promise.await Promise.all promises
           updates.forEach (timestamp, puzzle) =>
             console.log "Update #{puzzle} with new timestamp #{timestamp}"
-          createdAt.forEach ({name, mimeType, webViewLink, channel}, fileId) =>
+          created.forEach ({name, mimeType, webViewLink, channel}, fileId) =>
             console.log "Tell #{channel} about #{name}, a #{mimeType} at #{webViewLink}"
           # TODO: make relevant database changes
           @lastPoll = pollStart
