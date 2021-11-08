@@ -87,6 +87,7 @@ if Meteor.isServer
 #   drive: optional google drive folder id
 #   spreadsheet: optional google spreadsheet id
 #   doc: optional google doc id
+#   drive_touched: Time of last change to a file in the drive folder
 #   favorites: object whose keys are userids of users who favorited this
 #              puzzle. Values are true. On the client, either empty or contains
 #              only you.
@@ -117,6 +118,7 @@ if Meteor.isServer
   Puzzles.createIndex {feedsInto: 1}
   Puzzles.createIndex {puzzles: 1}
   Puzzles.createIndex {solved: 1}, {partialFilterExpression: solved: $exists: true}
+  Puzzles.createIndex {drive: 1}
 
 # CallIns are:
 #   _id: mongodb id
