@@ -1,6 +1,7 @@
 'use strict'
 
 import { Drive, FailDrive } from './imports/drive.coffee'
+import DriveChangeWatcher from './imports/drive_change_polling.coffee'
 import { decrypt } from './imports/crypt.coffee'
 import { google } from 'googleapis'
 
@@ -33,6 +34,8 @@ Promise.await do ->
     api = google.drive {version: 'v3', auth}
     share.drive = new Drive api
     console.log "Google Drive authorized and activated"
+    if share.DO_BATCH_PROCESSING
+      new DriveChangeWatcher api, share.drive.ringhuntersFolder
   catch error
     console.warn "Error trying to retrieve drive API:", error
     console.warn "Google Drive integration disabled."
