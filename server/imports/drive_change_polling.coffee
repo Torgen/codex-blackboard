@@ -7,11 +7,13 @@ startPageTokens.createIndex(({timestamp: 1}));
 
 POLL_INTERVAL = 60000
 
+CHANGES_FIELDS = "nextPageToken,newStartPageToken,changes(changeType,fileId,file(name,mimeType,parents,createdTime,modifiedTime))"
+
 export default class DriveChangeWatcher
   constructor: (@driveApi, @rootDir) ->
     lastToken = startPageTokens.findOne {}, {limit: 1, sort: timestamp: -1}
     unless lastToken
-      {data: {startPageToken}} = Promise.await @driveApi.changes.startPageToken()
+      {data: {startPageToken}} = Promise.await @driveApi.changes.getStartPageToken()
       lastToken =
         timestamp: model.UTCNow()
         token: startPageToken
@@ -26,6 +28,7 @@ export default class DriveChangeWatcher
         {data} = Promise.await @driveApi.changes.list
           pageToken: token
           pageSize: 1000
+          fields: CHANGES_FIELDS
         # TODO: do something with changes
         console.log "got #{data.changes.length} changes:"
         for change in data.changes
@@ -37,7 +40,7 @@ export default class DriveChangeWatcher
           @startPageToken = data.newStartPageToken
           startPageTokens.upsert {},
             $set:
-              timestamp. model.UTCNow()
+              timestamp: model.UTCNow()
               token: data.newStartPageToken
           , {sort: timestamp: 1}
           break
