@@ -1,10 +1,17 @@
 'use strict'
 
+import {fileType} from '/lib/imports/mime_type.coffee'
+
 model = share.model
 
 startPageTokens = new Mongo.Collection('start_page_tokens');
 startPageTokens.createIndex(({timestamp: 1}));
 
+# Fields:
+# announced: timestamp when the existence of this file was announced in chat
+driveFiles = new Mongo.Collection('drive_files');
+
+# TODO: make configurable?
 POLL_INTERVAL = 60000
 
 CHANGES_FIELDS = "nextPageToken,newStartPageToken,changes(changeType,fileId,file(name,mimeType,parents,createdTime,modifiedTime,webViewLink))"
@@ -34,12 +41,15 @@ export default class DriveChangeWatcher
         console.log "got #{data.changes.length} changes:"
         updates = new Map()  # key: puzzle id, value: max modifiedTime of file with it as parent
         created = new Map()  # key: file ID, value: {name, mimeType, webViewLink, channel}
-        promises = data.changes.map ({changeType, fileId, file: {name, mimeType, parents, createdTime, modifiedTime, webViewLink}} =>
+        promises = data.changes.map ({changeType, fileId, file: {name, mimeType, parents, createdTime, modifiedTime, webViewLink}}) =>
           return unless changeType is 'file'
           moddedAt = Date.parse modifiedTime
           createdAt = Date.parse createdTime
           channel = null
           puzzleId = null
+          # Uploads can have a created time of when they're uploaded, but a modified time of
+          # whatever the file being uploaded had.
+          moddedAt = createdAt if createdAt > moddedAt
           if parents.includes @rootDir
             channel = 'general/0'
           else
@@ -49,25 +59,45 @@ export default class DriveChangeWatcher
             channel = "puzzles/#{puzzleId}" unless puzzle.spreadsheet is fileId or puzzle.doc is fileId
           if puzzleId? and moddedAt > @lastPoll
             updates.set(puzzleId, moddedAt) unless updates.get(puzzleId) > moddedAt
-          if channel? and createdAt > @lastPoll and not created.has fileId
-            created.set fileId, {name, mimeType, webViewLink, channel}
+          if channel?
+            unless (await driveFiles.rawCollection().findOne(_id: fileId))?.announced?
+              created.set fileId, {name, mimeType, webViewLink, channel}
         if data.nextPageToken?
           token = data.nextPageToken
-        else if data.newStartPageToken?
-          Promise.await Promise.all promises
-          updates.forEach (timestamp, puzzle) =>
-            console.log "Update #{puzzle} with new timestamp #{timestamp}"
-          created.forEach ({name, mimeType, webViewLink, channel}, fileId) =>
-            console.log "Tell #{channel} about #{name}, a #{mimeType} at #{webViewLink}"
-          # TODO: make relevant database changes
-          @lastPoll = pollStart
-          @startPageToken = data.newStartPageToken
-          startPageTokens.upsert {},
-            $set:
-              timestamp: pollStart
-              token: data.newStartPageToken
-          , {multi: false, sort: timestamp: 1}
-          break
+        else
+          unless data.newStartPageToken?
+            throw new Error("Response had neither nextPageToken nor newStartPageToken")
+        Promise.await Promise.all promises
+        bulkPuzzleUpdates = updates.map (timestamp, puzzle) =>
+          updateOne:
+            filter: _id: puzzle
+            update: $max: drive_touched: timestamp
+        puzzlePromise = model.Puzzles.rawCollection().bulkWrite bulkPuzzleUpdates, ordered: false
+        created.forEach ({name, mimeType, webViewLink, channel}, fileId) =>
+          # Would be nice to use bulk write here, but since we're not forcing a particular ID
+          # we could have mismatched meteor vs. mongo ID types.
+          now = model.UTCNow()
+          msg = model.Messages.insert
+            body: "#{fileType(mimeType)} \"#{name}\" added to drive folder: #{webViewLink}"
+            system: true
+            channel: channel
+            bot_ignore: true
+            useful: true
+            file_upload: {name, mimeType, webViewLink, fileId}
+            timestamp: now
+          driveFiles.upsert fileId,
+            $max: announced: now
+        Promise.await bulkPromise
+        @lastPoll = pollStart
+        @startPageToken = data.newStartPageToken
+        startPageTokens.upsert {},
+          $set:
+            timestamp: pollStart
+            token: data.newStartPageToken
+        ,
+          multi: false
+          sort: timestamp: 1
+        break
     catch e
       console.error e
     @timeoutHandle = Meteor.setTimeout (=> @poll()), POLL_INTERVAL

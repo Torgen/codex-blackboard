@@ -5,6 +5,7 @@ import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
 import { mechanics } from '../lib/imports/mechanics.coffee'
+import { fileType } from '../lib/imports/mime_type.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
@@ -55,6 +56,7 @@ Template.registerHelper 'editing', (args..., options) ->
   return Session.equals 'editing', args.join('/')
 
 Template.registerHelper 'md5', md5
+Template.registerHelper 'fileType', fileType
 
 Template.registerHelper 'teamName', -> settings.TEAM_NAME
 Template.registerHelper 'generalRoomName', -> settings.GENERAL_ROOM_NAME

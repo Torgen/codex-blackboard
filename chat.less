@@ -259,6 +259,59 @@ table.poll {
     @media (max-width: 767px) { white-space: initial; } 
   }
 }
+[data-mime-type]::before {
+  display: inline-block;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f382"; /* cloud-upload-alt */
+}
+[data-mime-type="application/vnd.google-apps.document"]::before {
+  content: "\f15c"; /* file-alt */
+  color: #4285f4;
+}
+[data-mime-type="application/vnd.google-apps.spreadsheet"]::before {
+  content: "\f0ce"; /* table */
+  color: #0F9D58;
+}
+[data-mime-type="application/vnd.google-apps.jam"]::before {
+  content: "\f51b"; /* chalkboard */
+  color: #f57c00;
+}
+[data-mime-type="application/vnd.google-apps.map"]::before {
+  content: "\f5a0"; /* map-marked-alt */
+  color: #d94134;
+}
+[data-mime-type="application/vnd.google-apps.folder"]::before {
+  content: "\f07b"; /* folder */
+}
+[data-mime-type="application/pdf"]::before {
+  content: "\f1c1"; /* file-pdf */
+  color: #F40F02;
+}
+[data-mime-type$="/javascript"]::before {
+  content: "\f3b9"; /* js-square */
+}
+[data-mime-type="text/x-python"]::before {
+  content: "\f3e2"; /* python */
+}
+[data-mime-type="text/html"]::before {
+  content: "\f1c9"; /* file-code */
+}
+[data-mime-type="text/plain"]::before {
+  content: "\f15c"; /* file-alt */
+}
+[data-mime-type="application/zip"]::before {
+  content: "\f1c6"; /* file-archive */
+}
+[data-mime-type^="image/"]::before {
+  content: "\f1c5"; /* file-image */
+}
+[data-mime-type^="video/"]::before {
+  content: "\f1c8"; /* file-video */
+}
+[data-mime-type^="audio/"]::before {
+  content: "\f1c7"; /* file-audio */
+}
 
 .glyphicon {
   display: inline-block;

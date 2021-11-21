@@ -196,7 +196,11 @@ Click here to stay in this meeting instead.{{/if}}">
         <div class="bb-message-system" data-read="{{#unless read}}un{{/unless}}read">
           <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
           {{> message_delete_button}}
-          {{message.body}}
+          {{#with message.file_upload}}
+            <span data-mime-type="{{mimeType}}">{{fileType mimeType}}</span> "<a target="_blank" href="{{webViewLink}}">{{name}}</a>" added to drive folder.
+          {{else}}
+            {{>chat_format_body body=message.body bodyIsHtml=message.bodyIsHtml}}
+          {{/with}}
         </div>
       {{else if usefulEnough message}}
         {{#if message.action}}
