@@ -72,7 +72,9 @@ export default class DriveChangeWatcher
           updateOne:
             filter: _id: puzzle
             update: $max: drive_touched: timestamp
-        puzzlePromise = model.Puzzles.rawCollection().bulkWrite bulkPuzzleUpdates, ordered: false
+        puzzlePromise = if bulkPuzzleUpdates.length
+          then model.Puzzles.rawCollection().bulkWrite bulkPuzzleUpdates, ordered: false
+          else Promise.resolve()
         created.forEach ({name, mimeType, webViewLink, channel}, fileId) =>
           # Would be nice to use bulk write here, but since we're not forcing a particular ID
           # we could have mismatched meteor vs. mongo ID types.
