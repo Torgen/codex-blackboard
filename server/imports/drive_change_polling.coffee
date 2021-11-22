@@ -90,7 +90,7 @@ export default class DriveChangeWatcher
             timestamp: now
           driveFiles.upsert fileId,
             $max: announced: now
-        Promise.await bulkPromise
+        Promise.await puzzlePromise
         @lastPoll = pollStart
         @startPageToken = data.newStartPageToken
         startPageTokens.upsert {},
