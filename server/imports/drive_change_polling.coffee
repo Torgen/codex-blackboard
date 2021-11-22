@@ -38,7 +38,6 @@ export default class DriveChangeWatcher
           pageToken: token
           pageSize: 1000
           fields: CHANGES_FIELDS
-        console.log "got #{data.changes.length} changes:"
         updates = new Map()  # key: puzzle id, value: max modifiedTime of file with it as parent
         created = new Map()  # key: file ID, value: {name, mimeType, webViewLink, channel}
         promises = data.changes.map ({changeType, fileId, file: {name, mimeType, parents, createdTime, modifiedTime, webViewLink}}) =>
