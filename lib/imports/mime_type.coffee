@@ -19,7 +19,7 @@ STATIC_TYPES =
   'application/javascript': "Javascript Code"
 
 export fileType = (mimeType) ->
-  mimeType = STRIP_PLUS_AND_SEMICOLON.match(mimteType)[1]
+  mimeType = STRIP_PLUS_AND_SEMICOLON.match(mimeType)[1]
   res = STATIC_TYPES[mimeType]
   return res if res?
   match = GOOGLE_APPS_PATTERN.match mimeType
