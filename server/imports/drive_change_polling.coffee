@@ -83,7 +83,7 @@ export default class DriveChangeWatcher
           msg = model.Messages.insert
             body: "#{fileType(mimeType)} \"#{name}\" added to drive folder: #{webViewLink}"
             system: true
-            channel: channel
+            room_name: channel
             bot_ignore: true
             useful: true
             file_upload: {name, mimeType, webViewLink, fileId}
