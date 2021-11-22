@@ -68,7 +68,7 @@ export default class DriveChangeWatcher
           unless data.newStartPageToken?
             throw new Error("Response had neither nextPageToken nor newStartPageToken")
         Promise.await Promise.all promises
-        bulkPuzzleUpdates = updates.map (timestamp, puzzle) =>
+        bulkPuzzleUpdates = for [puzzle, timestamp] from updates
           updateOne:
             filter: _id: puzzle
             update: $max: drive_touched: timestamp
