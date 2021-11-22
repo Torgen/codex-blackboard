@@ -19,13 +19,13 @@ STATIC_TYPES =
   'application/javascript': "Javascript Code"
 
 export fileType = (mimeType) ->
-  mimeType = STRIP_PLUS_AND_SEMICOLON.match(mimeType)[1]
+  mimeType = mimeType.match(STRIP_PLUS_AND_SEMICOLON)[1]
   res = STATIC_TYPES[mimeType]
   return res if res?
-  match = GOOGLE_APPS_PATTERN.match mimeType
+  match = mimeType.match GOOGLE_APPS_PATTERN
   if match?
     return "Google #{match[1][0].toUpperCase()}#{match[1].slice(1)}"
-  match = MEDIA_PATTERN.match mimeType
+  match = mimeType.match MEDIA_PATTERN
   if match?
     return "#{match[2].toUpperCase()} #{match[1][0].toUpperCase()}#{match[1].slice(1)}"
   return "#{mimeType} File"
