@@ -3,14 +3,6 @@ import { DARK_MODE, HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, STUCK_TO_
 HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS, HIDE_OLD_PRESENCE, LESS_COLORFUL,
 START_VIDEO_MUTED, START_AUDIO_MUTED, COMPACT_MODE, CURRENT_COLUMNS} from './imports/settings.coffee'
 
-Template.registerHelper 'nCols', ->
-  if COMPACT_MODE.get()
-    2
-  else if Meteor.userId() and (Session.get 'canEdit')
-    3
-  else
-    5
-
 Template.options_dropdown.helpers
   jitsi: share.settings.JITSI_SERVER?
 
@@ -42,3 +34,8 @@ Template.options_dropdown.events
     START_VIDEO_MUTED.set event.target.checked
   'change .bb-start-audio-muted input': (event, template) ->
     START_AUDIO_MUTED.set event.target.checked
+  'change input[data-column-visibility]': (event, template) ->
+    CURRENT_COLUMNS.set template.$('input[data-column-visibility]:checked').map(-> @dataset.columnVisibility).get()
+
+Template.options_dropdown_column_checkbox.helpers
+  columnVisible: -> CURRENT_COLUMNS.get().includes @
