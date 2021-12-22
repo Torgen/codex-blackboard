@@ -129,7 +129,7 @@ describe 'pretty_ts', ->
       chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: -70000, style: 'brief_future'}), 'now'
   
     it 'returns in minute', ->
-      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 70001, style: 'breif_future'}), 'in 1 minute'
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 70001, style: 'brief_future'}), 'in 1 minute'
 
     it 'returns in minutes', ->
       chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 330001, style: 'brief_future'}), 'in 5 minutes'
