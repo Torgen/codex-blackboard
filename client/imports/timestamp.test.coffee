@@ -84,3 +84,70 @@ describe 'pretty_ts', ->
 
     it 'returns weeks ago', ->
       chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: (-25*86400001)-18120001, style: 'brief_duration'}), '3 weeks ago'
+
+  describe 'future', ->
+    
+    it 'returns now', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: -70000, style: 'future'}), 'now'
+
+    it 'returns in minute ', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 60001, style: 'future'}), 'in 1 minute'
+
+    it 'returns in minutes', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 300001, style: 'future'}), 'in 5 minutes'
+
+    it 'returns in hour', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 3600001, style: 'future'}), 'in 1 hour'
+
+    it 'returns in hours', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 18000001, style: 'future'}), 'in 5 hours'
+
+    it 'returns in hours and minutes', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 18120001, style: 'future'}), 'in 5 hours 2 minutes'
+
+    it 'returns in day', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 86400001, style: 'future'}), 'in 1 day'
+
+    it 'returns in days', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 259200001, style: 'future'}), 'in 3 days'
+
+    it 'returns in days hours and minutes', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 277320001, style: 'future'}), 'in 3 days 5 hours 2 minutes'
+
+    it 'returns in week', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: (7*86400001), style: 'future'}), 'in 1 week'
+
+    it 'returns in weeks', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: (21*86400001), style: 'future'}), 'in 3 weeks'
+
+    it 'returns in weeks days hours and minutes', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: (+25*86400001)+18120001, style: 'future'}), 'in 3 weeks 4 days 5 hours 2 minutes'
+
+  describe 'brief future', ->
+    
+    it 'returns now', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: -70000, style: 'brief_future'}), 'now'
+  
+    it 'returns in minute', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 70001, style: 'breif_future'}), 'in 1 minute'
+
+    it 'returns in minutes', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 330001, style: 'brief_future'}), 'in 5 minutes'
+
+    it 'returns in hour', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 3720001, style: 'brief_future'}), 'in 1 hour'
+
+    it 'returns in hours', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 18120001, style: 'brief_future'}), 'in 5 hours'
+
+    it 'returns in day', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 86700001, style: 'brief_future'}), 'in 1 day'
+
+    it 'returns in days', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: 261120001, style: 'brief_future'}), 'in 3 days'
+
+    it 'returns in week', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: (10*86400001), style: 'brief_future'}), 'in 1 week'
+
+    it 'returns in weeks', ->
+      chai.assert.equal Blaze._globalHelpers.pretty_ts(hash: {timestamp: (25*86400001)+18120001, style: 'brief_future'}), 'in 3 weeks'
