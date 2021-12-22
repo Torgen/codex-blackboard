@@ -92,22 +92,40 @@ export class CalendarSync
           continue
         throw e
       for event in events.items
+        console.log event
         if event.status is 'cancelled'
           bulkEventUpdates.push
             deleteOne: filter: _id: event.id
         else
-          update = {}
+          set = {}
+          unset = {}
           if event.end?.dateTime?
-            update.end = Date.parse event.end?.dateTime
+            set.end = Date.parse event.end?.dateTime
           if event.start?.dateTime?
-            update.start = Date.parse event.start?.dateTime
+            set.start = Date.parse event.start?.dateTime
           if event.summary?
-            update.summary = event.summary
+            set.summary = event.summary
+          else 
+            unset.summary = ''
+          if event.location?
+            set.location = event.location
+          else
+            unset.location = ''
+          if event.description?
+            set.description = event.description
+          else
+            unset.description = ''
+          if event.htmlLink?
+            set.link = event.htmlLink
+          else
+            unset.link = ''
           bulkEventUpdates.push
             updateOne:
               filter: _id: event.id
               upsert: true
-              update: $set: update
+              update:
+                $set: set
+                $unset: unset
       if events.nextPageToken?
         pageToken = events.nextPageToken
       else
