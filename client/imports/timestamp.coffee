@@ -28,6 +28,7 @@ timediff = (seconds, brief) ->
     return s if s and brief
     s += " #{minutes} minute" if minutes > 0
     s += "s" if minutes > 1
+    return s
   return res.replace(/^\s+/,'')
 
 # timestamps
