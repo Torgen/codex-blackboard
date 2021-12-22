@@ -2,20 +2,11 @@
 
 import { Drive, FailDrive } from './imports/drive.coffee'
 import DriveChangeWatcher from './imports/drive_change_polling.coffee'
-import { decrypt } from './imports/crypt.coffee'
+import googleauth from './imports/googleauth.coffee'
 import { google } from 'googleapis'
 
 # helper functions to perform Google Drive operations
 
-# Credentials
-KEY = Meteor.settings.key or try
-  Assets.getBinary 'drive-key.pem.crypt'
-catch error
-  undefined
-if KEY? and Meteor.settings.decrypt_password?
-  # Decrypt the JWT authentication key synchronously at startup
-  KEY = decrypt KEY, Meteor.settings.decrypt_password
-EMAIL = Meteor.settings.email or '571639156428@developer.gserviceaccount.com'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Intialize APIs and load rootFolder
@@ -24,12 +15,7 @@ if Meteor.isAppTest
   return
 Promise.await do ->
   try
-    auth = null
-    if /^-----BEGIN (RSA )?PRIVATE KEY-----/.test(KEY)
-      auth = new google.auth.JWT(EMAIL, null, KEY, SCOPES)
-      await auth.authorize()
-    else
-      auth = await google.auth.getClient scopes: SCOPES
+    auth = await googleauth SCOPES
     # record the API and auth info
     api = google.drive {version: 'v3', auth}
     share.drive = new Drive api

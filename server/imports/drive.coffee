@@ -2,11 +2,9 @@
 
 import { Readable } from 'stream'
 import delay from 'delay'
+import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.coffee'
 
 # Drive folder settings
-DEFAULT_ROOT_FOLDER_NAME = "MIT Mystery Hunt #{new Date().getFullYear()}"
-ROOT_FOLDER_NAME = -> Meteor.settings.folder or process.env.DRIVE_ROOT_FOLDER or DEFAULT_ROOT_FOLDER_NAME
-CODEX_ACCOUNT = -> Meteor.settings.driveowner or process.env.DRIVE_OWNER_ADDRESS
 WORKSHEET_NAME = (name) -> "Worksheet: #{name}"
 DOC_NAME = (name) -> "Notes: #{name}"
 
@@ -47,6 +45,12 @@ ensurePermissions = (drive, id) ->
       role: 'writer'
       type: 'user'
       emailAddress: CODEX_ACCOUNT()
+  if SHARE_GROUP()?
+    perms.push
+      # edit permission to a google group
+      role: 'writer'
+      type: 'group'
+      emailAddress: SHARE_GROUP()
   resp = (await drive.permissions.list({fileId: id, fields: PERMISSION_LIST_FIELDS})).data
   ps = []
   perms.forEach (p) ->

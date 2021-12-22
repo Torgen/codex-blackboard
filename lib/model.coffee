@@ -272,6 +272,18 @@ if Meteor.isServer
   Presence.createIndex {scope: 1, room_name:1, nick: 1}, {unique:true, dropDups:true}
   Presence.createIndex {"clients.timestamp": 1}, {}
 
+# Team calendar. Expect this to contain exactly one document
+#   _id: ID of calendar in Google API.
+#   syncToken: token for fetching incremental updates. Server only.
+Calendar = BBCollection.calendar = new Mongo.Collection 'calendar'
+
+# Events from the team calendar.
+#   _id: ID of calendar in Google API
+#   start: start time of event as ms since epoch
+#   end: end time of event as ms since epoch
+#   summary: name of event
+CalendarEvents = BBCollection.calendar_events = new Mongo.Collection 'calendar_events'
+
 # this reverses the name given to Mongo.Collection; that is the
 # 'type' argument is the name of a server-side Mongo collection.
 collection = (type) ->
@@ -1417,6 +1429,8 @@ share.model =
   Messages: Messages
   LastRead: LastRead
   Presence: Presence
+  Calendar: Calendar
+  CalendarEvents: CalendarEvents
   # helper methods
   collection: collection
   pretty_collection: pretty_collection
