@@ -16,7 +16,7 @@ export driveFiles = new Mongo.Collection('drive_files');
 # TODO: make configurable?
 POLL_INTERVAL = 60000
 
-CHANGES_FIELDS = "nextPageToken,newStartPageToken,changes(changeType,fileId,file(name,mimeType,parents,createdTime,modifiedTime,webViewLink))"
+CHANGES_FIELDS = "nextPageToken,newStartPageToken,changes(changeType,removed,fileId,file(name,mimeType,parents,createdTime,modifiedTime,webViewLink))"
 
 export default class DriveChangeWatcher
   constructor: (@driveApi, @rootDir) ->
@@ -43,14 +43,12 @@ export default class DriveChangeWatcher
           fields: CHANGES_FIELDS
         updates = new Map()  # key: puzzle id, value: max modifiedTime of file with it as parent
         created = new Map()  # key: file ID, value: {name, mimeType, webViewLink, channel}
-        promises.push ...data.changes.map ({changeType, fileId, file: {name, mimeType, parents, createdTime, modifiedTime, webViewLink}}) =>
+        promises.push ...data.changes.map ({changeType, removed, fileId, file}) =>
           return unless changeType is 'file'
-          console.log modifiedTime
+          return if removed
+          {name, mimeType, parents, createdTime, modifiedTime, webViewLink} = file
           moddedAt = Date.parse modifiedTime
-          console.log moddedAt
-          console.log createdTime
           createdAt = Date.parse createdTime
-          console.log createdAt
           channel = null
           puzzleId = null
           # Uploads can have a created time of when they're uploaded, but a modified time of
