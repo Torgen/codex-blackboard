@@ -41,7 +41,7 @@ Template.registerHelper 'pretty_ts', (args) ->
     when "time"
       diff = (Session.get('currentTime') or Date.now()) - timestamp
       d = new Date timestamp
-      if diff > 86400000
+      if diff > 86400000 or diff < -86400000
         return past_fmt.format d
       today_fmt.format d
     when 'future', 'brief future', 'brief_future'

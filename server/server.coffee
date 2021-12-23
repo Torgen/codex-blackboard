@@ -72,6 +72,11 @@ Meteor.publish null, loginRequired -> model.Messages.find {to: @userId, deleted:
 # Messages that mention you
 Meteor.publish null, loginRequired -> model.Messages.find {mention: @userId, deleted: $ne: true}
 
+# Calendar events
+Meteor.publish null, loginRequired -> [
+  model.Calendar.find({}, {fields: _id: 1}),
+  model.CalendarEvents.find()]
+
 Meteor.publish 'announcements-since', loginRequired (since) -> model.Messages.find
   announced_at: $gt: since
   deleted: $ne: true

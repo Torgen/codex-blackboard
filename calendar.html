@@ -1,0 +1,33 @@
+<template name="calendar_dropdown">
+  {{#if calendar_id}}
+  {{#let evs=upcoming_events nxt=next_event}}
+  <div class="btn-group text-left bb-calendar-events">
+    <button class="btn btn-small {{#unless nxt}}btn-inverse{{else if less nxt 300000}}btn-warning{{else if less nxt 3600000}}btn-success{{else}}btn-primary{{/unless}} dropdown-toggle" data-toggle="dropdown" title="Events">
+      {{#if evs.count}}{{evs.count}}{{/if}}
+      <i class="fas fa-calendar"></i>
+      <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu pull-right" id="bb-calendar-events-dropdown">
+      <li>
+        <a href="https://calendar.google.com/calendar?cid={{calendar_id}}" target="_blank">
+        <i class="fas fa-calendar-plus"></i> Add Google Calendar
+        </a>
+      </li>
+      {{#each event in evs}}
+        <li class="bb-calendar-event">
+          <div class="bb-event-summary">{{event.summary}}</div>
+          <div class="bb-event-time"><i class="fas fa-clock"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
+          {{#if event.location}}
+            {{#if url event.location}}
+              <div class="bb-event-link"><i class="fas fa-link"></i> <a href="{{event.location}}" target="_blank">{{event.location}}</a></div>
+            {{else}}
+              <div class="bb-event-location"><i class="fas fa-map-marker"></i> <a href="https://maps.google.com/maps/search/{{event.location}}" target="_blank">{{event.location}}</a></div>
+            {{/if}}
+          {{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/let}}
+  {{/if}}
+</template>
