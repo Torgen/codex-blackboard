@@ -23,6 +23,12 @@ Template.calendar_event.helpers
     catch e
       return false
 
+Template.calendar_event.events
+  'click .bb-event-unattend': (event, template) ->
+    Meteor.call 'removeEventAttendee', template.data.event._id, Meteor.userId()
+  'click .bb-event-attend': (event, template) ->
+    Meteor.call 'addEventAttendee', template.data.event._id, Meteor.userId()
+
 Template.calendar_attachable_events.helpers
   attachable_events: ->
     model.CalendarEvents.find

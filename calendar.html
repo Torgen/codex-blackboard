@@ -45,15 +45,23 @@
 <template name="calendar_event">
   <li class="bb-calendar-event" data-event-id="{{event._id}}">
     <div class="bb-event-summary">{{event.summary}}</div>
-    <div class="bb-event-time"><i class="fas fa-clock"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
+    <div class="bb-event-time"><i class="fas fa-clock" title="Time"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
+    <div class="bb-event-attendees">
+      {{#if includes event.attendees currentUser._id}}<i class="fas fa-user-minus bb-event-unattend" title="I won't attend"></i>{{else}}<i class="fas fa-user-plus bb-event-attend" title="I'll attend"></i>{{/if}}
+      {{#each attendee in event.attendees}}
+        {{>gravatar nick=attendee size=16 title=(nickOrName attendee)}}
+      {{else}}
+        (Nobody)
+      {{/each}}
+    </div>
     {{#if event.puzzle}}
-      <div class="bb-event-puzzle"><i class="fas fa-puzzle-piece"></i> {{>link id=event.puzzle}}</div>
+      <div class="bb-event-puzzle"><i class="fas fa-puzzle-piece" title="Puzzle"></i> {{>link id=event.puzzle}}</div>
     {{/if}}
     {{#if event.location}}
       {{#if url event.location}}
-        <div class="bb-event-link"><i class="fas fa-link"></i> <a href="{{event.location}}" target="_blank">{{event.location}}</a></div>
+        <div class="bb-event-link"><i class="fas fa-link" title="Link"></i> <a href="{{event.location}}" target="_blank">{{event.location}}</a></div>
       {{else}}
-        <div class="bb-event-location"><i class="fas fa-map-marker"></i> <a href="https://maps.google.com/maps/search/{{event.location}}" target="_blank">{{event.location}}</a></div>
+        <div class="bb-event-location"><i class="fas fa-map-marker" title="Location"></i> <a href="https://maps.google.com/maps/search/{{event.location}}" target="_blank">{{event.location}}</a></div>
       {{/if}}
     {{/if}}
   </li>

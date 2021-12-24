@@ -1407,6 +1407,18 @@ do ->
         $unset: puzzle: ''
       return 0 < CalendarEvents.update {_id: event}, update
 
+    addEventAttendee: (event, who) ->
+      check @userId, NonEmptyString
+      check event, NonEmptyString
+      check Meteor.users.findOne(_id: who), Object
+      return 0 < CalendarEvents.update {_id: event}, $addToSet: attendees: who
+
+    removeEventAttendee: (event, who) ->
+      check @userId, NonEmptyString
+      check event, NonEmptyString
+      check Meteor.users.findOne(_id: who), Object
+      return 0 < CalendarEvents.update {_id: event}, $pull: attendees: who
+
     getRinghuntersFolder: ->
       check @userId, NonEmptyString
       return unless Meteor.isServer
