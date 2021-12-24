@@ -13,21 +13,39 @@
         <i class="fas fa-calendar-plus"></i> Add Google Calendar
         </a>
       </li>
-      {{#each event in evs}}
-        <li class="bb-calendar-event">
-          <div class="bb-event-summary">{{event.summary}}</div>
-          <div class="bb-event-time"><i class="fas fa-clock"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
-          {{#if event.location}}
-            {{#if url event.location}}
-              <div class="bb-event-link"><i class="fas fa-link"></i> <a href="{{event.location}}" target="_blank">{{event.location}}</a></div>
-            {{else}}
-              <div class="bb-event-location"><i class="fas fa-map-marker"></i> <a href="https://maps.google.com/maps/search/{{event.location}}" target="_blank">{{event.location}}</a></div>
-            {{/if}}
-          {{/if}}
-        </li>
+      {{#each evs}}
+        {{> calendar_event event=this}}
       {{/each}}
     </ul>
   </div>
   {{/let}}
   {{/if}}
+</template>
+
+<template name="calendar_event">
+  <li class="bb-calendar-event" data-event-id="{{event._id}}">
+    <div class="bb-event-summary">{{event.summary}}</div>
+    <div class="bb-event-time"><i class="fas fa-clock"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
+    {{#if event.puzzle}}
+      <div class="bb-event-puzzle"><i class="fas fa-puzzle-piece"></i> {{>link id=event.puzzle}}</div>
+    {{/if}}
+    {{#if event.location}}
+      {{#if url event.location}}
+        <div class="bb-event-link"><i class="fas fa-link"></i> <a href="{{event.location}}" target="_blank">{{event.location}}</a></div>
+      {{else}}
+        <div class="bb-event-location"><i class="fas fa-map-marker"></i> <a href="https://maps.google.com/maps/search/{{event.location}}" target="_blank">{{event.location}}</a></div>
+      {{/if}}
+    {{/if}}
+  </li>
+</template>
+
+<template name="calendar_attachable_events">
+  {{#let attachable=attachable_events}}
+  {{#if attachable.count}}
+  <span class="btn-group bb-calendar-attachable"
+  ><button class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Attach Event"><i class="fas fa-calendar-plus"></i></button><ul class="dropdown-menu bb-events-attachable-list"
+  >{{#each event in attachable}}{{>calendar_event event=event}}{{/each
+      }}</ul></span>
+  {{/if}}
+  {{/let}}
 </template>

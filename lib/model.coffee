@@ -282,6 +282,8 @@ Calendar = BBCollection.calendar = new Mongo.Collection 'calendar'
 #   start: start time of event as ms since epoch
 #   end: end time of event as ms since epoch
 #   summary: name of event
+#   location: location of event, which could be a URL
+#   puzzle: optional id of a puzzle the event relates to.
 CalendarEvents = BBCollection.calendar_events = new Mongo.Collection 'calendar_events'
 
 # this reverses the name given to Mongo.Collection; that is the
@@ -1393,6 +1395,17 @@ do ->
         'options.canon': option
       ,
         $set: "votes.#{@userId}": {canon: option, timestamp: UTCNow()}
+
+    setPuzzleForEvent: (event, puzzle) ->
+      check @userId, NonEmptyString
+      check event, NonEmptyString
+      check puzzle, Match.Optional(NonEmptyString)
+      update = if puzzle?
+        check Puzzles.findOne(_id: puzzle), Object
+        $set: {puzzle}
+      else
+        $unset: puzzle: ''
+      return 0 < CalendarEvents.update {_id: event}, update
 
     getRinghuntersFolder: ->
       check @userId, NonEmptyString

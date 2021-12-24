@@ -1,5 +1,19 @@
+.bb-calendar-event { font-weight: initial; }
 .bb-event-summary { font-weight: bold; }
-.bb-calendar-event {
+.dropdown-menu .bb-calendar-event {
   padding: 3px 20px;
   color: var(--text-color);
+}
+.btn-group.bb-calendar-attachable {
+  font-size: inherit;
+  height: 24px;
+  .btn {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    font-size: inherit;
+  }
+  .bb-calendar-event:hover {
+    background-color: var(--barely-darker);
+  }
 }

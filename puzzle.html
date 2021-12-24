@@ -6,10 +6,21 @@
     {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}"><i class="fab fa-google-drive"></i></a>{{/if}}
     {{>favorite puzzle}}
     {{#if puzzle.link}}<a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class="fas fa-link"></i></a>{{/if}}
+    {{>calendar_attachable_events puzzle=puzzle._id}}
   </h2>
   
   <h1>{{puzzle.name}}</h1>
 </div>
+{{#let evs=upcoming_events}}
+{{#if evs.count}}
+<h4>Upcoming Events</h4>
+<ul class="bb-puzzle-info-events">
+  {{#each evs}}
+  {{>calendar_event event=this}}
+  {{/each}}
+</ul>
+{{/if}}
+{{/let}}
 <table class="bb-puzzle-info-tags"><tbody>
 {{#with puzzle}}
   {{#if solved}}
