@@ -22,6 +22,26 @@
   {{/if}}
 </template>
 
+<template name="calendar_strip">
+  {{#if calendar_id}}
+  {{#let evs=upcoming_events}}
+  <h2>
+    <a href="https://calendar.google.com/calendar?cid={{calendar_id}}"
+       target="_blank"
+       title="Add Google Calendar"><i class="fas fa-calendar-plus"></i></a>
+    {{#if evs.count}}{{evs.count}}{{else}}No{{/if}} Upcoming Event{{#if plural evs.count}}s{{/if}}
+  </h2>
+  {{#if evs.count}}
+  <ul id="bb-calendar-events-strip">
+    {{#each evs}}
+      {{> calendar_event event=this}}
+    {{/each}}
+  </ul>
+  {{/if}}
+  {{/let}}
+  {{/if}}
+</template>
+
 <template name="calendar_event">
   <li class="bb-calendar-event" data-event-id="{{event._id}}">
     <div class="bb-event-summary">{{event.summary}}</div>
