@@ -6,7 +6,7 @@ import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.cof
 CALENDAR_TIME_ZONE = Meteor.settings.calendar?.time_zone or process.env.CALENDAR_TIME_ZONE or 'America/New_York'
 
 # TODO: make configurable?
-POLL_INTERVAL = 60000
+POLL_INTERVAL = 30000
 
 export class CalendarSync
   constructor: (@api) ->
@@ -38,7 +38,7 @@ export class CalendarSync
       
       share.model.Calendar.insert { _id: @id }
     
-    @_schedulePoll()
+    @_schedulePoll(0)
 
     promises = []
     acls = Promise.await @api.acl.list({calendarId: @id, maxResults: 250})
@@ -142,9 +142,9 @@ export class CalendarSync
     await @pollOnce()
     @_schedulePoll()
 
-  _schedulePoll: ->
+  _schedulePoll: (interval = POLL_INTERVAL) ->
     @stop()
-    @timeoutHandle = Meteor.setTimeout (=> @_pollAndReschedule()), POLL_INTERVAL
+    @timeoutHandle = Meteor.setTimeout (=> @_pollAndReschedule()), interval
 
   stop: ->
     Meteor.clearTimeout @timeoutHandle if @timeoutHandle?
