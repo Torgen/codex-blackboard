@@ -16,6 +16,8 @@ Template.calendar_dropdown.helpers
 calendar_container Template.calendar_strip
 
 Template.calendar_event.helpers
+  dh_until_start: ->
+    (@event.start - Session.get('currentTime')) / 360000
   url: (str) ->
     try
       new URL str

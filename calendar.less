@@ -25,18 +25,20 @@
   cursor: pointer;
 }
 
-#bb-calendar-events-strip {
+#bb-calendar-events-strip, .bb-puzzle-info-events {
   display: flex;
-  flex-flow: row nowrap;
-  overflow-x: auto;
   margin-left: 0px;
   .bb-calendar-event {
     list-style-type: none;
     padding: 2px;
     margin-right: 5px;
-    width: 200px;
     border: 1px solid black;
     border-radius: 5px;
+    background-color: hsl(clamp(0, var(--dh-until-start, 300), 300), 100%, var(--calendar-card-lightness));
+    --calendar-card-lightness: 90%;
+    .darkMode & {
+      --calendar-card-lightness: 20%;
+    }
     div {
       display: flex;
       flex-flow: row nowrap;
@@ -55,4 +57,16 @@
     
   }
   .bb-event-summary { font-size: 110%; }
+}
+
+#bb-calendar-events-strip {
+  flex-flow: row nowrap;
+  overflow-x: auto;
+  .bb-calendar-event {
+    width: 200px;
+  }
+}
+
+.bb-puzzle-info-events {
+  flex-flow: column nowrap;
 }

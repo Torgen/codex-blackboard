@@ -43,7 +43,7 @@
 </template>
 
 <template name="calendar_event">
-  <li class="bb-calendar-event" data-event-id="{{event._id}}">
+  <li class="bb-calendar-event" style="--dh-until-start: {{dh_until_start}}" data-event-id="{{event._id}}">
     <div class="bb-event-summary">{{event.summary}}</div>
     <div class="bb-event-time"><i class="fas fa-clock" title="Time"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
     <div class="bb-event-attendees">
