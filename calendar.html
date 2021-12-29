@@ -42,12 +42,41 @@
   {{/if}}
 </template>
 
+<template name="calendar_puzzle_events">
+  {{#let evs=upcoming_events}}
+  {{#if evs.count}}
+  <h4>Upcoming Events</h4>
+  <ul class="bb-puzzle-info-events">
+    {{#each evs}}
+    {{>calendar_event event=this hide_puzzle=true allow_detach=true}}
+    {{/each}}
+  </ul>
+  {{/if}}
+  {{/let}}
+</template>
+
+<template name="calendar_puzzle_cell">
+  {{#let evs=upcoming_events atch=attachable_events}}
+  {{#if any (all canEdit atch.count) evs.count}}
+    <tr>
+      <td>Upcoming Events:</td>
+      <td class="comma-list">
+        {{#each ev in evs}}{{>calendar_puzzle_cell_entry event=ev}}{{/each}}
+        {{#if all atch.count canEdit}}{{>calendar_attachable_events puzzle=_id}}{{/if}}
+      </td>
+    </tr>
+  {{/if}}
+  {{/let}}
+</template>
+
+<template name="calendar_puzzle_cell_entry"><span>{{event.summary}} ({{pretty_ts timestamp=event.start style="brief future"}}) {{#if canEdit}}<i class="fa fa-times bb-detach-event" title="Detach event from puzzle"></i>{{/if}}</span></template>
+
 <template name="calendar_event">
   <li class="bb-calendar-event" style="--dh-until-start: {{dh_until_start}}" data-event-id="{{event._id}}">
     <div class="bb-event-summary">{{event.summary}}{{#if all event.puzzle hide_puzzle allow_detach}}<i class="fa fa-times bb-detach-event" title="Detach event from puzzle"></i>{{/if}}</div>
     <div class="bb-event-time"><i class="fas fa-clock" title="Time"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
     <div class="bb-event-attendees">
-      {{#if includes event.attendees currentUser._id}}<i class="fas fa-user-minus bb-event-unattend" title="I won't attend"></i>{{else}}<i class="fas fa-user-plus bb-event-attend" title="I'll attend"></i>{{/if}}
+      {{#if fixed_attendance}}<i class="fas fa-user"></i>{{else if includes event.attendees currentUser._id}}<i class="fas fa-user-minus bb-event-unattend" title="I won't attend"></i>{{else}}<i class="fas fa-user-plus bb-event-attend" title="I'll attend"></i>{{/if}}
       {{#each attendee in event.attendees}}
         {{>gravatar nick=attendee size=16 title=(nickOrName attendee)}}
       {{else}}
@@ -72,7 +101,7 @@
   {{#if attachable.count}}
   <span class="btn-group bb-calendar-attachable"
   ><button class="btn btn-link dropdown-toggle" data-toggle="dropdown" title="Attach Event"><i class="fas fa-calendar-plus"></i></button><ul class="dropdown-menu bb-events-attachable-list"
-  >{{#each event in attachable}}{{>calendar_event event=event}}{{/each
+  >{{#each event in attachable}}{{>calendar_event event=event fixed_attendance=true}}{{/each
       }}</ul></span>
   {{/if}}
   {{/let}}

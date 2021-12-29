@@ -11,16 +11,7 @@
   
   <h1>{{puzzle.name}}</h1>
 </div>
-{{#let evs=upcoming_events}}
-{{#if evs.count}}
-<h4>Upcoming Events</h4>
-<ul class="bb-puzzle-info-events">
-  {{#each evs}}
-  {{>calendar_event event=this hide_puzzle=true allow_detach=true}}
-  {{/each}}
-</ul>
-{{/if}}
-{{/let}}
+{{>calendar_puzzle_events puzzle}}
 <table class="bb-puzzle-info-tags"><tbody>
 {{#with puzzle}}
   {{#if solved}}

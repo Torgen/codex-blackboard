@@ -33,8 +33,7 @@ Template.calendar_event.events
   'click .bb-detach-event': (event, template) ->
     Meteor.call 'setPuzzleForEvent', template.data.event._id, null
 
-Template.calendar_attachable_events.helpers
-  attachable_events: ->
+attachable_events = ->
     model.CalendarEvents.find
       end: $gt: Session.get 'currentTime'
       puzzle: null
@@ -44,6 +43,26 @@ Template.calendar_attachable_events.helpers
         puzzle: 0
         location: 0
 
+Template.calendar_attachable_events.helpers {attachable_events}
+
 Template.calendar_attachable_events.events
   'click [data-event-id]': (event, template) ->
     Meteor.call 'setPuzzleForEvent', event.currentTarget.dataset.eventId, template.data.puzzle
+
+calendar_puzzle_container = (template) ->
+  template.helpers
+    upcoming_events: ->
+      model.CalendarEvents.find
+        end: $gt: Session.get 'currentTime'
+        puzzle: @_id
+      ,
+        sort: start: 1
+
+calendar_puzzle_container Template.calendar_puzzle_cell
+calendar_puzzle_container Template.calendar_puzzle_events
+
+Template.calendar_puzzle_cell.helpers {attachable_events}
+
+Template.calendar_puzzle_cell_entry.events
+  'click .bb-detach-event': (event, template) ->
+    Meteor.call 'setPuzzleForEvent', template.data.event._id, null

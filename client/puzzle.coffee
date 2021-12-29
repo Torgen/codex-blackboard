@@ -73,13 +73,6 @@ Template.puzzle_info.helpers
         {name: tag.name, value: tag.value, meta: meta.name}
     [].concat r...
 
-  upcoming_events: ->
-    model.CalendarEvents.find
-      end: $gt: Session.get 'currentTime'
-      puzzle: @puzzle._id
-    ,
-      sort: start: 1
-
 Template.puzzle_info_frame.helpers
   data: ->
     r = {}
