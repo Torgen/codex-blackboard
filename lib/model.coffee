@@ -1399,7 +1399,7 @@ do ->
     setPuzzleForEvent: (event, puzzle) ->
       check @userId, NonEmptyString
       check event, NonEmptyString
-      check puzzle, Match.Optional(NonEmptyString)
+      check puzzle, Match.Maybe(NonEmptyString)
       update = if puzzle?
         check Puzzles.findOne(_id: puzzle), Object
         $set: {puzzle}

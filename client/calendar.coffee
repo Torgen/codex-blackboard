@@ -30,6 +30,8 @@ Template.calendar_event.events
     Meteor.call 'removeEventAttendee', template.data.event._id, Meteor.userId()
   'click .bb-event-attend': (event, template) ->
     Meteor.call 'addEventAttendee', template.data.event._id, Meteor.userId()
+  'click .bb-detach-event': (event, template) ->
+    Meteor.call 'setPuzzleForEvent', template.data.event._id, null
 
 Template.calendar_attachable_events.helpers
   attachable_events: ->

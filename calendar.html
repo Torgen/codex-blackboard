@@ -34,7 +34,7 @@
   {{#if evs.count}}
   <ul id="bb-calendar-events-strip">
     {{#each evs}}
-      {{> calendar_event event=this}}
+      {{> calendar_event event=this allow_detach=canEdit}}
     {{/each}}
   </ul>
   {{/if}}
@@ -44,7 +44,7 @@
 
 <template name="calendar_event">
   <li class="bb-calendar-event" style="--dh-until-start: {{dh_until_start}}" data-event-id="{{event._id}}">
-    <div class="bb-event-summary">{{event.summary}}</div>
+    <div class="bb-event-summary">{{event.summary}}{{#if all event.puzzle hide_puzzle allow_detach}}<i class="fa fa-times bb-detach-event" title="Detach event from puzzle"></i>{{/if}}</div>
     <div class="bb-event-time"><i class="fas fa-clock" title="Time"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
     <div class="bb-event-attendees">
       {{#if includes event.attendees currentUser._id}}<i class="fas fa-user-minus bb-event-unattend" title="I won't attend"></i>{{else}}<i class="fas fa-user-plus bb-event-attend" title="I'll attend"></i>{{/if}}
@@ -54,8 +54,8 @@
         (Nobody)
       {{/each}}
     </div>
-    {{#if event.puzzle}}
-      <div class="bb-event-puzzle"><i class="fas fa-puzzle-piece" title="Puzzle"></i> {{>link id=event.puzzle}}</div>
+    {{#if all (not hide_puzzle) event.puzzle}}
+      <div class="bb-event-puzzle"><i class="fas fa-puzzle-piece" title="Puzzle"></i> {{>link id=event.puzzle}}{{#if allow_detach}}<i class="fa fa-times bb-detach-event" title="Detach event from puzzle"></i>{{/if}}</div>
     {{/if}}
     {{#if event.location}}
       {{#if url event.location}}

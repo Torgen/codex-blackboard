@@ -16,7 +16,7 @@
 <h4>Upcoming Events</h4>
 <ul class="bb-puzzle-info-events">
   {{#each evs}}
-  {{>calendar_event event=this}}
+  {{>calendar_event event=this hide_puzzle=true allow_detach=true}}
   {{/each}}
 </ul>
 {{/if}}

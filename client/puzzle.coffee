@@ -79,8 +79,6 @@ Template.puzzle_info.helpers
       puzzle: @puzzle._id
     ,
       sort: start: 1
-      fields:
-        puzzle: 0
 
 Template.puzzle_info_frame.helpers
   data: ->
