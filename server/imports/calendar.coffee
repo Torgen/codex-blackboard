@@ -17,6 +17,8 @@ export class CalendarSync
         @syncToken = cal.syncToken
         console.log "Using existing calendar #{@id}"
         return
+
+      @syncToken = null
         
       @id = Promise.await do =>
         # See if one exists
@@ -37,10 +39,8 @@ export class CalendarSync
         return cal.id
       
       share.model.Calendar.insert { _id: @id }
-    
-    @_schedulePoll(0)
 
-    promises = []
+    promises = [@_pollAndReschedule()]
     acls = Promise.await @api.acl.list({calendarId: @id, maxResults: 250})
     unless acls.data.items.some (x) -> x.role is 'reader' and x.scope.type is 'default'
       # Ensure public. (default can't be writer.)
@@ -72,8 +72,7 @@ export class CalendarSync
             scope:
               type: 'user'
               value: owner
-    if promises.length
-      Promise.await Promise.all promises
+    Promise.await Promise.all promises
 
   pollOnce: ->
     pageToken = null
@@ -103,22 +102,15 @@ export class CalendarSync
             set.end = Date.parse event.end?.dateTime
           if event.start?.dateTime?
             set.start = Date.parse event.start?.dateTime
-          if event.summary?
-            set.summary = event.summary
-          else 
-            unset.summary = ''
-          if event.location?
-            set.location = event.location
-          else
-            unset.location = ''
-          if event.description?
-            set.description = event.description
-          else
-            unset.description = ''
-          if event.htmlLink?
-            set.link = event.htmlLink
-          else
-            unset.link = ''
+          setUnset = (eventKey, documentKey) ->
+            if event[eventKey]?
+              set[documentKey] = event[eventKey]
+            else
+              unset[documentKey] = ''
+          setUnset 'summary', 'summary'
+          setUnset 'location', 'location'
+          setUnset 'description', 'description'
+          setUnset 'htmlLink', 'link'
           bulkEventUpdates.push
             updateOne:
               filter: _id: event.id

@@ -372,6 +372,7 @@ describe 'drive', ->
   describe 'with drive owner set', ->
     beforeEach ->
       Meteor.settings.driveowner = 'foo@bar.baz'
+      Meteor.settings.drive_share_group = undefined
 
     testCase defaultPerms
 
