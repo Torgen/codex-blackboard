@@ -461,5 +461,18 @@ Meteor.startup ->
         link: 'https://web.mit.edu/puzzle/www/2018/full/puzzle/the_brainstorm.html'
         mechanics: ['runaround']
       
+    # fake calendar
+    model.Calendar.insert _id: 'fake'
+    model.CalendarEvents.insert
+      _id: 'fake1'
+      summary: 'Create test data'
+      start: model.UTCNow() - 3600000
+      end: model.UTCNow() + 3600000
+      location: 'The Cloud'
+    model.CalendarEvents.insert
+      _id: 'fake2'
+      summary: 'Do the Brainstorm runaround'
+      start: model.UTCNow() + 1200000
+      end: model.UTCNow() + 3000000
 
     console.log 'Done populating initial database.'
