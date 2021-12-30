@@ -62,6 +62,11 @@ describe 'CalendarSync', ->
           location: 'Planet Nowhere'
           start: 1640814960000
           end: 1640818560000
+        share.model.CalendarEvents.insert
+          _id: 'evt3'
+          summary: 'Will be deleted'
+          start: 1640814960000
+          end: 1640818560000
         calendarList.expects('list').never()
         calendars.expects('insert').never()
 
@@ -76,7 +81,8 @@ describe 'CalendarSync', ->
             {id: 'evt1', summary: 'Event One', htmlLink: 'https://calendar.google.com/event/evt1', 
             start: {dateTime: '2021-12-29T22:00:00+00:00'}, end: {dateTime: '2021-12-29T23:00:00+00:00'}},
             {id: 'evt2', summary: 'Event Two', location: 'Kresge Auditorium', 
-            start: {dateTime: '2021-12-30T22:00:00+00:00'}, end: {dateTime: '2021-12-30T23:00:00+00:00'}}
+            start: {dateTime: '2021-12-30T22:00:00+00:00'}, end: {dateTime: '2021-12-30T23:00:00+00:00'}},
+            {id: 'evt3', status: 'cancelled'}
           ]
         sync = new CalendarSync api
         chai.assert.include share.model.Calendar.findOne(),
@@ -92,6 +98,7 @@ describe 'CalendarSync', ->
           location: 'Kresge Auditorium'
           start: 1640901600000
           end: 1640905200000
+        chai.assert.isNotOk share.model.CalendarEvents.findOne(_id: 'evt3')
 
       it 'does full sync when gone', ->
         e = new Error
@@ -131,7 +138,8 @@ describe 'CalendarSync', ->
     it 'looks up calendar', ->
       calendarList.expects('list').once().resolves
         data:
-          items: [id: 'testCalendar', summary: 'Calendar Test']
+          items: [{id: 'someOtherCalendar', summary: 'Who cares?'},
+                  {id: 'testCalendar', summary: 'Calendar Test'}]
       calendars.expects('insert').never()
       list = events.expects('list').twice().onFirstCall().resolves(data:
         nextPageToken: 'page1'
