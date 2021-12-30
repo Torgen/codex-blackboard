@@ -48,6 +48,12 @@ of events you wish to receive notifications for:
 * **Stuck Puzzles**: A puzzle was marked as stuck. Clicking this notification will take you to the puzzle page. Disabled by default.
 * **Favorite Mechanics**: A puzzle has been marked as using one of your **Favorite Mechanics**. Clicking this notification will take you to the puzzle page. Enabled by default.
 * **Private Messages**: Someone has sent you a private message. Clicking this notification will take you to the room the message was sent in. Enabled by default.
+
+Calendar
+========
+(*New for 2022*) The blackboard creates a calendar for hunt-associated events. Upcoming events will appear at the top of the blackboard and in a dropdown menu in the header on other pages, and events associated with a puzzle will appear in the puzzle info (top right) pane on the puzzle page. If you will be attending an event, you can mark yourself as doing so by clicking the head-with-a-plus icon in the calendar event card. This is particularly important for events which require a specific number of people.
+
+If you use Google Calendar and want to use it to get notified before events, the calendar-with-a-plus icon next to the number of upcoming events at the top of the main page will add the hunt calendar to your personal calendar account, which will let you configure reminders on events. Note that because Blackboard intentionally has no idea what the relationship is between Google accounts and Blackboard accounts, marking yourself as attending an event in Google Calendar will not be reflected in Blackboard.
  
 Chat 
 ====

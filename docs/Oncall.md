@@ -14,6 +14,12 @@ First Shift
 ===========
 If you're oncall when the hunt starts, there are some [dynamic settings](Dynamic-Settings.md) you will want to set, as they will improve the experience for yourself, future oncalls, and your solvers. Set them as appropriate as soon as you know the appropriate values.
 
+Calendar Events
+===============
+(*New for 2022*) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared  with you, either because you are a member of the appropriate Google group or you were added explicitly by the owner, you will be able to add events to the calendar which will sync to the blackboard. (Calendars are never editable by the public.) If you should be able to edit the calendar and can't, contact whoever owns the machine.)
+
+You can use the calendar for non-puzzle hunt events such as the kickoff, puzzle events which there have been roughly 5 of per year lately, or short-notice post-meta interactions. If an event is associated with a puzzle, the calendar-with-a-plus icon next to `Upcoming Events` in the puzzle's table row can be used to associate them.
+
 Calling In Answers
 ==================
 The call-in queue is located at the /callins route relative to the blackboard root. There is no direct link there from the

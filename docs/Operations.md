@@ -28,9 +28,11 @@ resources.
 2. Enable the [Drive API](https://console.cloud.google.com/apis/library/drive.googleapis.com) on the project. Ensure your
    [Quota](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas) for the API is the maximum 1000 queries
    per 100 seconds.
-3. [Create a new service account](https://console.cloud.google.com/iam-admin/serviceaccounts). Give it a descriptive name,
+3. (*New for 2022*) Enable the [Calendar API](https://console.cloud.google.com/apis/library/calendar-json.googleapis.com)
+   on the project. 
+4. [Create a new service account](https://console.cloud.google.com/iam-admin/serviceaccounts). Give it a descriptive name,
    like blackboard.
-4. [Create a VM](https://console.cloud.google.com/compute/instancesAdd). Recommended settings:
+5. [Create a VM](https://console.cloud.google.com/compute/instancesAdd). Recommended settings:
    * Size: an `n1-standard-1` should be sufficient for a reasonably large team. I used an `n1-standard-4` for Codex Ogg
      and peaked at 3% of available CPU, meaning a single core should support a team 8 times the size, assuming the
      blackboard scales linearly. That said (or if you don't share that assumption), don't be penny-wise and pound-foolish,
@@ -49,12 +51,12 @@ resources.
      the `us-east` zones.
    * Networking: Request a static external IP.
    * Firewall: Check the `http server` and `https server` boxes.
-5. Create an A record at your domain registrar pointing at the static external IP from the previous step. If you don't 
+6. Create an A record at your domain registrar pointing at the static external IP from the previous step. If you don't 
    have a domain name, register one now. If you manage your DNS records some other way, your instructions may vary.
-6. After confirming that your VM is installed by SSHing into it, stop it, and in a cloud shell, run:
+7. (*Updated for 2022*) After confirming that your VM is installed by SSHing into it, stop it, and in a cloud shell, run:
    ```
    gcloud compute instances set-service-account --zone ZONE INSTANCE_NAME \
-   --scopes default,https://www.googleapis.com/auth/drive
+   --scopes default,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/calendar
    ```
    Where ZONE and INSTANCE_NAME are the zone and name of your instance. Then start your instance again. This is necessary
    so that the app can use application default credentials to access the drive API.
@@ -68,7 +70,11 @@ resources.
     * It will ask for a hostname. Give it the one you created the A record for in step 5.
     * It will open some config files and give you a chance to edit them. The config files are .env files as used by systemd. These files can use both `#` and `;` to denote comments. In my usage, `#` is used for explanatory comments and `;` is used for settings which are not set, typically because they are optional and their correct values can't be determined automatically. If you set one of these, you must remove the leading `;` or your change will have no effect. The possible settings are well documented; the
       most important are:
-      * `DRIVE_OWNER_ADDRESS`: If you want all documents and folders the blackboard creates to be shared with you, set this to the email address to share them with.
+      * `DRIVE_OWNER_ADDRESS`: If you want all documents, folders, and calendars the blackboard creates to be shared with you, set this to the email address to share them with.
+      * `DRIVE_SHARE_GROUP`: (*New for 2022*) If you have a Google group for members of your team, either at
+      `googlegroups.com` or a workspace domain, setting this will share the documents and folders with them so that they can
+      appear in the UI as themselves instead of as anonymous animals. It will also let them edit the calendar. (Unlike
+      drive, calendars can't be made writable to anyone with the link.)
       * `TEAM_PASSWORD`: The shared password all users will use to login. If you don't set it, any password will be accepted.
       * `DRIVE_FOLDER_NAME`: The name of the top-level drive folder. If you use the blackboard for multiple hunts, you
         want this set to a different value for each so puzzles with coincidentally the same name don't use the same
