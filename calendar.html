@@ -22,10 +22,16 @@
   {{/if}}
 </template>
 
+<template name="calendar_link">
+  {{#if calendar_id}}
+    <li><a href="#upcoming_calendar_events"><i class="fas fa-calendar"></i> Upcoming Events</a></li>
+  {{/if}}
+</template>
+
 <template name="calendar_strip">
   {{#if calendar_id}}
   {{#let evs=upcoming_events}}
-  <h2>
+  <h2 id="upcoming_calendar_events">
     <a href="https://calendar.google.com/calendar?cid={{calendar_id}}"
        target="_blank"
        title="Add Google Calendar"><i class="fas fa-calendar-plus"></i></a>
