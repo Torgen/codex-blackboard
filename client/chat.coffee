@@ -411,7 +411,7 @@ Template.embedded_chat.helpers
     return unless Template.instance().jitsi.get()?
     sizeWouldBe = Math.floor(share.Splitter.hsize.get() * 9 / 16)
     if CAP_JITSI_HEIGHT.get()
-      return Math.min 50, sizeWouldBe
+      return Math.min 75, sizeWouldBe
     sizeWouldBe
   jitsiPinSet: -> Template.instance().jitsiPinType.get()?
   jitsiUrl: -> jitsiUrl Session.get('type'), Session.get('id')
