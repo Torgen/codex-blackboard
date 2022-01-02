@@ -91,7 +91,6 @@ export class CalendarSync
           continue
         throw e
       for event in events.items
-        console.log event
         if event.status is 'cancelled'
           bulkEventUpdates.push
             deleteOne: filter: _id: event.id
