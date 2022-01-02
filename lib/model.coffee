@@ -285,6 +285,8 @@ Calendar = BBCollection.calendar = new Mongo.Collection 'calendar'
 #   location: location of event, which could be a URL
 #   puzzle: optional id of a puzzle the event relates to.
 CalendarEvents = BBCollection.calendar_events = new Mongo.Collection 'calendar_events'
+if Meteor.isServer
+  CalendarEvents.createIndex {puzzle: 1}
 
 # this reverses the name given to Mongo.Collection; that is the
 # 'type' argument is the name of a server-side Mongo collection.
@@ -587,6 +589,10 @@ do ->
         $set:
           touched: now
           touched_by: @userId
+      , multi: true
+      # remove from events
+      CalendarEvents.update { puzzle: pid },
+        $unset: puzzle: ''
       , multi: true
       # delete google drive folder
       deleteDriveFolder drive if drive?

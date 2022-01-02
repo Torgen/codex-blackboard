@@ -36,6 +36,7 @@ describe 'deletePuzzle', ->
   id = null
   meta = null
   rid = null
+  ev = null
   beforeEach ->
     resetDatabase()
     id = model.Puzzles.insert
@@ -76,6 +77,9 @@ describe 'deletePuzzle', ->
       solved_by: null
       puzzles: [id, meta]
       tags: {}
+    ev = model.CalendarEvents.insert
+      puzzle: id
+      summary: 'An event!'
 
   it 'fails without login', ->
     chai.assert.throws ->
@@ -120,6 +124,11 @@ describe 'deletePuzzle', ->
         drive: 'fmeta'
         spreadsheet: 'smeta'
         doc: 'dmeta'
+
+    it 'removes puzzle from event', ->
+      chai.assert.deepEqual model.CalendarEvents.findOne(ev),
+        _id: ev
+        summary: 'An event!'
 
     it 'deletes drive', ->
       chai.assert.deepEqual driveMethods.deletePuzzle.getCall(0).args, ['ffoo']
