@@ -21,7 +21,7 @@
     "node-forge": "^1.1.0",
     "node-random-name": "^1.0.1",
     "sanitize-html": "^2.6.1",
-    "twit": "^2.2.11"
+    "twitter-api-v2": "^1.9.1"
   },
   "devDependencies": {
     "chai": "^4.3.4",

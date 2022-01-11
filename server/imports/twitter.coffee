@@ -25,7 +25,7 @@ linkify = do ->
       else text # shouldn't really ever reach here
 
 htmlify = (data) ->
-  text = data.extended_tweet?.full_text or data.text
+  text = data.extended_tweet?.full_text ? data.full_text ? data.text
   linkify text
 
 export default tweetToMessage = (data) ->
