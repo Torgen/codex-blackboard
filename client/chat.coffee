@@ -189,7 +189,7 @@ Template.messages.helpers
     return true if doesMentionNick(m)
     return true if m.useful
     return true unless m.tweet? or m.nick is botnick or m.useless_cmd
-    return HIDE_USELESS_BOT_MESSAGES.get()
+    return not HIDE_USELESS_BOT_MESSAGES.get()
   presence_too_old: ->
     return false unless HIDE_OLD_PRESENCE.get()
     # If a message is too old, it will always be too old unless the option changes,
