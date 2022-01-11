@@ -70,7 +70,7 @@ describe 'codex hubot script', ->
         room_name: 'puzzles/12345abcde'
         timestamp: Date.now()
         body: 'bot the answer to latino alphabet is linear abeja'
-      waitForDocument model.Puzzles, {_id: '12345abcde', solved_by: 'torgen'},
+      await waitForDocument model.Puzzles, {_id: '12345abcde', solved_by: 'torgen'},
         touched: 7
         touched_by: 'torgen'
         solved: 7
@@ -80,6 +80,11 @@ describe 'codex hubot script', ->
           value: 'linear abeja'
           touched: 7
           touched_by: 'torgen'
+      waitForDocument model.Messages, {nick: 'testbot', body: /^@torgen:/},
+        timestamp: 7
+        useful: true
+        room_name: 'puzzles/12345abcde'
+        mention: ['torgen']
 
     it 'overwrites answer', ->
       model.Puzzles.insert
@@ -103,7 +108,7 @@ describe 'codex hubot script', ->
         room_name: 'puzzles/12345abcde'
         timestamp: Date.now()
         body: 'bot the answer to latino alphabet is linear abeja'
-      waitForDocument model.Puzzles, {_id: '12345abcde', solved_by: 'torgen', confirmed_by: 'torgen'},
+      await waitForDocument model.Puzzles, {_id: '12345abcde', solved_by: 'torgen', confirmed_by: 'torgen'},
         touched: 7
         touched_by: 'torgen'
         solved: 7
@@ -112,6 +117,11 @@ describe 'codex hubot script', ->
           value: 'linear abeja'
           touched: 7
           touched_by: 'torgen'
+      waitForDocument model.Messages, {nick: 'testbot', body: /^@torgen:/},
+        timestamp: 7
+        useful: true
+        room_name: 'puzzles/12345abcde'
+        mention: ['torgen']
 
     it 'leaves old answer', ->
       model.Puzzles.insert
@@ -174,9 +184,14 @@ describe 'codex hubot script', ->
         room_name: 'puzzles/fghij67890'
         timestamp: Date.now()
         body: 'bot delete answer for latino alphabet'
-      waitForDocument model.Puzzles, {_id: '12345abcde', 'tags.answer': $exists: false},
+      await waitForDocument model.Puzzles, {_id: '12345abcde', 'tags.answer': $exists: false},
         touched: 7
         touched_by: 'torgen'
+      waitForDocument model.Messages, {nick: 'testbot', body: /^@torgen:/},
+        timestamp: 7
+        useful: true
+        room_name: 'puzzles/fghij67890'
+        mention: ['torgen']
 
     it 'fails when no such puzzle exists', ->
       model.Messages.insert
