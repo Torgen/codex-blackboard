@@ -440,7 +440,7 @@ do ->
       else
         res.message = "#{e}"
     Puzzles.update id, { $set:
-      drive_status: res.status
+      drive_status: res.status ? null
       drive_error_message: res.message
       drive: res.id
       spreadsheet: res.spreadId
