@@ -23,6 +23,8 @@ puzzleQuery = (query) ->
       spreadsheet: 1
       doc: 1
       drive_touched: 1
+      drive_status: 1
+      drive_error_message: 1
       "favorites.#{@userId}": 1
       mechanics: 1
       puzzles: 1
