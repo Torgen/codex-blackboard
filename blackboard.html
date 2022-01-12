@@ -316,11 +316,11 @@
       {{else}}
         <span class="collapse-toggle"></span>
         {{#if equal puzzle.drive_status "creating"}}
-          <i class="pull-right fas fa-ellipsis-h" title="creating..."></i>
+          <i class="pull-right fas fa-ellipsis-h bb-drive-status" title="creating..."></i>
         {{else if equal puzzle.drive_status "failed"}}
-          <i class="pull-right fas fa-dumpster-fire" title="Drive creation failed: {{puzzle.drive_error_message}}"></i>
+          <i class="pull-right fas fa-dumpster-fire bb-drive-status" title="Drive creation failed: {{puzzle.drive_error_message}}"></i>
         {{else if equal puzzle.drive_status "fixing"}}
-          <i class="pull-right fas fa-tools" title="fixing..."></i>
+          <i class="pull-right fas fa-tools bb-drive-status" title="fixing..."></i>
         {{/if}}
         {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
         {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
