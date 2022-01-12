@@ -325,6 +325,12 @@ Template.blackboard.events
       message: message
       ok: ->
         processBlackboardEdit[type]?(null, id, rest...) # process delete
+  'click .bb-canEdit .bb-fix-drive': (event, template) ->
+    event.stopPropagation() # keep .bb-editable from being processed!
+    Meteor.call 'fixPuzzleFolder',
+      object: @puzzle._id
+      name: @puzzle.name
+
   "click .bb-canEdit .bb-editable": (event, template) ->
     # note that we rely on 'blur' on old field (which triggers ok or cancel)
     # happening before 'click' on new field

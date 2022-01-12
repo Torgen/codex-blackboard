@@ -1459,7 +1459,7 @@ do ->
         object: IdOrObject
         name: NonEmptyString
       id = args.object._id or args.object
-      if 0 < Puzzles.update {_id: id, drive_status: $nin: ['creating', 'fixing']}, $set: drive_status: 'fixing'
+      if 0 is Puzzles.update {_id: id, drive_status: $nin: ['creating', 'fixing']}, $set: drive_status: 'fixing'
         throw new Meteor.Error 'Can\'t fix this puzzle folder now'
       newDriveFolder id, args.name
 
