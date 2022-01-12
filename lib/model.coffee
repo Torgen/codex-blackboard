@@ -88,6 +88,14 @@ if Meteor.isServer
 #   spreadsheet: optional google spreadsheet id
 #   doc: optional google doc id
 #   drive_touched: Time of last change to a file in the drive folder
+#   drive_status: optional string.
+#     'failed' means an exception happened in drive creation, and an error
+#       will be in drive_error_message.
+#     'creating' means the puzzle has been created, but not the drive folder
+#     'fixing' means the 'fixPuzzleFolder' method is being called
+#     'skipped' means there is no drive API
+#     null means the drive folder should have been created
+#   drive_error_message: exception type and message if drive folder creation failed.
 #   favorites: object whose keys are userids of users who favorited this
 #              puzzle. Values are true. On the client, either empty or contains
 #              only you.
@@ -420,9 +428,20 @@ do ->
     check id, NonEmptyString
     check name, NonEmptyString
     return unless Meteor.isServer
-    res = share.drive.createPuzzle name
-    return unless res?
+    res = null
+    try
+      res = share.drive.createPuzzle(name) ? {}
+      unless res?.id
+        res.status = 'skipped'
+    catch e
+      res = status: 'failed'
+      if e instanceof Error
+        res.message = "#{e.name}: #{e.message}"
+      else
+        res.message = "#{e}"
     Puzzles.update id, { $set:
+      drive_status: res.status
+      drive_error_message: res.message
       drive: res.id
       spreadsheet: res.spreadId
       doc: res.docId
@@ -517,6 +536,7 @@ do ->
         doc: args.doc or null
         link: args.link or link
         feedsInto: feedsInto
+        drive_status: 'creating'
       if args.puzzles?
         extra.puzzles = args.puzzles
       if args.mechanics?
@@ -1436,10 +1456,11 @@ do ->
     fixPuzzleFolder: (args) ->
       check @userId, NonEmptyString
       check args, ObjectWith
-        type: ValidType
         object: IdOrObject
         name: NonEmptyString
       id = args.object._id or args.object
+      if 0 < Puzzles.update {_id: id, drive_status: $nin: ['creating', 'fixing']}, $set: drive_status: 'fixing'
+        throw new Meteor.Error 'Can\'t fix this puzzle folder now'
       newDriveFolder id, args.name
 
 UTCNow = -> Date.now()

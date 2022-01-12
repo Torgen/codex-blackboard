@@ -195,3 +195,26 @@ describe 'newPuzzle', ->
 
     it 'doesn\'t oplog', ->
       chai.assert.lengthOf model.Messages.find({id: id1, type: 'puzzles'}).fetch(), 0
+
+  describe 'when drive fails', ->
+    round = null
+    beforeEach ->
+      round = model.Rounds.insert
+        name: 'Round'
+        canon: 'round'
+        created: 1
+        created_by: 'cjb'
+        touched: 1
+        touched_by: 'cjb'
+        puzzles: []
+      share.drive.createPuzzle = sinon.fake.throws('user limits')
+
+    it 'sets status', ->
+      id = callAs 'newPuzzle', 'torgen',
+        name: 'Foo'
+        link: 'https://puzzlehunt.mit.edu/foo'
+        round: round
+      ._id
+      chai.assert.include model.Puzzles.findOne(id),
+        drive_status: 'failed'
+        drive_error_message: 'Error: user limits'
