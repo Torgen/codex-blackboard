@@ -70,7 +70,7 @@
     &::before { font-weight: 900; }
     &::after { font-weight: 400; }
   }
-  .bb-delete-message, .bb-edit-message {
+  .bb-delete-message, .bb-edit-message, .bb-reply-message {
     position: relative;
     float: right;
     cursor: pointer;
@@ -86,6 +86,7 @@
   }
   .bb-delete-message::before { content: "\f2ed"; }
   .bb-edit-message::before { content: "\f044"; }
+  .bb-reply-message::before { content: "\f3e5"; }
   .starred .bb-message-star {
     &::after {
       color: grey;
@@ -167,7 +168,7 @@
     font-size: 12px;
     line-height: 16px;
   }
-  .bb-message-tweet {
+  .bb-message-tweet, .bb-message-reply {
     .fab.fa-twitter {
       color:  #38A1F3;
     }
@@ -175,6 +176,23 @@
       padding-bottom: 0;
       margin-bottom: 0;
       border-left-color: #38A1F3;
+    }
+  }
+  .bb-message-reply {
+    & h6 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    & blockquote {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-style: italic;
+    }
+    & .bb-reply-bubble {
+      padding: 0 3px;
+      background-color: #f8f8ff;
+      box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     }
   }
   .bb-message-action {
@@ -321,6 +339,12 @@ table.poll {
     padding-left: 15px;
     padding-right: 15px;
     div { color: white; }
+    .replying {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      & span { font-style: italic; }
+    }
     textarea {
       overflow: hidden;
       margin-bottom: 0; margin-top: 5px;

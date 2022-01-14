@@ -49,7 +49,14 @@
   {{#if mynick}}
   <form id="messageForm" class="navbar-form">
     {{#if messageEditing}}
-    <div class="editing"><i class="fas fa-window-close"></i> Editing Message</div>
+    <div class="editing"><i class="fas fa-window-close bb-editreply-close"></i>
+      Editing Message
+    </div>
+    {{else if messageReplying}}
+    <div class="replying"><i class="fas fa-window-close bb-editreply-close"></i>
+      Replying to {{messageReplying.nick}}:
+      <span>{{messageReplying.body}}</span>
+    </div>
     {{/if}}
     <textarea id="messageInput" class="input-block-level" rows="1"
             placeholder="Type your message and press enter..."
@@ -66,6 +73,10 @@
   <div class="bb-edit-message"></div>
 </template>
 
+<template name="message_reply_button">
+  <div class="bb-reply-message"></div>
+</template>
+
 <template name="starred_messages">
   {{#if messages.count}}
   <div class="bb-chat-messages bb-starred-messages {{#if canModify}}can-modify-star{{/if}}">
@@ -78,7 +89,7 @@
 </template>
 
 <template name="media_message">
-  <div class="bb-message media{{#if message.to}} bb-message-pm{{/if}}{{#if message.mail}} bb-message-mail{{/if}}{{#if message.tweet}} bb-message-tweet{{/if}}{{#if message.starred}} starred{{/if}}"
+  <div class="bb-message media{{#if message.to}} bb-message-pm{{/if}}{{#if message.mail}} bb-message-mail{{/if}}{{#if message.tweet}} bb-message-tweet{{/if}}{{#if message.starred}} starred{{/if}}{{#if message.reply.to}} bb-message-reply{{/if}}"
        data-nick="{{message.nick}}" data-pm-to="{{message.to}}" data-read="{{#unless read}}un{{/unless}}read">
     {{#if message.tweet}}
       <img src="{{message.tweet.avatar}}" class="media-object pull-left img-rounded" width=48 height=48>
@@ -102,10 +113,17 @@
         <div class="bb-message-star"></div>
       {{/unless}}
       {{#if isMine message}}
-      {{> message_delete_button}}
-      {{> message_edit_button}}
+        {{> message_delete_button}}
       {{else if message.tweet}}
-      {{> message_delete_button}}
+        {{> message_delete_button}}
+      {{/if}}
+      {{#unless message.tweet}}
+        {{#unless message.bodyIsHtml}}
+          {{> message_reply_button}}
+        {{/unless}}
+      {{/unless}}
+      {{#if isMine message}}
+        {{> message_edit_button}}
       {{/if}}
       <h5 class="media-heading">
         {{#if message.tweet}}
@@ -119,6 +137,14 @@
               {{/if}}
         {{/if}}
       </h5>
+      {{#if message.reply.to}}
+        <div class="bb-reply-bubble">
+        <h6>In reply to
+          <span title="{{message.reply.nick}}{{nickLocation message.reply.nick}}">{{nickOrName message.reply.nick}}</span>:
+        </h6>
+        <blockquote>{{cleanup message.reply.body}}</blockquote>
+        </div>
+      {{/if}}
       {{cleanup message.body}}
       {{#if message.tweet.quote}}
         <h6>in reply to @<a href="https://twitter.com/{{message.tweet.quote_nick}}" target="_blank">{{message.tweet.quote_nick}}</a>'s <a href="https://twitter.com/{{message.tweet.quote_nick}}/status/{{message.tweet.quote_id_str}}" target="_blank">tweet</a>:</h6>

@@ -926,6 +926,8 @@ doc_id_to_link = (id) ->
         useful: Match.Optional Boolean
         bot_ignore: Match.Optional Boolean
         suppressLastRead: Match.Optional Boolean
+        reply: Match.Optional ObjectWith
+          to: String
       return if this.isSimulation # suppress flicker
       suppress = args.suppressLastRead
       delete args.suppressLastRead

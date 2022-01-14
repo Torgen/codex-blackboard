@@ -37,8 +37,8 @@ export newMessage = (newMsg) ->
       to: NonEmptyString # ID of message this is a reply to
       # the following are copies of fields from the original message,
       # just to avoid the need to do an additional lookup when displaying
-      nick: NonEmptyString
-      body: String # this may be truncated, compared to original
+      nick: Match.Optional NonEmptyString
+      body: Match.Optional String # this may be truncated, compared to original
       bodyIsHtml: Match.Optional Boolean
     # Present only in messages received via IMAP.
     # Nick will be sender's address.
@@ -69,6 +69,15 @@ export newMessage = (newMsg) ->
     newMsg.body = emojify newMsg.body
   newMsg.to = canonical newMsg.to if newMsg.to?
   newMsg.timestamp = Date.now()
+  # look up reply information
+  if newMsg.reply?.to
+    r = share.model.Messages.findOne newMsg.reply.to
+    if r
+        newMsg.reply.nick = r.nick
+        newMsg.reply.body = r.body
+        newMsg.reply.bodyIsHtml = r.bodyIsHtml
+    else
+        newMsg.reply = undefined
   ensureDawnOfTime newMsg.room_name
   newMsg._id = share.model.Messages.insert newMsg
   return newMsg

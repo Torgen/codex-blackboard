@@ -122,6 +122,10 @@ Template.message_edit_button.events
   'click .bb-edit-message': (event, template) ->
     Session.set 'msg_edit', @_id
 
+Template.message_reply_button.events
+  'click .bb-reply-message': (event, template) ->
+    Session.set 'msg_reply', @_id
+
 Template.message_delete_button.events
   'click .bb-delete-message': (event, template) ->
     alertify.confirm 'Really delete this message?', (e) =>
@@ -517,8 +521,13 @@ Template.messages_input.submit = (message) ->
     args._id = edit_id
     Meteor.call 'editMessage', args
     Session.set 'msg_edit', null
-  else
-    Meteor.call 'newMessage', args # updates LastRead as a side-effect
+    return
+  reply_id = Session.get 'msg_reply'
+  if reply_id
+    args.reply =
+      to: reply_id
+    Session.set 'msg_reply', null
+  Meteor.call 'newMessage', args # updates LastRead as a side-effect
   # for flicker prevention, we are currently not doing latency-compensation
   # on the newMessage call, which makes the below ineffective.  But leave
   # it here in case we turn latency compensation back on.
@@ -532,10 +541,17 @@ Template.messages_input.helpers
      msg = model.Messages.findOne
        _id: mid
      return msg
+   messageReplying: ->
+     mid = Session.get 'msg_reply'
+     return unless mid
+     msg = model.Messages.findOne
+       _id: mid
+     return msg
 
 Template.messages_input.events
-  "click .editing > i": ->
+  "click .bb-editreply-close": ->
      Session.set 'msg_edit', null
+     Session.set 'msg_reply', null
   "keydown textarea": (event, template) ->
     # tab completion
     if event.which is 9 # tab
