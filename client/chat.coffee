@@ -605,7 +605,7 @@ Template.messages_input.events
 
 emojiPicker.on 'emoji', (selection) ->
     input = document.querySelector('#messageInput')
-    input?.append(selection.emoji)
+    input?.setRangeText selection.emoji, input.selectionStart, input.selectionEnd, 'end'
 
 updateLastRead = ->
   lastMessage = model.Messages.findOne
