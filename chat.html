@@ -48,15 +48,22 @@
 <template name="messages_input">
   {{#if mynick}}
   <form id="messageForm" class="navbar-form">
+    {{#if messageEditing}}
+    <div class="editing"><i class="fas fa-window-close"></i> Editing Message</div>
+    {{/if}}
     <textarea id="messageInput" class="input-block-level" rows="1"
             placeholder="Type your message and press enter..."
-            autocomplete="off" ></textarea>
+            autocomplete="off" >{{#if messageEditing}}{{messageEditing.body}}{{/if}}</textarea>
   </form>
   {{/if}}
 </template>
 
 <template name="message_delete_button">
   <div class="bb-delete-message"></div>
+</template>
+
+<template name="message_edit_button">
+  <div class="bb-edit-message"></div>
 </template>
 
 <template name="starred_messages">
@@ -87,6 +94,7 @@
         <div class="bb-message-star"></div>
       {{/unless}}
       {{> message_delete_button}}
+      {{#if isMine message}}{{> message_edit_button}}{{/if}}
       <h5 class="media-heading">
         {{#if message.tweet}}
           <i class="fab fa-twitter"></i> @<a href="https://twitter.com/{{message.nick}}" target="_blank">{{message.nick}}</a> <a href="https://twitter.com/{{message.nick}}/status/{{message.tweet.id_str}}" target="_blank">tweeted</a>:

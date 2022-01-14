@@ -70,7 +70,7 @@
     &::before { font-weight: 900; }
     &::after { font-weight: 400; }
   }
-  .bb-delete-message {
+  .bb-delete-message, .bb-edit-message {
     position: relative;
     float: right;
     cursor: pointer;
@@ -82,9 +82,10 @@
       position: absolute;
       right: 3px;
       font-weight: 900;
-      content: "\f2ed";
     }
   }
+  .bb-delete-message::before { content: "\f2ed"; }
+  .bb-edit-message::before { content: "\f044"; }
   .starred .bb-message-star {
     &::after {
       color: grey;
@@ -319,6 +320,7 @@ table.poll {
   form {
     padding-left: 15px;
     padding-right: 15px;
+    div { color: white; }
     textarea {
       overflow: hidden;
       margin-bottom: 0; margin-top: 5px;

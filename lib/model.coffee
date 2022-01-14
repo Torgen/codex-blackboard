@@ -900,6 +900,19 @@ doc_id_to_link = (id) ->
       check body, NonEmptyString
       oplog body, null, null, @userId, 'announcements'
 
+    editMessage: (args) ->
+      check @userId, NonEmptyString
+      check args, ObjectWith
+        _id: NonEmptyString
+        body: Match.Optional String
+      args.body ?= ''
+      return 1 if this.isSimulation # suppress flicker
+      return Messages.update
+        _id: args._id
+        nick: @userId
+      ,
+        $set: body: args.body
+
     newMessage: (args) ->
       check @userId, NonEmptyString
       check args,

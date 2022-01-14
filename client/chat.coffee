@@ -106,6 +106,10 @@ Template.starred_messages.helpers
       sort: [['timestamp', 'asc']]
       transform: messageTransform
 
+Template.media_message.helpers
+  isMine: (m) ->
+    myNick = Meteor.userId()
+    return m.nick is myNick
 Template.media_message.events
   'click .bb-message.starred .bb-message-star': (event, template) ->
     return unless $(event.target).closest('.can-modify-star').size() > 0
@@ -113,6 +117,10 @@ Template.media_message.events
   'click .bb-message:not(.starred) .bb-message-star': (event, template) ->
     return unless $(event.target).closest('.can-modify-star').size() > 0
     Meteor.call 'setStarred', this._id, true
+
+Template.message_edit_button.events
+  'click .bb-edit-message': (event, template) ->
+    Session.set 'msg_edit', @_id
 
 Template.message_delete_button.events
   'click .bb-delete-message': (event, template) ->
@@ -504,14 +512,30 @@ Template.messages_input.submit = (message) ->
         args.body = "tried to /msg an UNKNOWN USER: #{message}"
         args.body = "tried to say nothing: #{message}" if missingMessage
         args.action = true
-  Meteor.call 'newMessage', args # updates LastRead as a side-effect
+  edit_id = Session.get 'msg_edit'
+  if edit_id
+    args._id = edit_id
+    Meteor.call 'editMessage', args
+    Session.set 'msg_edit', null
+  else
+    Meteor.call 'newMessage', args # updates LastRead as a side-effect
   # for flicker prevention, we are currently not doing latency-compensation
   # on the newMessage call, which makes the below ineffective.  But leave
   # it here in case we turn latency compensation back on.
   Tracker.afterFlush -> scrollMessagesView()
   return
 
+Template.messages_input.helpers
+   messageEditing: ->
+     mid = Session.get 'msg_edit'
+     return unless mid
+     msg = model.Messages.findOne
+       _id: mid
+     return msg
+
 Template.messages_input.events
+  "click .editing > i": ->
+     Session.set 'msg_edit', null
   "keydown textarea": (event, template) ->
     # tab completion
     if event.which is 9 # tab
