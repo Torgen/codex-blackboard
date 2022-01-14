@@ -198,6 +198,8 @@ if Meteor.isServer
 #   deleted: boolean. True if message was deleted. 'Deleted' messages aren't
 #            actually deleted because that could screw up the 'last read' line;
 #            they're just not rendered.
+#   reply: an object filled in with details of the message this is a reply
+#          to, or null
 #
 # Messages which are part of the operation log have `nick`, `message`,
 # and `timestamp` set to describe what was done, when, and by who.
@@ -285,6 +287,7 @@ doc_id_to_link = (id) ->
       system: false
       to: null
       stream: stream
+      replyid: null
 
   newObject = (type, args, extra, options={}) ->
     check args, ObjectWith

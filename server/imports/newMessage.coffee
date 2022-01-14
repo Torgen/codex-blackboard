@@ -32,6 +32,14 @@ export newMessage = (newMsg) ->
     room_name: NonEmptyString
     useful: Match.Optional Boolean
     bot_ignore: Match.Optional Boolean
+    # Present only in messages which are replies
+    reply: Match.Optional
+      to: NonEmptyString # ID of message this is a reply to
+      # the following are copies of fields from the original message,
+      # just to avoid the need to do an additional lookup when displaying
+      nick: NonEmptyString
+      body: String # this may be truncated, compared to original
+      bodyIsHtml: Match.Optional Boolean
     # Present only in messages received via IMAP.
     # Nick will be sender's address.
     mail: Match.Optional
