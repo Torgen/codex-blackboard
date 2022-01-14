@@ -911,7 +911,9 @@ doc_id_to_link = (id) ->
         _id: args._id
         nick: @userId
       ,
-        $set: body: args.body
+        $set:
+          body: args.body
+          edited: UTCNow()
 
     newMessage: (args) ->
       check @userId, NonEmptyString

@@ -88,7 +88,15 @@
       {{gravatar id=email image="wavatar" size=48 classes="media-object pull-left img-rounded" }}
     {{/if}}
     <div class="media-body bb-message-body">
-      <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
+      <div class="pull-right timestamp">
+      {{#if message.edited}}
+      <s title="Originally written">{{pretty_ts message.timestamp}}</s>
+      <br/>
+      <span title="Edited">{{pretty_ts message.edited}}</span>
+      {{else}}
+      {{pretty_ts message.timestamp}}
+      {{/if}}
+      </div>
       {{#unless message.to}}
         {{! can't star a PM. }}
         <div class="bb-message-star"></div>
