@@ -81,7 +81,7 @@ export UrlSeparator = new Setting(
   'URL Separator',
   'The character used to replace spaces in the puzzle/round URL.  Defaults to _',
   '_',
-  Match.String,
+  String,
   id
 )
 
