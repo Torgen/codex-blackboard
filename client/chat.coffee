@@ -458,6 +458,7 @@ Template.messages_input.submit = (message) ->
     room_name: Session.get 'room_name'
     body: message
   [word1, rest] = message.split(/\s+([^]*)/, 2)
+  word1 = word1?.toLowerCase() # make commands case insensitive
   switch word1
     when "/me"
       args.body = rest
@@ -497,6 +498,7 @@ Template.messages_input.submit = (message) ->
     when "/msg", "/m"
       # find who it's to
       [to, rest] = rest.split(/\s+([^]*)/, 2)
+      to = to.replace(/[,:]$/, '') # forgive a stray comma or colon
       missingMessage = (not rest)
       while rest
         n = Meteor.users.findOne model.canonical to
