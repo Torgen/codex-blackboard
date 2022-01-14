@@ -101,8 +101,12 @@
         {{! can't star a PM. }}
         <div class="bb-message-star"></div>
       {{/unless}}
+      {{#if isMine message}}
       {{> message_delete_button}}
-      {{#if isMine message}}{{> message_edit_button}}{{/if}}
+      {{> message_edit_button}}
+      {{else if message.tweet}}
+      {{> message_delete_button}}
+      {{/if}}
       <h5 class="media-heading">
         {{#if message.tweet}}
           <i class="fab fa-twitter"></i> @<a href="https://twitter.com/{{message.nick}}" target="_blank">{{message.nick}}</a> <a href="https://twitter.com/{{message.nick}}/status/{{message.tweet.id_str}}" target="_blank">tweeted</a>:
