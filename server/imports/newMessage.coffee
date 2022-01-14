@@ -52,7 +52,9 @@ export newMessage = (newMsg) ->
       quote_nick: Match.Optional NonEmptyString
   # translate emojis!
   if newMsg.bodyIsHtml
-    newMsg.body = sanitize newMsg.body, params
+    # we don't need to sanitize because we never set bodyIsHtml on untrusted
+    # content
+    #newMsg.body = sanitize newMsg.body, params
     if newMsg.tweet?.quote?
       newMsg.tweet.quote = sanitize newMsg.tweet.quote, params
   else
