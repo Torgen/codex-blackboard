@@ -3,12 +3,15 @@
 import { nickEmail } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
+import { EmojiButton } from '@joeattardi/emoji-button'
 
 model = share.model # import
 settings = share.settings # import
 
 GENERAL_ROOM = settings.GENERAL_ROOM_NAME
 GENERAL_ROOM_REGEX = new RegExp "^#{GENERAL_ROOM}$", 'i'
+
+emojiPicker = new EmojiButton()
 
 Session.setDefault
   room_name: 'general/0'
@@ -554,6 +557,8 @@ Template.messages_input.events
   "click .bb-editreply-close": ->
      Session.set 'msg_edit', null
      Session.set 'msg_reply', null
+  "click .bb-emoji": (event, template) ->
+     emojiPicker.togglePicker document.querySelector('#messageForm')
   "keydown textarea": (event, template) ->
     # tab completion
     if event.which is 9 # tab
@@ -597,6 +602,10 @@ Template.messages_input.events
     updateLastRead() if instachat.ready # skip during initial load
     instachat.alertWhenUnreadMessages = false
     hideMessageAlert()
+
+emojiPicker.on 'emoji', (selection) ->
+    input = document.querySelector('#messageInput')
+    input?.append(selection.emoji)
 
 updateLastRead = ->
   lastMessage = model.Messages.findOne

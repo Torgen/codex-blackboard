@@ -337,7 +337,7 @@ table.poll {
   }
   form {
     padding-left: 15px;
-    padding-right: 15px;
+    padding-right: 30px; /* leave space for emoji picker */
     div { color: white; }
     .replying {
       white-space: nowrap;
@@ -349,6 +349,21 @@ table.poll {
       overflow: hidden;
       margin-bottom: 0; margin-top: 5px;
       resize: none; height: 30px;
+    }
+    .bb-emoji {
+        float: right;
+        margin: 0; height: 0; width: 0;
+        &::before {
+            font-family: "Font Awesome 5 Free";
+            font-size: 22px;
+            position: absolute;
+            right: 5px;
+            top: 8px;
+            font-weight: 900;
+            content: "\f59c";
+            color: yellow;
+            cursor: pointer;
+        }
     }
   }
 }
@@ -373,4 +388,8 @@ table.poll {
 
 .highlight-nick {
   color: #0000ff;
+}
+
+.emoji-picker__wrapper {
+  z-index: 2000;
 }
