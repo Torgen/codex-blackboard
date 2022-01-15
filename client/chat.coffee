@@ -123,11 +123,13 @@ Template.media_message.events
 
 Template.message_edit_button.events
   'click .bb-edit-message': (event, template) ->
-    Session.set 'msg_edit', @_id
+     Session.set 'msg_edit', @_id
+     (document.querySelector '#messageInput').focus()
 
 Template.message_reply_button.events
   'click .bb-reply-message': (event, template) ->
-    Session.set 'msg_reply', @_id
+     Session.set 'msg_reply', @_id
+     (document.querySelector '#messageInput').focus()
 
 Template.message_delete_button.events
   'click .bb-delete-message': (event, template) ->
@@ -606,6 +608,7 @@ Template.messages_input.events
 emojiPicker.on 'emoji', (selection) ->
     input = document.querySelector('#messageInput')
     input?.setRangeText selection.emoji, input.selectionStart, input.selectionEnd, 'end'
+    input.focus()
 
 updateLastRead = ->
   lastMessage = model.Messages.findOne
