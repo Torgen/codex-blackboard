@@ -72,7 +72,7 @@ export CURRENT_COLUMNS = new CurrentColumnsSetting 'currentColumns'
 
 Tracker.autorun ->
   visible_array = if COMPACT_MODE.get()
-    ['answer'].freeze()
+    Object.freeze(['answer'])
   else if Meteor.userId() and (Session.get 'canEdit')
     currentColumns.get().filter (x) -> visibleColumnsWhenEditing.has x
   else
