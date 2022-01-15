@@ -13,6 +13,12 @@ describe 'chunk_text', ->
       {type: 'text', content: ': do y'}
     ]
 
+  it 'supports mention characters', ->
+    chai.assert.deepEqual chunk_text('@test_1x: yo'), [
+      {type: 'mention', content: 'test_1x'},
+      {type: 'text', content: ': yo'}
+    ]
+
   it 'matches urls without protocol', ->
     chai.assert.deepEqual chunk_text('it\'s www.foo.com/bar, yo'), [
       {type: 'text', content: 'it\'s '},

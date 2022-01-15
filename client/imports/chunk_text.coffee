@@ -29,7 +29,7 @@ export chunk_text = (text) ->
     if paragraph
       # Pass 2: mentions
       tail_start = 0
-      for mention from paragraph.matchAll /([\s]|^)@([a-zA-Z_]*)/g
+      for mention from paragraph.matchAll /([\s]|^)@([a-zA-Z0-9_]*)/g
         if mention.index > tail_start or mention[1].length
           interval = paragraph.slice(tail_start, mention.index) + mention[1]
           result.push linkify(interval)...
