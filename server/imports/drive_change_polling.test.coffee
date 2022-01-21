@@ -35,11 +35,15 @@ describe 'drive change polling', ->
     changes = sinon.mock(api.changes)
 
   afterEach ->
+    console.log 'about to stop poller'
     poller?.stop()
+    console.log 'about to restore clock'
     clock.restore()
     # Meteor uses underlying setTimeout for stuff, so you have to run any leftover timeouts
     # or it can break later tests.
+    console.log 'about to run all callbacks'
     clock.runAll()
+    console.log 'done'
 
   afterEach ->
     sinon.verifyAndRestore()
