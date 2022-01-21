@@ -140,7 +140,7 @@ Template.blackboard.helpers
 Template.blackboard.events
   'click .puzzle-working .button-group:not(.open) .bb-show-filter-by-user': (event, template) ->
     Meteor.defer -> template.find('.bb-filter-by-user').focus()
-  'click .puzzle-working .dropdown-menu *': (event, template) ->
+  'click .puzzle-working .dropdown-menu': (event, template) ->
     event.stopPropagation()
   'keyup .bb-filter-by-user': (event, template) ->
     return unless event.keyCode is 13
