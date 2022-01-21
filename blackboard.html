@@ -109,7 +109,7 @@
         </tr>
         {{/unless}}
       </thead>
-      {{#if filter}}
+      {{#if all (not canEdit) filter}}
         <tbody>
           <tr><th colspan="{{nCols}}" id="searchResults"><h2>Search Results</h2></th></tr>
           {{#each searchResults}}
