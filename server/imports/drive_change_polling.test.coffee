@@ -21,12 +21,17 @@ describe 'drive change polling', ->
   api = null
   changes = null
   poller = null
+  env = null
 
   beforeEach ->
     resetDatabase()
     clock = sinon.useFakeTimers
       now: 60007
-      toFake: ['setTimeout', 'clearTimeout', 'Date']
+      toFake: ['Date']
+
+    env =
+      setTimeout: sinon.stub()
+      clearTimeout: sinon.stub()
       
     api =
       changes:
@@ -35,22 +40,15 @@ describe 'drive change polling', ->
     changes = sinon.mock(api.changes)
 
   afterEach ->
-    console.log 'about to stop poller'
     poller?.stop()
-    console.log 'about to restore clock'
     clock.restore()
-    # Meteor uses underlying setTimeout for stuff, so you have to run any leftover timeouts
-    # or it can break later tests.
-    console.log 'about to run all callbacks'
-    clock.tick(60000)
-    console.log 'done'
 
   afterEach ->
     sinon.verifyAndRestore()
 
   it 'fetches page token when never polled', ->
     changes.expects('getStartPageToken').once().resolves data: startPageToken: 'firstPage'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     chai.assert.include startPageTokens.findOne(),
       timestamp: 60007
       token: 'firstPage'
@@ -59,27 +57,15 @@ describe 'drive change polling', ->
     startPageTokens.insert
       timestamp: 7
       token: 'firstPage'
-    poller = new DriveChangeWatcher api, 'root_folder'
-    changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
-      newStartPageToken: 'secondPage'
-      changes: []
-    clock.tick(0)
-    chai.assert.include startPageTokens.findOne(),
-      timestamp: 60007
-      token: 'secondPage'
+    poller = new DriveChangeWatcher api, 'root_folder', env
+    chai.assert.equal env.setTimeout.firstCall.lastArg, 0
 
   it 'waits to poll', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    poller = new DriveChangeWatcher api, 'root_folder'
-    changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
-      newStartPageToken: 'secondPage'
-      changes: []
-    clock.tick(30000)
-    chai.assert.include startPageTokens.findOne(),
-      timestamp: 90007
-      token: 'secondPage'
+    poller = new DriveChangeWatcher api, 'root_folder', env
+    chai.assert.equal env.setTimeout.firstCall.lastArg, 30000
 
   it 'updates puzzle and does not announce when spreadsheet updated', ->
     startPageTokens.insert
@@ -91,7 +77,7 @@ describe 'drive change polling', ->
       drive: 'foo_drive'
       doc: 'foo_doc'
       spreadsheet: 'foo_sheet'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
       newStartPageToken: 'secondPage'
       changes: [
@@ -120,7 +106,7 @@ describe 'drive change polling', ->
       drive: 'foo_drive'
       doc: 'foo_doc'
       spreadsheet: 'foo_sheet'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
       newStartPageToken: 'secondPage'
       changes: [
@@ -149,7 +135,7 @@ describe 'drive change polling', ->
       drive: 'foo_drive'
       doc: 'foo_doc'
       spreadsheet: 'foo_sheet'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
       newStartPageToken: 'secondPage'
       changes: [
@@ -190,7 +176,7 @@ describe 'drive change polling', ->
       drive: 'foo_drive'
       doc: 'foo_doc'
       spreadsheet: 'foo_sheet'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
       newStartPageToken: 'secondPage'
       changes: [
@@ -213,7 +199,7 @@ describe 'drive change polling', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
       newStartPageToken: 'secondPage'
       changes: [
@@ -246,7 +232,7 @@ describe 'drive change polling', ->
     driveFiles.insert
       _id: 'foo_other'
       announced: 5
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
       newStartPageToken: 'secondPage'
       changes: [
@@ -267,7 +253,7 @@ describe 'drive change polling', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
       newStartPageToken: 'secondPage'
       changes: [
@@ -290,7 +276,7 @@ describe 'drive change polling', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     list = changes.expects('list').twice().onFirstCall().resolves(data:
       nextPageToken: 'continue'
       changes: [
@@ -338,7 +324,7 @@ describe 'drive change polling', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    poller = new DriveChangeWatcher api, 'root_folder'
+    poller = new DriveChangeWatcher api, 'root_folder', env
     list = changes.expects('list').twice().onFirstCall().resolves(data:
       nextPageToken: 'continue'
       changes: [

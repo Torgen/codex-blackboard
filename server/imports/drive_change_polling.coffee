@@ -19,7 +19,7 @@ POLL_INTERVAL = 60000
 CHANGES_FIELDS = "nextPageToken,newStartPageToken,changes(changeType,removed,fileId,file(name,mimeType,parents,createdTime,modifiedTime,webViewLink))"
 
 export default class DriveChangeWatcher
-  constructor: (@driveApi, @rootDir) ->
+  constructor: (@driveApi, @rootDir, @env = Meteor) ->
     lastToken = startPageTokens.findOne {}, {limit: 1, sort: timestamp: -1}
     unless lastToken
       {data: {startPageToken}} = Promise.await @driveApi.changes.getStartPageToken()
@@ -29,7 +29,7 @@ export default class DriveChangeWatcher
       startPageTokens.insert lastToken
     @startPageToken = lastToken.token
     @lastPoll = lastToken.timestamp
-    @timeoutHandle = Meteor.setTimeout (=> @poll()), Math.max(0, lastToken.timestamp + POLL_INTERVAL - model.UTCNow())
+    @timeoutHandle = @env.setTimeout (=> @poll()), Math.max(0, lastToken.timestamp + POLL_INTERVAL - model.UTCNow())
 
   poll: ->
     token = @startPageToken
@@ -107,8 +107,8 @@ export default class DriveChangeWatcher
         sort: timestamp: 1
     catch e
       console.error e
-    Meteor.clearTimeout @timeoutHandle
+    @env.clearTimeout @timeoutHandle
     @timeoutHandle = Meteor.setTimeout (=> @poll()), POLL_INTERVAL
 
   stop: ->
-    Meteor.clearTimeout @timeoutHandle
+    @env.clearTimeout @timeoutHandle
