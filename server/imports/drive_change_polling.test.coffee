@@ -42,7 +42,7 @@ describe 'drive change polling', ->
     # Meteor uses underlying setTimeout for stuff, so you have to run any leftover timeouts
     # or it can break later tests.
     console.log 'about to run all callbacks'
-    clock.runAll()
+    clock.tick(60000)
     console.log 'done'
 
   afterEach ->
