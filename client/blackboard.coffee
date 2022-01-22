@@ -542,7 +542,7 @@ tagHelper = ->
   tags = this?.tags or {}
   (
     t = tags[canon]
-    { _id: "#{@_id}/#{canon}", id: @_id, name: t.name, canon, value: t.value }
+    { _id: "#{@_id}/#{canon}", id: @_id, name: t.name, canon, value: t.value, touched_by: t.touched_by }
   ) for canon in Object.keys(tags).sort() when not \
     ((Session.equals('currentPage', 'blackboard') and \
       (canon is 'status' or \
@@ -576,6 +576,7 @@ Template.blackboard_column_body_answer.helpers
 
 Template.blackboard_column_body_status.helpers
   status: -> (model.getTag @puzzle, 'status') or ''
+  set_by: -> @puzzle?.tags?.status?.touched_by
 
 Template.blackboard_column_body_update.helpers
   stuck: share.model.isStuck

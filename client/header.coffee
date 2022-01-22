@@ -3,7 +3,7 @@
 import canonical from '/lib/imports/canonical.coffee'
 import md5 from '/lib/imports/md5.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
-import { hashFromNickObject } from './imports/nickEmail.coffee'
+import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
 import './imports/timestamp.coffee'
@@ -56,6 +56,10 @@ Template.registerHelper 'nickOrName', (args) ->
   nick = (keyword_or_positional 'nick', args).nick
   n = Meteor.users.findOne canonical nick
   return n?.real_name or n?.nickname or nick
+Template.registerHelper 'nickAndName', (args) ->
+  nick = (keyword_or_positional 'nick', args).nick
+  n = Meteor.users.findOne canonical nick ? {nickname: nick}
+  return nickAndName n
 Template.registerHelper 'nickExists', (nick) ->
   Meteor.users.findOne(_id: nick)?
 

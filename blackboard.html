@@ -502,7 +502,7 @@
         {{/if}}
       {{/if}}
       {{/unless}}
-      {{status}}
+      {{#if status}}{{status}} (by {{>gravatar nick=set_by size=12}}{{nickAndName set_by}}){{/if}}
     {{/if}}
   </td>
 </template>

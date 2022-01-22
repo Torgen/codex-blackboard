@@ -35,6 +35,12 @@
         {{>text_chunks value}}
       </td>
     </tr>
+    {{#if equal canon 'status'}}
+    <tr>
+      <td class="tagname">Set by:</td>
+      <td class="tagvalue">{{>gravatar nick=touched_by size=12}}{{nickAndName touched_by}}</td>
+    </tr>
+    {{/if}}
   {{/each}}
 {{/with}}
 </tbody></table>

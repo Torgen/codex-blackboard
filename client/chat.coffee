@@ -545,9 +545,6 @@ $(window).scroll (event) ->
 Template.messages_input.helpers
   show_presence: -> Template.instance().show_presence.get()
   whos_here: whos_here_helper
-  nickAndName: (nick) ->
-    user = Meteor.users.findOne canonical nick ? {nickname: nick}
-    nickAndName user
   typeaheadResults: -> Template.instance().queryCursor.get()
   selected: (id) -> 
     return Template.instance().selected.get() is id
