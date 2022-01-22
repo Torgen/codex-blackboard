@@ -495,7 +495,7 @@ do ->
       url_separator = UrlSeparator.get()
       link = if round_prefix
         round_prefix += '/' unless round_prefix.endsWith '/'
-        "#{round_prefix}#{canonical(args.name).replace(/_/g, url_separator)}"
+        "#{round_prefix}#{canonical(args.name, url_separator)}"
       r = newObject "rounds", {args..., who: @userId},
         puzzles: []
         link: args.link or link
@@ -528,7 +528,7 @@ do ->
       url_separator = UrlSeparator.get()
       link = if puzzle_prefix
         puzzle_prefix += '/' unless puzzle_prefix.endsWith '/'
-        "#{puzzle_prefix}#{canonical(args.name).replace(/_/g, url_separator)}"
+        "#{puzzle_prefix}#{canonical(args.name, url_separator)}"
       feedsInto = args.feedsInto or []
       extra =
         solved: null

@@ -23,3 +23,6 @@ describe 'canonical', ->
   it 'deletes possessive and contraction apostrophes', ->
     chai.assert.equal canonical("bill's"), 'bills'
     chai.assert.equal canonical("don't"), 'dont'
+
+  it 'allows specifying replacement string', ->
+    chai.assert.equal canonical('  leading and trailing  ', '-'), 'leading-and-trailing'
