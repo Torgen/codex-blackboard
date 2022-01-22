@@ -23,6 +23,8 @@ function onGoogleApiLoad() {
   {{#if currentUser}}
     {{#if currentPageEquals "graph"}}
       {{>graph}}
+    {{else if currentPageEquals "map"}}
+      {{>map}}
     {{else}}
       <div id="bb-body" class="{{#if boringMode}}boring{{/if}}">
         {{> page }}

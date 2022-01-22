@@ -5,6 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.16.7",
+    "@googlemaps/js-api-loader": "^1.13.2",
+    "@googlemaps/markerclusterer": "^1.0.21",
     "coffeescript": "^2.6.1",
     "css-color-names": "1.0.1",
     "cytoscape": "^3.20.0",

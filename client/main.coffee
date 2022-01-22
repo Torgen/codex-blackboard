@@ -348,6 +348,7 @@ BlackboardRouter = Backbone.Router.extend
   routes:
     "": "BlackboardPage"
     "graph": "GraphPage"
+    "map": "MapPage"
     "edit": "EditPage"
     "rounds/:round": "RoundPage"
     "puzzles/:puzzle": "PuzzlePage"
@@ -378,6 +379,8 @@ BlackboardRouter = Backbone.Router.extend
         topRight: 'blackboard_status_grid'
 
   GraphPage: -> @Page 'graph', 'general', '0', false
+
+  MapPage: -> @Page 'map', 'general', '0', false
 
   PuzzlePage: (id, view=null) ->
     @Page "puzzle", "puzzles", id, true, true

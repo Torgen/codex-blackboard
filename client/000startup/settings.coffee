@@ -45,3 +45,5 @@ settings.FOLLOWUP_STYLE = server.followupStyle ? 'js'
 settings.PICKER_CLIENT_ID = server.picker?.clientId
 settings.PICKER_APP_ID = server.picker?.appId
 settings.PICKER_DEVELOPER_KEY = server.picker?.developerKey
+
+settings.MAPS_API_KEY = server.mapsApiKey

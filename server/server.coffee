@@ -60,6 +60,8 @@ Meteor.publish null, ->
     priv_located: 0
     priv_located_at: 0
     priv_located_order: 0
+    located: 0
+    located_at: 0
     services: 0
     favorite_mechanics: 0
 
@@ -68,6 +70,12 @@ Meteor.publish null, loginRequired ->
   Meteor.users.find @userId, fields:
     services: 0
     priv_located_order: 0
+
+# Login required for this since it includes location
+Meteor.publish null, loginRequired ->
+  Meteor.users.find {}, fields:
+    located: 1
+    located_at: 1
 
 # Private messages to you
 Meteor.publish null, loginRequired -> model.Messages.find {to: @userId, deleted: $ne: true}
