@@ -8,7 +8,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import isDuplicateError from '/lib/imports/duplicate.coffee'
-import { PuzzleUrlPrefix } from '/lib/imports/settings.coffee'
+import { PuzzleUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee'
 
 model = share.model
 
@@ -38,6 +38,7 @@ describe 'newPuzzle', ->
   beforeEach ->
     resetDatabase()
     PuzzleUrlPrefix.ensure()
+    UrlSeparator.ensure()
 
   it 'fails without login', ->
     chai.assert.throws ->
@@ -131,19 +132,19 @@ describe 'newPuzzle', ->
       touched_by: 'cjb'
       puzzles: []
     id = callAs 'newPuzzle', 'torgen',
-      name: 'Foo'
+      name: 'Foo Puzzle'
       round: round
     ._id
     chai.assert.deepInclude model.Puzzles.findOne(id),
-      name: 'Foo'
-      canon: 'foo'
+      name: 'Foo Puzzle'
+      canon: 'foo_puzzle'
       created: 7
       created_by: 'torgen'
       touched: 7
       touched_by: 'torgen'
       solved: null
       solved_by: null
-      link: 'https://testhuntpleaseign.org/puzzles/foo'
+      link: 'https://testhuntpleaseign.org/puzzles/foo-puzzle'
       drive: 'fid'
       spreadsheet: 'sid'
       doc: 'did'

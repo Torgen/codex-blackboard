@@ -8,7 +8,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import isDuplicateError from '/lib/imports/duplicate.coffee'
-import { RoundUrlPrefix } from '/lib/imports/settings.coffee'
+import { RoundUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee'
 
 model = share.model
 
@@ -38,6 +38,8 @@ describe 'newRound', ->
   beforeEach ->
     resetDatabase()
     RoundUrlPrefix.ensure()
+    UrlSeparator.ensure()
+
 
   it 'fails without login', ->
     chai.assert.throws ->
@@ -77,19 +79,19 @@ describe 'newRound', ->
   it 'derives link', ->
     impersonating 'cjb', -> RoundUrlPrefix.set 'https://testhuntpleaseign.org/rounds'
     id = callAs 'newRound', 'torgen',
-      name: 'Foo'
+      name: 'Foo Round'
     ._id
     # Round is created, then drive et al are added
     round = model.Rounds.findOne id
     chai.assert.deepInclude round,
-      name: 'Foo'
-      canon: 'foo'
+      name: 'Foo Round'
+      canon: 'foo_round'
       created: 7
       created_by: 'torgen'
       touched: 7
       touched_by: 'torgen'
       puzzles: []
-      link: 'https://testhuntpleaseign.org/rounds/foo'
+      link: 'https://testhuntpleaseign.org/rounds/foo-round'
       tags: {}
 
   describe 'when one has that name', ->
