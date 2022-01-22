@@ -80,8 +80,8 @@ export EmbedPuzzles = new Setting(
 
 export UrlSeparator = new Setting(
   'URL Separator',
-  'The character used to replace spaces in the puzzle/round URL.  Defaults to _',
-  '_',
+  'The character used to replace spaces in the puzzle/round URL.  Defaults to -',
+  '-',
   String,
   id
 )
