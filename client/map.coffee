@@ -11,12 +11,15 @@ Template.map.onCreated ->
   await loader.load()
   @loaded.set true
 
-positionOrDefault = (locatedAt) ->
+positionOrDefault = (locatedAt, _id) ->
   if locatedAt?
     coords = locatedAt.coordinates
     {lat: coords[1], lng: coords[0]}
   else
-    {lat: 30, lng: -40}
+    sha = SHA256 _id
+    lat_xtra = (parseInt(sha.substring(0,4), 16) - 32768) / 655360
+    lng_xtra = (parseInt(sha.substring(4,8), 16) - 32768) / 655360
+    {lat: lat_xtra + 30, lng: lng_xtra - 40}
 
 Template.map.onRendered ->
   @autorun =>
@@ -31,14 +34,14 @@ Template.map.onRendered ->
     Meteor.users.find({}, {fields: {gravatar_md5: 1, located_at: 1}}).observeChanges
       added: (_id, {gravatar_md5, located_at}) ->
         user = new google.maps.Marker
-          position: positionOrDefault located_at
+          position: positionOrDefault located_at, _id
           icon: gravatarUrl(gravatar_md5: hashFromNickObject({_id, gravatar_md5}), size: 64)
         users.set _id, user
         clusterer.addMarker user
       changed: (id, {located_at}) ->
         if located_at?
           user = users.get id
-          user.setPosition positionOrDefault(located_at)
+          user.setPosition positionOrDefault(located_at, id)
       removed: (id) ->
         clusterer.removeMarker users.get id
         users.delete id
