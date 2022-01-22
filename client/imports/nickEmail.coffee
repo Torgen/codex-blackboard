@@ -13,3 +13,9 @@ export nickHash = (nick) ->
   n = Meteor.users.findOne cn
   return '0123456789abcdef0123456789abcdef' unless n?
   hashFromNickObject n
+
+export nickAndName = (user) -> 
+  if user?.real_name?
+    "#{user.real_name} (#{user.nickname})"
+  else
+    user.nickname

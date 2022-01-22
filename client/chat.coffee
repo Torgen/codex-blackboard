@@ -2,7 +2,7 @@
 
 # Cannot destructure for testing purposes.
 import jitsiModule, {jitsiUrl, jitsiRoom} from './imports/jitsi.coffee'
-import { gravatarUrl, hashFromNickObject } from './imports/nickEmail.coffee'
+import { gravatarUrl, hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
@@ -394,12 +394,6 @@ Template.embedded_chat.onDestroyed ->
   @unsetCurrentJitsi()
   $(window).off('unload', @unsetCurrentJitsi)
   @jitsi.get()?.dispose()
-
-nickAndName = (user) -> 
-  if user?.real_name?
-    "#{user.real_name} (#{user.nickname})"
-  else
-    user.nickname
 
 Template.embedded_chat.helpers
   inJitsi: -> Template.instance().jitsi.get()?
