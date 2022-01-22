@@ -675,7 +675,7 @@ Template.messages_input.onCreated ->
         args.body = rest
         args.action = true
       when "/join"
-        result = model.Names.findOne {canon: canonical rest.trim(), type: $in: ['rounds', 'puzzles']}
+        result = model.Names.findOne {canon: canonical(rest.trim()), type: $in: ['rounds', 'puzzles']}
         if (not result?) and GENERAL_ROOM_REGEX.test(rest.trim())
           result = {type:'general', _id:'0'}
         if error? or not result?
