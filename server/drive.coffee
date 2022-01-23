@@ -2,6 +2,7 @@
 
 import { Drive, FailDrive } from './imports/drive.coffee'
 import DriveChangeWatcher from './imports/drive_change_polling.coffee'
+import { RETRY_RESPONSE_CODES } from './imports/googlecommon.coffee'
 import googleauth from './imports/googleauth.coffee'
 import { google } from 'googleapis'
 
@@ -17,7 +18,7 @@ Promise.await do ->
   try
     auth = await googleauth SCOPES
     # record the API and auth info
-    api = google.drive {version: 'v3', auth}
+    api = google.drive {version: 'v3', auth, retryConfig: { statusCodesToRetry: RETRY_RESPONSE_CODES }}
     share.drive = new Drive api
     console.log "Google Drive authorized and activated"
     if share.DO_BATCH_PROCESSING
