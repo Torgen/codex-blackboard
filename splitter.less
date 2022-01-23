@@ -65,7 +65,7 @@ html.fullHeight {
           display: none;
         }
         position: absolute;
-        right: ~"calc(var(--right-column) + 16px)";
+        right: calc(var(--right-column) + 16px);
         margin-right: 6px;
         background: var(--bg-color);
         border: 1px solid #888;
@@ -126,7 +126,7 @@ html.fullHeight {
           overflow: auto;
           position: absolute;
           left: 0; right: 0;
-          top: 0; bottom: ~"calc(36px + var(--jitsi-height, 0px))";
+          top: 0; bottom: calc(36px + var(--jitsi-height, 0px));
         }
         .bb-chat-messages {
           padding: 5px 2px 0 2px;

@@ -5,7 +5,7 @@
 
 coffeescript@2.0.2_1
 backbone
-less@3.0.1
+less
 bootstrap
 http@1.4.2
 random@1.2.0
