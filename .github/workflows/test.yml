@@ -19,6 +19,8 @@ jobs:
           - coverage.full.lcov
     steps:
     - uses: actions/checkout@master
+    - name: Read Meteor version
+      run: cat .meteor/release | sed -e "s/@/_VERSION=/" >> $GITHUB_ENV
     - name: Use Node.js 14.x
       uses: actions/setup-node@master
       with:
@@ -31,7 +33,7 @@ jobs:
     - uses: meteorengineer/setup-meteor@v1
       if: steps.cache-meteor.outputs.cache-hit != 'true'
       with:
-        meteor-release: '2.5'
+        meteor-release: ${{ env.METEOR_VERSION }}
     - uses: actions/cache@v1
       id: cache-npm
       with:
