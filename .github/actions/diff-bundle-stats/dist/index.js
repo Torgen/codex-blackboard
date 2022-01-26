@@ -4068,9 +4068,9 @@ async function main() {
       }
     }
     meteorPackageStats.forEach(clearSame);
-    const packageDiff = meteorPackageStats.size() > 0;
+    const packageDiff = meteorPackageStats.size > 0;
     nodeModuleStats.forEach(clearSame);
-    const moduleDiff = nodeModuleStats.size() > 0;
+    const moduleDiff = nodeModuleStats.size > 0;
     if (!bundleDiff && !packageDiff && !moduleDiff) {
       _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('diff', 'No difference in output size');
       return;
