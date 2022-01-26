@@ -1,5 +1,5 @@
 'use strict'
 
-import {md} from 'node-forge'
+import { createHash } from 'crypto' 
 
-export default md5 = (x) -> md.md5.create().update(x).digest().toHex()
+export default md5 = (x) -> createHash('md5').update(x).digest('hex')

@@ -1,6 +1,6 @@
 'use strict'
 import canonical from '../lib/imports/canonical.coffee'
-import { md } from 'node-forge'
+import { createHash } from 'crypto'
 import { StringWithLength } from '../lib/imports/match.coffee'
 
 PASSWORD = Meteor.settings?.password ? process.env.TEAM_PASSWORD 
@@ -9,7 +9,7 @@ Meteor.users.deny
   update: -> true
 
 sha1 = (x) ->
-  md.sha1.create().update(x).digest().toHex()
+  createHash('sha1').update(x).digest('hex')
 
 if share.DO_BATCH_PROCESSING
   if PASSWORD?
