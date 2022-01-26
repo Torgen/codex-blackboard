@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as glob from '@actions/glob';
-import { readFile } from 'fs';
+import { promises as fs } from 'fs';
 
 async function getStatsFile(name) {
   const globber = await glob.create(`${name}/*.stats.json`);
@@ -8,7 +8,7 @@ async function getStatsFile(name) {
   if (files.length != 1) {
     throw new Error(`Need exactly one ${name} stats file`);
   }
-  const contents = await readFile(files[0]);
+  const contents = await fs.readFile(files[0]);
   return JSON.parse(contents);
 }
 

@@ -3992,7 +3992,7 @@ async function getStatsFile(name) {
   if (files.length != 1) {
     throw new Error(`Need exactly one ${name} stats file`);
   }
-  const contents = await (0,fs__WEBPACK_IMPORTED_MODULE_2__.readFile)(files[0]);
+  const contents = await fs__WEBPACK_IMPORTED_MODULE_2__.promises.readFile(files[0]);
   return JSON.parse(contents);
 }
 
