@@ -342,24 +342,6 @@ Template.header_breadcrumbs.helpers
       model.Puzzles.findOne(Session.get 'id')?.drive
   generalChat: -> Session.equals 'room_name', 'general/0'
 
-Template.header_breadcrumbs.events
-  "click .bb-upload-file": (event, template) ->
-    folder = switch Session.get 'type'
-      when 'general'
-        Session.get 'RINGHUNTERS_FOLDER'
-      when 'puzzles'
-        model.Puzzles.findOne(Session.get 'id')?.drive
-    return unless folder
-    uploadToDriveFolder folder, (docs) ->
-      message = "uploaded "+(for doc in docs
-        "<a href='#{UI._escape doc.url}' target='_blank'><img src='#{UI._escape doc.iconUrl}' />#{UI._escape doc.name}</a> "
-      ).join(', ')
-      Meteor.call 'newMessage',
-        body: message
-        bodyIsHtml: true
-        action: true
-        room_name: Session.get('type')+'/'+Session.get('id')
-
 Template.header_breadcrumbs.onRendered ->
   # tool tips
   $(this.findAll('a.bb-drive-link[title]')).tooltip placement: 'bottom'
