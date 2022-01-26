@@ -330,17 +330,6 @@ Template.header_breadcrumbs.onCreated ->
 Template.header_breadcrumbs.helpers
   breadcrumbs: -> breadcrumbs_var.get()
   crumb_template: -> "header_breadcrumb_#{@page}"
-  active: active
-  puzzle: ->
-    if Session.equals 'type', 'puzzles'
-      model.Puzzles.findOne Session.get 'id'
-    else null
-  drive: -> switch Session.get 'type'
-    when 'general'
-      Session.get 'RINGHUNTERS_FOLDER'
-    when 'puzzles'
-      model.Puzzles.findOne(Session.get 'id')?.drive
-  generalChat: -> Session.equals 'room_name', 'general/0'
 
 Template.header_breadcrumbs.onRendered ->
   # tool tips
