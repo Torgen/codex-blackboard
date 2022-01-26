@@ -26,8 +26,8 @@
     "twitter-api-v2": "^1.9.1"
   },
   "devDependencies": {
-    "chai": "^4.3.4",
-    "puppeteer": "^13.1.1",
+    "chai": "^4.3.5",
+    "puppeteer": "^13.1.2",
     "sinon": "^12.0.1"
   },
   "scripts": {
