@@ -137,6 +137,7 @@ async function main() {
     core.setOutput(diff, outputLines.join('\n'));
   } catch (error) {
     core.setFailed(error);
+    core.error(error.stack);
   }
 }
 
