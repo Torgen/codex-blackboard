@@ -3,7 +3,7 @@ import * as glob from '@actions/glob';
 import { readFile } from 'fs';
 
 async function getStatsFile(name) {
-  const globber = await glob.create([`${name}/*.stats.json`]);
+  const globber = await glob.create(`${name}/*.stats.json`);
   const files = await globber.glob();
   if (files.length != 1) {
     throw new Error(`Need exactly one ${name} stats file`);

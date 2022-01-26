@@ -3987,7 +3987,7 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 async function getStatsFile(name) {
-  const globber = await _actions_glob__WEBPACK_IMPORTED_MODULE_1__.create([`${name}/*.stats.json`]);
+  const globber = await _actions_glob__WEBPACK_IMPORTED_MODULE_1__.create(`${name}/*.stats.json`);
   const files = await globber.glob();
   if (files.length != 1) {
     throw new Error(`Need exactly one ${name} stats file`);
