@@ -3,7 +3,7 @@ author: Dan Rosart
 description: Read the stats.json files from base and head and reply to the PR with size diffs.
 runs:
   using: 'node16'
-  main: index.js
+  main: dist/index.js
 outputs:
   diff:
     description: A markdown description of the diff.
