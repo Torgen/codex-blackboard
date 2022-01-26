@@ -4120,7 +4120,7 @@ async function main() {
       outputLines.push('No change in top-level node module sizes.');
     }
     outputLines.push('');
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput(diff, outputLines.join('\n'));
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('diff', outputLines.join('\n'));
   } catch (error) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(error.stack);
