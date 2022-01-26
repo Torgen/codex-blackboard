@@ -1,0 +1,9 @@
+{
+  "name": "diff-bundle-stats",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/glob": "^0.2.0"
+  }
+}

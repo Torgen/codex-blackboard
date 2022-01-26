@@ -1,24 +1,25 @@
-on: ["push", "pull_request"]
+on: ["pull_request"]
 
-name: Test
+name: "Bundle Size Diff"
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-    env:
-      COVERALLS_PARALLEL: true
-      TEST_BROWSER_DRIVER: puppeteer
     strategy:
       matrix:
-        test_script:
-          - coverage.lcov
-          - coverage.full.lcov
+        include:
+        - name: base
+          ref: ${{ github.event.pull_request.base.ref }}
+        - name: head
+          ref: ${{ github.event.pull_request.head.ref }}
     steps:
     - uses: actions/checkout@master
+      with:
+        ref: ${{ matrix.ref }}
     - name: Read Meteor version
       run: cat .meteor/release | sed -e "s/@/_VERSION=/" >> $GITHUB_ENV
     - name: Use Node.js 14.x
@@ -44,23 +45,28 @@ jobs:
 
     - name: npm install
       run: ~/.meteor/meteor npm install
-
-    - name: Test ${{ matrix.test_script }}
-      run: ~/.meteor/meteor npm run-script ${{ matrix.test_script }}
-    - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
+    - name: install bundle-visualizer
+      run: ~/.meteor/meteor add bundle-visualizer
+    - name: build
+      run: ~/.meteor/meteor build --directory ../build-${{ matrix.name }}
+    - uses: actions/upload-artifact@v2
       with:
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.test_script }}
-        path-to-lcov: .coverage/lcov.info
-        parallel: true
+        name: ${{ matrix.name }}
+        path: ../build-${{matrix.name}}/bundle/programs/web.browser/*.stats.json
+    - name: remove bundle-visualizer
+      run: ~/.meteor/meteor remove bundle-visualizer
 
-  finish:
-    needs: test
+  diff:
     runs-on: ubuntu-latest
+    needs: build
     steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
+    - uses: actions/checkout@master
+    - uses: actions/download-artifact@v2
+    - id: diff
+      uses: ./.github/actions/diff-bundle-stats
+    - uses: mshick/add-pr-comment@v1
       with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
+        message: ${{steps.diff.outputs.diff}}
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        repo-token-user-login: 'github-actions[bot]'
+        allow-repeats: true
