@@ -93,6 +93,8 @@ async function main() {
     }
     const outputLines = [];
     function printDiffLine(label, base, head) {
+      base ||= 0;
+      head ||= 0;
       const diff = head - base;
       if (diff === 0) { return; }
       outputLines.push(`| ${label} | ${base} | ${head} | ${diff>0 ? '+' : ''}${diff}`)
