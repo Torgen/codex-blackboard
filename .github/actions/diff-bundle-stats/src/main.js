@@ -1,5 +1,5 @@
-import core from '@actions/core';
-import glob from '@actions/glob';
+import * as core from '@actions/core';
+import * as glob from '@actions/glob';
 import { readFile } from 'fs';
 
 async function getStatsFile(name) {

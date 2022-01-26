@@ -3987,7 +3987,7 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 async function getStatsFile(name) {
-  const globber = await _actions_glob__WEBPACK_IMPORTED_MODULE_1___default().create([`${name}/*.stats.json`]);
+  const globber = await _actions_glob__WEBPACK_IMPORTED_MODULE_1__.create([`${name}/*.stats.json`]);
   const files = await globber.glob();
   if (files.length != 1) {
     throw new Error(`Need exactly one ${name} stats file`);
@@ -4072,7 +4072,7 @@ async function main() {
     nodeModuleStats.forEach(clearSame);
     const moduleDiff = nodeModuleStats.size() > 0;
     if (!bundleDiff && !packageDiff && !moduleDiff) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setOutput('diff', 'No difference in output size');
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('diff', 'No difference in output size');
       return;
     }
     const outputLines = [];
@@ -4118,9 +4118,9 @@ async function main() {
       outputLines.push('No change in top-level node module sizes.');
     }
     outputLines.push('');
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setOutput(diff, outputLines.join('\n'));
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput(diff, outputLines.join('\n'));
   } catch (error) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0___default().setFailed(error.message);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
   }
 }
 
