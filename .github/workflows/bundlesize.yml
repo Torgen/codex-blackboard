@@ -15,7 +15,7 @@ jobs:
         - name: base
           ref: ${{ github.event.pull_request.base.ref }}
         - name: head
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.ref }}
     steps:
     - uses: actions/checkout@master
       with:
