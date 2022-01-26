@@ -48,11 +48,11 @@ jobs:
     - name: install bundle-visualizer
       run: ~/.meteor/meteor add bundle-visualizer
     - name: build
-      run: ~/.meteor/meteor build --directory ${{ env.RUNNER_TEMP }}/build-${{ matrix.name }}
+      run: ~/.meteor/meteor build --directory ${{ runner.temp }}/build-${{ matrix.name }}
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.name }}
-        path: ${{ env.RUNNER_TEMP }}/build-${{matrix.name}}/bundle/programs/web.browser/*.stats.json
+        path: ${{ runner.temp }}/build-${{matrix.name}}/bundle/programs/web.browser/*.stats.json
     - name: remove bundle-visualizer
       run: ~/.meteor/meteor remove bundle-visualizer
 
