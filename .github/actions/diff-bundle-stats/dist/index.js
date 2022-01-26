@@ -4120,7 +4120,7 @@ async function main() {
     outputLines.push('');
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput(diff, outputLines.join('\n'));
   } catch (error) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error.message);
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error);
   }
 }
 
