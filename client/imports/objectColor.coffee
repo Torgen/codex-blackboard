@@ -1,11 +1,12 @@
 'use strict'
 
-import { getTag } from '../../lib/imports/tags.coffee'
+import { getTag } from '/lib/imports/tags.coffee'
+import md5 from '/lib/imports/md5.coffee'
 import colornames from 'css-color-names'
 
 export default colorFromThingWithTags = (thing) ->
   getTag(thing, 'color') or do ->
-    hash = SHA256 thing._id
+    hash = md5 thing._id
     hue = parseInt(hash.substring(0, 4), 16) % 360
     saturation = ((parseInt(hash.substring(4, 6), 16)/ 255.0) ** 0.5) * 100
     lightness = ((parseInt(hash.substring(6, 8), 16) / 255.0) ** 0.5) * 50

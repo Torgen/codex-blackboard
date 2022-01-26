@@ -8,4 +8,4 @@ describe 'positionOrDefault', ->
     chai.assert.deepEqual positionOrDefault({type: 'Point', coordinates: [75.5, -20]}, 'sklanch'), {lat: -20, lng: 75.5}
 
   it 'randomizes unset position', ->
-    chai.assert.deepEqual positionOrDefault(undefined, 'sklanch'), {lat: 30.047036743164064, lng: -39.988528442382815}
+    chai.assert.deepEqual positionOrDefault(undefined, 'sklanch'), {lat: 29.957225036621093, lng: -40.023388671875}

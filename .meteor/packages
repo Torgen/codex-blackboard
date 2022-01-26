@@ -36,7 +36,6 @@ meteortesting:mocha
 fds:coffeescript-share
 xolvio:cleaner
 accounts-base@2.2.0
-sha@1.0.9
 underscore@1.0.10
 meteortesting:mocha-core
 facts-base@1.0.1

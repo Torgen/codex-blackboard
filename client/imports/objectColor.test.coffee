@@ -15,7 +15,7 @@ describe 'objectColor', ->
   it 'generates hsl from _id', ->
     obj =
       _id: 'u8JniQ2zqueSykCTm'
-    chai.assert.equal objectColor(obj), 'hsl(80, 41.06427291215469%, 37.18000727778937%)'
+    chai.assert.equal objectColor(obj), 'hsl(48, 82.60465732490333%, 20.291986247835695%)'
     
 describe 'cssColorToHex', ->
   it 'converts three-hex to six-hex', ->
