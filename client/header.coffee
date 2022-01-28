@@ -1,5 +1,7 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
+import debounce from 'lodash.debounce'
 import canonical from '/lib/imports/canonical.coffee'
 import md5 from '/lib/imports/md5.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
@@ -29,7 +31,7 @@ do ->
         ("height=480,width=480,menubar=no,toolbar=no,personalbar=no,"+\
         "status=yes,resizeable=yes,scrollbars=yes")
     else
-      share.Router.navigate rawHref, {trigger:true}
+      FlowRouter.go rawHref
   Template.page.events
     'click a.puzzles-link': clickHandler
     'click a.rounds-link': clickHandler
@@ -121,9 +123,9 @@ Template.header_loginmute.events
     event.preventDefault()
     Meteor.logout()
   "click .bb-unprotect": (event, template) ->
-    share.Router.navigate "/edit", {trigger: true}
+    FlowRouter.go 'Edit'
   "click .bb-protect": (event, template) ->
-    share.Router.navigate "/", {trigger: true}
+    FlowRouter.go 'Blackboard'
   'click li[data-tab]:not(.active)': (event, template) ->
     template.visibleTab.set event.currentTarget.dataset.tab
   'click #bb-mark-private-read': (event, template) ->
@@ -394,7 +396,7 @@ Template.header_nickmodal_contents.events
     $('#nickEmail').select() if event.which is 13
   "keydown #nickEmail": (event, template) ->
     $('#nickPick').submit() if event.which is 13
-  "input #nickEmail": _.debounce ((event, template) -> template.updateGravatar()), 500
+  "input #nickEmail": debounce ((event, template) -> template.updateGravatar()), 500
   'submit #nickPick': (event, template) ->
     nick = $("#nickInput").val().replace(/^\s+|\s+$/g,"") #trim
     return false unless nick

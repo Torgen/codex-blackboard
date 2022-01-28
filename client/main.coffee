@@ -1,5 +1,7 @@
 'use strict'
 
+import debounce from 'lodash.debounce'
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import { gravatarUrl, nickHash, md5 } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
@@ -138,7 +140,7 @@ share.notification =
     n = new Notification title, settings
     if settings.data?.url?
       n.onclick = ->
-        share.Router.navigate settings.data.url, trigger: true
+        FlowRouter.go settings.data.url
         window.focus()
   ask: ->
     Notification.requestPermission (ok) ->
@@ -150,7 +152,7 @@ setupNotifications = ->
       navigator.serviceWorker.addEventListener 'message', (msg) ->
         console.log msg.data unless Meteor.isProduction
         return unless msg.data.action is 'navigate'
-        share.Router.navigate msg.data.url, trigger: true
+        FlowRouter.go msg.data.url
       share.notification.notify = (title, settings) -> reg.showNotification title, settings
       finishSetupNotifications()
     ).catch (error) -> Session.set 'notifications', 'default'
@@ -165,7 +167,7 @@ debouncedUpdate = ->
   now = new ReactiveVar share.model.UTCNow()
   update = do ->
     next = now.get()
-    push = _.debounce (-> now.set next), 1000
+    push = debounce (-> now.set next), 1000
     (newNext) ->
       if newNext > next
         next = newNext
@@ -204,7 +206,7 @@ Meteor.startup ->
       if msg.stream is 'callins'
         data = url: '/callins'
       else
-        data = url: share.Router.urlFor msg.type, msg.id
+        data = url: FlowRouter.path 'Any', msg
       # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
       # notifications that already have sound effects.
       silent = MUTE_SOUND_EFFECTS.get() or ['callins', 'answers'].includes msg.stream
@@ -231,7 +233,7 @@ Meteor.startup ->
           share.notification.notify puzzle.name,
             body: "Mechanic \"#{mechanics[mech].name}\" added to puzzle \"#{puzzle.name}\""
             tag: "#{id}/#{mech}"
-            data: url: share.Router.urlFor 'puzzles', id
+            data: url: FlowRouter.path 'Puzzle', {id}
             silent: MUTE_SOUND_EFFECTS.get()
     faveSuppress = false
 
@@ -247,17 +249,17 @@ Meteor.startup ->
     share.model.Messages.find({$or: [{to: me}, {mention: me}], timestamp: $gt: arnow}).observeChanges
       added: (msgid, message) ->
         [room_name, url] = if message.room_name is 'general/0'
-          [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
+          [settings.GENERAL_ROOM_NAME, FlowRouter.path('Blackboard')]
         else if message.room_name is 'callins/0'
-          ['Callin Queue', Meteor._relativeToSiteRootUrl '/callins']
+          ['Callin Queue', FlowRouter.path('CallIns')]
         else
           [type, id] = message.room_name.split '/'
           target = share.model.Names.findOne id
           if target.type is type
             pretty_type = share.model.pretty_collection(type).replace /^[a-z]/, (x) -> x.toUpperCase()
-            ["#{pretty_type} \"#{target.name}\"", share.Router.urlFor type, id]
+            ["#{pretty_type} \"#{target.name}\"", Meteor.path('Any', {type, id})]
           else
-            [message.room_name, share.Router.chatUrlFor message.room_name]
+            [message.room_name, FlowRouter.path('Chat', {type, id})]
         gravatar = gravatarUrl
           gravatar_md5: nickHash(message.nick)
           size: 192
@@ -344,120 +346,96 @@ scrollAfter = (x) ->
         behavior: 'smooth'
 
 # Router
-BlackboardRouter = Backbone.Router.extend
-  routes:
-    "": "BlackboardPage"
-    "graph": "GraphPage"
-    "map": "MapPage"
-    "edit": "EditPage"
-    "rounds/:round": "RoundPage"
-    "puzzles/:puzzle": "PuzzlePage"
-    "puzzles/:puzzle/:view": "PuzzlePage"
-    "chat/:type/:id": "ChatPage"
-    "oplogs": "OpLogPage"
-    "callins": "CallInPage"
-    "quips/:id": "QuipPage"
-    "facts": "FactsPage"
-    "loadtest/:which": "LoadTestPage"
+Page = (page, type, id, has_chat, splitter) ->
+  old_room = Session.get 'room_name'
+  new_room = if has_chat then "#{type}/#{id}" else null
+  if old_room isnt new_room
+    # if switching between a puzzle room and full-screen chat, don't reset limit.
+    Session.set
+      room_name: new_room
+      limit: settings.INITIAL_CHAT_LIMIT
+  Session.set
+    splitter: splitter ? false
+    currentPage: page
+    type: type
+    id: id
+  # cancel modals if they were active
+  $('#nickPickModal').modal 'hide'
+  $('#confirmModal').modal 'hide'
 
-  BlackboardPage: ->
-    scrollAfter =>
-      @Page "blackboard", "general", "0", true, true
+FlowRouter.route '/',
+  name: 'Blackboard'
+  action: ->
+    scrollAfter ->
+      Page "blackboard", "general", "0", true, true
       Session.set
         color: 'inherit'
         canEdit: undefined
         editing: undefined
         topRight: 'blackboard_status_grid'
 
-  EditPage: ->
-    scrollAfter =>
-      @Page "blackboard", "general", "0", true, true
+FlowRouter.route '/edit',
+  name: 'Edit'
+  action: ->
+    scrollAfter ->
+      Page "blackboard", "general", "0", true, true
       Session.set
         color: 'inherit'
         canEdit: true
         editing: undefined
         topRight: 'blackboard_status_grid'
 
-  GraphPage: -> @Page 'graph', 'general', '0', false
+FlowRouter.route '/rounds/:id',
+  name: 'Round'
+  triggerBefore: [({params: {id}}, redirect) -> redirect 'Chat', {type: 'rounds', id}]
 
-  MapPage: -> @Page 'map', 'general', '0', false
+FlowRouter.route '/puzzles/:id',
+  name: 'Puzzle'
+  action: ({id}) ->
+    Page "puzzle", "puzzles", id, true, true
+    Session.set 'view', null
 
-  PuzzlePage: (id, view=null) ->
-    @Page "puzzle", "puzzles", id, true, true
-    Session.set
-      timestamp: 0
-      view: view
+FlowRouter.route '/puzzles/:id/:view',
+  name: 'Puzzle.view'
+  action: ({id, view}) ->
+    Page "puzzle", "puzzles", id, true, true
+    Session.set {view}
 
-  RoundPage: (id) ->
-    this.goToChat "rounds", id, 0
-
-  ChatPage: (type,id) ->
+FlowRouter.route '/chat/:type/:id',
+  name: 'Chat'
+  action: ({type, id}) ->
     id = "0" if type is "general"
-    this.Page("chat", type, id, true)
+    Page "chat", type, id, true
 
-  OpLogPage: ->
-    this.Page("oplog", "oplog", "0", false)
+FlowRouter.route '/oplogs',
+  name: 'OpLog'
+  action: ->
+    Page 'oplog', 'oplog', '0', false
 
-  CallInPage: ->
-    @Page "callins", "callins", "0", true, true
+FlowRouter.route '/callins',
+  name: 'CallIns'
+  action: ->
+    Page 'callins', 'callins', '0', true, true
     Session.set
       color: 'inherit'
       topRight: null
 
-  QuipPage: (id) ->
-    this.Page("quip", "quips", id, false)
+FlowRouter.route '/quips/:id',
+  name: 'Quip'
+  action: ({id}) -> Page 'quip', 'quips', id, false
 
-  FactsPage: ->
-    this.Page("facts", "facts", "0", false)
+FlowRouter.route '/graph',
+  name: 'Graph'
+  action: -> Page 'graph', 'general', '0', false
 
-  LoadTestPage: (which) ->
-    return if Meteor.isProduction
-    # redirect to one of the 'real' pages, so that client has the
-    # proper subscriptions, etc; plus launch a background process
-    # to perform database mutations
-    cb = (args) =>
-      {page,type,id} = args
-      url = switch page
-        when 'chat' then this.chatUrlFor type, id
-        when 'oplogs' then this.urlFor 'oplogs' # bit of a hack
-        when 'blackboard' then Meteor._relativeToSiteRootUrl "/"
-        when 'facts' then this.urlFor 'facts', '' # bit of a hack
-        else this.urlFor type, id
-      this.navigate(url, {trigger:true})
-    r = share.loadtest.start which, cb
-    cb(r) if r? # immediately navigate if method is synchronous
+FlowRouter.route '/map', 
+  name: 'Map'
+  action: -> Page 'map', 'general', '0', false
 
-  Page: (page, type, id, has_chat, splitter) ->
-    old_room = Session.get 'room_name'
-    new_room = if has_chat then "#{type}/#{id}" else null
-    if old_room isnt new_room
-      # if switching between a puzzle room and full-screen chat, don't reset limit.
-      Session.set
-        room_name: new_room
-        limit: settings.INITIAL_CHAT_LIMIT
-    Session.set
-      splitter: splitter ? false
-      currentPage: page
-      type: type
-      id: id
-    # cancel modals if they were active
-    $('#nickPickModal').modal 'hide'
-    $('#confirmModal').modal 'hide'
+FlowRouter.route '/facts',
+  name: 'Facts'
+  action: -> Page 'facts', 'facts', '0', false
 
-  urlFor: (type,id) ->
-    Meteor._relativeToSiteRootUrl "/#{type}/#{id}"
-  chatUrlFor: (type, id) ->
-    (Meteor._relativeToSiteRootUrl "/chat#{this.urlFor(type,id)}")
-
-  goTo: (type,id) ->
-    this.navigate(this.urlFor(type,id), {trigger:true})
-
-  goToRound: (round) -> this.goTo("rounds", round._id)
-
-  goToPuzzle: (puzzle) ->  this.goTo("puzzles", puzzle._id)
-
-  goToChat: (type, id) ->
-    this.navigate(this.chatUrlFor(type, id), {trigger:true})
-
-share.Router = new BlackboardRouter()
-Backbone.history.start {pushState: true}
+FlowRouter.route '/:type/:id',
+  name: 'Any'
+  action: ({type, id}) -> throw new Error "Should have had a route for #{type}/#{id}"

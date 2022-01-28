@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
@@ -13,7 +14,7 @@ describe 'quips', ->
 
   describe 'new', ->
     beforeEach ->
-      share.Router.QuipPage 'new'
+      FlowRouter.go 'Quip', {id: 'new'}
       await waitForSubscriptions()
       await afterFlushPromise()
 

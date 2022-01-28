@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import {waitForSubscriptions, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 import denodeify from 'denodeify'
@@ -15,7 +16,7 @@ describe 'graph', ->
     logout()
 
   it 'renders', ->
-    share.Router.GraphPage()
+    FlowRouter.go 'Graph'
     await login('testy', 'Teresa Tybalt', '', 'failphrase')
     await afterFlushPromise()
     p = awaitRender()

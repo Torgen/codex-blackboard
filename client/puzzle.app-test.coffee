@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
@@ -21,12 +22,12 @@ describe 'puzzle', ->
       id = share.model.Puzzles.findOne(name: 'Anger')._id
 
     it 'renders puzzle view', ->
-      share.Router.PuzzlePage id, 'puzzle'
+      FlowRouter.go 'Puzzle.view', {id, view: 'puzzle'}
       await waitForSubscriptions()
       await afterFlushPromise()
 
     it 'renders info view', ->
-      share.Router.PuzzlePage id, 'info'
+      FlowRouter.go 'Puzzle.view', {id, view: 'info'}
       await waitForSubscriptions()
       await afterFlushPromise()
 
@@ -38,12 +39,12 @@ describe 'puzzle', ->
       id = share.model.Puzzles.findOne(name: 'Cross Words')._id
 
     it 'renders puzzle view', ->
-      share.Router.PuzzlePage id, 'puzzle'
+      FlowRouter.go 'Puzzle.view', {id, view: 'puzzle'}
       await waitForSubscriptions()
       await afterFlushPromise()
 
     it 'renders info view', ->
-      share.Router.PuzzlePage id, 'info'
+      FlowRouter.go 'Puzzle.view', {id, view: 'info'}
       await waitForSubscriptions()
       await afterFlushPromise()
 
@@ -53,7 +54,7 @@ describe 'puzzle', ->
     beforeEach ->
       await waitForSubscriptions()
       id = share.model.Puzzles.findOne(name: 'Cross Words')._id
-      share.Router.PuzzlePage id, 'puzzle'
+      FlowRouter.go 'Puzzle.view', {id, view: 'puzzle'}
       await waitForSubscriptions()
       await afterFlushPromise()
 

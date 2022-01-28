@@ -1,4 +1,7 @@
 'use strict'
+
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
+
 model = share.model # import
 
 Template.quip.helpers
@@ -12,11 +15,11 @@ Template.quip.helpers
 
 Template.quip.events
   "click .bb-addquip-btn": (event, template) ->
-    share.Router.goTo "quips", "new"
+    FlowRouter.go 'Quips', {id: 'new'}
   "click .bb-quip-delete-btn": (event, template) ->
     Meteor.call "removeQuip", Session.get('id'), (error, result) ->
       unless error?
-        share.Router.goTo "quips", "new"
+        FlowRouter.go 'Quips', {id: 'new'}
 
   "keydown form.bb-add-new-quip": (event, template) ->
     # implicit submit on enter.
@@ -30,7 +33,7 @@ Template.quip.events
     $textarea.val ''
     q = Meteor.call 'newQuip', text, (error, result) ->
       unless error?
-        share.Router.goTo "quips", result._id
+        FlowRouter.go 'Quips', {id: result._id}
 
   "click .bb-editable": (event, template) ->
     value = share.find_bbedit(event).join('/')

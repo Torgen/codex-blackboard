@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
@@ -12,7 +13,7 @@ describe 'chat', ->
     logout()
 
   it 'general chat', ->
-    share.Router.ChatPage('general', '0')
+    FlowRouter.go 'Chat', {type: 'general', id: '0'}
     await waitForSubscriptions()
     await afterFlushPromise()
     chai.assert.isDefined $('a[href^="https://codexian.us"]').html()
@@ -27,7 +28,7 @@ describe 'chat', ->
 
   it 'updates read marker', ->
     id = share.model.Puzzles.findOne(name: 'Temperance')._id
-    share.Router.ChatPage('puzzles', id)
+    FlowRouter.go 'Chat', {type: 'puzzles', id: id}
     await waitForSubscriptions()
     await afterFlushPromise()
     top = $('.bb-message-last-read').offset().top
@@ -37,7 +38,7 @@ describe 'chat', ->
 
   it 'scrolls through history', ->
     id = share.model.Puzzles.findOne(name: 'Joy')._id
-    share.Router.ChatPage('puzzles', id)
+    FlowRouter.go 'Chat', {type: 'puzzles', id: id}
     await waitForSubscriptions()
     await afterFlushPromise()
     input = $ '#messageInput'
@@ -67,7 +68,7 @@ describe 'chat', ->
   it 'loads more', ->
     @timeout 30000
     puzz = share.model.Puzzles.findOne name: 'Literary Collection'
-    share.Router.ChatPage('puzzles', puzz._id)
+    FlowRouter.go 'Chat', {type: 'puzzles', id: puzz._id}
     room = "puzzles/#{puzz._id}"
     await waitForSubscriptions()
     await afterFlushPromise()
@@ -90,7 +91,7 @@ describe 'chat', ->
 
   it 'deletes message', ->
     puzz = share.model.Puzzles.findOne name: 'Freak Out'
-    share.Router.ChatPage('puzzles', puzz._id)
+    FlowRouter.go 'Chat', {type: 'puzzles', id: puzz._id}
     room = "puzzles/#{puzz._id}"
     await waitForSubscriptions()
     await afterFlushPromise()
@@ -110,7 +111,7 @@ describe 'chat', ->
   describe '/join', ->
     it 'joins puzzle', ->
       puzz = share.model.Puzzles.findOne name: 'Painted Potsherds'
-      share.Router.ChatPage('general', '0')
+      FlowRouter.go 'Chat', {type: 'general', id: '0'}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -122,7 +123,7 @@ describe 'chat', ->
 
     it 'joins round', ->
       rnd = share.model.Rounds.findOne name: 'Civilization'
-      share.Router.ChatPage('general', '0')
+      FlowRouter.go 'Chat', {type: 'general', id: '0'}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -134,7 +135,7 @@ describe 'chat', ->
 
     it 'joins general', ->
       rnd = share.model.Rounds.findOne name: 'Civilization'
-      share.Router.ChatPage('rounds', rnd._id)
+      FlowRouter.go 'Chat', {type: 'rounds', id: rnd._id}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -145,7 +146,7 @@ describe 'chat', ->
       chai.assert.equal Session.get('id'), 0
 
     it 'joins puzzle', ->
-      share.Router.ChatPage('general', '0')
+      FlowRouter.go 'Chat', {type: 'general', id: '0'}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -161,7 +162,7 @@ describe 'chat', ->
 
     it 'accepts keyboard commands', ->
       id = share.model.Puzzles.findOne(name: 'Disgust')._id
-      share.Router.ChatPage('puzzles', id)
+      FlowRouter.go 'Chat', {type: 'puzzles', id: id}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -195,7 +196,7 @@ describe 'chat', ->
 
     it 'allows clicks', ->
       id = share.model.Puzzles.findOne(name: 'Space Elevator')._id
-      share.Router.ChatPage('puzzles', id)
+      FlowRouter.go 'Chat', {type: 'puzzles', id: id}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -214,7 +215,7 @@ describe 'chat', ->
 
     it 'mentions', ->
       id = share.model.Puzzles.findOne(name: 'Showcase')._id
-      share.Router.ChatPage('puzzles', id)
+      FlowRouter.go 'Chat', {type: 'puzzles', id: id}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -228,7 +229,7 @@ describe 'chat', ->
 
     it 'nonexistent mentions', ->
       id = share.model.Puzzles.findOne(name: 'Soooo Cute!')._id
-      share.Router.ChatPage('puzzles', id)
+      FlowRouter.go 'Chat', {type: 'puzzles', id: id}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -241,7 +242,7 @@ describe 'chat', ->
 
     it 'action', ->
       id = share.model.Puzzles.findOne(name: 'This SHOULD Be Easy')._id
-      share.Router.ChatPage('puzzles', id)
+      FlowRouter.go 'Chat', {type: 'puzzles', id: id}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -257,7 +258,7 @@ describe 'chat', ->
 
     it 'messages', ->
       id = share.model.Puzzles.findOne(name: 'Charm School')._id
-      share.Router.ChatPage('puzzles', id)
+      FlowRouter.go 'Chat', {type: 'puzzles', id: id}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -272,7 +273,7 @@ describe 'chat', ->
 
     it 'errors on message to nobody', ->
       id = share.model.Puzzles.findOne(name: 'Charm School')._id
-      share.Router.ChatPage('puzzles', id)
+      FlowRouter.go 'Chat', {type: 'puzzles', id: id}
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -285,7 +286,7 @@ describe 'chat', ->
   describe 'polls', ->
     it 'lets you change your vote', ->
       id = share.model.Puzzles.findOne(name: 'Amateur Hour')._id
-      share.Router.ChatPage('puzzles', id)
+      FlowRouter.go 'Chat', {type: 'puzzles', id: id}
       await waitForSubscriptions()
       await afterFlushPromise()
       poll = await promiseCall 'newPoll', "puzzles/#{id}", 'Flip a coin', ['heads', 'tails']

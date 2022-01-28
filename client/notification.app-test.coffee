@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -11,7 +12,7 @@ describe 'notifications dropdown', ->
   @timeout 10000
   before ->
     await login('testy', 'Teresa Tybalt', 'fake@artifici.al', 'failphrase')
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
 
   after ->
     logout()
@@ -50,7 +51,7 @@ describe 'notifications', ->
       nickname: 'someoneelse'
       real_name: 'Someone Else'
       password: 'failphrase'
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
   
   after ->
     logout()

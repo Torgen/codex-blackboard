@@ -4,7 +4,6 @@
 # but you can also edit it by hand.
 
 coffeescript@2.0.2_1
-backbone
 less
 bootstrap
 http@1.4.2
@@ -36,9 +35,9 @@ meteortesting:mocha
 fds:coffeescript-share
 xolvio:cleaner
 accounts-base@2.2.0
-underscore@1.0.10
 meteortesting:mocha-core
 facts-base@1.0.1
 facts-ui@1.0.0
 lmieulet:meteor-coverage
 lmieulet:meteor-legacy-coverage
+ostrio:flow-router-extra

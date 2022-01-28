@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 # Cannot destructure for testing purposes.
 import jitsiModule, {jitsiUrl, jitsiRoom} from './imports/jitsi.coffee'
 import { gravatarUrl, hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
@@ -418,7 +419,7 @@ Template.embedded_chat.helpers
   pinnedRoomUrl: ->
     instance = Template.instance()
     return Meteor._relativeToSiteRootUrl '/' if instance.jitsiType() is 'general'
-    share.Router.urlFor instance.jitsiType(), instance.jitsiId()
+    FlowRouter.path 'Any', {type: instance.jitsiType(), id: instance.jitsiId()}
 
 Template.embedded_chat.events
   'click .bb-join-jitsi': (event, template) ->
@@ -470,7 +471,7 @@ prettyRoomName = ->
   return (name or "unknown")
 
 joinRoom = (type, id) ->
-  share.Router.goToChat type, id
+  FlowRouter.go 'Chat', {type, id}
   Tracker.afterFlush -> scrollMessagesView()
   $("#messageInput").select()
 

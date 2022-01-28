@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import PuzzleDrag from './puzzle_drag.coffee'
 import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './app_test_helpers.coffee'
 import chai from 'chai'
@@ -16,7 +17,7 @@ describe 'drag-and-drop', ->
     logout()
 
   it 'allows drag and drop within a meta', ->
-    share.Router.EditPage()
+    FlowRouter.go 'Edit'
     await waitForSubscriptions()
     await afterFlushPromise()
     round = -> share.model.Rounds.findOne name: 'Civilization'

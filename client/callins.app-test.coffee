@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
@@ -12,7 +13,7 @@ describe 'callins', ->
     logout()
 
   it 'marks puzzle solved', ->
-    share.Router.CallInPage()
+    FlowRouter.go 'CallIns'
     await waitForSubscriptions()
     pb = share.model.Puzzles.findOne name: 'Puzzle Box'
     chai.assert.isNotOk pb.solved

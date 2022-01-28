@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import jitsiModule from './imports/jitsi.coffee'
 import chai from 'chai'
@@ -44,7 +45,7 @@ describe 'jitsi', ->
       displayName: 'Teresa Tybalt (testy)'
       avatarUrl: GRAVATAR_200
 
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
@@ -52,21 +53,21 @@ describe 'jitsi', ->
 
   it 'shares meeting between blackboard and edit', ->
     mock = expectFactory()
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
-    share.Router.EditPage()
+    FlowRouter.go 'Edit'
     await afterFlushPromise()
     chai.assert.equal factory.callCount, 1
 
   it 'shares meeting between blackboard and callins', ->
     mock = expectFactory()
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
-    share.Router.CallInPage()
+    FlowRouter.go 'CallIns'
     await waitForSubscriptions()
     await afterFlushPromise()
     chai.assert.equal factory.callCount, 1
@@ -74,7 +75,7 @@ describe 'jitsi', ->
   it 'joins new meeting when moving from blackboard to puzzle', ->
     mock1 = expectFactory()
     dispose1 = mock1.expects('dispose').never()
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
@@ -84,7 +85,7 @@ describe 'jitsi', ->
     dispose2 = mock2.expects('dispose').never()
     mock2.expects('executeCommand').once().withArgs 'subject', 'In Memoriam'
     puzz = share.model.Puzzles.findOne name: 'In Memoriam'
-    share.Router.PuzzlePage puzz._id
+    FlowRouter.go 'Puzzle', {id: puzz._id}
     await afterFlushPromise()
     await waitForSubscriptions()
     dispose1.verify()
@@ -94,14 +95,14 @@ describe 'jitsi', ->
   it 'stays in meeting when pinned', ->
     mock1 = expectFactory()
     dispose1 = mock1.expects('dispose').never()
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
     $('.bb-jitsi-pin').click()
     await afterFlushPromise()
     puzz = share.model.Puzzles.findOne name: 'In Memoriam'
-    share.Router.PuzzlePage puzz._id
+    FlowRouter.go 'Puzzle', {id: puzz._id}
     await afterFlushPromise()
     await waitForSubscriptions()
     dispose1.verify()
@@ -115,7 +116,7 @@ describe 'jitsi', ->
     mock1 = expectFactory()
     on1 = mock1.expects('on').once().withArgs 'videoConferenceLeft', sinon.match.func
     dispose1 = mock1.expects('dispose').never()
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
@@ -126,7 +127,7 @@ describe 'jitsi', ->
     await afterFlushPromise()
     dispose1.verify()
     puzz = share.model.Puzzles.findOne name: 'In Memoriam'
-    share.Router.PuzzlePage puzz._id
+    FlowRouter.go 'Puzzle', {id: puzz._id}
     await afterFlushPromise()
     await waitForSubscriptions()
     mock2 = expectFactory()
@@ -136,7 +137,7 @@ describe 'jitsi', ->
   it 'disposes when another tab joins meeting', ->
     mock1 = expectFactory()
     dispose1 = mock1.expects('dispose').never()
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
@@ -147,7 +148,7 @@ describe 'jitsi', ->
       await afterFlushPromise()
       dispose1.verify()
       puzz = share.model.Puzzles.findOne name: 'In Memoriam'
-      share.Router.PuzzlePage puzz._id
+      FlowRouter.go 'Puzzle', {id: puzz._id}
       await afterFlushPromise()
       await waitForSubscriptions()
     finally
@@ -155,7 +156,7 @@ describe 'jitsi', ->
 
   it 'join button clobbers other tab', ->
     reactiveLocalStorage.setItem 'jitsiTabUUID', Random.id()
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
@@ -167,7 +168,7 @@ describe 'jitsi', ->
   it 'doesn\'t rejoin when mute preference changes', ->
     mock1 = expectFactory()
     dispose1 = mock1.expects('dispose').never()
-    share.Router.BlackboardPage()
+    FlowRouter.go 'Blackboard'
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()

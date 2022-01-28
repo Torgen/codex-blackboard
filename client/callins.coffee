@@ -1,5 +1,6 @@
 'use strict'
 
+import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import { MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
@@ -51,14 +52,14 @@ Template.callins.helpers
       sort: [["last_used","asc"],["created","asc"]]
       limit: 5
   quipAddUrl: ->
-    share.Router.urlFor 'quips', 'new'
+    FlowRouter.path 'Quip', {id: 'new'}
 
 Template.callins.onRendered ->
   $("title").text("Answer queue")
 
 Template.callins.events
   "click .bb-addquip-btn": (event, template) ->
-     share.Router.goTo "quips", "new"
+     FlowRouter.go 'Quip', {id: 'new'}
 
 Template.callins_quip.events
   "click .bb-quip-next": (event, template) ->
