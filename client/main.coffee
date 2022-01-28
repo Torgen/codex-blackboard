@@ -1,5 +1,7 @@
 'use strict'
 
+import { Backbone } from 'backbone'
+import debounce from 'lodash.debounce'
 import { gravatarUrl, nickHash, md5 } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
@@ -165,7 +167,7 @@ debouncedUpdate = ->
   now = new ReactiveVar share.model.UTCNow()
   update = do ->
     next = now.get()
-    push = _.debounce (-> now.set next), 1000
+    push = debounce (-> now.set next), 1000
     (newNext) ->
       if newNext > next
         next = newNext
