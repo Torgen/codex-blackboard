@@ -15,11 +15,11 @@ Template.quip.helpers
 
 Template.quip.events
   "click .bb-addquip-btn": (event, template) ->
-    FlowRouter.go 'Quips', {id: 'new'}
+    FlowRouter.go 'Quip', {id: 'new'}
   "click .bb-quip-delete-btn": (event, template) ->
     Meteor.call "removeQuip", Session.get('id'), (error, result) ->
       unless error?
-        FlowRouter.go 'Quips', {id: 'new'}
+        FlowRouter.go 'Quip', {id: 'new'}
 
   "keydown form.bb-add-new-quip": (event, template) ->
     # implicit submit on enter.
@@ -33,7 +33,7 @@ Template.quip.events
     $textarea.val ''
     q = Meteor.call 'newQuip', text, (error, result) ->
       unless error?
-        FlowRouter.go 'Quips', {id: result._id}
+        FlowRouter.go 'Quip', {id: result._id}
 
   "click .bb-editable": (event, template) ->
     value = share.find_bbedit(event).join('/')
