@@ -1,4 +1,4 @@
-import abbrev from './abbrev.coffee'
+import abbrev from '/lib/imports/abbrev.coffee'
 import chai from 'chai'
 
 describe 'abbrev', ->

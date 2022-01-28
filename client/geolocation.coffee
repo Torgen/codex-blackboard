@@ -1,9 +1,9 @@
 'use strict'
 
 import canonical from '../lib/imports/canonical.coffee'
-import { lat, lng, distance } from './imports/location.coffee'
-import botuser from './imports/botuser.coffee'
-import keyword_or_positional from './imports/keyword_or_positional.coffee'
+import { lat, lng, distance } from '/client/imports/location.coffee'
+import botuser from '/client/imports/botuser.coffee'
+import keyword_or_positional from '/client/imports/keyword_or_positional.coffee'
 
 model = share.model # import
 settings = share.settings # import

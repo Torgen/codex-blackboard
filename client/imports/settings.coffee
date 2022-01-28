@@ -1,5 +1,5 @@
 'use strict'
-import { reactiveLocalStorage } from './storage.coffee'
+import { reactiveLocalStorage } from '/client/imports/storage.coffee'
 
 class Setting
   constructor: (@name, helper) ->

@@ -3,7 +3,7 @@
 
 return unless share.DO_BATCH_PROCESSING
 
-import Robot from './imports/hubot.coffee'
+import Robot from '/server/imports/hubot.coffee'
 import hubot_help from 'hubot-help'
 # Required so external hubot scripts written in coffeescript can be loaded
 # dynamically.

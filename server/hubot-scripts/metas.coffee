@@ -1,6 +1,6 @@
 
-import {rejoin, strip, thingRE, objectFromRoom, puzzleOrThis } from '../imports/botutil.coffee'
-import { callAs } from '../imports/impersonate.coffee'
+import {rejoin, strip, thingRE, objectFromRoom, puzzleOrThis } from '/server/imports/botutil.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 
 makeMeta = (msg) ->
   name = msg.match[1]

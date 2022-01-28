@@ -1,6 +1,6 @@
 'use strict'
 
-import objectColor from './imports/objectColor.coffee'
+import objectColor from '/client/imports/objectColor.coffee'
 import abbrev from '/lib/imports/abbrev.coffee'
 
 Template.graph.events

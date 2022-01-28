@@ -1,4 +1,4 @@
-import * as tags from './tags.coffee'
+import * as tags from '/lib/imports/tags.coffee'
 import chai from 'chai'
 
 describe 'getTag', ->

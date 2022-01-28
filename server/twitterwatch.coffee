@@ -12,7 +12,7 @@
 # }
 
 import { TwitterApi, ETwitterStreamEvent } from 'twitter-api-v2';
-import tweetToMessage from './imports/twitter.coffee'
+import tweetToMessage from '/server/imports/twitter.coffee'
 
 return unless share.DO_BATCH_PROCESSING
 settings = Meteor.settings?.twitter ? {}

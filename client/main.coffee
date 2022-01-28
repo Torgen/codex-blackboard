@@ -1,16 +1,16 @@
 'use strict'
 
-import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
 import md5 from 'md5'
-import abbrev from '../lib/imports/abbrev.coffee'
+import { gravatarUrl, nickHash } from '/client/imports/nickEmail.coffee'
+import abbrev from '/lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
 import { mechanics } from '../lib/imports/mechanics.coffee'
 import { fileType } from '../lib/imports/mime_type.coffee'
-import { reactiveLocalStorage } from './imports/storage.coffee'
-import textify from './imports/textify.coffee'
-import embeddable from './imports/embeddable.coffee'
-import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import { reactiveLocalStorage } from '/client/imports/storage.coffee'
+import textify from '/client/imports/textify.coffee'
+import embeddable from '/client/imports/embeddable.coffee'
+import { DARK_MODE, MUTE_SOUND_EFFECTS } from '/client/imports/settings.coffee'
 
 settings = share.settings # import
 model = share.model

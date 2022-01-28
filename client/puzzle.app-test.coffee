@@ -1,6 +1,6 @@
 'use strict'
 
-import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee'
 import chai from 'chai'
 
 modalHiddenPromise = -> new Promise (resolve) -> $('#callin_modal').one 'hidden', resolve

@@ -1,7 +1,7 @@
 'use strict'
 import canonical from '/lib/imports/canonical.coffee'
 import { NonEmptyString } from '/lib/imports/match.coffee'
-import emojify from './emoji.coffee'
+import emojify from '/server/imports/emoji.coffee'
 import sanitize from 'sanitize-html'
 
 params = {...sanitize.defaults}

@@ -1,13 +1,13 @@
 'use strict'
 
 # Cannot destructure for testing purposes.
-import jitsiModule, {jitsiUrl, jitsiRoom} from './imports/jitsi.coffee'
-import { gravatarUrl, hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
-import botuser from './imports/botuser.coffee'
+import jitsiModule, {jitsiUrl, jitsiRoom} from '/client/imports/jitsi.coffee'
+import { gravatarUrl, hashFromNickObject, nickAndName } from '/client/imports/nickEmail.coffee'
+import botuser from '/client/imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
-import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
-import { reactiveLocalStorage } from './imports/storage.coffee'
-import {chunk_text, chunk_html} from './imports/chunk_text.coffee'
+import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from '/client/imports/settings.coffee'
+import { reactiveLocalStorage } from '/client/imports/storage.coffee'
+import {chunk_text, chunk_html} from '/client/imports/chunk_text.coffee'
 
 model = share.model # import
 settings = share.settings # import

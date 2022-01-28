@@ -1,6 +1,6 @@
 'use strict'
 
-import objectColor, {cssColorToHex, hexToCssColor } from './objectColor.coffee'
+import objectColor, {cssColorToHex, hexToCssColor } from '/client/imports/objectColor.coffee'
 import chai from 'chai'
 
 describe 'objectColor', ->

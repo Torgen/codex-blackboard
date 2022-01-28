@@ -1,6 +1,6 @@
 'use strict'
 
-import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from '/client/imports/app_test_helpers.coffee'
 import chai from 'chai'
 import delay from 'delay'
 

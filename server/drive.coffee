@@ -1,9 +1,9 @@
 'use strict'
 
-import { Drive, FailDrive } from './imports/drive.coffee'
-import DriveChangeWatcher from './imports/drive_change_polling.coffee'
-import { RETRY_RESPONSE_CODES } from './imports/googlecommon.coffee'
-import googleauth from './imports/googleauth.coffee'
+import { Drive, FailDrive } from '/server/imports/drive.coffee'
+import DriveChangeWatcher from '/server/imports/drive_change_polling.coffee'
+import { RETRY_RESPONSE_CODES } from '/server/imports/googlecommon.coffee'
+import googleauth from '/server/imports/googleauth.coffee'
 import { google } from 'googleapis'
 
 # helper functions to perform Google Drive operations

@@ -1,7 +1,7 @@
 'use strict'
 
-import canonical from './canonical.coffee'
-import { ObjectWith, NonEmptyString } from './match.coffee'
+import canonical from '/lib/imports/canonical.coffee'
+import { ObjectWith, NonEmptyString } from '/lib/imports/match.coffee'
 
 export getTag = (object, name) -> object?.tags?[canonical(name)]?.value
 

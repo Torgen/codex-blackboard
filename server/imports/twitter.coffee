@@ -1,6 +1,6 @@
 'use strict'
 
-import { newMessage } from './newMessage.coffee'
+import { newMessage } from '/server/imports/newMessage.coffee'
 
 linkify = do ->
   # linkify hashtags, URLs, and usernames.  Do this all in one pass so

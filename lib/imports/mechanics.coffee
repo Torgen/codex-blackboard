@@ -1,6 +1,6 @@
 'use strict'
 
-import canonical from './canonical.coffee'
+import canonical from '/lib/imports/canonical.coffee'
 
 export mechanics = {}
 

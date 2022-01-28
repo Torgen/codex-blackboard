@@ -1,10 +1,10 @@
 'use strict'
 
-import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
-import jitsiModule from './imports/jitsi.coffee'
+import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee'
+import jitsiModule from '/client/imports/jitsi.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
-import {reactiveLocalStorage} from './imports/storage.coffee'
+import {reactiveLocalStorage} from '/client/imports/storage.coffee'
 
 GRAVATAR_200 = 'https://secure.gravatar.com/avatar/a24f643d34150c3b4053989db38251c9.jpg?d=wavatar&s=200'
 

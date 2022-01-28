@@ -1,7 +1,7 @@
 'use strict'
 return unless share.DO_BATCH_PROCESSING
 
-import watchPresence from './imports/presence.coffee'
+import watchPresence from '/server/imports/presence.coffee'
 
 model = share.model
 

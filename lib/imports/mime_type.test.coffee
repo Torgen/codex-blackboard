@@ -1,4 +1,4 @@
-import { fileType } from './mime_type.coffee'
+import { fileType } from '/lib/imports/mime_type.coffee'
 import chai from 'chai'
 
 describe 'fileType', ->

@@ -1,6 +1,6 @@
 'use strict'
 
-import { crypt, decrypt } from './crypt.coffee'
+import { crypt, decrypt } from '/server/imports/crypt.coffee'
 import { TextEncoder } from 'util'
 import chai from 'chai'
 

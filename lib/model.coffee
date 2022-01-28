@@ -1,12 +1,12 @@
 'use strict'
 
-import canonical from './imports/canonical.coffee'
-import isDuplicateError from './imports/duplicate.coffee'
-import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
-import { IsMechanic } from './imports/mechanics.coffee'
-import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
-import { RoundUrlPrefix, PuzzleUrlPrefix, UrlSeparator } from './imports/settings.coffee'
-import * as callin_types from './imports/callin_types.coffee'
+import canonical from '/lib/imports/canonical.coffee'
+import isDuplicateError from '/lib/imports/duplicate.coffee'
+import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from '/lib/imports/match.coffee'
+import { IsMechanic } from '/lib/imports/mechanics.coffee'
+import { getTag, isStuck, canonicalTags } from '/lib/imports/tags.coffee'
+import { RoundUrlPrefix, PuzzleUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee'
+import * as callin_types from '/lib/imports/callin_types.coffee'
 if Meteor.isServer
   {newMessage, ensureDawnOfTime} = require('/server/imports/newMessage.coffee')
 else

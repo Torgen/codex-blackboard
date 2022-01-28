@@ -1,6 +1,6 @@
 'use strict'
 
-import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.coffee'
+import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from '/server/imports/googlecommon.coffee'
 
 # Cambridge is on Eastern time.
 CALENDAR_TIME_ZONE = Meteor.settings.calendar?.time_zone or process.env.CALENDAR_TIME_ZONE or 'America/New_York'

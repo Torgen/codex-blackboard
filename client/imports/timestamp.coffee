@@ -1,6 +1,6 @@
 'use strict'
 
-import keyword_or_positional from './keyword_or_positional.coffee'
+import keyword_or_positional from '/client/imports/keyword_or_positional.coffee'
 
 today_fmt = Intl.DateTimeFormat navigator.language,
   hour: 'numeric'

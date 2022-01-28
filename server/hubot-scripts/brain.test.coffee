@@ -1,11 +1,11 @@
 'use strict'
 
 import './000setup.coffee'  # for side effects
-import script, { brain } from './brain.coffee'
+import script, { brain } from '/server/imports/brain.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-import Robot from '../imports/hubot.coffee'
+import Robot from '/server/imports/hubot.coffee'
 import { waitForDocument } from '/lib/imports/testutils.coffee'
 import delay from 'delay'
 

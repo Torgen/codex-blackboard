@@ -1,8 +1,8 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
-import color from './imports/objectColor.coffee'
-import embeddable from './imports/embeddable.coffee'
+import color from '/client/imports/objectColor.coffee'
+import embeddable from '/client/imports/embeddable.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
 model = share.model # import

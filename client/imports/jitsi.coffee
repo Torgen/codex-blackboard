@@ -2,7 +2,7 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import { StaticJitsiMeeting } from '/lib/imports/settings.coffee'
-import { START_AUDIO_MUTED, START_VIDEO_MUTED } from './settings.coffee'
+import { START_AUDIO_MUTED, START_VIDEO_MUTED } from '/client/imports/settings.coffee'
 
 export jitsiRoom = (roomType, roomId) ->
   return unless roomId

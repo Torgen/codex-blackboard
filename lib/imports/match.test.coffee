@@ -1,4 +1,4 @@
-import * as match from './match.coffee'
+import * as match from '/lib/imports/match.coffee'
 import chai from 'chai'
 
 describe 'NonEmptyString', ->

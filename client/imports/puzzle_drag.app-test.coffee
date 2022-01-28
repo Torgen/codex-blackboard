@@ -1,7 +1,7 @@
 'use strict'
 
-import PuzzleDrag from './puzzle_drag.coffee'
-import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './app_test_helpers.coffee'
+import PuzzleDrag from '/client/imports/puzzle_drag.coffee'
+import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from '/client/imports/app_test_helpers.coffee'
 import chai from 'chai'
 
 # Because the security model doesn't let you create a DragEvent from JS, we have to extract the relevant bits from the

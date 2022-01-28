@@ -3,7 +3,7 @@
 import '../000batch.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
-import { Drive } from './drive.coffee'
+import { Drive } from '/server/imports/drive.coffee'
 import { Readable } from 'stream'
 
 OWNER_PERM =

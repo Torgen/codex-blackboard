@@ -8,7 +8,7 @@ import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import delay from 'delay'
 import { waitForDocument } from '/lib/imports/testutils.coffee'
-import watchPresence from './presence.coffee'
+import watchPresence from '/server/imports/presence.coffee'
 
 model = share.model
 

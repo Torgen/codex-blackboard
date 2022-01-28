@@ -5,7 +5,7 @@ import '/lib/model.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-import tweetToMessage from './twitter.coffee'
+import tweetToMessage from '/server/imports/twitter.coffee'
 
 model = share.model
 

@@ -1,8 +1,8 @@
 'use strict'
 
-import { CalendarSync } from './imports/calendar.coffee'
-import googleauth from './imports/googleauth.coffee'
-import { RETRY_RESPONSE_CODES } from './imports/googlecommon.coffee'
+import { CalendarSync } from '/server/imports/calendar.coffee'
+import googleauth from '/server/imports/googleauth.coffee'
+import { RETRY_RESPONSE_CODES } from '/server/imports/googlecommon.coffee'
 import { google } from 'googleapis'
 
 

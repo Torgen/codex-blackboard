@@ -1,4 +1,4 @@
-import emojify from './emoji.coffee'
+import emojify from '/server/imports/emoji.coffee'
 import chai from 'chai'
 
 describe 'emojify', ->

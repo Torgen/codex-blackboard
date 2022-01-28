@@ -1,6 +1,6 @@
 'use strict'
 
-import { distance } from './location.coffee'
+import { distance } from '/client/imports/location.coffee'
 import chai from 'chai'
 
 KRESGE =

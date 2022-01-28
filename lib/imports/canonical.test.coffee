@@ -1,4 +1,4 @@
-import canonical from './canonical.coffee'
+import canonical from '/lib/imports/canonical.coffee'
 import chai from 'chai'
 
 describe 'canonical', ->

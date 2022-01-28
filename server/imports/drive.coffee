@@ -2,7 +2,7 @@
 
 import { Readable } from 'stream'
 import delay from 'delay'
-import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.coffee'
+import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from '/server/imports/googlecommon.coffee'
 
 # Drive folder settings
 WORKSHEET_NAME = (name) -> "Worksheet: #{name}"

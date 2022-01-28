@@ -1,7 +1,7 @@
 'use strict'
 
-import canonical from '../../lib/imports/canonical.coffee'
 import md5 from 'md5'
+import canonical from '/lib/imports/canonical.coffee'
 
 export gravatarUrl = ({gravatar_md5, size}) -> "https://secure.gravatar.com/avatar/#{gravatar_md5}.jpg?d=wavatar&s=#{size}"
 

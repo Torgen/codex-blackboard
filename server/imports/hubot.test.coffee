@@ -5,7 +5,7 @@ import '/lib/model.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-import Robot from './hubot.coffee'
+import Robot from '/server/imports/hubot.coffee'
 import delay from 'delay'
 import { waitForDocument } from '/lib/imports//testutils.coffee'
 

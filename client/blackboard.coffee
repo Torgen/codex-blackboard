@@ -1,11 +1,11 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
-import { jitsiUrl } from './imports/jitsi.coffee'
-import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
-import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
-import { reactiveLocalStorage } from './imports/storage.coffee'
-import PuzzleDrag from './imports/puzzle_drag.coffee'
+import { jitsiUrl } from '/client/imports/jitsi.coffee'
+import puzzleColor, { cssColorToHex, hexToCssColor } from '/client/imports/objectColor.coffee'
+import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from '/client/imports/settings.coffee'
+import { reactiveLocalStorage } from '/client/imports/storage.coffee'
+import PuzzleDrag from '/client/imports/puzzle_drag.coffee'
 
 model = share.model # import
 settings = share.settings # import

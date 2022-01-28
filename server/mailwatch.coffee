@@ -15,7 +15,7 @@
 # package.
 
 import { MailListener } from 'mail-listener6'
-import { newMessage } from './imports/newMessage.coffee'
+import { newMessage } from '/server/imports/newMessage.coffee'
 
 watch = Meteor.settings?.watch ? {}
 watch.username ?= process.env.MAILWATCH_USERNAME

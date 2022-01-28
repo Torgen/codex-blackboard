@@ -1,6 +1,6 @@
 'use strict'
 
-import { decrypt } from './crypt.coffee'
+import { decrypt } from '/server/imports/crypt.coffee'
 import { google } from 'googleapis'
 
 # Credentials

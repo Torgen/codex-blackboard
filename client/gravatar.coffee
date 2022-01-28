@@ -1,6 +1,6 @@
 'use strict'
 
-import {gravatarUrl, hashFromNickObject} from './imports/nickEmail.coffee'
+import {gravatarUrl, hashFromNickObject} from '/client/imports/nickEmail.coffee'
 
 Template.gravatar.helpers
   gravatar_md5: ->

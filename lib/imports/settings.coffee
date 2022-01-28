@@ -1,7 +1,7 @@
 'use strict'
 
-import canonical from './canonical.coffee'
-import { NonEmptyString } from './match.coffee'
+import canonical from '/lib/imports/canonical.coffee'
+import { NonEmptyString } from '/lib/imports/match.coffee'
 import { URL } from 'meteor/url'
 
 # Global dynamic settings

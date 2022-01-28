@@ -1,6 +1,6 @@
 'use strict'
 
-import {positionOrDefault} from './map.coffee'
+import {positionOrDefault} from '/client/imports/map.coffee'
 import chai from 'chai'
 
 describe 'positionOrDefault', ->

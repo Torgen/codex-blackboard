@@ -1,6 +1,6 @@
 'use strict'
 
-import {chunk_text} from './imports/chunk_text.coffee'
+import {chunk_text} from '/client/imports/chunk_text.coffee'
 
 Template.text_chunks.helpers
   chunks: -> chunk_text @

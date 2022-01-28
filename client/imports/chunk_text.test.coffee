@@ -1,6 +1,6 @@
 'use strict'
 
-import {chunk_text, chunk_html} from './chunk_text.coffee'
+import {chunk_text, chunk_html} from '/client/imports/chunk_text.coffee'
 import chai from 'chai'
 
 describe 'chunk_text', ->

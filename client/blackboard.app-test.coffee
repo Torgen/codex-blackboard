@@ -1,8 +1,8 @@
 'use strict'
 
-import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from '/client/imports/app_test_helpers.coffee'
 import chai from 'chai'
-import { reactiveLocalStorage } from './imports/storage.coffee'
+import { reactiveLocalStorage } from '/client/imports/storage.coffee'
 
 fill_alertify = (text) ->
   $('#alertify-text').val(text)

@@ -6,10 +6,10 @@ import '/lib/model.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-import Robot from '../imports/hubot.coffee'
+import Robot from '/server/imports/hubot.coffee'
 import { waitForDocument } from '/lib/imports/testutils.coffee'
 import { all_settings, EmbedPuzzles, MaximumMemeLength, PuzzleUrlPrefix, RoundUrlPrefix } from '/lib/imports/settings.coffee'
-import { impersonating } from '../imports/impersonate.coffee'
+import { impersonating } from '/server/imports/impersonate.coffee'
 
 model = share.model
 

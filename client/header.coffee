@@ -2,11 +2,11 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import md5 from 'md5'
-import { jitsiUrl } from './imports/jitsi.coffee'
-import { hashFromNickObject } from './imports/nickEmail.coffee'
-import botuser from './imports/botuser.coffee'
-import keyword_or_positional from './imports/keyword_or_positional.coffee'
-import './imports/timestamp.coffee'
+import { jitsiUrl } from '/client/imports/jitsi.coffee'
+import { hashFromNickObject } from '/client/imports/nickEmail.coffee'
+import botuser from '/client/imports/botuser.coffee'
+import keyword_or_positional from '/client/imports/keyword_or_positional.coffee'
+import '/client/imports/timestamp.coffee'
 
 model = share.model # import
 settings = share.settings # import

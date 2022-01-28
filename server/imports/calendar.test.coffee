@@ -7,7 +7,7 @@ import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import delay from 'delay'
 import { waitForDocument } from '/lib/imports/testutils.coffee'
-import { CalendarSync } from './calendar.coffee'
+import { CalendarSync } from '/server/imports/calendar.coffee'
 
 describe 'CalendarSync', ->
   clock = null

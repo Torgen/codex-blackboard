@@ -1,6 +1,6 @@
 'use strict'
 
-import { MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import { MUTE_SOUND_EFFECTS } from '/client/imports/settings.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
 model = share.model # import

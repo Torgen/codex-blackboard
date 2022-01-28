@@ -1,7 +1,7 @@
 # cscott's very simple splitter widget
 'use strict'
 
-import { reactiveLocalStorage } from './imports/storage.coffee'
+import { reactiveLocalStorage } from '/client/imports/storage.coffee'
 
 class Dimension
   constructor: (@targetClass, @posProperty, @splitterProperty, @limitVar) ->

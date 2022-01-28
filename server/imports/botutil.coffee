@@ -1,6 +1,6 @@
 'use strict'
 
-import { callAs } from './impersonate.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 
 # helper function: concat regexes
 export rejoin = (regs...) ->
