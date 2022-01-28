@@ -1,7 +1,7 @@
 'use strict'
 
 import './000setup.coffee'  # for side effects
-import script, { brain } from '/server/imports/brain.coffee'
+import script, { brain } from './brain.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
