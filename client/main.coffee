@@ -257,7 +257,7 @@ Meteor.startup ->
           target = share.model.Names.findOne id
           if target.type is type
             pretty_type = share.model.pretty_collection(type).replace /^[a-z]/, (x) -> x.toUpperCase()
-            ["#{pretty_type} \"#{target.name}\"", Meteor.path('Any', {type, id})]
+            ["#{pretty_type} \"#{target.name}\"", FlowRouter.path('Any', {type, id})]
           else
             [message.room_name, FlowRouter.path('Chat', {type, id})]
         gravatar = gravatarUrl
