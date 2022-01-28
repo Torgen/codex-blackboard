@@ -1,7 +1,6 @@
 'use strict'
 
 import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
-import debounce from 'lodash.debounce'
 import canonical from '/lib/imports/canonical.coffee'
 import md5 from '/lib/imports/md5.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
@@ -396,7 +395,7 @@ Template.header_nickmodal_contents.events
     $('#nickEmail').select() if event.which is 13
   "keydown #nickEmail": (event, template) ->
     $('#nickPick').submit() if event.which is 13
-  "input #nickEmail": debounce ((event, template) -> template.updateGravatar()), 500
+  "input #nickEmail": _.debounce ((event, template) -> template.updateGravatar()), 500
   'submit #nickPick': (event, template) ->
     nick = $("#nickInput").val().replace(/^\s+|\s+$/g,"") #trim
     return false unless nick

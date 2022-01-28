@@ -41,3 +41,4 @@ facts-ui@1.0.0
 lmieulet:meteor-coverage
 lmieulet:meteor-legacy-coverage
 ostrio:flow-router-extra
+underscore

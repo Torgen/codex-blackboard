@@ -1,6 +1,5 @@
 'use strict'
 
-import debounce from 'lodash.debounce'
 import { FlowRouter } from 'meteor/ostrio:flow-router-extra'
 import { gravatarUrl, nickHash, md5 } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
@@ -167,7 +166,7 @@ debouncedUpdate = ->
   now = new ReactiveVar share.model.UTCNow()
   update = do ->
     next = now.get()
-    push = debounce (-> now.set next), 1000
+    push = _.debounce (-> now.set next), 1000
     (newNext) ->
       if newNext > next
         next = newNext
