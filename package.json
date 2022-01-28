@@ -16,6 +16,7 @@
     "denodeify": "^1.2.1",
     "gemoji": "^7.1.0",
     "googleapis": "^94.0.0",
+    "grapnel": "^0.7.6",
     "hubot": "^3.3.2",
     "hubot-help": "^1.0.1",
     "mail-listener6": "^2.0.3",

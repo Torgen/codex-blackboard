@@ -2,6 +2,7 @@
 
 import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
 import md5 from 'md5'
+import * as grapnel from 'grapnel'
 import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
@@ -345,20 +346,22 @@ scrollAfter = (x) ->
         behavior: 'smooth'
 
 # Router
-BlackboardRouter = Backbone.Router.extend
-  routes:
-    "": "BlackboardPage"
-    "graph": "GraphPage"
-    "map": "MapPage"
-    "edit": "EditPage"
-    "rounds/:round": "RoundPage"
-    "puzzles/:puzzle": "PuzzlePage"
-    "puzzles/:puzzle/:view": "PuzzlePage"
-    "chat/:type/:id": "ChatPage"
-    "oplogs": "OpLogPage"
-    "callins": "CallInPage"
-    "quips/:id": "QuipPage"
-    "facts": "FactsPage"
+class BlackboardRouter extends grapnel.default.default
+  constructor: ->
+    super {pushState: true, env: 'client' }
+    @get '/', => @BlackboardPage()
+    @get '/edit', => @EditPage()
+    @get '/graph', => @GraphPage()
+    @get '/map', => @MapPage()
+    @get '/rounds/:id', ({params: {id}}) => @RoundPage id
+    @get '/puzzles/:id', ({params: {id}}) => @PuzzlePage id
+    @get '/puzzles/:id/:view', ({params: {id, view}}) => @PuzzlePage id, view
+    @get '/chat/:type/:id', ({params: {type, id}}) => @ChatPage type, id
+    @get '/oplogs', => @OpLogPage()
+    @get '/callins', => @CallInPage()
+    @get '/quips/:id', ({params: {id}}) => @QuipPage id
+    @get '/facts', => @FactsPage()
+    @trigger 'navigate'
 
   BlackboardPage: ->
     scrollAfter =>
@@ -383,6 +386,7 @@ BlackboardRouter = Backbone.Router.extend
   MapPage: -> @Page 'map', 'general', '0', false
 
   PuzzlePage: (id, view=null) ->
+    console.log 'puzzlepage'
     @Page "puzzle", "puzzles", id, true, true
     Session.set
       timestamp: 0
@@ -442,5 +446,4 @@ BlackboardRouter = Backbone.Router.extend
   goToChat: (type, id) ->
     this.navigate(this.chatUrlFor(type, id), {trigger:true})
 
-share.Router = new BlackboardRouter()
-Backbone.history.start {pushState: true}
+share.Router = new BlackboardRouter
