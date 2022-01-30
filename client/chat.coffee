@@ -371,7 +371,7 @@ Template.embedded_chat.onRendered ->
         jitsi.once 'videoConferenceJoined', =>
           return unless @jitsi.get() is jitsi
           @jitsiReady.set true
-        jitsi.on 'videoConferenceLeft', =>
+        jitsi.once 'videoConferenceLeft', =>
           @leaveJitsi()
           reactiveLocalStorage.removeItem 'jitsiTabUUID'
         reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
