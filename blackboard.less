@@ -282,6 +282,8 @@ input[type=color] {
   position: relative;
   background: var(--bg-color);
   overflow-y: auto;
+  display: flex;
+  flex-flow: row wrap;
   @media(max-width: 980px) {
     margin-left: 0px;
     margin-right: 0px;
@@ -301,20 +303,28 @@ input[type=color] {
   padding: 5px;
   font-size: 80%;
 
-  .bb-status-grid-round {
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-  td {
-    padding: 0px;
+  .bb-status-grid-meta-group {
+    display: flex;
+    flex-flow: row nowrap;
+    max-width: fit-content;
+    margin-right: 2px;
   }
   .bb-status-grid-meta {
     padding-right:2px;
+    background-color: var(--slightly-lighter);
+  }
+  .bb-status-grid-puzzles {
+    display: flex;
+    flex-flow: row wrap;
+    background-color: var(--much-lighter);
   }
   .bb-status-grid-cell {
     display: inline-block;
     width: 1.5em;
     text-align: center;
+  }
+  span:not(.bb-status-grid-cell) {
+    margin-right: 2px;
   }
   .bb-status-solved {
     background:#AAFF99;
@@ -324,9 +334,6 @@ input[type=color] {
   }
   .bb-status-stuck {
     background:var(--stuck-yellow);
-  }
-  .bb-status-unsolved {
-    background:var(--bg-color);
   }
 }
 

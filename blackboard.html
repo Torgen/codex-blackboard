@@ -262,34 +262,37 @@
 
 <template name="blackboard_status_grid">
   <div class="bb-status-grid">
-  <table>
-  <tbody>
     {{#each rounds}}
-    <tr><th colspan=2 class="bb-status-grid-round bb-status-{{#if solved}}solved{{else if stuck this}}stuck{{else}}unsolved{{/if}}">{{>link id=_id}}</th></tr>
       {{#each metas}}
-      <tr>
-        <td class="bb-status-grid-meta bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
-            {{>link id=puzzle._id}}
-        </td><td class="bb-status-grid-puzzles">
-        {{#each puzzles puzzle.puzzles}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
-            {{>link id=puzzle._id title=puzzle.name text=puzzle_num}}
-        </div>{{/each}}</td>
-      </tr>
+        <div class="bb-status-grid-meta-group" style="background-color: {{color}}">
+          {{#let p=(puzzles puzzle.puzzles)}}
+          {{#if puzzle.solved}}
+            {{>link class="bb-status-grid-meta" id=_id text=(abbrev puzzle.name)}}
+            <div class="bb-status-grid-puzzles">
+              <span class="bb-status-solved">{{numSolved p}}/{{p.length}}</span>
+              {{#each p}}
+                {{#unless puzzle.solved}}
+                  <span class="bb-status-{{#if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+                    {{>link id=puzzle._id title=puzzle.name text=(abbrev puzzle.name)}}
+                  </span>
+                {{/unless}}
+              {{/each}}
+            </div>
+          {{else}}
+            {{>link class="bb-status-grid-meta" id=_id text=puzzle.name}}
+            <div class="bb-status-grid-puzzles">
+              {{#each (puzzles puzzle.puzzles)}}
+                <span class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+                  {{>link id=puzzle._id title=puzzle.name text=puzzle_num}}
+                </span>
+              {{/each}}
+            </div>
+          {{/if}}
+          {{/let}}
+        </div>
       {{/each}}
-      {{#with unassigned}}
-        {{#if this.length}}
-        <tr>
-          <td class="bb-status-grid-meta bb-status-unsolved">Unassigned</td>
-          <td class="bb-status-grid-puzzles">
-          {{#each puzzles this}}<div class="bb-status-grid-cell bb-status-{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
-            {{>link id=puzzle._id title=puzzle.name text=puzzle_num}}
-          </div>{{/each}}</td>
-        </tr>
-        {{/if}}
-      {{/with}}
     {{/each}}
-  </tbody>
-  </table></div><!-- bb-status-grid -->
+  </div><!-- bb-status-grid -->
 </template>
 
 <template name="blackboard_othermeta_link">
