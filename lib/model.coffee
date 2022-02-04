@@ -22,11 +22,6 @@ PRESENCE_KEEPALIVE_MINUTES = 2
 # this is used to yield "zero results" in collections which index by timestamp
 NOT_A_TIMESTAMP = -9999
 
-randomname = if Meteor.isServer
-  (s) -> require('../server/imports/randomname.coffee').default(seed: s)
-else
-  (s) -> s.slice(0, 16)
-
 BBCollection = Object.create(null) # create new object w/o any inherited cruft
 
 # Names is a synthetic collection created by the server which indexes
