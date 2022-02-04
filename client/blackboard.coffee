@@ -230,7 +230,7 @@ Template.blackboard.helpers
   driveFolder: -> Session.get 'RINGHUNTERS_FOLDER'
 
 Template.blackboard_status_grid.helpers
-  rounds: round_helper
+  rounds: -> model.Rounds.find {}, sort: [["sort_key", 'asc']]
   metas: meta_helper
   color: -> puzzleColor @puzzle if @puzzle?
   unassigned: -> 

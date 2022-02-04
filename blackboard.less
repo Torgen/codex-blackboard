@@ -307,24 +307,35 @@ input[type=color] {
     display: flex;
     flex-flow: row nowrap;
     max-width: fit-content;
-    margin-right: 2px;
+    margin-right: 4px;
+    margin-bottom: 2px;
+    border: 2px solid var(--meta-color);
+    background-color: var(--meta-color);
   }
   .bb-status-grid-meta {
-    padding-right:2px;
+    padding:0px 2px;
     background-color: var(--slightly-lighter);
   }
   .bb-status-grid-puzzles {
     display: flex;
     flex-flow: row wrap;
+    background-color: var(--bg-color);
+    margin-left: 1px;
+    &:empty {
+      display: none;
+    }
+  }
+  .bb-status-grid-solved-count {
     background-color: var(--much-lighter);
+    padding: 0px 2px;
+    &.all-solved {
+      background-color: var(--slightly-lighter);
+    }
   }
   .bb-status-grid-cell {
     display: inline-block;
     width: 1.5em;
     text-align: center;
-  }
-  span:not(.bb-status-grid-cell) {
-    margin-right: 2px;
   }
   .bb-status-solved {
     background:#AAFF99;

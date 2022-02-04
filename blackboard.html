@@ -264,20 +264,17 @@
   <div class="bb-status-grid">
     {{#each rounds}}
       {{#each metas}}
-        <div class="bb-status-grid-meta-group" style="background-color: {{color}}">
+        <div class="bb-status-grid-meta-group" style="--meta-color: {{color}}">
           {{#let p=(puzzles puzzle.puzzles)}}
           {{#if puzzle.solved}}
-            {{>link class="bb-status-grid-meta" id=_id text=(abbrev puzzle.name)}}
-            <div class="bb-status-grid-puzzles">
-              <span class="bb-status-solved">{{numSolved p}}/{{p.length}}</span>
-              {{#each p}}
-                {{#unless puzzle.solved}}
-                  <span class="bb-status-{{#if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
-                    {{>link id=puzzle._id title=puzzle.name text=(abbrev puzzle.name)}}
-                  </span>
-                {{/unless}}
-              {{/each}}
-            </div>
+            {{>link class="bb-status-grid-meta" id=_id title=puzzle.name text=(abbrev puzzle.name)}}
+            <span class="bb-status-grid-solved-count {{#if equal (numSolved p) p.length}}all-solved{{/if}}">{{numSolved p}}/{{p.length}}</span>
+            <div class="bb-status-grid-puzzles">{{#each p}}{{#unless puzzle.solved}}
+              {{! whitespace collapsed for :empty selector}}
+              <span class="bb-status-grid-cell bb-status-{{#if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+                {{>link id=puzzle._id title=puzzle.name text=puzzle_num}}
+              </span>
+            {{/unless}}{{/each}}</div>
           {{else}}
             {{>link class="bb-status-grid-meta" id=_id text=puzzle.name}}
             <div class="bb-status-grid-puzzles">
@@ -291,6 +288,22 @@
           {{/let}}
         </div>
       {{/each}}
+      {{#let u=unassigned}}
+      {{#if u.length}}
+        <div class="bb-status-grid-meta-group" style="--meta-color: var(--bg-color)">
+          {{#let p=(puzzles u)}}{{#let n=(numSolved p)}}
+            {{>link class="bb-status-grid-meta" id=_id title=name text=(abbrev name)}}
+            <span class="bb-status-grid-solved-count {{#if equal n p.length}}all-solved{{/if}}">{{n}}/{{p.length}}</span>
+            <div class="bb-status-grid-puzzles">{{#each p}}{{#unless puzzle.solved}}
+              {{! whitespace collapsed for :empty selector}}
+              <span class="bb-status-grid-cell bb-status-{{#if stuck puzzle}}stuck{{else}}unsolved{{/if}}">
+                {{>link id=puzzle._id title=puzzle.name text=puzzle_num}}
+              </span>
+            {{/unless}}{{/each}}</div>
+          {{/let}}{{/let}}
+        </div>
+      {{/if}}
+      {{/let}}
     {{/each}}
   </div><!-- bb-status-grid -->
 </template>
