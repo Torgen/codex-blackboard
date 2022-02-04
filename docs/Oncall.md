@@ -28,7 +28,7 @@ team member receiving the call to be aware of the call-ins, so they knew what an
 non-MIT hunts) use an automatic answer checker which gives instant feedback with automatic rate-limiting. However, it may
 still be a good idea to have an oncall centralize the callins to avoid spamming spurious answers and triggering the
 rate-limiting. Also, since a correct answer often unlocks new puzzles, it makes sense that the oncall be aware that this has
-happened so they know they need to add the knew puzzles.
+happened so they know they need to add the new puzzles.
 
 The call-in queue is located at the `/callins` route relative to the blackboard root. There is no direct link there from the
 front page, but the sidebar menu that appears when you click the floating button at the bottom left contains a link to it.
@@ -42,11 +42,6 @@ A sound will play when a new call-in arrives; you will also get a desktop notifi
 "Callins" event type, which is recommended. A button with three icons at the end of the answer will copy it to your
 clipboard, mark the answer as submitted, and navigate to the puzzle URL in a new tab, from which you should find the link
 to submit the answer.
-
-Below the list of pending call-ins are a few of the least recently used quips added by solvers. You should choose a funny
-one to answer the phone with, as entertaining HQ may make them delay our callbacks less if we call in wrong answers. (At
-least, it can't hurt.) If you really don't like one of the quips, you can punt it, which will move it to the bottom of the
-list without using it.
 
 Each callin has a green button for if the answer was correct and a red one for if it's wrong. Once you get the call back 
 from HQ, click the appropriate one. It will notify the appropriate chat rooms, set the answer on the blackboard, and play

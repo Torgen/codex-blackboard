@@ -33,7 +33,6 @@ Meteor.startup ->
 
 Template.callins.onCreated ->
   this.subscribe 'callins'
-  this.subscribe 'quips'
   return if settings.BB_SUB_ALL
   this.subscribe 'all-roundsandpuzzles'
 
@@ -44,31 +43,9 @@ Template.callins.helpers
       transform: (c) ->
         c.puzzle = if c.target then model.Puzzles.findOne(_id: c.target)
         c
-  quips: ->
-    # We may want to make this a special limited subscription
-    # (rather than having to subscribe to all quips)
-    model.Quips.find {},
-      sort: [["last_used","asc"],["created","asc"]]
-      limit: 5
-  quipAddUrl: ->
-    share.Router.urlFor 'quips', 'new'
 
 Template.callins.onRendered ->
   $("title").text("Answer queue")
-
-Template.callins.events
-  "click .bb-addquip-btn": (event, template) ->
-     share.Router.goTo "quips", "new"
-
-Template.callins_quip.events
-  "click .bb-quip-next": (event, template) ->
-    Meteor.call 'useQuip', id: @_id
-  "click .bb-quip-punt": (event, template) ->
-    Meteor.call 'useQuip',
-      id: @_id
-      punted: true
-  "click .bb-quip-remove": (event, template) ->
-    Meteor.call 'removeQuip', @_id
 
 Template.callin_row.helpers
   lastAttempt: ->

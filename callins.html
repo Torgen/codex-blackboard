@@ -20,19 +20,6 @@
     {{/each}}
   </tbody></table>
 </section>
-<section class="bb-quips">
-  <button class="btn btn-small bb-addquip-btn">Add new quip</button>
-  <h1>Quips</h1>
-  {{#if quips.count}}
-    <table class="table">
-      {{#each quips}}
-        {{> callins_quip }}
-      {{/each}}
-    </table>
-  {{else}}
-    No quips!  <a class="quips-link" href="{{quipAddUrl}}">Add some</a>.
-  {{/if}}
-</section>
 </template>
 
 <template name="callin_copy_and_go">
@@ -121,25 +108,4 @@
       </button>
     </div>
   {{/if}}
-</template>
-
-<template name="callins_quip">
-  <tr class="bb-quip" data-bbquip="{{_id}}">
-    <td class="bb-quip-buttons">
-      <div class="btn-group">
-        {{#if currentPageEquals "callins"}}
-        <button class="btn btn-success bb-quip-next">Use</button>
-        {{/if}}
-        {{>link id=_id text="Edit" class="btn" title=name}}
-        <button class="btn bb-quip-punt">Punt</button>
-        <!--<button class="btn bb-quip-remove">Remove</button>-->
-      </div>
-    </td>
-    <td class="bb-quiptext">
-      <blockquote>
-        {{text}}
-        <span class="bb-quip-created-by">{{created_by}} ({{pretty_ts created}})</span>
-      </blockquote>
-    </td>
-  </tr>
 </template>

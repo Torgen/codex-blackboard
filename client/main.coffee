@@ -22,7 +22,6 @@ chat = share.chat # import
 #   "chat"       -- chat room
 #   "oplogs"     -- operation logs
 #   "callins"    -- answer queue
-#   "quips"      -- view/edit phone-answering quips
 #   "facts"      -- server performance information
 Template.registerHelper "equal", (a, b) -> a is b
 Template.registerHelper "less", (a, b) -> a < b
@@ -356,7 +355,6 @@ BlackboardRouter = Backbone.Router.extend
     "chat/:type/:id": "ChatPage"
     "oplogs": "OpLogPage"
     "callins": "CallInPage"
-    "quips/:id": "QuipPage"
     "facts": "FactsPage"
 
   BlackboardPage: ->
@@ -402,9 +400,6 @@ BlackboardRouter = Backbone.Router.extend
     Session.set
       color: 'inherit'
       topRight: null
-
-  QuipPage: (id) ->
-    this.Page("quip", "quips", id, false)
 
   FactsPage: ->
     this.Page("facts", "facts", "0", false)
