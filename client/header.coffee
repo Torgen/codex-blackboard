@@ -37,7 +37,6 @@ do ->
     'click a.graph-link': clickHandler
     'click a.home-link': clickHandler
     'click a.oplogs-link': clickHandler
-    'click a.quips-link': clickHandler
     'click a.callins-link': clickHandler
     'click a.facts-link': clickHandler
 
@@ -231,8 +230,6 @@ generate_crumbs = (leaf_type, leaf_id) ->
     crumbs.push {page: 'puzzle', type: 'puzzles', id: leaf_id}
   else if leaf_type is 'rounds'
     crumbs.push {page: 'round', type: 'rounds', id: leaf_id}
-  else if leaf_type is 'quips'
-    crumbs.push {page: 'quip', type: 'quips', id: leaf_id}
   else
     unless leaf_type is 'general'
       crumbs.push {page: leaf_type, type: leaf_type, id: leaf_id}
@@ -314,12 +311,6 @@ Template.header_breadcrumb_puzzle.onCreated ->
 Template.header_breadcrumb_puzzle.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
   active: active
-
-Template.header_breadcrumb_quip.onCreated ->
-  @autorun => @subscribe 'quips'
-Template.header_breadcrumb_quip.helpers
-  idIsNew: -> 'new' is @id
-  quip: -> model.Quips.findOne @id
 
 Template.header_breadcrumbs.onCreated ->
   @autorun =>
@@ -458,8 +449,6 @@ Template.header_lastchats.helpers
         ['puzzle-piece', 'success']
       else if @type is 'rounds'
         ['globe', 'success']
-      else if @type is 'quips'
-        ['comment-dots']
       else
         ['plus']
     else if /Deleted answer/.test @body

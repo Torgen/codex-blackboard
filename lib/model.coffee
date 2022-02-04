@@ -22,11 +22,6 @@ PRESENCE_KEEPALIVE_MINUTES = 2
 # this is used to yield "zero results" in collections which index by timestamp
 NOT_A_TIMESTAMP = -9999
 
-randomname = if Meteor.isServer
-  (s) -> require('../server/imports/randomname.coffee').default(seed: s)
-else
-  (s) -> s.slice(0, 16)
-
 BBCollection = Object.create(null) # create new object w/o any inherited cruft
 
 # Names is a synthetic collection created by the server which indexes
@@ -149,17 +144,6 @@ if Meteor.isServer
   CallIns.createIndex {status: 1, created: 1}
   CallIns.createIndex {status: 1, target_type: 1, target: 1, callin_type: 1, answer: 1}, {unique:true, dropDups:true, partialFilterExpression: {status: 'pending'}}
   CallIns.createIndex {target_type: 1, target: 1, created: 1}
-
-# Quips are:
-#   _id: mongodb id
-#   text: string (quip to present at callin)
-#   created: timestamp
-#   created_by: canon of Nick
-#   last_used: timestamp (0 if never used)
-#   use_count: integer
-Quips = BBCollection.quips = new Mongo.Collection "quips"
-if Meteor.isServer
-  Quips.createIndex {last_used: 1}, {}
 
 # Polls are:
 #   _id: mongodb id
@@ -770,41 +754,6 @@ do ->
       oplog "New #{args.callin_type} #{args.answer} submitted for", args.target_type, id, \
           @userId, 'callins'
       return callin
-
-    newQuip: (text) ->
-      check @userId, NonEmptyString
-      check text, NonEmptyString
-      # "Name" of a quip is a random name based on its hash, so the
-      # oplogs don't spoil the quips.
-      name = randomname(text)
-      newObject "quips", {name:name, who:@userId},
-        text: text
-        last_used: 0 # not yet used
-        use_count: 0 # not yet used
-
-    useQuip: (args) ->
-      check @userId, NonEmptyString
-      check args, ObjectWith
-        id: NonEmptyString
-        punted: Match.Optional(Boolean)
-      quip = Quips.findOne args.id
-      throw new Meteor.Error(404, "bad quip id") unless quip
-      now = UTCNow()
-      Quips.update args.id,
-        $set: {last_used: now, touched: now, touched_by: @userId}
-        $inc: use_count: (if args.punted then 0 else 1)
-      return if args.punted
-      quipAddUrl = # see Router.urlFor
-        Meteor._relativeToSiteRootUrl "/quips/new"
-
-      Meteor.call 'newMessage',
-        body: "<span class=\"bb-quip-action\">#{UI._escape(quip.text)} <a class='quips-link' href=\"#{quipAddUrl}\"></a></span>"
-        action: true
-        bodyIsHtml: true
-
-    removeQuip: (id) ->
-      check @userId, NonEmptyString
-      deleteObject "quips", {id, who: @userId}
 
     # Response is forbibben for answers and optional for other callin types.
     correctCallIn: (id, response) ->
@@ -1474,7 +1423,6 @@ share.model =
   NOT_A_TIMESTAMP: NOT_A_TIMESTAMP
   # collection types
   CallIns: CallIns
-  Quips: Quips
   Polls: Polls
   Names: Names
   LastAnswer: LastAnswer

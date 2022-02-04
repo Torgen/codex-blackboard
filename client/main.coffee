@@ -24,7 +24,6 @@ chat = share.chat # import
 #   "chat"       -- chat room
 #   "oplogs"     -- operation logs
 #   "callins"    -- answer queue
-#   "quips"      -- view/edit phone-answering quips
 #   "facts"      -- server performance information
 Template.registerHelper "equal", (a, b) -> a is b
 Template.registerHelper "less", (a, b) -> a < b
@@ -359,7 +358,6 @@ class BlackboardRouter extends grapnel.default.default
     @get '/chat/:type/:id', ({params: {type, id}}) => @ChatPage type, id
     @get '/oplogs', => @OpLogPage()
     @get '/callins', => @CallInPage()
-    @get '/quips/:id', ({params: {id}}) => @QuipPage id
     @get '/facts', => @FactsPage()
     @trigger 'navigate'
 
@@ -407,9 +405,6 @@ class BlackboardRouter extends grapnel.default.default
     Session.set
       color: 'inherit'
       topRight: null
-
-  QuipPage: (id) ->
-    this.Page("quip", "quips", id, false)
 
   FactsPage: ->
     this.Page("facts", "facts", "0", false)

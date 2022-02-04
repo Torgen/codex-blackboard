@@ -98,14 +98,6 @@
   </li>
 </template>
 
-<template name="header_breadcrumb_quip">
-  <li class="{{#if currentPageEquals "quip"}}active{{/if}}">
-    <a href="/quips/{{id}}" class="quips-link">
-      <i class="fas fa-comment-dots"></i> {{#if idIsNew}}Add New Quip{{else}}Quip: {{quip.name}}{{/if}}
-    </a>
-  </li>
-</template>
-
 <template name="header_breadcrumb_oplog">
   <li class="{{#if currentPageEquals "oplog"}}active{{/if}}">
     <a href="/oplogs" class="oplogs-link">
