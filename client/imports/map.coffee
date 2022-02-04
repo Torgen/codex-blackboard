@@ -2,7 +2,7 @@
 
 import loader from "@googlemaps/js-api-loader"
 import mc from "@googlemaps/markerclusterer"
-import md5 from '/lib/imports/md5.coffee'
+import md5 from 'md5'
 export Loader = loader.Loader
 export MarkerClusterer = mc.MarkerClusterer
 

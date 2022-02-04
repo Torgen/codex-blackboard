@@ -1,7 +1,7 @@
 'use strict'
 
 import { getTag } from '/lib/imports/tags.coffee'
-import md5 from '/lib/imports/md5.coffee'
+import md5 from 'md5'
 import colornames from 'css-color-names'
 
 export default colorFromThingWithTags = (thing) ->

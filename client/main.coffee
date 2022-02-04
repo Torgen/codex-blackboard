@@ -1,6 +1,7 @@
 'use strict'
 
-import { gravatarUrl, nickHash, md5 } from './imports/nickEmail.coffee'
+import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
+import md5 from 'md5'
 import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'

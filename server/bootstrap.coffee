@@ -1,7 +1,7 @@
 'use strict'
 model = share.model
 import { callAs, impersonating } from './imports/impersonate.coffee'
-import md5 from '/lib/imports/md5.coffee'
+import md5 from 'md5'
 
 # if the database is empty on server start, create some sample data.
 # (useful during development; disable this before hunt)
