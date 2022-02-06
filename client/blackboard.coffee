@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
+import { confirm } from '/client/imports/modal.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
@@ -322,12 +323,11 @@ Template.blackboard.events
       message += "this #{model.pretty_collection(type)}?"
     else
       message += "the #{rest[0]} of this #{model.pretty_collection(type)}?"
-    share.confirmationDialog
+    if (await confirm
       ok_button: 'Yes, delete it'
       no_button: 'No, cancel'
-      message: message
-      ok: ->
-        processBlackboardEdit[type]?(null, id, rest...) # process delete
+      message: message)
+      processBlackboardEdit[type]?(null, id, rest...) # process delete
   'click .bb-canEdit .bb-fix-drive': (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     Meteor.call 'fixPuzzleFolder',

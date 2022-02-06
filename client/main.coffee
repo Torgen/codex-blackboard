@@ -419,8 +419,7 @@ BlackboardRouter = Backbone.Router.extend
       type: type
       id: id
     # cancel modals if they were active
-    $('#nickPickModal').modal 'hide'
-    $('#confirmModal').modal 'hide'
+    $('.modal').modal 'hide'
 
   urlFor: (type,id) ->
     Meteor._relativeToSiteRootUrl "/#{type}/#{id}"

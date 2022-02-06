@@ -400,26 +400,6 @@ Template.header_nickmodal_contents.events
           template.$("[data-argument=\"#{err.details.field}\"]").addClass 'error'
     return false
 
-############## confirmation dialog ########################
-Template.header_confirmmodal.helpers
-  confirmModalVisible: -> !!(Session.get 'confirmModalVisible')
-Template.header_confirmmodal_contents.onRendered ->
-  $('#confirmModal .bb-confirm-cancel').focus()
-  $('#confirmModal').modal show: true
-Template.header_confirmmodal_contents.events
-  "click .bb-confirm-ok": (event, template) ->
-    Template.header_confirmmodal_contents.cancel = false # do the thing!
-    $('#confirmModal').modal 'hide'
-
-confirmationDialog = share.confirmationDialog = (options) ->
-  $('#confirmModal').one 'hide', ->
-    Session.set 'confirmModalVisible', undefined
-    options.ok?() unless Template.header_confirmmodal_contents.cancel
-  # store away options before making dialog visible
-  Template.header_confirmmodal_contents.options = -> options
-  Template.header_confirmmodal_contents.cancel = true
-  Session.set 'confirmModalVisible', (options or Object.create(null))
-
 RECENT_GENERAL_LIMIT = 2
 
 ############## operation/chat log in header ####################
