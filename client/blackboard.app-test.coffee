@@ -237,9 +237,9 @@ describe 'blackboard', ->
       indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
       chai.assert.isOk indirect, 'indirect'
       chai.assert.notInclude indirect.feedsInto, meta._id
-      $("#unassigned#{round._id} [data-bbedit=\"feedsInto/#{indirect._id}\"]").click()
+      $("#unassigned#{round._id} [data-bbedit=\"feedsInto/#{round._id}/#{indirect._id}\"]").click()
       await afterFlushPromise()
-      $("#unassigned#{round._id} [data-bbedit=\"feedsInto/#{indirect._id}\"] [data-puzzle-id=\"#{meta._id}\"]").click()
+      $("#unassigned#{round._id} [data-bbedit=\"feedsInto/#{round._id}/#{indirect._id}\"] [data-puzzle-id=\"#{meta._id}\"]").click()
       await waitForMethods()
       await afterFlushPromise()
       indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
@@ -261,9 +261,9 @@ describe 'blackboard', ->
         value: ''
         touched_by: 'testy'
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"]").first().click()
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"]").first().click()
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] input").first().val('yuno accept deposits?').focusout()
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"] input").first().val('yuno accept deposits?').focusout()
       await waitForMethods()
       edit = bank()
       chai.assert.include edit.tags.meme,
@@ -271,9 +271,9 @@ describe 'blackboard', ->
         value: 'yuno accept deposits?'
         touched_by: 'testy'
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"]").first().click()
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"]").first().click()
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] input").first().val('yuno pay interest?').trigger new $.Event('keydown', which: 27)
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"] input").first().val('yuno pay interest?').trigger new $.Event('keydown', which: 27)
       await waitForMethods()
       # no edit on escape
       edit = bank()
@@ -282,9 +282,9 @@ describe 'blackboard', ->
         value: 'yuno accept deposits?'
         touched_by: 'testy'
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"]").first().click()
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"]").first().click()
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] input").first().val('yuno pay interest?').trigger new $.Event('keyup', which: 13)
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"] input").first().val('yuno pay interest?').trigger new $.Event('keyup', which: 13)
       await waitForMethods()
       # Edit on enter
       edit = bank()
@@ -293,9 +293,9 @@ describe 'blackboard', ->
         value: 'yuno pay interest?'
         touched_by: 'testy'
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"]").first().click()
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"]").first().click()
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] input").first().val('').trigger new $.Event('keyup', which: 13)
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"] input").first().val('').trigger new $.Event('keyup', which: 13)
       await waitForMethods()
       # empty cancels
       edit = bank()
@@ -304,7 +304,7 @@ describe 'blackboard', ->
         value: 'yuno pay interest?'
         touched_by: 'testy'
       await afterFlushPromise()
-      $("[data-bbedit=\"tags/#{initial._id}/meme/value\"] .bb-delete-icon").first().click()
+      $("[data-bbedit=\"tags/#{initial.feedsInto[1]}/#{initial._id}/meme/value\"] .bb-delete-icon").first().click()
       await afterFlushPromise()
       $("#confirmModal .bb-confirm-ok").click()
       await waitForMethods()

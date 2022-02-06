@@ -113,7 +113,7 @@
         <tbody>
           <tr><th colspan="{{nCols}}" id="searchResults"><h2>Search Results</h2></th></tr>
           {{#each searchResults}}
-            {{>blackboard_puzzle _id=_id puzzle=this}}
+            {{>blackboard_puzzle _id=_id parent="search" puzzle=this}}
           {{/each}}
         </tbody>
       {{else}}
@@ -123,7 +123,7 @@
               <tbody>
                 <tr><th colspan="{{nCols}}" id="stucks"><h2>Stuck Puzzles</h2></th></tr>
                 {{#each stucks}}
-                  {{>blackboard_puzzle _id=_id puzzle=this}}
+                  {{>blackboard_puzzle _id=_id parent="stuck" puzzle=this}}
                 {{/each}}
               </tbody>
             {{/if}}
@@ -179,7 +179,7 @@
 
 <!-- this exists to add a subscription. -->
 <template name="blackboard_favorite_puzzle">
-  {{>blackboard_puzzle _id=_id puzzle=this}}
+  {{>blackboard_puzzle _id=_id parent="favorites" puzzle=this}}
 </template>
 
 <template name="blackboard_round">
@@ -187,9 +187,9 @@
     {{#let m=metas u=unassigned}}
       <tbody>
       <tr><th colspan="{{nCols}}" id="round{{_id}}" class="bb-round-header {{#if collapsed}}collapsed{{/if}}">
-        <h2 class="bb-editable" data-bbedit="rounds/{{_id}}/title">
-        {{#if editing "rounds" _id "title"}}
-          <input type="text" id="rounds-{{_id}}-title"
+        <h2 class="bb-editable" data-bbedit="rounds//{{_id}}/title">
+        {{#if editing "rounds" "" _id "title"}}
+          <input type="text" id="rounds--{{_id}}-title"
                 value="{{name}}"
                 class="input-block-level" />
         {{else}}
@@ -209,7 +209,7 @@
       {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
       {{>blackboard_link}}
       {{#if canEdit}}
-        <div class="bb-round-buttons" data-bbedit="rounds/{{_id}}">
+        <div class="bb-round-buttons" data-bbedit="rounds//{{_id}}">
           <div class="btn-group">
             <button class="btn btn-mini btn-inverse bb-add-meta">
               <i class="fas fa-plus"></i>
@@ -239,7 +239,7 @@
       </th></tr></tbody>
       {{#if any canEdit (not collapsed)}}
         {{#each meta in m}}
-          {{> blackboard_meta _id=meta._id puzzle=meta.puzzle reorderable=true}}
+          {{> blackboard_meta _id=meta._id parent=_id puzzle=meta.puzzle reorderable=true}}
         {{/each}}
         {{#with u}}
           {{> blackboard_unassigned }}
@@ -254,7 +254,7 @@
     <tbody class="unassigned" id="unassigned{{../_id}}">
     <tr><th colspan="{{nCols}}">Unassigned</th></tr>
     {{#each this}}
-      {{> blackboard_puzzle puzzle=puzzle reorderable=true }}
+      {{> blackboard_puzzle puzzle=puzzle parent=parent reorderable=true }}
     {{/each}}
     </tbody>
   {{/if}}
@@ -313,9 +313,9 @@
 
 <template name="blackboard_puzzle_cells">
 <td class="puzzle-name"><div>{{! div needed to establish relative pos }}
-  <div class="bb-editable bb-puzzle-title" data-bbedit="puzzles/{{puzzle._id}}/title">
-    {{#if editing "puzzles" puzzle._id "title"}}
-      <input type="text" id="puzzles-{{puzzle._id}}-title"
+  <div class="bb-editable bb-puzzle-title" data-bbedit="puzzles/{{parent}}/{{puzzle._id}}/title">
+    {{#if editing "puzzles" parent puzzle._id "title"}}
+      <input type="text" id="puzzles-{{parent}}-{{puzzle._id}}-title"
               value="{{puzzle.name}}"
               class="input-block-level" />
     {{else}}
@@ -365,9 +365,9 @@
         {{#each tags}}
         <tr>
           <td class="bb-editable"
-              data-bbedit="tags/{{id}}/{{canon}}/name">
-            {{#if editing "tags" id canon "name"}}
-              <input type="text" id="tags-{{id}}-{{canon}}-name"
+              data-bbedit="tags/{{../../parent}}/{{id}}/{{canon}}/name">
+            {{#if editing "tags" ../../parent id canon "name"}}
+              <input type="text" id="tags-{{../../parent}}-{{id}}-{{canon}}-name"
                       value="{{name}}"
                       class="input-block-level" />
             {{else}}
@@ -379,17 +379,17 @@
             {{/if}}
           </td>
           <td class="bb-editable"
-              data-bbedit="tags/{{id}}/{{canon}}/value">
+              data-bbedit="tags/{{../../parent}}/{{id}}/{{canon}}/value">
             {{#if equal canon "color"}}
               {{#if canEdit}}
-                <input type="color" id="tags-{{id}}-{{canon}}-color"
+                <input type="color" id="tags-{{../../parent}}-{{id}}-{{canon}}-color"
                        value="{{hexify value}}" />
               {{else}}
                 <span class="bb-colorbox" style="background-color: {{value}}"></span>
               {{/if}}
             {{/if}}
-            {{#if editing "tags" id canon "value"}}
-              <input type="text" id="tags-{{id}}-{{canon}}-value"
+            {{#if editing "tags" ../../parent id canon "value"}}
+              <input type="text" id="tags-{{../../parent}}-{{id}}-{{canon}}-value"
                       value="{{value}}"
                       class="input-block-level" />
             {{else if canEdit}}
@@ -426,8 +426,8 @@
           {{/if}}
           <tr>
             <td>Feeds Into:</td>
-            <td class="bb-editable" data-bbedit="feedsInto/{{_id}}">
-              {{#if editing "feedsInto" _id}}
+            <td class="bb-editable" data-bbedit="feedsInto/{{../parent}}/{{_id}}">
+              {{#if editing "feedsInto" ../parent _id}}
                 {{#each allMetas}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
                 {{#with unfedMetas}}{{#if this.count}}
                   <div class="btn-group bb-feed-meta">
@@ -477,9 +477,9 @@
 
 <template name="blackboard_column_body_answer">
   <td class="puzzle-answer bb-editable"
-      data-bbedit="tags/{{puzzle._id}}/answer/value">
-    {{#if editing "tags" puzzle._id "answer" "value"}}
-      <input type="text" id="tags-{{puzzle._id}}-answer-value"
+      data-bbedit="tags/{{parent}}/{{puzzle._id}}/answer/value">
+    {{#if editing "tags" parent puzzle._id "answer" "value"}}
+      <input type="text" id="tags-{{parent}}-{{puzzle._id}}-answer-value"
               value="{{answer}}"
               class="input-block-level" />
     {{else}}
@@ -500,9 +500,9 @@
 
 <template name="blackboard_column_body_status">
   <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
-      data-bbedit="tags/{{puzzle._id}}/status/value">
-    {{#if editing "tags" puzzle._id "status" "value"}}
-      <input type="text" id="tags-{{puzzle._id}}-status-value"
+      data-bbedit="tags/{{parent}}/{{puzzle._id}}/status/value">
+    {{#if editing "tags" parent puzzle._id "status" "value"}}
+      <input type="text" id="tags-{{parent}}-{{puzzle._id}}-status-value"
               value="{{status}}"
               class="input-block-level" />
     {{else}}
@@ -568,14 +568,14 @@
     </tr>
     {{#if any canEdit (not collapsed)}}
       {{#each p in puzzles}}
-        {{> blackboard_puzzle _id=p._id puzzle=p.puzzle reorderable=(not puzzle.order_by)}}
+        {{> blackboard_puzzle _id=p._id parent=puzzle._id puzzle=p.puzzle reorderable=(not puzzle.order_by)}}
       {{else unless num_puzzles}}
         <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
       {{/each}}
     {{/if}}
   {{#if canEdit}}
   <tr class="metafooter"><td colspan="{{nCols}}">
-    <div class="bb-meta-buttons" data-bbedit="puzzles/{{puzzle._id}}">
+    <div class="bb-meta-buttons" data-bbedit="puzzles/{{parent}}/{{puzzle._id}}">
       <button class="btn btn-mini btn-inverse bb-add-puzzle">
         <i class="fas fa-plus"></i>
         Create new puzzle feeding this meta
@@ -607,9 +607,9 @@
 <template name="blackboard_tags">
   <dl class="dl-horizontal">{{#each tags}}
     <dt class="bb-editable"
-        data-bbedit="tags/{{id}}/{{canon}}/name">
-      {{#if editing "tags" id canon "name"}}
-        <input type="text" id="tags-{{id}}-{{canon}}-name"
+        data-bbedit="tags/{{../parent}}/{{id}}/{{canon}}/name">
+      {{#if editing "tags" ../parent id canon "name"}}
+        <input type="text" id="tags-{{../parent}}-{{id}}-{{canon}}-name"
                value="{{name}}"
                class="input-block-level" />
       {{else}}
@@ -621,9 +621,9 @@
       {{/if}}
      </dt>
     <dd class="bb-editable"
-        data-bbedit="tags/{{id}}/{{canon}}/value">
-      {{#if editing "tags" id canon "value"}}
-        <input type="text" id="tags-{{id}}-{{canon}}-value"
+        data-bbedit="tags/{{../parent}}/{{id}}/{{canon}}/value">
+      {{#if editing "tags" ../parent id canon "value"}}
+        <input type="text" id="tags-{{../parent}}-{{id}}-{{canon}}-value"
                value="{{value}}"
                class="input-block-level" />
       {{else if canEdit}}
@@ -647,9 +647,9 @@
         <tr>
           <td>Hunt site link:</td>
           <td class="bb-editable"
-              data-bbedit="link/{{_id}}">
-            {{#if editing "link" _id}}
-              <input type="text" id="link-{{_id}}"
+              data-bbedit="link/{{parent}}/{{_id}}">
+            {{#if editing "link" parent _id}}
+              <input type="text" id="link-{{parent}}-{{_id}}"
                      value="{{./link}}"
                      class="input-block-level" />
             {{else if canEdit}}

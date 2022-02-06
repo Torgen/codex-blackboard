@@ -197,6 +197,7 @@ meta_helper = ->
     continue unless puzzle?
     {
       _id: id
+      parent: @_id
       puzzle: puzzle
       num_puzzles: puzzle.puzzles.length
     }
@@ -205,7 +206,7 @@ unassigned_helper = ->
   p = for id, index in this.puzzles
     puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
     continue unless puzzle?
-    { _id: id, puzzle: puzzle }
+    { _id: id, parent: @_id, puzzle: puzzle }
   editing = Meteor.userId() and (Session.get 'canEdit')
   return p if editing or !HIDE_SOLVED.get()
   p.filter (pp) -> !pp.puzzle.solved?
@@ -315,7 +316,7 @@ Template.blackboard.events
       Meteor.call 'setTag', {type:'puzzles', object: @puzzle._id, name:str, value:''}
   "click .bb-canEdit .bb-delete-icon": (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
-    [type, id, rest...] = share.find_bbedit(event)
+    [type, _parent, id, rest...] = share.find_bbedit(event)
     message = "Are you sure you want to delete "
     if (type is'tags') or (rest[0] is 'title')
       message += "this #{model.pretty_collection(type)}?"
@@ -341,7 +342,7 @@ Template.blackboard.events
     event.stopPropagation()
   'input input[type=color]': (event, template) ->
     edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-    [type, id, rest...] = edit.split('/')
+    [type, _parent, id, rest...] = edit.split('/')
     # strip leading/trailing whitespace from text (cancel if text is empty)
     text = hexToCssColor event.currentTarget.value.replace /^\s+|\s+$/, ''
     processBlackboardEdit[type]?(text, id, rest...) if text
@@ -350,7 +351,7 @@ Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
     return if Session.equals 'editing', undefined  # already cancelled.
     # find the data-bbedit specification for this field
     edit = $(evt.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-    [type, id, rest...] = edit.split('/')
+    [type, _parent, id, rest...] = edit.split('/')
     # strip leading/trailing whitespace from text (cancel if text is empty)
     text = text.replace /^\s+|\s+$/, ''
     processBlackboardEdit[type]?(text, id, rest...) if text
