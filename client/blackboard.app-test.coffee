@@ -311,6 +311,64 @@ describe 'blackboard', ->
       deleted = bank()
       chai.assert.notOk deleted.tags.meme
 
+    it 'renames tag', ->
+      share.Router.EditPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      disgust = share.model.Puzzles.findOne name: 'Disgust'
+      await promiseCall 'setTag',
+        type: 'puzzles'
+        object: disgust._id
+        name: 'color5'
+        value: 'plurple'
+      await afterFlushPromise()
+      $("[data-bbedit$=\"/#{disgust._id}/color5/name\"]").first().click()
+      await afterFlushPromise()
+      $("[data-bbedit$=\"/#{disgust._id}/color5/name\"] input").first().val('Color6').trigger new $.Event('keyup', which: 13)
+      await waitForMethods()
+      disgust = share.model.Puzzles.findOne disgust._id
+      chai.assert.include disgust.tags.color6,
+        name: 'Color6'
+        value: 'plurple'
+      await waitForMethods()
+      chai.assert.isNotOk disgust.tags.color5
+
+    it 'empty name aborts', ->
+      share.Router.EditPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      disgust = share.model.Puzzles.findOne name: 'Disgust'
+      await promiseCall 'setTag',
+        type: 'puzzles'
+        object: disgust._id
+        name: 'color3'
+        value: 'plurple'
+      await afterFlushPromise()
+      $("[data-bbedit$=\"/#{disgust._id}/color3/name\"]").first().click()
+      await afterFlushPromise()
+      $("[data-bbedit$=\"/#{disgust._id}/color3/name\"] input").first().val('').trigger new $.Event('keyup', which: 13)
+      await waitForMethods()
+      disgust = share.model.Puzzles.findOne disgust._id
+      chai.assert.isOk disgust.tags.color3
+
+    it 'will not clobber a tag', ->
+      share.Router.EditPage()
+      await waitForSubscriptions()
+      await afterFlushPromise()
+      disgust = share.model.Puzzles.findOne name: 'Disgust'
+      await promiseCall 'setTag',
+        type: 'puzzles'
+        object: disgust._id
+        name: 'color2'
+        value: 'plurple'
+      await afterFlushPromise()
+      $("[data-bbedit$=\"/#{disgust._id}/color2/name\"]").first().click()
+      await afterFlushPromise()
+      $("[data-bbedit$=\"/#{disgust._id}/color2/name\"] input").first().val('color').trigger new $.Event('keyup', which: 13)
+      await waitForMethods()
+      disgust = share.model.Puzzles.findOne disgust._id
+      chai.assert.isOk disgust.tags.color2
+
   it 'makes a puzzle a favorite', ->
     share.Router.BlackboardPage()
     await waitForSubscriptions()

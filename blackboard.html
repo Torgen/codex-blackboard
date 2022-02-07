@@ -364,12 +364,15 @@
       <table class="bb-tag-table"><tbody>
         {{#each tags}}
         <tr>
-          <td class="bb-editable"
+          <td class="bb-editable control-group {{tagEditClass}}"
               data-bbedit="tags/{{../../parent}}/{{id}}/{{canon}}/name">
             {{#if editing "tags" ../../parent id canon "name"}}
               <input type="text" id="tags-{{../../parent}}-{{id}}-{{canon}}-name"
                       value="{{name}}"
                       class="input-block-level" />
+              {{#if tagEditStatus}}
+                <div class="tooltip right in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{tagEditStatus}}</div></div>
+              {{/if}}
             {{else}}
               {{#if canEdit}}
                 <i class="bb-edit-icon fas fa-pencil-alt pull-left"

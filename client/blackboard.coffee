@@ -442,9 +442,13 @@ processBlackboardEdit =
     n = model.Names.findOne(id)
     if text is null # delete tag
       return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon}
-    t = model.collection(n.type).findOne(id).tags[canon]
+    thing = model.collection(n.type).findOne(id)
+    newCanon = canonical(text)
+    if newCanon isnt canon and thing.tags[newCanon]?
+      return
+    t = thing.tags[canon]
     Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value}, (error,result) ->
-      if (canon isnt canonical(text)) and (not error)
+      if (canon isnt newCanon) and (not error)
         Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)
@@ -525,6 +529,9 @@ Template.blackboard_meta.helpers
     y.length
   collapsed: -> 'true' is reactiveLocalStorage.getItem "collapsed_meta.#{@puzzle._id}"
 
+Template.blackboard_puzzle_cells.onCreated ->
+  @tagNameDep = new Tracker.Dependency()
+
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
     if event.target.checked
@@ -539,6 +546,8 @@ Template.blackboard_puzzle_cells.events
       type: 'puzzles'
       object: template.data.puzzle._id
       fields: order_by: event.currentTarget.dataset.sortOrder
+  'input/focus input[id^="tags-"][id$="-name"]': (event, template) ->
+    template.tagNameDep.changed()
 
 tagHelper = ->
   isRound = not ('feedsInto' of this)
@@ -557,6 +566,23 @@ Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
     return (model.getTag @puzzle, name) or ''
   tags: tagHelper
+  tagEditClass: ->
+    inst = Template.instance()
+    inst.tagNameDep.depend()
+    return unless inst.firstNode?
+    val = inst.$("[data-bbedit$=\"/#{@id}/#{@canon}/name\"] input").val()
+    return 'error' if not val
+    return 'info' if canonical(val) is @canon
+    return 'error' if Template.parentData(1).tags[canonical val]?
+    return 'success'
+  tagEditStatus: ->
+    inst = Template.instance()
+    inst.tagNameDep.depend()
+    return unless inst.firstNode?
+    val = inst.$("[data-bbedit$=\"/#{@id}/#{@canon}/name\"] input").val()
+    return 'Cannot be empty' if not val
+    return 'Unchanged' if val is @name
+    return 'Tag already exists' if Template.parentData(1).tags[canonical val]?
   hexify: (v) -> cssColorToHex v
   allMetas: ->
     return [] unless @
