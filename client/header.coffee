@@ -350,8 +350,9 @@ Template.header_nickmodal_contents.onCreated ->
     if $('#nickEmail').val()
       @gravatarHash.set md5 $('#nickEmail').val()
       return
+    nick = $('#nickInput').val() ? ''
     unless q?
-      q = _id: canonical($('#nickInput').val())
+      q = _id: canonical(nick)
     @gravatarHash.set hashFromNickObject q
 nickInput = new Tracker.Dependency
 Template.header_nickmodal_contents.helpers
