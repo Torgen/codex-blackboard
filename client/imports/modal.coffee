@@ -16,11 +16,9 @@ export confirm = (data) ->
   new Promise (resolve) ->
     view = null
     onCancel = ->
-      share.Router.off 'route', onCancel
       Blaze.remove view
       resolve false
     onConfirm = ->
-      share.Router.off 'route', onCancel
       Blaze.remove view
       resolve true
     view = Blaze.renderWithData(Template.confirmmodal, {data..., onCancel, onConfirm}, document.body)
