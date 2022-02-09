@@ -447,9 +447,7 @@ processBlackboardEdit =
     if newCanon isnt canon and thing.tags[newCanon]?
       return
     t = thing.tags[canon]
-    Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value}, (error,result) ->
-      if (canon isnt newCanon) and (not error)
-        Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name}
+    Meteor.call 'renameTag', {type:n.type, object:id, old_name:canon, new_name: text}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)
     t = model.collection(n.type).findOne(id).tags[canon]

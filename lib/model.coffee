@@ -1052,6 +1052,61 @@ do ->
       setTagInternal updateDoc, {args..., who: @userId}
       0 < collection(args.type).update id, updateDoc
 
+    renameTag: ({type, object, old_name, new_name}) ->
+      check @userId, NonEmptyString
+      check type, ValidType
+      check object, IdOrObject
+      check old_name, NonEmptyString
+      check new_name, NonEmptyString
+      new_canon = canonical new_name
+      throw new Match.Error 'Can\'t rename to link' if new_canon is 'link'
+      old_canon = canonical old_name
+      now = UTCNow()
+      coll = collection(type)
+      if @isSimulation
+        # this is all synchronous
+        ct = coll.update {
+          _id: object._id or object
+          "tags.#{old_canon}": $exists: true
+          "tags.#{new_canon}": $exists: false
+        }, {
+          $set:
+            "tags.#{new_canon}.name": new_name
+            "tags.#{new_canon}.touched": now
+            "tags.#{new_canon}.touched_by": @userId
+            touched: now
+            touched_by: @userId
+          $rename:
+            "tags.#{old_canon}.value": "tags.#{new_canon}.value"
+        }
+        if ct is 1
+          coll.update {_id: object._id or object}, {$unset: "tags.#{old_canon}": ''}
+        else 
+          throw new Meteor.Error 404, "No such object"
+        return
+      # On the server, use aggregation pipeline to make the whole edit in a single
+      # call to avoid a race condition. This requires rawCollection because the
+      # wrappers don't support aggregation pipelines.
+      result = Promise.await(coll.rawCollection().updateOne({
+        _id: object._id or object
+        "tags.#{old_canon}": $exists: true
+        "tags.#{new_canon}": $exists: false
+      }, [{
+        $addFields: {
+          "tags.#{new_canon}": {
+            value: "$tags.#{old_canon}.value"
+            name: $literal: new_name
+            touched: now
+            touched_by: $literal: @userId
+          }
+          touched: now
+          touched_by: $literal: @userId
+        }},
+        {$unset: "tags.#{old_canon}" }
+      ]))
+      if 1 isnt result.modifiedCount
+        throw new Meteor.Error 404, "No such object"
+
     deleteTag: (args) ->
       check @userId, NonEmptyString
       check args, ObjectWith
