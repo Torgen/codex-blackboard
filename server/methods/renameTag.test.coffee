@@ -86,6 +86,43 @@ describe 'renameTag', ->
           touched: 7
           touched_by: 'torgen'
 
+  it 'changes tag case', ->
+    id = model.Puzzles.insert
+      name: 'Foo'
+      canon: 'foo'
+      feedsInto: []
+      created: 1
+      created_by: 'cjb'
+      touched: 3
+      touched_by: 'cscott'
+      solved: 3
+      solved_by: 'cscott'
+      tags:
+        warmth:
+          name: 'Warmth'
+          value: 'bar'
+          touched_by: 'cscott'
+          touched: 3
+    callAs 'renameTag', 'torgen',
+      type: 'puzzles'
+      object: id
+      old_name: 'warmth'
+      new_name: 'warMth'
+
+    post = model.Puzzles.findOne(id)
+
+    chai.assert.deepInclude post,
+      created: 1
+      created_by: 'cjb'
+      touched: 7
+      touched_by: 'torgen'
+      tags:
+        warmth:
+          name: 'warMth'
+          value: 'bar'
+          touched: 7
+          touched_by: 'torgen'
+
   it 'requires old tag exist', ->
     id = model.Puzzles.insert
       name: 'Foo'

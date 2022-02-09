@@ -446,7 +446,6 @@ processBlackboardEdit =
     newCanon = canonical(text)
     if newCanon isnt canon and thing.tags[newCanon]?
       return
-    t = thing.tags[canon]
     Meteor.call 'renameTag', {type:n.type, object:id, old_name:canon, new_name: text}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)

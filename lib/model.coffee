@@ -1063,6 +1063,22 @@ do ->
       old_canon = canonical old_name
       now = UTCNow()
       coll = collection(type)
+      if new_canon is old_canon
+        # change 'name' but do nothing else
+        ct = coll.update {
+          _id: object._id or object
+          "tags.#{old_canon}": $exists: true
+        }, {
+          $set:
+            "tags.#{new_canon}.name": new_name
+            "tags.#{new_canon}.touched": now
+            "tags.#{new_canon}.touched_by": @userId
+            touched: now
+            touched_by: @userId
+        }
+        if 1 isnt ct
+          throw new Meteor.Error 404, "No such object"
+        return 
       if @isSimulation
         # this is all synchronous
         ct = coll.update {
