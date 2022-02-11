@@ -316,6 +316,7 @@ whos_here_helper = ->
 
 Template.embedded_chat.onCreated ->
   @jitsi = new ReactiveVar null
+  @jitsiReady = new ReactiveVar false
   # Intentionally staying out of the meeting.
   @jitsiLeft = new ReactiveVar false
   @jitsiPinType = new ReactiveVar null
@@ -332,6 +333,7 @@ Template.embedded_chat.onCreated ->
     @jitsiPinType.set null
     @jitsiPinId.set null
     @jitsiRoom = null
+    @jitsiReady.set false
   @unsetCurrentJitsi = ->
     if settings.CLIENT_UUID is reactiveLocalStorage.getItem 'jitsiTabUUID'
       reactiveLocalStorage.removeItem 'jitsiTabUUID'
@@ -359,13 +361,17 @@ Template.embedded_chat.onRendered ->
       jitsi = null
       @jitsi.set null
       @jitsiRoom = null
+      @jitsiReady.set false
     if newRoom?
       unless jitsi?
         jitsi = jitsiModule.createJitsiMeet newRoom, @find '#bb-jitsi-container'
         return unless jitsi?
         @jitsiRoom = newRoom
         @jitsi.set jitsi
-        jitsi.on 'videoConferenceLeft', =>
+        jitsi.once 'videoConferenceJoined', =>
+          return unless @jitsi.get() is jitsi
+          @jitsiReady.set true
+        jitsi.once 'videoConferenceLeft', =>
           @leaveJitsi()
           reactiveLocalStorage.removeItem 'jitsiTabUUID'
         reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
@@ -378,6 +384,7 @@ Template.embedded_chat.onRendered ->
     user = Meteor.user()
     jitsi = @jitsi.get()
     return unless jitsi?
+    return unless @jitsiReady.get()
     jitsi.executeCommands
       displayName: nickAndName user
       avatarUrl: gravatarUrl
@@ -387,6 +394,7 @@ Template.embedded_chat.onRendered ->
   @autorun =>
     jitsi = @jitsi.get()
     return unless jitsi?
+    return unless @jitsiReady.get()
     try
       jitsi.executeCommand 'subject', jitsiRoomSubject(@jitsiType(), @jitsiId())
 

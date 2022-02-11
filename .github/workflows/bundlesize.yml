@@ -2,6 +2,9 @@ on:
   pull_request:
     types: [opened, synchronize, edited, reopened]
 
+permissions:
+  pull-requests: write
+
 name: "Bundle Size Diff"
 
 concurrency: 
@@ -66,9 +69,8 @@ jobs:
     - uses: actions/download-artifact@v2
     - id: diff
       uses: ./.github/actions/diff-bundle-stats
-    - uses: mshick/add-pr-comment@v1
+    - uses: marocchino/sticky-pull-request-comment@v2
       with:
+        header: bundlesize
         message: ${{steps.diff.outputs.diff}}
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        repo-token-user-login: 'github-actions[bot]'
-        allow-repeats: true
+        hide_and_recreate: true

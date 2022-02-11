@@ -169,9 +169,6 @@ body.has-emojis {
     font-size: .65em;
     text-transform: none;
   }
-  .bb-addquip-btn {
-    float: right; margin-top: 4px; margin-right: 3px;
-  }
   .bb-left-content, .bb-top-right-content {
     background: var(--much-lighter);
     .bb-status-stuck { background: repeating-linear-gradient(45deg, var(--stuck-yellow), var(--stuck-yellow) 20px, rgba(0,0,0,0) 20px, rgba(0,0,0,0) 40px); }
@@ -282,6 +279,8 @@ input[type=color] {
   position: relative;
   background: var(--bg-color);
   overflow-y: auto;
+  display: flex;
+  flex-flow: row wrap;
   @media(max-width: 980px) {
     margin-left: 0px;
     margin-right: 0px;
@@ -301,15 +300,34 @@ input[type=color] {
   padding: 5px;
   font-size: 80%;
 
-  .bb-status-grid-round {
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-  td {
-    padding: 0px;
+  .bb-status-grid-meta-group {
+    display: flex;
+    flex-flow: row nowrap;
+    max-width: fit-content;
+    margin-right: 4px;
+    margin-bottom: 2px;
+    border: 2px solid var(--meta-color);
+    background-color: var(--meta-color);
   }
   .bb-status-grid-meta {
-    padding-right:2px;
+    padding:0px 2px;
+    background-color: var(--slightly-lighter);
+  }
+  .bb-status-grid-puzzles {
+    display: flex;
+    flex-flow: row wrap;
+    background-color: var(--bg-color);
+    margin-left: 1px;
+    &:empty {
+      display: none;
+    }
+  }
+  .bb-status-grid-solved-count {
+    background-color: var(--much-lighter);
+    padding: 0px 2px;
+    &.all-solved {
+      background-color: var(--slightly-lighter);
+    }
   }
   .bb-status-grid-cell {
     display: inline-block;
@@ -324,9 +342,6 @@ input[type=color] {
   }
   .bb-status-stuck {
     background:var(--stuck-yellow);
-  }
-  .bb-status-unsolved {
-    background:var(--bg-color);
   }
 }
 
@@ -357,6 +372,11 @@ input[type=color] {
 .bb-show-filter-by-user + .dropdown-menu {
   left: unset;
   right: 0;
+}
+.bb-edit-status {
+  left: 100%;
+  top: -5px;
+  white-space: nowrap;
 }
 .can-collapse() {
   &.collapsed .bb-tag-table {

@@ -1,7 +1,7 @@
 'use strict'
 model = share.model
 import { callAs, impersonating } from './imports/impersonate.coffee'
-import md5 from '/lib/imports/md5.coffee'
+import md5 from 'md5'
 
 # if the database is empty on server start, create some sample data.
 # (useful during development; disable this before hunt)
@@ -32,13 +32,6 @@ SAMPLE_NICKS = [
   real_name: 'Kevin Wallace'
   gravatar_md5: md5 'kevin@pentabarf.net'
 ]
-SAMPLE_QUIPS = [
-  text: "A codex is a book made up of a number of sheets of paper, vellum, papyrus, or similar, with hand-written content"
-  who: "kwal"
-,
-  text: "Hello, this is Codex! We wrote the book on mystery hunts."
-  who: "cscott"
-]
 
 Meteor.startup ->
   if share.DO_BATCH_PROCESSING and POPULATE_DB_WHEN_RESET and model.Rounds.find().count() is 0
@@ -53,9 +46,6 @@ Meteor.startup ->
     # add some user ids
     for nick in SAMPLE_NICKS
       Meteor.users.insert nick
-    # add some quips
-    for quip in SAMPLE_QUIPS
-      callAs "newQuip", quip.who, quip.text
 
     # Civilization Round, 2011
     impersonating WHO, ->

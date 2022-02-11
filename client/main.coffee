@@ -1,6 +1,7 @@
 'use strict'
 
-import { gravatarUrl, nickHash, md5 } from './imports/nickEmail.coffee'
+import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
+import md5 from 'md5'
 import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
@@ -22,7 +23,6 @@ chat = share.chat # import
 #   "chat"       -- chat room
 #   "oplogs"     -- operation logs
 #   "callins"    -- answer queue
-#   "quips"      -- view/edit phone-answering quips
 #   "facts"      -- server performance information
 Template.registerHelper "equal", (a, b) -> a is b
 Template.registerHelper "less", (a, b) -> a < b
@@ -356,9 +356,7 @@ BlackboardRouter = Backbone.Router.extend
     "chat/:type/:id": "ChatPage"
     "oplogs": "OpLogPage"
     "callins": "CallInPage"
-    "quips/:id": "QuipPage"
     "facts": "FactsPage"
-    "loadtest/:which": "LoadTestPage"
 
   BlackboardPage: ->
     scrollAfter =>
@@ -404,28 +402,8 @@ BlackboardRouter = Backbone.Router.extend
       color: 'inherit'
       topRight: null
 
-  QuipPage: (id) ->
-    this.Page("quip", "quips", id, false)
-
   FactsPage: ->
     this.Page("facts", "facts", "0", false)
-
-  LoadTestPage: (which) ->
-    return if Meteor.isProduction
-    # redirect to one of the 'real' pages, so that client has the
-    # proper subscriptions, etc; plus launch a background process
-    # to perform database mutations
-    cb = (args) =>
-      {page,type,id} = args
-      url = switch page
-        when 'chat' then this.chatUrlFor type, id
-        when 'oplogs' then this.urlFor 'oplogs' # bit of a hack
-        when 'blackboard' then Meteor._relativeToSiteRootUrl "/"
-        when 'facts' then this.urlFor 'facts', '' # bit of a hack
-        else this.urlFor type, id
-      this.navigate(url, {trigger:true})
-    r = share.loadtest.start which, cb
-    cb(r) if r? # immediately navigate if method is synchronous
 
   Page: (page, type, id, has_chat, splitter) ->
     old_room = Session.get 'room_name'
@@ -441,8 +419,7 @@ BlackboardRouter = Backbone.Router.extend
       type: type
       id: id
     # cancel modals if they were active
-    $('#nickPickModal').modal 'hide'
-    $('#confirmModal').modal 'hide'
+    $('.modal').modal 'hide'
 
   urlFor: (type,id) ->
     Meteor._relativeToSiteRootUrl "/#{type}/#{id}"

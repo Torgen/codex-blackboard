@@ -10,7 +10,7 @@ GRAVATAR_200 = 'https://secure.gravatar.com/avatar/a24f643d34150c3b4053989db3825
 
 class FakeJitsiMeet
   dispose: ->
-  on: (event, handler) ->
+  once: (event, handler) ->
   executeCommand: (cmd, param) ->
   executeCommands: (cmds) ->
 
@@ -38,17 +38,23 @@ describe 'jitsi', ->
 
   it 'uses static meeting name', ->
     mock = expectFactory()
-    mock.expects('on').once().withArgs 'videoConferenceLeft', sinon.match.func
-    mock.expects('executeCommand').once().withArgs 'subject', 'Ringhunters'
-    mock.expects('executeCommands').once().withArgs
-      displayName: 'Teresa Tybalt (testy)'
-      avatarUrl: GRAVATAR_200
+    onceExp = mock.expects('once').twice()
 
     share.Router.BlackboardPage()
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
     chai.assert.isTrue factory.calledWithMatch 'codex_whiteNoiseFoyer', sinon.match.instanceOf(HTMLDivElement)
+    chai.assert.isTrue onceExp.getCalls().some (call) ->
+      if call.calledWith 'videoConferenceJoined', sinon.match.func
+        call.args[1]()
+        return true
+      return false
+    mock.expects('executeCommand').once().withArgs 'subject', 'Ringhunters'
+    mock.expects('executeCommands').once().withArgs
+      displayName: 'Teresa Tybalt (testy)'
+      avatarUrl: GRAVATAR_200
+    await afterFlushPromise()
 
   it 'shares meeting between blackboard and edit', ->
     mock = expectFactory()
@@ -81,14 +87,21 @@ describe 'jitsi', ->
     dispose1.verify()
     dispose1.once()
     mock2 = expectFactory()
+    onceExp = mock2.expects('once').twice()
     dispose2 = mock2.expects('dispose').never()
-    mock2.expects('executeCommand').once().withArgs 'subject', 'In Memoriam'
     puzz = share.model.Puzzles.findOne name: 'In Memoriam'
     share.Router.PuzzlePage puzz._id
     await afterFlushPromise()
     await waitForSubscriptions()
     dispose1.verify()
     dispose2.verify()
+    chai.assert.isTrue onceExp.getCalls().some (call) ->
+      if call.calledWith 'videoConferenceJoined', sinon.match.func
+        call.args[1]()
+        return true
+      return false
+    mock2.expects('executeCommand').once().withArgs 'subject', 'In Memoriam'
+    await afterFlushPromise()
     dispose2.once()
 
   it 'stays in meeting when pinned', ->
@@ -113,7 +126,7 @@ describe 'jitsi', ->
 
   it 'doesn\'t rejoin when hangup callback is called', ->
     mock1 = expectFactory()
-    on1 = mock1.expects('on').once().withArgs 'videoConferenceLeft', sinon.match.func
+    on1 = mock1.expects('once').twice()
     dispose1 = mock1.expects('dispose').never()
     share.Router.BlackboardPage()
     await defaultLogin()
@@ -122,7 +135,11 @@ describe 'jitsi', ->
     dispose1.verify()
     dispose1.once()
     on1.verify()
-    on1.firstCall.lastArg()
+    chai.assert.isTrue on1.getCalls().some (call) ->
+      if call.calledWith 'videoConferenceLeft', sinon.match.func
+        call.args[1]()
+        return true
+      return false
     await afterFlushPromise()
     dispose1.verify()
     puzz = share.model.Puzzles.findOne name: 'In Memoriam'

@@ -213,16 +213,3 @@ Even though every puzzle page has a link to enter an answer on it, there are sev
 answer yourself. It is still better to do it through the call-in queue.  It preserves history and has buttons
 to update the blackboard for right/wrong answers.  The queue is accessible from the lower left of the main blackboard.  Please don't use it unless you are on duty, or there is no one on duty.
 </details>
-
- 
-Quips
-=====
-Quips are funny things to say when we answer phone calls from HQ. We do this because HQ should have fun too.
-It also encourages HQ to not delay our callbacks too much if we call in a bunch of wrong answers.
- 
-Adding quips:
-* The easiest way to add a quip is to ask the bot to do it. For example, `bot new quip Codex is my co-dump stat`.
-* If you are adding many quips, you can go to \<your hunt site\>/quips/new. E.g. funnyhunters.com/quips/new
- 
-The list of quips is shown to whomever is manning the call-in queue. Whoever is manning the call-in queue will be given
-a selection of not-recently-used quips to choose from.

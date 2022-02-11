@@ -281,14 +281,10 @@ Meteor.publish 'callins', loginRequired ->
   model.CallIns.find {status: $in: ['pending', 'rejected']},
     sort: [["created","asc"]]
 
-Meteor.publish 'quips', loginRequired ->
-  model.Quips.find {},
-    sort: [["last_used","asc"]]
-
 # synthetic 'all-names' collection which maps ids to type/name/canon
 Meteor.publish null, loginRequired ->
   self = this
-  handles = [ 'rounds', 'puzzles', 'quips' ].map (type) ->
+  handles = [ 'rounds', 'puzzles' ].map (type) ->
     model.collection(type).find({}).observe
       added: (doc) ->
         self.added 'names', doc._id,

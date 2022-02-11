@@ -9,7 +9,6 @@
 #   hubot bot: Delete puzzle <puzzle>
 #   hubot bot: <round> is a new round in group <group>
 #   hubot bot: Delete round <name>
-#   hubot bot: New quip: <quip>
 #   hubot bot: stuck [on <puzzle>] [because <reason>]
 #   hubot bot: unstuck [on <puzzle>]
 #   hubot bot: announce <message>
@@ -276,15 +275,6 @@ share.hubot.codex = (robot) ->
       msg.reply useful: true, "Couldn't delete round. (Are there still puzzles in it?)"
       return
     msg.reply useful: true, "Okay, I deleted round \"#{round.object.name}\"."
-    msg.finish()
-
-# Quips
-  robot.commands.push 'bot new quip <quip> - Updates codex quips list'
-  robot.respond (rejoin /new quip:? /,thingRE,/$/i), (msg) ->
-    text = strip msg.match[1]
-    who = msg.envelope.user.id
-    quip = callAs "newQuip", who, text
-    msg.reply "Okay, added quip.  I'm naming this one \"#{quip.name}\"."
     msg.finish()
 
 # Tags

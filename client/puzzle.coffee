@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
+import { confirm } from '/client/imports/modal.coffee'
 import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
@@ -145,14 +146,13 @@ Template.puzzle_summon_button.helpers
 
 Template.puzzle_summon_button.events
   "click .bb-summon-btn.stuck": (event, template) ->
-    share.confirmationDialog
+    if (await confirm
       message: 'Are you sure you want to cancel this request for help?'
       ok_button: "Yes, this #{model.pretty_collection(Session.get 'type')} is no longer stuck"
-      no_button: 'Nevermind, this is still STUCK'
-      ok: ->
-        Meteor.call 'unsummon',
-          type: Session.get 'type'
-          object: Session.get 'id'
+      no_button: 'Nevermind, this is still STUCK')
+      Meteor.call 'unsummon',
+        type: Session.get 'type'
+        object: Session.get 'id'
   "click .bb-summon-btn.unstuck": (event, template) ->
     $('#summon_modal .stuck-at').val('at start')
     $('#summon_modal .stuck-need').val('ideas')

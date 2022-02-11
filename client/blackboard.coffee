@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
+import { confirm } from '/client/imports/modal.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
@@ -197,6 +198,7 @@ meta_helper = ->
     continue unless puzzle?
     {
       _id: id
+      parent: @_id
       puzzle: puzzle
       num_puzzles: puzzle.puzzles.length
     }
@@ -205,7 +207,7 @@ unassigned_helper = ->
   p = for id, index in this.puzzles
     puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
     continue unless puzzle?
-    { _id: id, puzzle: puzzle }
+    { _id: id, parent: @_id, puzzle: puzzle }
   editing = Meteor.userId() and (Session.get 'canEdit')
   return p if editing or !HIDE_SOLVED.get()
   p.filter (pp) -> !pp.puzzle.solved?
@@ -230,8 +232,9 @@ Template.blackboard.helpers
   driveFolder: -> Session.get 'RINGHUNTERS_FOLDER'
 
 Template.blackboard_status_grid.helpers
-  rounds: round_helper
+  rounds: -> model.Rounds.find {}, sort: [["sort_key", 'asc']]
   metas: meta_helper
+  color: -> puzzleColor @puzzle if @puzzle?
   unassigned: -> 
     for id, index in this.puzzles
       puzzle = model.Puzzles.findOne({_id: id, feedsInto: {$size: 0}, puzzles: {$exists: false}})
@@ -244,6 +247,7 @@ Template.blackboard_status_grid.helpers
       puzzle: model.Puzzles.findOne(id) or { _id: id }
     } for id, index in ps)
     return p
+  numSolved: (l) -> l.filter((p) -> p.puzzle.solved).length
   stuck: share.model.isStuck
 
 Template.blackboard.onRendered ->
@@ -313,18 +317,17 @@ Template.blackboard.events
       Meteor.call 'setTag', {type:'puzzles', object: @puzzle._id, name:str, value:''}
   "click .bb-canEdit .bb-delete-icon": (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
-    [type, id, rest...] = share.find_bbedit(event)
+    [type, _parent, id, rest...] = share.find_bbedit(event)
     message = "Are you sure you want to delete "
     if (type is'tags') or (rest[0] is 'title')
       message += "this #{model.pretty_collection(type)}?"
     else
       message += "the #{rest[0]} of this #{model.pretty_collection(type)}?"
-    share.confirmationDialog
+    if (await confirm
       ok_button: 'Yes, delete it'
       no_button: 'No, cancel'
-      message: message
-      ok: ->
-        processBlackboardEdit[type]?(null, id, rest...) # process delete
+      message: message)
+      processBlackboardEdit[type]?(null, id, rest...) # process delete
   'click .bb-canEdit .bb-fix-drive': (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     Meteor.call 'fixPuzzleFolder',
@@ -339,7 +342,7 @@ Template.blackboard.events
     event.stopPropagation()
   'input input[type=color]': (event, template) ->
     edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-    [type, id, rest...] = edit.split('/')
+    [type, _parent, id, rest...] = edit.split('/')
     # strip leading/trailing whitespace from text (cancel if text is empty)
     text = hexToCssColor event.currentTarget.value.replace /^\s+|\s+$/, ''
     processBlackboardEdit[type]?(text, id, rest...) if text
@@ -348,7 +351,7 @@ Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
     return if Session.equals 'editing', undefined  # already cancelled.
     # find the data-bbedit specification for this field
     edit = $(evt.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-    [type, id, rest...] = edit.split('/')
+    [type, _parent, id, rest...] = edit.split('/')
     # strip leading/trailing whitespace from text (cancel if text is empty)
     text = text.replace /^\s+|\s+$/, ''
     processBlackboardEdit[type]?(text, id, rest...) if text
@@ -439,10 +442,11 @@ processBlackboardEdit =
     n = model.Names.findOne(id)
     if text is null # delete tag
       return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon}
-    t = model.collection(n.type).findOne(id).tags[canon]
-    Meteor.call 'setTag', {type:n.type, object:id, name:text, value:t.value}, (error,result) ->
-      if (canon isnt canonical(text)) and (not error)
-        Meteor.call 'deleteTag', {type:n.type, object:id, name:t.name}
+    thing = model.collection(n.type).findOne(id)
+    newCanon = canonical(text)
+    if newCanon isnt canon and thing.tags[newCanon]?
+      return
+    Meteor.call 'renameTag', {type:n.type, object:id, old_name:canon, new_name: text}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)
     t = model.collection(n.type).findOne(id).tags[canon]
@@ -522,6 +526,9 @@ Template.blackboard_meta.helpers
     y.length
   collapsed: -> 'true' is reactiveLocalStorage.getItem "collapsed_meta.#{@puzzle._id}"
 
+Template.blackboard_puzzle_cells.onCreated ->
+  @tagNameDep = new Tracker.Dependency()
+
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
     if event.target.checked
@@ -536,6 +543,8 @@ Template.blackboard_puzzle_cells.events
       type: 'puzzles'
       object: template.data.puzzle._id
       fields: order_by: event.currentTarget.dataset.sortOrder
+  'input/focus input[id^="tags-"][id$="-name"]': (event, template) ->
+    template.tagNameDep.changed()
 
 tagHelper = ->
   isRound = not ('feedsInto' of this)
@@ -554,6 +563,23 @@ Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
     return (model.getTag @puzzle, name) or ''
   tags: tagHelper
+  tagEditClass: ->
+    inst = Template.instance()
+    inst.tagNameDep.depend()
+    return unless inst.firstNode?
+    val = inst.$("[data-bbedit$=\"/#{@id}/#{@canon}/name\"] input").val()
+    return 'error' if not val
+    return 'info' if canonical(val) is @canon
+    return 'error' if Template.parentData(1).tags[canonical val]?
+    return 'success'
+  tagEditStatus: ->
+    inst = Template.instance()
+    inst.tagNameDep.depend()
+    return unless inst.firstNode?
+    val = inst.$("[data-bbedit$=\"/#{@id}/#{@canon}/name\"] input").val()
+    return 'Cannot be empty' if not val
+    return 'Unchanged' if val is @name
+    return 'Tag already exists' if Template.parentData(1).tags[canonical val]?
   hexify: (v) -> cssColorToHex v
   allMetas: ->
     return [] unless @

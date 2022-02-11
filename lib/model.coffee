@@ -22,11 +22,6 @@ PRESENCE_KEEPALIVE_MINUTES = 2
 # this is used to yield "zero results" in collections which index by timestamp
 NOT_A_TIMESTAMP = -9999
 
-randomname = if Meteor.isServer
-  (s) -> require('../server/imports/randomname.coffee').default(seed: s)
-else
-  (s) -> s.slice(0, 16)
-
 BBCollection = Object.create(null) # create new object w/o any inherited cruft
 
 # Names is a synthetic collection created by the server which indexes
@@ -149,17 +144,6 @@ if Meteor.isServer
   CallIns.createIndex {status: 1, created: 1}
   CallIns.createIndex {status: 1, target_type: 1, target: 1, callin_type: 1, answer: 1}, {unique:true, dropDups:true, partialFilterExpression: {status: 'pending'}}
   CallIns.createIndex {target_type: 1, target: 1, created: 1}
-
-# Quips are:
-#   _id: mongodb id
-#   text: string (quip to present at callin)
-#   created: timestamp
-#   created_by: canon of Nick
-#   last_used: timestamp (0 if never used)
-#   use_count: integer
-Quips = BBCollection.quips = new Mongo.Collection "quips"
-if Meteor.isServer
-  Quips.createIndex {last_used: 1}, {}
 
 # Polls are:
 #   _id: mongodb id
@@ -771,41 +755,6 @@ do ->
           @userId, 'callins'
       return callin
 
-    newQuip: (text) ->
-      check @userId, NonEmptyString
-      check text, NonEmptyString
-      # "Name" of a quip is a random name based on its hash, so the
-      # oplogs don't spoil the quips.
-      name = randomname(text)
-      newObject "quips", {name:name, who:@userId},
-        text: text
-        last_used: 0 # not yet used
-        use_count: 0 # not yet used
-
-    useQuip: (args) ->
-      check @userId, NonEmptyString
-      check args, ObjectWith
-        id: NonEmptyString
-        punted: Match.Optional(Boolean)
-      quip = Quips.findOne args.id
-      throw new Meteor.Error(404, "bad quip id") unless quip
-      now = UTCNow()
-      Quips.update args.id,
-        $set: {last_used: now, touched: now, touched_by: @userId}
-        $inc: use_count: (if args.punted then 0 else 1)
-      return if args.punted
-      quipAddUrl = # see Router.urlFor
-        Meteor._relativeToSiteRootUrl "/quips/new"
-
-      Meteor.call 'newMessage',
-        body: "<span class=\"bb-quip-action\">#{UI._escape(quip.text)} <a class='quips-link' href=\"#{quipAddUrl}\"></a></span>"
-        action: true
-        bodyIsHtml: true
-
-    removeQuip: (id) ->
-      check @userId, NonEmptyString
-      deleteObject "quips", {id, who: @userId}
-
     # Response is forbibben for answers and optional for other callin types.
     correctCallIn: (id, response) ->
       check @userId, NonEmptyString
@@ -1102,6 +1051,77 @@ do ->
       id = args.object._id or args.object
       setTagInternal updateDoc, {args..., who: @userId}
       0 < collection(args.type).update id, updateDoc
+
+    renameTag: ({type, object, old_name, new_name}) ->
+      check @userId, NonEmptyString
+      check type, ValidType
+      check object, IdOrObject
+      check old_name, NonEmptyString
+      check new_name, NonEmptyString
+      new_canon = canonical new_name
+      throw new Match.Error 'Can\'t rename to link' if new_canon is 'link'
+      old_canon = canonical old_name
+      now = UTCNow()
+      coll = collection(type)
+      if new_canon is old_canon
+        # change 'name' but do nothing else
+        ct = coll.update {
+          _id: object._id or object
+          "tags.#{old_canon}": $exists: true
+        }, {
+          $set:
+            "tags.#{new_canon}.name": new_name
+            "tags.#{new_canon}.touched": now
+            "tags.#{new_canon}.touched_by": @userId
+            touched: now
+            touched_by: @userId
+        }
+        if 1 isnt ct
+          throw new Meteor.Error 404, "No such object"
+        return 
+      if @isSimulation
+        # this is all synchronous
+        ct = coll.update {
+          _id: object._id or object
+          "tags.#{old_canon}": $exists: true
+          "tags.#{new_canon}": $exists: false
+        }, {
+          $set:
+            "tags.#{new_canon}.name": new_name
+            "tags.#{new_canon}.touched": now
+            "tags.#{new_canon}.touched_by": @userId
+            touched: now
+            touched_by: @userId
+          $rename:
+            "tags.#{old_canon}.value": "tags.#{new_canon}.value"
+        }
+        if ct is 1
+          coll.update {_id: object._id or object}, {$unset: "tags.#{old_canon}": ''}
+        else 
+          throw new Meteor.Error 404, "No such object"
+        return
+      # On the server, use aggregation pipeline to make the whole edit in a single
+      # call to avoid a race condition. This requires rawCollection because the
+      # wrappers don't support aggregation pipelines.
+      result = Promise.await(coll.rawCollection().updateOne({
+        _id: object._id or object
+        "tags.#{old_canon}": $exists: true
+        "tags.#{new_canon}": $exists: false
+      }, [{
+        $addFields: {
+          "tags.#{new_canon}": {
+            value: "$tags.#{old_canon}.value"
+            name: $literal: new_name
+            touched: now
+            touched_by: $literal: @userId
+          }
+          touched: now
+          touched_by: $literal: @userId
+        }},
+        {$unset: "tags.#{old_canon}" }
+      ]))
+      if 1 isnt result.modifiedCount
+        throw new Meteor.Error 404, "No such object"
 
     deleteTag: (args) ->
       check @userId, NonEmptyString
@@ -1474,7 +1494,6 @@ share.model =
   NOT_A_TIMESTAMP: NOT_A_TIMESTAMP
   # collection types
   CallIns: CallIns
-  Quips: Quips
   Polls: Polls
   Names: Names
   LastAnswer: LastAnswer
