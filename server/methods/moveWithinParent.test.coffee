@@ -43,7 +43,7 @@ testCase = (method, collection) ->
       chai.assert.isFalse callAs method, 'torgen', 'nosuch', 'child', pos: 1
 
     it 'fails when child doesn\'t exist', ->
-      chai.assert.isFalse callAs method, 'torgen', 'parent', 'c5', pos: 1
+      chai.assert.isFalse callAs method, 'torgen', 'c5', 'parent', pos: 1
       chai.assert.deepInclude collection.findOne('parent'),
         puzzles: ['c1', 'c2', 'c3', 'c4']
         touched_by: 'cjb'

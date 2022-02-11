@@ -449,7 +449,7 @@ do ->
     check parentType, ValidType
     check parentId, NonEmptyString
     loop
-      parent = collection(parentType).findOne(parentId)
+      parent = collection(parentType).findOne(_id: parentId, puzzles: id)
       ix = parent?.puzzles?.indexOf(id)
       return false unless ix?
       npos = ix
