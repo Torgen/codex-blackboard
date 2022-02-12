@@ -574,11 +574,16 @@ input[type=color] {
       }
     }
     .bb-tag-table {
+      width: 100%;
       font-size: 90%;
       border-collapse: collapse;
       position: relative;/* fixes z-order issues, makes whole width clickable */
       &, td, tr { border: none; }
       td { padding: 0 3px; margin: 0; }
+      td:first-child {
+        width: 0px;
+        white-space: nowrap;
+      }
       .bb-edit-icon {
         &.pull-left { margin-left: -6px; margin-right: 4px; }
         &.pull-right { margin-left: 2px; margin-right: -3px; }
