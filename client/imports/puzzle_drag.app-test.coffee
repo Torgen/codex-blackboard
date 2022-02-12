@@ -35,16 +35,20 @@ describe 'drag-and-drop', ->
     drag = new PuzzleDrag invent, meta(), round(), inventJQ[0], inventJQ[0].getBoundingClientRect().top + 10, dt
     chai.assert.include dt.types, 'application/prs.codex-puzzle'
     chai.assert.isTrue drag.dragover invent, meta(), round(), inventJQ[0], inventJQ[0].getBoundingClientRect().top + 12, dt
+    await waitForMethods()
     await afterFlushPromise()
     chai.assert.isBelow posJQ.offset().top, inventJQ.offset().top, 'drag on self 1'
     chai.assert.isAbove kidsJQ.offset().top, inventJQ.offset().top, 'drag on self 2'
     chai.assert.isTrue drag.dragover kids, meta(), round(), kidsJQ[0], kidsJQ[0].getBoundingClientRect().top + 9, dt
+    await waitForMethods()
     await afterFlushPromise()
     chai.assert.isAbove kidsJQ.offset().top, inventJQ.offset().top, 'not far enough down'
     chai.assert.isTrue drag.dragover kids, meta(), round(), kidsJQ[0], kidsJQ[0].getBoundingClientRect().top + 11, dt
+    await waitForMethods()
     await afterFlushPromise()
     chai.assert.isBelow kidsJQ.offset().top, inventJQ.offset().top, 'after drag down'
     chai.assert.isTrue drag.dragover pos, meta(), round(), posJQ[0], posJQ[0].getBoundingClientRect().bottom - 4, dt
+    await waitForMethods()
     await afterFlushPromise()
     chai.assert.isBelow posJQ.offset().top, inventJQ.offset().top, 'after drag up 1'
     chai.assert.isAbove kidsJQ.offset().top, inventJQ.offset().top, 'after drag up 2'

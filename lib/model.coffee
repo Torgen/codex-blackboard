@@ -450,6 +450,7 @@ do ->
     check parentId, NonEmptyString
     if call.isSimulation
       parent = collection(parentType).findOne(_id: parentId, puzzles: id)
+      console.log 'before sim', parent
       ix = parent?.puzzles?.indexOf(id)
       return false unless ix?
       npos = ix
@@ -471,6 +472,7 @@ do ->
         puzzles: npuzzles
         touched: UTCNow()
         touched_by: canonical(args.who)
+      console.log 'after sim', collection(parentType).findOne(_id: parentId).puzzles
       return true
     try
       [query, targetPosition] = if args.pos?
@@ -493,6 +495,7 @@ do ->
           touched: UTCNow()
           touched_by: canonical(args.who)
       ])
+      console.log 'after real', collection(parentType).findOne(_id: parentId).puzzles
       return res.modifiedCount is 1
     catch e
       console.log e

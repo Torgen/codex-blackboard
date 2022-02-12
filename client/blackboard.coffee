@@ -510,6 +510,7 @@ Template.blackboard_meta.helpers
       return model.Puzzles.find filter,
         sort: {"#{@puzzle.order_by}": 1}
         transform: (p) -> {_id: p._id, puzzle: p}
+    console.log this.puzzle.puzzles
     p = ({
       _id: id
       puzzle: model.Puzzles.findOne(id) or { _id: id }
