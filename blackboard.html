@@ -539,21 +539,21 @@
 <template name="blackboard_link">
 {{#if canEdit}}
   <table class="bb-tag-table"><tbody>
-        <tr>
-          <td>Hunt site link:</td>
-          <td class="bb-editable"
-              data-bbedit="link/{{parent}}/{{_id}}">
-            {{#if editing "link" parent _id}}
-              <input type="text" id="link-{{parent}}-{{_id}}"
-                     value="{{./link}}"
-                     class="input-block-level" />
-            {{else if canEdit}}
-              <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-                 title="Change the value of the hunt site link"></i>
-              <a href="{{./link}}">{{./link}}</a>
-            {{/if}}
-          </td>
-        </tr>
+    <tr>
+      <td>Hunt site link:</td>
+      <td class="bb-editable"
+          data-bbedit="link/{{../parent}}/{{_id}}">
+        {{#if editing "link" ../parent _id}}
+          <input type="text" id="link-{{../parent}}-{{_id}}"
+                  value="{{./link}}"
+                  class="input-block-level" />
+        {{else if canEdit}}
+          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
+              title="Change the value of the hunt site link"></i>
+          <a href="{{./link}}">{{./link}}</a>
+        {{/if}}
+      </td>
+    </tr>
   </tbody></table>
 {{/if}}
 </template>
