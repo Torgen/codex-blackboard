@@ -1,5 +1,7 @@
 'use strict'
 import './edit_tag_value.html'
+
+import canonical from '/lib/imports/canonical.coffee'
 import { confirm } from '/client/imports/modal.coffee'
 import { cssColorToHex, hexToCssColor } from '/client/imports/objectColor.coffee'
 import okCancelEvents from '/client/imports/ok_cancel_events.coffee'
@@ -8,6 +10,7 @@ Template.edit_tag_value.onCreated ->
   @editing = new ReactiveVar false
 
 Template.edit_tag_value.helpers
+  canon: -> canonical @name
   editing: -> Template.instance().editing.get()
   hexify: (v) -> cssColorToHex v
 
