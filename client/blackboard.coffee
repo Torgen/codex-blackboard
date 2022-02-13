@@ -2,11 +2,13 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import { confirm } from '/client/imports/modal.coffee'
+import okCancelEvents from '/client/imports/ok_cancel_events.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
+import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -56,28 +58,6 @@ Meteor.startup ->
   if reddot.data[0] > reddot.data[1] and dancing.data[0] + dancing.data[1] + dancing.data[2] > 0
     console.log 'has unicode 9 color emojis'
     document.body.classList.add 'has-emojis'
-
-# Returns an event map that handles the "escape" and "return" keys and
-# "blur" events on a text input (given by selector) and interprets them
-# as "ok" or "cancel".
-# (Borrowed from Meteor 'todos' example.)
-okCancelEvents = share.okCancelEvents = (selector, callbacks) ->
-  ok = callbacks.ok or (->)
-  cancel = callbacks.cancel or (->)
-  evspec = ("#{ev} #{selector}" for ev in ['keyup','keydown','focusout'])
-  events = {}
-  events[evspec.join(', ')] = (evt) ->
-    if evt.type is "keydown" and evt.which is 27
-      # escape = cancel
-      cancel.call this, evt
-    else if evt.type is "keyup" and evt.which is 13 or evt.type is "focusout"
-      # blur/return/enter = ok/submit if non-empty
-      value = String(evt.target.value or "")
-      if value
-        ok.call this, value, evt
-      else
-        cancel.call this, evt
-  events
 
 ######### general properties of the blackboard page ###########
 
@@ -277,7 +257,7 @@ Template.blackboard.events
 
 share.find_bbedit = (event) ->
   edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-  return edit.split('/')
+  return edit?.split('/')
 
 Template.blackboard.onRendered ->
   #  page title
@@ -337,7 +317,7 @@ Template.blackboard.events
   "click .bb-canEdit .bb-editable": (event, template) ->
     # note that we rely on 'blur' on old field (which triggers ok or cancel)
     # happening before 'click' on new field
-    Session.set 'editing', share.find_bbedit(event).join('/')
+    Session.set 'editing', share.find_bbedit(event)?.join('/')
   'click input[type=color]': (event, template) ->
     event.stopPropagation()
   'input input[type=color]': (event, template) ->
@@ -438,15 +418,6 @@ processBlackboardEdit =
       Meteor.call 'deleteRound', id
     else
       Meteor.call 'renameRound', {id:id, name:text}
-  tags_name: (text, id, canon) ->
-    n = model.Names.findOne(id)
-    if text is null # delete tag
-      return Meteor.call 'deleteTag', {type:n.type, object:id, name:canon}
-    thing = model.collection(n.type).findOne(id)
-    newCanon = canonical(text)
-    if newCanon isnt canon and thing.tags[newCanon]?
-      return
-    Meteor.call 'renameTag', {type:n.type, object:id, old_name:canon, new_name: text}
   tags_value: (text, id, canon) ->
     n = model.Names.findOne(id)
     t = model.collection(n.type).findOne(id).tags[canon]
@@ -526,9 +497,6 @@ Template.blackboard_meta.helpers
     y.length
   collapsed: -> 'true' is reactiveLocalStorage.getItem "collapsed_meta.#{@puzzle._id}"
 
-Template.blackboard_puzzle_cells.onCreated ->
-  @tagNameDep = new Tracker.Dependency()
-
 Template.blackboard_puzzle_cells.events
   'change .bb-set-is-meta': (event, template) ->
     if event.target.checked
@@ -543,15 +511,13 @@ Template.blackboard_puzzle_cells.events
       type: 'puzzles'
       object: template.data.puzzle._id
       fields: order_by: event.currentTarget.dataset.sortOrder
-  'input/focus input[id^="tags-"][id$="-name"]': (event, template) ->
-    template.tagNameDep.changed()
 
 tagHelper = ->
   isRound = not ('feedsInto' of this)
   tags = this?.tags or {}
   (
     t = tags[canon]
-    { _id: "#{@_id}/#{canon}", id: @_id, name: t.name, canon, value: t.value, touched_by: t.touched_by }
+    { _id: "#{@_id}/#{canon}", type: (if isRound then 'rounds' else 'puzzles'), id: @_id, name: t.name, canon, value: t.value, touched_by: t.touched_by }
   ) for canon in Object.keys(tags).sort() when not \
     ((Session.equals('currentPage', 'blackboard') and \
       (canon is 'status' or \
@@ -562,25 +528,6 @@ tagHelper = ->
 Template.blackboard_puzzle_cells.helpers
   tag: (name) ->
     return (model.getTag @puzzle, name) or ''
-  tags: tagHelper
-  tagEditClass: ->
-    inst = Template.instance()
-    inst.tagNameDep.depend()
-    return unless inst.firstNode?
-    val = inst.$("[data-bbedit$=\"/#{@id}/#{@canon}/name\"] input").val()
-    return 'error' if not val
-    return 'info' if canonical(val) is @canon
-    return 'error' if Template.parentData(1).tags[canonical val]?
-    return 'success'
-  tagEditStatus: ->
-    inst = Template.instance()
-    inst.tagNameDep.depend()
-    return unless inst.firstNode?
-    val = inst.$("[data-bbedit$=\"/#{@id}/#{@canon}/name\"] input").val()
-    return 'Cannot be empty' if not val
-    return 'Unchanged' if val is @name
-    return 'Tag already exists' if Template.parentData(1).tags[canonical val]?
-  hexify: (v) -> cssColorToHex v
   allMetas: ->
     return [] unless @
     (model.Puzzles.findOne x) for x in @feedsInto
@@ -648,7 +595,9 @@ Template.blackboard_puzzle.events
     if dragdata?.dragover template.data.puzzle, Template.parentData(1).puzzle, Template.parentData(2), event.target, event.clientY, event.dataTransfer
       event.preventDefault()
 
-Template.blackboard_tags.helpers { tags: tagHelper }
+Template.blackboard_tags.helpers
+  tags: tagHelper
+  hexify: (v) -> cssColorToHex v
 Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information

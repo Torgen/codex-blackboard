@@ -361,52 +361,7 @@
     {{/if}}
     {{#with puzzle}}
       {{#unless compactMode}}
-      <table class="bb-tag-table"><tbody>
-        {{#each tags}}
-        <tr>
-          <td class="bb-editable control-group {{tagEditClass}}"
-              data-bbedit="tags/{{../../parent}}/{{id}}/{{canon}}/name">
-            {{#if editing "tags" ../../parent id canon "name"}}
-              <input type="text" id="tags-{{../../parent}}-{{id}}-{{canon}}-name"
-                      value="{{name}}"
-                      class="input-block-level" />
-              {{#if tagEditStatus}}
-                <div class="tooltip right in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{tagEditStatus}}</div></div>
-              {{/if}}
-            {{else}}
-              {{#if canEdit}}
-                <i class="bb-edit-icon fas fa-pencil-alt"
-                    title="Edit the name of this tag"></i>
-              {{/if}}
-              {{name}}:
-            {{/if}}
-          </td>
-          <td class="bb-editable"
-              data-bbedit="tags/{{../../parent}}/{{id}}/{{canon}}/value">
-            {{#if equal canon "color"}}
-              {{#if canEdit}}
-                <input type="color" id="tags-{{../../parent}}-{{id}}-{{canon}}-color"
-                       value="{{hexify value}}" />
-              {{else}}
-                <span class="bb-colorbox" style="background-color: {{value}}"></span>
-              {{/if}}
-            {{/if}}
-            {{#if editing "tags" ../../parent id canon "value"}}
-              <input type="text" id="tags-{{../../parent}}-{{id}}-{{canon}}-value"
-                      value="{{value}}"
-                      class="input-block-level" />
-            {{else if canEdit}}
-              <i class="bb-delete-icon fas fa-times"
-                  title="Delete this tag and value"></i>
-              {{value}}
-              <i class="bb-edit-icon fas fa-pencil-alt"
-                  title="Change the value of this tag"></i>
-            {{else}}
-              {{>text_chunks value}}
-            {{/if}}
-          </td>
-        </tr>
-        {{/each}}
+      {{#blackboard_tags}}
         {{#if canEdit}}
           {{#if canChangeMeta}}
           <tr>
@@ -468,8 +423,8 @@
           {{/if}}
         {{/if}}
         {{>calendar_puzzle_cell}}
-      </tbody></table>
-        {{/unless}}
+      {{/blackboard_tags}}
+      {{/unless}}
       {{>blackboard_link}}
     {{/with}}
   </div></td>
@@ -608,40 +563,38 @@
 </template>
 
 <template name="blackboard_tags">
-  <dl class="dl-horizontal">{{#each tags}}
-    <dt class="bb-editable"
-        data-bbedit="tags/{{../parent}}/{{id}}/{{canon}}/name">
-      {{#if editing "tags" ../parent id canon "name"}}
-        <input type="text" id="tags-{{../parent}}-{{id}}-{{canon}}-name"
-               value="{{name}}"
-               class="input-block-level" />
-      {{else}}
-        {{#if canEdit}}
-          <i class="bb-edit-icon fas fa-pencil-alt pull-left"
-             title="Edit the name of this tag"></i>
+  <table class="bb-tag-table"><tbody>
+    {{#each tags}}
+    <tr data-tag-name="{{canon}}">
+      {{>edit_tag_name type=type id=id name=name editable=canEdit}}
+      <td class="bb-editable"
+          data-bbedit="tags/{{../../parent}}/{{id}}/{{canon}}/value">
+        {{#if equal canon "color"}}
+          {{#if canEdit}}
+            <input type="color" id="tags-{{../../parent}}-{{id}}-{{canon}}-color"
+                    value="{{hexify value}}" />
+          {{else}}
+            <span class="bb-colorbox" style="background-color: {{value}}"></span>
+          {{/if}}
         {{/if}}
-        {{name}}:
-      {{/if}}
-     </dt>
-    <dd class="bb-editable"
-        data-bbedit="tags/{{../parent}}/{{id}}/{{canon}}/value">
-      {{#if editing "tags" ../parent id canon "value"}}
-        <input type="text" id="tags-{{../parent}}-{{id}}-{{canon}}-value"
-               value="{{value}}"
-               class="input-block-level" />
-      {{else if canEdit}}
-        <i class="bb-delete-icon fas fa-times pull-left"
-           title="Delete this tag and value"></i>
-        {{value}}
-        <i class="bb-edit-icon fas fa-pencil-alt"
-           title="Edit the value of this tag"></i>
-      {{else if value}}
-        {{>text_chunks value}}
-      {{else}}
-        &nbsp; {{! make sure right-hand side stays in place! }}
-      {{/if}}
-    </dd>
-  {{/each}}</dl>
+        {{#if editing "tags" ../../parent id canon "value"}}
+          <input type="text" id="tags-{{../../parent}}-{{id}}-{{canon}}-value"
+                  value="{{value}}"
+                  class="input-block-level" />
+        {{else if canEdit}}
+          <i class="bb-delete-icon fas fa-times"
+              title="Delete this tag and value"></i>
+          {{value}}
+          <i class="bb-edit-icon fas fa-pencil-alt"
+              title="Change the value of this tag"></i>
+        {{else}}
+          {{>text_chunks value}}
+        {{/if}}
+      </td>
+    </tr>
+    {{/each}}
+    {{> Template.contentBlock}}
+  </tbody></table>
 </template>
 
 <template name="blackboard_link">

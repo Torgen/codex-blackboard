@@ -1,5 +1,5 @@
 <template name="puzzle_info">
-<div class="bb-puzzle-frame">
+<div class="bb-puzzle-frame bb-canEdit">
 <div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
   <h2>
     {{> header_breadcrumbs_unsolved_buttons puzzle}}
@@ -28,8 +28,8 @@
 {{/each}}
 {{#with puzzle}}
   {{#each tags}}
-    <tr>
-      <td class="tagname">{{name}}:</td>
+    <tr data-tag-name="{{name}}">
+      {{> edit_tag_name type="puzzles" id=../_id name=name editable=true}}
       <td class="tagvalue">
         {{#if equal canon "color"}}<span class="bb-colorbox" style="background-color: {{value}}"></span>{{/if}}
         {{>text_chunks value}}
