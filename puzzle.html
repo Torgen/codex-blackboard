@@ -29,7 +29,7 @@
 {{#with puzzle}}
   {{#each tags}}
     <tr data-tag-name="{{name}}">
-      {{> edit_tag_name type="puzzles" id=../_id name=name editable=true}}
+      {{> edit_tag_name type="puzzles" id=id name=name editable=true}}
       <td class="tagvalue">
         {{#if equal canon "color"}}<span class="bb-colorbox" style="background-color: {{value}}"></span>{{/if}}
         {{>text_chunks value}}
