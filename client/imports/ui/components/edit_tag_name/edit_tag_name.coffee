@@ -11,7 +11,7 @@ Template.edit_tag_name.onCreated ->
 Template.edit_tag_name.events
   'input/focus input': (event, template) ->
     template.newTagName.set event.currentTarget.value
-  'click *': (event, template) ->
+  'click .bb-editable': (event, template) ->
     template.editing.set true
     Tracker.afterFlush ->
       template.$('input').focus()

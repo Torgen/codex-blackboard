@@ -21,7 +21,11 @@
   <tr><td>Mechanics:</td><td>{{> puzzle_mechanics}}{{#each mechanics}}<span class="label">{{mechanicName}}</span>{{/each}}</td></tr>
 {{/with}}
 {{#each cares in unsetcaredabout}}
-  <tr><td>{{cares.name}}:</td><td class="wanted">(wanted by <span title="{{cares.meta}}">{{abbrev cares.meta}}</span>)</td></tr>
+  <tr data-tag-name={{cares.name}}>
+    <td>{{cares.name}}:</td>
+    {{# edit_tag_value type="puzzles" id=puzzle._id name=cares.name editable=true}}
+      (wanted by <span title="{{cares.meta}}">{{abbrev cares.meta}}</span>)
+    {{/edit_tag_value}}</tr>
 {{/each}}
 {{#each mtag in metatags}}
   <tr><td>{{mtag.name}}:<br><i>(from <span title="{{mtag.meta}}">{{abbrev mtag.meta}}</span>)</i></td><td>{{>text_chunks mtag.value}}</td></tr>
@@ -30,10 +34,7 @@
   {{#each tags}}
     <tr data-tag-name="{{name}}">
       {{> edit_tag_name type="puzzles" id=id name=name editable=true}}
-      <td class="tagvalue">
-        {{#if equal canon "color"}}<span class="bb-colorbox" style="background-color: {{value}}"></span>{{/if}}
-        {{>text_chunks value}}
-      </td>
+      {{> edit_tag_value type="puzzles" id=id name=name value=value editable=true}}
     </tr>
     {{#if equal canon 'status'}}
     <tr>

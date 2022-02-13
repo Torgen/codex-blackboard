@@ -4,11 +4,12 @@ import canonical from '/lib/imports/canonical.coffee'
 import { confirm } from '/client/imports/modal.coffee'
 import okCancelEvents from '/client/imports/ok_cancel_events.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
-import puzzleColor, { cssColorToHex, hexToCssColor } from './imports/objectColor.coffee'
+import puzzleColor  from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
 import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
+import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -318,14 +319,6 @@ Template.blackboard.events
     # note that we rely on 'blur' on old field (which triggers ok or cancel)
     # happening before 'click' on new field
     Session.set 'editing', share.find_bbedit(event)?.join('/')
-  'click input[type=color]': (event, template) ->
-    event.stopPropagation()
-  'input input[type=color]': (event, template) ->
-    edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-    [type, _parent, id, rest...] = edit.split('/')
-    # strip leading/trailing whitespace from text (cancel if text is empty)
-    text = hexToCssColor event.currentTarget.value.replace /^\s+|\s+$/, ''
-    processBlackboardEdit[type]?(text, id, rest...) if text
 Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
   ok: (text, evt) ->
     return if Session.equals 'editing', undefined  # already cancelled.
@@ -401,9 +394,6 @@ Template.blackboard_unassigned.events
   'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle', 'before'
   'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle', 'after'
 processBlackboardEdit =
-  tags: (text, id, canon, field) ->
-    field = 'name' if text is null # special case for delete of status tag
-    processBlackboardEdit["tags_#{field}"]?(text, id, canon)
   puzzles: (text, id, field) ->
     processBlackboardEdit["puzzles_#{field}"]?(text, id)
   rounds: (text, id, field) ->
@@ -418,18 +408,6 @@ processBlackboardEdit =
       Meteor.call 'deleteRound', id
     else
       Meteor.call 'renameRound', {id:id, name:text}
-  tags_value: (text, id, canon) ->
-    n = model.Names.findOne(id)
-    t = model.collection(n.type).findOne(id).tags[canon]
-    # special case for 'status' tag, which might not previously exist
-    for special in ['Status', 'Answer']
-      if (not t) and canon is canonical(special)
-        t =
-          name: special
-          canon: canonical special
-          value: ''
-    # set tag (overwriting previous value)
-    Meteor.call 'setTag', {type:n.type, object:id, name:t.name, value:text}
   link: (text, id) ->
     n = model.Names.findOne(id)
     Meteor.call 'setField',
@@ -597,7 +575,6 @@ Template.blackboard_puzzle.events
 
 Template.blackboard_tags.helpers
   tags: tagHelper
-  hexify: (v) -> cssColorToHex v
 Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information

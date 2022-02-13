@@ -434,49 +434,13 @@
 </template>
 
 <template name="blackboard_column_body_answer">
-  <td class="puzzle-answer bb-editable"
-      data-bbedit="tags/{{parent}}/{{puzzle._id}}/answer/value">
-    {{#if editing "tags" parent puzzle._id "answer" "value"}}
-      <input type="text" id="tags-{{parent}}-{{puzzle._id}}-answer-value"
-              value="{{answer}}"
-              class="input-block-level" />
-    {{else}}
-      {{#if canEdit}}
-        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-            title="Change the answer of this puzzle"></i>
-      {{/if}}
-      {{#if answer}}
-        {{#if canEdit}}
-          <i class="bb-delete-icon fas fa-times pull-left"
-              title="Delete the answer to this puzzle"></i>
-        {{/if}}
-        <span class="answer">{{answer}}</span>
-      {{/if}}
-    {{/if}}
-  </td>
+  {{>edit_tag_value type="puzzles" id=puzzle._id name="Answer" value=answer editable=canEdit class="puzzle-answer answer"}}
 </template>
 
 <template name="blackboard_column_body_status">
-  <td class="puzzle-status {{#unless puzzle.solved}}bb-editable{{/unless}}"
-      data-bbedit="tags/{{parent}}/{{puzzle._id}}/status/value">
-    {{#if editing "tags" parent puzzle._id "status" "value"}}
-      <input type="text" id="tags-{{parent}}-{{puzzle._id}}-status-value"
-              value="{{status}}"
-              class="input-block-level" />
-    {{else}}
-      {{#unless puzzle.solved}}
-      {{#if canEdit}}
-        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-            title="Change the status of this puzzle"></i>
-        {{#if status}}
-          <i class="bb-delete-icon fas fa-times pull-left"
-              title="Delete the status message for this puzzle"></i>
-        {{/if}}
-      {{/if}}
-      {{/unless}}
-      {{#if status}}{{status}} <span class="bb-who-stuck">&mdash; by {{>gravatar nick=set_by size=12}}{{nickAndName set_by}}</span>{{/if}}
-    {{/if}}
-  </td>
+  {{#edit_tag_value type="puzzles" id=puzzle._id name="Status" value=status editable=canEdit class="puzzle-status"}}
+    {{#if status}}<span class="bb-who-stuck">&mdash; by {{>gravatar nick=set_by size=12}}{{nickAndName set_by}}</span>{{/if}}
+  {{/edit_tag_value}}
 </template>
 
 <template name="blackboard_column_body_working">
@@ -567,30 +531,7 @@
     {{#each tags}}
     <tr data-tag-name="{{canon}}">
       {{>edit_tag_name type=type id=id name=name editable=canEdit}}
-      <td class="bb-editable"
-          data-bbedit="tags/{{../../parent}}/{{id}}/{{canon}}/value">
-        {{#if equal canon "color"}}
-          {{#if canEdit}}
-            <input type="color" id="tags-{{../../parent}}-{{id}}-{{canon}}-color"
-                    value="{{hexify value}}" />
-          {{else}}
-            <span class="bb-colorbox" style="background-color: {{value}}"></span>
-          {{/if}}
-        {{/if}}
-        {{#if editing "tags" ../../parent id canon "value"}}
-          <input type="text" id="tags-{{../../parent}}-{{id}}-{{canon}}-value"
-                  value="{{value}}"
-                  class="input-block-level" />
-        {{else if canEdit}}
-          <i class="bb-delete-icon fas fa-times"
-              title="Delete this tag and value"></i>
-          {{value}}
-          <i class="bb-edit-icon fas fa-pencil-alt"
-              title="Change the value of this tag"></i>
-        {{else}}
-          {{>text_chunks value}}
-        {{/if}}
-      </td>
+      {{>edit_tag_value type=type id=id name=name value=value editable=canEdit}}
     </tr>
     {{/each}}
     {{> Template.contentBlock}}
