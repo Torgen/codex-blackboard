@@ -398,9 +398,9 @@
             {{else if canEdit}}
               <i class="bb-delete-icon fas fa-times"
                   title="Delete this tag and value"></i>
-              <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-                  title="Change the value of this tag"></i>
               {{value}}
+              <i class="bb-edit-icon fas fa-pencil-alt"
+                  title="Change the value of this tag"></i>
             {{else}}
               {{>text_chunks value}}
             {{/if}}
@@ -632,9 +632,9 @@
       {{else if canEdit}}
         <i class="bb-delete-icon fas fa-times pull-left"
            title="Delete this tag and value"></i>
-        <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-           title="Edit the value of this tag"></i>
         {{value}}
+        <i class="bb-edit-icon fas fa-pencil-alt"
+           title="Edit the value of this tag"></i>
       {{else if value}}
         {{>text_chunks value}}
       {{else}}
@@ -656,9 +656,9 @@
                   value="{{./link}}"
                   class="input-block-level" />
         {{else if canEdit}}
-          <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-              title="Change the value of the hunt site link"></i>
           <a href="{{./link}}">{{./link}}</a>
+          <i class="bb-edit-icon fas fa-pencil-alt"
+              title="Change the value of the hunt site link"></i>
         {{/if}}
       </td>
     </tr>
