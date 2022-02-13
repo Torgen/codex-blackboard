@@ -206,7 +206,7 @@ describe 'blackboard', ->
       await afterFlushPromise()
       chai.assert.isBelow cluelessJQ.offset().top, akaJQ.offset().top, 'after manual'
 
-    it 'allows creating puzzles with buttons', ->
+    it 'allows creating and deleting puzzles with buttons', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -244,6 +244,17 @@ describe 'blackboard', ->
       await afterFlushPromise()
       indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
       chai.assert.include indirect.feedsInto, meta._id
+      $("[data-bbedit=\"puzzles/#{meta._id}/#{indirect._id}/title\"]").click()
+      await afterFlushPromise()
+      $("[data-bbedit=\"puzzles/#{meta._id}/#{indirect._id}/title\"] input").val('Creatively Undirected').focusout()
+      await waitForMethods()
+      chai.assert.include share.model.Puzzles.findOne(indirect._id), name: 'Creatively Undirected'
+      $("[data-bbedit=\"puzzles/#{meta._id}/#{indirect._id}/title\"] .bb-delete-icon").click()
+      await afterFlushPromise()
+      $('#confirmModal .bb-confirm-ok').click()
+      await waitForMethods()
+      chai.assert.isNotOk share.model.Puzzles.findOne indirect._id
+      
 
     it 'adds and deletes tags', ->
       share.Router.EditPage()
