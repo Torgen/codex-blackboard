@@ -237,9 +237,7 @@ describe 'blackboard', ->
       indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
       chai.assert.isOk indirect, 'indirect'
       chai.assert.notInclude indirect.feedsInto, meta._id
-      $("#unassigned#{round._id} [data-bbedit=\"feedsInto/#{round._id}/#{indirect._id}\"]").click()
-      await afterFlushPromise()
-      $("#unassigned#{round._id} [data-bbedit=\"feedsInto/#{round._id}/#{indirect._id}\"] [data-puzzle-id=\"#{meta._id}\"]").click()
+      $("#unassigned#{round._id} tr.puzzle[data-puzzle-id=\"#{indirect._id}\"] .bb-feed-meta [data-puzzle-id=\"#{meta._id}\"]").click()
       await waitForMethods()
       await afterFlushPromise()
       indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
