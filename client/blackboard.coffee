@@ -296,19 +296,6 @@ Template.blackboard.events
     alertify.prompt "Name of new tag:", (e,str) =>
       return unless e # bail if cancelled
       Meteor.call 'setTag', {type:'puzzles', object: @puzzle._id, name:str, value:''}
-  "click .bb-canEdit .bb-delete-icon": (event, template) ->
-    event.stopPropagation() # keep .bb-editable from being processed!
-    [type, _parent, id, rest...] = share.find_bbedit(event)
-    message = "Are you sure you want to delete "
-    if (type is'tags') or (rest[0] is 'title')
-      message += "this #{model.pretty_collection(type)}?"
-    else
-      message += "the #{rest[0]} of this #{model.pretty_collection(type)}?"
-    if (await confirm
-      ok_button: 'Yes, delete it'
-      no_button: 'No, cancel'
-      message: message)
-      processBlackboardEdit[type]?(null, id, rest...) # process delete
   'click .bb-canEdit .bb-fix-drive': (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     Meteor.call 'fixPuzzleFolder',
@@ -373,6 +360,13 @@ Template.blackboard_round.events
     reactiveLocalStorage.setItem "collapsed_round.#{template.data._id}", false
   'click .bb-round-header:not(.collapsed) .collapse-toggle': (event, template) ->
     reactiveLocalStorage.setItem "collapsed_round.#{template.data._id}", true
+  'click .bb-round-header .bb-delete-icon': (event, template) ->
+    event.stopPropagation()
+    if (await confirm
+      ok_button: 'Yes, delete it'
+      no_button: 'No, cancel'
+      message: "Are you sure you want to delete the round \"#{template.data.name}\"?")
+      Meteor.call 'deleteRound', template.data._id
 
 moveBeforePrevious = (match, rel, event, template) ->
   row = template.$(event.target).closest(match)
@@ -489,6 +483,14 @@ Template.blackboard_puzzle_cells.events
       type: 'puzzles'
       object: template.data.puzzle._id
       fields: order_by: event.currentTarget.dataset.sortOrder
+  'click .bb-puzzle-title .bb-delete-icon': (event, template) ->
+    event.stopPropagation()
+    if (await confirm
+      ok_button: 'Yes, delete it'
+      no_button: 'No, cancel'
+      message: "Are you sure you want to delete the puzzle \"#{template.data.puzzle.name}\"?")
+      Meteor.call 'deletePuzzle', template.data.puzzle._id
+
 
 tagHelper = ->
   isRound = not ('feedsInto' of this)
