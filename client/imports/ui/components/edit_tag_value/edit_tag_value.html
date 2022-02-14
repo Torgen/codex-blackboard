@@ -19,8 +19,10 @@
       <input type="text" value="{{value}}" class="input-block-level" />
     {{else}}
       {{#if editable}}
-        <i class="bb-delete-icon fas fa-times"
-            title="Delete this tag and value"></i>
+        {{#if exists}}
+          <i class="bb-delete-icon fas fa-times"
+              title="Delete this tag and value"></i>
+        {{/if}}
         {{value}}
         <i class="bb-edit-icon fas fa-pencil-alt"
             title="Change the value of this tag"></i>

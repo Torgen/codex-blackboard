@@ -12,6 +12,7 @@ Template.edit_tag_value.onCreated ->
 Template.edit_tag_value.helpers
   canon: -> canonical @name
   value: -> share.model.collection(@type).findOne(_id: @id).tags[canonical @name]?.value ? ''
+  exists: -> share.model.collection(@type).findOne(_id: @id).tags[canonical @name]?
   editing: -> Template.instance().editing.get()
   hexify: (v) -> cssColorToHex v
 
