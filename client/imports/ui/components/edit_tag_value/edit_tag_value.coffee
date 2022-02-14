@@ -27,7 +27,7 @@ Template.edit_tag_value.events
       template.$('input[type="text"]').focus()
   'click .bb-delete-icon': (event, template) ->
     event.stopPropagation()
-    message = "Are you sure you want to delete the #{template.data.name}?"
+    message = "Are you sure you want to delete the #{template.data.name} of #{share.model.collection(template.data.type).findOne(template.data.id).name}?"
     if (await confirm
       ok_button: 'Yes, delete it'
       no_button: 'No, cancel'
