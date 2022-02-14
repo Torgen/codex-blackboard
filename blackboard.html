@@ -434,11 +434,11 @@
 </template>
 
 <template name="blackboard_column_body_answer">
-  {{>edit_tag_value type="puzzles" id=puzzle._id name="Answer" value=answer editable=canEdit class="puzzle-answer answer"}}
+  {{>edit_tag_value type="puzzles" id=puzzle._id name="Answer" editable=canEdit class="puzzle-answer answer"}}
 </template>
 
 <template name="blackboard_column_body_status">
-  {{#edit_tag_value type="puzzles" id=puzzle._id name="Status" value=status editable=canEdit class="puzzle-status"}}
+  {{#edit_tag_value type="puzzles" id=puzzle._id name="Status" editable=canEdit class="puzzle-status"}}
     {{#if status}}<span class="bb-who-stuck">&mdash; by {{>gravatar nick=set_by size=12}}{{nickAndName set_by}}</span>{{/if}}
   {{/edit_tag_value}}
 </template>
@@ -531,7 +531,7 @@
     {{#each tags}}
     <tr data-tag-name="{{canon}}">
       {{>edit_tag_name type=type id=id name=name editable=canEdit}}
-      {{>edit_tag_value type=type id=id name=name value=value editable=canEdit}}
+      {{>edit_tag_value type=type id=id name=name editable=canEdit}}
     </tr>
     {{/each}}
     {{> Template.contentBlock}}
