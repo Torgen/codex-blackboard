@@ -194,8 +194,10 @@
                 class="input-block-level" />
         {{else}}
           {{#if canEdit}}
-            <i class="bb-delete-icon fas fa-times pull-left"
-              title="Delete this round"></i>
+            {{#unless puzzles.length}}
+              <i class="bb-delete-icon fas fa-times pull-left"
+                title="Delete this round"></i>
+            {{/unless}}
             <i class="bb-edit-icon fas fa-pencil-alt pull-right"
               title="Edit the name of this round"></i>
           {{else}}
