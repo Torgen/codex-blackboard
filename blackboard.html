@@ -384,23 +384,18 @@
           {{/if}}
           <tr>
             <td>Feeds Into:</td>
-            <td class="bb-editable" data-bbedit="feedsInto/{{../parent}}/{{_id}}">
-              {{#if editing "feedsInto" ../parent _id}}
-                {{#each allMetas}}{{> blackboard_unfeed_meta puzzle=.. meta=this}}{{/each}}
-                {{#with unfedMetas}}{{#if this.count}}
-                  <div class="btn-group bb-feed-meta">
-                    <button class="btn btn-small dropdown-toggle" data-toggle="dropdown">
-                    Feed Meta <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                      {{#each this}}<li>{{> blackboard_addmeta_entry}}</li>{{/each}}
-                    </ul>
-                  </div>
-                {{/if}}{{/with}}
-              {{else}}
-                <span class="comma-list">{{#each allMetas}}{{> blackboard_othermeta_link}} {{else}}(none){{/each}}</span>
-                <i class="bb-edit-icon fas fa-pencil-alt"></i>
-              {{/if}}
+            <td>
+              <span class="comma-list">{{#each allMetas}}{{> blackboard_unfeed_meta puzzle=.. meta=this}} {{else}}(none){{/each}}</span>
+              {{#with unfedMetas}}{{#if this.count}}
+                <span class="btn-group bb-feed-meta">
+                  <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+                  Feed Meta <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    {{#each this}}<li>{{> blackboard_addmeta_entry}}</li>{{/each}}
+                  </ul>
+                </span>
+              {{/if}}{{/with}}
             </td>
           </tr>
           <tr><td>Mechanics:</td><td>{{> puzzle_mechanics}}</td></tr>
@@ -475,10 +470,10 @@
 </template>
 
 <template name="blackboard_unfeed_meta">
-  <div>
+  <span>
     <i class="bb-unfeed-icon fas fa-times" title="Stop feeding this meta"></i>
     {{> blackboard_othermeta_link meta}}
-  </div>
+  </span>
 </template>
 
 <template name="blackboard_meta">
