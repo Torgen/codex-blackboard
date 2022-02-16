@@ -37,13 +37,16 @@ Template.edit_tag_name.helpers
     val = Template.instance().newTagName.get()
     return 'error' if not val
     cval = canonical val
-    return 'info' if cval is canonical @name
+    return 'info' if val is @name
+    return 'success' if cval is canonical @name
     return 'error' if share.model.collection(@type).findOne(_id: @id).tags[cval]?
     return 'success'
   tagEditStatus: ->
     val = Template.instance().newTagName.get()
     return 'Cannot be empty' if not val
     return 'Unchanged' if val is @name
-    return 'Tag already exists' if share.model.collection(@type).findOne(_id: @id).tags[canonical val]?
+    cval = canonical val
+    return if cval is canonical @name
+    return 'Tag already exists' if share.model.collection(@type).findOne(_id: @id).tags[cval]?
   canon: -> canonical @name
   editing: -> Template.instance().editing.get()

@@ -5,7 +5,7 @@
     name: original name of tag
     editable: Is the thing editable right now?
   }}
-  <td class="bb-edit-tag-name {{#if editable}}bb-editable{{/if}} control-group {{tagEditClass}}">
+  <td class="bb-edit-tag-name {{#if editable}}bb-editable{{/if}}{{#if editing}} control-group {{tagEditClass}}{{/if}}">
     {{#if editing}}
       <input type="text" value="{{name}}" class="input-block-level" />
       {{#if tagEditStatus}}
