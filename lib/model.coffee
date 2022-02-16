@@ -515,6 +515,9 @@ do ->
       r
     renameRound: (args) ->
       check @userId, NonEmptyString
+      check args, ObjectWith
+        id: NonEmptyString
+        name: NonEmptyString
       renameObject "rounds", {args..., who: @userId}
       # TODO(torgen): rename default meta
     deleteRound: (id) ->
