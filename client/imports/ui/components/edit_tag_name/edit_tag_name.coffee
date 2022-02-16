@@ -30,7 +30,6 @@ Template.edit_tag_name.events okCancelEvents 'input',
       Meteor.call 'renameTag', {type:tem.data.type, object:tem.data.id, old_name:tem.data.name, new_name: val}
     tem.editing.set false
   cancel: (evt, tem) ->
-    console.log 'cancel'
     tem.editing.set false
 
 Template.edit_tag_name.helpers
