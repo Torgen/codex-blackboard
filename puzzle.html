@@ -8,8 +8,7 @@
     {{#if puzzle.link}}<a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class="fas fa-link"></i></a>{{/if}}
     {{>calendar_attachable_events puzzle=puzzle._id}}
   </h2>
-  
-  <h1>{{puzzle.name}}</h1>
+  {{> edit_puzzle_title id=puzzle._id editable=true}}
 </div>
 {{>calendar_puzzle_events puzzle}}
 <table class="bb-puzzle-info-tags"><tbody>

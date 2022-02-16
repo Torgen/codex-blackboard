@@ -154,9 +154,19 @@ body.has-emojis {
     color: #AAA;
   }
   .bb-right-content {
-    h1, h2, h3 {
+    h1, h2, h3, .bb-puzzle-title {
       font-size: 24px;
       line-height: 24px;
+    }
+    .bb-puzzle-title {
+      font-weight: bold;
+      & > input {
+        height: 18px;
+        line-height: 16px;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 0;
+      }
     }
   }
   td.wanted { font-style: italic; }

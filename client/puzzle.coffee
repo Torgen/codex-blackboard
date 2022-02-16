@@ -5,6 +5,7 @@ import { confirm } from '/client/imports/modal.coffee'
 import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
+import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
 import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 
