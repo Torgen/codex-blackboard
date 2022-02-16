@@ -19,6 +19,7 @@ Template.edit_tag_name.events
 Template.edit_tag_name.events okCancelEvents 'input',
   ok: (val, evt, tem) ->
     return unless tem.editing.get()
+    tem.editing.set false
     # strip leading/trailing whitespace from text (cancel if text is empty)
     val = val.replace /^\s+|\s+$/, ''
     if val
@@ -28,7 +29,6 @@ Template.edit_tag_name.events okCancelEvents 'input',
       if newCanon isnt canon and thing.tags[newCanon]?
         return
       Meteor.call 'renameTag', {type:tem.data.type, object:tem.data.id, old_name:tem.data.name, new_name: val}
-    tem.editing.set false
   cancel: (evt, tem) ->
     tem.editing.set false
 
