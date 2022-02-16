@@ -242,17 +242,16 @@ describe 'blackboard', ->
       await afterFlushPromise()
       indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
       chai.assert.include indirect.feedsInto, meta._id
-      $("[data-bbedit=\"puzzles/#{meta._id}/#{indirect._id}/title\"]").click()
+      $("#m#{meta._id} tr.puzzle[data-puzzle-id=\"#{indirect._id}\"] .bb-puzzle-title").click()
       await afterFlushPromise()
-      $("[data-bbedit=\"puzzles/#{meta._id}/#{indirect._id}/title\"] input").val('Creatively Undirected').focusout()
+      $("#m#{meta._id} tr.puzzle[data-puzzle-id=\"#{indirect._id}\"] .bb-puzzle-title input").val('Creatively Undirected').focusout()
       await waitForMethods()
       chai.assert.include share.model.Puzzles.findOne(indirect._id), name: 'Creatively Undirected'
-      $("[data-bbedit=\"puzzles/#{meta._id}/#{indirect._id}/title\"] .bb-delete-icon").click()
+      $("#m#{meta._id} tr.puzzle[data-puzzle-id=\"#{indirect._id}\"] .bb-puzzle-title .bb-delete-icon").click()
       await afterFlushPromise()
       $('#confirmModal .bb-confirm-ok').click()
       await waitForMethods()
       chai.assert.isNotOk share.model.Puzzles.findOne indirect._id
-      
 
     it 'adds and deletes tags', ->
       share.Router.EditPage()

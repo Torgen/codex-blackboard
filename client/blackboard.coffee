@@ -10,6 +10,7 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
 import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
+import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -388,15 +389,8 @@ Template.blackboard_unassigned.events
   'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle', 'before'
   'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle', 'after'
 processBlackboardEdit =
-  puzzles: (text, id, field) ->
-    processBlackboardEdit["puzzles_#{field}"]?(text, id)
   rounds: (text, id, field) ->
     processBlackboardEdit["rounds_#{field}"]?(text, id)
-  puzzles_title: (text, id) ->
-    if text is null # delete puzzle
-      Meteor.call 'deletePuzzle', id
-    else
-      Meteor.call 'renamePuzzle', {id:id, name:text}
   rounds_title: (text, id) ->
     if text is null # delete round
       Meteor.call 'deleteRound', id

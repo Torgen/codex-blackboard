@@ -376,7 +376,7 @@ input[type="color"] {
   }
   .bb-tag-table td.bb-editable { min-height: 24px; }
   /* tweak table column to make room for add tag/up/down icons */
-  td.puzzle-name > div { padding-right: (14px)*3; }
+  td.puzzle-name { padding-right: (14px)*3; }
 }
 .bb-show-filter-by-user + .dropdown-menu {
   left: unset;
@@ -541,15 +541,11 @@ input[type="color"] {
       margin-right: 3px;
     }
     .puzzle-name {
+      position: relative;
       .bb-favorite-button { float: right; }
-      & > div {
-        /* relative positioning context for .bb-puzzle-add-move.
-        * Note that firefox doesn't allow position: relative on a table cell */
-        position: relative;
-      }
       .bb-puzzle-add-move {
         display: block; width: 14px*3; height: 14px;
-        position: absolute; right: -2px; top: 3px;
+        position: absolute; right: 0px; top: 3px;
         .bb-add-tag, .bb-move-up, .bb-move-down {
           display: inline-block; width: 14px; height: 14px;
           position: relative;

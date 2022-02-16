@@ -1,0 +1,21 @@
+<template name="edit_puzzle_title">
+  {{! arguments:
+  id: puzzle id
+  editable: can the title be edited now?
+  content block: html to render inside the block while editable but not editing;
+                 it will be hidden while editing the title.
+  else block: html to render inside the block while not editable. It will be hidden when editable.
+  }}
+  <div class="bb-puzzle-title {{#if editable}}bb-editable{{/if}}{{#if editing}} control-group {{titleEditClass}}{{/if}}">
+    {{#if editing}}
+      <input type="text" value="{{name}}" class="input-block-level" />
+      {{#if titleEditStatus}}
+        <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleEditStatus}}</div></div>
+      {{/if}}
+    {{else if editable}}
+      {{>Template.contentBlock}}{{name}}
+    {{else}}
+      {{>Template.elseBlock}}{{>link id=id tile="puzzles"}}
+    {{/if}}
+  </div>
+</template>
