@@ -40,7 +40,7 @@ Template.edit_tag_value.events okCancelEvents 'input[type="text"]',
     return unless tem.editing.get()
     # strip leading/trailing whitespace from text
     value = value.replace /^\s+|\s+$/, ''
-    if value isnt tem.data.value
+    if value isnt share.model.collection(tem.data.type).findOne(tem.data.id)?.tags[canonical tem.data.name]?.value
       Meteor.call 'setTag', {type: tem.data.type, object: tem.data.id, name: tem.data.name, value}
     tem.editing.set false
   cancel: (evt, tem) ->
