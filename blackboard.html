@@ -321,8 +321,6 @@
       {{#if any (equal puzzle.drive_status "failed") (equal puzzle.drive_status "skipped") (all (not puzzle.drive) (not puzzle.drive_status))}}
         <i class="fas fa-tools pull-right bb-fix-drive" title="Fix drive folder"></i>
       {{/if}}
-      <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-          title="Edit the name of this puzzle"></i>
     {{else}}
       <span class="collapse-toggle"></span>
       {{#if equal puzzle.drive_status "creating"}}
