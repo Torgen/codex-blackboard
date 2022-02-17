@@ -150,7 +150,7 @@ body.has-emojis {
     height: 500px;
     border-top: 1px solid #ccc;
   }
-  h2 {
+  h2, .bb-round-title {
     color: #AAA;
   }
   .bb-right-content {
@@ -427,27 +427,22 @@ input[type="color"] {
     margin-bottom: 0;
     text-align: center;
   }
-  h2 {
+  h2, .bb-round-title {
+    line-height: 40px;
     font-size: 200%;
-    .bb-edit-icon, .bb-delete-icon, { margin-top: 13px; }
-  }
-  h2 > input {
-    font-weight: bold;
-    line-height: 30px;
-    height: 30px;
-    font-size: 30px;
-  }
-  h3 {
-    font-size: 130%;
-    line-height: 28px;
-    .bb-edit-icon, .bb-delete-icon { margin-top: 7px; }
-  }
-  h2,h3 {
+    margin-top: 10px;
     margin-bottom: 0;
     position: relative; /* fixes z-order issues, makes whole width clickable */
     .bb-edit-icon, .bb-delete-icon {
+      margin-top: 13px; 
       &.pull-right { margin-right: 5px; }
       &.pull-left  { margin-left: 4px; margin-right: 3px; }
+    }
+    & > input {
+      font-weight: bold;
+      line-height: 30px;
+      height: 30px;
+      font-size: 27px;
     }
   }
   .bb-top-buttons {

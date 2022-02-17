@@ -1,12 +1,14 @@
-<template name="edit_puzzle_title">
+<template name="edit_object_title">
   {{! arguments:
-  id: puzzle id
+  id: object id
+  type: object type (e.g. puzzles, rounds)
   editable: can the title be edited now?
+  link_title: if true, make puzzle title a link when not editing
   content block: html to render inside the block while editable but not editing;
                  it will be hidden while editing the title.
   else block: html to render inside the block while not editable. It will be hidden when editable.
   }}
-  <div class="bb-puzzle-title {{#if editable}}bb-editable{{/if}}{{#if editing}} control-group {{titleEditClass}}{{/if}}">
+  <div class="bb-{{pretty}}-title {{#if editable}}bb-editable{{/if}}{{#if editing}} control-group {{titleEditClass}}{{/if}}">
     {{#if editing}}
       <input type="text" value="{{name}}" class="input-block-level" />
       {{#if titleEditStatus}}
@@ -15,9 +17,9 @@
     {{else if editable}}
       {{>Template.contentBlock}}{{name}}
       <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-          title="Edit the name of this puzzle"></i>
+          title="Edit the name of this {{pretty}}"></i>
     {{else}}
-      {{>Template.elseBlock}}{{>link id=id tile="puzzles"}}
+      {{>Template.elseBlock}}{{#if link_title}}{{>link id=id type=type}}{{else}}{{name}}{{/if}}
     {{/if}}
   </div>
 </template>

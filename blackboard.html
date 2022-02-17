@@ -187,27 +187,16 @@
     {{#let m=metas u=unassigned}}
       <tbody>
       <tr><th colspan="{{nCols}}" id="round{{_id}}" class="bb-round-header {{#if collapsed}}collapsed{{/if}}">
-        <h2 class="bb-editable" data-bbedit="rounds//{{_id}}/title">
-        {{#if editing "rounds" "" _id "title"}}
-          <input type="text" id="rounds--{{_id}}-title"
-                value="{{name}}"
-                class="input-block-level" />
-        {{else}}
-          {{#if canEdit}}
-            {{#unless puzzles.length}}
-              <i class="bb-delete-icon fas fa-times pull-left"
-                title="Delete this round"></i>
-            {{/unless}}
-            <i class="bb-edit-icon fas fa-pencil-alt pull-right"
-              title="Edit the name of this round"></i>
-          {{else}}
-            <span class="collapse-toggle"></span>
-            {{>link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
-            {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
-          {{/if}}
-        {{name}}
-        {{/if}}
-        </h2>
+      {{#edit_object_title id=_id type="rounds" editable=canEdit}}
+        {{#unless puzzles.length}}
+          <i class="bb-delete-icon fas fa-times pull-left"
+            title="Delete this round"></i>
+        {{/unless}}
+      {{else}}
+        <span class="collapse-toggle"></span>
+        {{>link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
+        {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
+      {{/edit_object_title}}
       {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
       {{>blackboard_link}}
       {{#if canEdit}}
@@ -315,7 +304,7 @@
 
 <template name="blackboard_puzzle_cells">
   <td class="puzzle-name">
-    {{#edit_puzzle_title id=puzzle._id editable=canEdit}}
+    {{#edit_object_title id=puzzle._id type="puzzles" link_title=true editable=canEdit}}
       <i class="bb-delete-icon fas fa-times pull-left"
         title="Delete this puzzle"></i>
       {{#if any (equal puzzle.drive_status "failed") (equal puzzle.drive_status "skipped") (all (not puzzle.drive) (not puzzle.drive_status))}}
@@ -336,7 +325,7 @@
       {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" target="_blank" title="Link to hunt site"><i class="fas fa-puzzle-piece"></i></a>{{/if}}
       {{#with jitsiLink}}<a class="pull-right" href="{{this}}" title="Link to video call" target="jitsi"><i class="fas fa-video"></i></a>{{/with}}
       {{>favorite puzzle}}
-    {{/edit_puzzle_title}}
+    {{/edit_object_title}}
     {{#if canEdit}}
       <div class="bb-puzzle-add-move" data-bbedit="puzzles/{{puzzle._id}}">
       <button class="btn btn-link bb-add-tag"
