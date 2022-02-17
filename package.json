@@ -22,7 +22,7 @@
     "md5": "^2.3.0",
     "meteor-node-stubs": "^1.1.0",
     "sanitize-html": "^2.7.0",
-    "twitter-api-v2": "^1.10.3"
+    "twitter-api-v2": "^1.11.0"
   },
   "devDependencies": {
     "chai": "^4.3.6",
