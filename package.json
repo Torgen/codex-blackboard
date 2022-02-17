@@ -6,7 +6,7 @@
   "dependencies": {
     "@babel/runtime": "^7.17.2",
     "@googlemaps/js-api-loader": "^1.13.6",
-    "@googlemaps/markerclusterer": "^1.0.23",
+    "@googlemaps/markerclusterer": "^1.0.24",
     "coffeescript": "^2.6.1",
     "css-color-names": "1.0.1",
     "cytoscape": "^3.21.0",
