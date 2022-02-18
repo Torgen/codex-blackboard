@@ -2,7 +2,6 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import { confirm } from '/client/imports/modal.coffee'
-import okCancelEvents from '/client/imports/ok_cancel_events.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor  from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
