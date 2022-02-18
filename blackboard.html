@@ -197,8 +197,11 @@
         {{>link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
         {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
       {{/edit_object_title}}
-      {{#unless compactMode}}{{>blackboard_tags}}{{/unless}}
-      {{>blackboard_link}}
+      {{#unless compactMode}}
+        {{#blackboard_tags}}
+        {{#if canEdit}}<tr><td>Hunt site URL</td>{{>edit_field type="rounds" id=_id field="link"}}</tr>{{/if}}
+        {{/blackboard_tags}}
+      {{/unless}}
       {{#if canEdit}}
         <div class="bb-round-buttons" data-bbedit="rounds//{{_id}}">
           <div class="btn-group">
@@ -379,6 +382,7 @@
             </td>
           </tr>
           <tr><td>Mechanics:</td><td>{{> puzzle_mechanics}}</td></tr>
+          <tr><td>Hunt Site URL</td>{{>edit_field type="puzzles" id=_id field="link"}}</tr>
         {{else}}
           {{#with otherMetas}}
           <tr>
@@ -400,7 +404,6 @@
         {{>calendar_puzzle_cell}}
       {{/blackboard_tags}}
       {{/unless}}
-      {{>blackboard_link}}
     {{/with}}
   </td>
   {{#each column in visibleColumns}}
@@ -511,26 +514,4 @@
     {{/each}}
     {{> Template.contentBlock}}
   </tbody></table>
-</template>
-
-<template name="blackboard_link">
-{{#if canEdit}}
-  <table class="bb-tag-table"><tbody>
-    <tr>
-      <td>Hunt site link:</td>
-      <td class="bb-editable"
-          data-bbedit="link/{{../parent}}/{{_id}}">
-        {{#if editing "link" ../parent _id}}
-          <input type="text" id="link-{{../parent}}-{{_id}}"
-                  value="{{./link}}"
-                  class="input-block-level" />
-        {{else if canEdit}}
-          <a href="{{./link}}">{{./link}}</a>
-          <i class="bb-edit-icon fas fa-pencil-alt"
-              title="Change the value of the hunt site link"></i>
-        {{/if}}
-      </td>
-    </tr>
-  </tbody></table>
-{{/if}}
 </template>

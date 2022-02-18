@@ -8,6 +8,7 @@ import puzzleColor  from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
+import '/client/imports/ui/components/edit_field/edit_field.coffee'
 import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
@@ -257,10 +258,6 @@ Template.blackboard.events
       event.preventDefault()
       $(href).get(0)?.scrollIntoView block: 'center', behavior: 'smooth'
 
-share.find_bbedit = (event) ->
-  edit = $(event.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-  return edit?.split('/')
-
 Template.blackboard.onRendered ->
   #  page title
   $("title").text("#{settings.TEAM_NAME} Puzzle Blackboard")
@@ -302,24 +299,6 @@ Template.blackboard.events
     Meteor.call 'fixPuzzleFolder',
       object: @puzzle._id
       name: @puzzle.name
-
-  "click .bb-canEdit .bb-editable": (event, template) ->
-    # note that we rely on 'blur' on old field (which triggers ok or cancel)
-    # happening before 'click' on new field
-    Session.set 'editing', share.find_bbedit(event)?.join('/')
-Template.blackboard.events okCancelEvents('.bb-editable input[type=text]',
-  ok: (text, evt) ->
-    return if Session.equals 'editing', undefined  # already cancelled.
-    # find the data-bbedit specification for this field
-    edit = $(evt.currentTarget).closest('*[data-bbedit]').attr('data-bbedit')
-    [type, _parent, id, rest...] = edit.split('/')
-    # strip leading/trailing whitespace from text (cancel if text is empty)
-    text = text.replace /^\s+|\s+$/, ''
-    processBlackboardEdit[type]?(text, id, rest...) if text
-    Session.set 'editing', undefined # done editing this
-  cancel: (evt) ->
-    Session.set 'editing', undefined # not editing anything anymore
-)
 
 Template.blackboard_favorite_puzzle.onCreated ->
   @autorun =>
@@ -389,13 +368,6 @@ Template.blackboard_unassigned.events
   'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle', 'before'
   'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle', 'after'
 processBlackboardEdit =
-  rounds: (text, id, field) ->
-    processBlackboardEdit["rounds_#{field}"]?(text, id)
-  rounds_title: (text, id) ->
-    if text is null # delete round
-      Meteor.call 'deleteRound', id
-    else
-      Meteor.call 'renameRound', {id:id, name:text}
   link: (text, id) ->
     n = model.Names.findOne(id)
     Meteor.call 'setField',
