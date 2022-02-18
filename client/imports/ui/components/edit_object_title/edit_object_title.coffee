@@ -1,5 +1,4 @@
 import './edit_object_title.html'
-import './edit_object_title.less'
 import canonical from '/lib/imports/canonical.coffee'
 import { editableTemplate } from '/client/imports/ok_cancel_events.coffee'
 
