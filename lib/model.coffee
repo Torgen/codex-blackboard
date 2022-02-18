@@ -444,12 +444,12 @@ do ->
     return unless Meteor.isServer
     share.drive.deletePuzzle drive
 
-  moveWithinParent = (id, parentType, parentId, args) ->
+  moveWithinParent = (call, id, parentType, parentId, args) ->
     check id, NonEmptyString
     check parentType, ValidType
     check parentId, NonEmptyString
-    loop
-      parent = collection(parentType).findOne(parentId)
+    if call.isSimulation
+      parent = collection(parentType).findOne(_id: parentId, puzzles: id)
       ix = parent?.puzzles?.indexOf(id)
       return false unless ix?
       npos = ix
@@ -467,10 +467,36 @@ do ->
       else
         return false
       npuzzles.splice(npos, 0, id)
-      return true if 0 < (collection(parentType).update {_id: parentId, puzzles: parent.puzzles}, $set:
+      collection(parentType).update {_id: parentId}, $set:
         puzzles: npuzzles
         touched: UTCNow()
-        touched_by: canonical(args.who))
+        touched_by: canonical(args.who)
+      return true
+    try
+      [query, targetPosition] = if args.pos?
+        [id, $add: [args.pos, $indexOfArray: ["$puzzles", id]]]
+      else if args.before?
+        [{$all: [id, args.before]}, $indexOfArray: ["$$npuzzles", args.before]]
+      else if args.after?
+        [{$all: [id, args.after]}, $add: [1, $indexOfArray: ["$$npuzzles", args.after]]]
+      res = await collection(parentType).rawCollection().updateOne({_id: parentId, puzzles: query}, [
+        $set:
+          puzzles: $let:
+            vars: npuzzles: $filter: {input: "$puzzles", cond: $ne: ["$$this", id]}
+            in: $let:
+              vars: {targetPosition}
+              in: $concatArrays: [
+                {$cond: [{$eq: ["$$targetPosition", 0]}, [], $slice: ["$$npuzzles", 0, "$$targetPosition"]]},
+                [id],
+                {$cond: [{$eq: ["$$targetPosition", $size: "$$npuzzles"]}, [], $slice: ["$$npuzzles", "$$targetPosition", $subtract: [{$size: "$$npuzzles"}, "$$targetPosition"]]]}
+              ]
+          touched: UTCNow()
+          touched_by: canonical(args.who)
+      ])
+      return res.modifiedCount is 1
+    catch e
+      console.log e
+      return false
       
   Meteor.methods
     newRound: (args) ->
@@ -1227,13 +1253,15 @@ do ->
 
     moveWithinMeta: (id, parentId, args) ->
       check @userId, NonEmptyString
+      check args, Match.OneOf ObjectWith(pos: Number), ObjectWith(before: NonEmptyString), ObjectWith(after: NonEmptyString)
       args.who = @userId
-      moveWithinParent id, 'puzzles', parentId, args
+      moveWithinParent this, id, 'puzzles', parentId, args
 
     moveWithinRound: (id, parentId, args) ->
       check @userId, NonEmptyString
+      check args, Match.OneOf ObjectWith(pos: Number), ObjectWith(before: NonEmptyString), ObjectWith(after: NonEmptyString)
       args.who = @userId
-      moveWithinParent id, 'rounds', parentId, args
+      moveWithinParent this, id, 'rounds', parentId, args
 
     moveRound: (id, dir) ->
       check @userId, NonEmptyString
