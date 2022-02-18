@@ -444,62 +444,10 @@ do ->
     return unless Meteor.isServer
     share.drive.deletePuzzle drive
 
-  moveWithinParent = (call, id, parentType, parentId, args) ->
-    check id, NonEmptyString
-    check parentType, ValidType
-    check parentId, NonEmptyString
-    if call.isSimulation
-      parent = collection(parentType).findOne(_id: parentId, puzzles: id)
-      ix = parent?.puzzles?.indexOf(id)
-      return false unless ix?
-      npos = ix
-      npuzzles = (p for p in parent.puzzles when p != id)
-      if args.pos?
-        npos += args.pos
-        return false if npos < 0
-        return false if npos > npuzzles.length
-      else if args.before?
-        npos = npuzzles.indexOf args.before
-        return false unless npos >= 0
-      else if args.after?
-        npos = 1 + npuzzles.indexOf args.after
-        return false unless npos > 0
-      else
-        return false
-      npuzzles.splice(npos, 0, id)
-      collection(parentType).update {_id: parentId}, $set:
-        puzzles: npuzzles
-        touched: UTCNow()
-        touched_by: canonical(args.who)
-      return true
-    try
-      [query, targetPosition] = if args.pos?
-        [id, $add: [args.pos, $indexOfArray: ["$puzzles", id]]]
-      else if args.before?
-        [{$all: [id, args.before]}, $indexOfArray: ["$$npuzzles", args.before]]
-      else if args.after?
-        [{$all: [id, args.after]}, $add: [1, $indexOfArray: ["$$npuzzles", args.after]]]
-      res = Promise.await collection(parentType).rawCollection().updateOne({_id: parentId, puzzles: query}, [
-        $set:
-          puzzles: $let:
-            vars: npuzzles: $filter: {input: "$puzzles", cond: $ne: ["$$this", id]}
-            in: $let:
-              vars: {targetPosition}
-              in: $concatArrays: [
-                {$cond: [{$eq: ["$$targetPosition", 0]}, [], $slice: ["$$npuzzles", 0, "$$targetPosition"]]},
-                [id],
-                {$cond: [{$eq: ["$$targetPosition", $size: "$$npuzzles"]}, [], $slice: ["$$npuzzles", "$$targetPosition", $subtract: [{$size: "$$npuzzles"}, "$$targetPosition"]]]}
-              ]
-          touched: UTCNow()
-          touched_by: canonical(args.who)
-      ])
-      if res.modifiedCount is 1
-        # Because we're not using Meteor's wrapper, we have to do this manually so the updated document is delivered by the subscription before the method returns.
-        Meteor.refresh {collection: parentType, id: parentId}
-        return true
-    catch e
-      console.log e
-    return false
+  moveWithinParent = if Meteor.isServer
+    require('/server/imports/move_within_parent.coffee').default
+  else
+    require('/client/imports/move_within_parent.coffee').default
       
   Meteor.methods
     newRound: (args) ->
@@ -1258,13 +1206,13 @@ do ->
       check @userId, NonEmptyString
       check args, Match.OneOf ObjectWith(pos: Number), ObjectWith(before: NonEmptyString), ObjectWith(after: NonEmptyString)
       args.who = @userId
-      moveWithinParent this, id, 'puzzles', parentId, args
+      moveWithinParent id, 'puzzles', parentId, args
 
     moveWithinRound: (id, parentId, args) ->
       check @userId, NonEmptyString
       check args, Match.OneOf ObjectWith(pos: Number), ObjectWith(before: NonEmptyString), ObjectWith(after: NonEmptyString)
       args.who = @userId
-      moveWithinParent this, id, 'rounds', parentId, args
+      moveWithinParent id, 'rounds', parentId, args
 
     moveRound: (id, dir) ->
       check @userId, NonEmptyString
