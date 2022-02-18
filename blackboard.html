@@ -203,7 +203,7 @@
         {{/blackboard_tags}}
       {{/unless}}
       {{#if canEdit}}
-        <div class="bb-round-buttons" data-bbedit="rounds//{{_id}}">
+        <div class="bb-round-buttons">
           <div class="btn-group">
             <button class="btn btn-mini btn-inverse bb-add-meta">
               <i class="fas fa-plus"></i>
@@ -330,7 +330,7 @@
       {{>favorite puzzle}}
     {{/edit_object_title}}
     {{#if canEdit}}
-      <div class="bb-puzzle-add-move" data-bbedit="puzzles/{{puzzle._id}}">
+      <div class="bb-puzzle-add-move">
       <button class="btn btn-link bb-add-tag"
             title="Add tag to puzzle">
         <i class="fas fa-tags"></i>
@@ -475,7 +475,7 @@
     {{/if}}
   {{#if canEdit}}
   <tr class="metafooter"><td colspan="{{nCols}}">
-    <div class="bb-meta-buttons" data-bbedit="puzzles/{{parent}}/{{puzzle._id}}">
+    <div class="bb-meta-buttons">
       <button class="btn btn-mini btn-inverse bb-add-puzzle">
         <i class="fas fa-plus"></i>
         Create new puzzle feeding this meta
