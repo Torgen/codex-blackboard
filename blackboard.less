@@ -385,9 +385,6 @@ input[type="color"] {
 .bb-canEdit {
   /* adjust height of tags layout so that things don't shift badly when
    * the item is being edited (which uses a 24px input box) */
-  dt,dd {
-    &.bb-editable { min-height: 24px; }
-  }
   .bb-tag-table td.bb-editable { min-height: 24px; }
   /* tweak table column to make room for add tag/up/down icons */
   td.puzzle-name { padding-right: (14px)*3; }
@@ -488,21 +485,6 @@ input[type="color"] {
     i.fas {
       color: var(--text-color);
       margin-left: 2px;
-    }
-  }
-  dl {
-    margin: 0;
-    &:empty { display: none; }
-    dt {
-      .bb-edit-icon { margin-left: 3px; }
-    }
-    dd {
-      position: relative; /* fixes z-order, makes whole width clickable */
-      .bb-edit-icon { margin-right: 5px; }
-      .bb-delete-icon { margin-right: 3px; }
-    }
-    dt,dd {
-      .bb-edit-icon, .bb-delete-icon { margin-top: 3px; }
     }
   }
   tr.bb-status-stuck {
