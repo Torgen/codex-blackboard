@@ -479,7 +479,7 @@ do ->
         [{$all: [id, args.before]}, $indexOfArray: ["$$npuzzles", args.before]]
       else if args.after?
         [{$all: [id, args.after]}, $add: [1, $indexOfArray: ["$$npuzzles", args.after]]]
-      res = Promise.await collection(parentType).rawCollection().updateOne({_id: parentId, puzzles: query}, [
+      res = await collection(parentType).rawCollection().updateOne({_id: parentId, puzzles: query}, [
         $set:
           puzzles: $let:
             vars: npuzzles: $filter: {input: "$puzzles", cond: $ne: ["$$this", id]}
@@ -493,13 +493,10 @@ do ->
           touched: UTCNow()
           touched_by: canonical(args.who)
       ])
-      if res.modifiedCount is 1
-        # Because we're not using Meteor's wrapper, we have to do this manually so the updated document is delivered by the subscription before the method returns.
-        Meteor.refresh {collection: parentType, id: parentId}
-        return true
+      return res.modifiedCount is 1
     catch e
       console.log e
-    return false
+      return false
       
   Meteor.methods
     newRound: (args) ->
