@@ -1,5 +1,28 @@
 'use strict'
 
+export editableTemplate = (template, callbacks) ->
+  template.onCreated ->
+    @editable = new ReactiveVar false
+
+  template.events
+    'click .bb-editable': (evt, t) ->
+      t.editable.set true
+      Tracker.afterFlush ->
+        t.$('input[type="text"]').focus()
+
+  template.events okCancelEvents 'input[type="text"]',
+    ok: (v, e, t) ->
+      return unless t.editable.get()
+      t.editable.set false
+      v = v.replace /^\s+|\s+$/, ''
+      callbacks.ok?(v, e, t)
+    cancel: (e, t) ->
+      t.editable.set false
+      callbacks.cancel?(e, t)
+
+  template.helpers
+    editing: -> Template.instance().editable.get()
+
 # Returns an event map that handles the "escape" and "return" keys and
 # "blur" events on a text input (given by selector) and interprets them
 # as "ok" or "cancel".
