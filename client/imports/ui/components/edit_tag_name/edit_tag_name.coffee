@@ -4,7 +4,7 @@ import canonical from '/lib/imports/canonical.coffee'
 import { editableTemplate } from '/client/imports/ok_cancel_events.coffee'
 
 editableTemplate Template.edit_tag_name,
-  ok: (v, e, t) ->
+  ok: (val, evt, tem) ->
     if val
       thing = share.model.collection(tem.data.type).findOne(tem.data.id)
       canon = canonical @name
