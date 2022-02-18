@@ -7,7 +7,7 @@ editableTemplate Template.edit_tag_name,
   ok: (val, evt, tem) ->
     if val
       thing = share.model.collection(tem.data.type).findOne(tem.data.id)
-      canon = canonical @name
+      canon = canonical tem.data.name
       newCanon = canonical(val)
       if newCanon isnt canon and thing.tags[newCanon]?
         return
