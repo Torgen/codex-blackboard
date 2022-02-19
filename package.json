@@ -5,8 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.17.2",
-    "@googlemaps/js-api-loader": "^1.13.5",
-    "@googlemaps/markerclusterer": "^1.0.23",
+    "@googlemaps/js-api-loader": "^1.13.6",
+    "@googlemaps/markerclusterer": "^1.0.24",
     "coffeescript": "^2.6.1",
     "css-color-names": "1.0.1",
     "cytoscape": "^3.21.0",
@@ -22,11 +22,11 @@
     "md5": "^2.3.0",
     "meteor-node-stubs": "^1.1.0",
     "sanitize-html": "^2.7.0",
-    "twitter-api-v2": "^1.10.3"
+    "twitter-api-v2": "^1.11.0"
   },
   "devDependencies": {
     "chai": "^4.3.6",
-    "puppeteer": "^13.3.1",
+    "puppeteer": "^13.3.2",
     "sinon": "^13.0.1"
   },
   "scripts": {

@@ -444,59 +444,10 @@ do ->
     return unless Meteor.isServer
     share.drive.deletePuzzle drive
 
-  moveWithinParent = (call, id, parentType, parentId, args) ->
-    check id, NonEmptyString
-    check parentType, ValidType
-    check parentId, NonEmptyString
-    if call.isSimulation
-      parent = collection(parentType).findOne(_id: parentId, puzzles: id)
-      ix = parent?.puzzles?.indexOf(id)
-      return false unless ix?
-      npos = ix
-      npuzzles = (p for p in parent.puzzles when p != id)
-      if args.pos?
-        npos += args.pos
-        return false if npos < 0
-        return false if npos > npuzzles.length
-      else if args.before?
-        npos = npuzzles.indexOf args.before
-        return false unless npos >= 0
-      else if args.after?
-        npos = 1 + npuzzles.indexOf args.after
-        return false unless npos > 0
-      else
-        return false
-      npuzzles.splice(npos, 0, id)
-      collection(parentType).update {_id: parentId}, $set:
-        puzzles: npuzzles
-        touched: UTCNow()
-        touched_by: canonical(args.who)
-      return true
-    try
-      [query, targetPosition] = if args.pos?
-        [id, $add: [args.pos, $indexOfArray: ["$puzzles", id]]]
-      else if args.before?
-        [{$all: [id, args.before]}, $indexOfArray: ["$$npuzzles", args.before]]
-      else if args.after?
-        [{$all: [id, args.after]}, $add: [1, $indexOfArray: ["$$npuzzles", args.after]]]
-      res = await collection(parentType).rawCollection().updateOne({_id: parentId, puzzles: query}, [
-        $set:
-          puzzles: $let:
-            vars: npuzzles: $filter: {input: "$puzzles", cond: $ne: ["$$this", id]}
-            in: $let:
-              vars: {targetPosition}
-              in: $concatArrays: [
-                {$cond: [{$eq: ["$$targetPosition", 0]}, [], $slice: ["$$npuzzles", 0, "$$targetPosition"]]},
-                [id],
-                {$cond: [{$eq: ["$$targetPosition", $size: "$$npuzzles"]}, [], $slice: ["$$npuzzles", "$$targetPosition", $subtract: [{$size: "$$npuzzles"}, "$$targetPosition"]]]}
-              ]
-          touched: UTCNow()
-          touched_by: canonical(args.who)
-      ])
-      return res.modifiedCount is 1
-    catch e
-      console.log e
-      return false
+  moveWithinParent = if Meteor.isServer
+    require('/server/imports/move_within_parent.coffee').default
+  else
+    require('/client/imports/move_within_parent.coffee').default
       
   Meteor.methods
     newRound: (args) ->
@@ -704,7 +655,6 @@ do ->
 
     newCallIn: (args) ->
       check @userId, NonEmptyString
-      return if this.isSimulation # otherwise we trigger callin sound twice
       args.callin_type ?= callin_types.ANSWER
       args.target_type ?= 'puzzles'
       puzzle = null
@@ -913,25 +863,7 @@ do ->
           status: 'cancelled'
           resolved: UTCNow()
 
-    locateNick: (args) ->
-      check @userId, NonEmptyString
-      check args, ObjectWith
-        location:
-          type: 'Point'
-          coordinates: ArrayMembers [NumberInRange(min: -180, max:180), NumberInRange(min: -90, max: 90)]
-        timestamp: Match.Optional(Number)
-      return if this.isSimulation # server side only
-      # the server transfers updates from priv_located* to located* at
-      # a throttled rate to prevent N^2 blow up.
-      # priv_located_order implements a FIFO queue for updates, but
-      # you don't lose your place if you're already in the queue
-      timestamp = UTCNow()
-      n = Meteor.users.update @userId,
-        $set:
-          priv_located: args.timestamp ? timestamp
-          priv_located_at: args.location
-        $min: priv_located_order: timestamp
-      throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
+    # locateNick is in /server/methods
 
     favoriteMechanic: (mechanic) ->
       check @userId, NonEmptyString
@@ -944,34 +876,6 @@ do ->
       check mechanic, IsMechanic
       n = Meteor.users.update @userId, $pull: favorite_mechanics: mechanic
       throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
-
-    newMessage: (args) ->
-      check @userId, NonEmptyString
-      check args,
-        body: Match.Optional String
-        bodyIsHtml: Match.Optional Boolean
-        action: Match.Optional Boolean
-        to: Match.Optional NonEmptyString
-        room_name: Match.Optional NonEmptyString
-        useful: Match.Optional Boolean
-        bot_ignore: Match.Optional Boolean
-        header_ignore: Match.Optional Boolean
-        suppressLastRead: Match.Optional Boolean
-        mention: Match.Optional [String]
-      return if this.isSimulation # suppress flicker
-      suppress = args.suppressLastRead
-      delete args.suppressLastRead
-      newMsg = {args..., nick: @userId}
-      newMsg.body ?= ''
-      newMsg.room_name ?= "general/0"
-      newMsg = newMessage newMsg
-      # update the user's 'last read' message to include this one
-      # (doing it here allows us to use server timestamp on message)
-      unless suppress
-        Meteor.call 'updateLastRead',
-          room_name: newMsg.room_name
-          timestamp: newMsg.timestamp
-      newMsg
 
     deleteMessage: (id) ->
       check @userId, NonEmptyString
@@ -1092,10 +996,11 @@ do ->
       old_canon = canonical old_name
       now = UTCNow()
       coll = collection(type)
+      id = object._id or object
       if new_canon is old_canon
         # change 'name' but do nothing else
         ct = coll.update {
-          _id: object._id or object
+          _id: id
           "tags.#{old_canon}": $exists: true
         }, {
           $set:
@@ -1111,7 +1016,7 @@ do ->
       if @isSimulation
         # this is all synchronous
         ct = coll.update {
-          _id: object._id or object
+          _id: id
           "tags.#{old_canon}": $exists: true
           "tags.#{new_canon}": $exists: false
         }, {
@@ -1125,7 +1030,7 @@ do ->
             "tags.#{old_canon}.value": "tags.#{new_canon}.value"
         }
         if ct is 1
-          coll.update {_id: object._id or object}, {$unset: "tags.#{old_canon}": ''}
+          coll.update {_id: id}, {$unset: "tags.#{old_canon}": ''}
         else 
           throw new Meteor.Error 404, "No such object"
         return
@@ -1133,7 +1038,7 @@ do ->
       # call to avoid a race condition. This requires rawCollection because the
       # wrappers don't support aggregation pipelines.
       result = Promise.await(coll.rawCollection().updateOne({
-        _id: object._id or object
+        _id: id
         "tags.#{old_canon}": $exists: true
         "tags.#{new_canon}": $exists: false
       }, [{
@@ -1149,7 +1054,10 @@ do ->
         }},
         {$unset: "tags.#{old_canon}" }
       ]))
-      if 1 isnt result.modifiedCount
+      if 1 is result.modifiedCount
+        # Since we used rawCollection, we Have to trigger subscription update manually.
+        Meteor.refresh {collection: type, id}
+      else
         throw new Meteor.Error 404, "No such object"
 
     deleteTag: (args) ->
@@ -1258,13 +1166,13 @@ do ->
       check @userId, NonEmptyString
       check args, Match.OneOf ObjectWith(pos: Number), ObjectWith(before: NonEmptyString), ObjectWith(after: NonEmptyString)
       args.who = @userId
-      moveWithinParent this, id, 'puzzles', parentId, args
+      moveWithinParent id, 'puzzles', parentId, args
 
     moveWithinRound: (id, parentId, args) ->
       check @userId, NonEmptyString
       check args, Match.OneOf ObjectWith(pos: Number), ObjectWith(before: NonEmptyString), ObjectWith(after: NonEmptyString)
       args.who = @userId
-      moveWithinParent this, id, 'rounds', parentId, args
+      moveWithinParent id, 'rounds', parentId, args
 
     moveRound: (id, dir) ->
       check @userId, NonEmptyString
