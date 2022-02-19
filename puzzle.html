@@ -18,6 +18,7 @@
     <tr><td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts solved}}</td></tr>
   {{/if}}
   <tr><td>Mechanics:</td><td>{{> puzzle_mechanics}}{{#each mechanics}}<span class="label">{{mechanicName}}</span>{{/each}}</td></tr>
+  <tr><td>Hunt site URL:</td>{{>edit_field type="puzzles" id=_id field="link"}}</tr>
 {{/with}}
 {{#each cares in unsetcaredabout}}
   <tr data-tag-name={{cares.name}}>

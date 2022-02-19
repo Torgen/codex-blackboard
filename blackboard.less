@@ -209,9 +209,14 @@ body.has-emojis {
 }
 .bb-puzzle-info-tags {
   position: relative;
-  td {
+  max-width: var(--right-column);
+  td, .bb-edit-field {
     padding: 0px 0.5em;
     vertical-align: top;
+  }
+  .bb-edit-field { display: table-cell; }
+  [data-field="link"] a {
+    overflow-wrap: anywhere;
   }
   .bb-mechanics-dropdown {
     position: static;
