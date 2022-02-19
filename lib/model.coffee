@@ -874,34 +874,6 @@ do ->
       n = Meteor.users.update @userId, $pull: favorite_mechanics: mechanic
       throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
 
-    newMessage: (args) ->
-      check @userId, NonEmptyString
-      check args,
-        body: Match.Optional String
-        bodyIsHtml: Match.Optional Boolean
-        action: Match.Optional Boolean
-        to: Match.Optional NonEmptyString
-        room_name: Match.Optional NonEmptyString
-        useful: Match.Optional Boolean
-        bot_ignore: Match.Optional Boolean
-        header_ignore: Match.Optional Boolean
-        suppressLastRead: Match.Optional Boolean
-        mention: Match.Optional [String]
-      return if this.isSimulation # suppress flicker
-      suppress = args.suppressLastRead
-      delete args.suppressLastRead
-      newMsg = {args..., nick: @userId}
-      newMsg.body ?= ''
-      newMsg.room_name ?= "general/0"
-      newMsg = newMessage newMsg
-      # update the user's 'last read' message to include this one
-      # (doing it here allows us to use server timestamp on message)
-      unless suppress
-        Meteor.call 'updateLastRead',
-          room_name: newMsg.room_name
-          timestamp: newMsg.timestamp
-      newMsg
-
     deleteMessage: (id) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
