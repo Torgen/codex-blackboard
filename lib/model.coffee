@@ -652,7 +652,6 @@ do ->
 
     newCallIn: (args) ->
       check @userId, NonEmptyString
-      return if this.isSimulation # otherwise we trigger callin sound twice
       args.callin_type ?= callin_types.ANSWER
       args.target_type ?= 'puzzles'
       puzzle = null
