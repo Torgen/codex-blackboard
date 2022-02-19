@@ -1021,10 +1021,11 @@ do ->
       old_canon = canonical old_name
       now = UTCNow()
       coll = collection(type)
+      id = object._id or object
       if new_canon is old_canon
         # change 'name' but do nothing else
         ct = coll.update {
-          _id: object._id or object
+          _id: id
           "tags.#{old_canon}": $exists: true
         }, {
           $set:
@@ -1040,7 +1041,7 @@ do ->
       if @isSimulation
         # this is all synchronous
         ct = coll.update {
-          _id: object._id or object
+          _id: id
           "tags.#{old_canon}": $exists: true
           "tags.#{new_canon}": $exists: false
         }, {
@@ -1054,7 +1055,7 @@ do ->
             "tags.#{old_canon}.value": "tags.#{new_canon}.value"
         }
         if ct is 1
-          coll.update {_id: object._id or object}, {$unset: "tags.#{old_canon}": ''}
+          coll.update {_id: id}, {$unset: "tags.#{old_canon}": ''}
         else 
           throw new Meteor.Error 404, "No such object"
         return
@@ -1062,7 +1063,7 @@ do ->
       # call to avoid a race condition. This requires rawCollection because the
       # wrappers don't support aggregation pipelines.
       result = Promise.await(coll.rawCollection().updateOne({
-        _id: object._id or object
+        _id: id
         "tags.#{old_canon}": $exists: true
         "tags.#{new_canon}": $exists: false
       }, [{
@@ -1078,7 +1079,10 @@ do ->
         }},
         {$unset: "tags.#{old_canon}" }
       ]))
-      if 1 isnt result.modifiedCount
+      if 1 is result.modifiedCount
+        # Since we used rawCollection, we Have to trigger subscription update manually.
+        Meteor.refresh {collection: type, id}
+      else
         throw new Meteor.Error 404, "No such object"
 
     deleteTag: (args) ->
