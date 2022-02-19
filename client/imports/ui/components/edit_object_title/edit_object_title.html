@@ -16,7 +16,7 @@
       {{/if}}
     {{else if editable}}
       {{>Template.contentBlock}}{{name}}
-      <i class="bb-edit-icon fas fa-pencil-alt pull-right"
+      <i class="bb-edit-icon fas fa-pencil-alt"
           title="Edit the name of this {{pretty}}"></i>
     {{else}}
       {{>Template.elseBlock}}{{#if link_title}}{{>link id=id type=type}}{{else}}{{name}}{{/if}}
