@@ -380,12 +380,15 @@ do ->
     check args, ObjectWith
       id: NonEmptyString
       who: NonEmptyString
+      condition: Match.Optional Object
+    condition = args.condition ? {}
     name = collection(type).findOne(args.id)?.name
     return false unless name
+    result = collection(type).remove {_id: args.id, ...condition}
+    return false if result is 0
     unless options.suppressLog
       oplog "Deleted "+pretty_collection(type)+" "+name, \
           type, null, args.who
-    collection(type).remove(args.id)
     return true
 
   setTagInternal = (updateDoc, args) ->
@@ -471,11 +474,7 @@ do ->
     deleteRound: (id) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
-      # disallow deletion unless round.puzzles is empty
-      # TODO(torgen): ...other than default meta
-      rg = Rounds.findOne id
-      return false unless rg? and rg?.puzzles?.length is 0
-      deleteObject "rounds", {id, who: @userId}
+      deleteObject "rounds", {id, who: @userId, condition: puzzles: $size: 0}
 
     newPuzzle: (args) ->
       check @userId, NonEmptyString
