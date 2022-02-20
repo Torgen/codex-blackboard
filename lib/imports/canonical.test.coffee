@@ -31,5 +31,10 @@ describe 'canonical', ->
     testcase "bill's", 'bills'
     testcase "don't", 'dont'
 
+  describe 'removes accents', ->
+    testcase 'Olá, você aí', 'ola_voce_ai'
+    # Đ is a distinct letter from D in vietnamese, not D with a diacritic
+    testcase 'Đó là một ngày tháng tư sáng lạnh', 'o_la_mot_ngay_thang_tu_sang_lanh'
+
   describe 'allows specifying replacement string', ->
     chai.assert.equal canonical('  leading and trailing  ', '-'), 'leading-and-trailing'
