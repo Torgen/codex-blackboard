@@ -14,7 +14,6 @@
     "cytoscape-layout-utilities": "^1.1.1",
     "delay": "^5.0.0",
     "denodeify": "^1.2.1",
-    "emoji-regex": "^10.0.0",
     "gemoji": "^7.1.0",
     "googleapis": "^95.0.0",
     "hubot": "^3.3.2",
