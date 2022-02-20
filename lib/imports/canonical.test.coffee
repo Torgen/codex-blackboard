@@ -36,5 +36,16 @@ describe 'canonical', ->
     # Đ is a distinct letter from D in vietnamese, not D with a diacritic
     testcase 'Đó là một ngày tháng tư sáng lạnh', 'o_la_mot_ngay_thang_tu_sang_lanh'
 
-  describe 'allows specifying replacement string', ->
+  describe 'flags', ->
+    testcase 'Oh 🇨🇦!', 'oh_🇨🇦'
+    testcase '🏴‍☠️ Yo ho ho!', '🏴‍☠️_yo_ho_ho'
+
+  describe 'emoji', ->
+    # emoji-named puzzles from recent hunts
+    testcase '✏️✉️➡️3️⃣5️⃣1️⃣➖6️⃣6️⃣6️⃣➖6️⃣6️⃣5️⃣5️⃣', '✏️✉️➡️3️⃣5️⃣1️⃣➖6️⃣6️⃣6️⃣➖6️⃣6️⃣5️⃣5️⃣'
+    testcase '🤔', '🤔'
+    testcase '🔔🦇🦇🦇', '🔔🦇🦇🦇'
+    testcase '❤️ & ☮️', '❤️_☮️'
+
+  it 'allows specifying replacement string', ->
     chai.assert.equal canonical('  leading and trailing  ', '-'), 'leading-and-trailing'
