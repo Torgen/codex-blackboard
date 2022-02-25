@@ -11,6 +11,7 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
 settings = share.settings # import
 model = share.model
@@ -357,6 +358,7 @@ BlackboardRouter = Backbone.Router.extend
     "oplogs": "OpLogPage"
     "callins": "CallInPage"
     "facts": "FactsPage"
+    "statistics": "StatisticsPage"
 
   BlackboardPage: ->
     scrollAfter =>
@@ -404,6 +406,9 @@ BlackboardRouter = Backbone.Router.extend
 
   FactsPage: ->
     this.Page("facts", "facts", "0", false)
+
+  StatisticsPage: ->
+    this.Page("statistics", "general", "0", false)
 
   Page: (page, type, id, has_chat, splitter) ->
     old_room = Session.get 'room_name'
