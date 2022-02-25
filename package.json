@@ -5,8 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.17.2",
-    "@googlemaps/js-api-loader": "^1.13.6",
-    "@googlemaps/markerclusterer": "^1.0.24",
+    "@googlemaps/js-api-loader": "^1.13.7",
+    "@googlemaps/markerclusterer": "^1.0.25",
     "chart.js": "^3.7.1",
     "chartjs-adapter-date-fns": "^2.0.0",
     "coffeescript": "^2.6.1",
