@@ -1,6 +1,6 @@
 import './statistics_page.html'
 import Chart from 'chart.js/auto'
-import 'chartjs-adapter-luxon'
+import 'chartjs-adapter-dayjs-3'
 
 class PuzzleFeed
   constructor: (@field, @update) ->
