@@ -495,12 +495,7 @@ maybeScrollMessagesView = do ->
 scrollMessagesView = ->
   touchSelfScroll()
   instachat.scrolledToBottom = true
-  # first try using html5, then fallback to jquery
-  last = document?.querySelector?('#messages > *:last-child')
-  if last?.scrollIntoView?
-    last.scrollIntoView()
-  else
-    $("body").scrollTo 'max'
+  last = document?.querySelector?('#messages > *:last-child')?.scrollIntoView()
   # the scroll handler below will reset scrolledToBottom to be false
   instachat.scrolledToBottom = true
 
