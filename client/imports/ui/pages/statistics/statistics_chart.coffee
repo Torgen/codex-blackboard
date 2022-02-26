@@ -30,7 +30,7 @@ class PuzzleFeed
             @hasNow.set false
             @data.pop()
         @update()
-      changedAt: (oldDoc, newDoc, ix) =>
+      changedAt: (newDoc, oldDoc, ix) =>
         @data[ix].x = newDoc[@field]
         @update()
       removedAt: (doc, ix) =>
