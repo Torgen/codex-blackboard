@@ -76,12 +76,6 @@ spreadsheetSettings =
     r.push SPREADSHEET_TEMPLATE
     r.push null
     r
-
-docSettings =
-  titleFunc: DOC_NAME
-  driveMimeType: GDRIVE_DOC_MIME_TYPE
-  uploadMimeType: 'text/plain'
-  uploadTemplate: -> 'Put notes here.'
   
 ensure = (drive, name, folder, settings) ->
   doc = (await drive.files.list
@@ -192,12 +186,10 @@ export class Drive
     {folder, permissionsPromise} = Promise.await ensureFolder @drive, name, @rootFolder
     # is the spreadsheet already there?
     spreadsheetP = ensure @drive, name, folder, spreadsheetSettings
-    docP = ensure @drive, name, folder, docSettings
-    [spreadsheet, doc, p] = Promise.await Promise.all [spreadsheetP, docP, permissionsPromise]
+    [spreadsheet, p] = Promise.await Promise.all [spreadsheetP, permissionsPromise]
     return {
       id: folder.id
       spreadId: spreadsheet.id
-      docId: doc.id
     }
 
   findPuzzle: (name) ->
@@ -208,17 +200,12 @@ export class Drive
     folder = resp.files[0]
     return null unless folder?
     # look for spreadsheet
-    spreadP = @drive.files.list
+    spread = Promise.await @drive.files.list
       q: "name=#{quote WORKSHEET_NAME name} and #{quote folder.id} in parents"
       pageSize: 1
-    docP = @drive.files.list
-      q: "name=#{quote DOC_NAME name} and #{quote folder.id} in parents"
-      pageSize: 1
-    [spread, doc] = Promise.await Promise.all [spreadP, docP]
     return {
       id: folder.id
       spreadId: spread.data.files[0]?.id
-      docId: doc.data.files[0]?.id
     }
 
   listPuzzles: ->
@@ -234,7 +221,7 @@ export class Drive
       break unless resp.nextPageToken?
     results
 
-  renamePuzzle: (name, id, spreadId, docId) ->
+  renamePuzzle: (name, id, spreadId) ->
     ps = [@drive.files.update
       fileId: id
       resource:
@@ -245,12 +232,6 @@ export class Drive
         fileId: spreadId
         resource:
           name: WORKSHEET_NAME name
-      )
-    if docId?
-      ps.push(@drive.files.update
-        fileId: docId
-        resource:
-          name: DOC_NAME name
       )
     Promise.await Promise.all ps
     'ok'
