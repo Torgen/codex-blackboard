@@ -433,13 +433,12 @@ do ->
       spreadsheet: res.spreadId
     }
 
-  renameDriveFolder = (new_name, drive, spreadsheet, doc) ->
+  renameDriveFolder = (new_name, drive, spreadsheet) ->
     check new_name, NonEmptyString
     check drive, NonEmptyString
     check spreadsheet, Match.Optional(NonEmptyString)
-    check doc, Match.Optional(NonEmptyString)
     return unless Meteor.isServer
-    share.drive.renamePuzzle(new_name, drive, spreadsheet, doc)
+    share.drive.renamePuzzle(new_name, drive, spreadsheet)
 
   deleteDriveFolder = (drive) ->
     check drive, NonEmptyString
