@@ -431,7 +431,6 @@ do ->
       drive_error_message: res.message
       drive: res.id
       spreadsheet: res.spreadId
-      doc: res.docId
     }
 
   renameDriveFolder = (new_name, drive, spreadsheet, doc) ->
@@ -540,10 +539,9 @@ do ->
       p = Puzzles.findOne args.id
       drive = p?.drive
       spreadsheet = p?.spreadsheet if drive?
-      doc = p?.doc if drive?
       result = renameObject "puzzles", {args..., who: @userId}
       # rename google drive folder
-      renameDriveFolder args.name, drive, spreadsheet, doc if result and drive?
+      renameDriveFolder args.name, drive, spreadsheet if result and drive?
       return result
     deletePuzzle: (pid) ->
       check @userId, NonEmptyString
