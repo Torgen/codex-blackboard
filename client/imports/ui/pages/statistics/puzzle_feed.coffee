@@ -48,4 +48,4 @@ export default class PuzzleFeed
     share.model.Puzzles.find({[@field]: $ne: null}, {fields: {[@field]: 1}, sort: {[@field]: 1}}).observe
       addedAt: @addedAt.bind @
       changedAt: @changedAt.bind @
-      removedAt: removedAt.bind @
+      removedAt: @removedAt.bind @
