@@ -215,7 +215,7 @@
         {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
       {{/edit_object_title}}
       {{#unless compactMode}}
-        {{#blackboard_tags adding=addingTag object=this}}
+        {{#blackboard_tags adding=addingTag type="rounds" id=_id}}
         {{#if canEdit}}<tr><td>Hunt site URL</td>{{>edit_field type="rounds" id=_id field="link"}}</tr>{{/if}}
         {{/blackboard_tags}}
       {{/unless}}
@@ -361,7 +361,7 @@
     {{/if}}
     {{#with puzzle}}
       {{#unless compactMode}}
-      {{#blackboard_tags adding=addingTag object=this}}
+      {{#blackboard_tags adding=addingTag type="puzzles" id=_id}}
         {{#if canEdit}}
           {{#if canChangeMeta}}
           <tr>
@@ -523,14 +523,12 @@
 
 <template name="blackboard_tags">
   <table class="bb-tag-table"><tbody>
-    {{#with object}}
-      {{#each tags}}
-      <tr data-tag-name="{{canon}}">
-        {{>edit_tag_name type=type id=id name=name editable=canEdit}}
-        {{>edit_tag_value type=type id=id name=name editable=canEdit}}
-      </tr>
-      {{/each}}
-    {{/with}}
+    {{#each tag in tags}}
+    <tr data-tag-name="{{tag.canon}}">
+      {{>edit_tag_name type=type id=id name=tag.name editable=canEdit}}
+      {{>edit_tag_value type=type id=id name=tag.name editable=canEdit}}
+    </tr>
+    {{/each}}
     {{#if adding.adding}}
       <tr class="bb-add-tag">
         <td class="bb-edit-tag-name bb-editable control-group {{tagAddClass}}">

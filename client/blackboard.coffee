@@ -359,8 +359,6 @@ Template.blackboard_round.helpers
     {
       adding: -> instance.addingTag.get()
       done: -> instance.addingTag.set false
-      type: 'rounds'
-      id: @_id
     }
 
 Template.blackboard_round.events
@@ -497,15 +495,14 @@ Template.blackboard_puzzle_cells.events
 
 
 tagHelper = ->
-  isRound = not ('feedsInto' of this)
-  tags = this?.tags or {}
+  tags = model.collection(@type).findOne({_id: @id}, {fields: tags: 1})?.tags or {}
   (
     t = tags[canon]
-    { _id: "#{@_id}/#{canon}", type: (if isRound then 'rounds' else 'puzzles'), id: @_id, name: t.name, canon, value: t.value, touched_by: t.touched_by }
+    { _id: "#{@id}/#{canon}", name: t.name, canon, value: t.value, touched_by: t.touched_by }
   ) for canon in Object.keys(tags).sort() when not \
     ((Session.equals('currentPage', 'blackboard') and \
       (canon is 'status' or \
-          (!isRound and canon is 'answer'))) or \
+          (@type isnt 'rounds' and canon is 'answer'))) or \
       ((canon is 'answer' or canon is 'backsolve') and \
       (Session.equals('currentPage', 'puzzle'))))
 
@@ -535,8 +532,6 @@ Template.blackboard_puzzle_cells.helpers
     {
       adding: -> instance.addingTag.get()
       done: -> instance.addingTag.set false
-      type: 'puzzles'
-      id: @_id
     }
 
 Template.blackboard_column_body_answer.helpers
@@ -609,8 +604,8 @@ Template.blackboard_tags.events okCancelEvents '.bb-add-tag input',
     @adding.done()
     template.newTagName.set ''
     cval = canonical value
-    return if model.collection(@adding.type).findOne(_id: @adding.id).tags[cval]?
-    Meteor.call 'setTag', {type: @adding.type, object: @adding.id, name: value, value: ''}
+    return if model.collection(@type).findOne(_id: @id).tags[cval]?
+    Meteor.call 'setTag', {type: @type, object: @id, name: value, value: ''}
   cancel: (event, template) ->
     @adding.done()
     template.newTagName.set ''
@@ -621,13 +616,13 @@ Template.blackboard_tags.helpers
     val = Template.instance().newTagName.get()
     return 'error' if not val
     cval = canonical val
-    return 'error' if model.collection(@adding.type).findOne(_id: @adding.id).tags[cval]?
+    return 'error' if model.collection(@type).findOne(_id: @id).tags[cval]?
     return 'success'
   tagAddStatus: ->
     val = Template.instance().newTagName.get()
     return 'Cannot be empty' if not val
     cval = canonical val
-    return 'Tag already exists' if model.collection(@adding.type).findOne(_id: @adding.id).tags[cval]?
+    return 'Tag already exists' if model.collection(@type).findOne(_id: @id).tags[cval]?
 Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information

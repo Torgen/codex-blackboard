@@ -65,7 +65,7 @@ Template.puzzle_info.helpers
       continue unless meta?
       for tag in meta.tags.cares_about?.value.split(',') or []
         continue if model.getTag @puzzle, tag
-        { name: tag, meta: meta.name }
+        { name: tag, canon: canonical(tag), meta: meta.name }
     [].concat r...
     
   metatags: ->
