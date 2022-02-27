@@ -215,7 +215,7 @@
         {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
       {{/edit_object_title}}
       {{#unless compactMode}}
-        {{#blackboard_tags}}
+        {{#blackboard_tags adding=addingTag object=this}}
         {{#if canEdit}}<tr><td>Hunt site URL</td>{{>edit_field type="rounds" id=_id field="link"}}</tr>{{/if}}
         {{/blackboard_tags}}
       {{/unless}}
@@ -361,7 +361,7 @@
     {{/if}}
     {{#with puzzle}}
       {{#unless compactMode}}
-      {{#blackboard_tags}}
+      {{#blackboard_tags adding=addingTag object=this}}
         {{#if canEdit}}
           {{#if canChangeMeta}}
           <tr>
@@ -523,12 +523,25 @@
 
 <template name="blackboard_tags">
   <table class="bb-tag-table"><tbody>
-    {{#each tags}}
-    <tr data-tag-name="{{canon}}">
-      {{>edit_tag_name type=type id=id name=name editable=canEdit}}
-      {{>edit_tag_value type=type id=id name=name editable=canEdit}}
-    </tr>
-    {{/each}}
+    {{#with object}}
+      {{#each tags}}
+      <tr data-tag-name="{{canon}}">
+        {{>edit_tag_name type=type id=id name=name editable=canEdit}}
+        {{>edit_tag_value type=type id=id name=name editable=canEdit}}
+      </tr>
+      {{/each}}
+    {{/with}}
+    {{#if adding.adding}}
+      <tr class="bb-add-tag control-group {{tagAddClass}}">
+        <td class="bb-edit-tag-name bb-editable">
+          <input type="text" placeholder="Tag name" class="input-block-level" />
+          {{#if tagAddStatus}}
+            <div class="tooltip top in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{tagAddStatus}}</div></div>
+          {{/if}}
+        </td>
+        <td></td>
+      </tr>
+    {{/if}}
     {{> Template.contentBlock}}
   </tbody></table>
 </template>

@@ -263,8 +263,10 @@ describe 'blackboard', ->
       initial = bank()
       chai.assert.notOk initial.tags.meme
       baseJq = $("tbody.meta[data-puzzle-id=\"#{initial.feedsInto[1]}\"] [data-puzzle-id=\"#{initial._id}\"]")
-      baseJq.find('.bb-add-tag').first().click()
-      fill_alertify 'Meme'
+      baseJq.find('button.bb-add-tag').first().click()
+      await afterFlushPromise()
+      chai.assert.isTrue baseJq.find('.bb-tag-table .bb-add-tag input').is(':focus')
+      baseJq.find('.bb-tag-table .bb-add-tag input').val('Meme').focusout()
       creation = bank()
       await waitForMethods()
       chai.assert.include creation.tags.meme,
