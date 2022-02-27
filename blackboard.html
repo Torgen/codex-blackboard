@@ -532,8 +532,8 @@
       {{/each}}
     {{/with}}
     {{#if adding.adding}}
-      <tr class="bb-add-tag control-group {{tagAddClass}}">
-        <td class="bb-edit-tag-name bb-editable">
+      <tr class="bb-add-tag">
+        <td class="bb-edit-tag-name bb-editable control-group {{tagAddClass}}">
           <input type="text" placeholder="Tag name" class="input-block-level" />
           {{#if tagAddStatus}}
             <div class="tooltip top in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{tagAddStatus}}</div></div>
