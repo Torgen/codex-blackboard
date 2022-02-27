@@ -7,6 +7,7 @@ import puzzleColor  from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
+import okCancelEvents from './imports/ok_cancel_events.coffee'
 import '/client/imports/ui/components/edit_field/edit_field.coffee'
 import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
@@ -75,6 +76,7 @@ Template.blackboard.onCreated ->
       result.add n.nickname
       result.add n.real_name if n.real_name?
     [...result]
+  @addRound = new ReactiveVar false
   @userSearch = new ReactiveVar null
   @foundAccounts = new ReactiveVar null, setCompare
   @foundPuzzles = new ReactiveVar null, setCompare
@@ -199,6 +201,8 @@ Template.blackboard.helpers
   rounds: round_helper
   metas: meta_helper
   unassigned: unassigned_helper
+  reverse_rounds: -> SORT_REVERSE.get()
+  add_round: -> Template.instance().addRound.get()
   favorites: ->
     query = $or: [
       {"favorites.#{Meteor.userId()}": true},
@@ -261,20 +265,12 @@ Template.blackboard.onRendered ->
   #  page title
   $("title").text("#{settings.TEAM_NAME} Puzzle Blackboard")
   $('#bb-tables .bb-puzzle .puzzle-name > a').tooltip placement: 'left'
-  @autorun () ->
-    editing = Session.get 'editing'
-    return unless editing?
-    Meteor.defer () ->
-      $("##{editing.split('/').join '-'}").focus()
 
 Template.blackboard.events
   "click .bb-sort-order button": (event, template) ->
     reverse = $(event.currentTarget).attr('data-sortReverse') is 'true'
     SORT_REVERSE.set reverse
-  "click .bb-add-round": (event, template) ->
-    alertify.prompt "Name of new round:", (e,str) ->
-      return unless e # bail if cancelled
-      Meteor.call 'newRound', name: str
+  "click .bb-add-round": (event, template) -> template.addRound.set true
   "click .bb-round-buttons .bb-add-puzzle": (event, template) ->
     alertify.prompt "Name of new puzzle:", (e,str) =>
       return unless e # bail if cancelled
@@ -299,6 +295,42 @@ Template.blackboard.events
       object: @puzzle._id
       name: @puzzle.name
 
+# This is in the blackboard template and not in the blackboard_add_round template because it needs to modify
+# the ReactiveVar that determines whether there is a blackboard_add_round template at all.
+Template.blackboard.events okCancelEvents '#bb-new-round input',
+  ok: (value, evt, template) ->
+    return unless template.addRound.get()
+    template.addRound.set false
+    value = value.replace /^\s+|\s+$/, ''
+    return unless value
+    Meteor.call 'newRound', name: value
+
+  cancel: (evt, template) ->
+    template.addRound.set false
+
+Template.blackboard_add_round.onCreated ->
+  @value = new ReactiveVar ''
+
+Template.blackboard_add_round.onRendered ->
+  @$('input').focus()
+
+Template.blackboard_add_round.helpers
+  titleEditClass: ->
+    val = Template.instance().value.get()
+    return 'error' if not val
+    cval = canonical val
+    return 'error' if share.model.Rounds.findOne(canon: cval)?
+    return 'success'
+  titleEditStatus: ->
+    val = Template.instance().value.get()
+    return 'Cannot be empty' if not val
+    cval = canonical val
+    return "Conflicts with another round" if model.Rounds.findOne(canon: cval)?
+  
+Template.blackboard_add_round.events
+  'input input': (event, template) ->
+    template.value.set event.currentTarget.value
+
 Template.blackboard_favorite_puzzle.onCreated ->
   @autorun =>
     return unless VISIBLE_COLUMNS.get().includes('update')
@@ -321,7 +353,7 @@ Template.blackboard_round.helpers
   collapsed: -> 'true' is reactiveLocalStorage.getItem "collapsed_round.#{@_id}"
   unassigned: unassigned_helper
   showRound: ->
-    return true if Session.get('editing')?
+    return true if 'true' is Session.get 'canEdit'
     return true unless HIDE_SOLVED_METAS.get()
     for id, index in @puzzles
       puzzle = model.Puzzles.findOne({_id: id, solved: {$eq: null}, $or: [{feedsInto: {$size: 0}}, {puzzles: {$ne: null}}]})

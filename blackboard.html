@@ -141,12 +141,29 @@
             {{/if}}
           {{/let}}
         {{/unless}}
+        {{#if all add_round reverse_rounds}}{{> blackboard_add_round}}{{/if}}
         {{#each rounds}}
           {{> blackboard_round}}
         {{/each}}
+        {{#if all add_round (not reverse_rounds)}}{{> blackboard_add_round}}{{/if}}
       {{/if}}
     </table>
   </div><!-- bb-tables -->
+</template>
+
+<template name="blackboard_add_round">
+  <tbody>
+    <tr>
+      <th colspan="{{nCols}}" id="bb-new-round" class="bb-round-header">
+        <div class="bb-round-title bb-editable control-group {{titleEditClass}}">
+          <input type="text" placeholder="Round name" class="input-block-level" />
+        </div>
+        {{#if titleEditStatus}}
+          <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleEditStatus}}</div></div>
+        {{/if}}
+      </th>
+    </tr>
+  </tbody>
 </template>
 
 <template name="blackboard_column_header_answer">

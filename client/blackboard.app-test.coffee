@@ -211,7 +211,9 @@ describe 'blackboard', ->
       await waitForSubscriptions()
       await afterFlushPromise()
       $('button.bb-add-round').click()
-      fill_alertify 'Created Round'
+      await afterFlushPromise()
+      chai.assert.isTrue $('#bb-new-round input').is(':focus')
+      $('#bb-new-round input').val('Created Round').focusout()
       await waitForMethods()
       await afterFlushPromise()
       round = share.model.Rounds.findOne name: 'Created Round'

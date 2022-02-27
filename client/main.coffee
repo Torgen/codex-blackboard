@@ -54,10 +54,6 @@ Template.registerHelper 'typeEquals', (arg) ->
 Template.registerHelper 'canEdit', () ->
   Meteor.userId() and (Session.get 'canEdit') and \
   (Session.equals 'currentPage', 'blackboard')
-Template.registerHelper 'editing', (args..., options) ->
-  canEdit = options?.hash?.canEdit or (Session.get 'canEdit')
-  return false unless Meteor.userId() and canEdit
-  return Session.equals 'editing', args.join('/')
 
 Template.registerHelper 'md5', md5
 Template.registerHelper 'fileType', fileType
@@ -367,7 +363,6 @@ BlackboardRouter = Backbone.Router.extend
       Session.set
         color: 'inherit'
         canEdit: undefined
-        editing: undefined
         topRight: 'blackboard_status_grid'
 
   EditPage: ->
@@ -376,7 +371,6 @@ BlackboardRouter = Backbone.Router.extend
       Session.set
         color: 'inherit'
         canEdit: true
-        editing: undefined
         topRight: 'blackboard_status_grid'
 
   GraphPage: -> @Page 'graph', 'general', '0', false
