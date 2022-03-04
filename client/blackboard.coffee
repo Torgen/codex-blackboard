@@ -201,7 +201,6 @@ Template.blackboard.helpers
   rounds: round_helper
   metas: meta_helper
   unassigned: unassigned_helper
-  reverse_rounds: -> SORT_REVERSE.get()
   add_round: -> Template.instance().addRound.get()
   favorites: ->
     query = $or: [
@@ -271,16 +270,6 @@ Template.blackboard.events
     reverse = $(event.currentTarget).attr('data-sortReverse') is 'true'
     SORT_REVERSE.set reverse
   "click .bb-add-round": (event, template) -> template.addRound.set true
-  "click .bb-round-buttons .bb-add-puzzle": (event, template) ->
-    alertify.prompt "Name of new puzzle:", (e,str) =>
-      return unless e # bail if cancelled
-      Meteor.call 'newPuzzle', { name: str, round: @_id }, (error,r)->
-        throw error if error
-  "click .bb-round-buttons .bb-add-meta": (event, template) ->
-    alertify.prompt "Name of new metapuzzle:", (e,str) =>
-      return unless e # bail if cancelled
-      Meteor.call 'newPuzzle', { name: str, round: @_id, puzzles: [] }, (error,r)->
-        throw error if error
   'click .bb-canEdit .bb-fix-drive': (event, template) ->
     event.stopPropagation() # keep .bb-editable from being processed!
     Meteor.call 'fixPuzzleFolder',
@@ -330,6 +319,8 @@ Template.blackboard_favorite_puzzle.onCreated ->
 
 Template.blackboard_round.onCreated ->
   @addingTag = new ReactiveVar false
+  @addingUnassigned = new ReactiveVar false
+  @addingMeta = new ReactiveVar false
 
 Template.blackboard_round.helpers
   # the following is a map() instead of a direct find() to preserve order
@@ -360,6 +351,43 @@ Template.blackboard_round.helpers
       adding: -> instance.addingTag.get()
       done: -> instance.addingTag.set false
     }
+  addingUnassigned: -> Template.instance().addingUnassigned.get()
+  addingUnassignedParams: ->
+    instance = Template.instance()
+    return
+      done: ->
+        wasAdding = instance.addingUnassigned.get()
+        instance.addingUnassigned.set false
+        return wasAdding
+      params:
+        round: @_id
+  addingMeta: -> Template.instance().addingMeta.get()
+  addingMetaParams: ->
+    instance = Template.instance()
+    return
+      done: ->
+        wasAdding = instance.addingMeta.get()
+        instance.addingMeta.set false
+        return wasAdding
+      params:
+        round: @_id
+        puzzles: []
+
+moveBeforePrevious = (match, rel, event, template) ->
+  row = template.$(event.target).closest(match)
+  prevRow = row.prev(match)
+  return unless prevRow.length is 1
+  args = {}
+  args[rel] = prevRow[0].dataset.puzzleId
+  Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
+
+moveAfterNext = (match, rel, event, template) ->
+  row = template.$(event.target).closest(match)
+  nextRow = row.next(match)
+  return unless nextRow.length is 1
+  args = {}
+  args[rel] = nextRow[0].dataset.puzzleId
+  Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
 
 Template.blackboard_round.events
   'click .bb-round-buttons .bb-add-tag': (event, template) ->
@@ -381,33 +409,14 @@ Template.blackboard_round.events
       no_button: 'No, cancel'
       message: "Are you sure you want to delete the round \"#{template.data.name}\"?")
       Meteor.call 'deleteRound', template.data._id
-
-moveBeforePrevious = (match, rel, event, template) ->
-  row = template.$(event.target).closest(match)
-  prevRow = row.prev(match)
-  return unless prevRow.length is 1
-  args = {}
-  args[rel] = prevRow[0].dataset.puzzleId
-  Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
-
-moveAfterNext = (match, rel, event, template) ->
-  row = template.$(event.target).closest(match)
-  nextRow = row.next(match)
-  return unless nextRow.length is 1
-  args = {}
-  args[rel] = nextRow[0].dataset.puzzleId
-  Meteor.call 'moveWithinRound', row[0]?.dataset.puzzleId, Template.parentData()._id, args
-      
-Template.blackboard_unassigned.events
+  
+  'click .bb-round-buttons .bb-add-puzzle': (event, template) -> template.addingUnassigned.set true
+  'click .bb-round-buttons .bb-add-meta:not(.active)': (event, template) -> template.addingMeta.set true
   'click tbody.unassigned tr.puzzle .bb-move-up': moveBeforePrevious.bind null, 'tr.puzzle', 'before'
   'click tbody.unassigned tr.puzzle .bb-move-down': moveAfterNext.bind null, 'tr.puzzle', 'after'
-processBlackboardEdit =
-  link: (text, id) ->
-    n = model.Names.findOne(id)
-    Meteor.call 'setField',
-      type: n.type
-      object: id
-      fields: link: text
+
+Template.blackboard_meta.onCreated ->
+  @adding = new ReactiveVar false
 
 moveWithinMeta = (pos) -> (event, template) -> 
   meta = template.data
@@ -426,16 +435,8 @@ Template.blackboard_meta.events
     if SORT_REVERSE.get()
       rel = 'before'
     moveAfterNext 'tbody.meta', rel, event, template
-  'click .bb-meta-buttons .bb-add-puzzle': (event, template) ->
-    puzzId = @puzzle._id
-    roundId = Template.parentData()._id
-    alertify.prompt "Name of new puzzle:", (e,str) =>
-      return unless e # bail if cancelled
-      Meteor.call 'newPuzzle',
-        name: str
-        feedsInto: [puzzId]
-        round: roundId
-      , (error,r)-> throw error if error
+  'click .bb-meta-buttons .bb-add-puzzle:not(.active)': (event, template) ->
+    template.adding.set true
   'click tr.meta.collapsed .collapse-toggle': (event, template) ->
     reactiveLocalStorage.setItem "collapsed_meta.#{template.data.puzzle._id}", false
   'click tr.meta:not(.collapsed) .collapse-toggle': (event, template) ->
@@ -445,18 +446,19 @@ Template.blackboard_meta.helpers
   color: -> puzzleColor @puzzle if @puzzle?
   showMeta: -> !HIDE_SOLVED_METAS.get() or (!this.puzzle?.solved?)
   puzzles: ->
-    if @puzzle.order_by
+    puzzle = model.Puzzles.findOne({_id: @_id}, {fields: {order_by: 1, puzzles: 1}})
+    if puzzle?.order_by
       filter =
-        feedsInto: @puzzle._id
+        feedsInto: @_id
       if not (Session.get 'canEdit') and HIDE_SOLVED.get()
         filter.solved = $eq: null
       return model.Puzzles.find filter,
-        sort: {"#{@puzzle.order_by}": 1}
+        sort: {"#{puzzle.order_by}": 1}
         transform: (p) -> {_id: p._id, puzzle: p}
     p = ({
       _id: id
       puzzle: model.Puzzles.findOne(id) or { _id: id }
-    } for id, index in this.puzzle.puzzles)
+    } for id, index in puzzle?.puzzles)
     editing = Meteor.userId() and (Session.get 'canEdit')
     return p if editing or !HIDE_SOLVED.get()
     p.filter (pp) -> !pp.puzzle.solved?
@@ -468,6 +470,18 @@ Template.blackboard_meta.helpers
       continue unless x?.solved?
     y.length
   collapsed: -> 'true' is reactiveLocalStorage.getItem "collapsed_meta.#{@puzzle._id}"
+  adding: -> Template.instance().adding.get()
+  addingPuzzle: ->
+    instance = Template.instance()
+    parentData = Template.parentData()
+    return
+      done: ->
+        wasAdding = instance.adding.get()
+        instance.adding.set false
+        return wasAdding
+      params:
+        round: parentData._id
+        feedsInto: [@puzzle._id]
 
 Template.blackboard_puzzle_cells.events
   'click .bb-puzzle-add-move .bb-add-tag': (event, template) ->
@@ -584,6 +598,35 @@ Template.blackboard_puzzle.events
     event = event.originalEvent
     if dragdata?.dragover template.data.puzzle, Template.parentData(1).puzzle, Template.parentData(2), event.target, event.clientY, event.dataTransfer
       event.preventDefault()
+
+Template.blackboard_new_puzzle.onCreated ->
+  @name = new ReactiveVar ''
+
+Template.blackboard_new_puzzle.onRendered ->
+  @$('input').focus()
+
+Template.blackboard_new_puzzle.events
+  'focus/input input': (event, template) ->
+    template.name.set event.currentTarget.value
+
+Template.blackboard_new_puzzle.events okCancelEvents 'input',
+  cancel: (evt, template) -> @adding.done()
+  ok: (name, evt, template) ->
+    return unless @adding.done()
+    Meteor.call 'newPuzzle', {name, ...@adding.params}
+
+Template.blackboard_new_puzzle.helpers
+  titleAddClass: ->
+    val = Template.instance().name.get()
+    return 'error' if not val
+    cval = canonical val
+    return 'error' if share.model.Puzzles.findOne(canon: cval)?
+    return 'success'
+  titleAddStatus: ->
+    val = Template.instance().name.get()
+    return 'Cannot be empty' if not val
+    cval = canonical val
+    return "Conflicts with another round" if model.Puzzles.findOne(canon: cval)?
 
 Template.blackboard_tags.onCreated ->
   @newTagName = new ReactiveVar ''

@@ -4,10 +4,6 @@ import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterF
 import chai from 'chai'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
-fill_alertify = (text) ->
-  $('#alertify-text').val(text)
-  $('#alertify-ok').click()
-
 describe 'blackboard', ->
   @timeout 20000
   before ->
@@ -219,21 +215,27 @@ describe 'blackboard', ->
       round = share.model.Rounds.findOne name: 'Created Round'
       chai.assert.isOk round, 'round'
       $("#round#{round._id} button.bb-add-meta").click()
-      fill_alertify 'Created Meta'
+      await afterFlushPromise()
+      chai.assert.isTrue $('#bb-new-puzzle input').is(':focus')
+      $('#bb-new-puzzle input').val('Created Meta').focusout()
       await waitForMethods()
       await afterFlushPromise()
       meta = share.model.Puzzles.findOne name: 'Created Meta'
       chai.assert.isOk meta, 'meta'
       chai.assert.isArray meta.puzzles
       $("#m#{meta._id} .bb-meta-buttons .bb-add-puzzle").click()
-      fill_alertify 'Directly Created'
+      await afterFlushPromise()
+      chai.assert.isTrue $('#bb-new-puzzle input').is(':focus')
+      $('#bb-new-puzzle input').val('Directly Created').focusout()
       await waitForMethods()
       await afterFlushPromise()
       direct = share.model.Puzzles.findOne name: 'Directly Created'
       chai.assert.isOk direct, 'direct'
       chai.assert.include direct.feedsInto, meta._id
       $("#round#{round._id} .bb-add-puzzle").click()
-      fill_alertify 'Indirectly Created'
+      await afterFlushPromise()
+      chai.assert.isTrue $('#bb-new-puzzle input').is(':focus')
+      $('#bb-new-puzzle input').val('Indirectly Created').focusout()
       await waitForMethods()
       await afterFlushPromise()
       indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
