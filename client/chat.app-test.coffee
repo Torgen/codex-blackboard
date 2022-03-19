@@ -297,7 +297,7 @@ describe 'chat', ->
       chai.assert.equal results.length, 2
       chai.assert.equal results[0].style.width, '0%'
       chai.assert.equal results[1].style.width, '0%'
-      await promiseCall 'setField',
+      await promiseCall 'setAnyField',
         type: 'polls'
         object: poll
         fields:
@@ -314,12 +314,12 @@ describe 'chat', ->
       await afterFlushPromise()
       chai.assert.equal results[0].style.width, '100%'
       chai.assert.equal results[1].style.width, '50%'
-      $('button[data-option="tails"').click()
+      $('button[data-option="tails"]').click()
       await waitForMethods()
       await afterFlushPromise()
       chai.assert.equal results[0].style.width, '100%'
       chai.assert.equal results[1].style.width, '100%'
-      $('button[data-option="heads"').click()
+      $('button[data-option="heads"]').click()
       await waitForMethods()
       await afterFlushPromise()
       chai.assert.equal results[0].style.width, '100%'

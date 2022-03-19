@@ -2,7 +2,7 @@
 
 import canonical from './imports/canonical.coffee'
 import isDuplicateError from './imports/duplicate.coffee'
-import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
+import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith, OptionalKWArg } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 import { RoundUrlPrefix, PuzzleUrlPrefix, UrlSeparator } from './imports/settings.coffee'
@@ -453,6 +453,15 @@ do ->
     require('/server/imports/move_within_parent.coffee').default
   else
     require('/client/imports/move_within_parent.coffee').default
+
+  settableFields =
+    callins:
+      callin_type: OptionalKWArg callin_types.IsCallinType
+      submitted_by: OptionalKWArg NonEmptyString
+      submitted_to_hq: OptionalKWArg Boolean
+    puzzles:
+      link: OptionalKWArg String
+      order_by: Match.Optional Match.OneOf(EqualsString(''), EqualsString('name'))
       
   Meteor.methods
     newRound: (args) ->
@@ -944,21 +953,14 @@ do ->
         return {type: 'nicks', object: o} if o
 
     setField: (args) ->
+      console.log args
       check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidType
         object: IdOrObject
-        fields: Object
+        fields: settableFields[args.type]
       id = args.object._id or args.object
       now = UTCNow()
-      # disallow modifications to the following fields; use other APIs for these
-      for f in ['name','canon','created','created_by','solved','solved_by',
-               'tags','puzzles', 'feedsInto',
-               'located','located_at',
-               'priv_located','priv_located_at','priv_located_order']
-        delete args.fields[f]
-      if args.fields.order_by
-        check args.fields.order_by, Match.OneOf EqualsString(''), EqualsString('name')
       args.fields.touched = now
       args.fields.touched_by = @userId
       collection(args.type).update id, $set: args.fields
