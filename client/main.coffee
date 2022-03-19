@@ -1,7 +1,7 @@
 'use strict'
 
-import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
 import md5 from 'md5'
+import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
@@ -11,6 +11,7 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import '/client/imports/ui/pages/logistics/logistics_page.coffee'
 import '/client/imports/ui/pages/map/map_page.coffee'
 import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
@@ -360,6 +361,7 @@ BlackboardRouter = Backbone.Router.extend
     "callins": "CallInPage"
     "facts": "FactsPage"
     "statistics": "StatisticsPage"
+    "logistics": 'LogisticsPage'
 
   BlackboardPage: ->
     scrollAfter =>
@@ -382,6 +384,8 @@ BlackboardRouter = Backbone.Router.extend
   GraphPage: -> @Page 'graph', 'general', '0', false
 
   MapPage: -> @Page 'map', 'general', '0', false
+
+  LogisticsPage: -> @Page 'logistics_page', 'general', '0', true, true
 
   PuzzlePage: (id, view=null) ->
     @Page "puzzle", "puzzles", id, true, true

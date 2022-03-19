@@ -1,0 +1,21 @@
+<template name="logistics">
+  <div class="bb-logistics">
+    <div class="bb-logistics-metas">
+    {{#each metas}}{{>logistics_meta}}{{/each}}
+    </div>
+  </div>
+</template>
+
+<template name="logistics_meta">
+  {{#let p=puzzles}}
+  <div class="bb-logistics-meta" style="background-color: {{color}}; --num-feeders:{{p.length}}">
+    <header class="{{#if solved}}solved{{else if stuck this}}stuck{{/if}}">{{name}}</header>
+    <ul>
+      {{#each puzzle in p}}
+        <li class="{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{/if}}">{{puzzle.name}}</li>
+      {{/each}}
+      <li class="new-puzzle">(add new puzzle)</li>
+    </ul>
+  </div>
+  {{/let}}
+</template>

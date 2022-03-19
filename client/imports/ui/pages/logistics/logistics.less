@@ -1,0 +1,54 @@
+.bb-logistics-metas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-rows: repeat(auto-fill, 20px);
+  gap: 4px;
+  margin: 4px;
+}
+
+.puzzle-like(@left-border) {
+  border-left: @left-border solid black;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &.stuck {
+    border-left-color: var(--stuck-yellow);
+  }
+  &.solved {
+    border-left-color: limegreen;
+  }
+}
+
+.bb-logistics-meta {
+  border: 1px solid black;
+  border-collapse: collapse;
+  --num-rows: calc(2 + (var(--num-feeders, 0))/2);
+  grid-row-end: span var(--num-rows);
+  & > header {
+    .puzzle-like(5px);
+    background-color: var(--slightly-lighter);
+    height: 42px;
+    font-size: 28px;
+    padding-left: 2px;
+    & > .round {
+      height: 12px;
+      font-size: 10px;
+      line-height: 10px;
+    }
+  }
+  & > .feeders {
+    background-color: var(--much-lighter);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: 0px;
+    & > * {
+      display: block;
+      outline: 1px solid black;
+      height: 20px;
+      padding: 1px 2px 2px 1px;
+      margin-top: 1px;
+      margin-left: 1px;
+      .puzzle-like(4px);
+    }
+  }
+}
