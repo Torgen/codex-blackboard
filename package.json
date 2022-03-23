@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.17.8",
-    "@googlemaps/js-api-loader": "^1.13.9",
+    "@googlemaps/js-api-loader": "^1.13.10",
     "@googlemaps/markerclusterer": "^2.0.1",
     "chart.js": "^3.7.1",
     "chartjs-adapter-dayjs-3": "^1.2.3",
