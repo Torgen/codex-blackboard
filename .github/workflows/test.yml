@@ -17,6 +17,9 @@ jobs:
         test_script:
           - coverage.lcov
           - coverage.full.lcov
+        browser:
+          - chrome
+          - firefox
     steps:
     - uses: actions/checkout@master
     - name: Read Meteor version
@@ -44,14 +47,21 @@ jobs:
 
     - name: npm install
       run: ~/.meteor/meteor npm install
+    - name: install firefox
+      if: ${{ matrix.browser }} == 'firefox'
+      env:
+        PUPPETEER_PRODUCT: firefox
+      run: ~/.meteor/meteor npm install puppeteer
 
     - name: Test ${{ matrix.test_script }}
+      env:
+        PUPPETEER_PRODUCT: ${{ matrix.browser }}
       run: ~/.meteor/meteor npm run-script ${{ matrix.test_script }}
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.test_script }}
+        flag-name: run-${{ matrix.test_script }}-${{ matrix.browser }}
         path-to-lcov: .coverage/lcov.info
         parallel: true
 
