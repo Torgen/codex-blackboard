@@ -8,7 +8,7 @@ import chai from 'chai'
 # event and pass them to another class to handle the logic.
 
 describe 'drag-and-drop', ->
-  @timeout 15000
+  @timeout 20000
   before ->
     login('testy', 'Teresa Tybalt', '', 'failphrase')
   
