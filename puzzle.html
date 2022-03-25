@@ -96,15 +96,28 @@
 {{/let}}
 {{#if puzzle.puzzles}}{{#let cares=caresabout}}
 <table class="bb-round-answers table table-bordered table-condensed"><tbody>
-  <tr><th>Puzzle in round</th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
+  <tr><th>Feeder{{#if metameta}} <button class="btn btn-mini grandfeeders {{#if grandfeeders}}active{{/if}}"><i class="fas fa-sitemap"></i></button>{{/if}}</th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
   {{#each puzzle.puzzles}}{{#with getPuzzle}}
     <tr>
-      <td>{{>link id=_id}}</td>
+      <td>{{#if grandfeeders}}<input type="checkbox" class="feed" checked="checked">{{/if}}{{>link id=_id}}</td>
       <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
       {{#each t in cares}}
         <td>{{tag t.name}}</td>
       {{/each}}
     </tr>
+    {{#if grandfeeders}}
+      {{#each puzzles}}
+        {{#with getPuzzle}}
+          <tr class="descendant">
+            <td><input type="checkbox" class="feed" checked="{{#if includes ../../../../puzzle.puzzles _id}}checked{{/if}}">{{>link id=_id}}</td> 
+            <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+            {{#each t in cares}}
+              <td>{{tag t.name}}</td>
+            {{/each}}
+          </tr>
+          {{/with}}
+      {{/each}}
+    {{/if}}
   {{/with}}{{/each}}
 </tbody></table>
 {{/let}}{{/if}}
