@@ -48,7 +48,7 @@ jobs:
     - name: npm install
       run: ~/.meteor/meteor npm install
     - name: install firefox
-      if: ${{ matrix.browser }} == 'firefox'
+      if: matrix.browser == 'firefox'
       env:
         PUPPETEER_PRODUCT: firefox
       run: ~/.meteor/meteor npm install puppeteer
