@@ -5,7 +5,7 @@ import chai from 'chai'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
 describe 'blackboard', ->
-  @timeout 20000
+  @timeout 30000
   before ->
     login('testy', 'Teresa Tybalt', '', 'failphrase')
   
