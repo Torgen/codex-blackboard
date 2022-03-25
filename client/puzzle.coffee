@@ -37,6 +37,7 @@ currentViewIs = (puzzle, view) ->
 
 Template.puzzle_info.onCreated ->
   @grandfeeders = new ReactiveVar false
+  @unattached = new ReactiveVar false
   @autorun =>
     id = Session.get 'id'
     return unless id
@@ -63,10 +64,14 @@ Template.puzzle_info.helpers
     console.log @puzzle.puzzles
     model.Puzzles.find({_id: {$in: @puzzle.puzzles}, puzzles: {$exists: true}}).count() > 0
   grandfeeders: -> Template.instance().grandfeeders.get()
+  unattached: -> Template.instance().unattached.get()
+  nonfeeders: -> model.Puzzles.find(feedsInto: $size: 0)
 
 Template.puzzle_info.events
   'click button.grandfeeders': (event, template) ->
     template.grandfeeders.set(not event.currentTarget.classList.contains('active'))
+  'click button.unattached': (event, template) ->
+    template.unattached.set(not event.currentTarget.classList.contains('active'))
   'change input.feed': (event, template) ->
     if event.currentTarget.checked
       Meteor.call 'feedMeta', @_id, Template.currentData().puzzle._id
