@@ -60,12 +60,26 @@ Template.puzzle_info.helpers
     ,
       sort: {created: 1}
   callin_status: -> callin_types.past_status_message @status, @callin_type
-  metameta: ->
-    console.log @puzzle.puzzles
-    model.Puzzles.find({_id: {$in: @puzzle.puzzles}, puzzles: {$exists: true}}).count() > 0
+  metameta: -> model.Puzzles.find({_id: {$in: @puzzle.puzzles}, puzzles: {$exists: true}}).count() > 0
   grandfeeders: -> Template.instance().grandfeeders.get()
   unattached: -> Template.instance().unattached.get()
   nonfeeders: -> model.Puzzles.find(feedsInto: $size: 0)
+  unsetcaredabout: ->
+    return unless @puzzle
+    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+      continue unless meta?
+      for tag in meta.tags.cares_about?.value.split(',') or []
+        continue if model.getTag @puzzle, tag
+        { name: tag, canon: canonical(tag), meta: meta.name }
+    [].concat r...
+  metatags: ->
+    return unless @puzzle?
+    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+      continue unless meta?
+      for canon, tag of meta.tags
+        continue unless /^meta /i.test tag.name
+        {name: tag.name, value: tag.value, meta: meta.name}
+    [].concat r...
 
 Template.puzzle_info.events
   'click button.grandfeeders': (event, template) ->
@@ -77,24 +91,6 @@ Template.puzzle_info.events
       Meteor.call 'feedMeta', @_id, Template.currentData().puzzle._id
     else
       Meteor.call 'unfeedMeta', @_id, Template.currentData().puzzle._id
-
-  unsetcaredabout: ->
-    return unless @puzzle
-    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
-      continue unless meta?
-      for tag in meta.tags.cares_about?.value.split(',') or []
-        continue if model.getTag @puzzle, tag
-        { name: tag, canon: canonical(tag), meta: meta.name }
-    [].concat r...
-    
-  metatags: ->
-    return unless @puzzle?
-    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
-      continue unless meta?
-      for canon, tag of meta.tags
-        continue unless /^meta /i.test tag.name
-        {name: tag.name, value: tag.value, meta: meta.name}
-    [].concat r...
 
 Template.puzzle_info_frame.helpers
   data: ->
