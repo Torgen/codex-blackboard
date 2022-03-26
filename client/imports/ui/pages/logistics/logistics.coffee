@@ -4,6 +4,9 @@ import './logistics.less'
 import colorFromThingWithTags from '/client/imports/objectColor.coffee'
 import { isStuck } from '/lib/imports/tags.coffee'
 
+Template.logistics.onRendered ->
+  $("title").text("Logistics")
+
 Template.logistics.helpers
   rounds: ->
     c = share.model.Rounds.find({}, sort: sort_key: 1)
