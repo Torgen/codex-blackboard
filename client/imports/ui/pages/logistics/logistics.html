@@ -1,12 +1,13 @@
 <template name="logistics">
   <div class="bb-logistics">
-    <div class="bb-logistics-metas">
+    <section class="bb-logistics-metas">
     {{#each r in rounds}}
       {{#each m in (metas r)}}
         {{>logistics_meta round=r meta=m}}
       {{/each}}
     {{/each}}
-    </div>
+    </section>
+    {{> callins_table}}
   </div>
 </template>
 

@@ -36,7 +36,7 @@ Template.callins.onCreated ->
   return if settings.BB_SUB_ALL
   this.subscribe 'all-roundsandpuzzles'
 
-Template.callins.helpers
+Template.callins_table.helpers
   callins: ->
     model.CallIns.find {status: 'pending'},
       sort: [["created","asc"]]

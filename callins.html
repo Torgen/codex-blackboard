@@ -1,25 +1,31 @@
 <template name="callins">
 {{> starred_messages canModify=mynick}}
-<section class="bb-callin-queue">
-  <h1>Answer call-in queue</h1>
-  <table id="bb-callin-table" class="table"><tbody>
-    <tr>
-      <th>Puzzle</th>
-      <th>Answer</th>
-      <th>Proposed at</th>
-      <th>Last guess</th>
-      <th>Submitted to HQ</th>
-      <th align="center">Resolution</th>
-    </tr>
-    {{#each callins}}
-      {{> callin_row }}
-    {{else}}
-    <tr><td colspan="6">
-      No answers in the call-in queue.
-    </td></tr>
-    {{/each}}
-  </tbody></table>
-</section>
+{{> callin_table}}
+</template>
+
+<template name="callins_table">
+  {{#let c=callins}}
+  <section class="bb-callin-queue {{#if c.count}}any-callins{{/if}}">
+    <h1>Answer call-in queue</h1>
+    <table id="bb-callin-table" class="table"><tbody>
+      <tr>
+        <th>Puzzle</th>
+        <th>Answer</th>
+        <th>Proposed at</th>
+        <th>Last guess</th>
+        <th>Submitted to HQ</th>
+        <th align="center">Resolution</th>
+      </tr>
+      {{#each c}}
+        {{> callin_row }}
+      {{else}}
+      <tr><td colspan="6">
+        Nothing in the call-in queue.
+      </td></tr>
+      {{/each}}
+    </tbody></table>  
+  </section>
+  {{/let}}
 </template>
 
 <template name="callin_copy_and_go">

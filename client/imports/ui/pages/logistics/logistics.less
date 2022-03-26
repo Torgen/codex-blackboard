@@ -1,4 +1,24 @@
+.bb-logistics {
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+  .bb-callin-queue {
+    margin: 0px;
+    padding: 0px 10px;
+    border-top: 1px solid black;
+    flex-grow: 0;
+    max-height: 0px;
+    overflow-y: auto;
+    transition: max-height 0.25s linear;
+    &.any-callins {
+      max-height: 200px;
+      transition: max-height 0.25s linear;
+    }
+  }
+}
+
 .bb-logistics-metas {
+  flex-grow: 1;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   grid-template-rows: repeat(auto-fill, 20px);
