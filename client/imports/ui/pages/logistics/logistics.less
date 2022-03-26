@@ -7,12 +7,12 @@
     padding: 0px 10px;
     border-top: 1px solid black;
     flex-grow: 0;
-    max-height: 0px;
+    height: 0px;
     overflow-y: auto;
-    transition: max-height 0.25s linear;
+    transition: height 0.25s ease-in;
     &.any-callins {
-      max-height: 200px;
-      transition: max-height 0.25s linear;
+      height: min(200px, max-content);
+      transition: height 0.25s cubic-bezier(0.1,0.7,0.5,1.2);
     }
   }
 }
