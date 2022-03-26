@@ -11,6 +11,8 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import '/client/imports/ui/pages/map/map_page.coffee'
+import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
 settings = share.settings # import
 model = share.model
@@ -52,10 +54,6 @@ Template.registerHelper 'typeEquals', (arg) ->
 Template.registerHelper 'canEdit', () ->
   Meteor.userId() and (Session.get 'canEdit') and \
   (Session.equals 'currentPage', 'blackboard')
-Template.registerHelper 'editing', (args..., options) ->
-  canEdit = options?.hash?.canEdit or (Session.get 'canEdit')
-  return false unless Meteor.userId() and canEdit
-  return Session.equals 'editing', args.join('/')
 
 Template.registerHelper 'md5', md5
 Template.registerHelper 'fileType', fileType
@@ -357,6 +355,7 @@ BlackboardRouter = Backbone.Router.extend
     "oplogs": "OpLogPage"
     "callins": "CallInPage"
     "facts": "FactsPage"
+    "statistics": "StatisticsPage"
 
   BlackboardPage: ->
     scrollAfter =>
@@ -364,7 +363,6 @@ BlackboardRouter = Backbone.Router.extend
       Session.set
         color: 'inherit'
         canEdit: undefined
-        editing: undefined
         topRight: 'blackboard_status_grid'
 
   EditPage: ->
@@ -373,7 +371,6 @@ BlackboardRouter = Backbone.Router.extend
       Session.set
         color: 'inherit'
         canEdit: true
-        editing: undefined
         topRight: 'blackboard_status_grid'
 
   GraphPage: -> @Page 'graph', 'general', '0', false
@@ -404,6 +401,9 @@ BlackboardRouter = Backbone.Router.extend
 
   FactsPage: ->
     this.Page("facts", "facts", "0", false)
+
+  StatisticsPage: ->
+    this.Page("statistics", "general", "0", false)
 
   Page: (page, type, id, has_chat, splitter) ->
     old_room = Session.get 'room_name'

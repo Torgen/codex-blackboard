@@ -101,7 +101,9 @@ describe 'chat', ->
     $badmsg = $("#messages [data-message-id=\"#{msg._id}\"]")
     chai.assert.isOk $badmsg[0]
     $badmsg.find('.bb-delete-message').click()
-    $('#alertify-ok').click()
+    await afterFlushPromise()
+    $('.bb-confirm-ok').click()
+    await afterFlushPromise()
     await waitForMethods()
     $badmsg = $("#messages [data-message-id=\"#{msg._id}\"]")
     chai.assert.isNotOk $badmsg[0]

@@ -339,7 +339,11 @@ describe 'metas hubot script', ->
         e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: '12345abcde'},
           touched_by: 'torgen'
           touched: 7
-        Promise.all [l, e]
+        m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          room_name: 'puzzles/12345abcde'
+          useful: true
+          mention: ['torgen']
+        Promise.all [l, e, m]
 
       it 'feeds that into this', ->
         model.Puzzles.insert
@@ -363,7 +367,11 @@ describe 'metas hubot script', ->
         e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: '12345abcde'},
           touched_by: 'torgen'
           touched: 7
-        Promise.all [l, e]
+        m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          room_name: 'puzzles/fghij67890'
+          useful: true
+          mention: ['torgen']
+        Promise.all [l, e, m]
 
       it 'feeds that into the other', ->
         model.Puzzles.insert
@@ -392,7 +400,11 @@ describe 'metas hubot script', ->
         e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: '12345abcde'},
           touched_by: 'torgen'
           touched: 7
-        await Promise.all [l, e]
+        m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          room_name: 'puzzles/0000000000'
+          useful: true
+          mention: ['torgen']
+        await Promise.all [l, e, m]
         chai.assert.deepInclude model.Puzzles.findOne('0000000000'),
           feedsInto: []
         chai.assert.isUndefined model.Puzzles.findOne('0000000000').puzzles
@@ -461,7 +473,11 @@ describe 'metas hubot script', ->
         e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: '12345abcde'},
           touched_by: 'torgen'
           touched: 7
-        Promise.all [l, e]
+        m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          room_name: 'general/0'
+          useful: true
+          mention: ['torgen']
+        Promise.all [l, e, m]
 
   ['doesn\'t', 'does not'].forEach (verb) ->
     describe "#{verb} feed into", ->

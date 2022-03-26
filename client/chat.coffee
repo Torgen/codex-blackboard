@@ -8,6 +8,8 @@ import canonical from '/lib/imports/canonical.coffee'
 import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import {chunk_text, chunk_html} from './imports/chunk_text.coffee'
+import { confirm } from './imports/modal.coffee'
+import Favico from 'favico.js'
 
 model = share.model # import
 settings = share.settings # import
@@ -122,8 +124,10 @@ Template.media_message.events
 
 Template.message_delete_button.events
   'click .bb-delete-message': (event, template) ->
-    alertify.confirm 'Really delete this message?', (e) =>
-      return unless e
+    if (await confirm
+      ok_button: 'Yes, delete it'
+      no_button: 'No, cancel'
+      message: 'Really delete this message?')
       Meteor.call 'deleteMessage', @_id
 
 Template.poll.onCreated ->
@@ -494,12 +498,7 @@ maybeScrollMessagesView = do ->
 scrollMessagesView = ->
   touchSelfScroll()
   instachat.scrolledToBottom = true
-  # first try using html5, then fallback to jquery
-  last = document?.querySelector?('#messages > *:last-child')
-  if last?.scrollIntoView?
-    last.scrollIntoView()
-  else
-    $("body").scrollTo 'max'
+  last = document?.querySelector?('#messages > *:last-child')?.scrollIntoView()
   # the scroll handler below will reset scrolledToBottom to be false
   instachat.scrolledToBottom = true
 

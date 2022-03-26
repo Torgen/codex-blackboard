@@ -1,0 +1,35 @@
+<template name="edit_tag_value">
+  {{! params:
+    type: object collection, eg. puzzles, rounds
+    id: object id
+    name: name of tag
+    editable: Is the thing editable right now?
+    class: extra CSS classes to add
+    content block: extra content when not editable
+  }}
+  <td class="{{class}} bb-edit-tag-value {{#if editable}}bb-editable{{/if}}">
+    {{#if equal canon "color"}}
+      {{#if editable}}
+        <input type="color" value="{{hexify value}}" />
+      {{else}}
+        <span class="bb-colorbox" style="background-color: {{value}}"></span>
+      {{/if}}
+    {{/if}}
+    {{#if editing}}
+      <input type="text" value="{{value}}" class="input-block-level" />
+    {{else}}
+      {{#if editable}}
+        {{#if exists}}
+          <i class="bb-delete-icon fas fa-times"
+              title="Delete this tag and value"></i>
+        {{/if}}
+        {{value}}
+        <i class="bb-edit-icon fas fa-pencil-alt"
+            title="Change the value of this tag"></i>
+      {{else}}
+        {{>text_chunks value}}
+      {{/if}}
+      {{>Template.contentBlock}}
+    {{/if}}
+  </td>
+</template>

@@ -163,6 +163,44 @@ describe 'drive change polling', ->
         name: 'Drawing about Foo'
         fileId: 'foo_other'
 
+  it 'updates puzzle announces and sets doc when new doc updated', ->
+    startPageTokens.insert
+      timestamp: 30007
+      token: 'firstPage'
+    puzz = model.Puzzles.insert
+      name: 'Foo'
+      canon: 'foo'
+      drive: 'foo_drive'
+      spreadsheet: 'foo_sheet'
+    poller = new DriveChangeWatcher api, 'root_folder', env
+    changes.expects('list').once().withArgs(sinon.match pageToken: 'firstPage').resolves data:
+      newStartPageToken: 'secondPage'
+      changes: [
+        changeType: 'file'
+        fileId: 'foo_doc'
+        file:
+          name: 'Notes: Foo'
+          mimeType: DOC_TYPE
+          parents: ['foo_drive']
+          createdTime: '1970-01-01T00:00:31.006Z'
+          modifiedTime: '1970-01-01T00:00:31.006Z'
+          webViewLink: 'https://blahblahblah.com'
+      ]
+    poller.poll()
+    chai.assert.include model.Puzzles.findOne(canon: 'foo'),
+      drive_touched: 31006
+      doc: 'foo_doc'
+    chai.assert.include driveFiles.findOne('foo_doc'),
+      announced: 60007
+    chai.assert.deepInclude model.Messages.findOne(),
+      room_name: "puzzles/#{puzz}"
+      system: true
+      file_upload:
+        mimeType: DOC_TYPE
+        webViewLink: 'https://blahblahblah.com'
+        name: 'Notes: Foo'
+        fileId: 'foo_doc'
+
   it 'updates puzzle and does not announce when announced file updated', ->
     startPageTokens.insert
       timestamp: 30007

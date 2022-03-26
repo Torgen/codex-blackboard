@@ -177,33 +177,6 @@ describe 'drive', ->
               fileId: 'newsheet'
               resource: perm
             .resolves data: {}
-          files.expects('list').withArgs sinon.match
-            pageSize: 1
-            q: "name='Notes: New Puzzle' and mimeType='application/vnd.google-apps.document' and \'newpuzzle\' in parents"
-          .resolves data: files: []
-          doc = sinon.match
-            name: 'Notes: New Puzzle'
-            mimeType: 'application/vnd.google-apps.document'
-            parents: sinon.match.some sinon.match  'newpuzzle'
-          files.expects('create').withArgs sinon.match
-            resource: doc
-            media: sinon.match
-              mimeType: 'text/plain'
-              body: 'Put notes here.'
-          .resolves data:
-            id: 'newdoc'
-            name: 'Worksheet: New Puzzle'
-            mimeType: 'application/vnd.google-apps.document'
-            parents: ['newpuzzle']
-          permissions.expects('list').withArgs sinon.match
-            fileId: 'newdoc'
-            fields: PERMISSION_LIST_FIELDS
-          .resolves data: permissions: []
-          perms.forEach (perm) ->
-            permissions.expects('create').withArgs sinon.match
-              fileId: 'newdoc'
-              resource: perm
-            .resolves data: {}
           drive.createPuzzle 'New Puzzle'
 
         it 'returns existing', ->
@@ -233,19 +206,6 @@ describe 'drive', ->
             fileId: 'newsheet'
             fields: PERMISSION_LIST_FIELDS
           .resolves data: permissions: defaultPerms
-          files.expects('list').withArgs sinon.match
-            pageSize: 1
-            q: "name='Notes: New Puzzle' and mimeType='application/vnd.google-apps.document' and 'newpuzzle' in parents"
-          .resolves data: files: [
-            id: 'newdoc'
-            name: 'Notes: New Puzzle'
-            mimeType: 'application/vnd.google-apps.document'
-            parents: ['newpuzzle']
-          ]
-          permissions.expects('list').withArgs sinon.match
-            fileId: 'newdoc'
-            fields: PERMISSION_LIST_FIELDS
-          .resolves data: permissions: defaultPerms
           drive.createPuzzle 'New Puzzle'
 
       describe 'findPuzzle', ->
@@ -257,7 +217,7 @@ describe 'drive', ->
           .resolves data: files: []
           chai.assert.isNull drive.findPuzzle 'New Puzzle'
         
-        it 'returns spreadsheet and doc', ->
+        it 'returns spreadsheet', ->
           files.expects('list').withArgs sinon.match 
             q: 'name=\'New Puzzle\' and mimeType=\'application/vnd.google-apps.folder\' and \'hunt\' in parents'
             pageSize: 1
@@ -277,19 +237,9 @@ describe 'drive', ->
             mimeType: 'application/vnd.google-apps.spreadsheet'
             parents: ['newpuzzle']
           ]
-          files.expects('list').withArgs sinon.match
-            pageSize: 1
-            q: "name='Notes: New Puzzle' and 'newpuzzle' in parents"
-          .resolves data: files: [
-            id: 'newdoc'
-            name: 'Notes: New Puzzle'
-            mimeType: 'application/vnd.google-apps.document'
-            parents: ['newpuzzle']
-          ]
           chai.assert.include drive.findPuzzle('New Puzzle'),
             id: 'newpuzzle'
             spreadId: 'newsheet'
-            docId: 'newdoc'
 
       it 'listPuzzles returns list', ->
         item1 =
@@ -326,11 +276,7 @@ describe 'drive', ->
           fileId: 'newsheet'
           resource: sinon.match name: 'Worksheet: Old Puzzle'
         .resolves data: {}
-        files.expects('update').withArgs sinon.match
-          fileId: 'newdoc'
-          resource: sinon.match name: 'Notes: Old Puzzle'
-        .resolves data: {}
-        drive.renamePuzzle 'Old Puzzle', 'newpuzzle', 'newsheet', 'newdoc'
+        drive.renamePuzzle 'Old Puzzle', 'newpuzzle', 'newsheet',
 
       it 'deletePuzzle deletes', ->
         files.expects('list').withArgs sinon.match

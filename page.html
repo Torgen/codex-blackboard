@@ -13,7 +13,9 @@
     {{#if currentPageEquals "graph"}}
       {{>graph}}
     {{else if currentPageEquals "map"}}
-      {{>map}}
+      {{>map_page}}
+    {{else if currentPageEquals "statistics"}}
+      {{>statistics_page}}
     {{else}}
       <div id="bb-body" class="{{#if boringMode}}boring{{/if}}">
         {{> page }}

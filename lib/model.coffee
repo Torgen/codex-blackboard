@@ -431,16 +431,14 @@ do ->
       drive_error_message: res.message
       drive: res.id
       spreadsheet: res.spreadId
-      doc: res.docId
     }
 
-  renameDriveFolder = (new_name, drive, spreadsheet, doc) ->
+  renameDriveFolder = (new_name, drive, spreadsheet) ->
     check new_name, NonEmptyString
     check drive, NonEmptyString
     check spreadsheet, Match.Optional(NonEmptyString)
-    check doc, Match.Optional(NonEmptyString)
     return unless Meteor.isServer
-    share.drive.renamePuzzle(new_name, drive, spreadsheet, doc)
+    share.drive.renamePuzzle(new_name, drive, spreadsheet)
 
   deleteDriveFolder = (drive) ->
     check drive, NonEmptyString
@@ -469,6 +467,9 @@ do ->
       r
     renameRound: (args) ->
       check @userId, NonEmptyString
+      check args, ObjectWith
+        id: NonEmptyString
+        name: NonEmptyString
       renameObject "rounds", {args..., who: @userId}
       # TODO(torgen): rename default meta
     deleteRound: (id) ->
@@ -537,10 +538,9 @@ do ->
       p = Puzzles.findOne args.id
       drive = p?.drive
       spreadsheet = p?.spreadsheet if drive?
-      doc = p?.doc if drive?
       result = renameObject "puzzles", {args..., who: @userId}
       # rename google drive folder
-      renameDriveFolder args.name, drive, spreadsheet, doc if result and drive?
+      renameDriveFolder args.name, drive, spreadsheet if result and drive?
       return result
     deletePuzzle: (pid) ->
       check @userId, NonEmptyString

@@ -5,6 +5,9 @@ import { confirm } from '/client/imports/modal.coffee'
 import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
+import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
+import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
+import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -62,7 +65,7 @@ Template.puzzle_info.helpers
       continue unless meta?
       for tag in meta.tags.cares_about?.value.split(',') or []
         continue if model.getTag @puzzle, tag
-        { name: tag, meta: meta.name }
+        { name: tag, canon: canonical(tag), meta: meta.name }
     [].concat r...
     
   metatags: ->
