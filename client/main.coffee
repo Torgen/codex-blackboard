@@ -246,8 +246,6 @@ Meteor.startup ->
       added: (msgid, message) ->
         [room_name, url] = if message.room_name is 'general/0'
           [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
-        else if message.room_name is 'callins/0'
-          ['Callin Queue', Meteor._relativeToSiteRootUrl '/callins']
         else
           [type, id] = message.room_name.split '/'
           target = share.model.Names.findOne id
@@ -394,7 +392,7 @@ BlackboardRouter = Backbone.Router.extend
     this.Page("oplog", "oplog", "0", false)
 
   CallInPage: ->
-    @Page "callins", "callins", "0", true, true
+    @Page "callins", "general", "0", true, true
     Session.set
       color: 'inherit'
       topRight: null

@@ -19,7 +19,7 @@ export ensureDawnOfTime = (room_name) ->
       room_name: room_name
       bot_ignore: true
 Meteor.startup ->
-  ['general/0', 'callins/0', 'oplog/0'].forEach ensureDawnOfTime
+  ['general/0', 'oplog/0'].forEach ensureDawnOfTime
 
 export newMessage = (newMsg) ->
   check newMsg,

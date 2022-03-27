@@ -267,9 +267,6 @@ active = ->
 Template.header_breadcrumb_blackboard.helpers
   active: active
 
-Template.header_breadcrumb_callins.helpers
-  active: active
-
 Template.header_breadcrumb_extra_links.helpers
   active: -> active.call(Template.parentData(1))
   jitsiUrl: -> jitsiUrl Template.parentData(1).type, Template.parentData(1).id

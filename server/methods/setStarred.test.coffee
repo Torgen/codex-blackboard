@@ -82,7 +82,7 @@ describe 'setStarred', ->
         nick: 'torgen'
         body: 'nobody star this'
         timestamp: 5
-        room_name: 'callins/0'
+        room_name: 'puzzles/0'
       callAs 'setStarred', 'cjb', id, true
       msg = model.Messages.findOne(id)
       chai.assert.include msg,
@@ -95,7 +95,7 @@ describe 'setStarred', ->
         nick: 'torgen'
         body: 'nobody star this'
         timestamp: 5
-        room_name: 'callins/0'
+        room_name: 'puzzles/0'
       callAs 'setStarred', 'cjb', id, false
       chai.assert.include model.Messages.findOne(id),
         starred: null
