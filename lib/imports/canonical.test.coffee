@@ -46,6 +46,7 @@ describe 'canonical', ->
     testcase '🤔', '🤔'
     testcase '🔔🦇🦇🦇', '🔔🦇🦇🦇'
     testcase '❤️ & ☮️', '❤️_☮️'
+    testcase '★', '★'
 
   it 'allows specifying replacement string', ->
     chai.assert.equal canonical('  leading and trailing  ', '-'), 'leading-and-trailing'

@@ -10,5 +10,5 @@ export default canonical = (s, separator='_') ->
   # suppress 's and 't
   s = s.replace(/[\'\u2019]([st])\b/g, "$1")
   # replace all non-alphanumeric, non-emoji with _
-  s = s.replace(/[^a-z0-9\p{RI}\p{Emoji}\p{EMod}\u200D\uFE0F\u20E3]+/ug, separator).replace(new RegExp("^#{separator}"),'').replace(new RegExp("#{separator}$"),'')
+  s = s.replace(/[^a-z0-9\p{RI}\p{Emoji}\p{EMod}\u2600-\u26ff\u200D\uFE0F\u20E3]+/ug, separator).replace(new RegExp("^#{separator}"),'').replace(new RegExp("#{separator}$"),'')
   return s
