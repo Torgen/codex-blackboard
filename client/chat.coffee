@@ -744,6 +744,7 @@ Template.messages_input.events
           system: $ne: true
           bodyIsHtml: $ne: true
           from_chat_subscription: true
+          on_behalf: $ne: true
         if template.history_ts?
           query.timestamp = $lt: template.history_ts
         msg = model.Messages.findOne query,
@@ -768,6 +769,7 @@ Template.messages_input.events
           bodyIsHtml: $ne: true
           timestamp: $gt: template.history_ts
           from_chat_subscription: true
+          on_behalf: $ne: true
         msg = model.Messages.findOne query,
           sort: timestamp: 1
         if msg?

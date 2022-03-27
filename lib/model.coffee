@@ -186,6 +186,10 @@ if Meteor.isServer
 #   presence: optional string ('join'/'part' for presence-change only)
 #   bot_ignore: optional boolean (true for messages from e.g. email or twitter)
 #   header_ignore: optional boolean (don't show in header)
+#   on_behalf: optional boolean. True for messages when the user didn't directly
+#              call newMessage, but a message was created in their voice.
+#              This excludes those messages from history when using up and down
+#              arrows to repeat an old message.
 #   to:   destination of pm (optional)
 #   poll: _id of poll (optional)
 #   starred: boolean. Pins this message to the top of the puzzle page or blackboard.
@@ -710,6 +714,7 @@ do ->
       msg =
         action: true
         header_ignore: true
+        on_behalf: true
       # send to the general chat
       msg.body = body(specifyPuzzle: true)
       unless args?.suppressRoom is "general/0"
@@ -739,6 +744,7 @@ do ->
       msg =
         room_name: "#{callin.target_type}/#{callin.target}"
         action: true
+        on_behalf: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       if callin.callin_type is callin_types.ANSWER
         check response, undefined
@@ -798,6 +804,7 @@ do ->
       msg =
         room_name: "#{callin.target_type}/#{callin.target}"
         action: true
+        on_behalf: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       if callin.callin_type is callin_types.ANSWER
         check response, undefined
@@ -1107,6 +1114,7 @@ do ->
         action: true
         body: body
         room_name: "puzzles/#{id}"
+        on_behalf: true
       objUrl = # see Router.urlFor
         Meteor._relativeToSiteRootUrl "/puzzles/#{id}"
       solverTimePart = if obj.solverTime?
@@ -1118,6 +1126,7 @@ do ->
         bodyIsHtml: true
         body: body
         header_ignore: true
+        on_behalf: true
       return
 
     unsummon: (args) ->
@@ -1144,11 +1153,13 @@ do ->
         action: true
         body: body
         room_name: "puzzles/#{id}"
+        on_behalf: true
       body = "#{body} in puzzle #{obj.name}"
       Meteor.call 'newMessage',
         action: true
         body: body
         header_ignore: true
+        on_behalf: true
       return
 
     getRoundForPuzzle: (puzzle) ->
@@ -1365,6 +1376,7 @@ do ->
         body: question
         room_name: room
         poll: id
+        on_behalf: true
       id
 
     vote: (poll, option) ->
