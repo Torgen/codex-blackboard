@@ -1,16 +1,23 @@
 'use strict'
 
-import objectColor from './imports/objectColor.coffee'
+import './graph.html'
+import objectColor from '/client/imports/objectColor.coffee'
 import abbrev from '/lib/imports/abbrev.coffee'
+import cytoscape from 'cytoscape'
+import fcose from 'cytoscape-fcose'
+import layout_utilities from 'cytoscape-layout-utilities'
+
+cytoscape.use fcose
+cytoscape.use layout_utilities
 
 Template.graph.events
-  'click .bb-layout': (event, template) ->
+  'bb-layout .bb-status-graph': (event, template) ->
     template.layout? event
 
 Template.graph.onCreated ->
-  @subscribe 'all-roundsandpuzzles'
   @adding = new ReactiveVar false
-  @import = import('/client/imports/graph.coffee') 
+  return if share.settings.BB_SUB_ALL
+  @subscribe 'all-roundsandpuzzles'
 
 Template.graph.onDestroyed ->
   @rounds?.stop()
@@ -18,9 +25,8 @@ Template.graph.onDestroyed ->
   window.removeEventListener 'resize', @layout
 
 Template.graph.onRendered ->
-  cytoscape = await @import
   @status = 'idle'
-  @cy = cytoscape.default
+  @cy = cytoscape
     container: @$ '.bb-status-graph'
     style: [
       {
