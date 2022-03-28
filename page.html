@@ -10,7 +10,9 @@
 
 <body>
   {{#if currentUser}}
-    {{#if currentPageEquals "graph"}}
+    {{#if currentPageEquals "projector"}}
+      {{>projector}}
+    {{else if currentPageEquals "graph"}}
       {{>graph_page}}
     {{else if currentPageEquals "map"}}
       {{>map_page}}

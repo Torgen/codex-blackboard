@@ -1,0 +1,22 @@
+.projector-view() {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+}
+.projector-current-view {
+  z-index: 100;
+  transition: opacity 1s linear;
+  .projector-view();
+}
+.projector-previous-view {
+  z-index: 0;
+  .projector-view();
+}
+.projector-hidden-view {
+  z-index: -100;
+  opacity: 0%;
+  .projector-view();
+}

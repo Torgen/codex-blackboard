@@ -1,0 +1,7 @@
+<template name="projector">
+  {{#if loaded}}
+    <div class="{{classForView "chart"}}">{{>statistics_chart}}</div>
+    <div class="{{classForView "map"}}">{{>map followTheSun=true}}</div>
+    <div class="{{classForView "graph"}}">{{>graph}}</div>
+  {{/if}}
+</template>

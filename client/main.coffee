@@ -13,6 +13,7 @@ import embeddable from './imports/embeddable.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import '/client/imports/ui/pages/graph/graph_page.coffee'
 import '/client/imports/ui/pages/map/map_page.coffee'
+import '/client/imports/ui/pages/projector/projector.coffee'
 import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
 settings = share.settings # import
@@ -355,6 +356,7 @@ BlackboardRouter = Backbone.Router.extend
     "callins": "CallInPage"
     "facts": "FactsPage"
     "statistics": "StatisticsPage"
+    "projector": "ProjectorPage"
 
   BlackboardPage: ->
     scrollAfter =>
@@ -375,6 +377,8 @@ BlackboardRouter = Backbone.Router.extend
   GraphPage: -> @Page 'graph', 'general', '0', false
 
   MapPage: -> @Page 'map', 'general', '0', false
+
+  ProjectorPage: -> @Page 'projector', 'general', '0', false
 
   PuzzlePage: (id, view=null) ->
     @Page "puzzle", "puzzles", id, true, true
