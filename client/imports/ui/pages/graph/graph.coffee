@@ -100,7 +100,7 @@ Template.graph.onRendered ->
       p = lay.promiseOn 'layoutstop'
       lay.run()
       await p
-      @cy.container().dispatchEvent new Event('render')
+      @cy.container().dispatchEvent new Event('bb-graph-render', bubbles: true)
       if @status is 'running'
         @status = 'idle'
         break
