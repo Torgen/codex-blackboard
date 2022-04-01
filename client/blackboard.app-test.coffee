@@ -268,7 +268,11 @@ describe 'blackboard', ->
       baseJq.find('button.bb-add-tag').first().click()
       await afterFlushPromise()
       chai.assert.isTrue baseJq.find('.bb-tag-table .bb-add-tag input').is(':focus')
-      baseJq.find('.bb-tag-table .bb-add-tag input').val('Meme').focusout()
+      addTagInput = baseJq.find('.bb-tag-table .bb-add-tag input')
+      addTagInput.val('Meme').trigger('input')
+      await afterFlushPromise()
+      chai.assert.isTrue addTagInput.parent().hasClass('success')
+      addTagInput.focusout()
       creation = bank()
       await waitForMethods()
       chai.assert.include creation.tags.meme,

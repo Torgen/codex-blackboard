@@ -524,8 +524,6 @@ Template.blackboard_puzzle_cells.onCreated ->
   @addingTag = new ReactiveVar false
 
 Template.blackboard_puzzle_cells.helpers
-  tag: (name) ->
-    return (model.getTag @puzzle, name) or ''
   allMetas: ->
     return [] unless @
     (model.Puzzles.findOne x) for x in @feedsInto

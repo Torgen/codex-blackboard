@@ -109,6 +109,27 @@ describe 'chat', ->
     chai.assert.isNotOk $badmsg[0]
     chai.assert.isNotOk share.model.Messages.findOne msg._id
 
+  it 'aborts deleting message', ->
+    puzz = share.model.Puzzles.findOne name: 'Freak Out'
+    share.Router.ChatPage('puzzles', puzz._id)
+    room = "puzzles/#{puzz._id}"
+    await waitForSubscriptions()
+    await afterFlushPromise()
+    msg = await promiseCall 'newMessage',
+        body: 'my social security number is XXX-YY-ZZZZ'
+        room_name: room
+    await afterFlushPromise()
+    $badmsg = $("#messages [data-message-id=\"#{msg._id}\"]")
+    chai.assert.isOk $badmsg[0]
+    $badmsg.find('.bb-delete-message').click()
+    await afterFlushPromise()
+    $('.bb-confirm-cancel').click()
+    await afterFlushPromise()
+    await waitForMethods()
+    $badmsg = $("#messages [data-message-id=\"#{msg._id}\"]")
+    chai.assert.isOk $badmsg[0]
+    chai.assert.isOk share.model.Messages.findOne msg._id
+
   describe '/join', ->
     it 'joins puzzle', ->
       puzz = share.model.Puzzles.findOne name: 'Painted Potsherds'
