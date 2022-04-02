@@ -725,19 +725,19 @@ do ->
         on_behalf: true
       # send to the general chat
       msg.body = body(specifyPuzzle: true)
-      unless args?.suppressRoom is "general/0"
+      unless args.suppressRoom is "general/0"
         Meteor.call 'newMessage', msg
       if puzzle?
         # send to the puzzle chat
         msg.body = body(specifyPuzzle: false)
         msg.room_name = "puzzles/#{id}"
-        unless args?.suppressRoom is msg.room_name
+        unless args.suppressRoom is msg.room_name
           Meteor.call 'newMessage', msg
         # send to the metapuzzle chat
         puzzle.feedsInto.forEach (meta) ->
           msg.body = body(specifyPuzzle: true)
           msg.room_name = "puzzles/#{meta}"
-          unless args?.suppressRoom is msg.room_name
+          unless args.suppressRoom is msg.room_name
             Meteor.call "newMessage", msg
       oplog "New #{args.callin_type} #{args.answer} submitted for", args.target_type, id, \
           @userId, 'callins'
