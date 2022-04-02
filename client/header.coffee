@@ -271,9 +271,6 @@ Template.header_breadcrumb_extra_links.helpers
   active: -> active.call(Template.parentData(1))
   jitsiUrl: -> jitsiUrl Template.parentData(1).type, Template.parentData(1).id
 
-Template.header_breadcrumb_round.onCreated ->
-  @autorun =>
-    @subscribe 'round-by-id', Template.currentData().id
 Template.header_breadcrumb_round.helpers
   round: -> model.Rounds.findOne @id if @id
   active: active
@@ -297,18 +294,10 @@ Template.header_breadcrumb_metas.helpers
     else
       all: keys
 
-Template.header_breadcrumb_one_meta.onCreated ->
-  @autorun =>
-    @subscribe 'puzzle-by-id', Template.currentData().id
-    @subscribe 'metas-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_one_meta.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
   active: active
 
-Template.header_breadcrumb_puzzle.onCreated ->
-  @autorun =>
-    @subscribe 'puzzle-by-id', Template.currentData().id
-    @subscribe 'metas-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_puzzle.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
   active: active
