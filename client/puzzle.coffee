@@ -119,15 +119,6 @@ Template.puzzle.onCreated ->
     puzzle = model.Puzzles.findOne id
     name = puzzle?.name or id
     $("title").text("#{capType puzzle}: #{name}")
-  # presumably we also want to subscribe to the puzzle's chat room
-  # and presence information at some point.
-  this.autorun =>
-    return if settings.BB_SUB_ALL
-    id = Session.get 'id'
-    return unless id
-    @subscribe 'puzzle-by-id', id
-    @subscribe 'round-for-puzzle', id
-    @subscribe 'puzzles-by-meta', id
   @autorun =>
     return unless Session.equals 'type', 'puzzles'
     if currentViewIs model.Puzzles.findOne(Session.get('id')), 'info'

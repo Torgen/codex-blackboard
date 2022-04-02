@@ -668,9 +668,6 @@ Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information
 Template.blackboard.onCreated ->
-  @autorun =>
-    return if settings.BB_SUB_ALL
-    @subscribe 'all-roundsandpuzzles'
   @autorun ->
     model.Presence.find(scope: $in: ['chat', 'jitsi']).observe
       added: (doc) ->

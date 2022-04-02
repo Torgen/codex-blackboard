@@ -86,10 +86,7 @@ Template.page.helpers
   id: -> Session.get 'id'
   color: -> Session.get 'color'
 
-# we might subscribe to all-roundsandpuzzles, too.
-allPuzzlesHandle = null
-if settings.BB_SUB_ALL
-  allPuzzlesHandle = Meteor.subscribe 'all-roundsandpuzzles'
+allPuzzlesHandle = Meteor.subscribe 'all-roundsandpuzzles'
 
 keystring = (k) -> "notification.stream.#{k}"
 
