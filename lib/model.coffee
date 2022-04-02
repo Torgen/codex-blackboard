@@ -803,7 +803,7 @@ do ->
           msg.room_name = "puzzles/#{meta}"
           Meteor.call 'newMessage', msg
 
-    # Response is optional for interaction requests and forbibben for answers.
+    # Response is forbibben for answers and optional for everything else
     incorrectCallIn: (id, response) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
