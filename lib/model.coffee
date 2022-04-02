@@ -533,12 +533,11 @@ do ->
             touched_by: p.touched_by
             touched: p.touched
         , multi: true
-      if args.round?
-        Rounds.update args.round,
-          $addToSet: puzzles: p._id
-          $set:
-            touched_by: p.touched_by
-            touched: p.touched
+      Rounds.update args.round,
+        $addToSet: puzzles: p._id
+        $set:
+          touched_by: p.touched_by
+          touched: p.touched
       # create google drive folder (server only)
       newDriveFolder p._id, p.name
       return p
