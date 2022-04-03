@@ -279,11 +279,10 @@ Template.messages.onCreated ->
 
 Template.messages.onRendered ->
   chatBottom = document.getElementById('chat-bottom')
-  if window.IntersectionObserver and chatBottom?
-    instachat.bottomObserver = new window.IntersectionObserver (entries) ->
-      return if selfScroll?
-      instachat.scrolledToBottom = entries[0].isIntersecting
-    instachat.bottomObserver.observe(chatBottom)
+  instachat.bottomObserver = new IntersectionObserver (entries) ->
+    return if selfScroll?
+    instachat.scrolledToBottom = entries[0].isIntersecting
+  instachat.bottomObserver.observe(chatBottom)
   if settings.FOLLOWUP_STYLE is "js"
     # observe future changes
     @$("#messages").each ->
