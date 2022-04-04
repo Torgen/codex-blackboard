@@ -19,7 +19,7 @@ Template.edit_object_title.events
     template.value.set event.currentTarget.value
   
 Template.edit_object_title.helpers
-  name: -> share.model.collection(@type).findOne(@id).name
+  name: -> share.model.collection(@type).findOne(@id)?.name
   pretty: -> share.model.pretty_collection(@type)
   titleEditClass: ->
     val = Template.instance().value.get()

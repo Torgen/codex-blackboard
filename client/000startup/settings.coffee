@@ -32,9 +32,6 @@ settings.JITSI_SERVER = server.jitsi?.server ? server.jitsiServer
 # make fewer people subscribe to ringhunters chat.
 settings.BB_DISABLE_RINGHUNTERS_HEADER = server.disableRinghunters ? false
 
-# subscribe to all rounds/all puzzles, or try to be more granular?
-settings.BB_SUB_ALL = server.subAll ? true
-
 # disable PMs (more efficient queries if PMs are disabled)
 # (PMs are always allows in ringhunters)
 settings.BB_DISABLE_PM = server.disablePM ? false

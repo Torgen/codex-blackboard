@@ -16,8 +16,6 @@ Template.graph.events
 
 Template.graph.onCreated ->
   @adding = new ReactiveVar false
-  return if share.settings.BB_SUB_ALL
-  @subscribe 'all-roundsandpuzzles'
 
 Template.graph.onDestroyed ->
   @rounds?.stop()

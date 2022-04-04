@@ -533,12 +533,11 @@ do ->
             touched_by: p.touched_by
             touched: p.touched
         , multi: true
-      if args.round?
-        Rounds.update args.round,
-          $addToSet: puzzles: p._id
-          $set:
-            touched_by: p.touched_by
-            touched: p.touched
+      Rounds.update args.round,
+        $addToSet: puzzles: p._id
+        $set:
+          touched_by: p.touched_by
+          touched: p.touched
       # create google drive folder (server only)
       newDriveFolder p._id, p.name
       return p
@@ -726,19 +725,19 @@ do ->
         on_behalf: true
       # send to the general chat
       msg.body = body(specifyPuzzle: true)
-      unless args?.suppressRoom is "general/0"
+      unless args.suppressRoom is "general/0"
         Meteor.call 'newMessage', msg
       if puzzle?
         # send to the puzzle chat
         msg.body = body(specifyPuzzle: false)
         msg.room_name = "puzzles/#{id}"
-        unless args?.suppressRoom is msg.room_name
+        unless args.suppressRoom is msg.room_name
           Meteor.call 'newMessage', msg
         # send to the metapuzzle chat
         puzzle.feedsInto.forEach (meta) ->
           msg.body = body(specifyPuzzle: true)
           msg.room_name = "puzzles/#{meta}"
-          unless args?.suppressRoom is msg.room_name
+          unless args.suppressRoom is msg.room_name
             Meteor.call "newMessage", msg
       oplog "New #{args.callin_type} #{args.answer} submitted for", args.target_type, id, \
           @userId, 'callins'
@@ -804,7 +803,7 @@ do ->
           msg.room_name = "puzzles/#{meta}"
           Meteor.call 'newMessage', msg
 
-    # Response is optional for interaction requests and forbibben for answers.
+    # Response is forbibben for answers and optional for everything else
     incorrectCallIn: (id, response) ->
       check @userId, NonEmptyString
       check id, NonEmptyString

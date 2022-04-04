@@ -3,6 +3,7 @@
 # Cannot destructure for testing purposes.
 import jitsiModule, {jitsiUrl, jitsiRoom} from './imports/jitsi.coffee'
 import { gravatarUrl, hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
+import { computeMessageFollowup } from './imports/followup.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
@@ -25,19 +26,6 @@ Session.setDefault
   limit:     settings.INITIAL_CHAT_LIMIT
 
 # Chat helpers!
-
-# compare to: computeMessageFollowup in lib/model.coffee
-computeMessageFollowup = (prev, curr) ->
-  return false unless prev?.classList?.contains("media")
-  # Special message types that are never followups
-  for c in ['bb-message-mail', 'bb-message-tweet']
-    return false if prev.classList.contains c
-    return false if curr.classList.contains c
-  return false unless prev.dataset.nick == curr.dataset.nick
-  for c in ['bb-message-pm','bb-message-action','bb-message-system','bb-oplog']
-    return false unless prev.classList.contains(c) is curr.classList.contains(c)
-  return false unless prev.dataset.pmTo == curr.dataset.pmTo
-  return true
 
 assignMessageFollowup = (curr, prev) ->
   return prev unless curr instanceof Element
@@ -291,11 +279,10 @@ Template.messages.onCreated ->
 
 Template.messages.onRendered ->
   chatBottom = document.getElementById('chat-bottom')
-  if window.IntersectionObserver and chatBottom?
-    instachat.bottomObserver = new window.IntersectionObserver (entries) ->
-      return if selfScroll?
-      instachat.scrolledToBottom = entries[0].isIntersecting
-    instachat.bottomObserver.observe(chatBottom)
+  instachat.bottomObserver = new IntersectionObserver (entries) ->
+    return if selfScroll?
+    instachat.scrolledToBottom = entries[0].isIntersecting
+  instachat.bottomObserver.observe(chatBottom)
   if settings.FOLLOWUP_STYLE is "js"
     # observe future changes
     @$("#messages").each ->
@@ -525,29 +512,6 @@ Template.chat_format_body.helpers
       'text_chunk_url_image'
     else
       "text_chunk_#{type}"
-
-# unstick from bottom if the user manually scrolls
-$(window).scroll (event) ->
-  return unless Session.equals('currentPage', 'chat')
-  return if instachat.bottomObserver
-  #console.log if selfScroll? then 'Self scroll' else 'External scroll'
-  return if selfScroll?
-  # set to false, just in case older browser doesn't have scroll properties
-  instachat.scrolledToBottom = false
-  [body, html] = [document.body, document.documentElement]
-  return unless html?.scrollTop? and html?.scrollHeight?
-  return unless html?.clientHeight?
-  SLOP=80
-  [scrollPos, scrollMax] = [body.scrollTop+html.clientHeight, body.scrollHeight]
-  atBottom = (scrollPos+SLOP >= scrollMax)
-  # firefox says that the HTML element is scrolling, not the body element...
-  if html.scrollTopMax?
-    atBottom = (html.scrollTop+SLOP >= (html.scrollTopMax-1)) or atBottom
-  unless Meteor.isProduction
-    console.log 'Scroll debug:', 'atBottom', atBottom, 'scrollPos', scrollPos, 'scrollMax', scrollMax
-    console.log ' body scrollTop', body.scrollTop, 'scrollTopMax', body.scrollTopMax, 'scrollHeight', body.scrollHeight, 'clientHeight', body.clientHeight
-    console.log ' html scrollTop', html.scrollTop, 'scrollTopMax', html.scrollTopMax, 'scrollHeight', html.scrollHeight, 'clientHeight', html.clientHeight
-  instachat.scrolledToBottom = atBottom
 
 Template.messages_input.helpers
   show_presence: -> Template.instance().show_presence.get()

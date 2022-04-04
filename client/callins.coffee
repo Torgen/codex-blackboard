@@ -34,8 +34,6 @@ Meteor.startup ->
 Template.callins.onCreated ->
   EXPERT_MODE.set true
   this.subscribe 'callins'
-  return if settings.BB_SUB_ALL
-  this.subscribe 'all-roundsandpuzzles'
 
 Template.callins.helpers
   callins: ->

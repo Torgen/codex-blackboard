@@ -23,7 +23,8 @@ class Setting
   # Reactive on client side
   get: ->
     try
-      return @convert Settings.findOne(@canon)?.value
+      value = Settings.findOne(@canon)?.value
+      return @convert(value) if value?
     catch error
       console.warn "get setting #{@name} failed", error
 

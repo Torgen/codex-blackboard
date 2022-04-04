@@ -584,7 +584,7 @@ describe 'metas hubot script', ->
               useful: true
               room_name: 'puzzles/fghij67890'
               mention: ['torgen']
-            Promise.all [l, e]
+            Promise.all [l, e, m]
 
           it 'fails when that did not feed this', ->
             model.Puzzles.insert
