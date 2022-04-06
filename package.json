@@ -12,7 +12,7 @@
     "chartjs-adapter-luxon": "^1.1.0",
     "coffeescript": "^2.6.1",
     "css-color-names": "1.0.1",
-    "cytoscape": "^3.21.0",
+    "cytoscape": "^3.21.1",
     "cytoscape-fcose": "^2.1.0",
     "cytoscape-layout-utilities": "^1.1.1",
     "dayjs": "^1.11.0",
