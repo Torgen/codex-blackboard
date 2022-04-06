@@ -4,7 +4,7 @@
   "description": "codex-blackboard ================",
   "main": "index.js",
   "dependencies": {
-    "@babel/runtime": "^7.17.8",
+    "@babel/runtime": "^7.17.9",
     "@googlemaps/js-api-loader": "^1.13.11",
     "@googlemaps/markerclusterer": "^2.0.2",
     "chart.js": "^3.7.1",
