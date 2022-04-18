@@ -21,7 +21,7 @@
     "favico.js": "^0.3.10",
     "gemoji": "^7.1.0",
     "googleapis": "^100.0.0",
-    "hubot": "^3.3.2",
+    "hubot": "github:Torgen/hubot",
     "hubot-help": "^1.0.1",
     "luxon": "^2.3.1",
     "mail-listener6": "^2.0.3",
