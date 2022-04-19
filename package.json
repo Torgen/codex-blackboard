@@ -6,7 +6,7 @@
   "dependencies": {
     "@babel/runtime": "^7.17.9",
     "@googlemaps/js-api-loader": "^1.14.0",
-    "@googlemaps/markerclusterer": "^2.0.3",
+    "@googlemaps/markerclusterer": "^2.0.4",
     "chart.js": "^3.7.1",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "chartjs-adapter-luxon": "^1.1.0",
