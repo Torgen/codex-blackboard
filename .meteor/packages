@@ -15,7 +15,7 @@ reactive-var@1.0.11
 meteor-base@1.5.1
 mobile-experience@1.1.0
 mongo@1.14.6
-blaze-html-templates@1.0.4
+blaze-html-templates@2.0.0
 session@1.2.0
 jquery@1.11.10
 tracker@1.2.0
