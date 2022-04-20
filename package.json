@@ -5,8 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.17.9",
-    "@googlemaps/js-api-loader": "^1.13.11",
-    "@googlemaps/markerclusterer": "^2.0.3",
+    "@googlemaps/js-api-loader": "^1.14.0",
+    "@googlemaps/markerclusterer": "^2.0.4",
     "chart.js": "^3.7.1",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "chartjs-adapter-luxon": "^1.1.0",
@@ -15,25 +15,25 @@
     "cytoscape": "^3.21.1",
     "cytoscape-fcose": "^2.1.0",
     "cytoscape-layout-utilities": "^1.1.1",
-    "dayjs": "^1.11.0",
+    "dayjs": "^1.11.1",
     "delay": "^5.0.0",
     "denodeify": "^1.2.1",
     "favico.js": "^0.3.10",
     "gemoji": "^7.1.0",
     "googleapis": "^100.0.0",
-    "hubot": "^3.3.2",
+    "hubot": "github:Torgen/hubot",
     "hubot-help": "^1.0.1",
-    "luxon": "^2.3.1",
+    "luxon": "^2.3.2",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
     "meteor-node-stubs": "^1.2.1",
     "sanitize-html": "^2.7.0",
-    "twitter-api-v2": "^1.11.3"
+    "twitter-api-v2": "^1.12.0"
   },
   "devDependencies": {
     "chai": "^4.3.6",
     "puppeteer": "^13.5.2",
-    "sinon": "^13.0.1"
+    "sinon": "^13.0.2"
   },
   "scripts": {
     "test": "meteor test --once --driver-package meteortesting:mocha",
