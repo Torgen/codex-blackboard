@@ -26,7 +26,7 @@
     "luxon": "^2.3.2",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
-    "meteor-node-stubs": "^1.2.2",
+    "meteor-node-stubs": "^1.2.3",
     "sanitize-html": "^2.7.0",
     "twitter-api-v2": "^1.12.0"
   },
