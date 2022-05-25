@@ -14,6 +14,11 @@
   src: local('Open Sans Emoji'), local('OpenSansEmoji'), url('../fonts/OpenSansEmoji.ttf') format('truetype');
 }
 
+@import '{}/client/imports/ui/components/edit_object_title/edit_object_title.less';
+@import '{}/client/imports/ui/components/edit_tag_name/edit_tag_name.less';
+@import '{}/client/imports/ui/components/edit_tag_value/edit_tag_value.less';
+@import '{}/client/imports/ui/pages/map/map.less';
+
 .comma-list {
   & > *::after { content: ", "; }
   & > *:last-child::after { content:""; }
@@ -144,19 +149,35 @@ body.has-emojis {
 .bb-puzzleround {
   padding-right: 2px; padding-left: 2px;
   .navbar { margin: 0 10px; }
-  table.bb-round-answers { width: auto; }
+  table.bb-round-answers {
+    width: auto;
+    input { margin-top: 0; }
+    .descendant > td:first-child {
+      padding-left: 1em;
+    }
+  }
   .bb-spreadsheet-frame {
     width: 100%;
     height: 500px;
     border-top: 1px solid #ccc;
   }
-  h2 {
+  h2, .bb-round-title {
     color: #AAA;
   }
   .bb-right-content {
-    h1, h2, h3 {
+    h1, h2, h3, .bb-puzzle-title {
       font-size: 24px;
       line-height: 24px;
+    }
+    .bb-puzzle-title {
+      font-weight: bold;
+      & > input {
+        height: 18px;
+        line-height: 16px;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 0;
+      }
     }
   }
   td.wanted { font-style: italic; }
@@ -195,9 +216,13 @@ body.has-emojis {
 }
 .bb-puzzle-info-tags {
   position: relative;
-  td {
+  td, .bb-edit-field {
     padding: 0px 0.5em;
     vertical-align: top;
+  }
+  .bb-edit-field { display: table-cell; }
+  [data-field="link"] a {
+    overflow-wrap: anywhere;
   }
   .bb-mechanics-dropdown {
     position: static;
@@ -255,6 +280,9 @@ body.has-emojis {
 .bb-breadcrumbs .tooltip-inner { .bb-buttonbar .tooltip-inner; }
 .bb-breadcrumbs .tooltip.bottom .tooltip-arrow { .bb-buttonbar .tooltip.bottom .tooltip-arrow; }
 
+.bb-who-stuck {
+  display: inline-block;
+}
 .answer {
   text-transform: uppercase;
 }
@@ -268,11 +296,14 @@ body.has-emojis {
 .bb-othermeta {
   display: inline-block;
 }
-input[type=color] {
+input[type="color"] {
   width: 14px;
   height: 14px;
   padding: 0px 0px;
   margin-right: 0.25em;
+  &::-webkit-color-swatch-wrapper {
+    padding: 2px;
+  }
 }
 
 .bb-top-right-content .bb-status-grid {
@@ -358,16 +389,16 @@ input[type=color] {
     margin-bottom: 2px;
     min-height: auto;
   }
+  input[type="text"] {
+    min-width: 150px;
+  }
 }
 .bb-canEdit {
   /* adjust height of tags layout so that things don't shift badly when
    * the item is being edited (which uses a 24px input box) */
-  dt,dd {
-    &.bb-editable { min-height: 24px; }
-  }
   .bb-tag-table td.bb-editable { min-height: 24px; }
   /* tweak table column to make room for add tag/up/down icons */
-  td.puzzle-name > div { padding-right: (14px)*3; }
+  td.puzzle-name { padding-right: (14px)*3; }
 }
 .bb-show-filter-by-user + .dropdown-menu {
   left: unset;
@@ -408,21 +439,22 @@ input[type=color] {
     margin-bottom: 0;
     text-align: center;
   }
-  h2 {
+  h2, .bb-round-title {
+    line-height: 40px;
     font-size: 200%;
-    .bb-edit-icon, .bb-delete-icon, { margin-top: 13px; }
-  }
-  h3 {
-    font-size: 130%;
-    line-height: 28px;
-    .bb-edit-icon, .bb-delete-icon { margin-top: 7px; }
-  }
-  h2,h3 {
+    margin-top: 10px;
     margin-bottom: 0;
     position: relative; /* fixes z-order issues, makes whole width clickable */
     .bb-edit-icon, .bb-delete-icon {
+      margin-top: 13px; 
       &.pull-right { margin-right: 5px; }
       &.pull-left  { margin-left: 4px; margin-right: 3px; }
+    }
+    & > input {
+      font-weight: bold;
+      line-height: 30px;
+      height: 30px;
+      font-size: 27px;
     }
   }
   .bb-top-buttons {
@@ -466,21 +498,6 @@ input[type=color] {
       margin-left: 2px;
     }
   }
-  dl {
-    margin: 0;
-    &:empty { display: none; }
-    dt {
-      .bb-edit-icon { margin-left: 3px; }
-    }
-    dd {
-      position: relative; /* fixes z-order, makes whole width clickable */
-      .bb-edit-icon { margin-right: 5px; }
-      .bb-delete-icon { margin-right: 3px; }
-    }
-    dt,dd {
-      .bb-edit-icon, .bb-delete-icon { margin-top: 3px; }
-    }
-  }
   tr.bb-status-stuck {
     background-color: var(--stuck-yellow);
   }
@@ -522,19 +539,15 @@ input[type=color] {
       margin-top: 3px;
     }
     td .bb-delete-icon.pull-left {
-      margin-left: -2px;
+      margin-left: 2px;
       margin-right: 3px;
     }
     .puzzle-name {
+      position: relative;
       .bb-favorite-button { float: right; }
-      & > div {
-        /* relative positioning context for .bb-puzzle-add-move.
-        * Note that firefox doesn't allow position: relative on a table cell */
-        position: relative;
-      }
       .bb-puzzle-add-move {
         display: block; width: 14px*3; height: 14px;
-        position: absolute; right: -2px; top: 3px;
+        position: absolute; right: 0px; top: 3px;
         .bb-add-tag, .bb-move-up, .bb-move-down {
           display: inline-block; width: 14px; height: 14px;
           position: relative;
@@ -560,11 +573,17 @@ input[type=color] {
       }
     }
     .bb-tag-table {
+      width: 100%;
       font-size: 90%;
       border-collapse: collapse;
       position: relative;/* fixes z-order issues, makes whole width clickable */
       &, td, tr { border: none; }
       td { padding: 0 3px; margin: 0; }
+      td:first-child {
+        width: 0px;
+        white-space: nowrap;
+      }
+      .bb-edit-field { display: table-cell; }
       .bb-edit-icon {
         &.pull-left { margin-left: -6px; margin-right: 4px; }
         &.pull-right { margin-left: 2px; margin-right: -3px; }
@@ -605,6 +624,9 @@ input[type=color] {
       }
     }
   }
+}
+.bb-delete-icon:hover, .bb-unfeed-icon:hover {
+  color: tomato;
 }
 
 /* Responsive
@@ -692,12 +714,6 @@ input[type=color] {
   .bb-omit-when-narrow, .puzzle-working, .puzzle-update { display: none !important; }
   .bb-buttonbar .bb-login { float: right }
   td.puzzle-answer { word-break: break-all; }
-
-  /* fix up .dl-horizontal styles */
-  #bb-tables dl {
-    dt { width: auto; display: inline-block; vertical-align: top; }
-    dd { margin-left: 0; display: inline-block; }
-  }
 
   #bb-body #bb-content > #bb-blackboard {
     padding-top: 0px;

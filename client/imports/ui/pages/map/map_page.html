@@ -1,0 +1,7 @@
+<template name="map_page">
+  <div class="bb-map-buttons">
+    {{> connection_button}}
+    <button class="btn bb-follow-the-sun {{#if followTheSun}}active{{/if}}" title="Follow the sun"><i class="fas fa-sun"></i></button>
+  </div>
+  {{#if loaded}}{{> map followTheSun=followTheSun}}{{/if}}
+</template>

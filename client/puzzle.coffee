@@ -1,9 +1,13 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
+import { confirm } from '/client/imports/modal.coffee'
 import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
+import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
+import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
+import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -32,6 +36,8 @@ currentViewIs = (puzzle, view) ->
   return view is possible[0]
 
 Template.puzzle_info.onCreated ->
+  @grandfeeders = new ReactiveVar false
+  @unattached = new ReactiveVar false
   @autorun =>
     id = Session.get 'id'
     return unless id
@@ -54,16 +60,18 @@ Template.puzzle_info.helpers
     ,
       sort: {created: 1}
   callin_status: -> callin_types.past_status_message @status, @callin_type
-
+  metameta: -> model.Puzzles.find({_id: {$in: @puzzle.puzzles}, puzzles: {$exists: true}}).count() > 0
+  grandfeeders: -> Template.instance().grandfeeders.get()
+  unattached: -> Template.instance().unattached.get()
+  nonfeeders: -> model.Puzzles.find(feedsInto: $size: 0)
   unsetcaredabout: ->
     return unless @puzzle
     r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
       continue unless meta?
       for tag in meta.tags.cares_about?.value.split(',') or []
         continue if model.getTag @puzzle, tag
-        { name: tag, meta: meta.name }
+        { name: tag, canon: canonical(tag), meta: meta.name }
     [].concat r...
-    
   metatags: ->
     return unless @puzzle?
     r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
@@ -72,6 +80,17 @@ Template.puzzle_info.helpers
         continue unless /^meta /i.test tag.name
         {name: tag.name, value: tag.value, meta: meta.name}
     [].concat r...
+
+Template.puzzle_info.events
+  'click button.grandfeeders': (event, template) ->
+    template.grandfeeders.set(not event.currentTarget.classList.contains('active'))
+  'click button.unattached': (event, template) ->
+    template.unattached.set(not event.currentTarget.classList.contains('active'))
+  'change input.feed': (event, template) ->
+    if event.currentTarget.checked
+      Meteor.call 'feedMeta', @_id, Template.currentData().puzzle._id
+    else
+      Meteor.call 'unfeedMeta', @_id, Template.currentData().puzzle._id
 
 Template.puzzle_info_frame.helpers
   data: ->
@@ -115,15 +134,6 @@ Template.puzzle.onCreated ->
     puzzle = model.Puzzles.findOne id
     name = puzzle?.name or id
     $("title").text("#{capType puzzle}: #{name}")
-  # presumably we also want to subscribe to the puzzle's chat room
-  # and presence information at some point.
-  this.autorun =>
-    return if settings.BB_SUB_ALL
-    id = Session.get 'id'
-    return unless id
-    @subscribe 'puzzle-by-id', id
-    @subscribe 'round-for-puzzle', id
-    @subscribe 'puzzles-by-meta', id
   @autorun =>
     return unless Session.equals 'type', 'puzzles'
     if currentViewIs model.Puzzles.findOne(Session.get('id')), 'info'
@@ -145,14 +155,13 @@ Template.puzzle_summon_button.helpers
 
 Template.puzzle_summon_button.events
   "click .bb-summon-btn.stuck": (event, template) ->
-    share.confirmationDialog
+    if (await confirm
       message: 'Are you sure you want to cancel this request for help?'
       ok_button: "Yes, this #{model.pretty_collection(Session.get 'type')} is no longer stuck"
-      no_button: 'Nevermind, this is still STUCK'
-      ok: ->
-        Meteor.call 'unsummon',
-          type: Session.get 'type'
-          object: Session.get 'id'
+      no_button: 'Nevermind, this is still STUCK')
+      Meteor.call 'unsummon',
+        type: Session.get 'type'
+        object: Session.get 'id'
   "click .bb-summon-btn.unstuck": (event, template) ->
     $('#summon_modal .stuck-at').val('at start')
     $('#summon_modal .stuck-need').val('ideas')

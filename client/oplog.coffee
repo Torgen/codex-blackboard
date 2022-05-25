@@ -16,7 +16,7 @@ Template.oplog.helpers
 
 Template.oplog.onRendered ->
   $("title").text("Operation Log Archive")
-  $("body").scrollTo 'max'
+  document?.querySelector?('.bb-oplog > *:last-child')?.scrollIntoView()
 
 Template.oplog.onCreated -> this.autorun =>
   this.subscribe 'recent-messages', room_name, +Session.get('limit')

@@ -23,7 +23,6 @@ describe 'newPuzzle', ->
       createPuzzle: sinon.fake.returns
         id: 'fid' # f for folder
         spreadId: 'sid'
-        docId: 'did'
       renamePuzzle: sinon.spy()
       deletePuzzle: sinon.spy()
     if share.drive?
@@ -78,7 +77,6 @@ describe 'newPuzzle', ->
         link: 'https://puzzlehunt.mit.edu/foo'
         drive: 'fid'
         spreadsheet: 'sid'
-        doc: 'did'
         tags: {}
 
     it 'adds puzzle to round', ->
@@ -147,7 +145,6 @@ describe 'newPuzzle', ->
       link: 'https://testhuntpleaseign.org/puzzles/foo-puzzle'
       drive: 'fid'
       spreadsheet: 'sid'
-      doc: 'did'
       tags: {}
 
   describe 'when one exists with that name', ->
@@ -167,7 +164,6 @@ describe 'newPuzzle', ->
         link: 'https://puzzlehunt.mit.edu/foo'
         drive: 'fid'
         spreadsheet: 'sid'
-        doc: 'did'
         tags: {}
       round = model.Rounds.insert
         name: 'Round'

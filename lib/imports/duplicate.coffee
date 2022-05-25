@@ -1,4 +1,4 @@
 'use strict'
 
 export default isDuplicateError = (error) ->
-  error?.name in ['MongoError', 'BulkWriteError'] and error?.code==11000
+  error?.name in ['MongoError', 'MongoServerError', 'BulkWriteError'] and error?.code==11000

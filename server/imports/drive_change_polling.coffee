@@ -4,6 +4,8 @@ import {fileType} from '/lib/imports/mime_type.coffee'
 
 model = share.model
 
+GDRIVE_DOC_MIME_TYPE = 'application/vnd.google-apps.document'
+
 # Exposed for testing
 export startPageTokens = new Mongo.Collection('start_page_tokens');
 startPageTokens.createIndex(({timestamp: 1}));
@@ -63,7 +65,12 @@ export default class DriveChangeWatcher
             puzzleId = puzzle._id
             channel = "puzzles/#{puzzleId}" unless puzzle.spreadsheet is fileId or puzzle.doc is fileId
           if puzzleId?
-            updates.set(puzzleId, moddedAt) unless updates.get(puzzleId) > moddedAt
+            update = updates.get(puzzleId)
+            unless update?
+              update = {}
+              updates.set puzzleId, update
+            update.timestamp = moddedAt unless update.timestamp > moddedAt
+            update.doc ?= fileId if mimeType is GDRIVE_DOC_MIME_TYPE and puzzle? and not puzzle.doc?
           if channel?
             unless (await driveFiles.rawCollection().findOne(_id: fileId))?.announced?
               created.set fileId, {name, mimeType, webViewLink, channel}
@@ -73,10 +80,13 @@ export default class DriveChangeWatcher
           break
         else throw new Error("Response had neither nextPageToken nor newStartPageToken")
       Promise.await Promise.all promises
-      bulkPuzzleUpdates = for [puzzle, timestamp] from updates
+      bulkPuzzleUpdates = for [puzzle, {timestamp, doc}] from updates
+        updateDoc = $max: drive_touched: timestamp
+        if doc?
+          updateDoc.$set = {doc}
         updateOne:
           filter: _id: puzzle
-          update: $max: drive_touched: timestamp
+          update: updateDoc
       puzzlePromise = if bulkPuzzleUpdates.length
           model.Puzzles.rawCollection().bulkWrite bulkPuzzleUpdates, ordered: false
       else

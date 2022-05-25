@@ -12,6 +12,8 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import '/client/imports/ui/pages/map/map_page.coffee'
+import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
 settings = share.settings # import
 model = share.model
@@ -53,10 +55,6 @@ Template.registerHelper 'typeEquals', (arg) ->
 Template.registerHelper 'canEdit', () ->
   Meteor.userId() and (Session.get 'canEdit') and \
   (Session.equals 'currentPage', 'blackboard')
-Template.registerHelper 'editing', (args..., options) ->
-  canEdit = options?.hash?.canEdit or (Session.get 'canEdit')
-  return false unless Meteor.userId() and canEdit
-  return Session.equals 'editing', args.join('/')
 
 Template.registerHelper 'md5', md5
 Template.registerHelper 'fileType', fileType
@@ -89,10 +87,7 @@ Template.page.helpers
   id: -> Session.get 'id'
   color: -> Session.get 'color'
 
-# we might subscribe to all-roundsandpuzzles, too.
-allPuzzlesHandle = null
-if settings.BB_SUB_ALL
-  allPuzzlesHandle = Meteor.subscribe 'all-roundsandpuzzles'
+allPuzzlesHandle = Meteor.subscribe 'all-roundsandpuzzles'
 
 keystring = (k) -> "notification.stream.#{k}"
 
@@ -249,8 +244,6 @@ Meteor.startup ->
       added: (msgid, message) ->
         [room_name, url] = if message.room_name is 'general/0'
           [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
-        else if message.room_name is 'callins/0'
-          ['Callin Queue', Meteor._relativeToSiteRootUrl '/callins']
         else
           [type, id] = message.room_name.split '/'
           target = share.model.Names.findOne id
@@ -359,6 +352,7 @@ class BlackboardRouter extends grapnel.default.default
     @get '/oplogs', => @OpLogPage()
     @get '/callins', => @CallInPage()
     @get '/facts', => @FactsPage()
+    @get '/statistics', => @StatisticsPage()
     @trigger 'navigate'
 
   BlackboardPage: ->
@@ -367,7 +361,6 @@ class BlackboardRouter extends grapnel.default.default
       Session.set
         color: 'inherit'
         canEdit: undefined
-        editing: undefined
         topRight: 'blackboard_status_grid'
 
   EditPage: ->
@@ -376,7 +369,6 @@ class BlackboardRouter extends grapnel.default.default
       Session.set
         color: 'inherit'
         canEdit: true
-        editing: undefined
         topRight: 'blackboard_status_grid'
 
   GraphPage: -> @Page 'graph', 'general', '0', false
@@ -401,13 +393,16 @@ class BlackboardRouter extends grapnel.default.default
     this.Page("oplog", "oplog", "0", false)
 
   CallInPage: ->
-    @Page "callins", "callins", "0", true, true
+    @Page "callins", "general", "0", true, true
     Session.set
       color: 'inherit'
       topRight: null
 
   FactsPage: ->
     this.Page("facts", "facts", "0", false)
+
+  StatisticsPage: ->
+    this.Page("statistics", "general", "0", false)
 
   Page: (page, type, id, has_chat, splitter) ->
     old_room = Session.get 'room_name'
@@ -423,8 +418,7 @@ class BlackboardRouter extends grapnel.default.default
       type: type
       id: id
     # cancel modals if they were active
-    $('#nickPickModal').modal 'hide'
-    $('#confirmModal').modal 'hide'
+    $('.modal').modal 'hide'
 
   urlFor: (type,id) ->
     Meteor._relativeToSiteRootUrl "/#{type}/#{id}"

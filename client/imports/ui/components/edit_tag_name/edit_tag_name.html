@@ -1,0 +1,22 @@
+<template name="edit_tag_name">
+  {{! params:
+    type: object collection, eg. puzzles, rounds
+    id: object id
+    name: original name of tag
+    editable: Is the thing editable right now?
+  }}
+  <td class="bb-edit-tag-name {{#if editable}}bb-editable{{/if}}{{#if editing}} control-group {{tagEditClass}}{{/if}}">
+    {{#if editing}}
+      <input type="text" value="{{name}}" class="input-block-level" />
+      {{#if tagEditStatus}}
+        <div class="tooltip top in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{tagEditStatus}}</div></div>
+      {{/if}}
+    {{else}}
+      {{#if editable}}
+        <i class="bb-edit-icon fas fa-pencil-alt"
+            title="Edit the name of this tag"></i>
+      {{/if}}
+      {{name}}:
+    {{/if}}
+  </td>
+</template>

@@ -21,6 +21,7 @@ export MUTE_SOUND_EFFECTS = new DefaultFalseSetting 'mute', 'sfxMute'
 export HIDE_OLD_PRESENCE = new DefaultFalseSetting 'hideOldPresence'
 export LESS_COLORFUL = new DefaultFalseSetting 'boringMode'
 export SORT_REVERSE = new DefaultFalseSetting 'sortReverse'
+export EXPERT_MODE = new DefaultFalseSetting 'expertMode'
 
 class DefaultTrueSetting extends Setting
   get: -> 'false' isnt reactiveLocalStorage.getItem @name

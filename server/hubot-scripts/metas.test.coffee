@@ -47,9 +47,14 @@ describe 'metas hubot script', ->
               room_name: 'puzzles/12345abcde'
               timestamp: 7
               body: "bot #{before}this #{after} #{descriptor}"
-            waitForDocument model.Puzzles, {_id: '12345abcde', puzzles: []},
+            await waitForDocument model.Puzzles, {_id: '12345abcde', puzzles: []},
               touched: 7
               touched_by: 'torgen'
+            waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              room_name: 'puzzles/12345abcde'
+              useful: true
+              mention: ['torgen']
+              body: '@torgen: OK, this is now a meta.'
 
           it 'Fails when already meta', ->
             model.Puzzles.insert
@@ -89,6 +94,11 @@ describe 'metas hubot script', ->
               touched: 7
               touched_by: 'torgen'
             chai.assert.isUndefined model.Puzzles.findOne('12345abcde').puzzles
+            waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              room_name: 'puzzles/12345abcde'
+              useful: true
+              mention: ['torgen']
+              body: '@torgen: OK, even this poem is now a meta.'
               
           it 'fails when no such puzzle', ->
             model.Puzzles.insert
@@ -132,9 +142,14 @@ describe 'metas hubot script', ->
               room_name: 'general/0'
               timestamp: 7
               body: "bot #{before}even this poem #{after} #{descriptor}"
-            waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: []},
+            await waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: []},
               touched: 7
               touched_by: 'torgen'
+            waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              room_name: 'general/0'
+              useful: true
+              mention: ['torgen']
+              body: '@torgen: OK, even this poem is now a meta.'
 
     ['isn\'t', 'is not'].forEach (verb) ->
       describe "it #{verb} a #{descriptor}", ->
@@ -151,9 +166,14 @@ describe 'metas hubot script', ->
               room_name: 'puzzles/12345abcde'
               timestamp: 7
               body: "bot this #{verb} a #{descriptor}"
-            waitForDocument model.Puzzles, {_id: '12345abcde', puzzles: null},
+            await waitForDocument model.Puzzles, {_id: '12345abcde', puzzles: null},
               touched: 7
               touched_by: 'torgen'
+            waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              room_name: 'puzzles/12345abcde'
+              useful: true
+              mention: ['torgen']
+              body: '@torgen: OK, this is no longer a meta.'
 
           it 'fails when it has a puzzle', ->
             model.Puzzles.insert
@@ -235,6 +255,11 @@ describe 'metas hubot script', ->
               touched_by: 'torgen'
             chai.assert.deepInclude model.Puzzles.findOne('12345abcde'),
               puzzles: []
+            waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              room_name: 'puzzles/12345abcde'
+              useful: true
+              mention: ['torgen']
+              body: '@torgen: OK, even this poem is no longer a meta.'
 
           it 'fails when no such puzzle', ->
             model.Puzzles.insert
@@ -281,9 +306,14 @@ describe 'metas hubot script', ->
               room_name: 'general/0'
               timestamp: 7
               body: "bot even this poem #{verb} a #{descriptor}"
-            waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: null},
+            await waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: null},
               touched: 7
               touched_by: 'torgen'
+            waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              room_name: 'general/0'
+              useful: true
+              mention: ['torgen']
+              body: '@torgen: OK, even this poem is no longer a meta.'
 
   describe 'feeds into', ->
     describe 'in puzzle room', ->
@@ -309,7 +339,11 @@ describe 'metas hubot script', ->
         e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: '12345abcde'},
           touched_by: 'torgen'
           touched: 7
-        Promise.all [l, e]
+        m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          room_name: 'puzzles/12345abcde'
+          useful: true
+          mention: ['torgen']
+        Promise.all [l, e, m]
 
       it 'feeds that into this', ->
         model.Puzzles.insert
@@ -333,7 +367,11 @@ describe 'metas hubot script', ->
         e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: '12345abcde'},
           touched_by: 'torgen'
           touched: 7
-        Promise.all [l, e]
+        m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          room_name: 'puzzles/fghij67890'
+          useful: true
+          mention: ['torgen']
+        Promise.all [l, e, m]
 
       it 'feeds that into the other', ->
         model.Puzzles.insert
@@ -362,7 +400,11 @@ describe 'metas hubot script', ->
         e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: '12345abcde'},
           touched_by: 'torgen'
           touched: 7
-        await Promise.all [l, e]
+        m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          room_name: 'puzzles/0000000000'
+          useful: true
+          mention: ['torgen']
+        await Promise.all [l, e, m]
         chai.assert.deepInclude model.Puzzles.findOne('0000000000'),
           feedsInto: []
         chai.assert.isUndefined model.Puzzles.findOne('0000000000').puzzles
@@ -431,7 +473,11 @@ describe 'metas hubot script', ->
         e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: '12345abcde'},
           touched_by: 'torgen'
           touched: 7
-        Promise.all [l, e]
+        m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+          room_name: 'general/0'
+          useful: true
+          mention: ['torgen']
+        Promise.all [l, e, m]
 
   ['doesn\'t', 'does not'].forEach (verb) ->
     describe "#{verb} feed into", ->
@@ -460,7 +506,12 @@ describe 'metas hubot script', ->
             e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: ['0000000000']},
               touched_by: 'torgen'
               touched: 7
-            Promise.all [l, e]
+            m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              body: '@torgen: OK, this no longer feeds into even this poem.'
+              useful: true
+              room_name: 'puzzles/12345abcde'
+              mention: ['torgen']
+            Promise.all [l, e, m]
             
           it 'fails when this did not feed that', ->
             model.Puzzles.insert
@@ -528,7 +579,12 @@ describe 'metas hubot script', ->
             e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: ['0000000000']},
               touched_by: 'torgen'
               touched: 7
-            Promise.all [l, e]
+            m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              body: '@torgen: OK, latino alphabet no longer feeds into this.'
+              useful: true
+              room_name: 'puzzles/fghij67890'
+              mention: ['torgen']
+            Promise.all [l, e, m]
 
           it 'fails when that did not feed this', ->
             model.Puzzles.insert
@@ -604,7 +660,12 @@ describe 'metas hubot script', ->
             e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: ['0000000000']},
               touched_by: 'torgen'
               touched: 7
-            await Promise.all [l, e]
+            m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              body: '@torgen: OK, latino alphabet no longer feeds into even this poem.'
+              useful: true
+              room_name: 'puzzles/0000000000'
+              mention: ['torgen']
+            await Promise.all [l, e, m]
             chai.assert.deepInclude model.Puzzles.findOne('0000000000'),
               feedsInto: ['fghij67890']
               touched: 2
@@ -762,4 +823,9 @@ describe 'metas hubot script', ->
           e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: ['0000000000']},
             touched_by: 'torgen'
             touched: 7
-          Promise.all [l, e]
+          m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+            body: '@torgen: OK, latino alphabet no longer feeds into even this poem.'
+            useful: true
+            room_name: 'general/0'
+            mention: ['torgen']
+          Promise.all [l, e, m]

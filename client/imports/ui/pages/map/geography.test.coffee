@@ -1,6 +1,6 @@
 'use strict'
 
-import {positionOrDefault} from './map.coffee'
+import {positionOrDefault, solarLongitude} from './geography.coffee'
 import chai from 'chai'
 
 describe 'positionOrDefault', ->
@@ -9,3 +9,13 @@ describe 'positionOrDefault', ->
 
   it 'randomizes unset position', ->
     chai.assert.deepEqual positionOrDefault(undefined, 'sklanch'), {lat: 29.957225036621093, lng: -40.023388671875}
+
+describe 'solarLongitude', ->
+  it 'is over Greenwich', ->
+    chai.assert.equal solarLongitude(1645876800000), 0
+
+  it 'is over California', ->
+    chai.assert.equal solarLongitude(1645905600000), -120
+
+  it 'is over Japan', ->
+    chai.assert.equal solarLongitude(1645844439000), 134.8375

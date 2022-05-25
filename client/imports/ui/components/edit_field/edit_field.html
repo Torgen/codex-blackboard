@@ -1,0 +1,16 @@
+<template name="edit_field">
+  {{! Arguments:
+  type: object type
+  id: object id
+  field: field to edit
+  }}
+  <div class="bb-edit-field bb-editable" data-field="{{field}}" data-id="{{id}}" data-type="{{type}}">
+    {{#if editing}}
+      <input type="text" value="{{value}}" class="input-block-level" />
+    {{else}}
+      {{>text_chunks value}}
+      <i class="bb-edit-icon fas fa-pencil-alt"
+          title="Change the value of the hunt site link"></i>
+    {{/if}}
+  </div>
+</template>

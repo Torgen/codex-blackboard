@@ -16,6 +16,10 @@ In general, a cryptic clue has two parts: a definition, and a wordplay section, 
 
 A puzzle with an intricate series of steps which, if followed, produce the answer without an a-ha required, but where following the steps is non-trivial. Strictly speaking a puzzle is only a Duck Konundrum if written by Dan Katz, but other step-following puzzles like [Tax... In... Space...](http://web.mit.edu/puzzle/www/2012/puzzles/into_the_woodstock/tax_in_space/) should be classified as such because they fill the same niche.
 
+# Knitting/Crocheting
+
+A puzzle that involves creating a physical artifact by knitting or crocheting. This may be inferred from flavor, such as references to thread, yarn, needles, or hooks; or by use of [Knitting](https://knitfarious.com/how-to-read-knitting-stitch-patterns-knitters-guide/) or [Crocheting](https://www.dummies.com/article/home-auto-hobbies/crafts/knitting-crocheting/common-international-crochet-symbols-and-crochet-stitch-abbreviations-193945) notation.
+
 # Music Identification
 
 Any puzzle where you are provided with audio files containing music. This can include puzzles where the music is transformed in some way, such as [I Knew Weird Al Yankovic, and You, Sir, Are No Weird Al Yankovic](http://web.mit.edu/puzzle/www/2019/puzzle/i_knew_weird_al_yankovic_and_you_sir_are_no_weird_al_yankovic.html) where you are given newly-written parodies of songs.

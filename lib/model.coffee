@@ -2,7 +2,7 @@
 
 import canonical from './imports/canonical.coffee'
 import isDuplicateError from './imports/duplicate.coffee'
-import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
+import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith, OptionalKWArg } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 import { RoundUrlPrefix, PuzzleUrlPrefix, UrlSeparator } from './imports/settings.coffee'
@@ -186,6 +186,10 @@ if Meteor.isServer
 #   presence: optional string ('join'/'part' for presence-change only)
 #   bot_ignore: optional boolean (true for messages from e.g. email or twitter)
 #   header_ignore: optional boolean (don't show in header)
+#   on_behalf: optional boolean. True for messages when the user didn't directly
+#              call newMessage, but a message was created in their voice.
+#              This excludes those messages from history when using up and down
+#              arrows to repeat an old message.
 #   to:   destination of pm (optional)
 #   poll: _id of poll (optional)
 #   starred: boolean. Pins this message to the top of the puzzle page or blackboard.
@@ -380,12 +384,15 @@ do ->
     check args, ObjectWith
       id: NonEmptyString
       who: NonEmptyString
+      condition: Match.Optional Object
+    condition = args.condition ? {}
     name = collection(type).findOne(args.id)?.name
     return false unless name
+    result = collection(type).remove {_id: args.id, ...condition}
+    return false if result is 0
     unless options.suppressLog
       oplog "Deleted "+pretty_collection(type)+" "+name, \
           type, null, args.who
-    collection(type).remove(args.id)
     return true
 
   setTagInternal = (updateDoc, args) ->
@@ -428,49 +435,33 @@ do ->
       drive_error_message: res.message
       drive: res.id
       spreadsheet: res.spreadId
-      doc: res.docId
     }
 
-  renameDriveFolder = (new_name, drive, spreadsheet, doc) ->
+  renameDriveFolder = (new_name, drive, spreadsheet) ->
     check new_name, NonEmptyString
     check drive, NonEmptyString
     check spreadsheet, Match.Optional(NonEmptyString)
-    check doc, Match.Optional(NonEmptyString)
     return unless Meteor.isServer
-    share.drive.renamePuzzle(new_name, drive, spreadsheet, doc)
+    share.drive.renamePuzzle(new_name, drive, spreadsheet)
 
   deleteDriveFolder = (drive) ->
     check drive, NonEmptyString
     return unless Meteor.isServer
     share.drive.deletePuzzle drive
 
-  moveWithinParent = (id, parentType, parentId, args) ->
-    check id, NonEmptyString
-    check parentType, ValidType
-    check parentId, NonEmptyString
-    loop
-      parent = collection(parentType).findOne(parentId)
-      ix = parent?.puzzles?.indexOf(id)
-      return false unless ix?
-      npos = ix
-      npuzzles = (p for p in parent.puzzles when p != id)
-      if args.pos?
-        npos += args.pos
-        return false if npos < 0
-        return false if npos > npuzzles.length
-      else if args.before?
-        npos = npuzzles.indexOf args.before
-        return false unless npos >= 0
-      else if args.after?
-        npos = 1 + npuzzles.indexOf args.after
-        return false unless npos > 0
-      else
-        return false
-      npuzzles.splice(npos, 0, id)
-      return true if 0 < (collection(parentType).update {_id: parentId, puzzles: parent.puzzles}, $set:
-        puzzles: npuzzles
-        touched: UTCNow()
-        touched_by: canonical(args.who))
+  moveWithinParent = if Meteor.isServer
+    require('/server/imports/move_within_parent.coffee').default
+  else
+    require('/client/imports/move_within_parent.coffee').default
+
+  settableFields =
+    callins:
+      callin_type: OptionalKWArg callin_types.IsCallinType
+      submitted_by: OptionalKWArg NonEmptyString
+      submitted_to_hq: OptionalKWArg Boolean
+    puzzles:
+      link: OptionalKWArg String
+      order_by: Match.Optional Match.OneOf(EqualsString(''), EqualsString('name'))
       
   Meteor.methods
     newRound: (args) ->
@@ -489,16 +480,15 @@ do ->
       r
     renameRound: (args) ->
       check @userId, NonEmptyString
+      check args, ObjectWith
+        id: NonEmptyString
+        name: NonEmptyString
       renameObject "rounds", {args..., who: @userId}
       # TODO(torgen): rename default meta
     deleteRound: (id) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
-      # disallow deletion unless round.puzzles is empty
-      # TODO(torgen): ...other than default meta
-      rg = Rounds.findOne id
-      return false unless rg? and rg?.puzzles?.length is 0
-      deleteObject "rounds", {id, who: @userId}
+      deleteObject "rounds", {id, who: @userId, condition: puzzles: $size: 0}
 
     newPuzzle: (args) ->
       check @userId, NonEmptyString
@@ -543,12 +533,11 @@ do ->
             touched_by: p.touched_by
             touched: p.touched
         , multi: true
-      if args.round?
-        Rounds.update args.round,
-          $addToSet: puzzles: p._id
-          $set:
-            touched_by: p.touched_by
-            touched: p.touched
+      Rounds.update args.round,
+        $addToSet: puzzles: p._id
+        $set:
+          touched_by: p.touched_by
+          touched: p.touched
       # create google drive folder (server only)
       newDriveFolder p._id, p.name
       return p
@@ -561,10 +550,9 @@ do ->
       p = Puzzles.findOne args.id
       drive = p?.drive
       spreadsheet = p?.spreadsheet if drive?
-      doc = p?.doc if drive?
       result = renameObject "puzzles", {args..., who: @userId}
       # rename google drive folder
-      renameDriveFolder args.name, drive, spreadsheet, doc if result and drive?
+      renameDriveFolder args.name, drive, spreadsheet if result and drive?
       return result
     deletePuzzle: (pid) ->
       check @userId, NonEmptyString
@@ -675,7 +663,6 @@ do ->
 
     newCallIn: (args) ->
       check @userId, NonEmptyString
-      return if this.isSimulation # otherwise we trigger callin sound twice
       args.callin_type ?= callin_types.ANSWER
       args.target_type ?= 'puzzles'
       puzzle = null
@@ -735,21 +722,22 @@ do ->
       msg =
         action: true
         header_ignore: true
+        on_behalf: true
       # send to the general chat
       msg.body = body(specifyPuzzle: true)
-      unless args?.suppressRoom is "general/0"
+      unless args.suppressRoom is "general/0"
         Meteor.call 'newMessage', msg
       if puzzle?
         # send to the puzzle chat
         msg.body = body(specifyPuzzle: false)
         msg.room_name = "puzzles/#{id}"
-        unless args?.suppressRoom is msg.room_name
+        unless args.suppressRoom is msg.room_name
           Meteor.call 'newMessage', msg
         # send to the metapuzzle chat
         puzzle.feedsInto.forEach (meta) ->
           msg.body = body(specifyPuzzle: true)
           msg.room_name = "puzzles/#{meta}"
-          unless args?.suppressRoom is msg.room_name
+          unless args.suppressRoom is msg.room_name
             Meteor.call "newMessage", msg
       oplog "New #{args.callin_type} #{args.answer} submitted for", args.target_type, id, \
           @userId, 'callins'
@@ -764,6 +752,7 @@ do ->
       msg =
         room_name: "#{callin.target_type}/#{callin.target}"
         action: true
+        on_behalf: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       if callin.callin_type is callin_types.ANSWER
         check response, undefined
@@ -814,7 +803,7 @@ do ->
           msg.room_name = "puzzles/#{meta}"
           Meteor.call 'newMessage', msg
 
-    # Response is optional for interaction requests and forbibben for answers.
+    # Response is forbibben for answers and optional for everything else
     incorrectCallIn: (id, response) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
@@ -823,6 +812,7 @@ do ->
       msg =
         room_name: "#{callin.target_type}/#{callin.target}"
         action: true
+        on_behalf: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       if callin.callin_type is callin_types.ANSWER
         check response, undefined
@@ -884,25 +874,7 @@ do ->
           status: 'cancelled'
           resolved: UTCNow()
 
-    locateNick: (args) ->
-      check @userId, NonEmptyString
-      check args, ObjectWith
-        location:
-          type: 'Point'
-          coordinates: ArrayMembers [NumberInRange(min: -180, max:180), NumberInRange(min: -90, max: 90)]
-        timestamp: Match.Optional(Number)
-      return if this.isSimulation # server side only
-      # the server transfers updates from priv_located* to located* at
-      # a throttled rate to prevent N^2 blow up.
-      # priv_located_order implements a FIFO queue for updates, but
-      # you don't lose your place if you're already in the queue
-      timestamp = UTCNow()
-      n = Meteor.users.update @userId,
-        $set:
-          priv_located: args.timestamp ? timestamp
-          priv_located_at: args.location
-        $min: priv_located_order: timestamp
-      throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
+    # locateNick is in /server/methods
 
     favoriteMechanic: (mechanic) ->
       check @userId, NonEmptyString
@@ -915,34 +887,6 @@ do ->
       check mechanic, IsMechanic
       n = Meteor.users.update @userId, $pull: favorite_mechanics: mechanic
       throw new Meteor.Error(400, "bad userId: #{@userId}") unless n > 0
-
-    newMessage: (args) ->
-      check @userId, NonEmptyString
-      check args,
-        body: Match.Optional String
-        bodyIsHtml: Match.Optional Boolean
-        action: Match.Optional Boolean
-        to: Match.Optional NonEmptyString
-        room_name: Match.Optional NonEmptyString
-        useful: Match.Optional Boolean
-        bot_ignore: Match.Optional Boolean
-        header_ignore: Match.Optional Boolean
-        suppressLastRead: Match.Optional Boolean
-        mention: Match.Optional [String]
-      return if this.isSimulation # suppress flicker
-      suppress = args.suppressLastRead
-      delete args.suppressLastRead
-      newMsg = {args..., nick: @userId}
-      newMsg.body ?= ''
-      newMsg.room_name ?= "general/0"
-      newMsg = newMessage newMsg
-      # update the user's 'last read' message to include this one
-      # (doing it here allows us to use server timestamp on message)
-      unless suppress
-        Meteor.call 'updateLastRead',
-          room_name: newMsg.room_name
-          timestamp: newMsg.timestamp
-      newMsg
 
     deleteMessage: (id) ->
       check @userId, NonEmptyString
@@ -1008,21 +952,14 @@ do ->
         return {type: 'nicks', object: o} if o
 
     setField: (args) ->
+      console.log args
       check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidType
         object: IdOrObject
-        fields: Object
+        fields: settableFields[args.type]
       id = args.object._id or args.object
       now = UTCNow()
-      # disallow modifications to the following fields; use other APIs for these
-      for f in ['name','canon','created','created_by','solved','solved_by',
-               'tags','puzzles', 'feedsInto',
-               'located','located_at',
-               'priv_located','priv_located_at','priv_located_order']
-        delete args.fields[f]
-      if args.fields.order_by
-        check args.fields.order_by, Match.OneOf EqualsString(''), EqualsString('name')
       args.fields.touched = now
       args.fields.touched_by = @userId
       collection(args.type).update id, $set: args.fields
@@ -1051,6 +988,81 @@ do ->
       id = args.object._id or args.object
       setTagInternal updateDoc, {args..., who: @userId}
       0 < collection(args.type).update id, updateDoc
+
+    renameTag: ({type, object, old_name, new_name}) ->
+      check @userId, NonEmptyString
+      check type, ValidType
+      check object, IdOrObject
+      check old_name, NonEmptyString
+      check new_name, NonEmptyString
+      new_canon = canonical new_name
+      throw new Match.Error 'Can\'t rename to link' if new_canon is 'link'
+      old_canon = canonical old_name
+      now = UTCNow()
+      coll = collection(type)
+      id = object._id or object
+      if new_canon is old_canon
+        # change 'name' but do nothing else
+        ct = coll.update {
+          _id: id
+          "tags.#{old_canon}": $exists: true
+        }, {
+          $set:
+            "tags.#{new_canon}.name": new_name
+            "tags.#{new_canon}.touched": now
+            "tags.#{new_canon}.touched_by": @userId
+            touched: now
+            touched_by: @userId
+        }
+        if 1 isnt ct
+          throw new Meteor.Error 404, "No such object"
+        return 
+      if @isSimulation
+        # this is all synchronous
+        ct = coll.update {
+          _id: id
+          "tags.#{old_canon}": $exists: true
+          "tags.#{new_canon}": $exists: false
+        }, {
+          $set:
+            "tags.#{new_canon}.name": new_name
+            "tags.#{new_canon}.touched": now
+            "tags.#{new_canon}.touched_by": @userId
+            touched: now
+            touched_by: @userId
+          $rename:
+            "tags.#{old_canon}.value": "tags.#{new_canon}.value"
+        }
+        if ct is 1
+          coll.update {_id: id}, {$unset: "tags.#{old_canon}": ''}
+        else 
+          throw new Meteor.Error 404, "No such object"
+        return
+      # On the server, use aggregation pipeline to make the whole edit in a single
+      # call to avoid a race condition. This requires rawCollection because the
+      # wrappers don't support aggregation pipelines.
+      result = Promise.await(coll.rawCollection().updateOne({
+        _id: id
+        "tags.#{old_canon}": $exists: true
+        "tags.#{new_canon}": $exists: false
+      }, [{
+        $addFields: {
+          "tags.#{new_canon}": {
+            value: "$tags.#{old_canon}.value"
+            name: $literal: new_name
+            touched: now
+            touched_by: $literal: @userId
+          }
+          touched: now
+          touched_by: $literal: @userId
+        }},
+        {$unset: "tags.#{old_canon}" }
+      ]))
+      if 1 is result.modifiedCount
+        # Since we used rawCollection, we Have to trigger subscription update manually.
+        Meteor.refresh {collection: type, id}
+      else
+        throw new Meteor.Error 404, "No such object"
 
     deleteTag: (args) ->
       check @userId, NonEmptyString
@@ -1103,6 +1115,7 @@ do ->
         action: true
         body: body
         room_name: "puzzles/#{id}"
+        on_behalf: true
       objUrl = # see Router.urlFor
         Meteor._relativeToSiteRootUrl "/puzzles/#{id}"
       solverTimePart = if obj.solverTime?
@@ -1114,6 +1127,7 @@ do ->
         bodyIsHtml: true
         body: body
         header_ignore: true
+        on_behalf: true
       return
 
     unsummon: (args) ->
@@ -1140,11 +1154,13 @@ do ->
         action: true
         body: body
         room_name: "puzzles/#{id}"
+        on_behalf: true
       body = "#{body} in puzzle #{obj.name}"
       Meteor.call 'newMessage',
         action: true
         body: body
         header_ignore: true
+        on_behalf: true
       return
 
     getRoundForPuzzle: (puzzle) ->
@@ -1156,11 +1172,13 @@ do ->
 
     moveWithinMeta: (id, parentId, args) ->
       check @userId, NonEmptyString
+      check args, Match.OneOf ObjectWith(pos: Number), ObjectWith(before: NonEmptyString), ObjectWith(after: NonEmptyString)
       args.who = @userId
       moveWithinParent id, 'puzzles', parentId, args
 
     moveWithinRound: (id, parentId, args) ->
       check @userId, NonEmptyString
+      check args, Match.OneOf ObjectWith(pos: Number), ObjectWith(before: NonEmptyString), ObjectWith(after: NonEmptyString)
       args.who = @userId
       moveWithinParent id, 'rounds', parentId, args
 
@@ -1359,6 +1377,7 @@ do ->
         body: question
         room_name: room
         poll: id
+        on_behalf: true
       id
 
     vote: (poll, option) ->

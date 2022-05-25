@@ -31,7 +31,7 @@ jobs:
       uses: actions/setup-node@master
       with:
         node-version: 14.x
-    - uses: actions/cache@v2.1.7
+    - uses: actions/cache@v3
       id: cache-meteor
       with:
         path: ~/.meteor
@@ -40,7 +40,7 @@ jobs:
       if: steps.cache-meteor.outputs.cache-hit != 'true'
       with:
         meteor-release: ${{ env.METEOR_VERSION }}
-    - uses: actions/cache@v2.1.7
+    - uses: actions/cache@v3
       id: cache-npm
       with:
         path: ~/.npm
@@ -54,7 +54,7 @@ jobs:
       run: ~/.meteor/meteor add bundle-visualizer
     - name: build
       run: ~/.meteor/meteor build --directory ${{ runner.temp }}/build-${{ matrix.name }}
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.name }}
         path: ${{ runner.temp }}/build-${{matrix.name}}/bundle/programs/web.browser/*.stats.json
@@ -66,7 +66,7 @@ jobs:
     needs: build
     steps:
     - uses: actions/checkout@master
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v3
     - id: diff
       uses: ./.github/actions/diff-bundle-stats
     - uses: marocchino/sticky-pull-request-comment@v2

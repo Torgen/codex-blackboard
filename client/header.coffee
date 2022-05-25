@@ -3,7 +3,7 @@
 import canonical from '/lib/imports/canonical.coffee'
 import md5 from 'md5'
 import { jitsiUrl } from './imports/jitsi.coffee'
-import { hashFromNickObject } from './imports/nickEmail.coffee'
+import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
 import './imports/timestamp.coffee'
@@ -55,6 +55,10 @@ Template.registerHelper 'nickOrName', (args) ->
   nick = (keyword_or_positional 'nick', args).nick
   n = Meteor.users.findOne canonical nick
   return n?.real_name or n?.nickname or nick
+Template.registerHelper 'nickAndName', (args) ->
+  nick = (keyword_or_positional 'nick', args).nick
+  n = Meteor.users.findOne canonical nick ? {nickname: nick}
+  return nickAndName n
 Template.registerHelper 'nickExists', (nick) ->
   Meteor.users.findOne(_id: nick)?
 
@@ -263,16 +267,10 @@ active = ->
 Template.header_breadcrumb_blackboard.helpers
   active: active
 
-Template.header_breadcrumb_callins.helpers
-  active: active
-
 Template.header_breadcrumb_extra_links.helpers
   active: -> active.call(Template.parentData(1))
   jitsiUrl: -> jitsiUrl Template.parentData(1).type, Template.parentData(1).id
 
-Template.header_breadcrumb_round.onCreated ->
-  @autorun =>
-    @subscribe 'round-by-id', Template.currentData().id
 Template.header_breadcrumb_round.helpers
   round: -> model.Rounds.findOne @id if @id
   active: active
@@ -296,18 +294,10 @@ Template.header_breadcrumb_metas.helpers
     else
       all: keys
 
-Template.header_breadcrumb_one_meta.onCreated ->
-  @autorun =>
-    @subscribe 'puzzle-by-id', Template.currentData().id
-    @subscribe 'metas-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_one_meta.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
   active: active
 
-Template.header_breadcrumb_puzzle.onCreated ->
-  @autorun =>
-    @subscribe 'puzzle-by-id', Template.currentData().id
-    @subscribe 'metas-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_puzzle.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
   active: active
@@ -350,8 +340,9 @@ Template.header_nickmodal_contents.onCreated ->
     if $('#nickEmail').val()
       @gravatarHash.set md5 $('#nickEmail').val()
       return
+    nick = $('#nickInput').val() ? ''
     unless q?
-      q = _id: canonical($('#nickInput').val())
+      q = _id: canonical(nick)
     @gravatarHash.set hashFromNickObject q
 nickInput = new Tracker.Dependency
 Template.header_nickmodal_contents.helpers
@@ -398,26 +389,6 @@ Template.header_nickmodal_contents.events
           template.$('[data-argument]').removeClass 'error'
           template.$("[data-argument=\"#{err.details.field}\"]").addClass 'error'
     return false
-
-############## confirmation dialog ########################
-Template.header_confirmmodal.helpers
-  confirmModalVisible: -> !!(Session.get 'confirmModalVisible')
-Template.header_confirmmodal_contents.onRendered ->
-  $('#confirmModal .bb-confirm-cancel').focus()
-  $('#confirmModal').modal show: true
-Template.header_confirmmodal_contents.events
-  "click .bb-confirm-ok": (event, template) ->
-    Template.header_confirmmodal_contents.cancel = false # do the thing!
-    $('#confirmModal').modal 'hide'
-
-confirmationDialog = share.confirmationDialog = (options) ->
-  $('#confirmModal').one 'hide', ->
-    Session.set 'confirmModalVisible', undefined
-    options.ok?() unless Template.header_confirmmodal_contents.cancel
-  # store away options before making dialog visible
-  Template.header_confirmmodal_contents.options = -> options
-  Template.header_confirmmodal_contents.cancel = true
-  Session.set 'confirmModalVisible', (options or Object.create(null))
 
 RECENT_GENERAL_LIMIT = 2
 
