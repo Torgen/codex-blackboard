@@ -906,13 +906,13 @@ describe 'codex hubot script', ->
         puzzles: []
       model.Messages.insert
         nick: 'torgen'
-        room_name: 'callins/0'
+        room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot delete round elliptic curve'
       await waitForDocument model.Messages, { body: '@torgen: Okay, I deleted round "Elliptic Curve".' },
         nick: 'testbot'
         timestamp: 7
-        room_name: 'callins/0'
+        room_name: 'general/0'
         useful: true
         mention: ['torgen']
       chai.assert.isUndefined model.Rounds.findOne _id: rid
@@ -924,13 +924,13 @@ describe 'codex hubot script', ->
         puzzles: ['1']
       model.Messages.insert
         nick: 'torgen'
-        room_name: 'callins/0'
+        room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot delete round elliptic curve'
       await waitForDocument model.Messages, { body: '@torgen: Couldn\'t delete round. (Are there still puzzles in it?)' },
         nick: 'testbot'
         timestamp: 7
-        room_name: 'callins/0'
+        room_name: 'general/0'
         useful: true
         mention: ['torgen']
       chai.assert.isObject model.Rounds.findOne _id: rid
@@ -938,13 +938,13 @@ describe 'codex hubot script', ->
     it 'fails when round does not exist', ->
       model.Messages.insert
         nick: 'torgen'
-        room_name: 'callins/0'
+        room_name: 'general/0'
         timestamp: Date.now()
         body: 'bot delete round elliptic curve'
       waitForDocument model.Messages, { body: '@torgen: I can\'t find a round called "elliptic curve".' },
         nick: 'testbot'
         timestamp: 7
-        room_name: 'callins/0'
+        room_name: 'general/0'
         useful: true
         mention: ['torgen']
 

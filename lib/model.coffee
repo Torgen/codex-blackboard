@@ -2,7 +2,7 @@
 
 import canonical from './imports/canonical.coffee'
 import isDuplicateError from './imports/duplicate.coffee'
-import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith } from './imports/match.coffee'
+import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith, OptionalKWArg } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
 import { RoundUrlPrefix, PuzzleUrlPrefix, UrlSeparator } from './imports/settings.coffee'
@@ -186,6 +186,10 @@ if Meteor.isServer
 #   presence: optional string ('join'/'part' for presence-change only)
 #   bot_ignore: optional boolean (true for messages from e.g. email or twitter)
 #   header_ignore: optional boolean (don't show in header)
+#   on_behalf: optional boolean. True for messages when the user didn't directly
+#              call newMessage, but a message was created in their voice.
+#              This excludes those messages from history when using up and down
+#              arrows to repeat an old message.
 #   to:   destination of pm (optional)
 #   poll: _id of poll (optional)
 #   starred: boolean. Pins this message to the top of the puzzle page or blackboard.
@@ -449,6 +453,15 @@ do ->
     require('/server/imports/move_within_parent.coffee').default
   else
     require('/client/imports/move_within_parent.coffee').default
+
+  settableFields =
+    callins:
+      callin_type: OptionalKWArg callin_types.IsCallinType
+      submitted_by: OptionalKWArg NonEmptyString
+      submitted_to_hq: OptionalKWArg Boolean
+    puzzles:
+      link: OptionalKWArg String
+      order_by: Match.Optional Match.OneOf(EqualsString(''), EqualsString('name'))
       
   Meteor.methods
     newRound: (args) ->
@@ -520,12 +533,11 @@ do ->
             touched_by: p.touched_by
             touched: p.touched
         , multi: true
-      if args.round?
-        Rounds.update args.round,
-          $addToSet: puzzles: p._id
-          $set:
-            touched_by: p.touched_by
-            touched: p.touched
+      Rounds.update args.round,
+        $addToSet: puzzles: p._id
+        $set:
+          touched_by: p.touched_by
+          touched: p.touched
       # create google drive folder (server only)
       newDriveFolder p._id, p.name
       return p
@@ -710,21 +722,22 @@ do ->
       msg =
         action: true
         header_ignore: true
+        on_behalf: true
       # send to the general chat
       msg.body = body(specifyPuzzle: true)
-      unless args?.suppressRoom is "general/0"
+      unless args.suppressRoom is "general/0"
         Meteor.call 'newMessage', msg
       if puzzle?
         # send to the puzzle chat
         msg.body = body(specifyPuzzle: false)
         msg.room_name = "puzzles/#{id}"
-        unless args?.suppressRoom is msg.room_name
+        unless args.suppressRoom is msg.room_name
           Meteor.call 'newMessage', msg
         # send to the metapuzzle chat
         puzzle.feedsInto.forEach (meta) ->
           msg.body = body(specifyPuzzle: true)
           msg.room_name = "puzzles/#{meta}"
-          unless args?.suppressRoom is msg.room_name
+          unless args.suppressRoom is msg.room_name
             Meteor.call "newMessage", msg
       oplog "New #{args.callin_type} #{args.answer} submitted for", args.target_type, id, \
           @userId, 'callins'
@@ -739,6 +752,7 @@ do ->
       msg =
         room_name: "#{callin.target_type}/#{callin.target}"
         action: true
+        on_behalf: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       if callin.callin_type is callin_types.ANSWER
         check response, undefined
@@ -789,7 +803,7 @@ do ->
           msg.room_name = "puzzles/#{meta}"
           Meteor.call 'newMessage', msg
 
-    # Response is optional for interaction requests and forbibben for answers.
+    # Response is forbibben for answers and optional for everything else
     incorrectCallIn: (id, response) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
@@ -798,6 +812,7 @@ do ->
       msg =
         room_name: "#{callin.target_type}/#{callin.target}"
         action: true
+        on_behalf: true
       puzzle = Puzzles.findOne(callin.target) if callin.target_type is 'puzzles'
       if callin.callin_type is callin_types.ANSWER
         check response, undefined
@@ -937,21 +952,14 @@ do ->
         return {type: 'nicks', object: o} if o
 
     setField: (args) ->
+      console.log args
       check @userId, NonEmptyString
       check args, ObjectWith
         type: ValidType
         object: IdOrObject
-        fields: Object
+        fields: settableFields[args.type]
       id = args.object._id or args.object
       now = UTCNow()
-      # disallow modifications to the following fields; use other APIs for these
-      for f in ['name','canon','created','created_by','solved','solved_by',
-               'tags','puzzles', 'feedsInto',
-               'located','located_at',
-               'priv_located','priv_located_at','priv_located_order']
-        delete args.fields[f]
-      if args.fields.order_by
-        check args.fields.order_by, Match.OneOf EqualsString(''), EqualsString('name')
       args.fields.touched = now
       args.fields.touched_by = @userId
       collection(args.type).update id, $set: args.fields
@@ -1107,6 +1115,7 @@ do ->
         action: true
         body: body
         room_name: "puzzles/#{id}"
+        on_behalf: true
       objUrl = # see Router.urlFor
         Meteor._relativeToSiteRootUrl "/puzzles/#{id}"
       solverTimePart = if obj.solverTime?
@@ -1118,6 +1127,7 @@ do ->
         bodyIsHtml: true
         body: body
         header_ignore: true
+        on_behalf: true
       return
 
     unsummon: (args) ->
@@ -1144,11 +1154,13 @@ do ->
         action: true
         body: body
         room_name: "puzzles/#{id}"
+        on_behalf: true
       body = "#{body} in puzzle #{obj.name}"
       Meteor.call 'newMessage',
         action: true
         body: body
         header_ignore: true
+        on_behalf: true
       return
 
     getRoundForPuzzle: (puzzle) ->
@@ -1365,6 +1377,7 @@ do ->
         body: question
         room_name: room
         poll: id
+        on_behalf: true
       id
 
     vote: (poll, option) ->

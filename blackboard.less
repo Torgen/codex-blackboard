@@ -149,7 +149,13 @@ body.has-emojis {
 .bb-puzzleround {
   padding-right: 2px; padding-left: 2px;
   .navbar { margin: 0 10px; }
-  table.bb-round-answers { width: auto; }
+  table.bb-round-answers {
+    width: auto;
+    input { margin-top: 0; }
+    .descendant > td:first-child {
+      padding-left: 1em;
+    }
+  }
   .bb-spreadsheet-frame {
     width: 100%;
     height: 500px;

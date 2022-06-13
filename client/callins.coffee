@@ -1,6 +1,6 @@
 'use strict'
 
-import { MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import { MUTE_SOUND_EFFECTS, EXPERT_MODE } from './imports/settings.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
 model = share.model # import
@@ -32,9 +32,8 @@ Meteor.startup ->
     initial = false
 
 Template.callins.onCreated ->
+  EXPERT_MODE.set true
   this.subscribe 'callins'
-  return if settings.BB_SUB_ALL
-  this.subscribe 'all-roundsandpuzzles'
 
 Template.callins.helpers
   callins: ->

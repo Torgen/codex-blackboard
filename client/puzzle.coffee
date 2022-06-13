@@ -36,6 +36,8 @@ currentViewIs = (puzzle, view) ->
   return view is possible[0]
 
 Template.puzzle_info.onCreated ->
+  @grandfeeders = new ReactiveVar false
+  @unattached = new ReactiveVar false
   @autorun =>
     id = Session.get 'id'
     return unless id
@@ -58,7 +60,10 @@ Template.puzzle_info.helpers
     ,
       sort: {created: 1}
   callin_status: -> callin_types.past_status_message @status, @callin_type
-
+  metameta: -> model.Puzzles.find({_id: {$in: @puzzle.puzzles}, puzzles: {$exists: true}}).count() > 0
+  grandfeeders: -> Template.instance().grandfeeders.get()
+  unattached: -> Template.instance().unattached.get()
+  nonfeeders: -> model.Puzzles.find(feedsInto: $size: 0)
   unsetcaredabout: ->
     return unless @puzzle
     r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
@@ -67,7 +72,6 @@ Template.puzzle_info.helpers
         continue if model.getTag @puzzle, tag
         { name: tag, canon: canonical(tag), meta: meta.name }
     [].concat r...
-    
   metatags: ->
     return unless @puzzle?
     r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
@@ -76,6 +80,17 @@ Template.puzzle_info.helpers
         continue unless /^meta /i.test tag.name
         {name: tag.name, value: tag.value, meta: meta.name}
     [].concat r...
+
+Template.puzzle_info.events
+  'click button.grandfeeders': (event, template) ->
+    template.grandfeeders.set(not event.currentTarget.classList.contains('active'))
+  'click button.unattached': (event, template) ->
+    template.unattached.set(not event.currentTarget.classList.contains('active'))
+  'change input.feed': (event, template) ->
+    if event.currentTarget.checked
+      Meteor.call 'feedMeta', @_id, Template.currentData().puzzle._id
+    else
+      Meteor.call 'unfeedMeta', @_id, Template.currentData().puzzle._id
 
 Template.puzzle_info_frame.helpers
   data: ->
@@ -119,15 +134,6 @@ Template.puzzle.onCreated ->
     puzzle = model.Puzzles.findOne id
     name = puzzle?.name or id
     $("title").text("#{capType puzzle}: #{name}")
-  # presumably we also want to subscribe to the puzzle's chat room
-  # and presence information at some point.
-  this.autorun =>
-    return if settings.BB_SUB_ALL
-    id = Session.get 'id'
-    return unless id
-    @subscribe 'puzzle-by-id', id
-    @subscribe 'round-for-puzzle', id
-    @subscribe 'puzzles-by-meta', id
   @autorun =>
     return unless Session.equals 'type', 'puzzles'
     if currentViewIs model.Puzzles.findOne(Session.get('id')), 'info'
