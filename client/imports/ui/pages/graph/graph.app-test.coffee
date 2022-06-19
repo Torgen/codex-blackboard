@@ -1,6 +1,6 @@
 'use strict'
 
-import {waitForSubscriptions, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForSubscriptions, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee'
 import chai from 'chai'
 import denodeify from 'denodeify'
 
