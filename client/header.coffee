@@ -6,6 +6,7 @@ import { jitsiUrl } from './imports/jitsi.coffee'
 import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
+import loginWithCodex from '/client/imports/accounts.coffee'
 import './imports/timestamp.coffee'
 
 model = share.model # import
@@ -380,7 +381,7 @@ Template.header_nickmodal_contents.events
   'submit #nickPick': (event, template) ->
     nick = $("#nickInput").val().replace(/^\s+|\s+$/g,"") #trim
     return false unless nick
-    Meteor.loginWithCodex nick, $('#nickRealname').val(), $('#nickEmail').val(), $('#passwordInput').val(), (err, res) ->
+    loginWithCodex nick, $('#nickRealname').val(), $('#nickEmail').val(), $('#passwordInput').val(), (err, res) ->
       if err?
         le = $("#loginError")
         if err.reason?

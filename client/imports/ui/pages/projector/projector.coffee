@@ -2,7 +2,8 @@
 
 import './projector.html'
 
-views = ['chart', 'map', 'graph']
+VIEWS = ['chart', 'map', 'graph']
+Object.freeze(VIEWS)
 
 Template.projector.onCreated ->
   @loaded = new ReactiveVar false
@@ -12,15 +13,20 @@ Template.projector.onCreated ->
   @loaded.set true
   @tenSeconds = Meteor.setInterval =>
     index = @currentViewIndex.get()
-    @previousView.set views[index]
-    @currentViewIndex.set((index + 1) % views.length)
+    @previousView.set VIEWS[index]
+    @currentViewIndex.set((index + 1) % VIEWS.length)
   , 10000
+
+Template.projector.onRendered ->
+  @autorun =>
+    return unless @loaded.get()
+    @$('#projector_page').trigger new $.Event 'loaded'
 
 Template.projector.helpers
   loaded: -> Template.instance().loaded.get()
   classForView: (viewName) ->
     return 'projector-previous-view' if Template.instance().previousView.get() is viewName
-    return 'projector-current-view' if views[Template.instance().currentViewIndex.get()] is viewName
+    return 'projector-current-view' if VIEWS[Template.instance().currentViewIndex.get()] is viewName
     return 'projector-hidden-view'
 
 Template.projector.onDestroyed ->
