@@ -11,7 +11,7 @@
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "coffeescript": "^2.7.0",
     "css-color-names": "1.0.1",
-    "cytoscape": "^3.21.1",
+    "cytoscape": "^3.21.2",
     "cytoscape-fcose": "^2.1.0",
     "cytoscape-layout-utilities": "^1.1.1",
     "dayjs": "^1.11.3",
