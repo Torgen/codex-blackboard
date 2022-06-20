@@ -13,6 +13,7 @@ Meteor.methods
       room_name: Match.Optional NonEmptyString
       useful: Match.Optional Boolean
       bot_ignore: Match.Optional Boolean
+      on_behalf: Match.Optional Boolean
       header_ignore: Match.Optional Boolean
       suppressLastRead: Match.Optional Boolean
       mention: Match.Optional [String]

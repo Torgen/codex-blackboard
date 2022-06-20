@@ -6,9 +6,20 @@ person. Being on-call makes it difficult to dive deeply into a puzzle, as you wi
 perform the on-call task. As such, shift lengths should be limited and ideally scheduled in advance so that someone
 doesn't feel like they spent the entire hunt e.g. answering phones.
 
-Status Graph
-============
-If you're solving in a room with a projector or other large communal display, the blackboard has a status graph mode which displays a graphical representation of the team's progress in the hunt. There isn't a link to it from the blackboard itself because for the sake of maximizing display area it has very little UI. You can reach it at the `/graph` path. How to get it onto the display will depend on whether you can use the projector as an additional monitor, or whether it supports casting or Google Hangouts.
+Projector Modes
+===============
+If you're solving in a room with a projector or other large communal display, the blackboard has some visualization modes
+for displaying your team's progress. All these paths are relative to the base URL of your site. How to get thgem onto the
+display will depend on whether you can use the projector as an additional monitor, or whether it supports casting or
+Google Hangouts.
+* `/statistics`: (*New for 2023*) A stacked line graph of your number of puzzles unlocked and solved over time.
+* `/map`: (*New for 2023*) A map of the world, with the gravatars of your teams members attached to their location.
+  Clusters of team members near each other show up as a count; team members who don't give the app location access appear
+  clustered in the Atlantic Ocean.
+* `/graph`: A hierarchical view of the hunt structure, with boxes representing rounds and ovals representing puzzles. The
+  puzzles turn green when solved, and arrows connect puzzles to the metas they feed.
+* `/projector`: (*New for 2023*) Rotates between statistics, map, and graph every 10 seconds. In this mode the center of
+  the map view will approximately follow the sun.
 
 First Shift
 ===========

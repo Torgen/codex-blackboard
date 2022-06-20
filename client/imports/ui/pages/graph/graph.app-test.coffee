@@ -1,12 +1,12 @@
 'use strict'
 
-import {waitForSubscriptions, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
+import {waitForSubscriptions, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee'
 import chai from 'chai'
 import denodeify from 'denodeify'
 
 awaitRender = ->
   new Promise (resolve) ->
-      $('.bb-status-graph').one('render', resolve)
+    $('body').one('bb-graph-render', resolve)
 
 describe 'graph', ->
   @timeout 20000
@@ -15,10 +15,10 @@ describe 'graph', ->
     logout()
 
   it 'renders', ->
+    p = awaitRender()
     share.Router.GraphPage()
     await login('testy', 'Teresa Tybalt', '', 'failphrase')
     await afterFlushPromise()
-    p = awaitRender()
     await waitForSubscriptions()
     await afterFlushPromise()
     await p

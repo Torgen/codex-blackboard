@@ -11,8 +11,10 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import '/client/imports/ui/pages/graph/graph_page.coffee'
 import '/client/imports/ui/pages/logistics/logistics_page.coffee'
 import '/client/imports/ui/pages/map/map_page.coffee'
+import '/client/imports/ui/pages/projector/projector.coffee'
 import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
 settings = share.settings # import
@@ -55,10 +57,6 @@ Template.registerHelper 'typeEquals', (arg) ->
 Template.registerHelper 'canEdit', () ->
   Meteor.userId() and (Session.get 'canEdit') and \
   (Session.equals 'currentPage', 'blackboard')
-Template.registerHelper 'editing', (args..., options) ->
-  canEdit = options?.hash?.canEdit or (Session.get 'canEdit')
-  return false unless Meteor.userId() and canEdit
-  return Session.equals 'editing', args.join('/')
 
 Template.registerHelper 'md5', md5
 Template.registerHelper 'fileType', fileType
@@ -91,10 +89,7 @@ Template.page.helpers
   id: -> Session.get 'id'
   color: -> Session.get 'color'
 
-# we might subscribe to all-roundsandpuzzles, too.
-allPuzzlesHandle = null
-if settings.BB_SUB_ALL
-  allPuzzlesHandle = Meteor.subscribe 'all-roundsandpuzzles'
+allPuzzlesHandle = Meteor.subscribe 'all-roundsandpuzzles'
 
 keystring = (k) -> "notification.stream.#{k}"
 
@@ -251,8 +246,6 @@ Meteor.startup ->
       added: (msgid, message) ->
         [room_name, url] = if message.room_name is 'general/0'
           [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
-        else if message.room_name is 'callins/0'
-          ['Callin Queue', Meteor._relativeToSiteRootUrl '/callins']
         else
           [type, id] = message.room_name.split '/'
           target = share.model.Names.findOne id
@@ -362,6 +355,7 @@ BlackboardRouter = Backbone.Router.extend
     "facts": "FactsPage"
     "statistics": "StatisticsPage"
     "logistics": 'LogisticsPage'
+    "projector": "ProjectorPage"
 
   BlackboardPage: ->
     scrollAfter =>
@@ -369,7 +363,6 @@ BlackboardRouter = Backbone.Router.extend
       Session.set
         color: 'inherit'
         canEdit: undefined
-        editing: undefined
         topRight: 'blackboard_status_grid'
 
   EditPage: ->
@@ -378,7 +371,6 @@ BlackboardRouter = Backbone.Router.extend
       Session.set
         color: 'inherit'
         canEdit: true
-        editing: undefined
         topRight: 'blackboard_status_grid'
 
   GraphPage: -> @Page 'graph', 'general', '0', false
@@ -386,6 +378,8 @@ BlackboardRouter = Backbone.Router.extend
   MapPage: -> @Page 'map', 'general', '0', false
 
   LogisticsPage: -> @Page 'logistics_page', 'general', '0', true, true
+
+  ProjectorPage: -> @Page 'projector', 'general', '0', false
 
   PuzzlePage: (id, view=null) ->
     @Page "puzzle", "puzzles", id, true, true
@@ -404,7 +398,7 @@ BlackboardRouter = Backbone.Router.extend
     this.Page("oplog", "oplog", "0", false)
 
   CallInPage: ->
-    @Page "callins", "callins", "0", true, true
+    @Page "callins", "general", "0", true, true
     Session.set
       color: 'inherit'
       topRight: null

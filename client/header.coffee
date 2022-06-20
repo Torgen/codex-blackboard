@@ -6,6 +6,7 @@ import { jitsiUrl } from './imports/jitsi.coffee'
 import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
+import loginWithCodex from '/client/imports/accounts.coffee'
 import './imports/timestamp.coffee'
 
 model = share.model # import
@@ -267,16 +268,10 @@ active = ->
 Template.header_breadcrumb_blackboard.helpers
   active: active
 
-Template.header_breadcrumb_callins.helpers
-  active: active
-
 Template.header_breadcrumb_extra_links.helpers
   active: -> active.call(Template.parentData(1))
   jitsiUrl: -> jitsiUrl Template.parentData(1).type, Template.parentData(1).id
 
-Template.header_breadcrumb_round.onCreated ->
-  @autorun =>
-    @subscribe 'round-by-id', Template.currentData().id
 Template.header_breadcrumb_round.helpers
   round: -> model.Rounds.findOne @id if @id
   active: active
@@ -300,18 +295,10 @@ Template.header_breadcrumb_metas.helpers
     else
       all: keys
 
-Template.header_breadcrumb_one_meta.onCreated ->
-  @autorun =>
-    @subscribe 'puzzle-by-id', Template.currentData().id
-    @subscribe 'metas-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_one_meta.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
   active: active
 
-Template.header_breadcrumb_puzzle.onCreated ->
-  @autorun =>
-    @subscribe 'puzzle-by-id', Template.currentData().id
-    @subscribe 'metas-for-puzzle', Template.currentData().id
 Template.header_breadcrumb_puzzle.helpers
   puzzle: -> model.Puzzles.findOne @id if @id
   active: active
@@ -394,7 +381,7 @@ Template.header_nickmodal_contents.events
   'submit #nickPick': (event, template) ->
     nick = $("#nickInput").val().replace(/^\s+|\s+$/g,"") #trim
     return false unless nick
-    Meteor.loginWithCodex nick, $('#nickRealname').val(), $('#nickEmail').val(), $('#passwordInput').val(), (err, res) ->
+    loginWithCodex nick, $('#nickRealname').val(), $('#nickEmail').val(), $('#passwordInput').val(), (err, res) ->
       if err?
         le = $("#loginError")
         if err.reason?

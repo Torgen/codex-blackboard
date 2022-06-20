@@ -42,3 +42,6 @@ export ObjectWith = (pattern) ->
 export EqualsString = (str) ->
   Match.Where (o) -> o is str
 
+# Match on an object unwraps Maybe and Optional and allows either absent or matching the pattern.
+# If you want to allow null, use this.
+export OptionalKWArg = (x) -> Match.Maybe Match.Maybe x

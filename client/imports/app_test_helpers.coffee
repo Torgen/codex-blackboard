@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
 import { DDP } from 'meteor/ddp-client';
 import denodeify from 'denodeify'
+import loginWithCodex from '/client/imports/accounts.coffee'
 
 # Utility -- returns a promise which resolves when all subscriptions are done
 export waitForSubscriptions = -> new Promise (resolve) ->
@@ -20,7 +21,7 @@ export waitForMethods = -> new Promise (resolve) ->
 #   (such as a route change) have occured. This makes it a promise.
 export afterFlushPromise = denodeify(Tracker.afterFlush)
 
-export login = denodeify(Meteor.loginWithCodex)
+export login = denodeify(loginWithCodex)
 
 _logout = denodeify(Meteor.logout)
 

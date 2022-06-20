@@ -17,6 +17,7 @@
 @import '{}/client/imports/ui/components/edit_object_title/edit_object_title.less';
 @import '{}/client/imports/ui/components/edit_tag_name/edit_tag_name.less';
 @import '{}/client/imports/ui/components/edit_tag_value/edit_tag_value.less';
+@import '{}/client/imports/ui/pages/graph/graph.less';
 @import '{}/client/imports/ui/pages/map/map.less';
 
 .comma-list {
@@ -149,7 +150,13 @@ body.has-emojis {
 .bb-puzzleround {
   padding-right: 2px; padding-left: 2px;
   .navbar { margin: 0 10px; }
-  table.bb-round-answers { width: auto; }
+  table.bb-round-answers {
+    width: auto;
+    input { margin-top: 0; }
+    .descendant > td:first-child {
+      padding-left: 1em;
+    }
+  }
   .bb-spreadsheet-frame {
     width: 100%;
     height: 500px;

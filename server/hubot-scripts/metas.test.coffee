@@ -506,7 +506,12 @@ describe 'metas hubot script', ->
             e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: ['0000000000']},
               touched_by: 'torgen'
               touched: 7
-            Promise.all [l, e]
+            m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              body: '@torgen: OK, this no longer feeds into even this poem.'
+              useful: true
+              room_name: 'puzzles/12345abcde'
+              mention: ['torgen']
+            Promise.all [l, e, m]
             
           it 'fails when this did not feed that', ->
             model.Puzzles.insert
@@ -574,7 +579,12 @@ describe 'metas hubot script', ->
             e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: ['0000000000']},
               touched_by: 'torgen'
               touched: 7
-            Promise.all [l, e]
+            m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              body: '@torgen: OK, latino alphabet no longer feeds into this.'
+              useful: true
+              room_name: 'puzzles/fghij67890'
+              mention: ['torgen']
+            Promise.all [l, e, m]
 
           it 'fails when that did not feed this', ->
             model.Puzzles.insert
@@ -650,7 +660,12 @@ describe 'metas hubot script', ->
             e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: ['0000000000']},
               touched_by: 'torgen'
               touched: 7
-            await Promise.all [l, e]
+            m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+              body: '@torgen: OK, latino alphabet no longer feeds into even this poem.'
+              useful: true
+              room_name: 'puzzles/0000000000'
+              mention: ['torgen']
+            await Promise.all [l, e, m]
             chai.assert.deepInclude model.Puzzles.findOne('0000000000'),
               feedsInto: ['fghij67890']
               touched: 2
@@ -808,4 +823,9 @@ describe 'metas hubot script', ->
           e = waitForDocument model.Puzzles, {_id: 'fghij67890', puzzles: ['0000000000']},
             touched_by: 'torgen'
             touched: 7
-          Promise.all [l, e]
+          m = waitForDocument model.Messages, {nick: 'testbot', timestamp: 7},
+            body: '@torgen: OK, latino alphabet no longer feeds into even this poem.'
+            useful: true
+            room_name: 'general/0'
+            mention: ['torgen']
+          Promise.all [l, e, m]

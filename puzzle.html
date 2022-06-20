@@ -21,7 +21,7 @@
   <tr><td>Hunt site URL:</td>{{>edit_field type="puzzles" id=_id field="link"}}</tr>
 {{/with}}
 {{#each cares in unsetcaredabout}}
-  <tr data-tag-name={{cares.name}}>
+  <tr data-tag-name="{{cares.canon}}">
     <td>{{cares.name}}:</td>
     {{# edit_tag_value type="puzzles" id=puzzle._id name=cares.name editable=true}}
       (wanted by <span title="{{cares.meta}}">{{abbrev cares.meta}}</span>)
@@ -30,16 +30,16 @@
 {{#each mtag in metatags}}
   <tr><td>{{mtag.name}}:<br><i>(from <span title="{{mtag.meta}}">{{abbrev mtag.meta}}</span>)</i></td><td>{{>text_chunks mtag.value}}</td></tr>
 {{/each}}
-{{#with puzzle}}
-  {{#each tags}}
-    <tr data-tag-name="{{name}}">
-      {{> edit_tag_name type="puzzles" id=id name=name editable=true}}
-      {{> edit_tag_value type="puzzles" id=id name=name editable=true}}
+{{#with type="puzzles" id=puzzle._id}}
+  {{#each t in tags}}
+    <tr data-tag-name="{{t.canon}}">
+      {{> edit_tag_name type="puzzles" id=id name=t.name editable=true}}
+      {{> edit_tag_value type="puzzles" id=id name=t.name editable=true}}
     </tr>
-    {{#if equal canon 'status'}}
+    {{#if equal t.canon 'status'}}
     <tr>
       <td class="tagname">Set by:</td>
-      <td class="tagvalue">{{>gravatar nick=touched_by size=12}}{{nickAndName touched_by}}</td>
+      <td class="tagvalue">{{>gravatar nick=t.touched_by size=12}}{{nickAndName t.touched_by}}</td>
     </tr>
     {{/if}}
   {{/each}}
@@ -96,16 +96,42 @@
 {{/let}}
 {{#if puzzle.puzzles}}{{#let cares=caresabout}}
 <table class="bb-round-answers table table-bordered table-condensed"><tbody>
-  <tr><th>Puzzle in round</th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
+  <tr><th>Feeder <span class="btn-group"><button title="Show unattached puzzles" class="btn btn-mini unattached {{#if unattached}}active{{/if}}"><i class="fas fa-unlink"></i></button>{{#if metameta}}<button title="Show feeders of feeders" class="btn btn-mini grandfeeders {{#if grandfeeders}}active{{/if}}"><i class="fas fa-sitemap"></i></button>{{/if}}</span></th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
   {{#each puzzle.puzzles}}{{#with getPuzzle}}
-    <tr>
-      <td>{{>link id=_id}}</td>
+    <tr data-feeder-id="{{_id}}">
+      <td>{{#if any grandfeeders unattached}}<input type="checkbox" class="feed" checked="checked">{{/if}}{{>link id=_id}}</td>
       <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
       {{#each t in cares}}
         <td>{{tag t.name}}</td>
       {{/each}}
     </tr>
+    {{#if grandfeeders}}
+      {{#each puzzles}}
+        {{#with getPuzzle}}
+          <tr class="descendant" data-feeder-id="{{_id}}">
+            <td><input type="checkbox" class="feed" checked="{{#if includes ../../../../puzzle.puzzles _id}}checked{{/if}}">{{>link id=_id}}</td> 
+            <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+            {{#each t in cares}}
+              <td>{{tag t.name}}</td>
+            {{/each}}
+          </tr>
+          {{/with}}
+      {{/each}}
+    {{/if}}
   {{/with}}{{/each}}
+  {{#if unattached}}
+    {{#each nonfeeders}}
+      {{#with getPuzzle}}
+        <tr data-feeder-id="{{_id}}">
+          <td><input type="checkbox" class="feed">{{>link id=_id}}</td> 
+          <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+          {{#each t in cares}}
+            <td>{{tag t.name}}</td>
+          {{/each}}
+        </tr>
+      {{/with}}
+    {{/each}}
+  {{/if}}
 </tbody></table>
 {{/let}}{{/if}}
 </div>

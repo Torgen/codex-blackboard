@@ -32,7 +32,10 @@ resources.
    on the project. 
 4. [Create a new service account](https://console.cloud.google.com/iam-admin/serviceaccounts). Give it a descriptive name,
    like blackboard.
-5. [Create a VM](https://console.cloud.google.com/compute/instancesAdd). Recommended settings:
+5. (*New for 2023*) If members of your team will be solving in a common location with a projector or large screen and you
+   want to use the projector features, [Create a Google Maps Javascript API key](https://console.cloud.google.com/project/_/google/maps-apis/credentials).
+   Restrict its use to the domain name you will host your site on.
+6. [Create a VM](https://console.cloud.google.com/compute/instancesAdd). Recommended settings:
    * Size: an `n1-standard-1` should be sufficient for a reasonably large team. I used an `n1-standard-4` for Codex Ogg
      and peaked at 3% of available CPU, meaning a single core should support a team 8 times the size, assuming the
      blackboard scales linearly. That said (or if you don't share that assumption), don't be penny-wise and pound-foolish,
@@ -51,18 +54,18 @@ resources.
      the `us-east` zones.
    * Networking: Request a static external IP.
    * Firewall: Check the `http server` and `https server` boxes.
-6. Create an A record at your domain registrar pointing at the static external IP from the previous step. If you don't 
+7. Create an A record at your domain registrar pointing at the static external IP from the previous step. If you don't 
    have a domain name, register one now. If you manage your DNS records some other way, your instructions may vary.
-7. (*Updated for 2022*) After confirming that your VM is installed by SSHing into it, stop it, and in a cloud shell, run:
+8. (*Updated for 2022*) After confirming that your VM is installed by SSHing into it, stop it, and in a cloud shell, run:
    ```
    gcloud compute instances set-service-account --zone ZONE INSTANCE_NAME \
    --scopes default,https://www.googleapis.com/auth/drive,https://www.googleapis.com/auth/calendar
    ```
    Where ZONE and INSTANCE_NAME are the zone and name of your instance. Then start your instance again. This is necessary
    so that the app can use application default credentials to access the drive API.
-7. SSH into the instance and run `git clone https://github.com/Torgen/codex-blackboard`. Change to the codex-blackboard
+9. SSH into the instance and run `git clone https://github.com/Torgen/codex-blackboard`. Change to the codex-blackboard
    directory.
-8. Run `private/install.sh`. It will have the following interactive steps:
+10. Run `private/install.sh`. It will have the following interactive steps:
     * Giving you a chance to abort so you can create an XFS partition for MongoDB. I added this step because MongoDB
       complains about it if it's not running in an XFS partition, but it works fine on the default filesystem. If you want
       to do this, follow the instructions on [Adding a persistent disk to a compute engine
@@ -84,11 +87,12 @@ resources.
         * `defaultHost`: When generating a gravatar for a user who didn't enter an email address, this is used as the host part.
         * `initialChatLimit`: Maximum number of messages to load in a chat room when a user joins. Defaults to 200.
         * `chatLimitIncrement`: Number of additional messages to load in a chat room each time a user clicks the "load more" button. Defaults to 100.
+        * `mapsApiKey`: (*New for 2023*) If you created a maps API key above, set it here to enable to solver map.
         * `namePlaceholder`: On the login screen, the example name in the Real Name box.
         * `teamName`: The name of the team as it will appear at the top of the blackboard. This is also used in Jitsi meeting names, if configured.
         * `whoseGitHub`: The hamburger menu has a link to the issues page on GitHub. This controls which fork of the repo the link points at.
         * `jitsiServer`: The DNS name (no protocol or path) of a Jitsi server. This will be set to `meet.jit.si` by default. You can set it to a public Jitsi server near you (https://jitsi.github.io/handbook/docs/community-instances has a list) if you prefer. It's also possible to run your own Jitsi server if you can spare the bandwidth, but that is beyond the scope of this guide. If this is unset, no meetings will be created or embedded.
-      * STATIC_JITSI_ROOM: Puzzle rooms use the random puzzle ID in their room URL, so they are not guessable. The blackboard and callins page don't have a random ID--internally their chat rooms are `general/0` and `callins/0` respectively--so their Jitsi URLs would be guessable. To prevent this, the install script pre-populates this with a UUID which is used in the URL for the room shared by those pages. You can also set it to a Correct Horse Battery Staple style phrase if you prefer, but you will usually never see the URL. If you unset this, the blackboard and callins page will have no Jitsi room, but puzzles still will. This is used as the initial value of a global dynamic setting named `Static Jitsi Room`, so once you've started the server, changing this won't have an effect.
+      * STATIC_JITSI_ROOM: Puzzle rooms use the random puzzle ID in their room URL, so they are not guessable. The blackboard and callins page don't have a random ID--internally they use the `general/0` chat room--so their Jitsi URLs would be guessable. To prevent this, the install script pre-populates this with a UUID which is used in the URL for the room shared by those pages. You can also set it to a Correct Horse Battery Staple style phrase if you prefer, but you will usually never see the URL. If you unset this, the blackboard and callins page will have no Jitsi room, but puzzles still will. This is used as the initial value of a global dynamic setting named `Static Jitsi Room`, so once you've started the server, changing this won't have an effect.
     * Certbot will ask for an email address, and for permission to contact you. Note that Let's Encrypt certificates last
       90 days, and the hunt lasts ~3, so to simplify the dependency cycle, I generate a certificate in direct mode. It
       will not renew automatically because nginx will be using that port later. If you want automatic renewals, you can

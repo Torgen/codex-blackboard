@@ -141,12 +141,29 @@
             {{/if}}
           {{/let}}
         {{/unless}}
+        {{#if all add_round sortReverse}}{{> blackboard_add_round}}{{/if}}
         {{#each rounds}}
           {{> blackboard_round}}
         {{/each}}
+        {{#if all add_round (not sortReverse)}}{{> blackboard_add_round}}{{/if}}
       {{/if}}
     </table>
   </div><!-- bb-tables -->
+</template>
+
+<template name="blackboard_add_round">
+  <tbody>
+    <tr>
+      <th colspan="{{nCols}}" id="bb-new-round" class="bb-round-header">
+        <div class="bb-round-title bb-editable control-group {{titleEditClass}}">
+          <input type="text" placeholder="Round name" class="input-block-level" />
+        </div>
+        {{#if titleEditStatus}}
+          <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleEditStatus}}</div></div>
+        {{/if}}
+      </th>
+    </tr>
+  </tbody>
 </template>
 
 <template name="blackboard_column_header_answer">
@@ -198,14 +215,14 @@
         {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
       {{/edit_object_title}}
       {{#unless compactMode}}
-        {{#blackboard_tags}}
+        {{#blackboard_tags adding=addingTag type="rounds" id=_id}}
         {{#if canEdit}}<tr><td>Hunt site URL</td>{{>edit_field type="rounds" id=_id field="link"}}</tr>{{/if}}
         {{/blackboard_tags}}
       {{/unless}}
       {{#if canEdit}}
         <div class="bb-round-buttons">
           <div class="btn-group">
-            <button class="btn btn-mini btn-inverse bb-add-meta">
+            <button class="btn btn-mini btn-inverse bb-add-meta {{#if addingMeta}}active{{/if}}">
               <i class="fas fa-plus"></i>
               Add new meta to this round
             </button>
@@ -216,7 +233,7 @@
               <li><a class="bb-add-puzzle">Add unassigned puzzle</a></li>
             </ul>
           </div>
-          <button class="btn btn-mini btn-inverse bb-add-tag">
+          <button class="btn btn-mini btn-inverse bb-add-tag {{#if addingTag.adding}}active{{/if}}">
             <i class="fas fa-tag"></i>
             Add new tag to this round
           </button>
@@ -232,25 +249,28 @@
       {{/if}}
       </th></tr></tbody>
       {{#if any canEdit (not collapsed)}}
+        {{#if all addingMeta sortReverse}}
+          {{>blackboard_new_meta adding=addingMetaParams}}
+        {{/if}}
         {{#each meta in m}}
           {{> blackboard_meta _id=meta._id parent=_id puzzle=meta.puzzle reorderable=true}}
         {{/each}}
-        {{#with u}}
-          {{> blackboard_unassigned }}
-        {{/with}}
+        {{#if all addingMeta (not sortReverse)}}
+          {{>blackboard_new_meta adding=addingMetaParams}}
+        {{/if}}
+        {{#if any u.length addingUnassigned}}
+          <tbody class="unassigned" id="unassigned{{_id}}">
+          <tr><th colspan="{{nCols}}">Unassigned</th></tr>
+          {{#each u}}
+            {{> blackboard_puzzle puzzle=puzzle parent=parent reorderable=true }}
+          {{/each}}
+          {{#if addingUnassigned}}
+            {{>blackboard_new_puzzle class="puzzle" adding=addingUnassignedParams}}
+          {{/if}}
+          </tbody>
+        {{/if}}
       {{/if}}
     {{/let}}
-  {{/if}}
-</template>
-
-<template name="blackboard_unassigned">
-  {{#if this.length}}
-    <tbody class="unassigned" id="unassigned{{../_id}}">
-    <tr><th colspan="{{nCols}}">Unassigned</th></tr>
-    {{#each this}}
-      {{> blackboard_puzzle puzzle=puzzle parent=parent reorderable=true }}
-    {{/each}}
-    </tbody>
   {{/if}}
 </template>
 
@@ -344,7 +364,7 @@
     {{/if}}
     {{#with puzzle}}
       {{#unless compactMode}}
-      {{#blackboard_tags}}
+      {{#blackboard_tags adding=addingTag type="puzzles" id=_id}}
         {{#if canEdit}}
           {{#if canChangeMeta}}
           <tr>
@@ -469,14 +489,17 @@
     {{#if any canEdit (not collapsed)}}
       {{#each p in puzzles}}
         {{> blackboard_puzzle _id=p._id parent=puzzle._id puzzle=p.puzzle reorderable=(not puzzle.order_by)}}
-      {{else unless num_puzzles}}
+      {{else unless (any num_puzzles adding)}}
         <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
       {{/each}}
+      {{#if adding}}
+        {{>blackboard_new_puzzle class="puzzle" adding=addingPuzzle}}
+      {{/if}}
     {{/if}}
   {{#if canEdit}}
   <tr class="metafooter"><td colspan="{{nCols}}">
     <div class="bb-meta-buttons">
-      <button class="btn btn-mini btn-inverse bb-add-puzzle">
+      <button class="btn btn-mini btn-inverse bb-add-puzzle {{#if adding}}active{{/if}}">
         <i class="fas fa-plus"></i>
         Create new puzzle feeding this meta
       </button>
@@ -504,14 +527,42 @@
  </tr>
 </template>
 
+<template name="blackboard_new_puzzle">
+  <tr class="{{class}}"><td id="bb-new-puzzle" class="puzzle-name" colspan="{{nCols}}">
+    <div class="bb-puzzle-title bb-editable control-group {{titleAddClass}}">
+      <input type="text" placeholder="Puzzle name" class="input-block-level" />
+      {{#if titleAddStatus}}
+        <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleAddStatus}}</div></div>
+      {{/if}}
+    </div>
+  </td></tr>
+</template>
+
+<template name="blackboard_new_meta">
+  <tbody class="meta">
+    {{>blackboard_new_puzzle class="meta" adding=adding}}
+  </tbody>
+</template>
+
 <template name="blackboard_tags">
   <table class="bb-tag-table"><tbody>
-    {{#each tags}}
-    <tr data-tag-name="{{canon}}">
-      {{>edit_tag_name type=type id=id name=name editable=canEdit}}
-      {{>edit_tag_value type=type id=id name=name editable=canEdit}}
+    {{#each tag in tags}}
+    <tr data-tag-name="{{tag.canon}}">
+      {{>edit_tag_name type=type id=id name=tag.name editable=canEdit}}
+      {{>edit_tag_value type=type id=id name=tag.name editable=canEdit}}
     </tr>
     {{/each}}
+    {{#if adding.adding}}
+      <tr class="bb-add-tag">
+        <td class="bb-edit-tag-name bb-editable control-group {{tagAddClass}}">
+          <input type="text" placeholder="Tag name" class="input-block-level" />
+          {{#if tagAddStatus}}
+            <div class="tooltip top in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{tagAddStatus}}</div></div>
+          {{/if}}
+        </td>
+        <td></td>
+      </tr>
+    {{/if}}
     {{> Template.contentBlock}}
   </tbody></table>
 </template>

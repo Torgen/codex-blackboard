@@ -14,8 +14,8 @@ editableTemplate Template.edit_tag_value,
 
 Template.edit_tag_value.helpers
   canon: -> canonical @name
-  value: -> share.model.collection(@type).findOne(_id: @id).tags[canonical @name]?.value ? ''
-  exists: -> share.model.collection(@type).findOne(_id: @id).tags[canonical @name]?
+  value: -> share.model.collection(@type).findOne(_id: @id)?.tags[canonical @name]?.value ? ''
+  exists: -> share.model.collection(@type).findOne(_id: @id)?.tags[canonical @name]?
   hexify: (v) -> cssColorToHex v
 
 Template.edit_tag_value.events
