@@ -39,6 +39,7 @@ do ->
     'click a.home-link': clickHandler
     'click a.oplogs-link': clickHandler
     'click a.callins-link': clickHandler
+    'click a.logistics-link': clickHandler
     'click a.facts-link': clickHandler
 
 Template.registerHelper 'drive_link', (args) ->
