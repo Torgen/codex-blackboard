@@ -30,7 +30,7 @@
 {{#each mtag in metatags}}
   <tr><td>{{mtag.name}}:<br><i>(from <span title="{{mtag.meta}}">{{abbrev mtag.meta}}</span>)</i></td><td>{{>text_chunks mtag.value}}</td></tr>
 {{/each}}
-{{>blackboard_tags editable=true adding=addingTag type="puzzles" id=puzzle._id}}
+{{>tag_table_rows editable=true adding=addingTag type="puzzles" id=puzzle._id}}
 {{#unless addingTag.adding}}
   <tr class="bb-add-tag">
     <td class="bb-add-tag-button bb-editable" title="Add Tag">

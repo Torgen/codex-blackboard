@@ -6,8 +6,8 @@ import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
-import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
+import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee'
 
 model = share.model # import
 settings = share.settings # import

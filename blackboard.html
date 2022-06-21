@@ -216,7 +216,7 @@
       {{/edit_object_title}}
       {{#unless compactMode}}
         <table class="bb-tag-table"><tbody>
-          {{>blackboard_tags editable=canEdit adding=addingTag type="rounds" id=_id}}
+          {{>tag_table_rows editable=canEdit adding=addingTag type="rounds" id=_id}}
           {{#if canEdit}}<tr><td>Hunt site URL</td>{{>edit_field type="rounds" id=_id field="link"}}</tr>{{/if}}
         </tbody></table>
       {{/unless}}
@@ -366,7 +366,7 @@
     {{#with puzzle}}
       {{#unless compactMode}}
         <table class="bb-tag-table"><tbody>
-        {{>blackboard_tags editable=canEdit adding=addingTag type="puzzles" id=_id}}
+        {{>tag_table_rows editable=canEdit adding=addingTag type="puzzles" id=_id}}
         {{#if canEdit}}
           {{#if canChangeMeta}}
           <tr>
@@ -544,24 +544,4 @@
   <tbody class="meta">
     {{>blackboard_new_puzzle class="meta" adding=adding}}
   </tbody>
-</template>
-
-<template name="blackboard_tags">
-  {{#each tag in tags}}
-  <tr data-tag-name="{{tag.canon}}">
-    {{>edit_tag_name type=type id=id name=tag.name editable=editable}}
-    {{>edit_tag_value type=type id=id name=tag.name editable=editable}}
-  </tr>
-  {{/each}}
-  {{#if adding.adding}}
-    <tr class="bb-add-tag">
-      <td class="bb-edit-tag-name bb-editable control-group {{tagAddClass}}">
-        <input type="text" placeholder="Tag name" class="input-block-level" />
-        {{#if tagAddStatus}}
-          <div class="tooltip top in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{tagAddStatus}}</div></div>
-        {{/if}}
-      </td>
-      <td></td>
-    </tr>
-  {{/if}}
 </template>
