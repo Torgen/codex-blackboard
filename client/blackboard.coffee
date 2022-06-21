@@ -507,7 +507,6 @@ Template.blackboard_puzzle_cells.events
       message: "Are you sure you want to delete the puzzle \"#{template.data.puzzle.name}\"?")
       Meteor.call 'deletePuzzle', template.data.puzzle._id
 
-
 tagHelper = ->
   tags = model.collection(@type).findOne({_id: @id}, {fields: tags: 1})?.tags or {}
   (
@@ -647,6 +646,11 @@ Template.blackboard_tags.events okCancelEvents '.bb-add-tag input',
     cval = canonical value
     return if model.collection(@type).findOne(_id: @id).tags[cval]?
     Meteor.call 'setTag', {type: @type, object: @id, name: value, value: ''}
+    # simulation is enough for us to start editing the value if the event was enter or tab
+    if event.which in [9,13]
+      Tracker.afterFlush ->
+        template.$("tr[data-tag-name='#{cval}'] .bb-edit-tag-value").trigger 'bb-edit'
+
   cancel: (event, template) ->
     @adding.done()
     template.newTagName.set ''
@@ -664,7 +668,6 @@ Template.blackboard_tags.helpers
     return 'Cannot be empty' if not val
     cval = canonical val
     return 'Tag already exists' if model.collection(@type).findOne(_id: @id).tags[cval]?
-Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information
 Template.blackboard.onCreated ->
