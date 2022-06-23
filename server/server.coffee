@@ -77,6 +77,19 @@ Meteor.publish null, loginRequired ->
     located: 1
     located_at: 1
 
+Meteor.publish null, loginRequired ->
+  map = new Map
+  handle = model.Presence.find({room_name: null, scope: 'online'}, {nick: 1}).observeChanges
+    added: (id, {nick}) =>
+      map.set id, nick
+      @added 'users', nick, {online: true}
+    removed: (id) =>
+      nick = map.get id
+      map.delete id
+      @removed 'users', nick
+  @onStop -> handle.stop()
+  @ready()
+
 # Private messages to you
 Meteor.publish null, loginRequired -> model.Messages.find {to: @userId, deleted: $ne: true}
 # Messages that mention you
@@ -107,7 +120,7 @@ Meteor.publish null, loginRequired ->
 
 Meteor.publish 'all-presence', loginRequired ->
   # strip out unnecessary fields from presence to avoid wasted updates to clients
-  model.Presence.find {}, fields:
+  model.Presence.find {room_name: $ne: null}, fields:
     timestamp: 0
     clients: 0
 Meteor.publish 'presence-for-room', loginRequired (room_name) ->
@@ -115,9 +128,7 @@ Meteor.publish 'presence-for-room', loginRequired (room_name) ->
     timestamp: 0
     clients: 0
 
-Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
-  check room_name, NonEmptyString
-  check scope, NonEmptyString
+registerPresence = (room_name, scope) ->
   subscription_id = Random.id()
   console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{model.UTCNow()}, id #{@connection.id}:#{subscription_id}" if DEBUG
   keepalive = =>
@@ -149,6 +160,13 @@ Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
           subscription_id: subscription_id
     , 2000
   @ready()
+
+Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
+  check room_name, NonEmptyString
+  check scope, NonEmptyString
+  registerPresence.call @, room_name, scope
+Meteor.publish null, loginRequired ->
+  registerPresence.call @, null, 'online'
 
 Meteor.publish 'settings', loginRequired -> Settings.find()
 
