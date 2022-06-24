@@ -813,7 +813,7 @@ Meteor.startup ->
   return unless typeof Audio is 'function' # for phantomjs
   instachat.messageMentionSound = new Audio(Meteor._relativeToSiteRootUrl '/sound/Electro_-S_Bainbr-7955.wav')
 
-updateNotice = do ->
+updateNotice = _.debounce (do ->
   [lastUnread, lastMention] = [0, 0]
   (unread, mention) ->
     if mention > lastMention and instachat.ready
@@ -826,6 +826,7 @@ updateNotice = do ->
       favicon.badge unread, {bgColor: '#000'} if unread != lastUnread
     ## XXX check instachat.ready and instachat.alertWhenUnreadMessages ?
     [lastUnread, lastMention] = [unread, mention]
+), 100
 
 Template.messages.onCreated -> @autorun ->
   nick = Meteor.userId() or ''
