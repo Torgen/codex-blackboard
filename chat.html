@@ -108,7 +108,7 @@ Click here to stay in this meeting instead.{{/if}}">
     {{else if message.mail}}
        {{>gravatar_hash gravatar_md5=(md5 message.nick) size=48 classes="media-object pull-left img-rounded" }}
     {{else}}
-      {{>gravatar nick=message.nick size=48 classes="media-object pull-left img-rounded" }}
+      {{>gravatar_with_badges nick=message.nick size=48 classes="media-object pull-left img-rounded" }}
     {{/if}}
     <div class="media-body bb-message-body">
       <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>

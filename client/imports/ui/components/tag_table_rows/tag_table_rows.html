@@ -16,7 +16,7 @@
       {{! only in tags on the puzzle page}}
       <tr>
         <td class="tagname">Set by:</td>
-        <td class="tagvalue">{{>gravatar nick=tag.touched_by size=12}}{{nickAndName tag.touched_by}}</td>
+        <td class="tagvalue">{{>gravatar_with_badges nick=tag.touched_by size=16}}{{nickAndName tag.touched_by}}</td>
       </tr>
     {{/if}}
   {{/each}}

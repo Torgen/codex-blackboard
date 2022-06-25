@@ -1,0 +1,47 @@
+.gravatar-container {
+  position: relative;
+  padding: 0px;
+  margin: 0px;
+  border-collapse: collapse;
+  .badges {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    vertical-align: bottom;
+    text-align: right;
+    .media-object& {
+      background: var(--bg-color);
+      border-top-left-radius: 50%;
+      font-size: 8px;
+      line-height: 8px;
+      opacity: 75%;
+      padding-top: 2px;
+      padding-left: 2px;
+      padding-right: 1px;
+      padding-bottom: 1px;
+    }
+  }
+}
+.bb-who-stuck, .tagvalue {
+  .gravatar-container {
+    --presence-radius: 3px;
+    --border-radius: 2px;
+    --right-inset: 0px;
+    --bottom-inset: 0px;
+    img {
+      @mask-image: radial-gradient(circle at calc(100% - var(--right-inset)) calc(100% - var(--bottom-inset)), rgba(0,0,0,0) calc(var(--presence-radius) + var(--border-radius)), rgb(255, 255, 255, 1) 0px);
+      mask-image: @mask-image;
+      -webkit-mask-image: @mask-image;
+    }
+    .badges {
+      font-size: calc(2 * var(--presence-radius));
+      line-height: calc(2 * var(--presence-radius));
+      right: calc(var(--right-inset) - var(--presence-radius));
+      bottom: calc(var(--bottom-inset) - var(--presence-radius));
+    }
+  }
+}
+
+.bb-user-status-online { color: green; }
+.bb-user-status-offline { color: red; }
+.bb-user-status-robot { color: var(--text-color); }
