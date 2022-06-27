@@ -29,9 +29,9 @@
     --right-inset: 0px;
     --bottom-inset: 0px;
     img {
-      @mask-image: radial-gradient(circle at calc(100% - var(--right-inset)) calc(100% - var(--bottom-inset)), rgba(0,0,0,0) calc(var(--presence-radius) + var(--border-radius)), rgb(255, 255, 255, 1) 0px);
-      mask-image: @mask-image;
-      -webkit-mask-image: @mask-image;
+      --mask-gradiant: radial-gradient(circle at calc(100% - var(--right-inset)) calc(100% - var(--bottom-inset)), rgba(0,0,0,0) calc(var(--presence-radius) + var(--border-radius)), rgb(255, 255, 255, 1) 0px);
+      mask-image: var(--mask-gradiant);
+      -webkit-mask-image: var(--mask-gradiant);
     }
     .badges {
       font-size: calc(2 * var(--presence-radius));
