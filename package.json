@@ -7,6 +7,7 @@
     "@babel/runtime": "^7.18.3",
     "@googlemaps/js-api-loader": "^1.14.3",
     "@googlemaps/markerclusterer": "^2.0.8",
+    "@googlemaps/markerwithlabel": "^2.0.14",
     "chart.js": "^3.8.0",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "coffeescript": "^2.7.0",
