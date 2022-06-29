@@ -25,7 +25,6 @@ class BlackboardRenderer
   constructor: ->
     @markersAndViews = []
   render: ({markers, position}, stats) ->
-    console.log markers
     numOnline = 0
     numOffline = 0
     markers = markers.slice(0)
@@ -104,7 +103,6 @@ Template.map.onRendered ->
           users.set _id, user
           clusterer.addMarker user, nodraw
       changed: (id, fields) =>
-        console.log fields
         Tracker.nonreactive =>
           {gravatar_md5, located_at, real_name} = fields
           user = users.get id

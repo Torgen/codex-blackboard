@@ -11,11 +11,9 @@ Template.gravatar.helpers
 Template.online_status.helpers
   robot: ->
     u = Meteor.users.findOne(@nick)
-    console.log u
     u?.bot_wakeup?
   online: -> 
     u = Meteor.users.findOne(@nick)
-    console.log u
     u?.online
 
 Template.gravatar_hash.helpers
