@@ -886,7 +886,6 @@ do ->
         $set:
           status: 'cancelled'
           resolved: UTCNow()
-
     
     claimOnduty: (args) ->
       check @userId, NonEmptyString
@@ -913,6 +912,15 @@ do ->
           else
             throw new  Meteor.Error 412, "Tried to claim vacant onduty but it was held by #{current.holder}"
         else throw e
+
+    renewOnduty: ->
+      check @userId, NonEmptyString
+      now = UTCNow()
+      count = Roles.update {_id: 'onduty', holder: @userId},
+        $set:
+          renewed_at: now
+          expires_at: now + RoleRenewalTime.get() * 60000
+      return count isnt 0
 
     # locateNick is in /server/methods
 
