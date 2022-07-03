@@ -5,7 +5,7 @@ import isDuplicateError from './imports/duplicate.coffee'
 import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith, OptionalKWArg } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
-import { RoundUrlPrefix, PuzzleUrlPrefix, UrlSeparator } from './imports/settings.coffee'
+import { RoundUrlPrefix, PuzzleUrlPrefix, RoleRenewalTime, UrlSeparator } from './imports/settings.coffee'
 import * as callin_types from './imports/callin_types.coffee'
 if Meteor.isServer
   {newMessage, ensureDawnOfTime} = require('/server/imports/newMessage.coffee')
@@ -176,6 +176,19 @@ if Meteor.isServer
   # We don't push the index to the client, so it's okay to have it update
   # frequently.
   Meteor.users.createIndex {priv_located_at: '2dsphere'}, {}
+
+# Roles are:
+#  _id: name of the role. Should be idempotent under canonical(). (e.g. onduty)
+#  holder: userid of the current role holder
+#  claimed_at: timestamp of when the holder claimed the role without interruption
+#  renewed_at: timestamp of when the holder most recently renewed the role, either
+#    by performing a role action or by explicitly renewing
+#  expires_at: timestamp of when the holder must renew the role by. After this time,
+#    the role entry may be deleted. This is likely a fixed time after renewed_at
+#    based on a dynamic setting.
+Roles = BBCollection.roles = new Mongo.Collection 'roles'
+if Meteor.isServer
+  Roles.createIndex {holder: 1}, {}
 
 # Messages
 #   body: string
@@ -874,6 +887,33 @@ do ->
           status: 'cancelled'
           resolved: UTCNow()
 
+    
+    claimOnduty: (args) ->
+      check @userId, NonEmptyString
+      check args, ObjectWith
+        from: OptionalKWArg NonEmptyString
+      now = UTCNow()
+      try
+        res = Roles.upsert {_id: 'onduty', holder: args.from },
+          holder: @userId
+          claimed_at: now
+          renewed_at: now
+          expires_at: now + RoleRenewalTime.get() * 60000
+        if res.insertedId?
+          # Nobody was onduty
+          oplog 'is now onduty', 'roles', @userId, @userId, 'onduty'
+        else
+          # Took it from who you thought
+          oplog "took over as onduty from #{args.from}", 'roles', @userId, @userId, 'onduty'
+      catch e
+        if isDuplicateError e
+          current = Roles.findOne 'onduty'
+          if args.from?
+            throw new Meteor.Error 412, "Tried to take onduty from #{args.from} but it was held by #{current.holder}"
+          else
+            throw new  Meteor.Error 412, "Tried to claim vacant onduty but it was held by #{current.holder}"
+        else throw e
+
     # locateNick is in /server/methods
 
     favoriteMechanic: (mechanic) ->
@@ -1443,6 +1483,7 @@ share.model =
   # collection types
   CallIns: CallIns
   Polls: Polls
+  Roles: Roles
   Names: Names
   LastAnswer: LastAnswer
   Rounds: Rounds
