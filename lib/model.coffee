@@ -489,6 +489,8 @@ do ->
         link: args.link or link
         sort_key: UTCNow()
       ensureDawnOfTime "rounds/#{r._id}"
+      # This is an onduty action, so defer expiry
+      Meteor.call 'renewOnduty'
       # TODO(torgen): create default meta
       r
     renameRound: (args) ->
@@ -553,6 +555,8 @@ do ->
           touched: p.touched
       # create google drive folder (server only)
       newDriveFolder p._id, p.name
+      # This is an onduty action, so defer expiry
+      Meteor.call 'renewOnduty'
       return p
     renamePuzzle: (args) ->
       check @userId, NonEmptyString
@@ -775,11 +779,13 @@ do ->
           answer: callin.answer
           backsolve: callin.backsolve
           provided: callin.provided
-        backsolve = if callin.backsolve then "[backsolved] " else ''
-        provided = if callin.provided then "[provided] " else ''
-        return unless puzzle?
-        Object.assign msg,
-          body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
+        if puzzle?
+          backsolve = if callin.backsolve then "[backsolved] " else ''
+          provided = if callin.provided then "[provided] " else ''
+          Object.assign msg,
+            body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
+        else
+          msg = null
       else
         check response, Match.Optional String
         updateBody =
@@ -802,19 +808,23 @@ do ->
         CallIns.update _id: id,
           $set: updateBody
 
-      # one message to the puzzle chat
-      Meteor.call 'newMessage', msg
+      if msg?
 
-      # one message to the general chat
-      delete msg.room_name
-      msg.body += " (#{puzzle.name})" if puzzle?.name?
-      Meteor.call 'newMessage', {msg..., header_ignore: true}
+        # one message to the puzzle chat
+        Meteor.call 'newMessage', msg
 
-      if callin.callin_type is callin_types.ANSWER
-        # one message to the each metapuzzle's chat
-        puzzle.feedsInto.forEach (meta) ->
-          msg.room_name = "puzzles/#{meta}"
-          Meteor.call 'newMessage', msg
+        # one message to the general chat
+        delete msg.room_name
+        msg.body += " (#{puzzle.name})" if puzzle?.name?
+        Meteor.call 'newMessage', {msg..., header_ignore: true}
+
+        if callin.callin_type is callin_types.ANSWER
+          # one message to the each metapuzzle's chat
+          puzzle.feedsInto.forEach (meta) ->
+            msg.room_name = "puzzles/#{meta}"
+            Meteor.call 'newMessage', msg
+      # This is an onduty action, so defer expiry.
+      Meteor.call 'renewOnduty'
 
     # Response is forbibben for answers and optional for everything else
     incorrectCallIn: (id, response) ->
@@ -835,9 +845,11 @@ do ->
           answer: callin.answer
           backsolve: callin.backsolve
           provided: callin.provided
-        return unless puzzle?
-        Object.assign msg,
-          body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
+        if puzzle?
+          Object.assign msg,
+            body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
+        else
+          msg = null
       else if callin.callin_type is callin_types.EXPECTED_CALLBACK
         throw new Meteor.Error(400, 'expected callback can\'t be incorrect')
       else
@@ -859,18 +871,21 @@ do ->
         CallIns.update _id: id,
           $set: updateBody
 
-      # one message to the puzzle chat
-      Meteor.call 'newMessage', msg
-
-      return unless puzzle?
-
-      # one message to the general chat
-      delete msg.room_name
-      msg.body += " (#{puzzle.name})" if puzzle.name?
-      Meteor.call 'newMessage', {msg..., header_ignore: true}
-      puzzle.feedsInto.forEach (meta) ->
-        msg.room_name = "puzzles/#{meta}"
+      if msg?
+        # one message to the puzzle chat
         Meteor.call 'newMessage', msg
+
+        if puzzle?
+          # one message to the general chat
+          delete msg.room_name
+          msg.body += " (#{puzzle.name})" if puzzle.name?
+          Meteor.call 'newMessage', {msg..., header_ignore: true}
+          puzzle.feedsInto.forEach (meta) ->
+            msg.room_name = "puzzles/#{meta}"
+            Meteor.call 'newMessage', msg
+        
+      # This is an onduty action, so defer expiry.
+      Meteor.call 'renewOnduty'
 
     cancelCallIn: (args) ->
       check @userId, NonEmptyString
@@ -1480,6 +1495,8 @@ do ->
       if 0 is Puzzles.update {_id: id, drive_status: $nin: ['creating', 'fixing']}, $set: drive_status: 'fixing'
         throw new Meteor.Error 'Can\'t fix this puzzle folder now'
       newDriveFolder id, args.name
+      # This is an onduty action, so defer expiry
+      Meteor.call 'renewOnduty'
 
 UTCNow = -> Date.now()
 
