@@ -937,6 +937,13 @@ do ->
           expires_at: now + RoleRenewalTime.get() * 60000
       return count isnt 0
 
+    releaseOnduty: ->
+      check @userId, NonEmptyString
+      count = Roles.remove {_id: 'onduty', holder: @userId}
+      if count isnt 0
+        oplog 'is no longer onduty', 'roles', null, @userId, 'onduty'
+      return count isnt 0
+
     # locateNick is in /server/methods
 
     favoriteMechanic: (mechanic) ->
