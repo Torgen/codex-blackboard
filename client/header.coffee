@@ -416,7 +416,9 @@ Template.header_lastchats.helpers
       'comments'
   puzzle_id: -> @room_name.match(/puzzles\/(.*)/)[1]
   icon_label: ->
-    if /Added/.test @body
+    if @type is 'roles'
+      ['pager', if @id? then 'success' else 'important']
+    else if /Added/.test @body
       if @type is 'puzzles'
         ['puzzle-piece', 'success']
       else if @type is 'rounds'

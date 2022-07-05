@@ -43,10 +43,10 @@ describe 'claimOnduty', ->
       chai.assert.lengthOf o, 1
       chai.assert.include o[0],
         type: 'roles'
-        id: 'torgen'
+        id: 'onduty'
         stream: 'onduty'
         nick: 'torgen'
-        body: 'is now onduty'
+        body: 'is now'
 
     it 'claims onduty from anybody', ->
       callAs 'claimOnduty', 'torgen', from: 'cscott'
@@ -59,10 +59,10 @@ describe 'claimOnduty', ->
       chai.assert.lengthOf o, 1
       chai.assert.include o[0],
         type: 'roles'
-        id: 'torgen'
+        id: 'onduty'
         stream: 'onduty'
         nick: 'torgen'
-        body: 'is now onduty'
+        body: 'is now'
 
     it 'uses setting for renewal time', ->
       impersonating 'cjb', -> RoleRenewalTime.set 30
@@ -93,10 +93,10 @@ describe 'claimOnduty', ->
       chai.assert.lengthOf o, 1
       chai.assert.include o[0],
         type: 'roles'
-        id: 'torgen'
+        id: 'onduty'
         stream: 'onduty'
         nick: 'torgen'
-        body: 'took over as onduty from cjb'
+        body: 'took over from @cjb as'
 
     it 'fails to claim onduty from somebody else', ->
       chai.assert.throws ->

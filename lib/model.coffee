@@ -915,10 +915,10 @@ do ->
           expires_at: now + RoleRenewalTime.get() * 60000
         if res.insertedId?
           # Nobody was onduty
-          oplog 'is now onduty', 'roles', @userId, @userId, 'onduty'
+          oplog 'is now', 'roles', 'onduty', @userId, 'onduty'
         else
           # Took it from who you thought
-          oplog "took over as onduty from #{args.from}", 'roles', @userId, @userId, 'onduty'
+          oplog "took over from @#{args.from} as", 'roles', 'onduty', @userId, 'onduty'
       catch e
         if isDuplicateError e
           current = Roles.findOne 'onduty'
