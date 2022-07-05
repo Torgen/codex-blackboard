@@ -78,14 +78,10 @@ Meteor.publish null, loginRequired ->
     located_at: 1
 
 Meteor.publish null, loginRequired ->
-  map = new Map
-  handle = model.Presence.find({room_name: null, scope: 'online'}, {nick: 1}).observeChanges
-    added: (id, {nick}) =>
-      map.set id, nick
+  handle = model.Presence.find({room_name: null, scope: 'online'}, {nick: 1}).observe
+    added: ({nick}) =>
       @added 'users', nick, {online: true}
-    removed: (id) =>
-      nick = map.get id
-      map.delete id
+    removed: ({nick}) =>
       @removed 'users', nick
   @onStop -> handle.stop()
   @ready()
@@ -216,7 +212,7 @@ Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
 Meteor.publish null, loginRequired ->
   registerPresence.call @, null, 'online'
 
-Meteor.publish 'settings', loginRequired -> Settings.find()
+Meteor.publish null, loginRequired -> Settings.find()
 
 Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
   check puzzle_id, NonEmptyString
