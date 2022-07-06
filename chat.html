@@ -123,7 +123,7 @@ Click here to stay in this meeting instead.{{/if}}">
         {{else if message.mail}}
           Mail from {{#with message.mail.sender_name}}{{this}}{{else}}{{message.nick}}{{/with}} <i class="fas fa-envelope"></i> {{message.mail.subject}}
         {{else}}
-          <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span>
+          <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{#if onduty message.nick}}<i class="fas fa-pager" title="On duty"></i> {{/if}}{{nickOrName message.nick}}</span>
             {{#if any message.to (includes message.mention mynick)}}
               <small>({{#if message.to}}Private{{#unless equal message.to currentUser._id}}
                 to {{>gravatar nick=message.to size=12}}{{nickOrName message.to}}{{/unless}}{{else}}Mentioned you{{/if}}{{#if showRoom}}{{#let splitroom=(split message.room_name "/")}}

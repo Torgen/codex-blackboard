@@ -62,6 +62,8 @@ Template.registerHelper 'nickAndName', (args) ->
   return nickAndName n
 Template.registerHelper 'nickExists', (nick) ->
   Meteor.users.findOne(_id: nick)?
+Template.registerHelper 'onduty', (nick) ->
+  model.Roles.findOne('onduty')?.holder is nick
 
 privateMessageTransform = (msg) ->
   _id: msg._id
