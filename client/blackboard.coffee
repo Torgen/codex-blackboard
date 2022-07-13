@@ -11,6 +11,7 @@ import okCancelEvents from './imports/ok_cancel_events.coffee'
 import '/client/imports/ui/components/edit_field/edit_field.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
+import '/client/imports/ui/components/onduty/control.coffee'
 import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee'
 
 model = share.model # import

@@ -1,5 +1,5 @@
 <template name="onduty_current">
-  <span class="current-onduty btn active {{#unless onduty}}btn-warning{{/unless}}" title="{{#with onduty}}{{nickAndName holder}}{{else}}Nobody{{/with}} is on duty">
+  <span class="current-onduty btn btn-small active {{#unless onduty}}btn-warning{{/unless}}" title="{{#with onduty}}{{#if equal holder currentUser._id}}You are{{else}}{{nickAndName holder}} is{{/if}}{{else}}Nobody is{{/with}} on duty">
     <i class="fas fa-pager"></i>
     {{#with onduty}}
       {{>gravatar_with_badges nick=holder size=16}}

@@ -1,0 +1,13 @@
+<template name="onduty_control">
+  <span class="btn-group onduty-control">
+    {{>onduty_current}}
+    {{#if imonduty}}
+      {{#if halfdone}}
+        <button class="btn btn-small btn-success" data-onduty="renew" title="You have not taken any onduty actions in {{pretty_ts timestamp=renewed_at style="brief duration"}} and will stop being onduty {{pretty_ts timestamp=expires_at style="brief future"}}. Extend your shift?"><i class="fas fa-clock"></i></button>
+      {{/if}}
+      <button class="btn btn-small btn-warning" data-onduty="release" title="Stop being onduty"><i class="fas fa-door-open"></i></button>
+    {{else}}
+      <button class="btn btn-small btn-success" data-onduty="claim" title="Claim onduty role"><i class="fas fa-hand-paper"></i></button>
+    {{/if}}
+  </span>
+</template>
