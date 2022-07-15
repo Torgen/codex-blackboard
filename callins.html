@@ -1,7 +1,7 @@
 <template name="callins">
 {{> starred_messages canModify=mynick}}
 <section class="bb-callin-queue">
-  <h1>Answer call-in queue</h1>
+  <h1>Answer call-in queue {{>onduty_control}}</h1>
   <table id="bb-callin-table" class="table"><tbody>
     <tr>
       <th>Puzzle</th>
