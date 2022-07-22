@@ -8,7 +8,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import isDuplicateError from '/lib/imports/duplicate.coffee'
-import { PuzzleUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee'
+import { PuzzleUrlPrefix, RoleRenewalTime, UrlSeparator } from '/lib/imports/settings.coffee'
 
 model = share.model
 
@@ -37,6 +37,7 @@ describe 'newPuzzle', ->
   beforeEach ->
     resetDatabase()
     PuzzleUrlPrefix.ensure()
+    RoleRenewalTime.ensure()
     UrlSeparator.ensure()
 
   it 'fails without login', ->
@@ -49,45 +50,107 @@ describe 'newPuzzle', ->
   describe 'when none exists with that name', ->
     round = null
     id = null
-    beforeEach ->
-      round = model.Rounds.insert
-        name: 'Round'
-        canon: 'round'
-        created: 1
-        created_by: 'cjb'
-        touched: 1
-        touched_by: 'cjb'
-        puzzles: []
-      id = callAs 'newPuzzle', 'torgen',
-        name: 'Foo'
-        link: 'https://puzzlehunt.mit.edu/foo'
-        round: round
-      ._id
+    describe 'when onduty', -> 
+      beforeEach ->
+        round = model.Rounds.insert
+          name: 'Round'
+          canon: 'round'
+          created: 1
+          created_by: 'cjb'
+          touched: 1
+          touched_by: 'cjb'
+          puzzles: []
+        model.Roles.insert
+          _id: 'onduty'
+          holder: 'torgen'
+          claimed_at: 2
+          renewed_at: 2
+          expires_at: 3600002
+        id = callAs 'newPuzzle', 'torgen',
+          name: 'Foo'
+          link: 'https://puzzlehunt.mit.edu/foo'
+          round: round
+        ._id
 
-    it 'creates puzzle', ->
-      chai.assert.deepInclude model.Puzzles.findOne(id),
-        name: 'Foo'
-        canon: 'foo'
-        created: 7
-        created_by: 'torgen'
-        touched: 7
-        touched_by: 'torgen'
-        solved: null
-        solved_by: null
-        link: 'https://puzzlehunt.mit.edu/foo'
-        drive: 'fid'
-        spreadsheet: 'sid'
-        tags: {}
+      it 'creates puzzle', ->
+        chai.assert.deepInclude model.Puzzles.findOne(id),
+          name: 'Foo'
+          canon: 'foo'
+          created: 7
+          created_by: 'torgen'
+          touched: 7
+          touched_by: 'torgen'
+          solved: null
+          solved_by: null
+          link: 'https://puzzlehunt.mit.edu/foo'
+          drive: 'fid'
+          spreadsheet: 'sid'
+          tags: {}
 
-    it 'adds puzzle to round', ->
-      chai.assert.deepInclude model.Rounds.findOne(round),
-        touched: 7
-        touched_by: 'torgen'
-        puzzles: [id]
-    
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
-    
+      it 'adds puzzle to round', ->
+        chai.assert.deepInclude model.Rounds.findOne(round),
+          touched: 7
+          touched_by: 'torgen'
+          puzzles: [id]
+      
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
+      
+      it 'renews onduty', ->
+        chai.assert.deepInclude model.Roles.findOne('onduty'),
+          holder: 'torgen'
+          claimed_at: 2
+          renewed_at: 7
+          expires_at: 3600007
+
+    describe 'when someone else is onduty', -> 
+      beforeEach ->
+        round = model.Rounds.insert
+          name: 'Round'
+          canon: 'round'
+          created: 1
+          created_by: 'cjb'
+          touched: 1
+          touched_by: 'cjb'
+          puzzles: []
+        model.Roles.insert
+          _id: 'onduty'
+          holder: 'florgen'
+          claimed_at: 2
+          renewed_at: 2
+          expires_at: 3600002
+        id = callAs 'newPuzzle', 'torgen',
+          name: 'Foo'
+          link: 'https://puzzlehunt.mit.edu/foo'
+          round: round
+        ._id
+
+      it 'leaves onduty alone', ->
+        chai.assert.deepInclude model.Roles.findOne('onduty'),
+          holder: 'florgen'
+          claimed_at: 2
+          renewed_at: 2
+          expires_at: 3600002
+
+    describe 'when nobody is onduty', -> 
+      beforeEach ->
+        round = model.Rounds.insert
+          name: 'Round'
+          canon: 'round'
+          created: 1
+          created_by: 'cjb'
+          touched: 1
+          touched_by: 'cjb'
+          puzzles: []
+        id = callAs 'newPuzzle', 'torgen',
+          name: 'Foo'
+          link: 'https://puzzlehunt.mit.edu/foo'
+          round: round
+        ._id
+
+      it 'leaves onduty alone', ->
+        chai.assert.isNotOk model.Roles.findOne('onduty')
+
   describe 'with mechanics', ->
     round = null
     beforeEach ->

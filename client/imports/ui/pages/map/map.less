@@ -8,10 +8,60 @@
 .bb-solver-map {
   height: 100%;
   width: 100%;
+  img[src^="https://secure.gravatar.com"] { border-radius: 50%; }
 }
 .bb-map-buttons {
   position: fixed;
   top: 0px;
   left: 0px;
   z-index: 10000;
+}
+.gravatar-cluster {
+  display: flex;
+  // See note below for why this is row-reverse.
+  flex-flow: row-reverse nowrap;
+  .summary {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+    align-items: flex-end;
+    width: 64px;
+    height: 64px;
+    text-align: right;
+    font-size: 12px;
+    line-height: 12px;
+    color: black;
+    &.online {
+      background-color: goldenrod;
+    }
+    &.offline {
+      background-color: dimgrey;
+    }
+  }
+  img {
+    background-color: white;
+  }
+  .offline {
+    opacity: 50%;
+  }
+  --overlap: 32px;
+  &.things-4 {
+    --overlap: calc(64px * 2 / 3);
+  }
+  &.things-5 {
+    --overlap: 48px;
+  }
+  --circle-mask: radial-gradient(circle at calc(var(--overlap) - 32px) 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 32px, #ffffff 32px);
+  * {
+    border-radius: 50%;
+  }
+  *:last-child {
+    z-index: 1;
+  }
+  // We render these in reverse order so the last one rendered is the one on the top of the stack, which matters for the title attribute.
+  *:not(:last-child) {
+    margin-left: calc(0px - var(--overlap));
+    mask-image: var(--circle-mask);
+    -webkit-mask-image: var(--circle-mask);
+  }
 }

@@ -1,0 +1,3 @@
+[submodule "packages/meteortesting_browser-tests"]
+	path = packages/meteortesting_browser-tests
+	url = https://github.com/Torgen/meteor-browser-tests

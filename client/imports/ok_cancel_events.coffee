@@ -5,7 +5,7 @@ export editableTemplate = (template, callbacks) ->
     @editable = new ReactiveVar false
 
   template.events
-    'click .bb-editable': (evt, t) ->
+    'click/bb-edit .bb-editable': (evt, t) ->
       t.editable.set true
       Tracker.afterFlush ->
         t.$('input[type="text"]').focus()
@@ -36,7 +36,8 @@ export default okCancelEvents = (selector, callbacks) ->
     if evt.type is "keydown" and evt.which is 27
       # escape = cancel
       cancel.call this, evt, template
-    else if evt.type is "keyup" and evt.which is 13 or evt.type is "focusout"
+    # tab would cause focusout, but we want to handle it specially.
+    else if evt.type is "keyup" and evt.which is 13 or evt.type is 'keydown' and evt.which is 9 or evt.type is "focusout"
       # blur/return/enter = ok/submit if non-empty
       value = String(evt.target.value or "")
       if value

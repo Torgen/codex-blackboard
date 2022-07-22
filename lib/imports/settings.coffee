@@ -111,6 +111,14 @@ export MaximumMemeLength = new Setting(
   parseInt
 )
 
+export RoleRenewalTime = new Setting(
+  'Role Renewal Time',
+  'How many minutes you have to renew holding a role (either explicitly or by taking a role action) before it expires.',
+  60,
+  Match.Integer,
+  parseInt
+)
+
 export StaticJitsiMeeting = new Setting(
   'Static Jitsi Meeting',
   'The name of the jitsi room to use for the blackboard and callins page',
@@ -132,6 +140,3 @@ Meteor.methods
       value: setting.convert raw_value
       touched: Date.now()
       touched_by: @userId
-
-if Meteor.isClient
-  Meteor.subscribe 'settings'

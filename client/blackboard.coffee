@@ -9,9 +9,10 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
 import okCancelEvents from './imports/ok_cancel_events.coffee'
 import '/client/imports/ui/components/edit_field/edit_field.coffee'
-import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
+import '/client/imports/ui/components/onduty/control.coffee'
+import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -507,19 +508,6 @@ Template.blackboard_puzzle_cells.events
       message: "Are you sure you want to delete the puzzle \"#{template.data.puzzle.name}\"?")
       Meteor.call 'deletePuzzle', template.data.puzzle._id
 
-
-tagHelper = ->
-  tags = model.collection(@type).findOne({_id: @id}, {fields: tags: 1})?.tags or {}
-  (
-    t = tags[canon]
-    { _id: "#{@id}/#{canon}", name: t.name, canon, value: t.value, touched_by: t.touched_by }
-  ) for canon in Object.keys(tags).sort() when not \
-    ((Session.equals('currentPage', 'blackboard') and \
-      (canon is 'status' or \
-          (@type isnt 'rounds' and canon is 'answer'))) or \
-      ((canon is 'answer' or canon is 'backsolve') and \
-      (Session.equals('currentPage', 'puzzle'))))
-
 Template.blackboard_puzzle_cells.onCreated ->
   @addingTag = new ReactiveVar false
 
@@ -625,46 +613,6 @@ Template.blackboard_new_puzzle.helpers
     return 'Cannot be empty' if not val
     cval = canonical val
     return "Conflicts with another round" if model.Puzzles.findOne(canon: cval)?
-
-Template.blackboard_tags.onCreated ->
-  @newTagName = new ReactiveVar ''
-  @autorun =>
-    if Template.currentData().adding.adding()
-      Tracker.afterFlush =>
-        @$('.bb-add-tag input').focus()
-    else
-      @newTagName.set ''
-
-Template.blackboard_tags.events
-  'input/focus .bb-add-tag input': (event, template) ->
-    template.newTagName.set event.currentTarget.value
-
-Template.blackboard_tags.events okCancelEvents '.bb-add-tag input',
-  ok: (value, event, template) ->
-    return unless @adding.adding()
-    @adding.done()
-    template.newTagName.set ''
-    cval = canonical value
-    return if model.collection(@type).findOne(_id: @id).tags[cval]?
-    Meteor.call 'setTag', {type: @type, object: @id, name: value, value: ''}
-  cancel: (event, template) ->
-    @adding.done()
-    template.newTagName.set ''
-
-Template.blackboard_tags.helpers
-  tags: tagHelper
-  tagAddClass: ->
-    val = Template.instance().newTagName.get()
-    return 'error' if not val
-    cval = canonical val
-    return 'error' if model.collection(@type).findOne(_id: @id).tags[cval]?
-    return 'success'
-  tagAddStatus: ->
-    val = Template.instance().newTagName.get()
-    return 'Cannot be empty' if not val
-    cval = canonical val
-    return 'Tag already exists' if model.collection(@type).findOne(_id: @id).tags[cval]?
-Template.puzzle_info.helpers { tags: tagHelper }
 
 # Subscribe to all group, round, and puzzle information
 Template.blackboard.onCreated ->

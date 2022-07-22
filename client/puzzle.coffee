@@ -6,8 +6,9 @@ import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
-import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
+import '/client/imports/ui/components/onduty/current.coffee'
+import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -38,6 +39,7 @@ currentViewIs = (puzzle, view) ->
 Template.puzzle_info.onCreated ->
   @grandfeeders = new ReactiveVar false
   @unattached = new ReactiveVar false
+  @addingTag = new ReactiveVar false
   @autorun =>
     id = Session.get 'id'
     return unless id
@@ -80,6 +82,12 @@ Template.puzzle_info.helpers
         continue unless /^meta /i.test tag.name
         {name: tag.name, value: tag.value, meta: meta.name}
     [].concat r...
+  addingTag: ->
+    instance = Template.instance()
+    {
+      adding: -> instance.addingTag.get()
+      done: -> instance.addingTag.set false
+    }
 
 Template.puzzle_info.events
   'click button.grandfeeders': (event, template) ->
@@ -91,6 +99,8 @@ Template.puzzle_info.events
       Meteor.call 'feedMeta', @_id, Template.currentData().puzzle._id
     else
       Meteor.call 'unfeedMeta', @_id, Template.currentData().puzzle._id
+  'click .bb-add-tag-button': (event, template) ->
+    template.addingTag.set true
 
 Template.puzzle_info_frame.helpers
   data: ->

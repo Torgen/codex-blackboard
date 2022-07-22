@@ -535,7 +535,7 @@ Template.messages_input.onCreated ->
   @setQuery = (query) ->
     return if @query.get() is query
     @query.set query
-    unless query
+    unless query?
       @queryCursor.set null
       @selected.set null
       return
@@ -545,7 +545,7 @@ Template.messages_input.onCreated ->
     ,
       limit: 8
       fields: _id: 1
-      sort: {_id: 1}
+      sort: {roles: -1, _id: 1}
     @queryCursor.set c
     s = @selected.get()
     l = c.map (x) -> x._id 
@@ -813,7 +813,7 @@ Meteor.startup ->
   return unless typeof Audio is 'function' # for phantomjs
   instachat.messageMentionSound = new Audio(Meteor._relativeToSiteRootUrl '/sound/Electro_-S_Bainbr-7955.wav')
 
-updateNotice = do ->
+updateNotice = _.debounce (do ->
   [lastUnread, lastMention] = [0, 0]
   (unread, mention) ->
     if mention > lastMention and instachat.ready
@@ -826,6 +826,7 @@ updateNotice = do ->
       favicon.badge unread, {bgColor: '#000'} if unread != lastUnread
     ## XXX check instachat.ready and instachat.alertWhenUnreadMessages ?
     [lastUnread, lastMention] = [unread, mention]
+), 100
 
 Template.messages.onCreated -> @autorun ->
   nick = Meteor.userId() or ''

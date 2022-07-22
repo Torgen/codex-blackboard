@@ -63,6 +63,8 @@ Template.registerHelper 'nickAndName', (args) ->
   return nickAndName n
 Template.registerHelper 'nickExists', (nick) ->
   Meteor.users.findOne(_id: nick)?
+Template.registerHelper 'onduty', (nick) ->
+  model.Roles.findOne('onduty')?.holder is nick
 
 privateMessageTransform = (msg) ->
   _id: msg._id
@@ -417,7 +419,9 @@ Template.header_lastchats.helpers
       'comments'
   puzzle_id: -> @room_name.match(/puzzles\/(.*)/)[1]
   icon_label: ->
-    if /Added/.test @body
+    if @type is 'roles'
+      ['pager', if @id? then 'success' else 'important']
+    else if /Added/.test @body
       if @type is 'puzzles'
         ['puzzle-piece', 'success']
       else if @type is 'rounds'

@@ -8,7 +8,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import isDuplicateError from '/lib/imports/duplicate.coffee'
-import { RoundUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee'
+import { RoleRenewalTime, RoundUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee'
 
 model = share.model
 
@@ -37,6 +37,7 @@ describe 'newRound', ->
 
   beforeEach ->
     resetDatabase()
+    RoleRenewalTime.ensure()
     RoundUrlPrefix.ensure()
     UrlSeparator.ensure()
 
@@ -51,30 +52,74 @@ describe 'newRound', ->
   
   describe 'when none exists with that name', ->
     id = null
-    beforeEach ->
-      id = callAs 'newRound', 'torgen',
-        name: 'Foo'
-        link: 'https://puzzlehunt.mit.edu/foo'
-      ._id
+    describe 'when onduty', ->
+      beforeEach ->
+        model.Roles.insert
+          _id: 'onduty'
+          holder: 'torgen'
+          claimed_at: 2
+          renewed_at: 2
+          expires_at: 3600002
+        id = callAs 'newRound', 'torgen',
+          name: 'Foo'
+          link: 'https://puzzlehunt.mit.edu/foo'
+        ._id
 
-    it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
+      it 'oplogs', ->
+        chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
 
-    it 'creates round', ->
-      # Round is created, then drive et al are added
-      round = model.Rounds.findOne id
-      chai.assert.deepInclude round,
-        name: 'Foo'
-        canon: 'foo'
-        created: 7
-        created_by: 'torgen'
-        touched: 7
-        touched_by: 'torgen'
-        puzzles: []
-        link: 'https://puzzlehunt.mit.edu/foo'
-        tags: {}
-      ['solved', 'solved_by', 'drive', 'spreadsheet', 'doc'].forEach (prop) =>
-        chai.assert.notProperty round, prop
+      it 'creates round', ->
+        # Round is created, then drive et al are added
+        round = model.Rounds.findOne id
+        chai.assert.deepInclude round,
+          name: 'Foo'
+          canon: 'foo'
+          created: 7
+          created_by: 'torgen'
+          touched: 7
+          touched_by: 'torgen'
+          puzzles: []
+          link: 'https://puzzlehunt.mit.edu/foo'
+          tags: {}
+        ['solved', 'solved_by', 'drive', 'spreadsheet', 'doc'].forEach (prop) =>
+          chai.assert.notProperty round, prop
+
+      it 'renews onduty', ->
+        chai.assert.deepInclude model.Roles.findOne('onduty'),
+          holder: 'torgen'
+          claimed_at: 2
+          renewed_at: 7
+          expires_at: 3600007
+    
+    describe 'when someone else is onduty', ->
+      beforeEach ->
+        model.Roles.insert
+          _id: 'onduty'
+          holder: 'florgen'
+          claimed_at: 2
+          renewed_at: 2
+          expires_at: 3600002
+        id = callAs 'newRound', 'torgen',
+          name: 'Foo'
+          link: 'https://puzzlehunt.mit.edu/foo'
+        ._id
+
+      it 'leaves onduty alone', ->
+        chai.assert.deepInclude model.Roles.findOne('onduty'),
+          holder: 'florgen'
+          claimed_at: 2
+          renewed_at: 2
+          expires_at: 3600002
+    
+    describe 'when nobody is onduty', ->
+      beforeEach ->
+        id = callAs 'newRound', 'torgen',
+          name: 'Foo'
+          link: 'https://puzzlehunt.mit.edu/foo'
+        ._id
+
+      it 'leaves onduty alone', ->
+        chai.assert.isNotOk model.Roles.findOne('onduty')
   
   it 'derives link', ->
     impersonating 'cjb', -> RoundUrlPrefix.set 'https://testhuntpleaseign.org/rounds'
