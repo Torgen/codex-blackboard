@@ -44,7 +44,7 @@
 
 <template name="callin_row">
   <tr>
-    <td>{{>link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{>link target}}{{#if hunt_link}}
+    <td>{{>link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{>link id=target}}{{#if hunt_link}}
     <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
             target="_blank">on&nbsp;hunt&nbsp;site
     </a></small>
