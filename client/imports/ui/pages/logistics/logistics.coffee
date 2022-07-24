@@ -22,4 +22,4 @@ Template.logistics.helpers
 Template.logistics_meta.helpers
   color: -> colorFromThingWithTags @meta
   puzzles: -> @meta.puzzles.map (_id) -> share.model.Puzzles.findOne {_id}
-  stuck: -> isStuck @meta
+  stuck: isStuck
