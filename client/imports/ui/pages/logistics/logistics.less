@@ -30,8 +30,6 @@
 .puzzle-like(@left-border) {
   border-left: @left-border solid black;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   &.stuck {
     border-left-color: var(--stuck-yellow);
   }
@@ -49,9 +47,6 @@
     .puzzle-like(5px);
     background-color: var(--slightly-lighter);
     height: 42px;
-    font-size: 28px;
-    line-height: 28px;
-    padding-left: 2px;
     & > .round {
       height: 12px;
       font-size: 10px;
@@ -59,6 +54,8 @@
     }
     & > a {
       display: block;
+      height: 30px;
+      font-size: 28px;
     }
   }
   & > .feeders {
@@ -78,6 +75,8 @@
   }
   a {
     color: var(--text-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
     &:hover {
       text-decoration: none;
       background-color: var(--barely-darker);
