@@ -50,11 +50,15 @@
     background-color: var(--slightly-lighter);
     height: 42px;
     font-size: 28px;
+    line-height: 28px;
     padding-left: 2px;
     & > .round {
       height: 12px;
       font-size: 10px;
       line-height: 10px;
+    }
+    & > a {
+      display: block;
     }
   }
   & > .feeders {
@@ -70,6 +74,13 @@
       margin-top: 1px;
       margin-left: 1px;
       .puzzle-like(4px);
+    }
+  }
+  a {
+    color: var(--text-color);
+    &:hover {
+      text-decoration: none;
+      background-color: var(--barely-darker);
     }
   }
 }

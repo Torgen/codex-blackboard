@@ -23,3 +23,9 @@ Template.logistics_meta.helpers
   color: -> colorFromThingWithTags @meta
   puzzles: -> @meta.puzzles.map (_id) -> share.model.Puzzles.findOne {_id}
   stuck: isStuck
+  class: (puzzle) ->
+    if puzzle.solved?
+      'solved'
+    else if isStuck puzzle
+      'stuck'
+    else ''

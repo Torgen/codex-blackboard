@@ -16,11 +16,11 @@
   <div class="bb-logistics-meta" style="background-color: {{color}}; --num-feeders:{{p.length}}">
     <header class="{{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}">
       <div class="round">{{round.name}}</div>
-      {{meta.name}}
+      {{>link id=meta._id}}
     </header>
     <div class="feeders">
       {{#each puzzle in p}}
-        <div class="{{#if puzzle.solved}}solved{{else if stuck puzzle}}stuck{{/if}}">{{puzzle.name}}</div>
+        {{>link id=puzzle._id class=(class puzzle)}}
       {{/each}}
     </div>
   </div>
