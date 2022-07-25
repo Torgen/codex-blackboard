@@ -6,6 +6,7 @@ import { isStuck } from '/lib/imports/tags.coffee'
 
 Template.logistics.onRendered ->
   $("title").text("Logistics")
+  Session.set 'topRight', null
 
 Template.logistics.helpers
   rounds: ->
