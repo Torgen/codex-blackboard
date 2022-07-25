@@ -1,12 +1,12 @@
 <template name="callins">
 {{> starred_messages canModify=mynick}}
-{{> callins_table}}
+{{#callins_table}}{{>onduty_control}}{{/callins_table}}
 </template>
 
 <template name="callins_table">
   {{#let c=callins}}
   <section class="bb-callin-queue {{#if c.count}}any-callins{{/if}}">
-    <h1>Answer call-in queue {{>onduty_control}}</h1>
+    <h1>Answer call-in queue {{>Template.contentBlock}}</h1>
     <table id="bb-callin-table" class="table"><tbody>
       <tr>
         <th>Puzzle</th>
