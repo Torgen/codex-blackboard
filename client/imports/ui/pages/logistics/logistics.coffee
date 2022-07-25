@@ -6,7 +6,8 @@ import { isStuck } from '/lib/imports/tags.coffee'
 
 Template.logistics.onRendered ->
   $("title").text("Logistics")
-  Session.set 'topRight', null
+  console.log 'setting topright'
+  Session.set 'topRight', 'logistics_topright_panel'
 
 Template.logistics.helpers
   rounds: ->
