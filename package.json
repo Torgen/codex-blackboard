@@ -25,7 +25,7 @@
     "hubot-help": "^1.0.1",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
-    "meteor-node-stubs": "^1.2.3",
+    "meteor-node-stubs": "^1.2.5",
     "sanitize-html": "^2.7.1",
     "twitter-api-v2": "^1.12.3"
   },
