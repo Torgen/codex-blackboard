@@ -90,29 +90,38 @@ html.fullHeight {
       position: absolute;
       right: 0px;
       width: var(--right-column);
+      .bb-vsplitter {
+        display: flex;
+        flex-flow: column nowrap;
+      }
       @media (max-width: 767px) {
         display: none;
       }
       .bb-top-right-content, .bb-bottom-right-content {
         width: 100%;
-        height: 100%;
         overflow: auto;
       }
       .bb-splitter-handle {
         height: 6px;
         background-image: url('/img/hgrabber.gif');
         cursor: ns-resize;
-        position: absolute;
         left: 0; right: 0;
-        bottom: 300px;
+        flex-grow: 0;
+        flex-shrink: 0;
+      }
+      .bb-top-right-content {
+        flex-grow: 0;
+        flex-shrink: 1;
       }
       &.active {
         .bb-splitter-handle { background-color: #e88; }
         .bb-top-right-content, .bb-bottom-right-content { pointer-events: none; }
       }
       .bb-bottom-right-content {
-        position: absolute;
-        right: 0; bottom: 0;
+        flex-grow: 1;
+        flex-shrink: 0;
+        flex-basis: var(--splitter-bottom-size);
+        position: relative;
         /* chat stylin' */
         background: url('/img/grid_noise.png');
         background-attachment: fixed;
@@ -167,6 +176,7 @@ html.fullHeight {
               }
             }
           }
+          iframe { display: block; }
         }
         .bb-chat-pop-out {
           position: absolute; top: 0; right: 14px;

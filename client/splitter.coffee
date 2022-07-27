@@ -4,7 +4,7 @@
 import { reactiveLocalStorage } from './imports/storage.coffee'
 
 class Dimension
-  constructor: (@targetClass, @posProperty, @splitterProperty, @limitVar) ->
+  constructor: (@targetClass, @posProperty, @sizeProperty, @startProperty, @splitterProperty, @limitVar) ->
     @dragging = new ReactiveVar false
     @size = new ReactiveVar 300
   get: () -> 
@@ -22,7 +22,7 @@ class Dimension
     pane = $(event.currentTarget).closest(@targetClass)
     @dragging.set true
     initialPos = event[@posProperty]
-    initialSize = @get()
+    initialSize = event.currentTarget.offsetParent[@sizeProperty] - event.currentTarget[@startProperty] - event.currentTarget[@sizeProperty]
     mouseMove = (mmevt) =>
       newSize = initialSize - (mmevt[@posProperty] - initialPos)
       @set newSize
@@ -42,8 +42,8 @@ heightRange = ->
   wh - wh % 300
 
 Splitter = share.Splitter =
-  vsize: new Dimension '.bb-right-content', 'pageY', 'vsize', windowHeight
-  hsize: new Dimension  '.bb-splitter', 'pageX', 'hsize'
+  vsize: new Dimension '.bb-right-content', 'pageY', 'offsetHeight', 'offsetTop', 'vsize', windowHeight
+  hsize: new Dimension  '.bb-splitter', 'pageX', 'offsetWidth', 'offsetLeft','hsize'
   handleEvent: (event, template) ->
     console.log event.currentTarget unless Meteor.isProduction
     if $(event.currentTarget).closest('.bb-right-content').length
