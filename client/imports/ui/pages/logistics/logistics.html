@@ -13,8 +13,8 @@
 
 <template name="logistics_meta">
   {{#let p=puzzles}}
-  <div class="bb-logistics-meta" style="background-color: {{color}}; --num-feeders:{{p.length}}">
-    <header class="{{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}">
+  <div class="bb-logistics-meta {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" style="background-color: {{color}}; --num-feeders:{{p.length}}">
+    <header>
       <div class="round">{{round.name}}</div>
       {{>link id=meta._id}}
     </header>
