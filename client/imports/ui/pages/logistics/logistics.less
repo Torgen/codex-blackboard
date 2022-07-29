@@ -57,9 +57,16 @@
       line-height: 10px;
     }
     & > a {
-      display: block;
-      height: 30px;
-      font-size: 28px;
+      &, * {
+        height: 30px;
+        font-size: 28px;
+      }
+      .fas.fa-video {
+        font-size: 100%;
+      }
+      .fas.fa-comment-alt .count {
+        font-size: 70%;
+      }
     }
   }
   & > .feeders {
@@ -68,7 +75,6 @@
     grid-template-columns: repeat(2, 1fr);
     margin: 0px;
     & > * {
-      display: block;
       outline: 1px solid black;
       height: 20px;
       padding: 1px 2px 2px 1px;
@@ -82,15 +88,60 @@
       &.solved {
         border-left-color: limegreen;
       }
+      .fas.fa-video {
+        font-size: 140%;
+      }
+      .fas.fa-comment-alt {
+        font-size: 120%;
+      }
     }
   }
   a {
+    &, .fill, .puzzle-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fill {
+      flex-grow: 1;
+      flex-shrink: 1;
+      position: relative;
+    }
+    .puzzle-name {
+      position: absolute;
+      left: 0;
+      right: 0;
+    }
+    display: flex;
+    flex-flow: row nowrap;
     color: var(--text-color);
-    overflow: hidden;
-    text-overflow: ellipsis;
     &:hover {
       text-decoration: none;
       background-color: var(--barely-darker);
+    }
+    .fas {
+      margin-right: 0.2em;
+      position: relative;
+      .count {
+        position: absolute;
+        font-size: 60%;
+        color: var(--bg-color);
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+    .fas.fa-video .count {
+      vertical-align: middle;
+      left: 10%;
+      right: 40%;
+      top: 15%;
+    }
+    .fas.fa-comment-alt {
+      top: 10%;
+      .count {
+        left: 10%;
+        right: 10%;
+      }
     }
   }
 }

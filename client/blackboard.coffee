@@ -2,6 +2,7 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import { confirm } from '/client/imports/modal.coffee'
+import { findByChannel } from '/client/imports/presence_index.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor  from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
@@ -20,8 +21,6 @@ settings = share.settings # import
 SOUND_THRESHOLD_MS = 30*1000 # 30 seconds
 
 blackboard = {} # store page global state
-
-presenceIndex = new Map
 
 Meteor.startup ->
   if typeof Audio is 'function' # for phantomjs
@@ -552,11 +551,7 @@ Template.blackboard_column_body_update.helpers
 Template.blackboard_column_body_working.helpers
   whos_working: ->
     return [] unless @puzzle?
-    coll = presenceIndex.get("puzzles/#{@puzzle._id}")
-    unless coll?
-      coll = new Mongo.Collection null
-      presenceIndex.set("puzzles/#{@puzzle._id}", coll)
-    return coll.find {}, sort: {jitsi: -1, joined_timestamp: 1}
+    return findByChannel "puzzles/#{@puzzle._id}", {}, sort: {jitsi: -1, joined_timestamp: 1}
 
 colorHelper = -> model.getTag @, 'color'
 
@@ -613,32 +608,6 @@ Template.blackboard_new_puzzle.helpers
     return 'Cannot be empty' if not val
     cval = canonical val
     return "Conflicts with another round" if model.Puzzles.findOne(canon: cval)?
-
-# Subscribe to all group, round, and puzzle information
-Template.blackboard.onCreated ->
-  @autorun ->
-    model.Presence.find(scope: $in: ['chat', 'jitsi']).observe
-      added: (doc) ->
-        coll = presenceIndex.get doc.room_name
-        unless coll?
-          coll = new Mongo.Collection null
-          presenceIndex.set doc.room_name, coll
-        coll.upsert doc.nick,
-          $min: joined_timestamp: doc.joined_timestamp
-          $max:
-            jitsi: +(doc.scope is 'jitsi')
-            chat: +(doc.scope is 'chat')
-      removed: (doc) ->
-        coll = presenceIndex.get doc.room_name
-        return unless coll?
-        coll.update doc.nick,
-          $min:
-            jitsi: +(doc.scope isnt 'jitsi')
-            chat: +(doc.scope isnt 'chat')
-        coll.remove {_id: doc.nick, jitsi: 0, chat: 0}
-
-Template.blackboard.onDestroyed ->
-  presenceIndex.clear()
 
 Template.blackboard_column_header_working.onCreated ->
   @autorun =>

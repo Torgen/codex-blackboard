@@ -1,8 +1,13 @@
 'use strict'
 import './logistics.html'
 import './logistics.less'
+import { findByChannel } from '/client/imports/presence_index.coffee'
 import colorFromThingWithTags from '/client/imports/objectColor.coffee'
 import { isStuck } from '/lib/imports/tags.coffee'
+
+Template.logistics.onCreated ->
+  @autorun =>
+    @subscribe 'all-presence'
 
 Template.logistics.onRendered ->
   $("title").text("Logistics")
@@ -31,3 +36,7 @@ Template.logistics_meta.helpers
     else if isStuck puzzle
       'stuck'
     else ''
+
+Template._logistics_puzzle_presence.helpers
+  presenceForScope: (scope) ->
+    return findByChannel("puzzles/#{@_id}", {[scope]: 1}, {fields: [scope]: 1}).count()
