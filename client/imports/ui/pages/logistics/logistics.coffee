@@ -37,6 +37,6 @@ Template.logistics_meta.helpers
       'stuck'
     else ''
 
-Template._logistics_puzzle_presence.helpers
+Template.logistics_puzzle_presence.helpers
   presenceForScope: (scope) ->
     return findByChannel("puzzles/#{@_id}", {[scope]: 1}, {fields: [scope]: 1}).count()

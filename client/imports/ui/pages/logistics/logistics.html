@@ -11,7 +11,7 @@
   </div>
 </template>
 
-<template name="_logistics_puzzle_presence">
+<template name="logistics_puzzle_presence">
   {{#with presenceForScope "jitsi"}}
     <i class="fas fa-video"><span class="count">{{this}}</span></i>
   {{else with presenceForScope "chat"}}
@@ -24,11 +24,11 @@
   <div class="bb-logistics-meta {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" style="background-color: {{color}}; --num-feeders:{{p.length}}">
     <header>
       <div class="round">{{round.name}}</div>
-      <a href="/puzzles/{{meta._id}}" class="puzzles-link {{class meta}}"><span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>{{>_logistics_puzzle_presence meta}}</a>
+      <a href="/puzzles/{{meta._id}}" class="puzzles-link {{class meta}}"><span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>{{>logistics_puzzle_presence meta}}</a>
     </header>
     <div class="feeders">
       {{#each puzzle in p}}
-        <a href="/puzzles/{{puzzle._id}}" class="puzzles-link {{class puzzle}}"><span class="fill"><span class="puzzle-name">{{puzzle.name}}</span></span>{{>_logistics_puzzle_presence puzzle}}</a>
+        <a href="/puzzles/{{puzzle._id}}" class="puzzles-link {{class puzzle}}"><span class="fill"><span class="puzzle-name">{{puzzle.name}}</span></span>{{>logistics_puzzle_presence puzzle}}</a>
       {{/each}}
     </div>
   </div>
