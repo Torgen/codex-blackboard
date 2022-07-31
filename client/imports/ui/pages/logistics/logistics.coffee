@@ -6,12 +6,12 @@ import colorFromThingWithTags from '/client/imports/objectColor.coffee'
 import { isStuck } from '/lib/imports/tags.coffee'
 
 Template.logistics.onCreated ->
+  Session.set 'topRight', 'logistics_topright_panel'
   @autorun =>
     @subscribe 'all-presence'
 
 Template.logistics.onRendered ->
   $("title").text("Logistics")
-  Session.set 'topRight', 'logistics_topright_panel'
 
 Template.logistics.helpers
   rounds: ->

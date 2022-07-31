@@ -6,6 +6,13 @@ bundleLoaded = new ReactiveVar false
 
 Template.logistics_page.onCreated ->
   EXPERT_MODE.set true
+  # The template we would set the top right to is loaded dynamically, so we
+  # want to clear the current setting until the bundle loads. It will set the
+  # top right panel to the correct template.
+  # This matters mostly in development, but could come up if we update the app
+  # during the hunt. Session preserves values across reloads and doesn't
+  # trigger if the value doesn't change.
+  Session.set 'topRight', null
   await import('/client/imports/ui/pages/logistics/logistics.coffee')
   bundleLoaded.set true
 
