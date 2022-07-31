@@ -45,7 +45,9 @@
 
 <template name="logistics_topright_panel">
   <div class="bb-logistics-info">
-    {{>onduty_control}}
+    <div class="btn-toolbar">
+      {{>onduty_control}}
+    </div>
     {{>starred_messages canModify=mynick}}
   </div>
 </template>
