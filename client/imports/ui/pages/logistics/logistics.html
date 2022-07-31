@@ -3,7 +3,11 @@
     <section class="bb-logistics-metas">
     {{#each r in rounds}}
       {{#each m in (metas r)}}
-        {{>logistics_meta round=r meta=m}}
+        {{#if m.puzzles}}
+          {{>logistics_meta round=r meta=m}}
+        {{else}}
+          {{> logistics_puzzle m}}
+        {{/if}}
       {{/each}}
     {{/each}}
     </section>
@@ -19,16 +23,20 @@
   {{/with}}
 </template>
 
+<template name="logistics_puzzle">
+  <a href="/puzzles/{{_id}}" class="puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}"><span class="fill"><span class="puzzle-name">{{name}}</span></span>{{>logistics_puzzle_presence this}}</a>
+</template>
+
 <template name="logistics_meta">
   {{#let p=puzzles}}
   <div class="bb-logistics-meta {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" style="background-color: {{color}}; --num-feeders:{{p.length}}">
     <header>
       <div class="round">{{round.name}}</div>
-      <a href="/puzzles/{{meta._id}}" class="puzzles-link {{class meta}}"><span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>{{>logistics_puzzle_presence meta}}</a>
+      <a href="/puzzles/{{meta._id}}" class="meta puzzles-link {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}"><span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>{{>logistics_puzzle_presence meta}}</a>
     </header>
     <div class="feeders">
       {{#each puzzle in p}}
-        <a href="/puzzles/{{puzzle._id}}" class="puzzles-link {{class puzzle}}"><span class="fill"><span class="puzzle-name">{{puzzle.name}}</span></span>{{>logistics_puzzle_presence puzzle}}</a>
+        {{> logistics_puzzle puzzle}}
       {{/each}}
     </div>
   </div>

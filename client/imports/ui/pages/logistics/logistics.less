@@ -25,78 +25,35 @@
 .bb-logistics-metas {
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr) minmax(150px, 1fr));
   grid-template-rows: repeat(auto-fill, 20px);
   gap: 4px;
   margin: 4px;
   overflow-y: auto;
-}
-
-.bb-logistics-meta {
-  border: 1px solid black;
-  border-collapse: collapse;
-  --num-rows: calc(2 + (var(--num-feeders, 0))/2);
-  grid-row-end: span var(--num-rows);
-  &.solved {
-    opacity: 0.5;
-    & > header {
+  a:hover {
+    text-decoration: none;
+    background-color: var(--barely-darker);
+  }
+  .puzzle {
+    outline: 1px solid black;
+    height: 20px;
+    padding: 1px 2px 2px 1px;
+    margin-top: 1px;
+    margin-left: 1px;
+    border-left: 4px solid black;
+    white-space: nowrap;
+    &.stuck {
+      border-left-color: var(--stuck-yellow);
+    }
+    &.solved {
       border-left-color: limegreen;
     }
-  }
-  &.stuck > header {
-    border-left-color: var(--stuck-yellow);
-  }
-  & > header {
-    border-left: 5px solid black;
-    background-color: var(--slightly-lighter);
-    height: 42px;
-    white-space: nowrap;
-    & > .round {
-      height: 12px;
-      font-size: 10px;
-      line-height: 10px;
+    .fas.fa-video {
+      font-size: 140%;
     }
-    & > a {
-      &, * {
-        height: 30px;
-        font-size: 28px;
-      }
-      .fas.fa-video {
-        font-size: 100%;
-      }
-      .fas.fa-comment-alt .count {
-        font-size: 70%;
-      }
+    .fas.fa-comment-alt {
+      font-size: 120%;
     }
-  }
-  & > .feeders {
-    background-color: var(--much-lighter);
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    margin: 0px;
-    & > * {
-      outline: 1px solid black;
-      height: 20px;
-      padding: 1px 2px 2px 1px;
-      margin-top: 1px;
-      margin-left: 1px;
-      border-left: 4px solid black;
-      white-space: nowrap;
-      &.stuck {
-        border-left-color: var(--stuck-yellow);
-      }
-      &.solved {
-        border-left-color: limegreen;
-      }
-      .fas.fa-video {
-        font-size: 140%;
-      }
-      .fas.fa-comment-alt {
-        font-size: 120%;
-      }
-    }
-  }
-  a {
     &, .fill, .puzzle-name {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -111,13 +68,22 @@
       left: 0;
       right: 0;
     }
+  }
+  > .puzzle {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin: 0px;
+    margin-right: 1px;
+    grid-row-end: span 1;
+    grid-column-end: span 1;
+    &.solved {
+      opacity: 0.5;
+    }
+  }
+  .puzzle, .meta {
     display: flex;
     flex-flow: row nowrap;
     color: var(--text-color);
-    &:hover {
-      text-decoration: none;
-      background-color: var(--barely-darker);
-    }
     .fas {
       margin-right: 0.2em;
       position: relative;
@@ -143,6 +109,52 @@
         right: 10%;
       }
     }
+  }
+}
+
+.bb-logistics-meta {
+  border: 1px solid black;
+  border-collapse: collapse;
+  --num-rows: calc(2 + (var(--num-feeders, 0))/2);
+  grid-row-end: span var(--num-rows);
+  grid-column-end: span 2;
+  &.solved {
+    opacity: 0.5;
+    & > header {
+      border-left-color: limegreen;
+    }
+  }
+  &.stuck > header {
+    border-left-color: var(--stuck-yellow);
+  }
+  & > header {
+    border-left: 5px solid black;
+    background-color: var(--slightly-lighter);
+    height: 42px;
+    white-space: nowrap;
+    & > .round {
+      height: 12px;
+      font-size: 10px;
+      line-height: 10px;
+    }
+    & > .meta {
+      &, * {
+        height: 30px;
+        font-size: 28px;
+      }
+      .fas.fa-video {
+        font-size: 100%;
+      }
+      .fas.fa-comment-alt .count {
+        font-size: 70%;
+      }
+    }
+  }
+  & > .feeders {
+    background-color: var(--much-lighter);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: 0px;
   }
 }
 

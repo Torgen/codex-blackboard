@@ -22,19 +22,16 @@ Template.logistics.helpers
     x = []
     for puzzle in round.puzzles
       puz = share.model.Puzzles.findOne _id: puzzle
-      x.push puz if puz.puzzles?
+      x.push puz if puz.puzzles? or puz.feedsInto.length is 0
     x
+
+Template.logistics_puzzle.helpers
+  stuck: isStuck
 
 Template.logistics_meta.helpers
   color: -> colorFromThingWithTags @meta
   puzzles: -> @meta.puzzles.map (_id) -> share.model.Puzzles.findOne {_id}
   stuck: isStuck
-  class: (puzzle) ->
-    if puzzle.solved?
-      'solved'
-    else if isStuck puzzle
-      'stuck'
-    else ''
 
 Template.logistics_puzzle_presence.helpers
   presenceForScope: (scope) ->
