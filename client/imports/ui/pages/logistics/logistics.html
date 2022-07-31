@@ -23,17 +23,21 @@
   {{/with}}
 </template>
 
+<template name="logistics_puzzle_events">
+  {{#unless no_events}}
+    {{#with soonest_ending_current_event}}
+      <i class="events fas fa-calendar-day" title="Event &ldquo;{{summary}}&rdquo; ends {{pretty_ts timestamp=end style="brief future"}}"></i>
+    {{else with next_future_event}}
+      <i class="events fas fa-calendar-week" title="Event &ldquo;{{summary}}&rdquo; starts {{pretty_ts timestamp=start style="brief future"}}"></i>
+    {{else}}
+      <i class="events fas fa-calendar-times" title="All events over"></i>
+    {{/with}}
+  {{/unless}}
+</template>
+
 <template name="logistics_puzzle">
   <a href="/puzzles/{{_id}}" class="puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}">
-    {{#unless no_events}}
-      {{#with soonest_ending_current_event}}
-        <i class="events fas fa-calendar-day" title="Event &ldquo;{{summary}}&rdquo; ends {{pretty_ts timestamp=end style="brief future"}}"></i>
-      {{else with next_future_event}}
-        <i class="events fas fa-calendar-week" title="Event &ldquo;{{summary}}&rdquo; starts {{pretty_ts timestamp=start style="brief future"}}"></i>
-      {{else}}
-        <i class="events fas fa-calendar-times" title="All events over"></i>
-      {{/with}}
-    {{/unless}}
+    {{>logistics_puzzle_events this}}
     <span class="fill"><span class="puzzle-name">{{name}}</span></span>
     {{>logistics_puzzle_presence this}}
   </a>
@@ -44,7 +48,11 @@
   <div class="bb-logistics-meta {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" style="background-color: {{color}}; --num-feeders:{{p.length}}">
     <header>
       <div class="round">{{round.name}}</div>
-      <a href="/puzzles/{{meta._id}}" class="meta puzzles-link {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}"><span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>{{>logistics_puzzle_presence meta}}</a>
+      <a href="/puzzles/{{meta._id}}" class="meta puzzles-link {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}">
+        {{>logistics_puzzle_events meta}}
+        <span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>
+        {{>logistics_puzzle_presence meta}}
+      </a>
     </header>
     <div class="feeders">
       {{#each puzzle in p}}

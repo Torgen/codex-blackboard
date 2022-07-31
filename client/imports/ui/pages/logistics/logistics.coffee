@@ -27,6 +27,8 @@ Template.logistics.helpers
 
 Template.logistics_puzzle.helpers
   stuck: isStuck
+
+Template.logistics_puzzle_events.helpers
   soonest_ending_current_event: ->
     now = Session.get 'currentTime'
     share.model.CalendarEvents.findOne({puzzle: @_id, start: {$lt: now}, end: {$gt: now}}, {sort: end: -1})
