@@ -11,7 +11,6 @@ Template.logistics.onCreated ->
 
 Template.logistics.onRendered ->
   $("title").text("Logistics")
-  console.log 'setting topright'
   Session.set 'topRight', 'logistics_topright_panel'
 
 Template.logistics.helpers
