@@ -462,6 +462,7 @@ Meteor.startup ->
     model.CalendarEvents.insert
       _id: 'fake2'
       summary: 'Do the Brainstorm runaround'
+      puzzle: model.Puzzles.findOne(canon: 'the_brainstorm')._id
       start: model.UTCNow() + 1200000
       end: model.UTCNow() + 3000000
 

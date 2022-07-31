@@ -74,8 +74,7 @@
     padding-bottom: 0px;
     margin: 0px;
     margin-right: 1px;
-    grid-row-end: span 1;
-    grid-column-end: span 1;
+    border-left-width: 6px;
     &.solved {
       opacity: 0.5;
     }
@@ -84,7 +83,11 @@
     display: flex;
     flex-flow: row nowrap;
     color: var(--text-color);
-    .fas {
+    .events {
+      margin-right: 0.2em;
+      margin-top: 0.2em;
+    }
+    .presence {
       margin-right: 0.2em;
       position: relative;
       .count {

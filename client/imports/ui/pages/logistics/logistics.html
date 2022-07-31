@@ -17,14 +17,26 @@
 
 <template name="logistics_puzzle_presence">
   {{#with presenceForScope "jitsi"}}
-    <i class="fas fa-video"><span class="count">{{this}}</span></i>
+    <i class="presence fas fa-video"><span class="count">{{this}}</span></i>
   {{else with presenceForScope "chat"}}
-    <i class="fas fa-comment-alt"><span class="count">{{this}}</span></i>
+    <i class="presence fas fa-comment-alt"><span class="count">{{this}}</span></i>
   {{/with}}
 </template>
 
 <template name="logistics_puzzle">
-  <a href="/puzzles/{{_id}}" class="puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}"><span class="fill"><span class="puzzle-name">{{name}}</span></span>{{>logistics_puzzle_presence this}}</a>
+  <a href="/puzzles/{{_id}}" class="puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}">
+    {{#unless no_events}}
+      {{#with soonest_ending_current_event}}
+        <i class="events fas fa-calendar-day" title="Event &ldquo;{{summary}}&rdquo; ends {{pretty_ts timestamp=end style="brief future"}}"></i>
+      {{else with next_future_event}}
+        <i class="events fas fa-calendar-week" title="Event &ldquo;{{summary}}&rdquo; starts {{pretty_ts timestamp=start style="brief future"}}"></i>
+      {{else}}
+        <i class="events fas fa-calendar-times" title="All events over"></i>
+      {{/with}}
+    {{/unless}}
+    <span class="fill"><span class="puzzle-name">{{name}}</span></span>
+    {{>logistics_puzzle_presence this}}
+  </a>
 </template>
 
 <template name="logistics_meta">

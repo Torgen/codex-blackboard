@@ -27,6 +27,14 @@ Template.logistics.helpers
 
 Template.logistics_puzzle.helpers
   stuck: isStuck
+  soonest_ending_current_event: ->
+    now = Session.get 'currentTime'
+    share.model.CalendarEvents.findOne({puzzle: @_id, start: {$lt: now}, end: {$gt: now}}, {sort: end: -1})
+  next_future_event: ->
+    now = Session.get 'currentTime'
+    share.model.CalendarEvents.findOne({puzzle: @_id, start: {$gt: now}}, {sort: start: 1})
+  no_events: ->
+    share.model.CalendarEvents.find({puzzle: @_id}).count() is 0
 
 Template.logistics_meta.helpers
   color: -> colorFromThingWithTags @meta
