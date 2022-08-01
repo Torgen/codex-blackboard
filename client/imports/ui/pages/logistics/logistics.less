@@ -30,6 +30,7 @@
   gap: 4px;
   margin: 4px;
   overflow-y: auto;
+  overflow-x: clip;
   a:hover {
     text-decoration: none;
     background-color: var(--barely-darker);
@@ -53,10 +54,6 @@
     }
     .fas.fa-comment-alt {
       font-size: 120%;
-    }
-    &, .fill, .puzzle-name {
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .fill {
       flex-grow: 1;
@@ -83,6 +80,10 @@
     display: flex;
     flex-flow: row nowrap;
     color: var(--text-color);
+    &, .fill, .puzzle-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .events {
       margin-right: 0.2em;
       margin-top: 0.2em;
