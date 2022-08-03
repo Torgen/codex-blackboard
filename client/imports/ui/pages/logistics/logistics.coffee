@@ -18,11 +18,17 @@ Template.logistics.helpers
     c = share.model.Rounds.find({}, sort: sort_key: 1)
     console.log c.fetch()
     c
+  standalone: (round) ->
+    x = []
+    for puzzle in round.puzzles
+      puz = share.model.Puzzles.findOne _id: puzzle
+      x.push puz if puz.feedsInto.length is 0 and not puz.puzzles?
+    x if x.length
   metas: (round) ->
     x = []
     for puzzle in round.puzzles
       puz = share.model.Puzzles.findOne _id: puzzle
-      x.push puz if puz.puzzles? or puz.feedsInto.length is 0
+      x.push puz if puz.puzzles?
     x
 
 Template.logistics_puzzle.helpers

@@ -25,7 +25,7 @@
 .bb-logistics-metas {
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr) minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   grid-template-rows: repeat(auto-fill, 20px);
   gap: 4px;
   margin: 4px;
@@ -37,10 +37,7 @@
   }
   .puzzle {
     outline: 1px solid black;
-    height: 20px;
     padding: 1px 2px 2px 1px;
-    margin-top: 1px;
-    margin-left: 1px;
     border-left: 4px solid black;
     white-space: nowrap;
     &.stuck {
@@ -64,16 +61,6 @@
       position: absolute;
       left: 0;
       right: 0;
-    }
-  }
-  > .puzzle {
-    padding-top: 0px;
-    padding-bottom: 0px;
-    margin: 0px;
-    margin-right: 1px;
-    border-left-width: 6px;
-    &.solved {
-      opacity: 0.5;
     }
   }
   a.puzzle, a.meta {
@@ -115,13 +102,9 @@
     }
   }
 }
-
 .bb-logistics-meta {
   border: 1px solid black;
-  border-collapse: collapse;
   --num-rows: calc(2 + (var(--num-feeders, 0))/2);
-  grid-row-end: span var(--num-rows);
-  grid-column-end: span 2;
   &.solved {
     opacity: 0.5;
     & > header {
@@ -156,10 +139,34 @@
   }
   & > .feeders {
     background-color: var(--much-lighter);
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    margin: 0px;
+    .puzzle {
+      height: 20px;
+      margin-top: 1px;
+    }
   }
+}
+.bb-logistics-meta > .feeders, .bb-logistics-standalone {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0px;
+}
+.bb-logistics-standalone {
+  --num-rows: calc(var(--num-feeders, 0)/2);
+  gap: 4px;
+  margin-right: 1px;
+  a.puzzle {
+    height: 15px;
+    line-height: 15px;
+    // This lets us use outline as a black border while still having the left border based on solved/stuck state.
+    margin-left: 1px;
+    margin-top: 1px;
+    &.solved { opacity: 0.5; }
+    .events {margin-top: .1em;}
+  }
+}
+.bb-logistics-meta, .bb-logistics-standalone {
+  border-collapse: collapse;
+  grid-row-end: span var(--num-rows);
 }
 
 .bb-logistics-info {

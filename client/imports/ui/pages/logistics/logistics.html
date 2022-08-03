@@ -3,12 +3,15 @@
     <section class="bb-logistics-metas">
     {{#each r in rounds}}
       {{#each m in (metas r)}}
-        {{#if m.puzzles}}
-          {{>logistics_meta round=r meta=m}}
-        {{else}}
-          {{> logistics_puzzle m}}
-        {{/if}}
+        {{>logistics_meta round=r meta=m}}
       {{/each}}
+      {{#with standalone r}}
+        <div class="bb-logistics-standalone" style="--num-feeders: {{length}}">
+          {{#each s in this}}
+            {{> logistics_puzzle s}}
+          {{/each}}
+        </div>
+      {{/with}}
     {{/each}}
     </section>
     {{> callins_table}}
