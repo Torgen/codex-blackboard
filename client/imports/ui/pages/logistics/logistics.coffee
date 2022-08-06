@@ -24,9 +24,7 @@ Template.logistics.onRendered ->
 
 Template.logistics.helpers
   rounds: ->
-    c = share.model.Rounds.find({}, sort: sort_key: 1)
-    console.log c.fetch()
-    c
+    share.model.Rounds.find({}, sort: sort_key: 1)
   standalone: (round) ->
     x = []
     for puzzle in round.puzzles
