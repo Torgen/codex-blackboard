@@ -49,16 +49,18 @@
             </div>
           </div>
         {{/if}}
-        {{#with standalone r}}
+        {{#let sa=(standalone r)}}
+          {{#if any sa.length (equal creatingStandalone r._id)}}
           <div class="bb-logistics-standalone" style="--num-feeders: calc({{length}}{{#if equal creatingStandalone r._id}} + 1{{/if}})">
-            {{#each s in this}}
+            {{#each s in sa}}
               {{> logistics_puzzle s}}
             {{/each}}
             {{#if equal creatingStandalone r._id}}
               {{>create_object type="puzzles" done=doneCreatingStandalone params=(puzzleParams r._id)}}
             {{/if}}
           </div>
-        {{/with}}
+          {{/if}}
+        {{/let}}
       {{/each}}
     </section>
     {{> callins_table}}
