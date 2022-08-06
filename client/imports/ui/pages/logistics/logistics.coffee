@@ -89,10 +89,27 @@ Template.logistics_puzzle_events.helpers
   no_events: ->
     share.model.CalendarEvents.find({puzzle: @_id}).count() is 0
 
+Template.logistics_meta.onCreated ->
+  @creatingFeeder = new ReactiveVar false
+
+Template.logistics_meta.events
+  'click .new-puzzle': (event, template) ->
+    template.creatingFeeder.set true
+
 Template.logistics_meta.helpers
   color: -> colorFromThingWithTags @meta
   puzzles: -> @meta.puzzles.map (_id) -> share.model.Puzzles.findOne {_id}
   stuck: isStuck
+  feederParams: ->
+    round: @round._id
+    feedsInto: [@meta._id]
+  creatingFeeder: -> Template.instance().creatingFeeder.get()
+  doneCreatingFeeder: ->
+    instance = Template.instance()
+    return done: ->
+      wasStillCreating = instance.creatingFeeder.get()
+      instance.creatingFeeder.set false
+      return wasStillCreating
 
 Template.logistics_puzzle_presence.helpers
   presenceForScope: (scope) ->

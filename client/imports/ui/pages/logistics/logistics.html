@@ -95,7 +95,7 @@
 
 <template name="logistics_meta">
   {{#let p=puzzles}}
-  <div class="bb-logistics-meta {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" style="background-color: {{color}}; --num-feeders:{{p.length}}">
+  <div class="bb-logistics-meta {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" style="background-color: {{color}}; --num-feeders:calc({{p.length}}{{#if creatingFeeder}} + 1{{/if}})">
     <header>
       <div class="round">{{round.name}}</div>
       <a href="/puzzles/{{meta._id}}" class="meta puzzles-link {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}">
@@ -103,11 +103,15 @@
         <span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>
         {{>logistics_puzzle_presence meta}}
       </a>
+      <btn class="btn btn-mini btn-inverse new-puzzle {{#if creatingFeeder}}active{{/if}}"><i class="fas fa-plus"></i> <i class="fas fa-puzzle-piece"></i></btn>
     </header>
     <div class="feeders">
       {{#each puzzle in p}}
         {{> logistics_puzzle puzzle}}
       {{/each}}
+      {{#if creatingFeeder}}
+        {{>create_object type="puzzles" done=doneCreatingFeeder params=feederParams}}
+      {{/if}}
     </div>
   </div>
   {{/let}}

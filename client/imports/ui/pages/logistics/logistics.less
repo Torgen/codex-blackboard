@@ -142,6 +142,7 @@
     background-color: var(--slightly-lighter);
     height: 42px;
     white-space: nowrap;
+    position: relative;
     & > .round {
       height: 12px;
       font-size: 10px;
@@ -159,12 +160,26 @@
         font-size: 70%;
       }
     }
+    > .new-puzzle {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      font-size: 8px;
+      line-height: 10px;
+      padding: 0px 2px;
+    }
   }
   & > .feeders {
     background-color: var(--much-lighter);
     .puzzle {
       height: 20px;
       margin-top: 1px;
+    }
+    input {
+      margin-bottom: 0px;
+      margin-top: 1px;
+      height: 23px;
+      min-height: unset;
     }
   }
 }
