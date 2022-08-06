@@ -1,18 +1,65 @@
 <template name="logistics">
   <div class="bb-logistics">
     <section class="bb-logistics-metas">
-    {{#each r in rounds}}
-      {{#each m in (metas r)}}
-        {{>logistics_meta round=r meta=m}}
-      {{/each}}
-      {{#with standalone r}}
-        <div class="bb-logistics-standalone" style="--num-feeders: {{length}}">
-          {{#each s in this}}
-            {{> logistics_puzzle s}}
-          {{/each}}
+      <div class="bb-logistics-controls">
+        <div class="btn-group">
+          <span class="btn btn-mini btn-success disabled active"><i class="fas fa-plus"></i> New</span>
+          <button id="bb-logistics-new-round" class="btn btn-mini btn-inverse {{#if creatingRound}}open{{/if}}">
+            <i class="fas fa-folder-open"></i> Round
+            {{#if creatingRound}}
+              <ul class="dropdown-menu stay-open">
+                <li>{{> create_object type="rounds" done=doneCreatingRound}}</li>
+              </ul>
+            {{/if}}
+          </button>
+          <button id="bb-logistics-new-meta" class="btn btn-mini btn-primary" data-toggle="dropdown" data-target="#bb-logistics-new-meta">
+            <i class="fas fa-filter"></i> Meta
+            <ul class="dropdown-menu">
+              <li class="disabled"><a>Round</a></li>
+              {{#each rounds}}
+                <li><a class="round-name">{{name}}</a></li>
+              {{/each}}
+            </ul>
+          </button>
+          <button id="bb-logistics-new-standalone" class="btn btn-mini" data-toggle="dropdown" data-target="#bb-logistics-new-standalone">
+            <i class="fas fa-puzzle-piece"></i> Puzzle
+            <ul class="dropdown-menu">
+              <li class="disabled"><a>Round</a></li>
+              {{#each rounds}}
+                <li><a class="round-name">{{name}}</a></li>
+              {{/each}}
+            </ul>
+          </button>
         </div>
-      {{/with}}
-    {{/each}}
+      </div>
+      {{#each r in rounds}}
+        {{#each m in (metas r)}}
+          {{>logistics_meta round=r meta=m}}
+        {{/each}}
+        {{#if equal creatingMeta r._id}}
+          <div class="bb-logistics-meta" style="--num-feeders:0">
+            <header>
+              <div class="round">{{r.name}}</div>
+              {{> create_object type="puzzles" done=doneCreatingMeta params=(metaParams r._id)}}
+            </header>
+            <div class="feeders">
+              {{#each puzzle in p}}
+                {{> logistics_puzzle puzzle}}
+              {{/each}}
+            </div>
+          </div>
+        {{/if}}
+        {{#with standalone r}}
+          <div class="bb-logistics-standalone" style="--num-feeders: calc({{length}}{{#if equal creatingStandalone r._id}} + 1{{/if}})">
+            {{#each s in this}}
+              {{> logistics_puzzle s}}
+            {{/each}}
+            {{#if equal creatingStandalone r._id}}
+              {{>create_object type="puzzles" done=doneCreatingStandalone params=(puzzleParams r._id)}}
+            {{/if}}
+          </div>
+        {{/with}}
+      {{/each}}
     </section>
     {{> callins_table}}
   </div>

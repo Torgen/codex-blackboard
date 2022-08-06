@@ -143,11 +143,11 @@
             {{/if}}
           {{/let}}
         {{/unless}}
-        {{#if all add_round sortReverse}}{{> blackboard_add_round}}{{/if}}
+        {{#if all add_round sortReverse}}{{> blackboard_add_round done=addingRound}}{{/if}}
         {{#each rounds}}
           {{> blackboard_round}}
         {{/each}}
-        {{#if all add_round (not sortReverse)}}{{> blackboard_add_round}}{{/if}}
+        {{#if all add_round (not sortReverse)}}{{> blackboard_add_round done=addingRound}}{{/if}}
       {{/if}}
     </table>
   </div><!-- bb-tables -->
@@ -157,12 +157,7 @@
   <tbody>
     <tr>
       <th colspan="{{nCols}}" id="bb-new-round" class="bb-round-header">
-        <div class="bb-round-title bb-editable control-group {{titleEditClass}}">
-          <input type="text" placeholder="Round name" class="input-block-level" />
-        </div>
-        {{#if titleEditStatus}}
-          <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleEditStatus}}</div></div>
-        {{/if}}
+        {{> create_object type="rounds" done=done}}
       </th>
     </tr>
   </tbody>
@@ -533,12 +528,7 @@
 
 <template name="blackboard_new_puzzle">
   <tr class="{{class}}"><td id="bb-new-puzzle" class="puzzle-name" colspan="{{nCols}}">
-    <div class="bb-puzzle-title bb-editable control-group {{titleAddClass}}">
-      <input type="text" placeholder="Puzzle name" class="input-block-level" />
-      {{#if titleAddStatus}}
-        <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleAddStatus}}</div></div>
-      {{/if}}
-    </div>
+    {{> create_object type="puzzles" done=adding params=adding.params}}
   </td></tr>
 </template>
 

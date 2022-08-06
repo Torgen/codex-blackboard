@@ -102,6 +102,29 @@
     }
   }
 }
+.bb-logistics-controls {
+  display: flex;
+  justify-content: space-around;
+  .btn-group {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    > .btn-mini {
+      line-height: 18px;
+    }
+  }
+  .btn .dropdown-menu {
+    text-align: left;
+    font-size: 14px;
+  }
+}
+#bb-logistics-new-round li {
+  margin: 0px 5px;
+  min-width: 300px;
+  input {
+    margin-bottom: 0px;
+  }
+}
 .bb-logistics-meta {
   border: 1px solid black;
   --num-rows: calc(2 + (var(--num-feeders, 0))/2);
@@ -154,7 +177,10 @@
   --num-rows: calc(var(--num-feeders, 0)/2);
   gap: 4px;
   margin-right: 1px;
-  a.puzzle {
+  a.puzzle, div.bb-puzzle-title {
+    .input-block-level {
+      min-height: unset;
+    }
     height: 15px;
     line-height: 15px;
     // This lets us use outline as a black border while still having the left border based on solved/stuck state.

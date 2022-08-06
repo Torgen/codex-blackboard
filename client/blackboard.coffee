@@ -9,6 +9,7 @@ import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, 
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
 import okCancelEvents from './imports/ok_cancel_events.coffee'
+import '/client/imports/ui/components/create_object/create_object.coffee'
 import '/client/imports/ui/components/edit_field/edit_field.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
@@ -215,6 +216,12 @@ Template.blackboard.helpers
   hasJitsiLocalStorage: ->
     reactiveLocalStorage.getItem 'jitsiLocalStorage'
   driveFolder: -> Session.get 'RINGHUNTERS_FOLDER'
+  addingRound: ->
+    instance = Template.instance()
+    return done: ->
+      wasAdding = instance.addRound.get()
+      instance.addRound.set false
+      return wasAdding
 
 Template.blackboard_status_grid.helpers
   rounds: -> model.Rounds.find {}, sort: [["sort_key", 'asc']]
@@ -275,42 +282,6 @@ Template.blackboard.events
     Meteor.call 'fixPuzzleFolder',
       object: @puzzle._id
       name: @puzzle.name
-
-# This is in the blackboard template and not in the blackboard_add_round template because it needs to modify
-# the ReactiveVar that determines whether there is a blackboard_add_round template at all.
-Template.blackboard.events okCancelEvents '#bb-new-round input',
-  ok: (value, evt, template) ->
-    return unless template.addRound.get()
-    template.addRound.set false
-    value = value.replace /^\s+|\s+$/, ''
-    return unless value
-    Meteor.call 'newRound', name: value
-
-  cancel: (evt, template) ->
-    template.addRound.set false
-
-Template.blackboard_add_round.onCreated ->
-  @value = new ReactiveVar ''
-
-Template.blackboard_add_round.onRendered ->
-  @$('input').focus()
-
-Template.blackboard_add_round.helpers
-  titleEditClass: ->
-    val = Template.instance().value.get()
-    return 'error' if not val
-    cval = canonical val
-    return 'error' if share.model.Rounds.findOne(canon: cval)?
-    return 'success'
-  titleEditStatus: ->
-    val = Template.instance().value.get()
-    return 'Cannot be empty' if not val
-    cval = canonical val
-    return "Conflicts with another round" if model.Rounds.findOne(canon: cval)?
-  
-Template.blackboard_add_round.events
-  'input input': (event, template) ->
-    template.value.set event.currentTarget.value
 
 Template.blackboard_favorite_puzzle.onCreated ->
   @autorun =>
@@ -458,7 +429,7 @@ Template.blackboard_meta.helpers
     p = ({
       _id: id
       puzzle: model.Puzzles.findOne(id) or { _id: id }
-    } for id, index in puzzle?.puzzles)
+    } for id, index in puzzle?.puzzles or [])
     editing = Meteor.userId() and (Session.get 'canEdit')
     return p if editing or !HIDE_SOLVED.get()
     p.filter (pp) -> !pp.puzzle.solved?
@@ -579,35 +550,6 @@ Template.blackboard_puzzle.events
     event = event.originalEvent
     if dragdata?.dragover template.data.puzzle, Template.parentData(1).puzzle, Template.parentData(2), event.target, event.clientY, event.dataTransfer
       event.preventDefault()
-
-Template.blackboard_new_puzzle.onCreated ->
-  @name = new ReactiveVar ''
-
-Template.blackboard_new_puzzle.onRendered ->
-  @$('input').focus()
-
-Template.blackboard_new_puzzle.events
-  'focus/input input': (event, template) ->
-    template.name.set event.currentTarget.value
-
-Template.blackboard_new_puzzle.events okCancelEvents 'input',
-  cancel: (evt, template) -> @adding.done()
-  ok: (name, evt, template) ->
-    return unless @adding.done()
-    Meteor.call 'newPuzzle', {name, ...@adding.params}
-
-Template.blackboard_new_puzzle.helpers
-  titleAddClass: ->
-    val = Template.instance().name.get()
-    return 'error' if not val
-    cval = canonical val
-    return 'error' if share.model.Puzzles.findOne(canon: cval)?
-    return 'success'
-  titleAddStatus: ->
-    val = Template.instance().name.get()
-    return 'Cannot be empty' if not val
-    cval = canonical val
-    return "Conflicts with another round" if model.Puzzles.findOne(canon: cval)?
 
 Template.blackboard_column_header_working.onCreated ->
   @autorun =>
