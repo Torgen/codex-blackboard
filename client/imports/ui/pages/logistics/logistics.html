@@ -105,7 +105,7 @@
         <span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>
         {{>logistics_puzzle_presence meta}}
       </a>
-      <btn class="btn btn-mini btn-inverse new-puzzle {{#if creatingFeeder}}active{{/if}}"><i class="fas fa-plus"></i> <i class="fas fa-puzzle-piece"></i></btn>
+      <btn class="btn btn-mini btn-inverse new-puzzle {{#if creatingFeeder}}active{{/if}}" title="Create new puzzle feeding this meta"><i class="fas fa-plus"></i> <i class="fas fa-puzzle-piece"></i></btn>
     </header>
     <div class="feeders">
       {{#each puzzle in p}}
