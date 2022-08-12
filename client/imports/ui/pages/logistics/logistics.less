@@ -22,6 +22,12 @@
   }
 }
 
+.dragover-highlight(@color) {
+  &.dragover, &.dragover ul {
+    box-shadow: 0px 0px 10px 1px @color;
+  }
+}
+
 .bb-logistics-metas {
   flex-grow: 1;
   display: grid;
@@ -113,10 +119,13 @@
       line-height: 18px;
     }
   }
-  .btn .dropdown-menu {
-    text-align: left;
-    font-size: 14px;
-    margin-top: 0;
+  .btn {
+    .dragover-highlight(limegreen);
+    .dropdown-menu {
+      text-align: left;
+      font-size: 14px;
+      margin-top: 0;
+    }
   }
 }
 #bb-logistics-new-round li {
@@ -129,6 +138,8 @@
 .bb-logistics-meta {
   border: 1px solid black;
   --num-rows: calc(2 + (var(--num-feeders, 0))/2);
+  background-color: var(--meta-color);
+  .dragover-highlight(var(--meta-color));
   &.solved {
     opacity: 0.5;
     & > header {

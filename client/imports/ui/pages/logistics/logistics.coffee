@@ -83,6 +83,7 @@ toggleButtonOnDragEnter = (event, template) ->
   if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
     unless event.currentTarget.classList.contains 'open'
       $(event.currentTarget).dropdown('toggle')
+    event.currentTarget.classList.add 'dragover'
     lastEnter = event.target
 
 closeButtonOnDragLeave = (event, template) ->
@@ -93,6 +94,7 @@ closeButtonOnDragLeave = (event, template) ->
     return
   if event.currentTarget.classList.contains 'open'
     $(event.currentTarget).dropdown('toggle')
+  event.currentTarget.classList.remove 'dragover'
 
 Template.logistics.events
   'mousedown #bb-logistics-new-round:not(.open)': (event, template) ->
@@ -119,8 +121,10 @@ Template.logistics.events
   'dragleave li:not(.disabled)': (event, template) ->
     if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       event.currentTarget.classList.remove 'active'
+  'dragenter #bb-logistics-new-round': toggleButtonOnDragEnter
   'dragenter #bb-logistics-new-meta': toggleButtonOnDragEnter
   'dragenter #bb-logistics-new-standalone': toggleButtonOnDragEnter
+  'dragleave #bb-logistics-new-round': closeButtonOnDragLeave
   'dragleave #bb-logistics-new-meta': closeButtonOnDragLeave
   'dragleave #bb-logistics-new-standalone': closeButtonOnDragLeave
   'drop #bb-logistics-new-round': (event, template) ->
