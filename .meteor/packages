@@ -41,3 +41,4 @@ facts-base@1.0.1
 facts-ui@1.0.0
 lmieulet:meteor-coverage
 lmieulet:meteor-legacy-coverage
+reactive-dict

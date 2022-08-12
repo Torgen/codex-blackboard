@@ -2,6 +2,7 @@
 import './logistics.html'
 import './logistics.less'
 import '/client/imports/ui/components/create_object/create_object.coffee'
+import { confirm } from '/client/imports/modal.coffee'
 import { findByChannel } from '/client/imports/presence_index.coffee'
 import colorFromThingWithTags from '/client/imports/objectColor.coffee'
 import { isStuck } from '/lib/imports/tags.coffee'
@@ -15,6 +16,10 @@ nameAndUrlFromDroppedLink = (dataTransfer) ->
     parsedUrl = new URL link
     parsedUrl.pathname().split('/').at(-1)
   {name, url}
+  
+PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
+
+draggedPuzzle = new ReactiveDict
 
 Template.logistics.onCreated ->
   Session.set 'topRight', 'logistics_topright_panel'
@@ -72,6 +77,8 @@ Template.logistics.helpers
       return wasStillCreating?
 
 allowDropUriList = (event, template) ->
+  if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+    return
   if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
     event.preventDefault()
     event.stopPropagation()
@@ -80,6 +87,8 @@ allowDropUriList = (event, template) ->
 lastEnter = null
 
 toggleButtonOnDragEnter = (event, template) ->
+  if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+    return
   if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
     unless event.currentTarget.classList.contains 'open'
       $(event.currentTarget).dropdown('toggle')
@@ -87,7 +96,6 @@ toggleButtonOnDragEnter = (event, template) ->
     lastEnter = event.target
 
 closeButtonOnDragLeave = (event, template) ->
-  console.log lastEnter, event.target, event.currentTarget
   if event.target is lastEnter
     lastEnter = null
   else if event.currentTarget.contains lastEnter
@@ -108,13 +116,27 @@ Template.logistics.events
     template.creatingMeta.set @_id
   'click #bb-logistics-new-standalone a.round-name': (event, template) ->
     template.creatingPuzzle.set @_id
+    
+  'dragstart .bb-logistics-standalone .puzzle': (event, template) ->
+    data = {id: @_id}
+    for k, v of data
+      draggedPuzzle.set k, v
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
+    event.originalEvent.dataTransfer.effectAllowed = 'all'
+  'dragend .feeders .puzzle': (event, template) ->
+    draggedPuzzle.clear()
   'dragover .bb-logistics': (event, template) ->
-      event.originalEvent.dataTransfer.dropEffect = 'none'
-      event.stopPropagation()
-      event.preventDefault()
+    event.originalEvent.dataTransfer.dropEffect = 'none'
+    event.stopPropagation()
+    event.preventDefault()
   'dragover #bb-logistics-new-round': allowDropUriList
   'dragover #bb-logistics-new-meta .round-name': allowDropUriList
   'dragover #bb-logistics-new-standalone .round-name': allowDropUriList
+  'dragover #bb-logistics-delete': (event, template) ->
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      event.originalEvent.dataTransfer.dropEffect = 'move'
+      event.stopPropagation()
+      event.preventDefault()
   'dragenter li:not(.disabled)': (event, template) ->
     if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       event.currentTarget.classList.add 'active'
@@ -124,10 +146,24 @@ Template.logistics.events
   'dragenter #bb-logistics-new-round': toggleButtonOnDragEnter
   'dragenter #bb-logistics-new-meta': toggleButtonOnDragEnter
   'dragenter #bb-logistics-new-standalone': toggleButtonOnDragEnter
+  'dragenter #bb-logistics-delete': (event, template) ->
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      event.currentTarget.classList.add 'dragover'
+      lastEnter = event.target
+
   'dragleave #bb-logistics-new-round': closeButtonOnDragLeave
   'dragleave #bb-logistics-new-meta': closeButtonOnDragLeave
   'dragleave #bb-logistics-new-standalone': closeButtonOnDragLeave
+  'dragleave #bb-logistics-delete': (event, template) ->
+    if event.target is lastEnter
+      lastEnter = null
+    else if event.currentTarget.contains lastEnter
+      return
+    event.currentTarget.classList.remove 'dragover'
   'drop #bb-logistics-new-round': (event, template) ->
+    event.currentTarget.classList.remove 'dragover'
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      return
     if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       event.preventDefault()
       {name, url} = nameAndUrlFromDroppedLink event.originalEvent.dataTransfer
@@ -136,10 +172,14 @@ Template.logistics.events
         link: url
   'drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone': (event, template) ->
     lastEnter = null
+    event.currentTarget.classList.remove 'dragover'
     if event.currentTarget.classList.contains 'open'
       $(event.currentTarget).dropdown('toggle')
 
   'drop #bb-logistics-new-meta .round-name': (event, template) ->
+    event.currentTarget.closest('#bb-logistics-new-meta').classList.remove 'dragover'
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      return
     if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       event.preventDefault()
       {name, url} = nameAndUrlFromDroppedLink event.originalEvent.dataTransfer
@@ -149,6 +189,9 @@ Template.logistics.events
         round: @_id
         puzzles: []
   'drop #bb-logistics-new-standalone .round-name': (event, template) ->
+    event.currentTarget.closest('#bb-logistics-new-standalone').classList.remove 'dragover'
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      return
     if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       event.preventDefault()
       {name, url} = nameAndUrlFromDroppedLink event.originalEvent.dataTransfer
@@ -156,6 +199,17 @@ Template.logistics.events
         name: name
         link: url
         round: @_id
+  'drop #bb-logistics-delete': (event, template) ->
+    event.currentTarget.classList.remove 'dragover'
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      data = JSON.parse event.originalEvent.dataTransfer.getData PUZZLE_MIME_TYPE
+      puzzle = share.model.Puzzles.findOne {_id: data.id}
+      if puzzle?
+        if (await confirm
+          ok_button: 'Yes, delete it'
+          no_button: 'No, cancel'
+          message: "Are you sure you want to delete the puzzle \"#{puzzle.name}\"?")
+          Meteor.call 'deletePuzzle', puzzle._id
 
 Template.logistics_puzzle.helpers
   stuck: isStuck
@@ -177,8 +231,24 @@ Template.logistics_meta.onCreated ->
 Template.logistics_meta.events
   'click .new-puzzle': (event, template) ->
     template.creatingFeeder.set true
+  'dragstart .feeders .puzzle': (event, template) ->
+    data = {id: @_id, meta: template.data.meta._id}
+    for k, v of data
+      draggedPuzzle.set k, v
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
+    event.originalEvent.dataTransfer.effectAllowed = 'all'
+  'dragstart header .meta': (event, template) ->
+    data = {id: @meta._id}
+    for k, v of data
+      draggedPuzzle.set k, v
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
+    event.originalEvent.dataTransfer.effectAllowed = 'all'
+  'dragend .feeders .puzzle, dragend .meta': (event, template) ->
+    draggedPuzzle.clear()
   'dragover .bb-logistics-meta': allowDropUriList
   'dragenter .bb-logistics-meta': (event, template) ->
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      return
     if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       template.draggingLink.set event.target
   'dragleave .bb-logistics-meta': (event, template) ->
@@ -186,6 +256,8 @@ Template.logistics_meta.events
     template.draggingLink.set null
   'drop .bb-logistics-meta': (event, template) ->
     template.draggingLink.set null
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      return
     if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       event.preventDefault()
       {name, url} = nameAndUrlFromDroppedLink event.originalEvent.dataTransfer
