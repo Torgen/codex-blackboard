@@ -19,7 +19,7 @@ nameAndUrlFromDroppedLink = (dataTransfer) ->
   
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 
-draggedPuzzle = new ReactiveDict
+draggedPuzzle = null
 
 Template.logistics.onCreated ->
   Session.set 'topRight', 'logistics_topright_panel'
@@ -118,13 +118,11 @@ Template.logistics.events
     template.creatingPuzzle.set @_id
     
   'dragstart .bb-logistics-standalone .puzzle': (event, template) ->
-    data = {id: @_id}
-    for k, v of data
-      draggedPuzzle.set k, v
-    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
+    draggedPuzzle = {id: @_id}
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(draggedPuzzle)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
   'dragend .feeders .puzzle': (event, template) ->
-    draggedPuzzle.clear()
+    draggedPuzzle = null
   'dragover .bb-logistics': (event, template) ->
     event.originalEvent.dataTransfer.dropEffect = 'none'
     event.stopPropagation()
@@ -232,19 +230,15 @@ Template.logistics_meta.events
   'click .new-puzzle': (event, template) ->
     template.creatingFeeder.set true
   'dragstart .feeders .puzzle': (event, template) ->
-    data = {id: @_id, meta: template.data.meta._id}
-    for k, v of data
-      draggedPuzzle.set k, v
-    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
+    draggedPuzzle = {id: @_id, meta: template.data.meta._id}
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(draggedPuzzle)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
   'dragstart header .meta': (event, template) ->
-    data = {id: @meta._id}
-    for k, v of data
-      draggedPuzzle.set k, v
-    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
+    draggedPuzzle = {id: @meta._id}
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(draggedPuzzle)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
   'dragend .feeders .puzzle, dragend .meta': (event, template) ->
-    draggedPuzzle.clear()
+    draggedPuzzle = null 
   'dragover .bb-logistics-meta': allowDropUriList
   'dragenter .bb-logistics-meta': (event, template) ->
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
