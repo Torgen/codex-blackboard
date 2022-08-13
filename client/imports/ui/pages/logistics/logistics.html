@@ -51,8 +51,8 @@
           </div>
         {{/if}}
         {{#let sa=(standalone r)}}
-          {{#if any sa.length (equal creatingStandalone r._id) u}}
-          <div class="bb-logistics-standalone" style="--num-feeders: calc({{length}}{{#if equal creatingStandalone r._id}} + 1{{/if}})">
+          {{#if any sa.length (equal creatingStandalone r._id)}}
+          <div class="bb-logistics-standalone" style="--num-feeders: calc({{sa.length}}{{#if equal creatingStandalone r._id}} + 1{{/if}})">
             {{#each s in sa}}
               {{> logistics_puzzle s}}
             {{/each}}
