@@ -89,7 +89,7 @@
 </template>
 
 <template name="logistics_puzzle">
-  <a href="/puzzles/{{_id}}" class="puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
+  <a href="/puzzles/{{_id}}" class="{{#if willDelete}}would-disappear{{/if}} puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
     {{>logistics_puzzle_events this}}
     <span class="fill"><span class="puzzle-name">{{name}}</span></span>
     {{>logistics_puzzle_presence this}}
@@ -98,7 +98,7 @@
 
 <template name="logistics_meta">
   {{#let p=puzzles}}
-  <div class="bb-logistics-meta {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}} {{#if draggingLink}}dragover{{/if}}" style="--meta-color: {{color}}; --num-feeders:calc({{p.length}}{{#if creatingFeeder}} + 1{{/if}}{{#if draggingLink}} + 1{{/if}})">
+  <div class="bb-logistics-meta {{#if willDelete}}would-disappear{{/if}} {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}} {{#if draggingLink}}dragover{{/if}}" style="--meta-color: {{color}}; --num-feeders:calc({{p.length}}{{#if creatingFeeder}} + 1{{/if}}{{#if draggingLink}} + 1{{/if}})">
     <header>
       <div class="round">{{round.name}}</div>
       <a href="/puzzles/{{meta._id}}" class="meta puzzles-link {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">

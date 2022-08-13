@@ -19,7 +19,7 @@ nameAndUrlFromDroppedLink = (dataTransfer) ->
   
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 
-draggedPuzzle = null
+draggedPuzzle = new ReactiveDict
 
 Template.logistics.onCreated ->
   Session.set 'topRight', 'logistics_topright_panel'
@@ -118,11 +118,12 @@ Template.logistics.events
     template.creatingPuzzle.set @_id
     
   'dragstart .bb-logistics-standalone .puzzle': (event, template) ->
-    draggedPuzzle = {id: @_id}
-    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(draggedPuzzle)
+    data = {id: @_id, meta: null}
+    draggedPuzzle.set data
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
   'dragend .feeders .puzzle': (event, template) ->
-    draggedPuzzle = null
+    draggedPuzzle.clear()
   'dragover .bb-logistics': (event, template) ->
     event.originalEvent.dataTransfer.dropEffect = 'none'
     event.stopPropagation()
@@ -148,6 +149,7 @@ Template.logistics.events
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
       event.currentTarget.classList.add 'dragover'
       lastEnter = event.target
+      draggedPuzzle.set 'willDelete', true
 
   'dragleave #bb-logistics-new-round': closeButtonOnDragLeave
   'dragleave #bb-logistics-new-meta': closeButtonOnDragLeave
@@ -158,6 +160,7 @@ Template.logistics.events
     else if event.currentTarget.contains lastEnter
       return
     event.currentTarget.classList.remove 'dragover'
+    draggedPuzzle.set 'willDelete', false
   'drop #bb-logistics-new-round': (event, template) ->
     event.currentTarget.classList.remove 'dragover'
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
@@ -211,7 +214,8 @@ Template.logistics.events
 
 Template.logistics_puzzle.helpers
   stuck: isStuck
-
+  willDelete: ->
+    draggedPuzzle.get('willDelete') and draggedPuzzle.equals('id', @_id) 
 Template.logistics_puzzle_events.helpers
   soonest_ending_current_event: ->
     now = Session.get 'currentTime'
@@ -230,15 +234,17 @@ Template.logistics_meta.events
   'click .new-puzzle': (event, template) ->
     template.creatingFeeder.set true
   'dragstart .feeders .puzzle': (event, template) ->
-    draggedPuzzle = {id: @_id, meta: template.data.meta._id}
-    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(draggedPuzzle)
+    data = {id: @_id, meta: template.data.meta._id}
+    draggedPuzzle.set data
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
   'dragstart header .meta': (event, template) ->
-    draggedPuzzle = {id: @meta._id}
-    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(draggedPuzzle)
+    data = {id: @meta._id, meta: null}
+    draggedPuzzle.set data
+    event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
   'dragend .feeders .puzzle, dragend .meta': (event, template) ->
-    draggedPuzzle = null 
+    draggedPuzzle.clear()
   'dragover .bb-logistics-meta': allowDropUriList
   'dragenter .bb-logistics-meta': (event, template) ->
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
@@ -276,6 +282,8 @@ Template.logistics_meta.helpers
       wasStillCreating = instance.creatingFeeder.get()
       instance.creatingFeeder.set false
       return wasStillCreating
+  willDelete: ->
+    draggedPuzzle.get('willDelete') and draggedPuzzle.equals('id', @meta._id) 
 
 Template.logistics_puzzle_presence.helpers
   presenceForScope: (scope) ->
