@@ -75,6 +75,11 @@ Template.logistics.helpers
       wasStillCreating = instance.creatingPuzzle.get()
       instance.creatingPuzzle.set null
       return wasStillCreating?
+  unfeeding: ->
+    if draggedPuzzle.get('meta')? and not draggedPuzzle.get('targetMeta')?
+      puzz = share.model.Puzzles.findOne(_id: draggedPuzzle.get 'id')
+      return puzz if puzz?.feedsInto.length is 1
+       
 
 allowDropUriList = (event, template) ->
   if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
@@ -125,7 +130,11 @@ Template.logistics.events
   'dragend .bb-logistics-standalone .puzzle': (event, template) ->
     draggedPuzzle.clear()
   'dragover .bb-logistics': (event, template) ->
-    event.originalEvent.dataTransfer.dropEffect = 'none'
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      if draggedPuzzle.get('meta')?
+        event.originalEvent.dataTransfer.dropEffect = 'move'
+      else
+        event.originalEvent.dataTransfer.dropEffect = 'none'
     event.stopPropagation()
     event.preventDefault()
   'dragover #bb-logistics-new-round': allowDropUriList
@@ -161,6 +170,14 @@ Template.logistics.events
       return
     event.currentTarget.classList.remove 'dragover'
     draggedPuzzle.set 'willDelete', false
+  'drop .bb-logistics': (event, template) ->
+    return unless event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+    event.preventDefault()
+    event.stopPropagation()
+    data = JSON.parse event.originalEvent.dataTransfer.getData PUZZLE_MIME_TYPE
+    if data.meta?
+      Meteor.call 'unfeedMeta', data.id, data.meta
+  
   'drop #bb-logistics-new-round': (event, template) ->
     event.currentTarget.classList.remove 'dragover'
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
@@ -203,6 +220,8 @@ Template.logistics.events
   'drop #bb-logistics-delete': (event, template) ->
     event.currentTarget.classList.remove 'dragover'
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      event.preventDefault()
+      event.stopPropagation()
       data = JSON.parse event.originalEvent.dataTransfer.getData PUZZLE_MIME_TYPE
       puzzle = share.model.Puzzles.findOne {_id: data.id}
       if puzzle?
@@ -219,7 +238,15 @@ Template.logistics_puzzle.helpers
       return false
     if draggedPuzzle.get('willDelete') 
       return true
-    return @feedsInto.length is 0 and draggedPuzzle.get('targetMeta')?
+    targetMeta = draggedPuzzle.get('targetMeta')
+    if targetMeta?
+      return @feedsInto.length is 0
+    else
+      return draggedPuzzle.equals('meta', Template.parentData()?.meta?._id)
+  draggingIn: ->
+    localMeta = Template.parentData()?.meta
+    return false unless localMeta?
+    return draggedPuzzle.equals('id', @_id) and draggedPuzzle.equals('targetMeta',localMeta._id) and not @feedsInto.includes draggedPuzzle.get 'targetMeta'
 Template.logistics_puzzle_events.helpers
   soonest_ending_current_event: ->
     now = Session.get 'currentTime'
@@ -274,6 +301,7 @@ Template.logistics_meta.events
     template.draggingLink.set null
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
       event.preventDefault()
+      event.stopPropagation()
       data = JSON.parse event.originalEvent.dataTransfer.getData PUZZLE_MIME_TYPE
       return if data.meta is template.data.meta._id
       Meteor.call 'feedMeta', data.id, template.data.meta._id

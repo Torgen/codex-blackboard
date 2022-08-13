@@ -51,7 +51,7 @@
           </div>
         {{/if}}
         {{#let sa=(standalone r)}}
-          {{#if any sa.length (equal creatingStandalone r._id)}}
+          {{#if any sa.length (equal creatingStandalone r._id) u}}
           <div class="bb-logistics-standalone" style="--num-feeders: calc({{length}}{{#if equal creatingStandalone r._id}} + 1{{/if}})">
             {{#each s in sa}}
               {{> logistics_puzzle s}}
@@ -59,10 +59,17 @@
             {{#if equal creatingStandalone r._id}}
               {{>create_object type="puzzles" done=doneCreatingStandalone params=(puzzleParams r._id)}}
             {{/if}}
+            {{#if u}}
+            {{/if}}
           </div>
           {{/if}}
         {{/let}}
       {{/each}}
+      {{#with unfeeding}}
+        <div class="bb-logistics-standalone" style="--num-feeders: 1">
+          {{>logistics_puzzle}}
+        </div>
+      {{/with}}
     </section>
     {{> callins_table}}
   </div>
@@ -89,7 +96,7 @@
 </template>
 
 <template name="logistics_puzzle">
-  <a href="/puzzles/{{_id}}" class="{{#if willDelete}}would-disappear{{/if}} puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
+  <a href="/puzzles/{{_id}}" class="{{#if draggingIn}}dragged-link{{else if willDelete}}would-disappear{{/if}} puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
     {{>logistics_puzzle_events this}}
     <span class="fill"><span class="puzzle-name">{{name}}</span></span>
     {{>logistics_puzzle_presence this}}
@@ -117,7 +124,7 @@
       {{/if}}
       {{#if draggingLink}}
         {{#if fromAnotherMeta}}
-          <div class="puzzle dragged-link">{{draggedPuzzle.name}}</div>
+          {{>logistics_puzzle draggedPuzzle}}
         {{else unless draggedPuzzle}}
           <div class="puzzle dragged-link">Dragged Link</div>
         {{/if}}
