@@ -122,7 +122,7 @@ Template.logistics.events
     draggedPuzzle.set data
     event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
-  'dragend .feeders .puzzle': (event, template) ->
+  'dragend .bb-logistics-standalone .puzzle': (event, template) ->
     draggedPuzzle.clear()
   'dragover .bb-logistics': (event, template) ->
     event.originalEvent.dataTransfer.dropEffect = 'none'
@@ -215,7 +215,11 @@ Template.logistics.events
 Template.logistics_puzzle.helpers
   stuck: isStuck
   willDelete: ->
-    draggedPuzzle.get('willDelete') and draggedPuzzle.equals('id', @_id) 
+    unless draggedPuzzle.equals('id', @_id)
+      return false
+    if draggedPuzzle.get('willDelete') 
+      return true
+    return @feedsInto.length is 0 and draggedPuzzle.get('targetMeta')?
 Template.logistics_puzzle_events.helpers
   soonest_ending_current_event: ->
     now = Session.get 'currentTime'
@@ -234,7 +238,7 @@ Template.logistics_meta.events
   'click .new-puzzle': (event, template) ->
     template.creatingFeeder.set true
   'dragstart .feeders .puzzle': (event, template) ->
-    data = {id: @_id, meta: template.data.meta._id}
+    data = {id: @_id, meta: template.data.meta._id, targetMeta: template.data.meta._id}
     draggedPuzzle.set data
     event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
@@ -245,20 +249,35 @@ Template.logistics_meta.events
     event.originalEvent.dataTransfer.effectAllowed = 'all'
   'dragend .feeders .puzzle, dragend .meta': (event, template) ->
     draggedPuzzle.clear()
-  'dragover .bb-logistics-meta': allowDropUriList
+  'dragover .bb-logistics-meta': (event, template) ->
+    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      if draggedPuzzle.equals 'meta', template.data.meta._id
+        event.originalEvent.dataTransfer.dropEffect = 'none'
+      else
+        event.originalEvent.dataTransfer.dropEffect = 'link'
+    else if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
+      event.originalEvent.dataTransfer.dropEffect = 'copy'
+    else return
+    event.preventDefault()
+    event.stopPropagation()
   'dragenter .bb-logistics-meta': (event, template) ->
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+      draggedPuzzle.set 'targetMeta', @meta._id
+    else unless event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       return
-    if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
-      template.draggingLink.set event.target
+    template.draggingLink.set event.target
   'dragleave .bb-logistics-meta': (event, template) ->
     return unless template.draggingLink.get() is event.target
     template.draggingLink.set null
+    draggedPuzzle.set 'targetMeta', null
   'drop .bb-logistics-meta': (event, template) ->
     template.draggingLink.set null
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
-      return
-    if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
+      event.preventDefault()
+      data = JSON.parse event.originalEvent.dataTransfer.getData PUZZLE_MIME_TYPE
+      return if data.meta is template.data.meta._id
+      Meteor.call 'feedMeta', data.id, template.data.meta._id
+    else if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
       event.preventDefault()
       {name, url} = nameAndUrlFromDroppedLink event.originalEvent.dataTransfer
       Meteor.call 'newPuzzle',
@@ -283,7 +302,10 @@ Template.logistics_meta.helpers
       instance.creatingFeeder.set false
       return wasStillCreating
   willDelete: ->
-    draggedPuzzle.get('willDelete') and draggedPuzzle.equals('id', @meta._id) 
+    draggedPuzzle.get('willDelete') and draggedPuzzle.equals('id', @meta._id)
+  fromAnotherMeta: ->
+    return not draggedPuzzle.equals 'meta', @meta._id
+  draggedPuzzle: -> share.model.Puzzles.findOne(_id: draggedPuzzle.get('id'))
 
 Template.logistics_puzzle_presence.helpers
   presenceForScope: (scope) ->
