@@ -6,16 +6,16 @@
   "dependencies": {
     "@babel/runtime": "^7.18.9",
     "@googlemaps/js-api-loader": "^1.14.3",
-    "@googlemaps/markerclusterer": "^2.0.8",
+    "@googlemaps/markerclusterer": "^2.0.10",
     "@googlemaps/markerwithlabel": "^2.0.14",
-    "chart.js": "^3.8.0",
+    "chart.js": "^3.9.1",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "coffeescript": "^2.7.0",
     "css-color-names": "1.0.1",
     "cytoscape": "^3.22.0",
     "cytoscape-fcose": "^2.1.0",
     "cytoscape-layout-utilities": "^1.1.1",
-    "dayjs": "^1.11.4",
+    "dayjs": "^1.11.5",
     "delay": "^5.0.0",
     "denodeify": "^1.2.1",
     "favico.js": "^0.3.10",
@@ -25,13 +25,13 @@
     "hubot-help": "^1.0.1",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
-    "meteor-node-stubs": "^1.2.3",
+    "meteor-node-stubs": "^1.2.5",
     "sanitize-html": "^2.7.1",
     "twitter-api-v2": "^1.12.3"
   },
   "devDependencies": {
     "chai": "^4.3.6",
-    "puppeteer": "^15.4.0",
+    "puppeteer": "^16.1.0",
     "sinon": "^14.0.0"
   },
   "scripts": {

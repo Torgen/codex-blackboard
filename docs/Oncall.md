@@ -25,6 +25,23 @@ First Shift
 ===========
 If you're oncall when the hunt starts, there are some [dynamic settings](Dynamic-Settings.md) you will want to set, as they will improve the experience for yourself, future oncalls, and your solvers. Set them as appropriate as soon as you know the appropriate values.
 
+Onduty Role
+===========
+When you become oncall, you should claim the onduty role. At the top of the blackboard and above the callins table on the callins page,
+a control with a pager icon will show the current onduty, or will turn orange if nobody is onduty. The green hand button will claim the
+role, including from someone else.
+
+The info panel above chat on every puzzle page has a read-only version of this control, so that solvers know whether someone is on duty.
+If they don't think anyone is on duty, they may call in answers themselves or conflict with each other adding new puzzles, so marking
+yourself as on duty makes it clear that these responsibilities are covered. Also, when someone uses `@` or `/msg` in chat, your nickname
+will appear at the top of the suggestion box so that solvers can easily get your attention with mentions and private messages.
+
+By default, claiming the on duty role lasts for an hour before expiring automatically. If you perform an action commonly associated with
+the on duty role while you have the role, such as adding a new puzzle or resolving a callin, your shift will automatically be extended by
+an hour from that point. If you have gone 30 minutes without performing such an action, a clock button will appear on the onduty control
+to allow you to extend your shift manually, so you don't lose it by surprise. If you know that you will not be able to be on duty anymore
+(e.g. you are going to sleep), the door button will relinquish the role.
+
 Calendar Events
 ===============
 (*New for 2022*) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared  with you, either because you are a member of the appropriate Google group or you were added explicitly by the owner, you will be able to add events to the calendar which will sync to the blackboard. (Calendars are never editable by the public.) If you should be able to edit the calendar and can't, contact whoever owns the machine.)
