@@ -37,7 +37,7 @@ yourself as on duty makes it clear that these responsibilities are covered. Also
 will appear at the top of the suggestion box so that solvers can easily get your attention with mentions and private messages.
 
 By default, claiming the on duty role lasts for an hour before expiring automatically. (The duration can be customized with the
-[Role Renewal Time](Dynamic-Settings.md#role-renewal-time) dynamic setting.) If you perform an action commonly associated with the on duty
+[Role Renewal Time](Dynamic-Settings.md#user-content-role-renewal-time) dynamic setting.) If you perform an action commonly associated with the on duty
 role while you have the role, such as adding a new puzzle or resolving a callin, your shift will automatically be extended by the role
 renewal time from that point. If you have gone half the renewal time without performing such an action, a clock button will appear on the
 onduty control to allow you to extend your shift manually, so you don't lose it by surprise. If you know that you will not be able to be
@@ -112,7 +112,7 @@ To create a round
 -----------------
 * From the Logistics page, drag a link to the round from the hunt site onto the "Round" button in the "+ New"
 section at the top left. The round's name will be the text of the link. You can create a round without a URL by clicking the
-Round button and typing the name in the text area. (If the [Round URL Prefix](Dynamic-Settings.md#round-url-prefix) dynamic
+Round button and typing the name in the text area. (If the [Round URL Prefix](Dynamic-Settings.md#user-content-round-url-prefix) dynamic
 setting is set, blackboard will attempt to guess the URL from the name.)
 * Using the Blackboard's edit mode, click the "New Round" button at the top of the table. You can edit the URL under the round's tags.
 * Using the bot, say: `bot NAME is a new round`. If you know the URL, you can add `with url X` to the command to set it.
@@ -122,7 +122,7 @@ To create a new metapuzzle
 * On the Logistics page, drag a link to the puzzle from the hunt site onto the "Meta" button in the "+ New" section at the
 top left, then drop it onto the name of the round the Metapuzzle belongs to. The name of the metapuzzle will be the text of
 the link. You can create a metapuzzle without a URL by clicking the Meta button, then clicking the round name in the dropdown.
-(If the [Puzzle URL Prefix](Dynamic-Settings.md#puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
+(If the [Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
 the URL from the puzzle name.)
 * Using the Blackboard's edit mode, click the "New Meta" button in the round header and type the puzzle's name in the focused
 text box. You can edit the URL under the tags.
@@ -133,7 +133,7 @@ To create a new puzzle feeding into a meta
 ------------------------------------------
 * Using the Logistics page, drag a link to the puzzle onto the meta. The name of the puzzle will be the text of the link. To
 create a puzzle without a URL, click the "+ puzzle" button in the corner of the meta. (If the
-[Puzzle URL Prefix](Dynamic-Settings.md#puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
+[Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
 the URL from the puzzle name.)
 * Using the Blackboard's edit mode, click the "New Puzzle" button in the meta's section footer. You can edit the URL under the
 new puzzle's tags.
@@ -145,7 +145,7 @@ To create a non-meta puzzle that doesn't feed into any metas
 * Using the logistics page, drag a link to the puzzle from the hunt site onto the Puzzle button in the "+ New" section at the
 top left, then drop it on the round to create the puzzle in. The name of the puzzle will be the text of the link. To create a
 puzzle without a URL, click the "+ puzzle" button in the corner of the meta. (If the
-[Puzzle URL Prefix](Dynamic-Settings.md#puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess the URL
+[Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess the URL
 from the puzzle name.)
 * Using the Blackboard's edit mode, click the caret at the right side of the "New Meta" button and choose
 "New uncategorized puzzle" in the dropdown. You can edit the URL in the new puzzle's tags.
