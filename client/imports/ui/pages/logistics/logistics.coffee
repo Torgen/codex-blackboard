@@ -20,6 +20,7 @@ nameAndUrlFromDroppedLink = (dataTransfer) ->
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
 
 draggedPuzzle = new ReactiveDict
+editingPuzzle = new ReactiveVar
 
 Template.logistics.onCreated ->
   Session.set 'topRight', 'logistics_topright_panel'
@@ -36,6 +37,9 @@ Template.logistics.onCreated ->
 
 Template.logistics.onRendered ->
   $("title").text("Logistics")
+  @autorun =>
+    if editingPuzzle.get()?
+      @$('#bb-logistics-edit-dialog').modal 'show'
 
 Template.logistics.helpers
   rounds: ->
@@ -79,6 +83,13 @@ Template.logistics.helpers
     if draggedPuzzle.get('meta')? and not draggedPuzzle.get('targetMeta')?
       puzz = share.model.Puzzles.findOne(_id: draggedPuzzle.get 'id')
       return puzz if puzz?.feedsInto.length is 1
+  editingPuzzle: ->
+    _id = editingPuzzle.get()
+    if _id?
+      share.model.Puzzles.findOne({_id})
+  modalColor: ->
+    p = share.model.Puzzles.findOne(_id: editingPuzzle.get())
+    colorFromThingWithTags p if p?
        
 
 allowDropUriList = (event, template) ->
@@ -230,6 +241,8 @@ Template.logistics.events
           no_button: 'No, cancel'
           message: "Are you sure you want to delete the puzzle \"#{puzzle.name}\"?")
           Meteor.call 'deletePuzzle', puzzle._id
+  'hidden #bb-logistics-edit-dialog': (event, template) ->
+    editingPuzzle.set null
 
 Template.logistics_puzzle.helpers
   stuck: isStuck
@@ -247,6 +260,15 @@ Template.logistics_puzzle.helpers
     localMeta = Template.parentData()?.meta
     return false unless localMeta?
     return draggedPuzzle.equals('id', @_id) and draggedPuzzle.equals('targetMeta',localMeta._id) and not @feedsInto.includes draggedPuzzle.get 'targetMeta'
+
+Template.logistics_puzzle.events
+  'click .bb-logistics-edit-puzzle': (event, template) ->
+    return unless event.button is 0
+    return if event.ctrlKey or event.altKey or event.metaKey
+    event.preventDefault()
+    event.stopPropagation()
+    editingPuzzle.set @_id
+
 Template.logistics_puzzle_events.helpers
   soonest_ending_current_event: ->
     now = Session.get 'currentTime'
@@ -264,6 +286,12 @@ Template.logistics_meta.onCreated ->
 Template.logistics_meta.events
   'click .new-puzzle': (event, template) ->
     template.creatingFeeder.set true
+  'click header .bb-logistics-edit-puzzle': (event, template) ->
+    return unless event.button is 0
+    return if event.ctrlKey or event.altKey or event.metaKey
+    event.preventDefault()
+    event.stopPropagation()
+    editingPuzzle.set @meta._id
   'dragstart .feeders .puzzle': (event, template) ->
     data = {id: @_id, meta: template.data.meta._id, targetMeta: template.data.meta._id}
     draggedPuzzle.set data

@@ -1,4 +1,5 @@
 .bb-logistics {
+  position: relative;
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
@@ -19,6 +20,13 @@
       top: initial;
       bottom: 100%;
     }
+  }
+}
+#bb-logistics-edit-dialog .modal-body {
+  background-color: var(--much-lighter);
+  border-radius: 6px;
+  h2 {
+    display: none;
   }
 }
 
@@ -45,6 +53,18 @@
     text-decoration: none;
     background-color: var(--barely-darker);
   }
+  .puzzle, .meta {
+    .fill {
+      flex-grow: 1;
+      flex-shrink: 1;
+      position: relative;
+    }
+    .puzzle-name {
+      position: absolute;
+      left: 0;
+      right: 0;
+    }
+  }
   .puzzle {
     outline: 1px solid black;
     padding: 1px 2px 2px 1px;
@@ -62,15 +82,8 @@
     .fas.fa-comment-alt {
       font-size: 120%;
     }
-    .fill {
-      flex-grow: 1;
-      flex-shrink: 1;
-      position: relative;
-    }
-    .puzzle-name {
-      position: absolute;
-      left: 0;
-      right: 0;
+    .bb-logistics-edit-puzzle {
+      margin: 0.2em 0.1em 0px;
     }
   }
   a.puzzle, a.meta {
@@ -96,6 +109,16 @@
         margin-left: auto;
         margin-right: auto;
       }
+    }
+    .bb-logistics-edit-puzzle {
+      display: none;
+      opacity: 0.5;
+      &:hover {
+        opacity: 1.0;
+      }
+    }
+    &:hover .bb-logistics-edit-puzzle {
+      display: unset;
     }
     .fas.fa-video .count {
       vertical-align: middle;
@@ -224,7 +247,7 @@
     margin-left: 1px;
     margin-top: 1px;
     &.solved { opacity: 0.5; }
-    .events {margin-top: .1em;}
+    .events, .bb-logistics-edit-puzzle {margin-top: .1em;}
   }
 }
 .bb-logistics-meta, .bb-logistics-standalone {

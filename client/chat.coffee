@@ -92,13 +92,16 @@ Template.chat.helpers
     type isnt 'general' and \
       (model.collection(type)?.findOne Session.get("id"))?.solved
 
+starred_messages_room = ->
+  Template.currentData().room_name ? Session.get 'room_name'
+
 Template.starred_messages.onCreated ->
   this.autorun =>
-    this.subscribe 'starred-messages', Session.get 'room_name'
+    this.subscribe 'starred-messages', starred_messages_room()
 
 Template.starred_messages.helpers
   messages: ->
-    model.Messages.find {room_name: (Session.get 'room_name'), starred: true },
+    model.Messages.find {room_name: starred_messages_room(), starred: true },
       sort: [['timestamp', 'asc']]
       transform: messageTransform
 

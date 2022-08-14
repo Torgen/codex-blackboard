@@ -41,7 +41,7 @@
   </tr>
 {{/unless}}
 </tbody></table>
-{{> starred_messages canModify=mynick}}
+{{> starred_messages canModify=mynick room_name=(concat 'puzzles/' puzzle._id)}}
 {{#let cs=callins}}
   {{#if cs.count}}
     <h3>Callin History</h3>

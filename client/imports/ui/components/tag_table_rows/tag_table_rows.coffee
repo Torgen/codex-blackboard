@@ -49,7 +49,7 @@ Template.tag_table_rows.helpers
         (canon is 'status' or \
             (@type isnt 'rounds' and canon is 'answer'))) or \
         ((canon is 'answer' or canon is 'backsolve') and \
-        (Session.equals('currentPage', 'puzzle'))))
+        (Session.equals('currentPage', 'puzzle') or Session.equals('currentPage', 'logistics_page'))))
   tagAddClass: ->
     val = Template.instance().newTagName.get()
     return 'error' if not val

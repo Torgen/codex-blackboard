@@ -73,6 +73,13 @@
     </section>
     {{> callins_table}}
   </div>
+  <div id="bb-logistics-edit-dialog" data-dismiss="modal" class="modal fade" style="background-color: {{modalColor}}">
+    <div class="modal-body">
+      {{#with editingPuzzle}}
+        {{>puzzle_info puzzle=this}}
+      {{/with}}
+    </div>
+  </div>
 </template>
 
 <template name="logistics_puzzle_presence">
@@ -99,6 +106,7 @@
   <a href="/puzzles/{{_id}}" class="{{#if draggingIn}}dragged-link{{else if willDelete}}would-disappear{{/if}} puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
     {{>logistics_puzzle_events this}}
     <span class="fill"><span class="puzzle-name">{{name}}</span></span>
+    <i class="fas fa-edit bb-logistics-edit-puzzle"></i>
     {{>logistics_puzzle_presence this}}
   </a>
 </template>
@@ -111,6 +119,7 @@
       <a href="/puzzles/{{meta._id}}" class="meta puzzles-link {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
         {{>logistics_puzzle_events meta}}
         <span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>
+        <i class="fas fa-edit bb-logistics-edit-puzzle"></i>
         {{>logistics_puzzle_presence meta}}
       </a>
       <btn class="btn btn-mini btn-inverse new-puzzle {{#if creatingFeeder}}active{{/if}}" title="Create new puzzle feeding this meta"><i class="fas fa-plus"></i> <i class="fas fa-puzzle-piece"></i></btn>
