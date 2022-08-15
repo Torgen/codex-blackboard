@@ -40,6 +40,9 @@ Template.logistics.onRendered ->
   @autorun =>
     if editingPuzzle.get()?
       @$('#bb-logistics-edit-dialog').modal 'show'
+      $(document).on 'keydown.dismiss-edit-dialog', (e) =>
+        if e.which is 27
+          @$('#bb-logistics-edit-dialog').modal 'hide'
 
 Template.logistics.helpers
   rounds: ->
@@ -243,6 +246,7 @@ Template.logistics.events
           Meteor.call 'deletePuzzle', puzzle._id
   'hidden #bb-logistics-edit-dialog': (event, template) ->
     editingPuzzle.set null
+    $(document).off 'keydown.dismiss-edit-dialog'
 
 Template.logistics_puzzle.helpers
   stuck: isStuck
