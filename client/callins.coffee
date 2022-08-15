@@ -76,12 +76,16 @@ Template.callin_row.events
 
 Template.callin_copy_and_go.events
   "click .copy-and-go": (event, template) ->
+    event.preventDefault()
+    url = event.currentTarget.href
+    await navigator.clipboard.writeText $(event.currentTarget.dataset.clipboardTarget).text()
     Meteor.call 'setField',
       type: 'callins'
       object: @callin._id
       fields:
         submitted_to_hq: true
         submitted_by: Meteor.userId()
+    window.open url, '_blank'
 
 Template.callin_type_dropdown.events
   'click a[data-callin-type]': (event, template) ->
