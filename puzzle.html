@@ -1,6 +1,6 @@
 <template name="puzzle_info">
 <div class="bb-puzzle-info bb-canEdit">
-<div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
+<header class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
   <h2>
     {{>onduty_current}}{{> header_breadcrumbs_unsolved_buttons puzzle}}
     {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}"><i class="fab fa-google-drive"></i></a>{{/if}}
@@ -9,7 +9,7 @@
     {{>calendar_attachable_events puzzle=puzzle._id}}
   </h2>
   {{> edit_object_title id=puzzle._id type="puzzles" editable=true}}
-</div>
+</header>
 {{>calendar_puzzle_events puzzle}}
 <table class="bb-puzzle-info-tags"><tbody>
 {{#with puzzle}}
