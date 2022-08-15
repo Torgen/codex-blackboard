@@ -14,6 +14,7 @@ Template.calendar_dropdown.helpers
     model.CalendarEvents.findOne({end: $gt: now}, {sort: start: 1})?.start - now
 
 calendar_container Template.calendar_link
+calendar_container Template.calendar_add_link
 calendar_container Template.calendar_strip
 
 Template.calendar_event.helpers

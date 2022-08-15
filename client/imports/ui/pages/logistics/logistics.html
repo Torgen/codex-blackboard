@@ -146,9 +146,10 @@
 
 <template name="logistics_topright_panel">
   <div class="bb-logistics-info">
-    <div class="btn-toolbar">
+    <h3>
       {{>onduty_control}}
-    </div>
+      {{>calendar_add_link}}
+    </h3>
     {{>starred_messages canModify=mynick}}
   </div>
 </template>
