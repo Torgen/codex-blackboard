@@ -171,9 +171,6 @@ debouncedUpdate = ->
   {now, update}
 
 Meteor.startup ->
-  new Clipboard '.copy-and-go'
-
-Meteor.startup ->
   # Notifications based on oplogs
   {now, update} = debouncedUpdate()
   suppress = true
