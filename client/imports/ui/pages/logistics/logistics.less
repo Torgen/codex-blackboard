@@ -1,6 +1,11 @@
 .bb-logistics {
-  position: relative;
+  position: fixed;
+  top: 40px;
+  bottom: 0;
+  left: 0;
+  right: calc(var(--right-column) + 6px);
   display: flex;
+  overflow: hidden;
   flex-flow: column nowrap;
   height: 100%;
   .bb-callin-queue {
@@ -8,6 +13,7 @@
     padding: 0px 10px;
     border-top: 1px solid black;
     flex-grow: 0;
+    flex-shrink: 0;
     height: 0px;
     overflow-y: auto;
     transition: height 0.25s ease-in;
@@ -21,6 +27,24 @@
       bottom: 100%;
     }
   }
+  #bb-calendar-events-strip {
+    flex-flow: column nowrap;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 4px 0px 0px 4px;
+    li {
+      margin-bottom: 4px;
+      margin-right: 0px;
+    }
+  }
+}
+.bb-logistics-top {
+  display: flex;
+  flex-flow: row nowrap;
+  flex-grow: 1;
+  flex-shrink: 1;
+  align-items: stretch;
+  overflow: hidden;
 }
 #bb-logistics-edit-dialog .modal-body {
   background-color: var(--much-lighter);
@@ -45,11 +69,12 @@
 
 .bb-logistics-metas {
   flex-grow: 1;
+  flex-shrink: 1;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   grid-template-rows: repeat(auto-fill, 20px);
   gap: 4px;
-  margin: 4px;
+  padding: 4px;
   overflow-y: auto;
   overflow-x: clip;
   a:hover {
@@ -200,6 +225,9 @@
       &, * {
         height: 30px;
         font-size: 28px;
+      }
+      .events {
+        margin-top: 0;
       }
       .fas.fa-video {
         font-size: 100%;

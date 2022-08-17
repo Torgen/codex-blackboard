@@ -18,6 +18,7 @@ nameAndUrlFromDroppedLink = (dataTransfer) ->
   {name, url}
   
 PUZZLE_MIME_TYPE = 'application/prs.codex-puzzle'
+CALENDAR_EVENT_MIME_TYPE = 'application/prs.codex-calendar-event'
 
 draggedPuzzle = new ReactiveDict
 editingPuzzle = new ReactiveVar
@@ -141,6 +142,9 @@ Template.logistics.events
     draggedPuzzle.set data
     event.originalEvent.dataTransfer.setData PUZZLE_MIME_TYPE, JSON.stringify(data)
     event.originalEvent.dataTransfer.effectAllowed = 'all'
+  'dragstart .bb-calendar-event': (event, template) ->
+    event.originalEvent.dataTransfer.setData CALENDAR_EVENT_MIME_TYPE, @event._id
+    event.originalEvent.dataTransfer.effectAllowed = 'link'
   'dragend .bb-logistics-standalone .puzzle': (event, template) ->
     draggedPuzzle.clear()
   'dragover .bb-logistics': (event, template) ->
@@ -149,6 +153,8 @@ Template.logistics.events
         event.originalEvent.dataTransfer.dropEffect = 'move'
       else
         event.originalEvent.dataTransfer.dropEffect = 'none'
+    else
+      event.originalEvent.dataTransfer.dropEffect = 'none'
     event.stopPropagation()
     event.preventDefault()
   'dragover #bb-logistics-new-round': allowDropUriList
@@ -272,6 +278,17 @@ Template.logistics_puzzle.events
     event.preventDefault()
     event.stopPropagation()
     editingPuzzle.set @_id
+  'dragover .puzzle': (event, template) ->
+    if event.originalEvent.dataTransfer.types.includes CALENDAR_EVENT_MIME_TYPE
+      event.originalEvent.dataTransfer.dropEffect = 'link'
+      event.preventDefault()
+      event.stopPropagation()
+  'drop .puzzle': (event, template) ->
+    if event.originalEvent.dataTransfer.types.includes CALENDAR_EVENT_MIME_TYPE
+      id = event.originalEvent.dataTransfer.getData CALENDAR_EVENT_MIME_TYPE
+      Meteor.call 'setPuzzleForEvent', id, @_id
+      event.preventDefault()
+      event.stopPropagation()
 
 Template.logistics_puzzle_events.helpers
   soonest_ending_current_event: ->
@@ -308,6 +325,11 @@ Template.logistics_meta.events
     event.originalEvent.dataTransfer.effectAllowed = 'all'
   'dragend .feeders .puzzle, dragend .meta': (event, template) ->
     draggedPuzzle.clear()
+  'dragover header .meta': (event, template) ->
+    if event.originalEvent.dataTransfer.types.includes CALENDAR_EVENT_MIME_TYPE
+      event.originalEvent.dataTransfer.dropEffect = 'link'
+      event.preventDefault()
+      event.stopPropagation()
   'dragover .bb-logistics-meta': (event, template) ->
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
       if draggedPuzzle.equals 'meta', template.data.meta._id
@@ -329,6 +351,12 @@ Template.logistics_meta.events
     return unless template.draggingLink.get() is event.target
     template.draggingLink.set null
     draggedPuzzle.set 'targetMeta', null
+  'drop header .meta': (event, template) ->
+    if event.originalEvent.dataTransfer.types.includes CALENDAR_EVENT_MIME_TYPE
+      id = event.originalEvent.dataTransfer.getData CALENDAR_EVENT_MIME_TYPE
+      Meteor.call 'setPuzzleForEvent', id, @meta._id
+      event.preventDefault()
+      event.stopPropagation()
   'drop .bb-logistics-meta': (event, template) ->
     template.draggingLink.set null
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE

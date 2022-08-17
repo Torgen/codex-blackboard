@@ -99,7 +99,7 @@
       </div>
     </div>
     {{> starred_messages canModify=canEdit}}
-    {{> calendar_strip}}
+    {{> calendar_strip allow_detach=canEdit}}
     <table class="table table-bordered table-condensed bb-puzzle">
       <thead>
         {{#unless compactMode}}
