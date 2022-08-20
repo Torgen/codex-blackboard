@@ -31,42 +31,6 @@ Meteor.startup ->
           console.error err.message, err
     initial = false
 
-Template.callins_table.helpers
-  callins: ->
-    model.CallIns.find {status: 'pending'},
-      sort: [["created","asc"]]
-      transform: (c) ->
-        c.puzzle = if c.target then model.Puzzles.findOne(_id: c.target)
-        c
-
-Template.callin_row.helpers
-  lastAttempt: ->
-    return null unless @puzzle?
-    model.CallIns.findOne {target_type: 'puzzles', target: @puzzle._id, status: 'rejected'},
-      sort: resolved: -1
-      limit: 1
-      fields: resolved: 1
-    ?.resolved
-    
-  hunt_link: -> @puzzle?.link
-  solved: -> @puzzle?.solved
-  alreadyTried: ->
-    return unless @puzzle?
-    model.CallIns.findOne({target_type: 'puzzles', target: @puzzle._id, status: 'rejected', answer: @answer},
-      fields: {}
-    )?
-  callinTypeIs: (type) -> @callin_type is type
-
-Template.callin_row.events
-  "change .bb-submitted-to-hq": (event, template) ->
-    checked = !!event.currentTarget.checked
-    Meteor.call 'setField',
-      type: 'callins'
-      object: @_id
-      fields:
-        submitted_to_hq: checked
-        submitted_by: if checked then Meteor.userId() else null
-
 Template.callin_copy_and_go.events
   "click .copy-and-go": (event, template) ->
     event.preventDefault()

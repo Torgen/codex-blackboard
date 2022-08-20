@@ -399,3 +399,39 @@ Template.logistics_meta.helpers
 Template.logistics_puzzle_presence.helpers
   presenceForScope: (scope) ->
     return findByChannel("puzzles/#{@_id}", {[scope]: 1}, {fields: [scope]: 1}).count()
+
+Template.logistics_callins_table.helpers
+  callins: ->
+    share.model.CallIns.find {status: 'pending'},
+      sort: [["created","asc"]]
+      transform: (c) ->
+        c.puzzle = if c.target then share.model.Puzzles.findOne(_id: c.target)
+        c
+
+Template.logistics_callin_row.helpers
+  lastAttempt: ->
+    return null unless @puzzle?
+    share.model.CallIns.findOne {target_type: 'puzzles', target: @puzzle._id, status: 'rejected'},
+      sort: resolved: -1
+      limit: 1
+      fields: resolved: 1
+    ?.resolved
+    
+  hunt_link: -> @puzzle?.link
+  solved: -> @puzzle?.solved
+  alreadyTried: ->
+    return unless @puzzle?
+    share.model.CallIns.findOne({target_type: 'puzzles', target: @puzzle._id, status: 'rejected', answer: @answer},
+      fields: {}
+    )?
+  callinTypeIs: (type) -> @callin_type is type
+
+Template.logistics_callin_row.events
+  "change .bb-submitted-to-hq": (event, template) ->
+    checked = !!event.currentTarget.checked
+    Meteor.call 'setField',
+      type: 'callins'
+      object: @_id
+      fields:
+        submitted_to_hq: checked
+        submitted_by: if checked then Meteor.userId() else null

@@ -74,7 +74,7 @@
       </section>
       {{>calendar_column allow_detach=true fixed_attendance=true draggable=true}}
     </section>
-    {{> callins_table}}
+    {{> logistics_callins_table}}
   </div>
   <div id="bb-logistics-edit-dialog" data-dismiss="modal" class="modal fade" style="background-color: {{modalColor}}">
     <div class="modal-body">
@@ -155,4 +155,58 @@
     </h3>
     {{>starred_messages canModify=mynick}}
   </div>
+</template>
+
+<template name="logistics_callins_table">
+  {{#let c=callins}}
+  <section class="bb-callin-queue {{#if c.count}}any-callins{{/if}}">
+    <h1>Answer call-in queue</h1>
+    <table id="bb-callin-table" class="table"><tbody>
+      <tr>
+        <th>Puzzle</th>
+        <th>Answer</th>
+        <th>Proposed at</th>
+        <th>Last guess</th>
+        <th>Submitted to HQ</th>
+        <th align="center">Resolution</th>
+      </tr>
+      {{#each c}}
+        {{> logistics_callin_row }}
+      {{else}}
+      <tr><td colspan="6">
+        Nothing in the call-in queue.
+      </td></tr>
+      {{/each}}
+    </tbody></table>  
+  </section>
+  {{/let}}
+</template>
+
+<template name="logistics_callin_row">
+  <tr>
+    <td>{{>link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{>link id=target}}{{#if hunt_link}}
+    <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
+            target="_blank">on&nbsp;hunt&nbsp;site
+    </a></small>
+    {{/if}}{{#if solved}}<div class="dupe">Already Solved</div>{{/if}}</td>
+    <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}
+      {{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}
+      {{>callin_type_dropdown}}
+      {{>callin_copy_and_go callin=this hunt_link=hunt_link}}
+    </td>
+    <td>{{pretty_ts this.created}}</td>
+    <td>{{#with lastAttempt}}{{pretty_ts this}} <small>({{pretty_ts timestamp=this style="brief duration"}})</small>{{else}}-{{/with}}</td>
+    {{#if mynick}}
+      <td>
+        {{#if callinTypeIs "expected callback"}}N/A{{else}}
+        <input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{>gravatar nick=this size=20 title=(nickOrName this)}}{{/with}}
+        {{/if}}
+      </td>
+      <td class="form-inline">
+        {{> callin_resolution_buttons callin=this}}
+      </td>
+    {{else}}
+    <td class="text-warning">Log in to resolve answers in queue.</td>
+    {{/if}}
+  </tr>
 </template>
