@@ -47,7 +47,7 @@ Calendar Events
 ===============
 (*New for 2022*) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared  with you, either because you are a member of the appropriate Google group or you were added explicitly by the owner, you will be able to add events to the calendar which will sync to the blackboard. (Calendars are never editable by the public.) If you should be able to edit the calendar and can't, contact whoever owns the machine.)
 
-You can use the calendar for non-puzzle hunt events such as the kickoff, puzzle events which there have been roughly 5 of per year lately, or short-notice post-meta interactions. If an event is associated with a puzzle, the calendar-with-a-plus icon next to `Upcoming Events` in the puzzle's table row can be used to associate them.
+You can use the calendar for non-puzzle hunt events such as the kickoff, puzzle events which there have been roughly 5 of per year lately, or short-notice post-meta interactions.
 
 Logistics View
 ==============
@@ -186,6 +186,14 @@ the round or puzzle, you can elide the `for ROUND OR PUZZLE NAME` part.
 * The `status` tag is normally set using the `Mark Stuck` dialog on the puzzle page.
 * The `color` tag determines the background color of a round on the blackboard and logistics page. If it isn't set, a color will be chosen based
 on the puzzle's randomly-generated ID. Any color recognized by CSS is accepted.
+
+Associating a calendar event with a puzzle
+------------------------------------------
+If a puzzle has a calendar event associated with it, you can link them. A calendar even can only be linked to one puzzle.
+* Using the logistics page, drag a calendar event from the column on the right onto the puzzle it should be associated with.
+* Using the blackboard's edit mode, select the calendar event from the dropdown menu under `Upcoming Events` in the puzzle's table row.
+* From the puzzle info page, the calendar icon above the puzzle's title opens a dropdown to select from upcoming events.
+* You can't manage calendar events using the bot.
 
 Deleting a puzzle
 -----------------
