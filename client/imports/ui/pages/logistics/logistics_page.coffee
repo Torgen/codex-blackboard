@@ -4,6 +4,13 @@ import { EXPERT_MODE } from '/client/imports/settings.coffee'
 
 bundleLoaded = new ReactiveVar false
 
+export awaitBundleLoaded = ->
+  new Promise (resolve) ->
+    Tracker.autorun (computation) ->
+      return unless bundleLoaded.get()
+      resolve()
+      computation.stop()
+
 Template.logistics_page.onCreated ->
   EXPERT_MODE.set true
   # The template we would set the top right to is loaded dynamically, so we

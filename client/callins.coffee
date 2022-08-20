@@ -31,10 +31,6 @@ Meteor.startup ->
           console.error err.message, err
     initial = false
 
-Template.callins.onCreated ->
-  EXPERT_MODE.set true
-  this.subscribe 'callins'
-
 Template.callins_table.helpers
   callins: ->
     model.CallIns.find {status: 'pending'},
@@ -42,9 +38,6 @@ Template.callins_table.helpers
       transform: (c) ->
         c.puzzle = if c.target then model.Puzzles.findOne(_id: c.target)
         c
-
-Template.callins.onRendered ->
-  $("title").text("Answer queue")
 
 Template.callin_row.helpers
   lastAttempt: ->

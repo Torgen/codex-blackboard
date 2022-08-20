@@ -128,7 +128,6 @@ Click here to stay in this meeting instead.{{/if}}">
               <small>({{#if message.to}}Private{{#unless equal message.to currentUser._id}}
                 to {{>gravatar nick=message.to size=12}}{{nickOrName message.to}}{{/unless}}{{else}}Mentioned you{{/if}}{{#if showRoom}}{{#let splitroom=(split message.room_name "/")}}
                 in {{#if equal splitroom.[0] "general"}}<a href="/" class="home-link">{{generalRoomName}}</a>
-                {{else if equal splitroom.[0] "callins"}}<a href="/callins" class="callins-link">Callin Queue</a>
                 {{else}}{{>link id=splitroom.[1]}}{{/if}}{{/let}}<a href="/chat/{{message.room_name}}" class="chat-link bb-pop-out" target="pmchat" title="Open Chat in new window"><i class="fas fa-comments"></i> <i class="fas fa-external-link-alt"></i></a>{{/if}})</small>
             {{/if}}
         {{/if}}

@@ -35,6 +35,7 @@ Template.logistics.onCreated ->
   @creatingPuzzle = new ReactiveVar null
   @autorun =>
     @subscribe 'all-presence'
+    @subscribe 'callins'
 
 Template.logistics.onRendered ->
   $("title").text("Logistics")
