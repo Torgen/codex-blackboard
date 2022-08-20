@@ -56,6 +56,23 @@
   {{/if}}
 </template>
 
+<template name="calendar_column">
+  {{#if calendar_id}}
+  {{#let evs=upcoming_events}}
+  {{#if evs.count}}
+  <section class="bb-calendar-column">
+  <h4 id="upcoming_calendar_events">Events</h4>
+  <ul id="bb-calendar-events-strip">
+    {{#each ev in evs}}
+      {{> calendar_event event=ev allow_detach=allow_detach fixed_attendance=fixed_attendance draggable=draggable}}
+    {{/each}}
+  </ul>
+  </section>
+  {{/if}}
+  {{/let}}
+  {{/if}}
+</template>
+
 <template name="calendar_puzzle_events">
   {{#let evs=upcoming_events}}
   {{#if evs.count}}

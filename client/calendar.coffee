@@ -16,6 +16,7 @@ Template.calendar_dropdown.helpers
 calendar_container Template.calendar_link
 calendar_container Template.calendar_add_link
 calendar_container Template.calendar_strip
+calendar_container Template.calendar_column
 
 Template.calendar_event.helpers
   dh_until_start: ->

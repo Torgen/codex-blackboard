@@ -1,7 +1,6 @@
 <template name="logistics">
   <div class="bb-logistics">
     <section class="bb-logistics-top">
-      {{>calendar_strip hide_header=true allow_detach=true fixed_attendance=true draggable=true}}
       <section class="bb-logistics-metas">
         <div class="bb-logistics-controls">
           <div class="btn-group">
@@ -73,6 +72,7 @@
           </div>
         {{/with}}
       </section>
+      {{>calendar_column allow_detach=true fixed_attendance=true draggable=true}}
     </section>
     {{> callins_table}}
   </div>
