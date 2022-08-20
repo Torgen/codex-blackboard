@@ -43,6 +43,9 @@ renewal time from that point. If you have gone half the renewal time without per
 onduty control to allow you to extend your shift manually, so you don't lose it by surprise. If you know that you will not be able to be
 on duty anymore (e.g. you are going to sleep), the door button will relinquish the role.
 
+Even if answers are confirmed automatically, the hunt may still have a global setting for a phone number to contact the team
+at. If so, enter your phone number in the settings when you go on call.
+
 Calendar Events
 ===============
 (*New for 2022*) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared  with you, either because you are a member of the appropriate Google group or you were added explicitly by the owner, you will be able to add events to the calendar which will sync to the blackboard. (Calendars are never editable by the public.) If you should be able to edit the calendar and can't, contact whoever owns the machine.)
@@ -72,10 +75,6 @@ happened so they know they need to add the new puzzles.
 
 When there are any pending callins, the call-in queue appears at the bottom of the Logistics page. If you enable notifications
 for the 'Callins' stream, clicking a callin notification will take you to the Logistics page.
-
-Even if answers are confirmed automatically, the hunt may still have a global setting for a phone number to contact the team
-at. If so,  enter your phone number in the settings when you go on call. Also, saying in the chat room on the callins page,
-"I am on call", and starring it (and unstarring any previous declaration) will ensure everyone know someone is doing the job.
 
 A sound will play when a new call-in arrives; you will also get a desktop notification if you enabled them for the 
 "Callins" event type, which is recommended. A button with three icons at the end of the answer will copy it to your
