@@ -111,6 +111,7 @@
     {{>logistics_puzzle_events this}}
     <span class="fill"><span class="puzzle-name">{{name}}</span></span>
     <i class="fas fa-edit bb-logistics-edit-puzzle"></i>
+    {{> fix_puzzle_drive puzzle=_id}}
     {{>logistics_puzzle_presence this}}
   </a>
 </template>
@@ -124,6 +125,7 @@
         {{>logistics_puzzle_events meta}}
         <span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>
         <i class="fas fa-edit bb-logistics-edit-puzzle"></i>
+        {{> fix_puzzle_drive puzzle=meta._id}}
         {{>logistics_puzzle_presence meta}}
       </a>
       <btn class="btn btn-mini btn-inverse new-puzzle {{#if creatingFeeder}}active{{/if}}" title="Create new puzzle feeding this meta"><i class="fas fa-plus"></i> <i class="fas fa-puzzle-piece"></i></btn>

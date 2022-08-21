@@ -100,7 +100,7 @@
     .fas.fa-comment-alt {
       font-size: 120%;
     }
-    .bb-logistics-edit-puzzle {
+    .bb-logistics-edit-puzzle, .bb-drive-status {
       margin: 0.2em 0.1em 0px;
     }
   }
@@ -128,15 +128,17 @@
         margin-right: auto;
       }
     }
-    .bb-logistics-edit-puzzle {
-      display: none;
+    .bb-logistics-edit-puzzle, .bb-drive-status {
       opacity: 0.5;
       &:hover {
         opacity: 1.0;
       }
     }
-    &:hover .bb-logistics-edit-puzzle {
-      display: unset;
+    .bb-logistics-edit-puzzle { display: none }
+    &:hover {
+      .bb-logistics-edit-puzzle {
+        display: unset;
+      }
     }
     .fas.fa-video .count {
       vertical-align: middle;
@@ -268,7 +270,7 @@
     margin-left: 1px;
     margin-top: 1px;
     &.solved { opacity: 0.5; }
-    .events, .bb-logistics-edit-puzzle {margin-top: .1em;}
+    .events, .bb-logistics-edit-puzzle, .bb-drive-status {margin-top: .1em;}
   }
 }
 .bb-logistics-meta, .bb-logistics-standalone {

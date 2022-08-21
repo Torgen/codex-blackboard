@@ -2,6 +2,7 @@
 import './logistics.html'
 import './logistics.less'
 import '/client/imports/ui/components/create_object/create_object.coffee'
+import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.coffee'
 import { confirm } from '/client/imports/modal.coffee'
 import { findByChannel } from '/client/imports/presence_index.coffee'
 import colorFromThingWithTags from '/client/imports/objectColor.coffee'
