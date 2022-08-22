@@ -351,6 +351,7 @@ BlackboardRouter = Backbone.Router.extend
     "facts": "FactsPage"
     "statistics": "StatisticsPage"
     "logistics": 'LogisticsPage'
+    'callins': 'LogisticsRedirect'
     "projector": "ProjectorPage"
 
   BlackboardPage: ->
@@ -376,6 +377,8 @@ BlackboardRouter = Backbone.Router.extend
   LogisticsPage: ->
     @Page 'logistics_page', 'general', '0', true, true
     await awaitBundleLoaded()
+
+  LogisticsRedirect: -> @navigate '/logistics', {trigger: true, replace: true}
 
   ProjectorPage: -> @Page 'projector', 'general', '0', false
 
