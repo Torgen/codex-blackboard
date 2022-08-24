@@ -1,0 +1,17 @@
+<template name="create_object">
+  {{! arguments:
+  type: object type (e.g. puzzles, rounds)
+  done: object containing a function also named done.
+        done.done() will be called when editing is done, and maybe the object is about to be created. If done() returns false,
+        creation will be aborted if it were going to happen.
+        (This must be nested inside an object because otherwise Blaze will call it.)
+  params: object containing additional parameters to the new{type} call.
+  }}
+  
+  <div class="bb-{{pretty}}-title bb-editable control-group {{titleAddClass}}">
+    <input type="text" placeholder="{{upperPretty}} name" class="input-block-level" />
+    {{#if titleAddStatus}}
+      <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleAddStatus}}</div></div>
+    {{/if}}
+  </div>
+</template>

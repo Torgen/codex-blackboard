@@ -14,13 +14,17 @@ GEOLOCATION_DISTANCE_THRESHOLD = 10/5280 # 10 feet
 GEOLOCATION_NEAR_DISTANCE = 1 # folks within a mile of you are "near"
 
 updateLocation = do ->
+  lastnick = null
   last = null
-  (pos) ->
+  (pos, nick) ->
     return unless pos?
+    if nick isnt lastnick
+      last = null
     if last?
       return if lat(pos) == lat(last) and lng(pos) == lng(last)
       return if distance(last, pos) < GEOLOCATION_DISTANCE_THRESHOLD
     last = pos
+    lastnick = nick
     Tracker.nonreactive ->
       Meteor.call 'locateNick', location: pos
 
@@ -36,7 +40,7 @@ Tracker.autorun ->
     type: 'Point'
     coordinates: [pos.lng, pos.lat]
   Session.set "position", geojson # always use most current location client-side
-  updateLocation geojson
+  updateLocation geojson, nick
 
 distanceTo = (nick) ->
   return null unless nick

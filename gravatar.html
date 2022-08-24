@@ -8,6 +8,26 @@
   {{> gravatar_hash gravatar_md5=gravatar_md5 size=size classes=classes title=title}}
 </template>
 
+<!-- data context is the same as gravatar. -->
+<template name="gravatar_with_badges">{{!
+  }}<span class="gravatar-container {{classes}}" title="{{title}}">{{!
+    }}{{>gravatar size=size nick=nick}}{{!
+    }}<span class="badges">{{!
+      }}{{>online_status nick=nick}}{{!
+    }}</span>{{!
+  }}</span>{{!
+}}</template>
+
+<template name="online_status">
+  {{#if robot}}
+    <i class="bb-user-status-robot fas fa-robot" title="Robot"></i>
+  {{else if online}}
+    <i class="bb-user-status-online fas fa-circle" title="Online"></i>
+  {{else}}
+    <i class="bb-user-status-offline fas fa-minus-circle" title="Offline"></i>
+  {{/if}}
+</template>
+
 <!-- data context is the same as gravatar, except without nick, and with gravatar_md5, the md5 sum of the email address. -->
 <template name="gravatar_hash">
   <img src="{{gravatarUrl}}" width="{{size}}" height="{{size}}" class="{{classes}}" title="{{title}}" />

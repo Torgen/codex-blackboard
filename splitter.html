@@ -15,14 +15,14 @@
       else block: bottom content. 
       context: whether to hide the top content }}
   
-  <div class="bb-vsplitter" style="{{#unless this}}padding-bottom: {{vsizePlusHandle}}px{{/unless}}">{{! start right of splitter }}
+  <div class="bb-vsplitter" style="{{#unless this}}--splitter-bottom-size: {{vsize}}px{{/unless}}">{{! start right of splitter }}
     {{#unless this}}
       <div class="bb-top-right-content">{{! start top right splitter }}
         {{> Template.contentBlock}}
       </div>
-      <div class="bb-splitter-handle" style="bottom: {{vsize}}px"></div>
+      <div class="bb-splitter-handle"></div>
     {{/unless}}
-    <div class="bb-bottom-right-content" style="{{#unless this}}height: {{vsize}}px{{/unless}}">{{! start bottom right splitter }}
+    <div class="bb-bottom-right-content">{{! start bottom right splitter }}
       {{> Template.elseBlock }}
     </div>
   </div>

@@ -6,29 +6,34 @@ import chai from 'chai'
 describe 'chat', ->
   @timeout 10000
   before ->
-    login('testy', 'Teresa Tybalt', '', 'failphrase')
+    await login('testy', 'Teresa Tybalt', '', 'failphrase')
+    await waitForSubscriptions()
+    await afterFlushPromise()
   
   after ->
     logout()
 
   it 'general chat', ->
     share.Router.ChatPage('general', '0')
+    await afterFlushPromise()
     await waitForSubscriptions()
     await afterFlushPromise()
-    chai.assert.isDefined $('a[href^="https://codexian.us"]').html()
-    chai.assert.isDefined $('img[src^="https://memegen.link/doge"]').html()
-    chai.assert.equal $('.bb-chat-presence-block').length, 0
+    chai.assert.equal $('.bb-chat-presence-block').length, 0, "before"
     $('.bb-show-whos-here').click()
     await afterFlushPromise()
-    chai.assert.equal $('.bb-chat-presence-block tr').length, 2
+    chai.assert.equal $('.bb-chat-presence-block tr').length, 2, "opened"
     $('.bb-show-whos-here').click()
     await afterFlushPromise()
-    chai.assert.equal $('.bb-chat-presence-block').length, 0
+    chai.assert.equal $('.bb-chat-presence-block').length, 0, "closed"
+    chai.assert.isDefined $('a[href^="https://codexian.us"]').html(), 'link'
+    chai.assert.isDefined $('img[src^="https://memegen.link/doge"]').html(), 'meme'
 
   it 'updates read marker', ->
     id = share.model.Puzzles.findOne(name: 'Temperance')._id
     share.Router.ChatPage('puzzles', id)
     await waitForSubscriptions()
+    await afterFlushPromise()
+    # The read marker is inserted by a mutation observer, so we need to wait for it to run.
     await afterFlushPromise()
     top = $('.bb-message-last-read').offset().top
     $('#messageInput').focus()

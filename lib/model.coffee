@@ -5,7 +5,7 @@ import isDuplicateError from './imports/duplicate.coffee'
 import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith, OptionalKWArg } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
-import { RoundUrlPrefix, PuzzleUrlPrefix, UrlSeparator } from './imports/settings.coffee'
+import { RoundUrlPrefix, PuzzleUrlPrefix, RoleRenewalTime, UrlSeparator } from './imports/settings.coffee'
 import * as callin_types from './imports/callin_types.coffee'
 if Meteor.isServer
   {newMessage, ensureDawnOfTime} = require('/server/imports/newMessage.coffee')
@@ -176,6 +176,19 @@ if Meteor.isServer
   # We don't push the index to the client, so it's okay to have it update
   # frequently.
   Meteor.users.createIndex {priv_located_at: '2dsphere'}, {}
+
+# Roles are:
+#  _id: name of the role. Should be idempotent under canonical(). (e.g. onduty)
+#  holder: userid of the current role holder
+#  claimed_at: timestamp of when the holder claimed the role without interruption
+#  renewed_at: timestamp of when the holder most recently renewed the role, either
+#    by performing a role action or by explicitly renewing
+#  expires_at: timestamp of when the holder must renew the role by. After this time,
+#    the role entry may be deleted. This is likely a fixed time after renewed_at
+#    based on a dynamic setting.
+Roles = BBCollection.roles = new Mongo.Collection 'roles'
+if Meteor.isServer
+  Roles.createIndex {holder: 1}, {}
 
 # Messages
 #   body: string
@@ -476,6 +489,8 @@ do ->
         link: args.link or link
         sort_key: UTCNow()
       ensureDawnOfTime "rounds/#{r._id}"
+      # This is an onduty action, so defer expiry
+      Meteor.call 'renewOnduty'
       # TODO(torgen): create default meta
       r
     renameRound: (args) ->
@@ -540,6 +555,8 @@ do ->
           touched: p.touched
       # create google drive folder (server only)
       newDriveFolder p._id, p.name
+      # This is an onduty action, so defer expiry
+      Meteor.call 'renewOnduty'
       return p
     renamePuzzle: (args) ->
       check @userId, NonEmptyString
@@ -762,11 +779,13 @@ do ->
           answer: callin.answer
           backsolve: callin.backsolve
           provided: callin.provided
-        backsolve = if callin.backsolve then "[backsolved] " else ''
-        provided = if callin.provided then "[provided] " else ''
-        return unless puzzle?
-        Object.assign msg,
-          body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
+        if puzzle?
+          backsolve = if callin.backsolve then "[backsolved] " else ''
+          provided = if callin.provided then "[provided] " else ''
+          Object.assign msg,
+            body: "reports that #{provided}#{backsolve}#{callin.answer.toUpperCase()} is CORRECT!"
+        else
+          msg = null
       else
         check response, Match.Optional String
         updateBody =
@@ -789,19 +808,23 @@ do ->
         CallIns.update _id: id,
           $set: updateBody
 
-      # one message to the puzzle chat
-      Meteor.call 'newMessage', msg
+      if msg?
 
-      # one message to the general chat
-      delete msg.room_name
-      msg.body += " (#{puzzle.name})" if puzzle?.name?
-      Meteor.call 'newMessage', {msg..., header_ignore: true}
+        # one message to the puzzle chat
+        Meteor.call 'newMessage', msg
 
-      if callin.callin_type is callin_types.ANSWER
-        # one message to the each metapuzzle's chat
-        puzzle.feedsInto.forEach (meta) ->
-          msg.room_name = "puzzles/#{meta}"
-          Meteor.call 'newMessage', msg
+        # one message to the general chat
+        delete msg.room_name
+        msg.body += " (#{puzzle.name})" if puzzle?.name?
+        Meteor.call 'newMessage', {msg..., header_ignore: true}
+
+        if callin.callin_type is callin_types.ANSWER
+          # one message to the each metapuzzle's chat
+          puzzle.feedsInto.forEach (meta) ->
+            msg.room_name = "puzzles/#{meta}"
+            Meteor.call 'newMessage', msg
+      # This is an onduty action, so defer expiry.
+      Meteor.call 'renewOnduty'
 
     # Response is forbibben for answers and optional for everything else
     incorrectCallIn: (id, response) ->
@@ -822,9 +845,11 @@ do ->
           answer: callin.answer
           backsolve: callin.backsolve
           provided: callin.provided
-        return unless puzzle?
-        Object.assign msg,
-          body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
+        if puzzle?
+          Object.assign msg,
+            body: "sadly relays that #{callin.answer.toUpperCase()} is INCORRECT."
+        else
+          msg = null
       else if callin.callin_type is callin_types.EXPECTED_CALLBACK
         throw new Meteor.Error(400, 'expected callback can\'t be incorrect')
       else
@@ -846,18 +871,21 @@ do ->
         CallIns.update _id: id,
           $set: updateBody
 
-      # one message to the puzzle chat
-      Meteor.call 'newMessage', msg
-
-      return unless puzzle?
-
-      # one message to the general chat
-      delete msg.room_name
-      msg.body += " (#{puzzle.name})" if puzzle.name?
-      Meteor.call 'newMessage', {msg..., header_ignore: true}
-      puzzle.feedsInto.forEach (meta) ->
-        msg.room_name = "puzzles/#{meta}"
+      if msg?
+        # one message to the puzzle chat
         Meteor.call 'newMessage', msg
+
+        if puzzle?
+          # one message to the general chat
+          delete msg.room_name
+          msg.body += " (#{puzzle.name})" if puzzle.name?
+          Meteor.call 'newMessage', {msg..., header_ignore: true}
+          puzzle.feedsInto.forEach (meta) ->
+            msg.room_name = "puzzles/#{meta}"
+            Meteor.call 'newMessage', msg
+        
+      # This is an onduty action, so defer expiry.
+      Meteor.call 'renewOnduty'
 
     cancelCallIn: (args) ->
       check @userId, NonEmptyString
@@ -873,6 +901,48 @@ do ->
         $set:
           status: 'cancelled'
           resolved: UTCNow()
+    
+    claimOnduty: (args) ->
+      check @userId, NonEmptyString
+      check args, ObjectWith
+        from: OptionalKWArg NonEmptyString
+      now = UTCNow()
+      try
+        res = Roles.upsert {_id: 'onduty', holder: args.from },
+          holder: @userId
+          claimed_at: now
+          renewed_at: now
+          expires_at: now + RoleRenewalTime.get() * 60000
+        if res.insertedId?
+          # Nobody was onduty
+          oplog 'is now', 'roles', 'onduty', @userId, 'onduty'
+        else
+          # Took it from who you thought
+          oplog "took over from @#{args.from} as", 'roles', 'onduty', @userId, 'onduty'
+      catch e
+        if isDuplicateError e
+          current = Roles.findOne 'onduty'
+          if args.from?
+            throw new Meteor.Error 412, "Tried to take onduty from #{args.from} but it was held by #{current.holder}"
+          else
+            throw new  Meteor.Error 412, "Tried to claim vacant onduty but it was held by #{current.holder}"
+        else throw e
+
+    renewOnduty: ->
+      check @userId, NonEmptyString
+      now = UTCNow()
+      count = Roles.update {_id: 'onduty', holder: @userId},
+        $set:
+          renewed_at: now
+          expires_at: now + RoleRenewalTime.get() * 60000
+      return count isnt 0
+
+    releaseOnduty: ->
+      check @userId, NonEmptyString
+      count = Roles.remove {_id: 'onduty', holder: @userId}
+      if count isnt 0
+        oplog 'is no longer onduty', 'roles', null, @userId, 'onduty'
+      return count isnt 0
 
     # locateNick is in /server/methods
 
@@ -1432,6 +1502,8 @@ do ->
       if 0 is Puzzles.update {_id: id, drive_status: $nin: ['creating', 'fixing']}, $set: drive_status: 'fixing'
         throw new Meteor.Error 'Can\'t fix this puzzle folder now'
       newDriveFolder id, args.name
+      # This is an onduty action, so defer expiry
+      Meteor.call 'renewOnduty'
 
 UTCNow = -> Date.now()
 
@@ -1443,6 +1515,7 @@ share.model =
   # collection types
   CallIns: CallIns
   Polls: Polls
+  Roles: Roles
   Names: Names
   LastAnswer: LastAnswer
   Rounds: Rounds

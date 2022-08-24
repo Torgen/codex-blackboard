@@ -35,3 +35,9 @@ Format: integer
 If a Jitsi server is enabled, this is appended to the team name to make the room used for the blackboard and callins pages. If you set it to the empty string, those pages won't have a room. It is not expected that you will often want to change this during the hunt, but unlike a public setting it's only visible after login.
 
 Format: string; a single URL path component.
+
+# Role Renewal Time
+
+How many minutes you have to renew holding a role (either explicitly or by taking a role action) before it expires. Defaults to 60.
+
+Format: integer

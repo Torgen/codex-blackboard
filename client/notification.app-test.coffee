@@ -133,7 +133,7 @@ describe 'notifications', ->
     return obj._id
   , (id) -> promiseCallOn other_conn, 'deleteRound', id
 
-  testcase 'new callin', 'callins', (-> 'someoneelse'), (-> sinon.match({body: 'New answer knob submitted for puzzle The Doors Of Cambridge', icon: GRAVATAR_192, data: url: "/callins"})), ->
+  testcase 'new callin', 'callins', (-> 'someoneelse'), (-> sinon.match({body: 'New answer knob submitted for puzzle The Doors Of Cambridge', icon: GRAVATAR_192, data: url: "/logistics"})), ->
     doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
     obj = await promiseCallOn other_conn, 'newCallIn',
       target: doors._id

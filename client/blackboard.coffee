@@ -2,16 +2,20 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import { confirm } from '/client/imports/modal.coffee'
+import { findByChannel } from '/client/imports/presence_index.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor  from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
 import okCancelEvents from './imports/ok_cancel_events.coffee'
+import '/client/imports/ui/components/create_object/create_object.coffee'
 import '/client/imports/ui/components/edit_field/edit_field.coffee'
-import '/client/imports/ui/components/edit_tag_name/edit_tag_name.coffee'
 import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee'
+import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.coffee'
+import '/client/imports/ui/components/onduty/control.coffee'
+import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee'
 
 model = share.model # import
 settings = share.settings # import
@@ -19,8 +23,6 @@ settings = share.settings # import
 SOUND_THRESHOLD_MS = 30*1000 # 30 seconds
 
 blackboard = {} # store page global state
-
-presenceIndex = new Map
 
 Meteor.startup ->
   if typeof Audio is 'function' # for phantomjs
@@ -215,6 +217,12 @@ Template.blackboard.helpers
   hasJitsiLocalStorage: ->
     reactiveLocalStorage.getItem 'jitsiLocalStorage'
   driveFolder: -> Session.get 'RINGHUNTERS_FOLDER'
+  addingRound: ->
+    instance = Template.instance()
+    return done: ->
+      wasAdding = instance.addRound.get()
+      instance.addRound.set false
+      return wasAdding
 
 Template.blackboard_status_grid.helpers
   rounds: -> model.Rounds.find {}, sort: [["sort_key", 'asc']]
@@ -275,42 +283,6 @@ Template.blackboard.events
     Meteor.call 'fixPuzzleFolder',
       object: @puzzle._id
       name: @puzzle.name
-
-# This is in the blackboard template and not in the blackboard_add_round template because it needs to modify
-# the ReactiveVar that determines whether there is a blackboard_add_round template at all.
-Template.blackboard.events okCancelEvents '#bb-new-round input',
-  ok: (value, evt, template) ->
-    return unless template.addRound.get()
-    template.addRound.set false
-    value = value.replace /^\s+|\s+$/, ''
-    return unless value
-    Meteor.call 'newRound', name: value
-
-  cancel: (evt, template) ->
-    template.addRound.set false
-
-Template.blackboard_add_round.onCreated ->
-  @value = new ReactiveVar ''
-
-Template.blackboard_add_round.onRendered ->
-  @$('input').focus()
-
-Template.blackboard_add_round.helpers
-  titleEditClass: ->
-    val = Template.instance().value.get()
-    return 'error' if not val
-    cval = canonical val
-    return 'error' if share.model.Rounds.findOne(canon: cval)?
-    return 'success'
-  titleEditStatus: ->
-    val = Template.instance().value.get()
-    return 'Cannot be empty' if not val
-    cval = canonical val
-    return "Conflicts with another round" if model.Rounds.findOne(canon: cval)?
-  
-Template.blackboard_add_round.events
-  'input input': (event, template) ->
-    template.value.set event.currentTarget.value
 
 Template.blackboard_favorite_puzzle.onCreated ->
   @autorun =>
@@ -458,7 +430,7 @@ Template.blackboard_meta.helpers
     p = ({
       _id: id
       puzzle: model.Puzzles.findOne(id) or { _id: id }
-    } for id, index in puzzle?.puzzles)
+    } for id, index in puzzle?.puzzles or [])
     editing = Meteor.userId() and (Session.get 'canEdit')
     return p if editing or !HIDE_SOLVED.get()
     p.filter (pp) -> !pp.puzzle.solved?
@@ -507,19 +479,6 @@ Template.blackboard_puzzle_cells.events
       message: "Are you sure you want to delete the puzzle \"#{template.data.puzzle.name}\"?")
       Meteor.call 'deletePuzzle', template.data.puzzle._id
 
-
-tagHelper = ->
-  tags = model.collection(@type).findOne({_id: @id}, {fields: tags: 1})?.tags or {}
-  (
-    t = tags[canon]
-    { _id: "#{@id}/#{canon}", name: t.name, canon, value: t.value, touched_by: t.touched_by }
-  ) for canon in Object.keys(tags).sort() when not \
-    ((Session.equals('currentPage', 'blackboard') and \
-      (canon is 'status' or \
-          (@type isnt 'rounds' and canon is 'answer'))) or \
-      ((canon is 'answer' or canon is 'backsolve') and \
-      (Session.equals('currentPage', 'puzzle'))))
-
 Template.blackboard_puzzle_cells.onCreated ->
   @addingTag = new ReactiveVar false
 
@@ -564,11 +523,7 @@ Template.blackboard_column_body_update.helpers
 Template.blackboard_column_body_working.helpers
   whos_working: ->
     return [] unless @puzzle?
-    coll = presenceIndex.get("puzzles/#{@puzzle._id}")
-    unless coll?
-      coll = new Mongo.Collection null
-      presenceIndex.set("puzzles/#{@puzzle._id}", coll)
-    return coll.find {}, sort: {jitsi: -1, joined_timestamp: 1}
+    return findByChannel "puzzles/#{@puzzle._id}", {}, sort: {jitsi: -1, joined_timestamp: 1}
 
 colorHelper = -> model.getTag @, 'color'
 
@@ -596,101 +551,6 @@ Template.blackboard_puzzle.events
     event = event.originalEvent
     if dragdata?.dragover template.data.puzzle, Template.parentData(1).puzzle, Template.parentData(2), event.target, event.clientY, event.dataTransfer
       event.preventDefault()
-
-Template.blackboard_new_puzzle.onCreated ->
-  @name = new ReactiveVar ''
-
-Template.blackboard_new_puzzle.onRendered ->
-  @$('input').focus()
-
-Template.blackboard_new_puzzle.events
-  'focus/input input': (event, template) ->
-    template.name.set event.currentTarget.value
-
-Template.blackboard_new_puzzle.events okCancelEvents 'input',
-  cancel: (evt, template) -> @adding.done()
-  ok: (name, evt, template) ->
-    return unless @adding.done()
-    Meteor.call 'newPuzzle', {name, ...@adding.params}
-
-Template.blackboard_new_puzzle.helpers
-  titleAddClass: ->
-    val = Template.instance().name.get()
-    return 'error' if not val
-    cval = canonical val
-    return 'error' if share.model.Puzzles.findOne(canon: cval)?
-    return 'success'
-  titleAddStatus: ->
-    val = Template.instance().name.get()
-    return 'Cannot be empty' if not val
-    cval = canonical val
-    return "Conflicts with another round" if model.Puzzles.findOne(canon: cval)?
-
-Template.blackboard_tags.onCreated ->
-  @newTagName = new ReactiveVar ''
-  @autorun =>
-    if Template.currentData().adding.adding()
-      Tracker.afterFlush =>
-        @$('.bb-add-tag input').focus()
-    else
-      @newTagName.set ''
-
-Template.blackboard_tags.events
-  'input/focus .bb-add-tag input': (event, template) ->
-    template.newTagName.set event.currentTarget.value
-
-Template.blackboard_tags.events okCancelEvents '.bb-add-tag input',
-  ok: (value, event, template) ->
-    return unless @adding.adding()
-    @adding.done()
-    template.newTagName.set ''
-    cval = canonical value
-    return if model.collection(@type).findOne(_id: @id).tags[cval]?
-    Meteor.call 'setTag', {type: @type, object: @id, name: value, value: ''}
-  cancel: (event, template) ->
-    @adding.done()
-    template.newTagName.set ''
-
-Template.blackboard_tags.helpers
-  tags: tagHelper
-  tagAddClass: ->
-    val = Template.instance().newTagName.get()
-    return 'error' if not val
-    cval = canonical val
-    return 'error' if model.collection(@type).findOne(_id: @id).tags[cval]?
-    return 'success'
-  tagAddStatus: ->
-    val = Template.instance().newTagName.get()
-    return 'Cannot be empty' if not val
-    cval = canonical val
-    return 'Tag already exists' if model.collection(@type).findOne(_id: @id).tags[cval]?
-Template.puzzle_info.helpers { tags: tagHelper }
-
-# Subscribe to all group, round, and puzzle information
-Template.blackboard.onCreated ->
-  @autorun ->
-    model.Presence.find(scope: $in: ['chat', 'jitsi']).observe
-      added: (doc) ->
-        coll = presenceIndex.get doc.room_name
-        unless coll?
-          coll = new Mongo.Collection null
-          presenceIndex.set doc.room_name, coll
-        coll.upsert doc.nick,
-          $min: joined_timestamp: doc.joined_timestamp
-          $max:
-            jitsi: +(doc.scope is 'jitsi')
-            chat: +(doc.scope is 'chat')
-      removed: (doc) ->
-        coll = presenceIndex.get doc.room_name
-        return unless coll?
-        coll.update doc.nick,
-          $min:
-            jitsi: +(doc.scope isnt 'jitsi')
-            chat: +(doc.scope isnt 'chat')
-        coll.remove {_id: doc.nick, jitsi: 0, chat: 0}
-
-Template.blackboard.onDestroyed ->
-  presenceIndex.clear()
 
 Template.blackboard_column_header_working.onCreated ->
   @autorun =>

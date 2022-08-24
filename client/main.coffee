@@ -1,7 +1,7 @@
 'use strict'
 
-import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
 import md5 from 'md5'
+import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
@@ -11,7 +11,10 @@ import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import '/client/imports/ui/pages/graph/graph_page.coffee'
+import { awaitBundleLoaded } from '/client/imports/ui/pages/logistics/logistics_page.coffee'
 import '/client/imports/ui/pages/map/map_page.coffee'
+import '/client/imports/ui/pages/projector/projector.coffee'
 import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
 settings = share.settings # import
@@ -168,9 +171,6 @@ debouncedUpdate = ->
   {now, update}
 
 Meteor.startup ->
-  new Clipboard '.copy-and-go'
-
-Meteor.startup ->
   # Notifications based on oplogs
   {now, update} = debouncedUpdate()
   suppress = true
@@ -197,7 +197,7 @@ Meteor.startup ->
                 #{share.model.collection(msg.type).findOne(msg.id)?.name}"
       data = undefined
       if msg.stream is 'callins'
-        data = url: '/callins'
+        data = url: '/logistics'
       else
         data = url: share.Router.urlFor msg.type, msg.id
       # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
@@ -348,9 +348,11 @@ BlackboardRouter = Backbone.Router.extend
     "puzzles/:puzzle/:view": "PuzzlePage"
     "chat/:type/:id": "ChatPage"
     "oplogs": "OpLogPage"
-    "callins": "CallInPage"
     "facts": "FactsPage"
     "statistics": "StatisticsPage"
+    "logistics": 'LogisticsPage'
+    'callins': 'LogisticsRedirect'
+    "projector": "ProjectorPage"
 
   BlackboardPage: ->
     scrollAfter =>
@@ -372,6 +374,14 @@ BlackboardRouter = Backbone.Router.extend
 
   MapPage: -> @Page 'map', 'general', '0', false
 
+  LogisticsPage: ->
+    @Page 'logistics_page', 'general', '0', true, true
+    await awaitBundleLoaded()
+
+  LogisticsRedirect: -> @navigate '/logistics', {trigger: true, replace: true}
+
+  ProjectorPage: -> @Page 'projector', 'general', '0', false
+
   PuzzlePage: (id, view=null) ->
     @Page "puzzle", "puzzles", id, true, true
     Session.set
@@ -387,12 +397,6 @@ BlackboardRouter = Backbone.Router.extend
 
   OpLogPage: ->
     this.Page("oplog", "oplog", "0", false)
-
-  CallInPage: ->
-    @Page "callins", "general", "0", true, true
-    Session.set
-      color: 'inherit'
-      topRight: null
 
   FactsPage: ->
     this.Page("facts", "facts", "0", false)

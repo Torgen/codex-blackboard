@@ -1,0 +1,11 @@
+<template name="map_gravatar_cluster">
+  <div class="gravatar-cluster things-{{this.length}}">
+    {{#each thing in this}}
+      {{#if thing.gravatar}}
+        <img class="{{thing.onlineness}}" title="{{thing.title}}" src="{{thing.gravatar}}" width="64" height="64">
+      {{else if thing.summary}}
+        <div class="{{thing.onlineness}} summary" title="{{thing.title}}"><span>+{{thing.summary}}</span></div>
+      {{/if}}
+    {{/each}}
+  </div>
+</template>

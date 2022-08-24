@@ -1,0 +1,296 @@
+.bb-logistics {
+  position: fixed;
+  top: 40px;
+  bottom: 0;
+  left: 0;
+  right: calc(var(--right-column) + 6px);
+  display: flex;
+  overflow: hidden;
+  flex-flow: column nowrap;
+  .bb-callin-queue {
+    margin: 0px;
+    padding: 0px 10px;
+    border-top: 1px solid black;
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 0px;
+    overflow-y: auto;
+    transition: height 0.25s ease-in;
+    &.any-callins {
+      height: min(200px, max-content);
+      transition: height 0.25s cubic-bezier(0.5, 1.4, 0.8, 1.0);
+    }
+    .dropdown-menu {
+      /* Make this drop up, since it's at the bottom of the screen */
+      top: initial;
+      bottom: 100%;
+    }
+  }
+}
+.bb-logistics-top {
+  display: flex;
+  flex-flow: row nowrap;
+  flex-grow: 1;
+  flex-shrink: 1;
+  align-items: stretch;
+  overflow: hidden;
+}
+#bb-logistics-edit-dialog .modal-body {
+  background-color: var(--much-lighter);
+  border-radius: 6px;
+  header > *{
+    display: inline-block;
+    .current-onduty, .bb-callin-btn, .bb-favorite-button {
+      display: none;
+    }
+  }
+}
+
+.dragover-highlight(@color) {
+  &.dragover, &.dragover ul {
+    box-shadow: 0px 0px 10px 1px @color;
+  }
+}
+
+.would-disappear {
+  filter: blur(3px);
+}
+
+.bb-logistics-metas {
+  flex-grow: 1;
+  flex-shrink: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-rows: repeat(auto-fill, 20px);
+  gap: 4px;
+  padding: 4px;
+  overflow-y: auto;
+  overflow-x: clip;
+  a:hover {
+    text-decoration: none;
+    background-color: var(--barely-darker);
+  }
+  .puzzle, .meta {
+    .fill {
+      flex-grow: 1;
+      flex-shrink: 1;
+      position: relative;
+    }
+    .puzzle-name {
+      position: absolute;
+      left: 0;
+      right: 0;
+    }
+  }
+  .puzzle {
+    outline: 1px solid black;
+    padding: 1px 2px 2px 1px;
+    border-left: 4px solid black;
+    white-space: nowrap;
+    &.stuck {
+      border-left-color: var(--stuck-yellow);
+    }
+    &.solved {
+      border-left-color: limegreen;
+    }
+    .fas.fa-video {
+      font-size: 140%;
+    }
+    .fas.fa-comment-alt {
+      font-size: 120%;
+    }
+    .bb-logistics-edit-puzzle, .bb-drive-status {
+      margin: 0.2em 0.1em 0px;
+    }
+  }
+  a.puzzle, a.meta {
+    display: flex;
+    flex-flow: row nowrap;
+    color: var(--text-color);
+    &, .fill, .puzzle-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .events {
+      margin-right: 0.2em;
+      margin-top: 0.2em;
+    }
+    .presence {
+      margin-right: 0.2em;
+      position: relative;
+      .count {
+        position: absolute;
+        font-size: 60%;
+        color: var(--bg-color);
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+    .bb-logistics-edit-puzzle, .bb-drive-status {
+      opacity: 0.5;
+      &:hover {
+        opacity: 1.0;
+      }
+    }
+    .bb-logistics-edit-puzzle { display: none }
+    &:hover {
+      .bb-logistics-edit-puzzle {
+        display: unset;
+      }
+    }
+    .fas.fa-video .count {
+      vertical-align: middle;
+      left: 10%;
+      right: 40%;
+      top: 15%;
+    }
+    .fas.fa-comment-alt {
+      top: 10%;
+      .count {
+        left: 10%;
+        right: 10%;
+      }
+    }
+  }
+  .dragged-link {
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+.bb-logistics-controls {
+  display: flex;
+  justify-content: space-around;
+  .btn-group {
+    display: block;
+    > .btn-mini {
+      line-height: 18px;
+    }
+  }
+  .btn {
+    .dragover-highlight(limegreen);
+    .dropdown-menu {
+      text-align: left;
+      font-size: 14px;
+      margin-top: 0;
+    }
+  }
+  #bb-logistics-delete {
+    .dragover-highlight(red);
+  }
+}
+#bb-logistics-new-round li {
+  margin: 0px 5px;
+  min-width: 300px;
+  input {
+    margin-bottom: 0px;
+  }
+}
+.bb-logistics-meta {
+  border: 1px solid black;
+  --num-rows: calc(2 + (var(--num-feeders, 0))/2);
+  background-color: var(--meta-color);
+  .dragover-highlight(var(--meta-color));
+  &.solved {
+    opacity: 0.5;
+    & > header {
+      border-left-color: limegreen;
+    }
+  }
+  &.stuck > header {
+    border-left-color: var(--stuck-yellow);
+  }
+  & > header {
+    border-left: 5px solid black;
+    background-color: var(--slightly-lighter);
+    height: 42px;
+    white-space: nowrap;
+    position: relative;
+    & > .round {
+      height: 12px;
+      font-size: 10px;
+      line-height: 10px;
+    }
+    & > .meta {
+      &, * {
+        height: 30px;
+        font-size: 28px;
+      }
+      .events {
+        margin-top: 0;
+      }
+      .fas.fa-video {
+        font-size: 100%;
+      }
+      .fas.fa-comment-alt .count {
+        font-size: 70%;
+      }
+    }
+    > .new-puzzle {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      font-size: 8px;
+      line-height: 10px;
+      padding: 0px 2px;
+    }
+  }
+  & > .feeders {
+    background-color: var(--much-lighter);
+    .puzzle {
+      height: 20px;
+      margin-top: 1px;
+    }
+    input {
+      margin-bottom: 0px;
+      margin-top: 1px;
+      height: 23px;
+      min-height: unset;
+    }
+  }
+}
+.bb-logistics-meta > .feeders, .bb-logistics-standalone {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0px;
+}
+.bb-logistics-standalone {
+  --num-rows: calc(var(--num-feeders, 0)/2);
+  gap: 4px;
+  margin-right: 1px;
+  a.puzzle, div.bb-puzzle-title {
+    .input-block-level {
+      min-height: unset;
+    }
+    height: 16px;
+    line-height: 16px;
+    // This lets us use outline as a black border while still having the left border based on solved/stuck state.
+    margin-left: 1px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    padding-bottom: 1px;
+    &.solved { opacity: 0.5; }
+    .events, .bb-logistics-edit-puzzle, .bb-drive-status {margin-top: .1em;}
+  }
+}
+.bb-logistics-meta, .bb-logistics-standalone {
+  border-collapse: collapse;
+  grid-row-end: span var(--num-rows);
+}
+
+.bb-logistics-info {
+  padding-top: 10px;
+  .onduty-control {
+    padding-left: 5px;
+  }
+  .bb-starred-messages {
+    margin-bottom: 20px;
+  }
+  h3 {
+    margin: 0;
+  }
+  h3 a {
+    color: var(--text-color);
+  }
+}

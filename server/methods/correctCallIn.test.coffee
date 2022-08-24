@@ -7,6 +7,7 @@ import { callAs } from '../../server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
+import { RoleRenewalTime } from '/lib/imports/settings.coffee'
 
 model = share.model
 
@@ -23,6 +24,7 @@ describe 'correctCallIn', ->
 
   beforeEach ->
     resetDatabase()
+    RoleRenewalTime.ensure()
 
   puzzle = null
   callin = null
@@ -52,6 +54,12 @@ describe 'correctCallIn', ->
         backsolve: false
         provided: false
         status: 'pending'
+      model.Roles.insert
+        _id: 'onduty'
+        holder: 'cjb'
+        claimed_at: 2
+        renewed_at: 2
+        expires_at: 3600002
     
     it 'fails without login', ->
       chai.assert.throws ->
@@ -114,6 +122,25 @@ describe 'correctCallIn', ->
           action: true
         chai.assert.include o[0].body, 'PRECIPITATE', 'message'
         chai.assert.include o[0].body, '(Foo)', 'message'
+
+      it 'renews onduty', ->
+        chai.assert.deepInclude model.Roles.findOne('onduty'),
+          holder: 'cjb'
+          claimed_at: 2
+          renewed_at: 7
+          expires_at: 3600007
+    
+
+    describe 'when not onduty', ->
+      beforeEach ->
+        callAs 'correctCallIn', 'cscott', callin
+
+      it 'leaves onduty alone', ->
+        chai.assert.deepInclude model.Roles.findOne('onduty'),
+          holder: 'cjb'
+          claimed_at: 2
+          renewed_at: 2
+          expires_at: 3600002
 
     it 'notifies meta chat for puzzle', ->
       meta = model.Puzzles.insert

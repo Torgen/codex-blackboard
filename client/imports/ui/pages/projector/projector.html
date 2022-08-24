@@ -1,0 +1,9 @@
+<template name="projector">
+  <div id="projector_page">
+    {{#if loaded}}
+      <div data-projector-view="chart" class="{{classForView "chart"}}">{{>statistics_chart}}</div>
+      <div data-projector-view="map" class="{{classForView "map"}}">{{>map followTheSun=true}}</div>
+      <div data-projector-view="graph" class="{{classForView "graph"}}">{{>graph}}</div>
+    {{/if}}
+  </div>
+</template>

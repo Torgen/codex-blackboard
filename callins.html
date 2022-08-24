@@ -1,26 +1,4 @@
-<template name="callins">
-{{> starred_messages canModify=mynick}}
-<section class="bb-callin-queue">
-  <h1>Answer call-in queue</h1>
-  <table id="bb-callin-table" class="table"><tbody>
-    <tr>
-      <th>Puzzle</th>
-      <th>Answer</th>
-      <th>Proposed at</th>
-      <th>Last guess</th>
-      <th>Submitted to HQ</th>
-      <th align="center">Resolution</th>
-    </tr>
-    {{#each callins}}
-      {{> callin_row }}
-    {{else}}
-    <tr><td colspan="6">
-      No answers in the call-in queue.
-    </td></tr>
-    {{/each}}
-  </tbody></table>
-</section>
-</template>
+
 
 <template name="callin_copy_and_go">
   {{! Arguments:
@@ -34,35 +12,6 @@
       </a> 
     {{/if}}
   {{/unless}}
-</template>
-
-<template name="callin_row">
-  <tr>
-    <td>{{>link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{>link target}}{{#if hunt_link}}
-    <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
-            target="_blank">on&nbsp;hunt&nbsp;site
-    </a></small>
-    {{/if}}{{#if solved}}<div class="dupe">Already Solved</div>{{/if}}</td>
-    <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}
-      {{#if alreadyTried}}<div class="dupe">Already Tried</div>{{/if}}
-      {{>callin_type_dropdown}}
-      {{>callin_copy_and_go callin=this hunt_link=hunt_link}}
-    </td>
-    <td>{{pretty_ts this.created}}</td>
-    <td>{{#with lastAttempt}}{{pretty_ts this}} <small>({{pretty_ts timestamp=this style="brief duration"}})</small>{{else}}-{{/with}}</td>
-    {{#if mynick}}
-      <td>
-        {{#if callinTypeIs "expected callback"}}N/A{{else}}
-        <input type="checkbox" class="bb-submitted-to-hq" checked={{submitted_to_hq}}>{{#with submitted_by}} by {{>gravatar nick=this size=20 title=(nickOrName this)}}{{/with}}
-        {{/if}}
-      </td>
-      <td class="form-inline">
-        {{> callin_resolution_buttons callin=this}}
-      </td>
-    {{else}}
-    <td class="text-warning">Log in to resolve answers in queue.</td>
-    {{/if}}
-  </tr>
 </template>
 
 <template name="callin_type_dropdown">

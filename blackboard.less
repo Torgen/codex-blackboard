@@ -17,6 +17,8 @@
 @import '{}/client/imports/ui/components/edit_object_title/edit_object_title.less';
 @import '{}/client/imports/ui/components/edit_tag_name/edit_tag_name.less';
 @import '{}/client/imports/ui/components/edit_tag_value/edit_tag_value.less';
+@import '{}/client/imports/ui/components/onduty/onduty.less';
+@import '{}/client/imports/ui/pages/graph/graph.less';
 @import '{}/client/imports/ui/pages/map/map.less';
 
 .comma-list {
@@ -164,7 +166,7 @@ body.has-emojis {
   h2, .bb-round-title {
     color: #AAA;
   }
-  .bb-right-content {
+  .bb-puzzle-info {
     h1, h2, h3, .bb-puzzle-title {
       font-size: 24px;
       line-height: 24px;
@@ -216,6 +218,9 @@ body.has-emojis {
 }
 .bb-puzzle-info-tags {
   position: relative;
+  .bb-add-tag-buttons {
+    font-size: 75%;
+  }
   td, .bb-edit-field {
     padding: 0px 0.5em;
     vertical-align: top;
@@ -292,6 +297,9 @@ body.has-emojis {
   height:1em;
   border: 0.1em solid var(--text-color);
   vertical-align: text-bottom;
+}
+.bb-fix-drive {
+  cursor: pointer;
 }
 .bb-othermeta {
   display: inline-block;
@@ -544,7 +552,7 @@ input[type="color"] {
     }
     .puzzle-name {
       position: relative;
-      .bb-favorite-button { float: right; }
+      .bb-favorite-button, .bb-drive-status { float: right; }
       .bb-puzzle-add-move {
         display: block; width: 14px*3; height: 14px;
         position: absolute; right: 0px; top: 3px;

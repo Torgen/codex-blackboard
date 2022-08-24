@@ -118,7 +118,7 @@ export default class DriveChangeWatcher
     catch e
       console.error e
     @env.clearTimeout @timeoutHandle
-    @timeoutHandle = Meteor.setTimeout (=> @poll()), POLL_INTERVAL
+    @timeoutHandle = @env.setTimeout (=> @poll()), POLL_INTERVAL
 
   stop: ->
     @env.clearTimeout @timeoutHandle

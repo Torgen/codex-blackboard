@@ -66,13 +66,13 @@ describe 'jitsi', ->
     await afterFlushPromise()
     chai.assert.equal factory.callCount, 1
 
-  it 'shares meeting between blackboard and callins', ->
+  it 'shares meeting between blackboard and logistics', ->
     mock = expectFactory()
     share.Router.BlackboardPage()
     await defaultLogin()
     await afterFlushPromise()
     await waitForSubscriptions()
-    share.Router.CallInPage()
+    await share.Router.LogisticsPage()
     await waitForSubscriptions()
     await afterFlushPromise()
     chai.assert.equal factory.callCount, 1

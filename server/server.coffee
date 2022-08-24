@@ -77,6 +77,15 @@ Meteor.publish null, loginRequired ->
     located: 1
     located_at: 1
 
+Meteor.publish null, loginRequired ->
+  handle = model.Presence.find({room_name: null, scope: 'online'}, {nick: 1}).observe
+    added: ({nick}) =>
+      @added 'users', nick, {online: true}
+    removed: ({nick}) =>
+      @removed 'users', nick
+  @onStop -> handle.stop()
+  @ready()
+
 # Private messages to you
 Meteor.publish null, loginRequired -> model.Messages.find {to: @userId, deleted: $ne: true}
 # Messages that mention you
@@ -90,6 +99,54 @@ Meteor.publish null, loginRequired -> [
 Meteor.publish 'announcements-since', loginRequired (since) -> model.Messages.find
   announced_at: $gt: since
   deleted: $ne: true
+
+# Roles
+Meteor.publish null, loginRequired ->
+  model.Roles.find({}, {fields: {holder: 1, claimed_at: 1}})
+
+Meteor.publish null, loginRequired ->
+  model.Roles.find({holder: @userId}, {fields: {renewed_at: 1, expires_at: 1}})
+
+# Share one map among all listeners
+do ->
+  handles = new Set
+  holders = new Map
+  addHolder = (role, holder) ->
+    held = holders.get holder
+    if held?
+      held.add role
+      for h from handles
+        h.changed 'users', holder, {"roles": [...held]}
+    else
+      held = new Set [role]
+      holders.set holder, held
+      for h from handles
+        h.added 'users', holder, {"roles": [...held]}
+  removeHolder = (role, holder) ->
+    held = holders.get holder
+    held.delete role
+    if held.size is 0
+      holders.delete holder
+      for h from handles
+        h.removed 'users', holder
+    else
+      for h from handles
+        h.changed 'users', holder, {"roles": [...held]}
+
+  handle = model.Roles.find({}, {fields: holder: 1}).observe
+    added: ({_id, holder}) -> addHolder _id, holder
+    changed: ({_id, holder: newHolder}, {holder: oldHolder}) ->
+      removeHolder _id, oldHolder
+      addHolder _id, newHolder
+    removed: ({_id, holder}) -> removeHolder _id, holder
+  
+  Meteor.publish null, loginRequired ->
+    handles.add @
+    for [holder, roles] from holders.entries()
+      @added 'users', holder, {roles: [...roles]}
+    @onStop ->
+      handles.delete @
+    @ready()
 
 # Your presence in all rooms, with _id changed to room_name.
 Meteor.publish null, loginRequired ->
@@ -107,7 +164,7 @@ Meteor.publish null, loginRequired ->
 
 Meteor.publish 'all-presence', loginRequired ->
   # strip out unnecessary fields from presence to avoid wasted updates to clients
-  model.Presence.find {}, fields:
+  model.Presence.find {room_name: $ne: null}, fields:
     timestamp: 0
     clients: 0
 Meteor.publish 'presence-for-room', loginRequired (room_name) ->
@@ -115,9 +172,7 @@ Meteor.publish 'presence-for-room', loginRequired (room_name) ->
     timestamp: 0
     clients: 0
 
-Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
-  check room_name, NonEmptyString
-  check scope, NonEmptyString
+registerPresence = (room_name, scope) ->
   subscription_id = Random.id()
   console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{model.UTCNow()}, id #{@connection.id}:#{subscription_id}" if DEBUG
   keepalive = =>
@@ -150,7 +205,14 @@ Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
     , 2000
   @ready()
 
-Meteor.publish 'settings', loginRequired -> Settings.find()
+Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
+  check room_name, NonEmptyString
+  check scope, NonEmptyString
+  registerPresence.call @, room_name, scope
+Meteor.publish null, loginRequired ->
+  registerPresence.call @, null, 'online'
+
+Meteor.publish null, loginRequired -> Settings.find()
 
 Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
   check puzzle_id, NonEmptyString

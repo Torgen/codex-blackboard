@@ -28,21 +28,46 @@
   {{/if}}
 </template>
 
+<template name="calendar_add_link">
+  {{#if calendar_id}}
+    <a href="https://calendar.google.com/calendar?cid={{calendar_id}}"
+      target="_blank"
+      title="Add Google Calendar"><i class="fas fa-calendar-plus"></i></a>
+  {{/if}}
+</template>
+
 <template name="calendar_strip">
   {{#if calendar_id}}
   {{#let evs=upcoming_events}}
-  <h3 id="upcoming_calendar_events">
-    <a href="https://calendar.google.com/calendar?cid={{calendar_id}}"
-       target="_blank"
-       title="Add Google Calendar"><i class="fas fa-calendar-plus"></i></a>
-    {{#if evs.count}}{{evs.count}}{{else}}No{{/if}} Upcoming Event{{#if plural evs.count}}s{{/if}}
-  </h3>
+  {{#unless hide_header}}
+    <h3 id="upcoming_calendar_events">
+      {{> calendar_add_link}}
+      {{#if evs.count}}{{evs.count}}{{else}}No{{/if}} Upcoming Event{{#if plural evs.count}}s{{/if}}
+    </h3>
+  {{/unless}}
   {{#if evs.count}}
   <ul id="bb-calendar-events-strip">
-    {{#each evs}}
-      {{> calendar_event event=this allow_detach=canEdit}}
+    {{#each ev in evs}}
+      {{> calendar_event event=ev allow_detach=allow_detach fixed_attendance=fixed_attendance draggable=draggable}}
     {{/each}}
   </ul>
+  {{/if}}
+  {{/let}}
+  {{/if}}
+</template>
+
+<template name="calendar_column">
+  {{#if calendar_id}}
+  {{#let evs=upcoming_events}}
+  {{#if evs.count}}
+  <section class="bb-calendar-column">
+  <h4 id="upcoming_calendar_events">Events</h4>
+  <ul id="bb-calendar-events-strip">
+    {{#each ev in evs}}
+      {{> calendar_event event=ev allow_detach=allow_detach fixed_attendance=fixed_attendance draggable=draggable}}
+    {{/each}}
+  </ul>
+  </section>
   {{/if}}
   {{/let}}
   {{/if}}
@@ -78,7 +103,7 @@
 <template name="calendar_puzzle_cell_entry"><span>{{event.summary}} ({{pretty_ts timestamp=event.start style="brief future"}}) {{#if canEdit}}<i class="fa fa-times bb-detach-event" title="Detach event from puzzle"></i>{{/if}}</span></template>
 
 <template name="calendar_event">
-  <li class="bb-calendar-event" style="--dh-until-start: {{dh_until_start}}" data-event-id="{{event._id}}">
+  <li class="bb-calendar-event" style="--dh-until-start: {{dh_until_start}}" data-event-id="{{event._id}}" draggable="{{#if all draggable (not event.puzzle)}}true{{/if}}">
     <div class="bb-event-summary">{{event.summary}}{{#if all event.puzzle hide_puzzle allow_detach}}<i class="fa fa-times bb-detach-event" title="Detach event from puzzle"></i>{{/if}}</div>
     <div class="bb-event-time"><i class="fas fa-clock" title="Time"></i> {{pretty_ts timestamp=event.start}}-{{pretty_ts timestamp=event.end}} ({{pretty_ts timestamp=event.start style="brief future"}})</div>
     <div class="bb-event-attendees">

@@ -6,7 +6,7 @@
 </div>
 <div class="bb-menu-drawer fade">
   <ul class="nav nav-list bb-sidenav">
-    <li><a class="callins-link" href="/callins"><i class="fas fa-phone"></i> Callin Queue</a></li>
+    <li><a class="logistics-link" href="/logistics"><i class="fas fa-dolly"></i> Logistics</a></li>
     <li><a href="https://www.github.com/{{whoseGitHub}}/codex-blackboard/issues" target="_blank"><i class="fab fa-github"></i> Issues</a></li>
     {{#with driveFolder}}
       <li><a href="{{drive_link this}}" target="_blank"><i class="fab fa-google-drive"></i> Google Drive Folder</a></li>
@@ -43,6 +43,7 @@
         <span class="bb-no-wrap">Blackboard</span>
       </h1>
       <div class="btn-toolbar text-right bb-top-buttons span7">
+        {{>onduty_control}}
         {{> favorite_mechanics}}
         {{#if canEdit}}
           <div class="btn-group">
@@ -97,7 +98,7 @@
       </div>
     </div>
     {{> starred_messages canModify=canEdit}}
-    {{> calendar_strip}}
+    {{> calendar_strip allow_detach=canEdit}}
     <table class="table table-bordered table-condensed bb-puzzle">
       <thead>
         {{#unless compactMode}}
@@ -141,11 +142,11 @@
             {{/if}}
           {{/let}}
         {{/unless}}
-        {{#if all add_round sortReverse}}{{> blackboard_add_round}}{{/if}}
+        {{#if all add_round sortReverse}}{{> blackboard_add_round done=addingRound}}{{/if}}
         {{#each rounds}}
           {{> blackboard_round}}
         {{/each}}
-        {{#if all add_round (not sortReverse)}}{{> blackboard_add_round}}{{/if}}
+        {{#if all add_round (not sortReverse)}}{{> blackboard_add_round done=addingRound}}{{/if}}
       {{/if}}
     </table>
   </div><!-- bb-tables -->
@@ -155,12 +156,7 @@
   <tbody>
     <tr>
       <th colspan="{{nCols}}" id="bb-new-round" class="bb-round-header">
-        <div class="bb-round-title bb-editable control-group {{titleEditClass}}">
-          <input type="text" placeholder="Round name" class="input-block-level" />
-        </div>
-        {{#if titleEditStatus}}
-          <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleEditStatus}}</div></div>
-        {{/if}}
+        {{> create_object type="rounds" done=done}}
       </th>
     </tr>
   </tbody>
@@ -215,9 +211,10 @@
         {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
       {{/edit_object_title}}
       {{#unless compactMode}}
-        {{#blackboard_tags adding=addingTag type="rounds" id=_id}}
-        {{#if canEdit}}<tr><td>Hunt site URL</td>{{>edit_field type="rounds" id=_id field="link"}}</tr>{{/if}}
-        {{/blackboard_tags}}
+        <table class="bb-tag-table"><tbody>
+          {{>tag_table_rows editable=canEdit adding=addingTag type="rounds" id=_id}}
+          {{#if canEdit}}<tr><td>Hunt site URL</td>{{>edit_field type="rounds" id=_id field="link"}}</tr>{{/if}}
+        </tbody></table>
       {{/unless}}
       {{#if canEdit}}
         <div class="bb-round-buttons">
@@ -330,9 +327,7 @@
     {{#edit_object_title id=puzzle._id type="puzzles" link_title=true editable=canEdit}}
       <i class="bb-delete-icon fas fa-times pull-left"
         title="Delete this puzzle"></i>
-      {{#if any (equal puzzle.drive_status "failed") (equal puzzle.drive_status "skipped") (all (not puzzle.drive) (not puzzle.drive_status))}}
-        <i class="fas fa-tools pull-right bb-fix-drive" title="Fix drive folder"></i>
-      {{/if}}
+      {{> fix_puzzle_drive puzzle=puzzle._id}}
     {{else}}
       <span class="collapse-toggle"></span>
       {{#if equal puzzle.drive_status "creating"}}
@@ -340,7 +335,7 @@
       {{else if equal puzzle.drive_status "failed"}}
         <i class="pull-right fas fa-dumpster-fire bb-drive-status" title="Drive creation failed: {{puzzle.drive_error_message}}"></i>
       {{else if equal puzzle.drive_status "fixing"}}
-        <i class="pull-right fas fa-tools bb-drive-status" title="fixing..."></i>
+        <i class="pull-right fas fa-cog fa-spin bb-drive-status" title="fixing..."></i>
       {{/if}}
       {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
       {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
@@ -364,7 +359,8 @@
     {{/if}}
     {{#with puzzle}}
       {{#unless compactMode}}
-      {{#blackboard_tags adding=addingTag type="puzzles" id=_id}}
+        <table class="bb-tag-table"><tbody>
+        {{>tag_table_rows editable=canEdit adding=addingTag type="puzzles" id=_id}}
         {{#if canEdit}}
           {{#if canChangeMeta}}
           <tr>
@@ -422,7 +418,7 @@
           {{/if}}
         {{/if}}
         {{>calendar_puzzle_cell}}
-      {{/blackboard_tags}}
+        </tbody></table>
       {{/unless}}
     {{/with}}
   </td>
@@ -437,7 +433,7 @@
 
 <template name="blackboard_column_body_status">
   {{#edit_tag_value type="puzzles" id=puzzle._id name="Status" editable=canEdit class="puzzle-status"}}
-    {{#if status}}<span class="bb-who-stuck">&mdash; by {{>gravatar nick=set_by size=12}}{{nickAndName set_by}}</span>{{/if}}
+    {{#if status}}<span class="bb-who-stuck">&mdash; by {{>gravatar_with_badges nick=set_by size=16}} {{nickAndName set_by}}</span>{{/if}}
   {{/edit_tag_value}}
 </template>
 
@@ -529,12 +525,7 @@
 
 <template name="blackboard_new_puzzle">
   <tr class="{{class}}"><td id="bb-new-puzzle" class="puzzle-name" colspan="{{nCols}}">
-    <div class="bb-puzzle-title bb-editable control-group {{titleAddClass}}">
-      <input type="text" placeholder="Puzzle name" class="input-block-level" />
-      {{#if titleAddStatus}}
-        <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleAddStatus}}</div></div>
-      {{/if}}
-    </div>
+    {{> create_object type="puzzles" done=adding params=adding.params}}
   </td></tr>
 </template>
 
@@ -542,27 +533,4 @@
   <tbody class="meta">
     {{>blackboard_new_puzzle class="meta" adding=adding}}
   </tbody>
-</template>
-
-<template name="blackboard_tags">
-  <table class="bb-tag-table"><tbody>
-    {{#each tag in tags}}
-    <tr data-tag-name="{{tag.canon}}">
-      {{>edit_tag_name type=type id=id name=tag.name editable=canEdit}}
-      {{>edit_tag_value type=type id=id name=tag.name editable=canEdit}}
-    </tr>
-    {{/each}}
-    {{#if adding.adding}}
-      <tr class="bb-add-tag">
-        <td class="bb-edit-tag-name bb-editable control-group {{tagAddClass}}">
-          <input type="text" placeholder="Tag name" class="input-block-level" />
-          {{#if tagAddStatus}}
-            <div class="tooltip top in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{tagAddStatus}}</div></div>
-          {{/if}}
-        </td>
-        <td></td>
-      </tr>
-    {{/if}}
-    {{> Template.contentBlock}}
-  </tbody></table>
 </template>

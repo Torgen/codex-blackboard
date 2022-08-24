@@ -6,6 +6,7 @@ import { jitsiUrl } from './imports/jitsi.coffee'
 import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
+import loginWithCodex from '/client/imports/accounts.coffee'
 import './imports/timestamp.coffee'
 
 model = share.model # import
@@ -38,6 +39,7 @@ do ->
     'click a.home-link': clickHandler
     'click a.oplogs-link': clickHandler
     'click a.callins-link': clickHandler
+    'click a.logistics-link': clickHandler
     'click a.facts-link': clickHandler
 
 Template.registerHelper 'drive_link', (args) ->
@@ -61,6 +63,8 @@ Template.registerHelper 'nickAndName', (args) ->
   return nickAndName n
 Template.registerHelper 'nickExists', (nick) ->
   Meteor.users.findOne(_id: nick)?
+Template.registerHelper 'onduty', (nick) ->
+  model.Roles.findOne('onduty')?.holder is nick
 
 privateMessageTransform = (msg) ->
   _id: msg._id
@@ -380,7 +384,7 @@ Template.header_nickmodal_contents.events
   'submit #nickPick': (event, template) ->
     nick = $("#nickInput").val().replace(/^\s+|\s+$/g,"") #trim
     return false unless nick
-    Meteor.loginWithCodex nick, $('#nickRealname').val(), $('#nickEmail').val(), $('#passwordInput').val(), (err, res) ->
+    loginWithCodex nick, $('#nickRealname').val(), $('#nickEmail').val(), $('#passwordInput').val(), (err, res) ->
       if err?
         le = $("#loginError")
         if err.reason?
@@ -415,7 +419,9 @@ Template.header_lastchats.helpers
       'comments'
   puzzle_id: -> @room_name.match(/puzzles\/(.*)/)[1]
   icon_label: ->
-    if /Added/.test @body
+    if @type is 'roles'
+      ['pager', if @id? then 'success' else 'important']
+    else if /Added/.test @body
       if @type is 'puzzles'
         ['puzzle-piece', 'success']
       else if @type is 'rounds'

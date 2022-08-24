@@ -2,7 +2,7 @@
 
 import md5 from 'md5'
 
-Meteor.loginWithCodex = (nickname, real_name, gravatar, password, callback) ->
+export default loginWithCodex = (nickname, real_name, gravatar, password, callback) ->
   args = {nickname, real_name, password}
   if gravatar
     args.gravatar_md5 = md5(gravatar)

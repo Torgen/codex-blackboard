@@ -2,6 +2,7 @@
 return unless share.DO_BATCH_PROCESSING
 
 import watchPresence from './imports/presence.coffee'
+import { RoleManager } from './imports/roles.coffee'
 
 model = share.model
 
@@ -65,3 +66,6 @@ do ->
     removed: (id) -> maybeRunBatch()
 
 presence = watchPresence()
+
+roleManager = new RoleManager
+roleManager.start()

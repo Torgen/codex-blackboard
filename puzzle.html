@@ -1,15 +1,15 @@
 <template name="puzzle_info">
 <div class="bb-puzzle-info bb-canEdit">
-<div class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
+<header class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
   <h2>
-    {{> header_breadcrumbs_unsolved_buttons puzzle}}
-    {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}"><i class="fab fa-google-drive"></i></a>{{/if}}
+    {{>onduty_current}}{{> header_breadcrumbs_unsolved_buttons puzzle}}
+    {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}"><i class="fab fa-google-drive"></i></a>{{else}}{{>fix_puzzle_drive puzzle=puzzle._id}}{{/if}}
     {{>favorite puzzle}}
     {{#if puzzle.link}}<a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class="fas fa-link"></i></a>{{/if}}
     {{>calendar_attachable_events puzzle=puzzle._id}}
   </h2>
   {{> edit_object_title id=puzzle._id type="puzzles" editable=true}}
-</div>
+</header>
 {{>calendar_puzzle_events puzzle}}
 <table class="bb-puzzle-info-tags"><tbody>
 {{#with puzzle}}
@@ -30,22 +30,18 @@
 {{#each mtag in metatags}}
   <tr><td>{{mtag.name}}:<br><i>(from <span title="{{mtag.meta}}">{{abbrev mtag.meta}}</span>)</i></td><td>{{>text_chunks mtag.value}}</td></tr>
 {{/each}}
-{{#with type="puzzles" id=puzzle._id}}
-  {{#each t in tags}}
-    <tr data-tag-name="{{t.canon}}">
-      {{> edit_tag_name type="puzzles" id=id name=t.name editable=true}}
-      {{> edit_tag_value type="puzzles" id=id name=t.name editable=true}}
-    </tr>
-    {{#if equal t.canon 'status'}}
-    <tr>
-      <td class="tagname">Set by:</td>
-      <td class="tagvalue">{{>gravatar nick=t.touched_by size=12}}{{nickAndName t.touched_by}}</td>
-    </tr>
-    {{/if}}
-  {{/each}}
-{{/with}}
+{{>tag_table_rows editable=true adding=addingTag type="puzzles" id=puzzle._id}}
+{{#unless addingTag.adding}}
+  <tr class="bb-add-tag">
+    <td class="bb-add-tag-button bb-editable" title="Add Tag">
+      <i class="fas fa-tags"></i>
+      <i class="fas fa-plus"></i>
+    </td>
+    <td class="tagvalue"></td>
+  </tr>
+{{/unless}}
 </tbody></table>
-{{> starred_messages canModify=mynick}}
+{{> starred_messages canModify=mynick room_name=(concat 'puzzles/' puzzle._id)}}
 {{#let cs=callins}}
   {{#if cs.count}}
     <h3>Callin History</h3>
