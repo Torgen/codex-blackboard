@@ -17,7 +17,7 @@ EVERYONE_PERM =
   role: 'writer'
   type: 'anyone'
 
-PERMISSION_LIST_FIELDS = "permissions/role,permissions/type,permissions/emailAddress,permissions/allowFileDiscovery"
+PERMISSION_LIST_FIELDS = "permissions(role,type,emailAddress,allowFileDiscovery)"
 
 defaultPerms =  [EVERYONE_PERM, OWNER_PERM]
 

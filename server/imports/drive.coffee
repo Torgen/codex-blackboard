@@ -15,7 +15,7 @@ XLSX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sh
 MAX_RESULTS = 200
 SPREADSHEET_TEMPLATE = Assets.getBinary 'spreadsheet-template.xlsx'
 
-PERMISSION_LIST_FIELDS = ("permissions/#{x}" for x in ['role', 'type', 'emailAddress', 'allowFileDiscovery']).join()
+PERMISSION_LIST_FIELDS = 'permissions(role,type,emailAddress,allowFileDiscovery)'
 
 quote = (str) -> "'#{str.replace(/([\'\\])/g, '\\$1')}'"
 
@@ -33,32 +33,35 @@ ensurePermissions = (drive, id) ->
   # service acount.  the service account must remain the owner in
   # order to be able to rename the folder
   perms = [
-    # edit permissions for anyone with link
-    allowFileDiscovery: false
-    role: 'writer'
-    type: 'anyone'
+    resource:
+      # edit permissions for anyone with link
+      allowFileDiscovery: false
+      role: 'writer'
+      type: 'anyone'
   ]
   if CODEX_ACCOUNT()?
     perms.push
-      # edit permissions to codex account
-      role: 'writer'
-      type: 'user'
-      emailAddress: CODEX_ACCOUNT()
+      sendNotificationEmail: false
+      resource:
+        # edit permissions to codex account
+        role: 'writer'
+        type: 'user'
+        emailAddress: CODEX_ACCOUNT()
   if SHARE_GROUP()?
     perms.push
-      # edit permission to a google group
-      role: 'writer'
-      type: 'group'
-      emailAddress: SHARE_GROUP()
+      sendNotificationEmail: false
+      resource:
+        # edit permission to a google group
+        role: 'writer'
+        type: 'group'
+        emailAddress: SHARE_GROUP()
   resp = (await drive.permissions.list({fileId: id, fields: PERMISSION_LIST_FIELDS})).data
   ps = []
   perms.forEach (p) ->
     # does this permission already exist?
-    exists = resp.permissions.some (pp) -> samePerm p, pp
+    exists = resp.permissions.some (pp) -> samePerm p.resource, pp
     unless exists
-      ps.push drive.permissions.create
-        fileId: id
-        resource: p
+      ps.push drive.permissions.create {fileId: id, p...}
   await Promise.all ps
   'ok'
 

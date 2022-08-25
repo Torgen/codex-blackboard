@@ -53,9 +53,10 @@ export class CalendarSync
     writer = SHARE_GROUP()
     if writer?
       unless acls.data.items.some (x) -> x.role is 'writer' and x.scope.type is 'group' and x.scope.value is writer
-        # Make codex account an owner
+        # Allow group to write.
         promises.push @api.acl.insert
           calendarId: @id
+          sendNotifications: false
           requestBody:
             role: 'writer'
             scope:
@@ -67,6 +68,7 @@ export class CalendarSync
         # Make codex account an owner
         promises.push @api.acl.insert
           calendarId: @id
+          sendNotifications: false
           requestBody:
             role: 'owner'
             scope:
