@@ -26,7 +26,7 @@
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
     "meteor-node-stubs": "^1.2.5",
-    "normalize-text": "^2.4.0",
+    "normalize-text": "^2.4.1",
     "sanitize-html": "^2.7.1",
     "twitter-api-v2": "^1.12.5"
   },
