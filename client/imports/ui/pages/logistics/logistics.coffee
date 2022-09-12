@@ -12,7 +12,7 @@ nameAndUrlFromDroppedLink = (dataTransfer) ->
   url = dataTransfer.getData 'url'
   name = if dataTransfer.types.includes 'text/html'
     doc = new DOMParser().parseFromString dataTransfer.getData('text/html'), 'text/html'
-    doc.body.innerText
+    doc.body.innerText.trim()
   else
     parsedUrl = new URL link
     parsedUrl.pathname().split('/').at(-1)
