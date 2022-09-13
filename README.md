@@ -3,6 +3,7 @@ codex-blackboard
 
 ![Build Status](https://github.com/Torgen/codex-blackboard/actions/workflows/test.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/Torgen/codex-blackboard/badge.svg?branch=master)](https://coveralls.io/github/Torgen/codex-blackboard?branch=master)
+[![GitHub Super-Linter](https://github.com/Torgen/codex-blackboard/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
 Meteor app for coordinating solving for our MIT Mystery Hunt team. See the wiki for instructions on:
 * [Building and managing a server](./docs/Operations.md)
