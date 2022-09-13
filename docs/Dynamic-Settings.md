@@ -1,20 +1,20 @@
 Some of the settings for the blackboard are easy to specify in advance--for example, credentials for external services. Other settings can only be determined once the hunt has started, which is not when you want to restart the blackboard to modify environment variables. These settings can be controlled via the bot. Note that the current, authoritative list of settings, including their default and current values, can be enumerated by entering `/msg bot global list` in any chat room. You can set any setting by saying `bot global set SETTING NAME to VALUE` in any chat room. The bot will tell you if your value is illegal for the setting you chose.
 
-# Round Url Prefix
+# Round URL Prefix
 
 Hunt sites tend to have common patterns for the URLs for the various rounds. The blackboard can attempt to derive the URL for a round based on its name and the common name normalization algorithm it uses throughout. Set this to the path to the directory that contains the rounds to enable this. Don't set this if there's no single directory that contains all the rounds.
 
-Format: empty string, or a URL with the http or https protocol.
+Format: empty string, or a URL with the HTTP or HTTPS protocol.
 
-# Puzzle Url Prefix
+# Puzzle URL Prefix
 
 Hunt sites also tend to have common patterns for the URLs for the various puzzles. The blackboard can attempt to derive the URL for a puzzle based on its name and the common name normalization algorithm it uses throughout. Set this to the path to the directory that contains the puzzles to enable this. Don't set this if there's no single directory that contains all the puzzles, e.g. because they're grouped by the round they're in. In this case the oncall will have to set the URL for each puzzle individually. Also remember that this isn't foolproof; for example, in 2019 the Problems (i.e. metapuzzles) had a different URL prefix than the leaf puzzles.
 
-Format: empty string, or a URL with the http or https protocol.
+Format: empty string, or a URL with the HTTP or HTTPS protocol.
 
 # URL Separator
 
-For Round URL Prefix and Puzzle Url Prefix, the spaces in the puzzle name are trypically replaced with some other character. In the past it was typically `_`, but recently it has been `-`. Once you know what it is, you can set this to it.
+For Round URL Prefix and Puzzle URL Prefix, the spaces in the puzzle name are trypically replaced with some other character. In the past it was typically `_`, but recently it has been `-`. Once you know what it is, you can set this to it.
 
 Format: string
 

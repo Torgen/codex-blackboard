@@ -152,7 +152,7 @@ Certain tag names have special handling:
   (Using the **Flag as Stuck Button**, right above the puzzle info panel, is often easier and more thorough.)
  
 Tags for metapuzzles:
-* `color`: Sets the background color for this meta's row in the blackboard table. The rows of all puzzles associated to this meta will be shaded a lighter version of the color. Any css color name or format is accepted. (blue, #beefee)
+* `color`: Sets the background color for this meta's row in the blackboard table. The rows of all puzzles associated to this meta will be shaded a lighter version of the color. Any CSS color name or format is accepted. (blue, #beefee)
 
 * `cares about`: Give the name of a concept that every feeder puzzle should provide for this meta. e.g. Temperature.<br>
   Three things will happen when this flag is set. 

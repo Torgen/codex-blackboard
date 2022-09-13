@@ -1,3 +1,6 @@
+Hubot Scripts
+-------------
+
 These are stock hubot scripts, with one exception:
 Instead of:
 

@@ -103,7 +103,7 @@ The bot commands can be done in any chat roon, though the main (ringhunters, unl
 avoid clogging puzzle chat. All commands are case insensitive and case preserving, and they normalize punctuation and
 whitespace. (i.e. use the right capitalization when you create something, but it doesn't matter when you refer to it later.)
 
-The two types of object are the Puzzle, which is anything with an answer, and the Round, which is a webpage with puzzles
+The two types of object are the Puzzle, which is anything with an answer, and the Round, which is a web page with puzzles
 on it. (i.e. Rounds are only for organing the blackboard to match the hunt site.) Metapuzzles are a special case of puzzles,
 which can have other puzzles feed into them.
 

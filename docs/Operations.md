@@ -33,7 +33,7 @@ resources.
 4. [Create a new service account](https://console.cloud.google.com/iam-admin/serviceaccounts). Give it a descriptive name,
    like blackboard.
 5. (*New for 2023*) If members of your team will be solving in a common location with a projector or large screen and you
-   want to use the projector features, [Create a Google Maps Javascript API key](https://console.cloud.google.com/project/_/google/maps-apis/credentials).
+   want to use the projector features, [Create a Google Maps JavaScript API key](https://console.cloud.google.com/project/_/google/maps-apis/credentials).
    Restrict its use to the domain name you will host your site on.
 6. [Create a VM](https://console.cloud.google.com/compute/instancesAdd). Recommended settings:
    * Size: an `n1-standard-1` should be sufficient for a reasonably large team. I used an `n1-standard-4` for Codex Ogg
@@ -48,7 +48,8 @@ resources.
      primary reason to use more would be for throughput, as a virtual SSD twice the size gets twice as large a share of
      the throughput of the native drive. Again, this will cost pennies for the hunt weekend, so why not give it more than
      it needs?
-   * OS: Use Ubuntu 20.04LTS. The install script uses the MongoDB repo for Focal, and installation may fail for other distros.
+   * OS: Use Ubuntu 20.04LTS. The install script uses the MongoDB repository for Focal, and installation may fail for
+     other distros.
    * Service Account: Use the one you created in the previous step.
    * Location: Somewhere close to your users. Assuming a large fraction of them are in Cambridge, MA, that means one of 
      the `us-east` zones.
@@ -90,7 +91,7 @@ resources.
         * `mapsApiKey`: (*New for 2023*) If you created a maps API key above, set it here to enable to solver map.
         * `namePlaceholder`: On the login screen, the example name in the Real Name box.
         * `teamName`: The name of the team as it will appear at the top of the blackboard. This is also used in Jitsi meeting names, if configured.
-        * `whoseGitHub`: The hamburger menu has a link to the issues page on GitHub. This controls which fork of the repo the link points at.
+        * `whoseGitHub`: The hamburger menu has a link to the issues page on GitHub. This controls which fork of the repository the link points at.
         * `jitsiServer`: The DNS name (no protocol or path) of a Jitsi server. This will be set to `meet.jit.si` by default. You can set it to a public Jitsi server near you (https://jitsi.github.io/handbook/docs/community-instances has a list) if you prefer. It's also possible to run your own Jitsi server if you can spare the bandwidth, but that is beyond the scope of this guide. If this is unset, no meetings will be created or embedded.
       * STATIC_JITSI_ROOM: Puzzle rooms use the random puzzle ID in their room URL, so they are not guessable. The blackboard and callins page don't have a random ID--internally they use the `general/0` chat room--so their Jitsi URLs would be guessable. To prevent this, the install script pre-populates this with a UUID which is used in the URL for the room shared by those pages. You can also set it to a Correct Horse Battery Staple style phrase if you prefer, but you will usually never see the URL. If you unset this, the blackboard and callins page will have no Jitsi room, but puzzles still will. This is used as the initial value of a global dynamic setting named `Static Jitsi Room`, so once you've started the server, changing this won't have an effect.
     * Certbot will ask for an email address, and for permission to contact you. Note that Let's Encrypt certificates last
@@ -115,7 +116,7 @@ As written, the blackboard will run as nobody, which is why you need to make the
 `/etc/systemd/system/codex-batch.service`, after which you can make the file readable only by that user. Run `sudo 
 systemctl daemon-reload` after making that change.
 
-The install script assumes it should use the MongoDB repo for Ubuntu 20.04. If this is not the release you are using, you will have to look up the installation instructions on the MongoDB website. You will also have to manually perform the steps in the script rather than running it directly. In the worst case, if your machine doesn't use systemd, you may have to write your own init scripts.
+The install script assumes it should use the MongoDB repository for Ubuntu 20.04. If this is not the release you are using, you will have to look up the installation instructions on the MongoDB site. You will also have to manually perform the steps in the script rather than running it directly. In the worst case, if your machine doesn't use systemd, you may have to write your own init scripts.
 
 UPDATING
 ========
@@ -124,7 +125,7 @@ If you used the above instructions to set up the blackboard software and you now
 software, there are two options:
 
 ### Compile on the production machine
-This is usually preferred if the version you're pushing is committed to some branch on Github. From the root of a client
+This is usually preferred if the version you're pushing is committed to some branch on GitHub. From the root of a client
 synced to the version you want to use, run `private/update.sh`.
 
 ### Compile on some other machine
