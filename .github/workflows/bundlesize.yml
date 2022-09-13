@@ -17,47 +17,50 @@ jobs:
     strategy:
       matrix:
         include:
-        - name: base
-          ref: ${{ github.event.pull_request.base.ref }}
-        - name: head
-          ref: ${{ github.ref }}
+          - name: base
+            ref: ${{ github.event.pull_request.base.ref }}
+          - name: head
+            ref: ${{ github.ref }}
     steps:
-    - uses: actions/checkout@master
-      with:
-        ref: ${{ matrix.ref }}
-    - name: Read Meteor version
-      run: cat .meteor/release | sed -e "s/@/_VERSION=/" >> $GITHUB_ENV
-    - name: Use Node.js 14.x
-      uses: actions/setup-node@master
-      with:
-        node-version: 14.x
-    - uses: actions/cache@v3
-      id: cache-meteor
-      with:
-        path: ~/.meteor
-        key: ${{ runner.os }}-meteor-install-${{ hashFiles('.meteor/versions') }}
-    - uses: meteorengineer/setup-meteor@v1
-      if: steps.cache-meteor.outputs.cache-hit != 'true'
-      with:
-        meteor-release: ${{ env.METEOR_VERSION }}
-    - uses: actions/cache@v3
-      id: cache-npm
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+      - uses: actions/checkout@master
+        with:
+          ref: ${{ matrix.ref }}
+      - name: Read Meteor version
+        run: cat .meteor/release | sed -e "s/@/_VERSION=/" >> $GITHUB_ENV
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@master
+        with:
+          node-version: 14.x
+      - uses: actions/cache@v3
+        id: cache-meteor
+        with:
+          path: ~/.meteor
+          key: "${{ runner.os }}-meteor-install-\
+            ${{ hashFiles('.meteor/versions') }}"
+      - uses: meteorengineer/setup-meteor@v1
+        if: steps.cache-meteor.outputs.cache-hit != 'true'
+        with:
+          meteor-release: ${{ env.METEOR_VERSION }}
+      - uses: actions/cache@v3
+        id: cache-npm
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
     - name: npm install
       run: ~/.meteor/meteor npm install
     - name: install bundle-visualizer
       run: ~/.meteor/meteor add bundle-visualizer
     - name: build
-      run: ~/.meteor/meteor build --directory ${{ runner.temp }}/build-${{ matrix.name }}
+      run: "~/.meteor/meteor build --directory ${{ runner.temp }}\
+        /build-${{ matrix.name }}"
     - uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.name }}
-        path: ${{ runner.temp }}/build-${{matrix.name}}/bundle/programs/web.browser/*.stats.json
+        path: "${{ runner.temp }}/build-${{matrix.name}}\
+          /bundle/programs/web.browser/*.stats.json"
     - name: remove bundle-visualizer
       run: ~/.meteor/meteor remove bundle-visualizer
 
@@ -65,12 +68,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/download-artifact@v3
-    - id: diff
-      uses: ./.github/actions/diff-bundle-stats
-    - uses: marocchino/sticky-pull-request-comment@v2
-      with:
-        header: bundlesize
-        message: ${{steps.diff.outputs.diff}}
-        hide_and_recreate: true
+      - uses: actions/checkout@master
+      - uses: actions/download-artifact@v3
+      - id: diff
+        uses: ./.github/actions/diff-bundle-stats
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: bundlesize
+          message: ${{steps.diff.outputs.diff}}
+          hide_and_recreate: true
