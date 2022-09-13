@@ -19,8 +19,7 @@ class PresenceManager
     # Presence
     # ensure old entries are timed out after 2*PRESENCE_KEEPALIVE_MINUTES
     @interval = Meteor.setInterval ->
-      #console.log "Removing entries older than", (UTCNow() - 5*60*1000)
-      removeBefore = model.UTCNow() - (2*model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
+      removeBefore = Date.now() - (2*model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
       model.Presence.update
         "clients.timestamp": $lt: removeBefore
       ,
@@ -53,7 +52,7 @@ class PresenceManager
           presence: 'part'
           body: "#{maybe_real_name presence.nick} left the room."
           room_name: presence.room_name
-          timestamp: model.UTCNow()
+          timestamp: Date.now()
           ...common_presence_fields
         }
       changed: (newDoc, oldDoc) ->

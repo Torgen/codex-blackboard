@@ -19,7 +19,7 @@ export default moveWithinParent = (id, parentType, parentId, args) ->
               [id],
               {$cond: [{$eq: ["$$targetPosition", $size: "$$npuzzles"]}, [], $slice: ["$$npuzzles", "$$targetPosition", $subtract: [{$size: "$$npuzzles"}, "$$targetPosition"]]]}
             ]
-        touched: share.model.UTCNow()
+        touched: Date.now()
         touched_by: canonical(args.who)
     ])
     if res.modifiedCount is 1

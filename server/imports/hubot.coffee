@@ -106,11 +106,11 @@ class BlackboardAdapter extends Hubot.Adapter
       $set:
         nickname: @robot.name
         gravatar_md5: md5 @gravatar
-        bot_wakeup: share.model.UTCNow()
+        bot_wakeup: Date.now()
       $unset: services: ''
     # register our presence in general chat
     @present = (room_name) =>
-      now = share.model.UTCNow()
+      now = Date.now() 
       share.model.Presence.upsert {scope: 'chat', room_name: room_name, nick: @botname},
         $set:
           timestamp: now
@@ -131,7 +131,7 @@ class BlackboardAdapter extends Hubot.Adapter
     IGNORED_NICKS = new Set ['', @botname]
     # listen to the chat room, ignoring messages sent before we startup
     startup = true
-    query = share.model.Messages.find(timestamp: $gt: share.model.UTCNow())
+    query = share.model.Messages.find(timestamp: $gt: Date.now())
     @handle = query.observeChanges
       added: (id, msg) =>
         return if startup

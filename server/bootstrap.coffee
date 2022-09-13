@@ -456,14 +456,14 @@ Meteor.startup ->
     model.CalendarEvents.insert
       _id: 'fake1'
       summary: 'Create test data'
-      start: model.UTCNow() - 3600000
-      end: model.UTCNow() + 3600000
+      start: Date.now() - 3600000
+      end: Date.now() + 3600000
       location: 'The Cloud'
     model.CalendarEvents.insert
       _id: 'fake2'
       summary: 'Do the Brainstorm runaround'
       puzzle: model.Puzzles.findOne(canon: 'the_brainstorm')._id
-      start: model.UTCNow() + 1200000
-      end: model.UTCNow() + 3000000
+      start: Date.now() + 1200000
+      end: Date.now() + 3000000
 
     console.log 'Done populating initial database.'

@@ -160,7 +160,7 @@ finishSetupNotifications = ->
     share.notification.set(stream, def) unless share.notification.get(stream)?
 
 debouncedUpdate = ->
-  now = new ReactiveVar share.model.UTCNow()
+  now = new ReactiveVar Date.now()
   update = do ->
     next = now.get()
     push = _.debounce (-> now.set next), 1000
@@ -179,7 +179,7 @@ Meteor.startup ->
       suppress = true
       return
     else if suppress
-      now.set share.model.UTCNow()
+      now.set Date.now()
     Meteor.subscribe 'oplogs-since', now.get(),
       onReady: -> suppress = false
   share.model.Messages.find({room_name: 'oplog/0', timestamp: $gt: now.get()}).observe
@@ -238,7 +238,7 @@ Meteor.startup ->
     return unless share.notification.get 'private-messages'
     me = Meteor.user()?._id
     return unless me?
-    arnow = share.model.UTCNow()  # Intentionally not reactive
+    arnow = Date.now()  # Intentionally not reactive
     share.model.Messages.find({$or: [{to: me}, {mention: me}], timestamp: $gt: arnow}).observeChanges
       added: (msgid, message) ->
         [room_name, url] = if message.room_name is 'general/0'
@@ -278,7 +278,7 @@ Meteor.startup ->
       suppress = true
       return
     else if suppress
-      now.set share.model.UTCNow()
+      now.set Date.now()
     Meteor.subscribe 'announcements-since', now.get(),
       onReady: -> suppress = false
     share.model.Messages.find({announced_at: $gt: now.get()}).observe

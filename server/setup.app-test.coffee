@@ -12,7 +12,7 @@ Meteor.methods
       type: NonEmptyString
       object: NonEmptyString
       fields: Object
-    now = share.model.UTCNow()
+    now = Date.now()
     args.fields.touched = now
     args.fields.touched_by = @userId
     share.model.collection(args.type).update args.object, $set: args.fields

@@ -174,9 +174,9 @@ Meteor.publish 'presence-for-room', loginRequired (room_name) ->
 
 registerPresence = (room_name, scope) ->
   subscription_id = Random.id()
-  console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{model.UTCNow()}, id #{@connection.id}:#{subscription_id}" if DEBUG
+  console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{Date.now()}, id #{@connection.id}:#{subscription_id}" if DEBUG
   keepalive = =>
-    now = model.UTCNow()
+    now = Date.now()
     model.Presence.upsert {nick: @userId, room_name, scope},
       $setOnInsert:
         joined_timestamp: now
@@ -195,7 +195,7 @@ registerPresence = (room_name, scope) ->
   @onStop =>
     console.log "#{@userId} unsubscribing from #{scope}:#{room_name}, id #{@connection.id}:#{subscription_id}" if DEBUG
     Meteor.clearInterval interval
-    now = model.UTCNow()
+    now = Date.now()
     Meteor.setTimeout =>
       model.Presence.update {nick: @userId, room_name, scope},
         $max: timestamp: now
@@ -262,7 +262,7 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
     self.changed collection, uuid, recent \
       unless initializing
   publishNone = ->
-    recent = {solved: model.UTCNow()} # "no recent solved puzzle"
+    recent = {solved: Date.now()} # "no recent solved puzzle"
     self.changed collection, uuid, recent \
       unless initializing
 

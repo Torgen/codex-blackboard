@@ -26,16 +26,16 @@ export default class DriveChangeWatcher
     unless lastToken
       {data: {startPageToken}} = Promise.await @driveApi.changes.getStartPageToken()
       lastToken =
-        timestamp: model.UTCNow()
+        timestamp: Date.now()
         token: startPageToken
       startPageTokens.insert lastToken
     @startPageToken = lastToken.token
     @lastPoll = lastToken.timestamp
-    @timeoutHandle = @env.setTimeout (=> @poll()), Math.max(0, lastToken.timestamp + POLL_INTERVAL - model.UTCNow())
+    @timeoutHandle = @env.setTimeout (=> @poll()), Math.max(0, lastToken.timestamp + POLL_INTERVAL - Date.now())
 
   poll: ->
     token = @startPageToken
-    pollStart = model.UTCNow()
+    pollStart = Date.now()
     try
       promises = []
       loop
@@ -94,7 +94,7 @@ export default class DriveChangeWatcher
       created.forEach ({name, mimeType, webViewLink, channel}, fileId) ->
         # Would be nice to use bulk write here, but since we're not forcing a particular ID
         # we could have mismatched meteor vs. mongo ID types.
-        now = model.UTCNow()
+        now = Date.now()
         model.Messages.insert
           body: "#{fileType(mimeType)} \"#{name}\" added to drive folder: #{webViewLink}"
           system: true

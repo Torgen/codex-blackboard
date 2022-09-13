@@ -8,7 +8,7 @@ export class RoleManager
       callAs 'releaseOnduty', holder
 
     enqueue = (expires_at) =>
-      now = share.model.UTCNow()
+      now = Date.now()
       if expires_at <= now
         release()
       else
@@ -17,7 +17,7 @@ export class RoleManager
     @handle = share.model.Roles.find({_id: 'onduty'}, {fields: {holder: 1, expires_at: 1}}).observeChanges
       added: (role, {holder, expires_at}) =>
         @holder = holder
-        now = share.model.UTCNow()
+        now = Date.now()
         enqueue(expires_at)
 
       changed: (role, {holder, expires_at}) =>

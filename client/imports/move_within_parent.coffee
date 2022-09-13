@@ -21,6 +21,6 @@ export default moveWithinParent = (id, parentType, parentId, args) ->
   npuzzles.splice(npos, 0, id)
   share.model.collection(parentType).update {_id: parentId}, $set:
     puzzles: npuzzles
-    touched: share.model.UTCNow()
+    touched: Date.now()
     touched_by: canonical(args.who)
   return true

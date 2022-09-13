@@ -13,7 +13,7 @@ Meteor.methods
     # a throttled rate to prevent N^2 blow up.
     # priv_located_order implements a FIFO queue for updates, but
     # you don't lose your place if you're already in the queue
-    timestamp = share.model.UTCNow()
+    timestamp = Date.now()
     n = Meteor.users.update @userId,
       $set:
         priv_located: args.timestamp ? timestamp

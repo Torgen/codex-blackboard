@@ -331,7 +331,7 @@ do ->
     Messages.insert
       room_name: 'oplog/0'
       nick: canonical(who)
-      timestamp: UTCNow()
+      timestamp: Date.now()
       body: message
       bodyIsHtml: false
       type:type
@@ -347,7 +347,7 @@ do ->
     check args, ObjectWith
       name: NonEmptyString
       who: NonEmptyString
-    now = UTCNow()
+    now = Date.now()
     object =
       name: args.name
       canon: canonical(args.name) # for lookup
@@ -370,7 +370,7 @@ do ->
       id: NonEmptyString
       name: NonEmptyString
       who: NonEmptyString
-    now = UTCNow()
+    now = Date.now()
 
     # Only perform the rename and oplog if the name is changing
     # XXX: This is racy with updates to findOne().name.
@@ -487,7 +487,7 @@ do ->
       r = newObject "rounds", {args..., who: @userId},
         puzzles: []
         link: args.link or link
-        sort_key: UTCNow()
+        sort_key: Date.now()
       ensureDawnOfTime "rounds/#{r._id}"
       # This is an onduty action, so defer expiry
       Meteor.call 'renewOnduty'
@@ -576,7 +576,7 @@ do ->
       check pid, NonEmptyString
       # get drive ID (racy)
       old = Puzzles.findOne pid
-      now = UTCNow()
+      now = Date.now()
       drive = old?.drive
       # remove puzzle itself
       r = deleteObject "puzzles", {id: pid, who: @userId}
@@ -613,7 +613,7 @@ do ->
     makeMeta: (id) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
-      now = UTCNow()
+      now = Date.now()
       # This only fails if, for some reason, puzzles is a list containing null.
       return 0 < Puzzles.update {_id: id, puzzles: null}, $set:
         puzzles: []
@@ -623,7 +623,7 @@ do ->
     makeNotMeta: (id) ->
       check @userId, NonEmptyString
       check id, NonEmptyString
-      now = UTCNow()
+      now = Date.now()
       return 0 < Puzzles.update {_id: id, puzzles: []},
         $unset: puzzles: ""
         $set:
@@ -636,7 +636,7 @@ do ->
       check metaId, NonEmptyString
       throw new Meteor.Error(404, 'No such meta') unless Puzzles.findOne(metaId)?
       throw new Meteor.Error(404, 'No such puzzle') unless Puzzles.findOne(puzzleId)?
-      now = UTCNow()
+      now = Date.now()
       Puzzles.update
         _id: puzzleId
         feedsInto: $ne: metaId
@@ -660,7 +660,7 @@ do ->
       check metaId, NonEmptyString
       throw new Meteor.Error(404, 'No such meta') unless Puzzles.findOne(metaId)?
       throw new Meteor.Error(404, 'No such puzzle') unless Puzzles.findOne(puzzleId)?
-      now = UTCNow()
+      now = Date.now()
       Puzzles.update
         _id: puzzleId
         feedsInto: metaId
@@ -790,7 +790,7 @@ do ->
         check response, Match.Optional String
         updateBody =
           status: 'accepted'
-          resolved: UTCNow()
+          resolved: Date.now()
         extra = if response?
           updateBody.response = response
           " with response \"#{response}\""
@@ -856,7 +856,7 @@ do ->
         check response, Match.Optional String
         updateBody =
           status: 'rejected'
-          resolved: UTCNow()
+          resolved: Date.now()
         extra = if response?
           updateBody.response = response
           " with response \"#{response}\""
@@ -900,13 +900,13 @@ do ->
       CallIns.update _id: args.id, status: 'pending',
         $set:
           status: 'cancelled'
-          resolved: UTCNow()
+          resolved: Date.now()
     
     claimOnduty: (args) ->
       check @userId, NonEmptyString
       check args, ObjectWith
         from: OptionalKWArg NonEmptyString
-      now = UTCNow()
+      now = Date.now()
       try
         res = Roles.upsert {_id: 'onduty', holder: args.from },
           holder: @userId
@@ -930,7 +930,7 @@ do ->
 
     renewOnduty: ->
       check @userId, NonEmptyString
-      now = UTCNow()
+      now = Date.now()
       count = Roles.update {_id: 'onduty', holder: @userId},
         $set:
           renewed_at: now
@@ -986,7 +986,7 @@ do ->
           room_name: 'general/0'
           announced_at: null
         , $set:
-          announced_at: UTCNow()
+          announced_at: Date.now()
           announced_by: @userId
       return num
 
@@ -1029,7 +1029,7 @@ do ->
         object: IdOrObject
         fields: settableFields[args.type]
       id = args.object._id or args.object
-      now = UTCNow()
+      now = Date.now()
       args.fields.touched = now
       args.fields.touched_by = @userId
       collection(args.type).update id, $set: args.fields
@@ -1051,7 +1051,7 @@ do ->
       if canonical(args.name) is 'link'
         args.fields = { link: args.value }
         return Meteor.call 'setField', args
-      args.now = UTCNow() # don't let caller lie about the time
+      args.now = Date.now() # don't let caller lie about the time
       updateDoc = $set:
         touched: args.now
         touched_by: @userId
@@ -1068,7 +1068,7 @@ do ->
       new_canon = canonical new_name
       throw new Match.Error 'Can\'t rename to link' if new_canon is 'link'
       old_canon = canonical old_name
-      now = UTCNow()
+      now = Date.now()
       coll = collection(type)
       id = object._id or object
       if new_canon is old_canon
@@ -1150,7 +1150,7 @@ do ->
       if name is 'link'
         args.fields = { link: null }
         return Meteor.call 'setField', args
-      args.now = UTCNow() # don't let caller lie about the time
+      args.now = Date.now() # don't let caller lie about the time
       updateDoc = $set:
         touched: args.now
         touched_by: @userId
@@ -1176,7 +1176,7 @@ do ->
         type: 'puzzles'
         name: 'Status'
         value: how
-        now: UTCNow()
+        now: Date.now()
       if isStuck obj
         return
       oplog "Help requested for", 'puzzles', id, @userId, 'stuck'
@@ -1216,7 +1216,7 @@ do ->
         object: id
         type: 'puzzles'
         name: 'status'
-        now: UTCNow()
+        now: Date.now()
       body = "has arrived to help"
       if @userId is sticker
         body = "no longer needs help getting unstuck"
@@ -1282,7 +1282,7 @@ do ->
       oldAnswer = Puzzles.findOne(id)?.tags.answer?.value
       if oldAnswer is args.answer
         return false
-      now = UTCNow()
+      now = Date.now()
       # Accumulate solver time for currrent presence
       solverTime = 0
       Presence.find({scope: 'chat', room_name: "puzzles/#{id}", bot: $ne: true}).forEach (present) ->
@@ -1356,7 +1356,7 @@ do ->
         backsolve: Match.Optional(Boolean)
         provided: Match.Optional(Boolean)
       id = args.target._id or args.target
-      now = UTCNow()
+      now = Date.now()
 
       target = Puzzles.findOne(id)
       throw new Meteor.Error(400, "bad target") unless target
@@ -1375,7 +1375,7 @@ do ->
       check args, ObjectWith
         target: IdOrObject
       id = args.target._id or args.target
-      now = UTCNow()
+      now = Date.now()
       updateDoc = $set:
         solved: null
         solved_by: null
@@ -1410,7 +1410,7 @@ do ->
       num = Puzzles.update puzzle,
         $addToSet: mechanics: mechanic
         $set:
-          touched: UTCNow()
+          touched: Date.now()
           touched_by: @userId
       throw new Meteor.Error(404, "bad puzzle") unless num > 0
 
@@ -1421,7 +1421,7 @@ do ->
       num = Puzzles.update puzzle,
         $pull: mechanics: mechanic
         $set:
-          touched: UTCNow()
+          touched: Date.now()
           touched_by: @userId
       throw new Meteor.Error(404, "bad puzzle") unless num > 0
 
@@ -1437,7 +1437,7 @@ do ->
         canonOpts.add copt
         {canon: copt, option: opt}
       id = Polls.insert
-        created: UTCNow()
+        created: Date.now()
         created_by: @userId
         question: question
         options: opts
@@ -1460,7 +1460,7 @@ do ->
         _id: poll
         'options.canon': option
       ,
-        $set: "votes.#{@userId}": {canon: option, timestamp: UTCNow()}
+        $set: "votes.#{@userId}": {canon: option, timestamp: Date.now()}
 
     setPuzzleForEvent: (event, puzzle) ->
       check @userId, NonEmptyString
@@ -1505,8 +1505,6 @@ do ->
       # This is an onduty action, so defer expiry
       Meteor.call 'renewOnduty'
 
-UTCNow = -> Date.now()
-
 # exports
 share.model =
   # constants
@@ -1533,4 +1531,3 @@ share.model =
   drive_id_to_link: drive_id_to_link
   spread_id_to_link: spread_id_to_link
   doc_id_to_link: doc_id_to_link
-  UTCNow: UTCNow

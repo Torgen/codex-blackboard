@@ -561,7 +561,7 @@ Template.blackboard_column_header_working.onCreated ->
 # Update 'currentTime' every minute or so to allow pretty_ts to magically
 # update
 Meteor.startup ->
-  Session.set "currentTime", model.UTCNow()
+  Session.set "currentTime", Date.now() 
   Meteor.setInterval ->
-    Session.set "currentTime", model.UTCNow()
+    Session.set "currentTime", Date.now()
   , 60*1000
