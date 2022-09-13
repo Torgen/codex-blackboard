@@ -61,7 +61,7 @@ describe 'locateNick', ->
     
       callAs 'locateNick', 'torgen',
         location:
-        # Sunnyvale, CA
+          # Sunnyvale, CA
           type: 'Point'
           coordinates: [-122.036346, 37.368832]
         timestamp: 5
@@ -90,7 +90,7 @@ describe 'locateNick', ->
   
     callAs 'locateNick', 'torgen',
       location:
-      # Sunnyvale, CA
+        # Sunnyvale, CA
         type: 'Point'
         coordinates: [-122.036346, 37.368832]
 

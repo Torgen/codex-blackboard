@@ -103,7 +103,6 @@ describe 'claimOnduty', ->
         callAs 'claimOnduty', 'torgen', from: 'cscott'
       , Meteor.Error, /412/
       chai.assert.deepInclude model.Roles.findOne('onduty'),
-        holder: 'torgen'
         holder: 'cjb'
         claimed_at: 1
         renewed_at: 1
@@ -114,7 +113,6 @@ describe 'claimOnduty', ->
         callAs 'claimOnduty', 'torgen', from: null 
       , Meteor.Error, /412/
       chai.assert.deepInclude model.Roles.findOne('onduty'),
-        holder: 'torgen'
         holder: 'cjb'
         claimed_at: 1
         renewed_at: 1
