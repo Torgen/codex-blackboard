@@ -2,7 +2,7 @@ on: ["push", "pull_request"]
 
 name: Test
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
@@ -43,18 +43,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-    - name: npm install
-      run: ~/.meteor/meteor npm install
+      - name: npm install
+        run: ~/.meteor/meteor npm install
 
-    - name: Test ${{ matrix.test_script }}
-      run: ~/.meteor/meteor npm run-script ${{ matrix.test_script }}
-    - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.test_script }}
-        path-to-lcov: .coverage/lcov.info
-        parallel: true
+      - name: Test ${{ matrix.test_script }}
+        run: ~/.meteor/meteor npm run-script ${{ matrix.test_script }}
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          flag-name: run-${{ matrix.test_script }}
+          path-to-lcov: .coverage/lcov.info
+          parallel: true
 
   finish:
     needs: test
