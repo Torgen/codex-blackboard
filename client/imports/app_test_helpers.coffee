@@ -1,8 +1,8 @@
 'use strict'
 
-import { Meteor } from 'meteor/meteor';
-import { Tracker } from 'meteor/tracker';
-import { DDP } from 'meteor/ddp-client';
+import { Meteor } from 'meteor/meteor'
+import { Tracker } from 'meteor/tracker'
+import { DDP } from 'meteor/ddp-client'
 import denodeify from 'denodeify'
 import loginWithCodex from '/client/imports/accounts.coffee'
 

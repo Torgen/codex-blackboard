@@ -110,7 +110,7 @@ awaitFolder = (drive, name, parent) ->
       return resp.files[0]
     else if triesLeft < 1
       console.log "#{name} never existed"
-      throw 'never existed'
+      throw new Error 'never existed'
     else
       console.log "Waiting #{attempts} more times for #{name}"
       await delay 1000
@@ -145,7 +145,7 @@ awaitOrEnsureFolder = (drive, name, parent) ->
   try
     return await awaitFolder drive, name, (parent or 'root')
   catch error
-    if error is "never existed"
+    if error.message is "never existed"
       res = await ensureFolder drive, name, parent
       await res.permissionsPromise
       return res.folder

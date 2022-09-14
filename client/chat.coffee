@@ -118,7 +118,8 @@ Template.message_delete_button.events
     if (await confirm
       ok_button: 'Yes, delete it'
       no_button: 'No, cancel'
-      message: 'Really delete this message?')
+      message: 'Really delete this message?'
+    )
       Meteor.call 'deleteMessage', @_id
 
 Template.poll.onCreated ->
@@ -243,7 +244,7 @@ Template.messages.onCreated ->
     @subscribe 'register-presence', room_name, 'chat'
     
   @autorun =>
-    invalidator = =>
+    invalidator = ->
       instachat.ready = false
       Session.set 'chatReady', false
       hideMessageAlert()
@@ -804,9 +805,9 @@ updateLastRead = ->
 hideMessageAlert = -> updateNotice 0, 0
 
 Template.chat.onCreated ->
-  this.autorun =>
+  this.autorun ->
     $("title").text("Chat: "+prettyRoomName())
-  this.autorun =>
+  this.autorun ->
     updateLastRead() if isVisible() and instachat.ready
 
 Template.chat.onRendered ->

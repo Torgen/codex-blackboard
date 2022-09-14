@@ -11,7 +11,7 @@
 #   }
 # }
 
-import { TwitterApi, ETwitterStreamEvent } from 'twitter-api-v2';
+import { TwitterApi, ETwitterStreamEvent } from 'twitter-api-v2'
 import tweetToMessage from './imports/twitter.coffee'
 
 return unless share.DO_BATCH_PROCESSING

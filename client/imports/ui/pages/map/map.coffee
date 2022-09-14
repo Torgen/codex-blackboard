@@ -93,8 +93,8 @@ Template.map.onRendered ->
     users = new Map() # the associative kind
     nodraw = true
     Meteor.users.find({}, {fields: {nickname: 1, real_name: 1, gravatar_md5: 1, located_at: 1, online: 1}}).observeChanges
-      added: (_id, fields) =>
-        Tracker.nonreactive =>
+      added: (_id, fields) ->
+        Tracker.nonreactive ->
           user = new google.maps.Marker
             position: positionOrDefault fields.located_at, _id
             icon: gravatarUrl(gravatar_md5: nickHash(_id), size: GRAVATAR_SIZE)
@@ -102,8 +102,8 @@ Template.map.onRendered ->
             opacity: if fields.online then 1.0 else 0.5
           users.set _id, user
           clusterer.addMarker user, nodraw
-      changed: (id, fields) =>
-        Tracker.nonreactive =>
+      changed: (id, fields) ->
+        Tracker.nonreactive ->
           {gravatar_md5, located_at, real_name} = fields
           user = users.get id
           if 'located_at' of fields  # if set, even to undefined

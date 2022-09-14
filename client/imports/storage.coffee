@@ -35,5 +35,5 @@ addEventListener 'storage', (event) ->
   else if event.storageArea is window.sessionStorage
     wrapper = reactiveSessionStorage
   else
-    throw 'unknown storage area'
+    throw new Error 'unknown storage area'
   wrapper.invalidate event.key

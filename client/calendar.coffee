@@ -37,14 +37,14 @@ Template.calendar_event.events
     Meteor.call 'setPuzzleForEvent', template.data.event._id, null
 
 attachable_events = ->
-    model.CalendarEvents.find
-      end: $gt: Session.get 'currentTime'
-      puzzle: null
-    ,
-      sort: start: 1
-      fields:
-        puzzle: 0
-        location: 0
+  model.CalendarEvents.find
+    end: $gt: Session.get 'currentTime'
+    puzzle: null
+  ,
+    sort: start: 1
+    fields:
+      puzzle: 0
+      location: 0
 
 Template.calendar_attachable_events.helpers {attachable_events}
 

@@ -103,7 +103,7 @@ convTable =
   '"': '\'\''
 
 encode = (s) ->
-   s.toLowerCase().replace /[-_ ?%\#/\"]/g, (c) -> convTable[c]
+  s.toLowerCase().replace /[-_ ?%\#/\"]/g, (c) -> convTable[c]
 
 memegen = (msg, imageName, topText, botText) ->
   if msg.match[0].length > MaximumMemeLength.get()

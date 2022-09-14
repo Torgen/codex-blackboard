@@ -443,12 +443,12 @@ do ->
         res.message = "#{e.name}: #{e.message}"
       else
         res.message = "#{e}"
-    Puzzles.update id, { $set:
-      drive_status: res.status ? null
-      drive_error_message: res.message
-      drive: res.id
-      spreadsheet: res.spreadId
-    }
+    Puzzles.update id,
+      $set:
+        drive_status: res.status ? null
+        drive_error_message: res.message
+        drive: res.id
+        spreadsheet: res.spreadId
 
   renameDriveFolder = (new_name, drive, spreadsheet) ->
     check new_name, NonEmptyString

@@ -204,14 +204,14 @@ describe 'CalendarSync', ->
       acl.expects('list').once().withArgs(sinon.match {calendarId: 'testCalendar', maxResults: 250}).resolves
         data: items: [
           {role: 'reader', scope: type: 'default'},
-          {role: 'writer', scope:
+          {role: 'writer', scope: {
             type: 'group'
             value: 'group@bar.baz'
-          },
-          {role: 'owner', scope:
+          }},
+          {role: 'owner', scope: {
             type: 'user'
             value: 'foo@bar.baz'
-          },
+          }},
       ]
       acl.expects('insert').never()
 

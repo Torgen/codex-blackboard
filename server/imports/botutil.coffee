@@ -6,13 +6,13 @@ import { callAs } from './impersonate.coffee'
 export rejoin = (regs...) ->
   [...,last] = regs
   flags = if last instanceof RegExp
-      # use the flags of the last regexp, if there are any
-      ( /\/([gimy]*)$/.exec last.toString() )?[1]
+    # use the flags of the last regexp, if there are any
+    ( /\/([gimy]*)$/.exec last.toString() )?[1]
   else if typeof last is 'object'
-      # use the flags property of the last object parameter
-      regs.pop().flags
+    # use the flags property of the last object parameter
+    regs.pop().flags
   return new RegExp( regs.reduce( (acc,r) ->
-      acc + if r instanceof RegExp then r.source else r
+    acc + if r instanceof RegExp then r.source else r
   , '' ), flags ? '')
 
 # regexp for puzzle/round/group name, w/ optional quotes

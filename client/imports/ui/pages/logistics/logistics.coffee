@@ -250,7 +250,8 @@ Template.logistics.events
         if (await confirm
           ok_button: 'Yes, delete it'
           no_button: 'No, cancel'
-          message: "Are you sure you want to delete the puzzle \"#{puzzle.name}\"?")
+          message: "Are you sure you want to delete the puzzle \"#{puzzle.name}\"?"
+        )
           Meteor.call 'deletePuzzle', puzzle._id
   'hidden #bb-logistics-edit-dialog': (event, template) ->
     editingPuzzle.set null

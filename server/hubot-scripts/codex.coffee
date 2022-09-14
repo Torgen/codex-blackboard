@@ -27,9 +27,9 @@ import * as callin_types from '/lib/imports/callin_types.coffee'
 
 share.hubot.codex = (robot) ->
 
-## ANSWERS
+  ## ANSWERS
 
-# setAnswer
+  # setAnswer
   robot.commands.push 'bot the answer to <puzzle> is <answer> - Updates codex blackboard'
   robot.respond (rejoin /The answer to /,thingRE,/\ is /,thingRE,/$/i), (msg) ->
     name = strip msg.match[1]
@@ -126,7 +126,7 @@ share.hubot.codex = (robot) ->
     msg.reply useful: true, "Okay, #{callin_type} \"#{answer}\" for #{target.object.name} added to call-in list!"
     msg.finish()
 
-# deleteAnswer
+  # deleteAnswer
   robot.commands.push 'bot delete the answer to <puzzle> - Updates codex blackboard'
   robot.respond (rejoin /Delete( the)? answer (to|for)( puzzle)? /,thingRE,/$/i), (msg) ->
     name = strip msg.match[4]
@@ -145,9 +145,9 @@ share.hubot.codex = (robot) ->
     msg.reply useful: true, "Okay, I deleted the answer to \"#{target.object.name}\"."
     msg.finish()
 
-## PUZZLES
+  ## PUZZLES
 
-# newPuzzle
+  # newPuzzle
   robot.commands.push 'bot <puzzle> is a new [meta]puzzle in <round/meta> [with link <url>]- Updates codex blackboard'
   robot.respond (rejoin thingRE,/\ is a new (meta|puzzle|metapuzzle) in(?: (round|meta))? /,thingRE,'(?:',/ with (?:url|link) /,thingRE,')?',/$/i), (msg) ->
     pname = strip msg.match[1]
@@ -212,7 +212,7 @@ share.hubot.codex = (robot) ->
     msg.reply {useful: true, bodyIsHtml: true}, "Okay, I added <a class='puzzles-link' href='#{UI._escape puzz_url}'>#{UI._escape puzzle.name}</a> to <a class='#{round.type}-link' href='#{UI._escape parent_url}'>#{UI._escape round.object.name}</a>."
     msg.finish()
 
-# deletePuzzle
+  # deletePuzzle
   robot.commands.push 'bot delete puzzle <puzzle> - Updates codex blackboard'
   robot.respond (rejoin /Delete puzzle /,thingRE,/$/i), (msg) ->
     name = strip msg.match[1]
@@ -230,9 +230,9 @@ share.hubot.codex = (robot) ->
       msg.reply useful: true, "Something went wrong."
     msg.finish()
 
-## ROUNDS
+  ## ROUNDS
 
-# newRound
+  # newRound
   robot.commands.push 'bot <round> is a new round [with link <url>] - Updates codex blackboard'
   robot.respond (rejoin thingRE,/\ is a new round/,'(?:',/ with (?:url|link) /,thingRE,')?',/$/i), (msg) ->
     rname = strip msg.match[1]
@@ -259,7 +259,7 @@ share.hubot.codex = (robot) ->
     msg.reply {useful: true, bodyIsHtml: true}, "Okay, I created round <a class='rounds-link' href='#{UI._escape round_url}'>#{UI._escape rname}</a>."
     msg.finish()
 
-# deleteRound
+  # deleteRound
   robot.commands.push 'bot delete round <round> - Updates codex blackboard'
   robot.respond (rejoin /Delete round /,thingRE,/$/i), (msg) ->
     rname = strip msg.match[1]
@@ -277,7 +277,7 @@ share.hubot.codex = (robot) ->
     msg.reply useful: true, "Okay, I deleted round \"#{round.object.name}\"."
     msg.finish()
 
-# Tags
+  # Tags
   robot.commands.push 'bot set <tag> [of <puzzle|round>] to <value> - Adds additional information to blackboard'
   robot.respond (rejoin /set (?:the )?/,thingRE,'(',/\ (?:of|for) (?:(puzzle|round) )?/,thingRE,')? to ',thingRE,/$/i), (msg) ->
     tag_name = strip msg.match[1]
@@ -337,7 +337,7 @@ share.hubot.codex = (robot) ->
       msg.reply useful: true, "#{target.object.name} didn't have #{tag_name} set!"
     msg.finish()
 
-# Stuck
+  # Stuck
   robot.commands.push 'bot stuck[ on <puzzle>][ because <reason>] - summons help and marks puzzle as stuck on the blackboard'
   robot.respond (rejoin 'stuck(?: on ',thingRE,')?(?: because ',thingRE,')?',/$/i), (msg) ->
     who = msg.envelope.user.id

@@ -72,7 +72,7 @@ setCompare = (was, will) ->
   was.size is will.size and [...was].every((v) -> will.has v)
 
 Template.blackboard.onCreated ->
-  @typeahead = (query,process) =>
+  @typeahead = (query,process) ->
     result = new Set
     for n from Meteor.users.find(bot_wakeup: $exists: false)
       result.add n.nickname
@@ -379,7 +379,8 @@ Template.blackboard_round.events
     if (await confirm
       ok_button: 'Yes, delete it'
       no_button: 'No, cancel'
-      message: "Are you sure you want to delete the round \"#{template.data.name}\"?")
+      message: "Are you sure you want to delete the round \"#{template.data.name}\"?"
+    )
       Meteor.call 'deleteRound', template.data._id
   
   'click .bb-round-buttons .bb-add-puzzle': (event, template) -> template.addingUnassigned.set true
@@ -476,7 +477,8 @@ Template.blackboard_puzzle_cells.events
     if (await confirm
       ok_button: 'Yes, delete it'
       no_button: 'No, cancel'
-      message: "Are you sure you want to delete the puzzle \"#{template.data.puzzle.name}\"?")
+      message: "Are you sure you want to delete the puzzle \"#{template.data.puzzle.name}\"?"
+    )
       Meteor.call 'deletePuzzle', template.data.puzzle._id
 
 Template.blackboard_puzzle_cells.onCreated ->

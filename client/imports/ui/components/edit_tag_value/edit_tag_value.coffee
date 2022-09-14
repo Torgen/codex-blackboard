@@ -30,5 +30,6 @@ Template.edit_tag_value.events
     if (await confirm
       ok_button: 'Yes, delete it'
       no_button: 'No, cancel'
-      message: message)
+      message: message
+    )
       Meteor.call 'deleteTag', {type: template.data.type, object: template.data.id, name: template.data.name}

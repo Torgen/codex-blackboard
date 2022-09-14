@@ -7,13 +7,13 @@ model = share.model
 GDRIVE_DOC_MIME_TYPE = 'application/vnd.google-apps.document'
 
 # Exposed for testing
-export startPageTokens = new Mongo.Collection('start_page_tokens');
-startPageTokens.createIndex(({timestamp: 1}));
+export startPageTokens = new Mongo.Collection('start_page_tokens')
+startPageTokens.createIndex(({timestamp: 1}))
 
 # Exposed for testing
 # Fields:
 # announced: timestamp when the existence of this file was announced in chat
-export driveFiles = new Mongo.Collection('drive_files');
+export driveFiles = new Mongo.Collection('drive_files')
 
 # TODO: make configurable?
 POLL_INTERVAL = 60000
@@ -88,14 +88,14 @@ export default class DriveChangeWatcher
           filter: _id: puzzle
           update: updateDoc
       puzzlePromise = if bulkPuzzleUpdates.length
-          model.Puzzles.rawCollection().bulkWrite bulkPuzzleUpdates, ordered: false
+        model.Puzzles.rawCollection().bulkWrite bulkPuzzleUpdates, ordered: false
       else
         Promise.resolve()
-      created.forEach ({name, mimeType, webViewLink, channel}, fileId) =>
+      created.forEach ({name, mimeType, webViewLink, channel}, fileId) ->
         # Would be nice to use bulk write here, but since we're not forcing a particular ID
         # we could have mismatched meteor vs. mongo ID types.
         now = model.UTCNow()
-        msg = model.Messages.insert
+        model.Messages.insert
           body: "#{fileType(mimeType)} \"#{name}\" added to drive folder: #{webViewLink}"
           system: true
           room_name: channel

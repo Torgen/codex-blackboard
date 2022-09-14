@@ -307,7 +307,7 @@ Template.header_breadcrumb_puzzle.helpers
   active: active
 
 Template.header_breadcrumbs.onCreated ->
-  @autorun =>
+  @autorun ->
     Meteor.call 'getRinghuntersFolder', (error, f) ->
       unless error?
         Session.set 'RINGHUNTERS_FOLDER', (f or undefined)
