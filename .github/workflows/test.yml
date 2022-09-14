@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: Read Meteor version
-        run: cat .meteor/release | sed -e "s/@/_VERSION=/" >> $GITHUB_ENV
+        run: sed -e "s/@/_VERSION=/" < .meteor/release >> $GITHUB_ENV
       - name: Use Node.js 14.x
         uses: actions/setup-node@master
         with:
