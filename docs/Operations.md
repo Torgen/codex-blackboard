@@ -1,8 +1,6 @@
-Operations
-==========
+# Operations
 
-PREAMBLE
---------
+## PREAMBLE
 
 There are two "right" ways to deploy a Meteor app in production:
 
@@ -19,8 +17,7 @@ MongoDB Atlas, which provides a free tier that should suffice for the data size 
 you're running the app on a single VM, this can instead be a locally-running instance. The instructions below set up the
 latter.
 
-SETTING UP A COMPUTE ENGINE VM
-------------------------------
+## SETTING UP A COMPUTE ENGINE VM
 
 My preferred setup, given the duration of the hunt and my frugality, is to run the blackboard on a single Compute Engine
 VM. If you haven't had a [Google Cloud Platform free trial](https://cloud.google.com/free/docs/gcp-free-tier) yet, this
@@ -32,7 +29,7 @@ resources.
    [Quota](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas) for the API is the maximum 1000 queries
    per 100 seconds.
 3. (*New for 2022*) Enable the [Calendar API](https://console.cloud.google.com/apis/library/calendar-json.googleapis.com)
-   on the project. 
+   on the project.
 4. [Create a new service account](https://console.cloud.google.com/iam-admin/serviceaccounts). Give it a descriptive name,
    like blackboard.
 5. (*New for 2023*) If members of your team will be solving in a common location with a projector or large screen and you
@@ -54,11 +51,11 @@ resources.
    * OS: Use Ubuntu 20.04LTS. The install script uses the MongoDB repository for Focal, and installation may fail for
      other distros.
    * Service Account: Use the one you created in the previous step.
-   * Location: Somewhere close to your users. Assuming a large fraction of them are in Cambridge, MA, that means one of 
+   * Location: Somewhere close to your users. Assuming a large fraction of them are in Cambridge, MA, that means one of
      the `us-east` zones.
    * Networking: Request a static external IP.
    * Firewall: Check the `http server` and `https server` boxes.
-7. Create an A record at your domain registrar pointing at the static external IP from the previous step. If you don't 
+7. Create an A record at your domain registrar pointing at the static external IP from the previous step. If you don't
    have a domain name, register one now. If you manage your DNS records some other way, your instructions may vary.
 8. (*Updated for 2022*) After confirming that your VM is installed by SSHing into it, stop it, and in a cloud shell, run:
    ```sh
@@ -101,7 +98,7 @@ resources.
         * `teamName`: The name of the team as it will appear at the top of the blackboard. This is also used in Jitsi meeting names, if configured.
         * `whoseGitHub`: The hamburger menu has a link to the issues page on GitHub. This controls which fork of the repository the link points at.
         * `jitsiServer`: The DNS name (no protocol or path) of a Jitsi server. This will be set to `meet.jit.si` by default.
-          You can set it to a public Jitsi server near you (https://jitsi.github.io/handbook/docs/community-instances has a list) if you prefer.
+          You can set it to a public Jitsi server near you (<https://jitsi.github.io/handbook/docs/community-instances> has a list) if you prefer.
           It's also possible to run your own Jitsi server if you can spare the bandwidth, but that is beyond the scope of this guide.
           If this is unset, no meetings will be created or embedded.
       * `STATIC_JITSI_ROOM`: Puzzle rooms use the random puzzle ID in their room URL, so they are not guessable.
@@ -118,14 +115,14 @@ resources.
       a highly variable amount of time--I've seen it be 5 minutes and I've seen it be over an hour.
 
 Once the install script finishes, you should now be able to browse to the domain name and log into the blackboard.
-     
+
 When you tear down this VM, remember to release your static IP address, or you will be charged 25 cents per day.
 
 ### RUNNING ON ANOTHER CLOUD PROVIDER OR A PHYSICAL MACHINE
 
-Even if not running your VM on Compute Engine, you will need to follow steps 1-3 above to enable the Drive API. After 
+Even if not running your VM on Compute Engine, you will need to follow steps 1-3 above to enable the Drive API. After
 creating a VM on whichever cloud provider you're using, but before running the install script, download a JSON key for the
-service account you created and put it somewhere on the VM (/etc is good). Make it world readable. During step 8, 
+service account you created and put it somewhere on the VM (/etc is good). Make it world readable. During step 8,
 uncomment `GOOGLE_APPLICATION_CREDENTIALS` in `/etc/codex-common.env` and set it to the path to your json file.
 
 As written, the blackboard will run as nobody, which is why you need to make the key world-readable.
@@ -138,8 +135,7 @@ you will have to look up the installation instructions on the MongoDB site.
 You will also have to manually perform the steps in the script rather than running it directly.
 In the worst case, if your machine doesn't use systemd, you may have to write your own init scripts.
 
-UPDATING
---------
+## UPDATING
 
 If you used the above instructions to set up the blackboard software and you now want to run an updated version of the
 software, there are two options:
