@@ -233,8 +233,8 @@ Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
     room_name: "puzzles/#{puzzle_id}"
     nick: @userId
   .observe
-    added: (doc) => lastReadCallback
-    changed: (doc) => lastReadCallback
+    added: (doc) -> lastReadCallback
+    changed: (doc) -> lastReadCallback
   @onStop ->
     lastChat.stop()
     lastRead.stop()
