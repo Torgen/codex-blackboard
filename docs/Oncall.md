@@ -23,7 +23,9 @@ Google Hangouts.
 
 First Shift
 ===========
-If you're oncall when the hunt starts, there are some [dynamic settings](Dynamic-Settings.md) you will want to set, as they will improve the experience for yourself, future oncalls, and your solvers. Set them as appropriate as soon as you know the appropriate values.
+If you're oncall when the hunt starts, there are some [dynamic settings](Dynamic-Settings.md) you will want to set, as
+they will improve the experience for yourself, future oncalls, and your solvers. Set them as appropriate as soon as you
+know the appropriate values.
 
 Onduty Role
 ===========
@@ -48,7 +50,10 @@ at. If so, enter your phone number in the settings when you go on call.
 
 Calendar Events
 ===============
-(*New for 2022*) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared  with you, either because you are a member of the appropriate Google group or you were added explicitly by the owner, you will be able to add events to the calendar which will sync to the blackboard. (Calendars are never editable by the public.) If you should be able to edit the calendar and can't, contact whoever owns the machine.)
+(*New for 2022*) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus
+icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared  with you, either because you are a member
+of the appropriate Google group or you were added explicitly by the owner, you will be able to add events to the calendar which will sync to
+the blackboard. (Calendars are never editable by the public.) If you should be able to edit the calendar and can't, contact whoever owns the machine.)
 
 You can use the calendar for non-puzzle hunt events such as the kickoff, puzzle events which there have been roughly 5 of per year lately, or short-notice post-meta interactions.
 
@@ -91,9 +96,16 @@ good time to check if there are any new ones.
 Alternate Call-in Types
 -----------------------
 Besides answers, there are three other types of call-ins you may see in the queue:
-* Interaction Requests may be provided immediately on unlock, or require solving to extract. They may cause HQ to deliver an artifact or pose a creative challenge to the team. Recent hunts have had a separate form to enter these phrases besides the standard answer form, so use that form instead if it is available. If HQ provides a response, such as detailed instructions or a time when the artifact will be delivered, enter it in the provided text box before marking the request as accepted or refused.
-* Messages to HQ are for any other kind of contact, which may include spending hint currency or reporting an apparent error in a puzzle. Recent hunts have had a separate form to enter these messages, so use it if applicable. You may have to interpret this message rather than simply pasting it into the form.
-* Expected Callbacks are for when HQ will be contacting you without you having to do something. For example, if HQ assigned the team a creative task with a Dropbox to submit it to, the team may submit to that dropbox directly, then use this call-in type to tell you that they have done so.
+* Interaction Requests may be provided immediately on unlock, or require solving to extract. They may cause HQ to deliver
+  an artifact or pose a creative challenge to the team. Recent hunts have had a separate form to enter these phrases besides
+  the standard answer form, so use that form instead if it is available. If HQ provides a response, such as detailed instructions
+  or a time when the artifact will be delivered, enter it in the provided text box before marking the request as accepted or refused.
+* Messages to HQ are for any other kind of contact, which may include spending hint currency or reporting an apparent error in a puzzle.
+  Recent hunts have had a separate form to enter these messages, so use it if applicable.
+  You may have to interpret this message rather than simply pasting it into the form.
+* Expected Callbacks are for when HQ will be contacting you without you having to do something.
+  For example, if HQ assigned the team a creative task with a Dropbox to submit it to, the team may submit to that dropbox directly,
+  then use this call-in type to tell you that they have done so.
 
 Managing Rounds/Puzzles
 =======================
@@ -223,7 +235,9 @@ Starring messages in other rooms does not generate an announcement, but does pin
 
 Polls
 =====
-Should we be given a choice at some point, such as which round to unlock, which puzzle to spend a free solve on, or where to get dinner, you can solicit the team's input with a poll. This is a bot command like any other, but because the poll will appear to be said by you, you may want to send it to the bot as a private message to avoid apparent redundancy.
+Should we be given a choice at some point, such as which round to unlock, which puzzle to spend a free solve on, or where to get dinner,
+you can solicit the team's input with a poll. This is a bot command like any other, but because the poll will appear to be said by you,
+you may want to send it to the bot as a private message to avoid apparent redundancy.
 ```
 /msg bot poll "Who would win?" Me Myself Irene "John Rambo"
 ```
