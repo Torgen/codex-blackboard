@@ -51,6 +51,7 @@ jobs:
             ${{ !contains(github.event_name, 'pull_request') }}
           VALIDATE_ENV: false
           VALIDATE_HTML: false  # They're actually spacebars
+          VALIDATE_JAVASCRIPT_STANDARD: false
           LINTER_RULES_PATH: /
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
