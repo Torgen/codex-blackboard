@@ -1,5 +1,4 @@
-Dynamic Settings
-================
+# Dynamic Settings
 
 Some of the settings for the blackboard are easy to specify in advance--for example, credentials for external services.
 Other settings can only be determined once the hunt has started, which is not when you want to restart the blackboard
@@ -8,7 +7,7 @@ list of settings, including their default and current values, can be enumerated 
 any chat room. You can set any setting by saying `bot global set SETTING NAME to VALUE` in any chat room. The bot will
 tell you if your value is illegal for the setting you chose.
 
-# Round URL Prefix
+## Round URL Prefix
 
 Hunt sites tend to have common patterns for the URLs for the various rounds. The blackboard can attempt to derive the
 URL for a round based on its name and the common name normalization algorithm it uses throughout. Set this to the path
@@ -17,7 +16,7 @@ all the rounds.
 
 Format: empty string, or a URL with the HTTP or HTTPS protocol.
 
-# Puzzle URL Prefix
+## Puzzle URL Prefix
 
 Hunt sites also tend to have common patterns for the URLs for the various puzzles. The blackboard can attempt to derive
 the URL for a puzzle based on its name and the common name normalization algorithm it uses throughout. Set this to the
@@ -28,7 +27,7 @@ set the URL for each puzzle individually. Also remember that this isn't foolproo
 
 Format: empty string, or a URL with the HTTP or HTTPS protocol.
 
-# URL Separator
+## URL Separator
 
 For Round URL Prefix and Puzzle URL Prefix, the spaces in the puzzle name are trypically replaced with some other
 character. In the past it was typically `_`, but recently it has been `-`. Once you know what it is, you can set this
@@ -36,7 +35,7 @@ to it.
 
 Format: string
 
-# Embed Puzzles
+## Embed Puzzles
 
 It is possible to set the X-Frame-Options header on an HTTP response to tell browsers not to render that page in an
 iframe. MIT hunt sites tend not to use this, but other hunts like Caltech have. If the hunt you're solving does set
@@ -45,7 +44,7 @@ errors. Set this to false to hide it.
 
 Format: boolean
 
-# Maximum Meme Length
+## Maximum Meme Length
 
 Unless it was disabled with an environment variable, there is a Hubot module that generates memes for common patterns.
 This setting controls the maximum length of the regular expression match that can generate a meme. You might increase
@@ -54,7 +53,7 @@ people with long memes that match a tiny subset of a long message later.
 
 Format: integer
 
-# Static Jitsi Room
+## Static Jitsi Room
 
 If a Jitsi server is enabled, this is appended to the team name to make the room used for the blackboard and callins
 pages. If you set it to the empty string, those pages won't have a room. It is not expected that you will often want to
@@ -62,7 +61,7 @@ change this during the hunt, but unlike a public setting it's only visible after
 
 Format: string; a single URL path component.
 
-# Role Renewal Time
+## Role Renewal Time
 
 How many minutes you have to renew holding a role (either explicitly or by taking a role action) before it expires.
 Defaults to 60.

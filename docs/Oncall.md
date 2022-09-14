@@ -1,3 +1,5 @@
+# Oncall
+
 During the hunt, there are some tasks that should be delegated to a specific person, rather than done by whoever notices
 that they need to be done, because confusion may arise if multiple people try to do the same task; because having someone
 whose job it is to do the thing ensures it will be done; and because not everyone should have to be trained in that part
@@ -6,8 +8,8 @@ person. Being on-call makes it difficult to dive deeply into a puzzle, as you wi
 perform the on-call task. As such, shift lengths should be limited and ideally scheduled in advance so that someone
 doesn't feel like they spent the entire hunt e.g. answering phones.
 
-Projector Modes
-===============
+## Projector Modes
+
 If you're solving in a room with a projector or other large communal display, the blackboard has some visualization modes
 for displaying your team's progress. All these paths are relative to the base URL of your site. How to get thgem onto the
 display will depend on whether you can use the projector as an additional monitor, or whether it supports casting or
@@ -21,14 +23,14 @@ Google Hangouts.
 * `/projector`: (*New for 2023*) Rotates between statistics, map, and graph every 10 seconds. In this mode the center of
   the map view will approximately follow the sun.
 
-First Shift
-===========
+## First Shift
+
 If you're oncall when the hunt starts, there are some [dynamic settings](Dynamic-Settings.md) you will want to set, as
 they will improve the experience for yourself, future oncalls, and your solvers. Set them as appropriate as soon as you
 know the appropriate values.
 
-Onduty Role
-===========
+## Onduty Role
+
 (*New for 2023*) When you become oncall, you should claim the onduty role. At the top of the blackboard and in the panel above chat on
 the Logistics page, a control with a pager icon will show the current onduty, or will turn orange if nobody is onduty. The green hand
 button will claim the role, including from someone else.
@@ -48,8 +50,8 @@ on duty anymore (e.g. you are going to sleep), the door button will relinquish t
 Even if answers are confirmed automatically, the hunt may still have a global setting for a phone number to contact the team
 at. If so, enter your phone number in the settings when you go on call.
 
-Calendar Events
-===============
+## Calendar Events
+
 (*New for 2022*) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus
 icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared  with you, either because you are a member
 of the appropriate Google group or you were added explicitly by the owner, you will be able to add events to the calendar which will sync to
@@ -57,8 +59,8 @@ the blackboard. (Calendars are never editable by the public.) If you should be a
 
 You can use the calendar for non-puzzle hunt events such as the kickoff, puzzle events which there have been roughly 5 of per year lately, or short-notice post-meta interactions.
 
-Logistics View
-==============
+## Logistics View
+
 (*New for 2023*) The Logistics view is a dense view of the hunt as a whole, optimized for both quick editing and for directing unattached
 solvers to puzzles where their efforts would be most valuable. If you have never been onduty or viewed the Logistics page, you can reach it
 from the hamburger menu at the bottom-left of the blackboard. If you have done either, it can be reached from the hand truck icon in the header.
@@ -68,8 +70,8 @@ is stuck, or green if it is solved. If anyone is in the Jitsi call for a puzzle,
 side of the puzzle. If nobody is in Jitsi but some people are in text chat, the number will appear in a dialog box. If a puzzle you need for a meta
 has neither, that's a sign you should direct idle solvers to finish it.
 
-Calling In Answers
-==================
+## Calling In Answers
+
 In the past, called-in answers were confirmed by HQ phoning the team, which allowed manual hint-giving and rate-limiting.
 HQ would not repeat the answer on the call (to avoid overhearing spoilers from other teams' calls), so this required the
 team member receiving the call to be aware of the call-ins, so they knew what answer was being confirmed. Recent hunts (and
@@ -81,20 +83,20 @@ happened so they know they need to add the new puzzles.
 When there are any pending callins, the call-in queue appears at the bottom of the Logistics page. If you enable notifications
 for the 'Callins' stream, clicking a callin notification will take you to the Logistics page.
 
-A sound will play when a new call-in arrives; you will also get a desktop notification if you enabled them for the 
+A sound will play when a new call-in arrives; you will also get a desktop notification if you enabled them for the
 "Callins" event type, which is recommended. A button with three icons at the end of the answer will copy it to your
 clipboard, mark the answer as submitted, and navigate to the puzzle URL in a new tab, from which you should find the link
 to submit the answer.
 
-Each callin has a green button for if the answer was correct and a red one for if it's wrong. Once you get the call back 
+Each callin has a green button for if the answer was correct and a red one for if it's wrong. Once you get the call back
 from HQ, click the appropriate one. It will notify the appropriate chat rooms, set the answer on the blackboard, and play
 the "That was easy!" sound.
 
 As solving a puzzle tends to lead to unlocking puzzles, if you are on call for both callins and adding puzzles, now is a
 good time to check if there are any new ones.
 
-Alternate Call-in Types
------------------------
+### Alternate Call-in Types
+
 Besides answers, there are three other types of call-ins you may see in the queue:
 * Interaction Requests may be provided immediately on unlock, or require solving to extract. They may cause HQ to deliver
   an artifact or pose a creative challenge to the team. Recent hunts have had a separate form to enter these phrases besides
@@ -107,8 +109,8 @@ Besides answers, there are three other types of call-ins you may see in the queu
   For example, if HQ assigned the team a creative task with a Dropbox to submit it to, the team may submit to that dropbox directly,
   then use this call-in type to tell you that they have done so.
 
-Managing Rounds/Puzzles
-=======================
+## Managing Rounds/Puzzles
+
 Everything in this section can be done from the Logistics page, from the main blackboard in edit mode, or via the chat bot.
 To put the blackboard into edit mode, click the unlock button in the header. When done, click lock to protect the page.
 The bot commands can be done in any chat roon, though the main (ringhunters, unless it was renamed) chat room is best to
@@ -119,8 +121,8 @@ The two types of object are the Puzzle, which is anything with an answer, and th
 on it. (i.e. Rounds are only for organing the blackboard to match the hunt site.) Metapuzzles are a special case of puzzles,
 which can have other puzzles feed into them.
 
-To create a round
------------------
+### To create a round
+
 * From the Logistics page, drag a link to the round from the hunt site onto the "Round" button in the "+ New"
 section at the top left. The round's name will be the text of the link. You can create a round without a URL by clicking the
 Round button and typing the name in the text area. (If the [Round URL Prefix](Dynamic-Settings.md#user-content-round-url-prefix) dynamic
@@ -128,8 +130,8 @@ setting is set, blackboard will attempt to guess the URL from the name.)
 * Using the Blackboard's edit mode, click the "New Round" button at the top of the table. You can edit the URL under the round's tags.
 * Using the bot, say: `bot NAME is a new round`. If you know the URL, you can add `with url X` to the command to set it.
 
-To create a new metapuzzle
---------------------------
+### To create a new metapuzzle
+
 * On the Logistics page, drag a link to the puzzle from the hunt site onto the "Meta" button in the "+ New" section at the
 top left, then drop it onto the name of the round the Metapuzzle belongs to. The name of the metapuzzle will be the text of
 the link. You can create a metapuzzle without a URL by clicking the Meta button, then clicking the round name in the dropdown.
@@ -140,8 +142,8 @@ text box. You can edit the URL under the tags.
 * Using the bot, say: `bot META NAME is a new meta in ROUND NAME`. In the round chat room (which will rarely be used) you can
 say `this` instead of the round name. If you know the URL, you can add `with url X` to the command to set it.
 
-To create a new puzzle feeding into a meta
-------------------------------------------
+### To create a new puzzle feeding into a meta
+
 * Using the Logistics page, drag a link to the puzzle onto the meta. The name of the puzzle will be the text of the link. To
 create a puzzle without a URL, click the "+ puzzle" button in the corner of the meta. (If the
 [Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
@@ -151,8 +153,8 @@ new puzzle's tags.
 * Using the bot, say; `bot PUZZLE NAME is a new puzzle in META NAME`. In the meta's chat room, you can say `this` instead of the
 meta's name. If you know the URL, you can add `with url X` to the command to set it.
 
-To create a non-meta puzzle that doesn't feed into any metas
-------------------------------------------------------------
+### To create a non-meta puzzle that doesn't feed into any metas
+
 * Using the logistics page, drag a link to the puzzle from the hunt site onto the Puzzle button in the "+ New" section at the
 top left, then drop it on the round to create the puzzle in. The name of the puzzle will be the text of the link. To create a
 puzzle without a URL, click the "+ puzzle" button in the corner of the meta. (If the
@@ -163,8 +165,8 @@ from the puzzle name.)
 * Using the bot, say: `bot PUZZLE NAME is a new puzzle in ROUND NAME`. In the round's chat room, you can say `this` instead
 of the meta's name. If you know the URL, you can add `with url X` to the command to set it.
 
-To make a puzzle feed into a meta
----------------------------------
+### To make a puzzle feed into a meta
+
 Sometimes when you unlock a puzzle you don't know which meta(s) it feeds into. If you determine that later:
 * Using the logistics page, drag the puzzle onto the meta it feeds into. A puzzle can feed multiple metas, so you can drag from
 another meta.
@@ -172,8 +174,8 @@ another meta.
 * Using the bot, say `bot PUZZLE NAME feeds into META NAME`. You can replace either `PUZZLE NAME` or `META NAME` with `this` if
 you're in the appropriate chat room.
 
-To remove a puzzle from a meta
-------------------------------
+### To remove a puzzle from a meta
+
 If a puzzle was incorrectly categorized as feeding a meta:
 * Using the logistics page, drag the puzzle from the meta onto empty space. The puzzle will appear blurry if dropping it will remove
 it from the meta.
@@ -181,8 +183,8 @@ it from the meta.
 * Using the bot, say `bot PUZZLE NAME doesn't feed into META NAME`. You can replace either `PUZZLE NAME` or `META NAME` with `this` if
 you're in the appropriate chat room.
 
-Editing mechanics and tags
---------------------------
+### Editing mechanics and tags
+
 After adding a new puzzle, if you have time, try to determine if it has any of the mechanics described on the [Mechanics](Mechanics.md) page.
 * Using the logistics page, when hovering over a puzzle, an edit button will appear at the right side. Clicking it will open a dialog where
 you can edit the puzzle's tags, URL, and mechanics. Click the `Mechanics` button to open a dropdown with checkboxes for the known mechanics,
@@ -192,37 +194,37 @@ tags.
 * You can't manage mechanics using the bot. You can set tags by saying `bot set TAG for ROUND OR PUZZLE NAME to COLOR`.  In the chat room for
 the round or puzzle, you can elide the `for ROUND OR PUZZLE NAME` part.
 
-### Special Tags
+#### Special Tags
 * The `answer` tag usually shouldn't be set directly; it is set automatically when an `answer` callin is marked as correct.
 * The `status` tag is normally set using the `Mark Stuck` dialog on the puzzle page.
 * The `color` tag determines the background color of a round on the blackboard and logistics page. If it isn't set, a color will be chosen based
 on the puzzle's randomly-generated ID. Any color recognized by CSS is accepted.
 
-Associating a calendar event with a puzzle
-------------------------------------------
+### Associating a calendar event with a puzzle
+
 If a puzzle has a calendar event associated with it, you can link them. A calendar even can only be linked to one puzzle.
 * Using the logistics page, drag a calendar event from the column on the right onto the puzzle it should be associated with.
 * Using the blackboard's edit mode, select the calendar event from the dropdown menu under `Upcoming Events` in the puzzle's table row.
 * From the puzzle info page, the calendar icon above the puzzle's title opens a dropdown to select from upcoming events.
 * You can't manage calendar events using the bot.
 
-Deleting a puzzle
------------------
+### Deleting a puzzle
+
 Warning: there is no way to undelete a puzzle.
 * Using the logistics page, drag the puzzle to the `Delete` button at the top left. You will be asked to confirm.
 * Using the Blackboard's edit mode, click the X next to the puzzle's name. You will be asked to confirm.
 * Using the bot, say `bot delete puzzle PUZZLE NAME`.
 
-Unsticking Puzzles
-==================
+## Unsticking Puzzles
+
 When a puzzle is marked as stuck, the bot will notify the main chat room, and everyone with stuck puzzle notifications
 turned on will get a desktop notification. If you're particularly good at finding next steps or extractions, join the
 puzzle's chat room via the link in the bot's message or by clicking the desktop notification. Once you've successfully made progress, you can mark the puzzle as
 not stuck by saying `bot unstuck` or by clicking the button in the header. This is probably not a good role to combine
 with being on-call for callins or adding new puzzles.
 
-Announcements
-=============
+## Announcements
+
 Starring a message in the main chatroom pins it above the puzzles table so that anyone joining the page sees it immediately.
 It also generates a notification for anyone who has notification enabled in general and for the `announcements` stream,
 which is enabled by default. A single message is only announced once, even if it's unstarred and restarred.
@@ -233,12 +235,12 @@ You can always unstar messages in the chat panel, but you have to scroll far eno
 
 Starring messages in other rooms does not generate an announcement, but does pin that message where it will be easily seen.
 
-Polls
-=====
+## Polls
+
 Should we be given a choice at some point, such as which round to unlock, which puzzle to spend a free solve on, or where to get dinner,
 you can solicit the team's input with a poll. This is a bot command like any other, but because the poll will appear to be said by you,
 you may want to send it to the bot as a private message to avoid apparent redundancy.
-```
+```irc
 /msg bot poll "Who would win?" Me Myself Irene "John Rambo"
 ```
 Quote the question and any options with a space in them. Polls support a minimum of two and a maximum of five options. Like any chat message, a poll can be starred.
