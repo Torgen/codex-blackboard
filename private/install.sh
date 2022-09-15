@@ -17,7 +17,7 @@ fi
 
 domainname=$1
 while [ -z "$domainname" ] ; do
-  read -p "Need a domain name for the site: " domainname
+  read -r -p "Need a domain name for the site: " domainname
 done
 
 set -e
@@ -46,7 +46,7 @@ cd /opt/codex/bundle/programs/server
 sudo npm install
 
 # Copy the static files
-sudo cp -a $scriptroot/installfiles/* /
+sudo cp -a "$scriptroot"/installfiles/* /
 sudo systemctl daemon-reload
 node_path=$(npm root -g --no-update-notifier)
 
@@ -68,7 +68,7 @@ if [ "$(nproc)" -eq 1 ]; then
   PORTS="--port 28000"
 else
   for index in $(seq 1 "$(nproc)"); do
-    port=$(($index + 28000))
+    port=$((index + 28000))
     PORTS="$PORTS --port $port"
     sudo systemctl enable "codex@${port}.service"
   done
@@ -92,6 +92,7 @@ sudo apt-get install -y nginx
   
 cd /etc/ssl/certs
 sudo openssl dhparam -out dhparam.pem 4096
+# shellcheck disable=SC2086 
 handlebars < "$scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars" $PORTS --domainname "$domainname" --staticroom "$(uuidgen)" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
 sudo ln -s /etc/nginx/sites-{available,enabled}/codex
 sudo rm /etc/nginx/sites-enabled/default
