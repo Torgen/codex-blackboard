@@ -15,21 +15,11 @@
             </button>
             <button id="bb-logistics-new-meta" class="btn btn-mini btn-primary" data-toggle="dropdown" data-target="#bb-logistics-new-meta">
               <i class="fas fa-filter"></i> Meta
-              <ul class="dropdown-menu">
-                <li class="disabled"><a>Round</a></li>
-                {{#each rounds}}
-                  <li><a class="round-name">{{name}}</a></li>
-                {{/each}}
-              </ul>
+              {{>logistics_round_menu}}
             </button>
             <button id="bb-logistics-new-standalone" class="btn btn-mini" data-toggle="dropdown" data-target="#bb-logistics-new-standalone">
               <i class="fas fa-puzzle-piece"></i> Puzzle
-              <ul class="dropdown-menu">
-                <li class="disabled"><a>Round</a></li>
-                {{#each rounds}}
-                  <li><a class="round-name">{{name}}</a></li>
-                {{/each}}
-              </ul>
+              {{>logistics_round_menu}}
             </button>
           </div>
           <span id="bb-logistics-delete" class="btn btn-mini btn-danger disabled active" title="Drag a puzzle here to delete it."><i class="fas fa-trash"></i> Delete</span>
@@ -84,6 +74,15 @@
     </div>
   </div>
   {{> puzzle_summon_modal editingPuzzle}}
+</template>
+
+<template name="logistics_round_menu">
+  <ul class="dropdown-menu">
+    <li class="disabled"><a>Round</a></li>
+    {{#each rounds}}
+      <li><a class="round-name">{{name}}</a></li>
+    {{/each}}
+  </ul>
 </template>
 
 <template name="logistics_puzzle_presence">

@@ -126,6 +126,19 @@ closeButtonOnDragLeave = (event, template) ->
     $(event.currentTarget).dropdown('toggle')
   event.currentTarget.classList.remove 'dragover'
 
+makePuzzleOnDrop = (targetId, puzzleParams) ->
+  Template.logistics.events
+    "drop ##{targetId} .round-name": (event, template) ->
+      event.currentTarget.closest('##{targetId}').classList.remove 'dragover'
+      if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
+        return
+      if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
+        event.preventDefault()
+        {name, url} = nameAndUrlFromDroppedLink event.originalEvent.dataTransfer
+        Meteor.call 'newPuzzle', {name, link: url, round: @_id, ...puzzleParams}
+makePuzzleOnDrop 'bb-logistics-new-standalone', {}
+makePuzzleOnDrop 'bb-logistics-new-meta', {puzzles: []}
+
 Template.logistics.events
   'mousedown #bb-logistics-new-round:not(.open)': (event, template) ->
     template.creatingRound.set 1
@@ -215,30 +228,6 @@ Template.logistics.events
     event.currentTarget.classList.remove 'dragover'
     if event.currentTarget.classList.contains 'open'
       $(event.currentTarget).dropdown('toggle')
-
-  'drop #bb-logistics-new-meta .round-name': (event, template) ->
-    event.currentTarget.closest('#bb-logistics-new-meta').classList.remove 'dragover'
-    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
-      return
-    if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
-      event.preventDefault()
-      {name, url} = nameAndUrlFromDroppedLink event.originalEvent.dataTransfer
-      Meteor.call 'newPuzzle',
-        name: name
-        link: url
-        round: @_id
-        puzzles: []
-  'drop #bb-logistics-new-standalone .round-name': (event, template) ->
-    event.currentTarget.closest('#bb-logistics-new-standalone').classList.remove 'dragover'
-    if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE
-      return
-    if event.originalEvent.dataTransfer.types.includes 'text/uri-list'
-      event.preventDefault()
-      {name, url} = nameAndUrlFromDroppedLink event.originalEvent.dataTransfer
-      Meteor.call 'newPuzzle',
-        name: name
-        link: url
-        round: @_id
   'drop #bb-logistics-delete': (event, template) ->
     event.currentTarget.classList.remove 'dragover'
     if event.originalEvent.dataTransfer.types.includes PUZZLE_MIME_TYPE

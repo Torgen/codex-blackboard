@@ -103,25 +103,20 @@ Template.puzzle_info.events
   'click .bb-add-tag-button': (event, template) ->
     template.addingTag.set true
 
+dataHelper = ->
+  r = {}
+  puzzle = r.puzzle = model.Puzzles.findOne Session.get 'id'
+  round = r.round = model.Rounds.findOne puzzles: puzzle?._id
+  r.isMeta = puzzle?.puzzles?
+  r.stuck = model.isStuck puzzle
+  r.capType = capType puzzle
+  return r
+
 Template.puzzle_info_frame.helpers
-  data: ->
-    r = {}
-    puzzle = r.puzzle = model.Puzzles.findOne Session.get 'id'
-    round = r.round = model.Rounds.findOne puzzles: puzzle?._id
-    r.isMeta = puzzle?.puzzles?
-    r.stuck = model.isStuck puzzle
-    r.capType = capType puzzle
-    return r
+  data: dataHelper
 
 Template.puzzle.helpers
-  data: ->
-    r = {}
-    puzzle = r.puzzle = model.Puzzles.findOne Session.get 'id'
-    round = r.round = model.Rounds.findOne puzzles: puzzle?._id
-    r.isMeta = puzzle?.puzzles?
-    r.stuck = model.isStuck puzzle
-    r.capType = capType puzzle
-    return r
+  data: dataHelper
   currentViewIs: (view) -> currentViewIs @puzzle, view
   docLoaded: -> Template.instance().docLoaded.get()
 
