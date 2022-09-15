@@ -1,22 +1,22 @@
 #!/bin/bash
 
-scriptroot=$(readlink -f $(dirname $0))
+scriptroot=$(readlink -f "$(dirname "$0")")
 
 BUNDLE=$1
 
 sudo mkdir /opt/codex2
 sudo chmod a+rwx /opt/codex2
 if [[ -z $BUNDLE ]]; then
-  cd $scriptroot/..
+  cd "$scriptroot"/.. || exit
   meteor npm install
   meteor build --directory /opt/codex2
 else
-  sudo tar -C /opt/codex2 -xz < $BUNDLE
+  sudo tar -C /opt/codex2 -xz < "$BUNDLE"
 fi
 
-cd /opt/codex2/bundle/programs/server
+cd /opt/codex2/bundle/programs/server || exit
 sudo npm install
-cd -
+
 if [[ -d /opt/codex-old ]]; then
   sudo rm -rf /opt/codex-old
 fi

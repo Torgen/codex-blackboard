@@ -1,6 +1,6 @@
 #!/bin/bash
 
-scriptroot=$(readlink -f $(dirname $0))
+scriptroot=$(readlink -f "$(dirname "$0")")
 
 if [ "$(findmnt -T /var/lib/mongodb -n -o fstype)" != "xfs" ] ; then
   echo >&2 "MongoDB will complain if /var/lib/mongodb is a file system other than xfs."
@@ -22,7 +22,7 @@ done
 
 set -e
 
-cd $HOME
+cd "$HOME"
 curl https://install.meteor.com/ | sh
 
 # Set up apt
@@ -35,7 +35,7 @@ sudo apt-get install -y mongodb-org nodejs software-properties-common
 
 # This will help us template some files
 sudo npm install -g handlebars-cmd
-cd $scriptroot/..
+cd "$scriptroot"/..
 
 # Build the bundle, then install it.
 meteor npm install
