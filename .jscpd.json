@@ -6,7 +6,8 @@
   "ignore": [
     "**/__snapshots__/**",
     "**/*.test.coffee",
-    "**/*.app-test.coffee"
+    "**/*.app-test.coffee",
+    "**/testdata/**"
   ],
   "absolute": true
 }
