@@ -3,25 +3,25 @@
 ## Logging In
 
 The login screen contains the following fields:
-* **Team Password** (required): You should get this from wherever you got the URL for the blackboard site, 
+* **Team Password** (required): You should get this from wherever you got the URL for the blackboard site,
   whether that was a classroom blackboard/whiteboard, a Slack channel, or a mailing list.
 * **Nickname** (required): This can be up to 20 characters.
 * **Real Name** (optional): If you don't set this, your nickname will be shown with your chat messages instead.
-* **Email Address** (optional): This is used only to look up your [Gravatar](https://en.gravatar.com/). It is 
-  never sent to the server or shared with teammates. If you don't have a Gravatar, a geometric "Wavatar" 
+* **Email Address** (optional): This is used only to look up your [Gravatar](https://en.gravatar.com/). It is
+  never sent to the server or shared with teammates. If you don't have a Gravatar, a geometric "Wavatar"
   will be generated for you instead.
- 
+
 Individual accounts don't have their own passwords. You are trusted not to impersonate one another.
 Be careful with the team password. A bad actor can freely create accounts, so there is no way to
 ban them short of changing the team password and forcing everyone to log in again.
- 
+
 ## Jitsi Meetings
 
 The main blackboard page and every puzzle page have their own Jitsi meeting.
 (Unless the site operator changed the default settings.)
- 
+
 When you first log into the blackboard, you join the main Jitsi Meeting. (You may need to grant audio/video permissions).
- 
+
 * Changing Meetings
   * Within a browser tab, the Jitsi meeting moves with you. If you navigate to a new page, you move to that page's meeting.
   * Only one meeting can be open across all browser tabs. If you open a page in a new tab, its meeting will start closed.
@@ -64,7 +64,7 @@ at the top of the main page will add the hunt calendar to your personal calendar
 Note that because Blackboard intentionally has no idea what the relationship is between Google accounts and Blackboard accounts,
 marking yourself as attending an event in Google Calendar will not be reflected in Blackboard.
 
-## Chat 
+## Chat
 
 The main chat is shown on almost every page. On the main blackboard page it is in the lower right. On
 puzzle pages, the last two lines of the main chat and/or oplog (new rounds/puzzle announcements) are
@@ -77,7 +77,7 @@ In addition to the main chat, each puzzle page has its own chat.
 There are times when you want everyone working on a puzzle to see certain information.
 The easiest way to do this is to send a message and then **Promote the Message** by clicking the **star icon** next to it.  This causes the message to display in the puzzle info panel. (Or the main blackboard if the message was in the main chat.) e.g.
 - All entries are surfers, the colors are their national colors.
-- https://www.surfingwiki.com/wiki/Famous_surfers
+- <https://www.surfingwiki.com/wiki/Famous_surfers>
 
 The bot sometimes generates silly messages, e.g. memes.  These can be hidden via the **Settings Dropdown** option **Hide Bot Tomfoolery**.
 
@@ -128,7 +128,7 @@ In this case "full screen" means hiding the puzzle page header, thereby giving m
 The **Mechanics Dropdown** in the puzzle info pane should be used to mark puzzles involving that [mechanic](./Mechanics.md).
 e.g. Cryptics.  This will both add the information to the blackboard an notify any team members who have favorited this mechanic.
 
-### Solving
+### Solving Tips
 
 Use the spreadsheet for data entry and solving whenever possible. There are three spreadsheet tabs by default: Primary, grid, and a tab with
 some useful formulas--for example, converting between numbers and letters, and stripping special characters from a string. If you are mostly working on the grid tab, please drag it to be the leftmost tab in sheets so new people go straight to that tab.
