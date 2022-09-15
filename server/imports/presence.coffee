@@ -4,6 +4,16 @@ import canonical from '/lib/imports/canonical.coffee'
 
 model = share.model
 
+# look up a real name, if there is one
+maybe_real_name = (nick) ->
+  n = Meteor.users.findOne canonical nick
+  return n?.real_name or nick
+
+common_presence_fields =
+  system: true
+  to: null
+  bodyIsHtml: false
+
 class PresenceManager
   constructor: ->
     # Presence
@@ -27,33 +37,25 @@ class PresenceManager
       added: (presence) ->
         return if initiallySuppressPresence
         return if presence.room_name is 'oplog/0'
-        # look up a real name, if there is one
-        n = Meteor.users.findOne canonical presence.nick
-        name = n?.real_name or presence.nick
-        model.Messages.insert
-          system: true
+        model.Messages.insert {
           nick: presence.nick
-          to: null
           presence: 'join'
-          body: "#{name} joined the room."
-          bodyIsHtml: false
+          body: "#{maybe_real_name presence.nick} joined the room."
           room_name: presence.room_name
           timestamp: presence.joined_timestamp
+          ...common_presence_fields
+        }
       removed: (presence) ->
         return if initiallySuppressPresence
         return if presence.room_name is 'oplog/0'
-        # look up a real name, if there is one
-        n = Meteor.users.findOne canonical presence.nick
-        name = n?.real_name or presence.nick
-        model.Messages.insert
-          system: true
+        model.Messages.insert {
           nick: presence.nick
-          to: null
           presence: 'part'
-          body: "#{name} left the room."
-          bodyIsHtml: false
+          body: "#{maybe_real_name presence.nick} left the room."
           room_name: presence.room_name
           timestamp: model.UTCNow()
+          ...common_presence_fields
+        }
       changed: (newDoc, oldDoc) ->
         return if newDoc.bot
         match = oldDoc.room_name.match(/puzzles\/(.*)/)
