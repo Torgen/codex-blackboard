@@ -50,8 +50,8 @@ sudo cp -a $scriptroot/installfiles/* /
 sudo systemctl daemon-reload
 node_path=$(npm root -g --no-update-notifier)
 
-handlebars < $scriptroot/installtemplates/etc/codex-common.env.handlebars --domainname "$domainname" | sudo bash -c "cat > /etc/codex-common.env"
-handlebars < $scriptroot/installtemplates/etc/codex-batch.env.handlebars --node_path "$node_path" | sudo bash -c "cat > /etc/codex-batch.env"
+handlebars < "$scriptroot/installtemplates/etc/codex-common.env.handlebars" --domainname "$domainname" | sudo bash -c "cat > /etc/codex-common.env"
+handlebars < "$scriptroot/installtemplates/etc/codex-batch.env.handlebars" --node_path "$node_path" | sudo bash -c "cat > /etc/codex-batch.env"
 sudo vim /etc/codex-common.env
 sudo chmod 600 /etc/codex-batch.env
 sudo vim /etc/codex-batch.env
@@ -64,13 +64,13 @@ sudo vim /etc/codex-batch.env
 # won't direct any at it. We will also start one task per core starting at
 # port 28001, and have nginx balance over them.
 PORTS=""
-if [ $(nproc) -eq 1 ]; then
+if [ "$(nproc)" -eq 1 ]; then
   PORTS="--port 28000"
 else
-  for index in $(seq 1 $(nproc)); do
-    port=$[$index + 28000]
+  for index in $(seq 1 "$(nproc)"); do
+    port=$(($index + 28000))
     PORTS="$PORTS --port $port"
-    sudo systemctl enable codex@${port}.service
+    sudo systemctl enable "codex@${port}.service"
   done
 fi
 # ensure transparent hugepages get disabled. Mongodb wants this.
@@ -86,13 +86,13 @@ sudo systemctl enable codex-batch.service
   
 sudo snap install --classic certbot
 
-sudo certbot certonly --standalone -d $domainname
+sudo certbot certonly --standalone -d "$domainname"
 
 sudo apt-get install -y nginx
   
 cd /etc/ssl/certs
 sudo openssl dhparam -out dhparam.pem 4096
-handlebars < $scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars $PORTS --domainname "$domainname" --staticroom "$(uuidgen)" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
+handlebars < "$scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars" $PORTS --domainname "$domainname" --staticroom "$(uuidgen)" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
 sudo ln -s /etc/nginx/sites-{available,enabled}/codex
 sudo rm /etc/nginx/sites-enabled/default
   
