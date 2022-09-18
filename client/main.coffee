@@ -10,6 +10,7 @@ import { fileType } from '../lib/imports/mime_type.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
+import { GENERAL_ROOM_NAME, INITIAL_CHAT_LIMIT, NAME_PLACEHOLDER, TEAM_NAME } from '/client/imports/server_settings.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import '/client/imports/ui/pages/graph/graph_page.coffee'
 import { awaitBundleLoaded } from '/client/imports/ui/pages/logistics/logistics_page.coffee'
@@ -17,7 +18,6 @@ import '/client/imports/ui/pages/map/map_page.coffee'
 import '/client/imports/ui/pages/projector/projector.coffee'
 import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
-settings = share.settings # import
 model = share.model
 
 # "Top level" templates:
@@ -60,10 +60,10 @@ Template.registerHelper 'canEdit', () ->
 Template.registerHelper 'md5', md5
 Template.registerHelper 'fileType', fileType
 
-Template.registerHelper 'teamName', -> settings.TEAM_NAME
-Template.registerHelper 'generalRoomName', -> settings.GENERAL_ROOM_NAME
+Template.registerHelper 'teamName', -> TEAM_NAME
+Template.registerHelper 'generalRoomName', -> GENERAL_ROOM_NAME
 
-Template.registerHelper 'namePlaceholder', -> settings.NAME_PLACEHOLDER
+Template.registerHelper 'namePlaceholder', -> NAME_PLACEHOLDER
 
 Template.registerHelper 'mynick', -> Meteor.userId()
 
@@ -241,7 +241,7 @@ Meteor.startup ->
     share.model.Messages.find({$or: [{to: me}, {mention: me}], timestamp: $gt: arnow}).observeChanges
       added: (msgid, message) ->
         [room_name, url] = if message.room_name is 'general/0'
-          [settings.GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
+          [GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
         else
           [type, id] = message.room_name.split '/'
           target = share.model.Names.findOne id
@@ -410,7 +410,7 @@ BlackboardRouter = Backbone.Router.extend
       # if switching between a puzzle room and full-screen chat, don't reset limit.
       Session.set
         room_name: new_room
-        limit: settings.INITIAL_CHAT_LIMIT
+        limit: INITIAL_CHAT_LIMIT
     Session.set
       splitter: splitter ? false
       currentPage: page

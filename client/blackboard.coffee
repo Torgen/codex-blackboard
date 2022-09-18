@@ -6,6 +6,7 @@ import { findByChannel } from '/client/imports/presence_index.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor  from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
+import { TEAM_NAME, WHOSE_GITHUB } from '/client/imports/server_settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
 import okCancelEvents from './imports/ok_cancel_events.coffee'
@@ -18,7 +19,6 @@ import '/client/imports/ui/components/onduty/control.coffee'
 import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee'
 
 model = share.model # import
-settings = share.settings # import
 
 SOUND_THRESHOLD_MS = 30*1000 # 30 seconds
 
@@ -119,7 +119,7 @@ Template.blackboard.onRendered ->
       return item
 
 Template.blackboard.helpers
-  whoseGitHub: -> settings.WHOSE_GITHUB
+  whoseGitHub: -> WHOSE_GITHUB
   filter: -> Template.instance().userSearch.get()?
   searchResults: ->
     model.Puzzles.findOne(_id: id) for id from Template.instance().foundPuzzles.get() ? []
@@ -270,7 +270,7 @@ Template.blackboard.events
 
 Template.blackboard.onRendered ->
   #  page title
-  $("title").text("#{settings.TEAM_NAME} Puzzle Blackboard")
+  $("title").text("#{TEAM_NAME} Puzzle Blackboard")
   $('#bb-tables .bb-puzzle .puzzle-name > a').tooltip placement: 'left'
 
 Template.blackboard.events

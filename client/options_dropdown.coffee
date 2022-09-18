@@ -1,10 +1,11 @@
 'use strict'
+import { JITSI_SERVER } from '/client/imports/server_settings.coffee'
 import { DARK_MODE, HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, STUCK_TO_TOP,
 HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS, HIDE_OLD_PRESENCE, LESS_COLORFUL,
 START_VIDEO_MUTED, START_AUDIO_MUTED, COMPACT_MODE, CURRENT_COLUMNS} from './imports/settings.coffee'
 
 Template.options_dropdown.helpers
-  jitsi: share.settings.JITSI_SERVER?
+  jitsi: JITSI_SERVER?
 
 Template.options_dropdown.events
   'click .bb-display-settings li a': (event, template) ->

@@ -7,10 +7,10 @@ import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
 import loginWithCodex from '/client/imports/accounts.coffee'
+import { BB_DISABLE_RINGHUNTERS_HEADER, GENERAL_ROOM_NAME } from '/client/imports/server_settings.coffee'
 import './imports/timestamp.coffee'
 
 model = share.model # import
-settings = share.settings # import
 
 # templates, event handlers, and subscriptions for the site-wide
 # header bar, including the login modals and general Spacebars helpers
@@ -411,7 +411,7 @@ Template.header_lastchats.helpers
     if Session.equals('room_name', 'general/0')
       'Updates'
     else
-      settings.GENERAL_ROOM_NAME
+      GENERAL_ROOM_NAME
   roomicon: ->
     query = if Session.equals('room_name', 'general/0')
       'newspaper'
@@ -451,7 +451,7 @@ Template.header_lastchats.helpers
 
 # subscribe when this template is in use/unsubscribe when it is destroyed
 Template.header_lastchats.onCreated ->
-  return if settings.BB_DISABLE_RINGHUNTERS_HEADER
+  return if BB_DISABLE_RINGHUNTERS_HEADER
   @autorun =>
     this.subscribe 'recent-messages', 'oplog/0', 2
     @subscribe 'recent-header-messages'

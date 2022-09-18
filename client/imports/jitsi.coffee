@@ -2,6 +2,7 @@
 
 import canonical from '/lib/imports/canonical.coffee'
 import { StaticJitsiMeeting } from '/lib/imports/settings.coffee'
+import { JITSI_SERVER, TEAM_NAME } from '/client/imports/server_settings.coffee'
 import { START_AUDIO_MUTED, START_VIDEO_MUTED } from './settings.coffee'
 
 export jitsiRoom = (roomType, roomId) ->
@@ -13,7 +14,7 @@ export jitsiRoom = (roomType, roomId) ->
   else
     override = share.model.collection(roomType)?.findOne(_id: roomId)?.tags?.jitsi?.value
     meeting = override if override?
-  "#{canonical(share.settings.TEAM_NAME)}_#{meeting}"
+  "#{canonical(TEAM_NAME)}_#{meeting}"
 
 # We need settings to load the jitsi api since it's conditional and the domain
 # is variable. This means we can't put it in the head, and putting it in the
@@ -23,14 +24,14 @@ export jitsiRoom = (roomType, roomId) ->
 jitsiLoaded = new ReactiveVar false
 
 Meteor.startup ->
-  return unless share.settings.JITSI_SERVER
+  return unless JITSI_SERVER
   $('body').addClass('using-jitsi')
-  $.getScript "https://#{share.settings.JITSI_SERVER}/external_api.js", ->
+  $.getScript "https://#{JITSI_SERVER}/external_api.js", ->
     jitsiLoaded.set true  
 
 export createJitsiMeet = (room, container) ->
   return null unless jitsiLoaded.get()
-  return new JitsiMeetExternalAPI share.settings.JITSI_SERVER,
+  return new JitsiMeetExternalAPI JITSI_SERVER,
     roomName: room
     parentNode: container
     interfaceConfigOverwrite:
@@ -49,7 +50,7 @@ export createJitsiMeet = (room, container) ->
       'analytics.disabled': true
 
 export jitsiUrl = (roomType, roomId) ->
-  return unless share.settings.JITSI_SERVER
+  return unless JITSI_SERVER
   room = jitsiRoom roomType, roomId
   return unless room?
-  "https://#{share.settings.JITSI_SERVER}/#{room}"
+  "https://#{JITSI_SERVER}/#{room}"

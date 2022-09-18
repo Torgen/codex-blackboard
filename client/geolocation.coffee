@@ -6,7 +6,6 @@ import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
 
 model = share.model # import
-settings = share.settings # import
 
 # Geolocation-related utilities
 
@@ -30,7 +29,6 @@ updateLocation = do ->
 
 # As long as the user is logged in, stream position updates to server
 Tracker.autorun ->
-  return if settings.DISABLE_GEOLOCATION
   Geolocation.setPaused !share.isVisible()
   nick = Meteor.userId()
   return unless nick?

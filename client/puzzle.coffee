@@ -12,7 +12,6 @@ import '/client/imports/ui/components/onduty/current.coffee'
 import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee'
 
 model = share.model # import
-settings = share.settings # import
 
 capType = (puzzle) ->
   if puzzle?.puzzles?

@@ -1,11 +1,12 @@
 'use strict'
 
 import canonical from '../../lib/imports/canonical.coffee'
+import { DEFAULT_HOST } from '/client/imports/server_settings.coffee'
 import md5 from 'md5'
 
 export gravatarUrl = ({gravatar_md5, size}) -> "https://secure.gravatar.com/avatar/#{gravatar_md5}.jpg?d=wavatar&s=#{size}"
 
-export hashFromNickObject = (nick) -> nick.gravatar_md5 or md5("#{nick._id}@#{share.settings.DEFAULT_HOST}")
+export hashFromNickObject = (nick) -> nick.gravatar_md5 or md5("#{nick._id}@#{DEFAULT_HOST}")
 
 export nickHash = (nick) ->
   return unless nick?

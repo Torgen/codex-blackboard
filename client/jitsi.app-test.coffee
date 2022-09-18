@@ -5,6 +5,7 @@ import jitsiModule from './imports/jitsi.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import {reactiveLocalStorage} from './imports/storage.coffee'
+import { CLIENT_UUID } from '/client/imports/server_settings.coffee'
 
 GRAVATAR_200 = 'https://secure.gravatar.com/avatar/a24f643d34150c3b4053989db38251c9.jpg?d=wavatar&s=200'
 
@@ -179,7 +180,7 @@ describe 'jitsi', ->
     mock = expectFactory()
     $('.bb-join-jitsi').click()
     await afterFlushPromise()
-    chai.assert.equal reactiveLocalStorage.getItem('jitsiTabUUID'), share.settings.CLIENT_UUID
+    chai.assert.equal reactiveLocalStorage.getItem('jitsiTabUUID'), CLIENT_UUID
 
   it 'doesn\'t rejoin when mute preference changes', ->
     mock1 = expectFactory()

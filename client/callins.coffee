@@ -4,7 +4,6 @@ import { MUTE_SOUND_EFFECTS, EXPERT_MODE } from './imports/settings.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
 model = share.model # import
-settings = share.settings # import
 
 Meteor.startup ->
   if typeof Audio is 'function' # for phantomjs

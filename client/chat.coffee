@@ -6,6 +6,7 @@ import { gravatarUrl, hashFromNickObject, nickAndName } from './imports/nickEmai
 import { computeMessageFollowup } from './imports/followup.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
+import { CHAT_LIMIT_INCREMENT, CLIENT_UUID, FOLLOWUP_STYLE, GENERAL_ROOM_NAME, INITIAL_CHAT_LIMIT } from '/client/imports/server_settings.coffee'
 import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import {chunk_text, chunk_html} from './imports/chunk_text.coffee'
@@ -13,9 +14,8 @@ import { confirm } from './imports/modal.coffee'
 import Favico from 'favico.js'
 
 model = share.model # import
-settings = share.settings # import
 
-GENERAL_ROOM = settings.GENERAL_ROOM_NAME
+GENERAL_ROOM = GENERAL_ROOM_NAME
 GENERAL_ROOM_REGEX = new RegExp "^#{GENERAL_ROOM}$", 'i'
 
 Session.setDefault
@@ -23,7 +23,7 @@ Session.setDefault
   type:      'general'
   id:        '0'
   chatReady: false
-  limit:     settings.INITIAL_CHAT_LIMIT
+  limit:     INITIAL_CHAT_LIMIT
 
 # Chat helpers!
 
@@ -286,7 +286,7 @@ Template.messages.onRendered ->
     return if selfScroll?
     instachat.scrolledToBottom = entries[0].isIntersecting
   instachat.bottomObserver.observe(chatBottom)
-  if settings.FOLLOWUP_STYLE is "js"
+  if FOLLOWUP_STYLE is "js"
     # observe future changes
     @$("#messages").each ->
       console.log "Observing #{this}" unless Meteor.isProduction
@@ -302,7 +302,7 @@ Template.messages.events
     firstMessage = event.currentTarget.nextElementSibling
     offset = firstMessage.offsetTop
     template.limitRaise = [firstMessage, offset]
-    Session.set 'limit', Session.get('limit') + settings.CHAT_LIMIT_INCREMENT
+    Session.set 'limit', Session.get('limit') + CHAT_LIMIT_INCREMENT
 
 whos_here_helper = ->
   roomName = Session.get('room_name')
@@ -319,7 +319,7 @@ Template.embedded_chat.onCreated ->
   @jitsiId = -> @jitsiPinId.get() ? Session.get 'id'
   @jitsiInOtherTab = ->
     jitsiTabUUID = reactiveLocalStorage.getItem 'jitsiTabUUID'
-    jitsiTabUUID? and jitsiTabUUID isnt settings.CLIENT_UUID
+    jitsiTabUUID? and jitsiTabUUID isnt CLIENT_UUID
   @leaveJitsi = ->
     @jitsiLeft.set true
     @jitsi.get()?.dispose()
@@ -329,7 +329,7 @@ Template.embedded_chat.onCreated ->
     @jitsiRoom = null
     @jitsiReady.set false
   @unsetCurrentJitsi = ->
-    if settings.CLIENT_UUID is reactiveLocalStorage.getItem 'jitsiTabUUID'
+    if CLIENT_UUID is reactiveLocalStorage.getItem 'jitsiTabUUID'
       reactiveLocalStorage.removeItem 'jitsiTabUUID'
   $(window).on('unload', @unsetCurrentJitsi)
 
@@ -338,7 +338,7 @@ jitsiRoomSubject = (type, id) ->
   if 'puzzles' is type
     model.Puzzles.findOne(id).name ? 'Puzzle'
   else if '0' is id
-    settings.GENERAL_ROOM_NAME
+    GENERAL_ROOM_NAME
   else
     'Video Call'
 
@@ -368,7 +368,7 @@ Template.embedded_chat.onRendered ->
         jitsi.once 'videoConferenceLeft', =>
           @leaveJitsi()
           reactiveLocalStorage.removeItem 'jitsiTabUUID'
-        reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
+        reactiveLocalStorage.setItem 'jitsiTabUUID', CLIENT_UUID
       @subscribe 'register-presence', "#{@jitsiType()}/#{@jitsiId()}", 'jitsi'
   # If you reload the page the content of the user document won't be loaded yet.
   # The check that newroom is different from the current room means the display
@@ -424,7 +424,7 @@ Template.embedded_chat.helpers
 
 Template.embedded_chat.events
   'click .bb-join-jitsi': (event, template) ->
-    reactiveLocalStorage.setItem 'jitsiTabUUID', settings.CLIENT_UUID
+    reactiveLocalStorage.setItem 'jitsiTabUUID', CLIENT_UUID
     template.jitsiLeft.set false
   'click .bb-pop-jitsi': (event, template) ->
     template.leaveJitsi()
