@@ -1,7 +1,6 @@
 'use strict'
 
-import './000setup.coffee'  # for side effects
-import './memes.coffee' # for side effects
+import memes from './memes.coffee' # for side effects
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -26,7 +25,7 @@ describe 'memes hubot script', ->
     # can't use plain hubot because this script uses priv, which isn't part of
     # the standard message class or adapter.
     robot = new Robot 'testbot', 'testbot@testbot.test'
-    share.hubot.memes robot
+    memes robot
     robot.run()
     clock.tick 1
 

@@ -2,6 +2,8 @@
 
 import { callAs } from './impersonate.coffee'
 
+export scripts = {}
+
 # helper function: concat regexes
 export rejoin = (regs...) ->
   [...,last] = regs

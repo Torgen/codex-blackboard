@@ -15,6 +15,8 @@
 # Author:
 #   tapichu/cscott
 
+import { scripts } from '/server/imports/botutil.coffee'
+
 phrases = [
   "Yes, master?"
   "At your service"
@@ -72,7 +74,7 @@ secrets = [
 
 regex_escape = (s) -> s.replace /[\^\\$*+?.()|{}\[\]\/]/g, '\\$&'
 
-share.hubot.ping = (robot) ->
+scripts.ping = (robot) ->
 
   name_regex = new RegExp("#{regex_escape robot.name}\\?$", "i")
   robot.hear name_regex, (msg) ->

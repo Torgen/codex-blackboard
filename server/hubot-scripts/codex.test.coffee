@@ -1,7 +1,6 @@
 'use strict'
 
-import './000setup.coffee'  # for side effects
-import './codex.coffee'  # for side effects
+import codex from './codex.coffee'
 import '/lib/model.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -25,7 +24,7 @@ describe 'codex hubot script', ->
     # can't use plain hubot because this script uses priv, which isn't part of
     # the standard message class or adapter.
     robot = new Robot 'testbot', 'testbot@testbot.test'
-    share.hubot.codex robot
+    codex robot
     robot.run()
     clock.tick 1
     driveMethods =

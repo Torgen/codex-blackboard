@@ -1,7 +1,6 @@
 'use strict'
 
-import './000setup.coffee'  # for side effects
-import './metas.coffee'  # for side effects
+import metas from './metas.coffee'
 import '/lib/model.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -24,7 +23,7 @@ describe 'metas hubot script', ->
     # can't use plain hubot because this script uses priv, which isn't part of
     # the standard message class or adapter.
     robot = new Robot 'testbot', 'testbot@testbot.test'
-    share.hubot.metas robot
+    metas robot
     robot.run()
     clock.tick 1
 

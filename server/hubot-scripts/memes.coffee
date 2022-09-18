@@ -1,9 +1,10 @@
 # Description:
 #   Get a meme from https://memegen.link
 
+import { scripts } from '/server/imports/botutil.coffee'
 import { MaximumMemeLength } from '/lib/imports/settings.coffee'
 
-share.hubot.memes = (robot) ->
+export default scripts.memes = (robot) ->
   robot.commands.push 'bot Y U NO <text> - Generates the Y U NO GUY with the bottom caption of <text>'
   robot.hear /Y U NO (.+)/i, (msg) ->
     memegen msg, 'yuno', '', msg.match[1]

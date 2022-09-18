@@ -18,14 +18,14 @@
 # We need to use a backslash escape as a workaround.
 'use strict'
 
-import {rejoin, strip, thingRE, objectFromRoom } from '../imports/botutil.coffee'
+import { scripts, rejoin, strip, thingRE, objectFromRoom } from '../imports/botutil.coffee'
 import { callAs, impersonating } from '../imports/impersonate.coffee'
 import { all_settings } from '/lib/imports/settings.coffee'
 import canonical from '/lib/imports/canonical.coffee'
 import isDuplicateError from '/lib/imports/duplicate.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
-share.hubot.codex = (robot) ->
+export default scripts.codex = (robot) ->
 
   ## ANSWERS
 

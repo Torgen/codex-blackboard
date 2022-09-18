@@ -3,6 +3,7 @@
 
 return unless share.DO_BATCH_PROCESSING
 
+import { scripts } from '/server/imports/botutil.coffee'
 import Robot from './imports/hubot.coffee'
 import hubot_help from 'hubot-help'
 # Required so external hubot scripts written in coffeescript can be loaded
@@ -23,9 +24,9 @@ Meteor.startup ->
   # register scripts
   robot.privately hubot_help
   robot.loadExternalScripts EXTERNAL_SCRIPTS
-  delete share.hubot[script] for script in SKIP_SCRIPTS
-  Object.keys(share.hubot).forEach (scriptName) ->
-    console.log "Loading hubot script: #{scriptName}"
-    share.hubot[scriptName](robot)
+  for name, script of scripts
+    continue if name in SKIP_SCRIPTS
+    console.log "Loading hubot script: #{name}"
+    script(robot)
   
   robot.run()

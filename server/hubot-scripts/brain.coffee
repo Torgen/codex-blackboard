@@ -1,8 +1,10 @@
 'use strict'
 
+import { scripts } from '/server/imports/botutil.coffee'
+
 export brain = new Mongo.Collection 'brain'
 
-export default share.hubot.brain = (robot) ->
+export default scripts.brain = (robot) ->
 
   robot.brain.setAutoSave false
 

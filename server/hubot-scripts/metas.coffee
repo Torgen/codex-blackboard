@@ -1,5 +1,5 @@
 
-import {rejoin, strip, thingRE, objectFromRoom, puzzleOrThis } from '../imports/botutil.coffee'
+import {rejoin, strip, scripts,thingRE, objectFromRoom, puzzleOrThis } from '../imports/botutil.coffee'
 import { callAs } from '../imports/impersonate.coffee'
 
 makeMeta = (msg) ->
@@ -37,7 +37,7 @@ makeNotMeta = (msg) ->
     msg.reply useful: true, "#{name} already wasn't a meta."
   msg.finish()
 
-share.hubot.metas = (robot) ->
+export default scripts.metas = (robot) ->
   robot.commands.push 'bot <puzzle|this> is a meta[puzzle] - Updates codex blackboard'
   robot.respond (rejoin thingRE, / is a meta(puzzle)?$/i), makeMeta
 
