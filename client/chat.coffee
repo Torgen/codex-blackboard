@@ -77,7 +77,7 @@ instachat["readObserver"] = new MutationObserver (recs, obs) ->
 # (first add host to path)
 favicon = badge: (-> false), reset: (-> false)
 Meteor.startup ->
-  favicon = share.chat.favicon = new Favico
+  favicon = new Favico
     animation: 'slide'
     fontFamily: 'Noto Sans'
     fontStyle: '700'
@@ -887,11 +887,3 @@ do ->
     return unless Session.equals('currentPage', 'chat')
     maybeScrollMessagesView()
   Meteor.setTimeout f, 5000
-
-# exports
-share.chat =
-  favicon: favicon
-  hideMessageAlert: hideMessageAlert
-  joinRoom: joinRoom
-  # for debugging
-  instachat: instachat

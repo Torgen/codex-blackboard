@@ -1,6 +1,5 @@
 'use strict'
 model = share.model
-chat = share.chat
 
 room_name = 'oplog/0'
 

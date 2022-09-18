@@ -19,7 +19,6 @@ import '/client/imports/ui/pages/statistics/statistics_page.coffee'
 
 settings = share.settings # import
 model = share.model
-chat = share.chat # import
 
 # "Top level" templates:
 #   "blackboard" -- main blackboard page
