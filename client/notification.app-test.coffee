@@ -1,6 +1,7 @@
 'use strict'
 
 import { Puzzles, Rounds } from '/lib/imports/collections.coffee'
+import * as notification from '/client/imports/notification.coffee'
 import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -63,7 +64,7 @@ describe 'notifications', ->
     describe name, ->
       mock = null
       beforeEach ->
-        mock = sinon.mock share.notification
+        mock = sinon.mock notification
 
       afterEach ->
         mock.verify()
@@ -72,7 +73,7 @@ describe 'notifications', ->
         v = null
         try
           Session.set 'notifications', 'granted'
-          share.notification.set stream, false
+          notification.set stream, false
           mock.expects('notify').never()
           await afterFlushPromise()
           await waitForSubscriptions()
@@ -86,7 +87,7 @@ describe 'notifications', ->
         v = null
         try
           Session.set 'notifications', 'denied'
-          share.notification.set stream, true
+          notification.set stream, true
           mock.expects('notify').never()
           await afterFlushPromise()
           await waitForSubscriptions()
@@ -95,13 +96,13 @@ describe 'notifications', ->
         finally
           await cleanup(v) if v?
           Session.set 'notifications', 'default'
-          share.notification.set stream, false
+          notification.set stream, false
 
       it 'notifies when enabled', ->
         v = null
         try
           Session.set 'notifications', 'granted'
-          share.notification.set stream, true
+          notification.set stream, true
           notify = mock.expects('notify')
           p = new Promise (resolve) ->
             notify.once().callsFake(-> resolve())
@@ -113,7 +114,7 @@ describe 'notifications', ->
         finally
           await cleanup(v) if v?
           Session.set 'notifications', 'default'
-          share.notification.set stream, false
+          notification.set stream, false
 
   testcase 'starred in main', 'announcements', (-> 'Announcement by someoneelse'), (-> sinon.match({body: 'what\'s up guys', icon: GRAVATAR_192})), ->
     msg = await promiseCallOn other_conn, 'newMessage', body: 'what\'s up guys'

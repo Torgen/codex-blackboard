@@ -13,6 +13,7 @@ import textify from './imports/textify.coffee'
 import embeddable from './imports/embeddable.coffee'
 import { GENERAL_ROOM_NAME, INITIAL_CHAT_LIMIT, NAME_PLACEHOLDER, TEAM_NAME } from '/client/imports/server_settings.coffee'
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
+import * as notification from '/client/imports/notification.coffee'
 import '/client/imports/ui/pages/graph/graph_page.coffee'
 import { awaitBundleLoaded } from '/client/imports/ui/pages/logistics/logistics_page.coffee'
 import '/client/imports/ui/pages/map/map_page.coffee'
@@ -89,74 +90,6 @@ Template.page.helpers
 
 allPuzzlesHandle = Meteor.subscribe 'all-roundsandpuzzles'
 
-keystring = (k) -> "notification.stream.#{k}"
-
-# Chrome for Android only lets you use Notifications via
-# ServiceWorkerRegistration, not directly with the Notification class.
-# It appears no other browser (that isn't derived from Chrome) is like that.
-# Since there's no capability to detect, we have to use user agent.
-isAndroidChrome = -> /Android.*Chrome\/[.0-9]*/.test(navigator.userAgent)
-
-notificationDefaults =
-  callins: false
-  answers: true
-  announcements: true
-  'new-puzzles': false
-  stuck: false
-  'favorite-mechanics': true
-  'private-messages': true
-
-countDependency = new Tracker.Dependency
-
-share.notification =
-  count: () ->
-    countDependency.depend()
-    i = 0
-    for stream, def of notificationDefaults
-      if reactiveLocalStorage.getItem(keystring stream) is "true"
-        i += 1
-    return i
-  set: (k, v) ->
-    ks = keystring k
-    v = notificationDefaults[k] if v is undefined
-    was = reactiveLocalStorage.getItem ks
-    reactiveLocalStorage.setItem ks, v
-    if was isnt v
-      countDependency.changed()
-  get: (k) ->
-    ks = keystring k
-    v = reactiveLocalStorage.getItem ks
-    return unless v?
-    v is "true"
-  # On android chrome, we clobber this with a version that uses the
-  # ServiceWorkerRegistration.
-  notify: (title, settings) ->
-    n = new Notification title, settings
-    if settings.data?.url?
-      n.onclick = ->
-        share.Router.navigate settings.data.url, trigger: true
-        window.focus()
-  ask: ->
-    Notification.requestPermission (ok) ->
-      Session.set 'notifications', ok
-      setupNotifications() if ok is 'granted'
-setupNotifications = ->
-  if isAndroidChrome()
-    navigator.serviceWorker.register(Meteor._relativeToSiteRootUrl 'sw.js').then((reg) ->
-      navigator.serviceWorker.addEventListener 'message', (msg) ->
-        console.log msg.data unless Meteor.isProduction
-        return unless msg.data.action is 'navigate'
-        share.Router.navigate msg.data.url, trigger: true
-      share.notification.notify = (title, settings) -> reg.showNotification title, settings
-      finishSetupNotifications()
-    ).catch (error) -> Session.set 'notifications', 'default'
-    return
-  finishSetupNotifications()
-
-finishSetupNotifications = ->
-  for stream, def of notificationDefaults
-    share.notification.set(stream, def) unless share.notification.get(stream)?
-
 debouncedUpdate = ->
   now = new ReactiveVar Date.now()
   update = do ->
@@ -173,7 +106,7 @@ Meteor.startup ->
   {now, update} = debouncedUpdate()
   suppress = true
   Tracker.autorun ->
-    if share.notification.count() is 0
+    if notification.count() is 0
       suppress = true
       return
     else if suppress
@@ -183,8 +116,8 @@ Meteor.startup ->
   Messages.find({room_name: 'oplog/0', timestamp: $gt: now.get()}).observe
     added: (msg) ->
       update msg.timestamp
-      return unless Session.equals 'notifications', 'granted'
-      return unless share.notification.get(msg.stream)
+      return unless notification.granted()
+      return unless notification.get(msg.stream)
       return if suppress
       gravatar = gravatarUrl
         gravatar_md5: nickHash(msg.nick)
@@ -201,7 +134,7 @@ Meteor.startup ->
       # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
       # notifications that already have sound effects.
       silent = MUTE_SOUND_EFFECTS.get() or ['callins', 'answers'].includes msg.stream
-      share.notification.notify msg.nick,
+      notification.notify msg.nick,
         body: body
         tag: msg._id
         icon: gravatar
@@ -212,8 +145,8 @@ Meteor.startup ->
   # Notifications on favrite mechanics
   Tracker.autorun ->
     return unless allPuzzlesHandle?.ready()
-    return unless Session.equals 'notifications', 'granted'
-    return unless share.notification.get 'favorite-mechanics'
+    return unless notification.granted()
+    return unless notification.get 'favorite-mechanics'
     myFaves = Meteor.user()?.favorite_mechanics
     return unless myFaves
     faveSuppress = true
@@ -221,7 +154,7 @@ Meteor.startup ->
       Puzzles.find(mechanics: mech).observeChanges
         added: (id, puzzle) ->
           return if faveSuppress
-          share.notification.notify puzzle.name,
+          notification.notify puzzle.name,
             body: "Mechanic \"#{mechanics[mech].name}\" added to puzzle \"#{puzzle.name}\""
             tag: "#{id}/#{mech}"
             data: url: share.Router.urlFor 'puzzles', id
@@ -232,8 +165,8 @@ Meteor.startup ->
   # Notifications on private messages and mentions
   Tracker.autorun ->
     return unless allPuzzlesHandle?.ready()
-    return unless Session.equals 'notifications', 'granted'
-    return unless share.notification.get 'private-messages'
+    return unless notification.granted()
+    return unless notification.get 'private-messages'
     me = Meteor.user()?._id
     return unless me?
     arnow = Date.now()  # Intentionally not reactive
@@ -259,7 +192,7 @@ Meteor.startup ->
           "Private message from #{message.nick} in #{room_name}"
         else
           "Mentioned by #{message.nick} in #{room_name}"
-        share.notification.notify description,
+        notification.notify description,
           body: body
           tag: msgid
           data: {url}
@@ -271,8 +204,8 @@ Meteor.startup ->
   {now, update} = debouncedUpdate()
   suppress = true
   Tracker.autorun ->
-    return unless Session.equals 'notifications', 'granted'
-    unless share.notification.get 'announcements'
+    return unless notification.granted()
+    unless notification.get 'announcements'
       suppress = true
       return
     else if suppress
@@ -282,8 +215,8 @@ Meteor.startup ->
     Messages.find({announced_at: $gt: now.get()}).observe
       added: (msg) ->
         update msg.announced_at
-        return unless Session.equals 'notifications', 'granted'
-        return unless share.notification.get 'announcements'
+        return unless notification.granted()
+        return unless notification.get 'announcements'
         return if suppress
         gravatar = gravatarUrl
           gravatar_md5: nickHash(msg.nick)
@@ -296,20 +229,12 @@ Meteor.startup ->
         # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
         # notifications that already have sound effects.
         silent = MUTE_SOUND_EFFECTS.get()
-        share.notification.notify "Announcement by #{msg.nick}",
+        notification.notify "Announcement by #{msg.nick}",
           body: body
           tag: msg._id
           icon: gravatar
           data: data
           silent: silent
-  
-Meteor.startup ->
-  # Prep notifications
-  unless Notification?
-    Session.set 'notifications', 'denied'
-    return
-  Session.set 'notifications', Notification.permission
-  setupNotifications() if Notification.permission is 'granted'
 
 distToTop = (x) -> Math.abs(x.getBoundingClientRect().top - 110)
 

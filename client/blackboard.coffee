@@ -9,6 +9,7 @@ import { jitsiUrl } from './imports/jitsi.coffee'
 import puzzleColor  from './imports/objectColor.coffee'
 import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee'
 import { TEAM_NAME, WHOSE_GITHUB } from '/client/imports/server_settings.coffee'
+import * as notification from '/client/imports/notification.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import PuzzleDrag from './imports/puzzle_drag.coffee'
 import okCancelEvents from './imports/ok_cancel_events.coffee'
@@ -136,43 +137,31 @@ Template.blackboard.events
     template.userSearch.set null
 
 # Notifications
-notificationStreams = [
-  {name: 'new-puzzles', label: 'New Puzzles'}
-  {name: 'announcements', label: 'Announcements'}
-  {name: 'callins', label: "Call-Ins"}
-  {name: 'answers', label: "Answers"}
-  {name: 'stuck', label: 'Stuck Puzzles'}
-  {name: 'favorite-mechanics', label: 'Favorite Mechanics'}
-  {name: 'private-messages', label: 'Private Messages/Mentions'}
-]
 
 Template.blackboard.helpers
-  notificationStreams: notificationStreams
-  notificationsAsk: ->
-    return false unless Notification?
-    p = Session.get 'notifications'
-    p isnt 'granted' and p isnt 'denied'
-  notificationsEnabled: -> Session.equals 'notifications', 'granted'
-  anyNotificationsEnabled: -> (share.notification.count() > 0)
-  notificationStreamEnabled: (stream) -> share.notification.get stream
+  notificationStreams: notification.streams
+  notificationsAsk: notification.shouldAsk
+  notificationsEnabled: -> notification.granted()
+  anyNotificationsEnabled: -> (notification.count() > 0)
+  notificationStreamEnabled: (stream) -> notification.get stream
 Template.blackboard.events
   "click .bb-notification-ask": (event, template) ->
-    share.notification.ask()
+    notification.ask()
   "click .bb-notification-enabled": (event, template) ->
-    if share.notification.count() > 0
-      for item in notificationStreams
-        share.notification.set(item.name, false)
+    if notification.count() > 0
+      for item in notification.streams
+        notification.set(item.name, false)
     else
-      for item in notificationStreams
-        share.notification.set(item.name) # default value
+      for item in notification.streams
+        notification.set(item.name) # default value
   "click .bb-notification-controls.dropdown-menu a": (event, template) ->
     $inp = $( event.currentTarget ).find( 'input' )
     stream = $inp.attr('data-notification-stream')
-    share.notification.set(stream, !share.notification.get(stream))
+    notification.set(stream, !notification.get(stream))
     $( event.target ).blur()
     return false
   "change .bb-notification-controls [data-notification-stream]": (event, template) ->
-    share.notification.set event.target.dataset.notificationStream, event.target.checked
+    notification.set event.target.dataset.notificationStream, event.target.checked
 
 round_helper = ->
   dir = if SORT_REVERSE.get() then 'desc' else 'asc'
