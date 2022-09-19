@@ -12,6 +12,7 @@ import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SO
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import {chunk_text, chunk_html} from './imports/chunk_text.coffee'
 import { confirm } from './imports/modal.coffee'
+import isVisible from '/client/imports/visible.coffee'
 import Favico from 'favico.js'
 
 GENERAL_ROOM = GENERAL_ROOM_NAME
@@ -455,13 +456,6 @@ doesMentionNick = (doc, raw_nick=Meteor.userId()) ->
   return false if doc.bodyIsHtml # XXX we could fix this
   # These things are treated as mentions for everyone
   GLOBAL_MENTIONS.test(doc.body)
-
-isVisible = share.isVisible = do ->
-  _visible = new ReactiveVar()
-  onVisibilityChange = -> _visible.set !(document.hidden or false)
-  document.addEventListener 'visibilitychange', onVisibilityChange, false
-  onVisibilityChange()
-  -> _visible.get()
 
 prettyRoomName = ->
   type = Session.get('type')

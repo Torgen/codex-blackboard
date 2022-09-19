@@ -4,6 +4,7 @@ import canonical from '../lib/imports/canonical.coffee'
 import { lat, lng, distance } from './imports/location.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
+import isVisible from '/client/imports/visible.coffee'
 
 # Geolocation-related utilities
 
@@ -27,7 +28,7 @@ updateLocation = do ->
 
 # As long as the user is logged in, stream position updates to server
 Tracker.autorun ->
-  Geolocation.setPaused !share.isVisible()
+  Geolocation.setPaused !isVisible()
   nick = Meteor.userId()
   return unless nick?
   pos = Geolocation.latLng(enableHighAccuracy:false)
