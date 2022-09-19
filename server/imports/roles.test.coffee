@@ -1,16 +1,15 @@
 'use strict'
 
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
+import { Roles } from '/lib/imports/collections.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import delay from 'delay'
 import { waitForDeletion, waitForDocument } from '/lib/imports/testutils.coffee'
 import { RoleManager } from './roles.coffee'
-
-Roles = share.model.Roles
 
 describe 'RoleManager', ->
   clock = null

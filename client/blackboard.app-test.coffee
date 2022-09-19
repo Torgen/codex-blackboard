@@ -1,5 +1,6 @@
 'use strict'
 
+import { Rounds, Puzzles } from '/lib/imports/collections.coffee'
 import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 import { reactiveLocalStorage } from './imports/storage.coffee'
@@ -16,9 +17,9 @@ describe 'blackboard', ->
     share.Router.BlackboardPage()
     await waitForSubscriptions()
     # there should be table headers for the two rounds, in the right order.
-    civ = share.model.Rounds.findOne name: 'Civilization'
+    civ = Rounds.findOne name: 'Civilization'
     chai.assert.isDefined $("#round#{civ._id}").html()
-    emo = share.model.Rounds.findOne name: 'Emotions and Memories'
+    emo = Rounds.findOne name: 'Emotions and Memories'
     chai.assert.isDefined $("#round#{emo._id}").html()
     chai.assert.isBelow $("#round#{civ._id}").offset().top, $("#round#{emo._id}").offset().top
     $('button[data-sortReverse="true"]').click()
@@ -31,7 +32,7 @@ describe 'blackboard', ->
   it 'navigates to puzzle on click', ->
     share.Router.BlackboardPage()
     await waitForSubscriptions()
-    isss = share.model.Puzzles.findOne name: 'Interstellar Spaceship'
+    isss = Puzzles.findOne name: 'Interstellar Spaceship'
     chai.assert.isOk isss
     $("#m#{isss._id} tr.meta .puzzles-link").trigger $.Event 'click', {button: 0}
     await afterFlushPromise()
@@ -43,10 +44,10 @@ describe 'blackboard', ->
     share.Router.BlackboardPage()
     await waitForSubscriptions()
 
-    joy = share.model.Puzzles.findOne name: 'Joy'
+    joy = Puzzles.findOne name: 'Joy'
     chai.assert.isOk joy
     $joy = $("#m#{joy._id}")
-    warm = share.model.Puzzles.findOne name: 'Warm And Fuzzy'
+    warm = Puzzles.findOne name: 'Warm And Fuzzy'
     chai.assert.isOk warm
     chai.assert.isOk $joy.find("tr[data-puzzle-id=\"#{warm._id}\"]")[0]
     chai.assert.isNotOk $joy.find('.metafooter')[0]
@@ -77,8 +78,8 @@ describe 'blackboard', ->
     puzz1 = null
     puzz2 = null
     before ->
-      puzz1 = share.model.Puzzles.findOne name: 'A Learning Path'
-      puzz2 = share.model.Puzzles.findOne name: 'Unfortunate AI'
+      puzz1 = Puzzles.findOne name: 'A Learning Path'
+      puzz2 = Puzzles.findOne name: 'Unfortunate AI'
       other_conn = DDP.connect Meteor.absoluteUrl()
       await promiseCallOn other_conn, 'login',
         nickname: 'incognito'
@@ -107,7 +108,7 @@ describe 'blackboard', ->
       $puzz2 = $("[data-puzzle-id=\"#{puzz2._id}\"]")
       chai.assert.equal $puzz2.length, 1
       chai.assert.equal $puzz2.find('.nick[data-nick="incognito"]:not(.background)').length, 1
-      chai.assert.isNotOk $("[data-puzzle-id=\"#{share.model.Puzzles.findOne name: 'AKA'}\"]")[0]
+      chai.assert.isNotOk $("[data-puzzle-id=\"#{Puzzles.findOne name: 'AKA'}\"]")[0]
 
     it 'supports typeahead', ->
       $('.bb-filter-by-user').val('cogn').trigger('keyup')
@@ -134,9 +135,9 @@ describe 'blackboard', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
-      wall_street = share.model.Puzzles.findOne name: 'Wall Street'
-      maths = share.model.Puzzles.findOne name: 'Advanced Maths'
-      cheaters = share.model.Puzzles.findOne name: 'Cheaters Never Prosper'
+      wall_street = Puzzles.findOne name: 'Wall Street'
+      maths = Puzzles.findOne name: 'Advanced Maths'
+      cheaters = Puzzles.findOne name: 'Cheaters Never Prosper'
       mathsJQ = $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{maths._id}\"]"
       cheatersJQ = $ "#m#{wall_street._id} tr[data-puzzle-id=\"#{cheaters._id}\"]"
       chai.assert.isBelow mathsJQ.offset().top, cheatersJQ.offset().top, 'before reorder'
@@ -153,8 +154,8 @@ describe 'blackboard', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
-      sadness = share.model.Puzzles.findOne name: 'Sadness'
-      fear = share.model.Puzzles.findOne name: 'Fear'
+      sadness = Puzzles.findOne name: 'Sadness'
+      fear = Puzzles.findOne name: 'Fear'
 
       sadnessJQ = $ "#m#{sadness._id} tr.meta"
       fearJQ = $ "#m#{fear._id} tr.meta"
@@ -186,9 +187,9 @@ describe 'blackboard', ->
       await waitForSubscriptions()
       await afterFlushPromise()
       # there should be a table header for the Civilization round.
-      disgust = share.model.Puzzles.findOne name: 'Disgust'
-      clueless = share.model.Puzzles.findOne name: 'Clueless'
-      aka = share.model.Puzzles.findOne name: 'AKA'
+      disgust = Puzzles.findOne name: 'Disgust'
+      clueless = Puzzles.findOne name: 'Clueless'
+      aka = Puzzles.findOne name: 'AKA'
       disgustJQ = $ "#m#{disgust._id}"
       cluelessJQ =  disgustJQ.find "tr[data-puzzle-id=\"#{clueless._id}\"]"
       akaJQ = disgustJQ.find "tr[data-puzzle-id=\"#{aka._id}\"]"
@@ -216,7 +217,7 @@ describe 'blackboard', ->
       roundInput.focusout()
       await waitForMethods()
       await afterFlushPromise()
-      round = share.model.Rounds.findOne name: 'Created Round'
+      round = Rounds.findOne name: 'Created Round'
       chai.assert.isOk round, 'round'
       $("#round#{round._id} button.bb-add-meta").click()
       await afterFlushPromise()
@@ -228,7 +229,7 @@ describe 'blackboard', ->
       metaInput.focusout()
       await waitForMethods()
       await afterFlushPromise()
-      meta = share.model.Puzzles.findOne name: 'Created Meta'
+      meta = Puzzles.findOne name: 'Created Meta'
       chai.assert.isOk meta, 'meta'
       chai.assert.isArray meta.puzzles
       $("#m#{meta._id} .bb-meta-buttons .bb-add-puzzle").click()
@@ -241,7 +242,7 @@ describe 'blackboard', ->
       feederInput.focusout()
       await waitForMethods()
       await afterFlushPromise()
-      direct = share.model.Puzzles.findOne name: 'Directly Created'
+      direct = Puzzles.findOne name: 'Directly Created'
       chai.assert.isOk direct, 'direct'
       chai.assert.include direct.feedsInto, meta._id
       $("#round#{round._id} .bb-add-puzzle").click()
@@ -254,13 +255,13 @@ describe 'blackboard', ->
       unassignedInput.focusout()
       await waitForMethods()
       await afterFlushPromise()
-      indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
+      indirect = Puzzles.findOne name: 'Indirectly Created'
       chai.assert.isOk indirect, 'indirect'
       chai.assert.notInclude indirect.feedsInto, meta._id
       $("#unassigned#{round._id} tr.puzzle[data-puzzle-id=\"#{indirect._id}\"] .bb-feed-meta [data-puzzle-id=\"#{meta._id}\"]").click()
       await waitForMethods()
       await afterFlushPromise()
-      indirect = share.model.Puzzles.findOne name: 'Indirectly Created'
+      indirect = Puzzles.findOne name: 'Indirectly Created'
       chai.assert.include indirect.feedsInto, meta._id
       indirectTitle = $("#m#{meta._id} tr.puzzle[data-puzzle-id=\"#{indirect._id}\"] .bb-puzzle-title")
       indirectTitle.click()
@@ -271,18 +272,18 @@ describe 'blackboard', ->
       chai.assert.isTrue indirectInput.parent().hasClass('success')
       indirectInput.focusout()
       await waitForMethods()
-      chai.assert.include share.model.Puzzles.findOne(indirect._id), name: 'Creatively Undirected'
+      chai.assert.include Puzzles.findOne(indirect._id), name: 'Creatively Undirected'
       $("#m#{meta._id} tr.puzzle[data-puzzle-id=\"#{indirect._id}\"] .bb-puzzle-title .bb-delete-icon").click()
       await afterFlushPromise()
       $('#confirmModal .bb-confirm-ok').click()
       await waitForMethods()
-      chai.assert.isNotOk share.model.Puzzles.findOne indirect._id
+      chai.assert.isNotOk Puzzles.findOne indirect._id
 
     it 'adds and deletes tags', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
-      bank = -> share.model.Puzzles.findOne name: 'Letter Bank'
+      bank = -> Puzzles.findOne name: 'Letter Bank'
       initial = bank()
       chai.assert.notOk initial.tags.meme
       baseJq = $("tbody.meta[data-puzzle-id=\"#{initial.feedsInto[1]}\"] [data-puzzle-id=\"#{initial._id}\"]")
@@ -355,7 +356,7 @@ describe 'blackboard', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
-      disgust = share.model.Puzzles.findOne name: 'Disgust'
+      disgust = Puzzles.findOne name: 'Disgust'
       await promiseCall 'setTag',
         type: 'puzzles'
         object: disgust._id
@@ -366,7 +367,7 @@ describe 'blackboard', ->
       await afterFlushPromise()
       $("[data-puzzle-id=\"#{disgust._id}\"] [data-tag-name=\"color5\"] .bb-edit-tag-name input").first().val('Color6').trigger new $.Event('keyup', which: 13)
       await waitForMethods()
-      disgust = share.model.Puzzles.findOne disgust._id
+      disgust = Puzzles.findOne disgust._id
       chai.assert.include disgust.tags.color6,
         name: 'Color6'
         value: 'plurple'
@@ -377,7 +378,7 @@ describe 'blackboard', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
-      disgust = share.model.Puzzles.findOne name: 'Disgust'
+      disgust = Puzzles.findOne name: 'Disgust'
       await promiseCall 'setTag',
         type: 'puzzles'
         object: disgust._id
@@ -388,14 +389,14 @@ describe 'blackboard', ->
       await afterFlushPromise()
       $("[data-puzzle-id=\"#{disgust._id}\"] [data-tag-name=\"color3\"] .bb-edit-tag-name input").first().val('').trigger new $.Event('keyup', which: 13)
       await waitForMethods()
-      disgust = share.model.Puzzles.findOne disgust._id
+      disgust = Puzzles.findOne disgust._id
       chai.assert.isOk disgust.tags.color3
 
     it 'will not clobber a tag', ->
       share.Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
-      disgust = share.model.Puzzles.findOne name: 'Disgust'
+      disgust = Puzzles.findOne name: 'Disgust'
       await promiseCall 'setTag',
         type: 'puzzles'
         object: disgust._id
@@ -406,7 +407,7 @@ describe 'blackboard', ->
       await afterFlushPromise()
       $("[data-puzzle-id=\"#{disgust._id}\"] [data-tag-name=\"color2\"] .bb-edit-tag-name input").first().val('color').trigger new $.Event('keyup', which: 13)
       await waitForMethods()
-      disgust = share.model.Puzzles.findOne disgust._id
+      disgust = Puzzles.findOne disgust._id
       chai.assert.isOk disgust.tags.color2
 
   it 'makes a puzzle a favorite', ->
@@ -415,8 +416,8 @@ describe 'blackboard', ->
     await afterFlushPromise()
     chai.assert.isUndefined $('#favorites').html()
     # there should be a table header for the Civilization round.
-    granary = share.model.Puzzles.findOne name: 'Granary Of Ur'
-    bank = share.model.Puzzles.findOne name: 'Letter Bank'
+    granary = Puzzles.findOne name: 'Granary Of Ur'
+    bank = Puzzles.findOne name: 'Letter Bank'
     chai.assert.isDefined $("#m#{granary._id} tr[data-puzzle-id=\"#{bank._id}\"] .bb-favorite-button").html()
     $("#m#{granary._id} tr[data-puzzle-id=\"#{bank._id}\"] .bb-favorite-button").click()
     await waitForMethods()

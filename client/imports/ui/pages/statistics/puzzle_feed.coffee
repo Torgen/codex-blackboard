@@ -1,3 +1,5 @@
+import { Puzzles } from '/lib/imports/collections.coffee'
+
 export default class PuzzleFeed
   constructor: (@field, @update) ->
     @data = []
@@ -45,7 +47,7 @@ export default class PuzzleFeed
     @update()
 
   observe: ->
-    share.model.Puzzles.find({[@field]: $ne: null}, {fields: {[@field]: 1}, sort: {[@field]: 1}}).observe
+    Puzzles.find({[@field]: $ne: null}, {fields: {[@field]: 1}, sort: {[@field]: 1}}).observe
       addedAt: @addedAt.bind @
       changedAt: @changedAt.bind @
       removedAt: @removedAt.bind @

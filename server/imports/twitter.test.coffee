@@ -1,13 +1,10 @@
 'use strict'
 
-# Will access contents via share
-import '/lib/model.coffee'
+import { Messages } from '/lib/imports/collections.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import tweetToMessage from './twitter.coffee'
-
-model = share.model
 
 describe 'tweetToMessage', ->
   clock = null
@@ -22,7 +19,7 @@ describe 'tweetToMessage', ->
 
   it 'posts short tweets', ->
     tweetToMessage require './testdata/tweets/tweet.json'
-    chai.assert.deepInclude model.Messages.findOne(tweet: $exists: true),
+    chai.assert.deepInclude Messages.findOne(tweet: $exists: true),
       timestamp: 7
       room_name: 'general/0'
       nick: 'ygritteygritte'
@@ -35,11 +32,11 @@ describe 'tweetToMessage', ->
 
   it 'ignores retweets', ->
     tweetToMessage require './testdata/tweets/retweet.json'
-    chai.assert.isUndefined model.Messages.findOne()
+    chai.assert.isUndefined Messages.findOne()
 
   it 'linkifies', ->
     tweetToMessage require './testdata/tweets/mention.json'
-    chai.assert.deepInclude model.Messages.findOne(tweet: $exists: true),
+    chai.assert.deepInclude Messages.findOne(tweet: $exists: true),
       timestamp: 7
       room_name: 'general/0'
       bodyIsHtml: true
@@ -58,7 +55,7 @@ describe 'tweetToMessage', ->
 
   it 'uses full text', ->
     tweetToMessage require './testdata/tweets/attachment.json'
-    chai.assert.deepInclude model.Messages.findOne(tweet: $exists: true),
+    chai.assert.deepInclude Messages.findOne(tweet: $exists: true),
       timestamp: 7
       room_name: 'general/0'
       bodyIsHtml: true
@@ -75,7 +72,7 @@ describe 'tweetToMessage', ->
 
   it 'embeds quote', ->
     tweetToMessage require './testdata/tweets/quoted_w_attachment.json'
-    chai.assert.deepInclude model.Messages.findOne(tweet: $exists: true),
+    chai.assert.deepInclude Messages.findOne(tweet: $exists: true),
       timestamp: 7
       room_name: 'general/0'
       bodyIsHtml: true

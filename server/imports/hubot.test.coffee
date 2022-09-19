@@ -1,15 +1,14 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
+import { Messages, Presence } from '/lib/imports/collections.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import Robot from './hubot.coffee'
 import delay from 'delay'
 import { waitForDocument } from '/lib/imports//testutils.coffee'
-
-model = share.model
 
 describe 'hubot', ->
 
@@ -31,18 +30,18 @@ describe 'hubot', ->
 
   it 'is present in main room', ->
     robot.run()
-    chai.assert.include model.Presence.findOne(nick: 'testbot', room_name: 'general/0'),
+    chai.assert.include Presence.findOne(nick: 'testbot', room_name: 'general/0'),
       timestamp: 7
     clock.tick 15000
-    chai.assert.include model.Presence.findOne(nick: 'testbot', room_name: 'general/0'),
+    chai.assert.include Presence.findOne(nick: 'testbot', room_name: 'general/0'),
       timestamp: 7
     clock.tick 15000
-    chai.assert.include model.Presence.findOne(nick: 'testbot', room_name: 'general/0'),
+    chai.assert.include Presence.findOne(nick: 'testbot', room_name: 'general/0'),
       timestamp: 30007
 
   it 'announces presence', ->
     robot.run()
-    chai.assert.include model.Messages.findOne(dawn_of_time: $ne: true),
+    chai.assert.include Messages.findOne(dawn_of_time: $ne: true),
       nick: 'testbot'
       body: 'wakes up'
       action: true
@@ -51,7 +50,7 @@ describe 'hubot', ->
   it 'ignores old messages', ->
     spy = sinon.spy()
     robot.hear /.*/, spy
-    model.Messages.insert
+    Messages.insert
       timestamp: Date.now() - 2
       nick: 'torgen'
       room_name: 'general/0'
@@ -62,7 +61,7 @@ describe 'hubot', ->
   it 'ignores old future messages', ->
     spy = sinon.spy()
     robot.hear /.*/, spy
-    model.Messages.insert
+    Messages.insert
       timestamp: Date.now() + 1000
       nick: 'torgen'
       room_name: 'general/0'
@@ -77,7 +76,7 @@ describe 'hubot', ->
     await new Promise (resolve, reject) ->
       robot.hear /.*/, resolve
       robot.run()
-      model.Messages.insert
+      Messages.insert
         timestamp: Date.now() + 1
         nick: 'torgen'
         room_name: 'general/0'
@@ -90,7 +89,7 @@ describe 'hubot', ->
     robot.leave spy
     robot.hear /.*/, spy
     robot.run()
-    model.Messages.insert
+    Messages.insert
       timestamp: Date.now() + 1
       nick: 'testbot'
       room_name: 'general/0'
@@ -104,7 +103,7 @@ describe 'hubot', ->
     robot.leave spy
     robot.hear /.*/, spy
     robot.run()
-    model.Messages.insert
+    Messages.insert
       timestamp: Date.now() + 1
       nick: 'torgen'
       room_name: 'general/0'
@@ -119,7 +118,7 @@ describe 'hubot', ->
     robot.leave spy
     robot.hear /.*/, spy
     robot.run()
-    model.Messages.insert
+    Messages.insert
       timestamp: Date.now() + 1
       nick: 'torgen'
       room_name: 'general/0'
@@ -134,7 +133,7 @@ describe 'hubot', ->
     robot.leave spy
     robot.hear /.*/, spy
     robot.run()
-    model.Messages.insert
+    Messages.insert
       timestamp: Date.now() + 1
       nick: 'torgen'
       room_name: 'general/0'
@@ -150,7 +149,7 @@ describe 'hubot', ->
     await new Promise (resolve, reject) ->
       robot.enter resolve
       robot.run()
-      model.Messages.insert
+      Messages.insert
         timestamp: Date.now() + 1
         nick: 'torgen'
         room_name: 'general/0'
@@ -165,7 +164,7 @@ describe 'hubot', ->
     await new Promise (resolve, reject) ->
       robot.leave resolve
       robot.run()
-      model.Messages.insert
+      Messages.insert
         timestamp: Date.now() + 1
         nick: 'torgen'
         room_name: 'general/0'
@@ -178,18 +177,18 @@ describe 'hubot', ->
       clock.tick 2
       msg.reply 'hello yourself'
     robot.run()
-    id = model.Messages.insert
+    id = Messages.insert
       timestamp: Date.now() + 1
       nick: 'torgen'
       room_name: 'general/0'
       body: 'testbot hello'
-    await waitForDocument model.Messages, {body: '@torgen: hello yourself', to: $exists: false},
+    await waitForDocument Messages, {body: '@torgen: hello yourself', to: $exists: false},
       timestamp: 9
       nick: 'testbot'
       room_name: 'general/0'
       bot_ignore: true
       mention: ['torgen']
-    chai.assert.include model.Messages.findOne(id), useless_cmd: true
+    chai.assert.include Messages.findOne(id), useless_cmd: true
 
   it 'replies to private messages privately', ->
     robot.respond /hello/, (msg) ->
@@ -197,54 +196,54 @@ describe 'hubot', ->
       msg.reply 'hello yourself'
     robot.run()
     clock.tick 1
-    id = model.Messages.insert
+    id = Messages.insert
       timestamp: Date.now()
       nick: 'torgen'
       room_name: 'general/0'
       body: 'hello'
       to: 'testbot'
-    await waitForDocument model.Messages, {body: 'hello yourself', to: 'torgen'}, 
+    await waitForDocument Messages, {body: 'hello yourself', to: 'torgen'}, 
       timestamp: 9
       nick: 'testbot'
       room_name: 'general/0'
       bot_ignore: true
-    chai.assert.notDeepInclude model.Messages.findOne(id), useless_cmd: true
+    chai.assert.notDeepInclude Messages.findOne(id), useless_cmd: true
 
   it 'emotes to public messages publicly', ->
     robot.respond /hello/, (msg) ->
       clock.tick 2
       msg.emote 'waves'
     robot.run()
-    id = model.Messages.insert
+    id = Messages.insert
       timestamp: Date.now() + 1
       nick: 'torgen'
       room_name: 'general/0'
       body: 'testbot hello'
-    await waitForDocument model.Messages, {body: 'waves', to: $exists: false},
+    await waitForDocument Messages, {body: 'waves', to: $exists: false},
       timestamp: 9
       nick: 'testbot'
       room_name: 'general/0'
       bot_ignore: true
       action: true
-    chai.assert.include model.Messages.findOne(id), useless_cmd: true
+    chai.assert.include Messages.findOne(id), useless_cmd: true
 
   it 'emotes to private messages privately', ->
     robot.respond /hello/, (msg) ->
       clock.tick 2
       msg.emote 'waves'
     robot.run()
-    id = model.Messages.insert
+    id = Messages.insert
       timestamp: Date.now() + 1
       nick: 'torgen'
       to: 'testbot'
       room_name: 'general/0'
       body: 'hello'
-    await waitForDocument model.Messages, {body: '*** waves ***', to: 'torgen', action: $ne: true},
+    await waitForDocument Messages, {body: '*** waves ***', to: 'torgen', action: $ne: true},
       timestamp: 9
       nick: 'testbot'
       room_name: 'general/0'
       bot_ignore: true
-    chai.assert.notDeepInclude model.Messages.findOne(id), useless_cmd: true
+    chai.assert.notDeepInclude Messages.findOne(id), useless_cmd: true
 
   it 'sends publicly', ->
     robot.respond /hello/, (msg) ->
@@ -252,18 +251,18 @@ describe 'hubot', ->
       msg.send useful: true, 'hello was said'
     robot.run()
     clock.tick 1
-    id = model.Messages.insert
+    id = Messages.insert
       timestamp: Date.now()
       nick: 'torgen'
       room_name: 'general/0'
       body: 'testbot hello'
-    await waitForDocument model.Messages, {body: 'hello was said', to: $exists: false},
+    await waitForDocument Messages, {body: 'hello was said', to: $exists: false},
       timestamp: 9
       nick: 'testbot'
       room_name: 'general/0'
       bot_ignore: true
       useful: true
-    chai.assert.notDeepInclude model.Messages.findOne(id), useless_cmd: true
+    chai.assert.notDeepInclude Messages.findOne(id), useless_cmd: true
 
   it 'privs privately', ->
     robot.respond /hello/, (msg) ->
@@ -271,16 +270,16 @@ describe 'hubot', ->
       msg.priv 'psst. hello'
     robot.run()
     clock.tick 1
-    id = model.Messages.insert
+    id = Messages.insert
       timestamp: Date.now()
       nick: 'torgen'
       room_name: 'general/0'
       body: 'testbot hello'
-    await waitForDocument model.Messages, {body: 'psst. hello', to: 'torgen'},
+    await waitForDocument Messages, {body: 'psst. hello', to: 'torgen'},
       timestamp: 9
       nick: 'testbot'
       room_name: 'general/0'
       bot_ignore: true
-    chai.assert.include model.Messages.findOne(id), useless_cmd: true
+    chai.assert.include Messages.findOne(id), useless_cmd: true
   
   

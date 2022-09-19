@@ -1,7 +1,8 @@
 import canonical from '/lib/imports/canonical.coffee'
+import { collection } from '/lib/imports/collections.coffee'
 
 export default moveWithinParent = (id, parentType, parentId, args) ->
-  parent = share.model.collection(parentType).findOne(_id: parentId, puzzles: id)
+  parent = collection(parentType).findOne(_id: parentId, puzzles: id)
   ix = parent?.puzzles?.indexOf(id)
   return false unless ix?
   npos = ix
@@ -19,7 +20,7 @@ export default moveWithinParent = (id, parentType, parentId, args) ->
   else
     return false
   npuzzles.splice(npos, 0, id)
-  share.model.collection(parentType).update {_id: parentId}, $set:
+  collection(parentType).update {_id: parentId}, $set:
     puzzles: npuzzles
     touched: Date.now()
     touched_by: canonical(args.who)

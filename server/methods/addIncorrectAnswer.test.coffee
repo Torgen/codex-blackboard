@@ -1,14 +1,13 @@
 'use strict'
 
-# Will access contents via share
+# For side effects 
 import '/lib/model.coffee'
+import { CallIns, Messages, Puzzles } from '/lib/imports/collections.coffee'
 # Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'addIncorrectAnswer', ->
   clock = null
@@ -34,7 +33,7 @@ describe 'addIncorrectAnswer', ->
   describe 'which exists', ->
     id = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -44,7 +43,7 @@ describe 'addIncorrectAnswer', ->
         solved: null
         solved_by: null
         tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
-      model.CallIns.insert
+      CallIns.insert
         target_type: 'puzzles'
         target: id
         name: 'Foo'
@@ -68,13 +67,13 @@ describe 'addIncorrectAnswer', ->
           answer: 'flimflam'
 
       it 'doesn\'t touch', ->
-        doc = model.Puzzles.findOne id
+        doc = Puzzles.findOne id
         chai.assert.include doc,
           touched: 2
           touched_by: 'torgen'
 
       it 'oplogs', ->
-        o = model.Messages.find(room_name: 'oplog/0').fetch()
+        o = Messages.find(room_name: 'oplog/0').fetch()
         chai.assert.lengthOf o, 1
         chai.assert.include o[0],
           type: 'puzzles'
@@ -85,5 +84,5 @@ describe 'addIncorrectAnswer', ->
         chai.assert.include o[0].body, 'flimflam', 'message'
 
       it 'updates callin', ->
-        chai.assert.include model.CallIns.findOne(),
+        chai.assert.include CallIns.findOne(),
           status: 'rejected'

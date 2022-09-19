@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Puzzles } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'unfeedMeta', ->
   clock = null
@@ -24,7 +22,7 @@ describe 'unfeedMeta', ->
     resetDatabase()
 
   it 'fails without login', ->
-    model.Puzzles.insert
+    Puzzles.insert
       _id: 'meta'
       name: 'Foo'
       canon: 'foo'
@@ -36,7 +34,7 @@ describe 'unfeedMeta', ->
       feedsInto: []
       link: 'https://puzzlehunt.mit.edu/foo'
       tags: {}
-    model.Puzzles.insert
+    Puzzles.insert
       _id: 'leaf'
       name: 'Bar'
       canon: 'bar'
@@ -52,7 +50,7 @@ describe 'unfeedMeta', ->
     , Match.Error
 
   it 'removes when feeding', ->
-    model.Puzzles.insert
+    Puzzles.insert
       _id: 'meta'
       name: 'Foo'
       canon: 'foo'
@@ -64,7 +62,7 @@ describe 'unfeedMeta', ->
       feedsInto: []
       link: 'https://puzzlehunt.mit.edu/foo'
       tags: {}
-    model.Puzzles.insert
+    Puzzles.insert
       _id: 'leaf'
       name: 'Bar'
       canon: 'bar'
@@ -76,17 +74,17 @@ describe 'unfeedMeta', ->
       link: 'https://puzzlehunt.mit.edu/bar'
       tags: {}
     callAs 'unfeedMeta', 'jeff', 'leaf', 'meta'
-    chai.assert.deepInclude model.Puzzles.findOne('meta'),
+    chai.assert.deepInclude Puzzles.findOne('meta'),
       puzzles: ['yoy']
       touched: 7
       touched_by: 'jeff'
-    chai.assert.deepInclude model.Puzzles.findOne('leaf'),
+    chai.assert.deepInclude Puzzles.findOne('leaf'),
       feedsInto: ['wew']
       touched: 7
       touched_by: 'jeff'
 
   it 'no-op when not feeding', ->
-    model.Puzzles.insert
+    Puzzles.insert
       _id: 'meta'
       name: 'Foo'
       canon: 'foo'
@@ -98,7 +96,7 @@ describe 'unfeedMeta', ->
       feedsInto: []
       link: 'https://puzzlehunt.mit.edu/foo'
       tags: {}
-    model.Puzzles.insert
+    Puzzles.insert
       _id: 'leaf'
       name: 'Bar'
       canon: 'bar'
@@ -110,17 +108,17 @@ describe 'unfeedMeta', ->
       link: 'https://puzzlehunt.mit.edu/bar'
       tags: {}
     callAs 'unfeedMeta', 'jeff', 'leaf', 'meta'
-    chai.assert.deepInclude model.Puzzles.findOne('meta'),
+    chai.assert.deepInclude Puzzles.findOne('meta'),
       puzzles: ['yoy']
       touched: 1
       touched_by: 'torgen'
-    chai.assert.deepInclude model.Puzzles.findOne('leaf'),
+    chai.assert.deepInclude Puzzles.findOne('leaf'),
       feedsInto: ['wew']
       touched: 2
       touched_by: 'cjb'
 
   it 'requires meta', ->
-    model.Puzzles.insert
+    Puzzles.insert
       _id: 'leaf'
       name: 'Bar'
       canon: 'bar'
@@ -134,10 +132,10 @@ describe 'unfeedMeta', ->
     chai.assert.throws ->
       callAs 'unfeedMeta', 'jeff', 'leaf', 'meta'
     , Meteor.Error
-    chai.assert.deepEqual model.Puzzles.findOne('leaf').feedsInto, ['wew']
+    chai.assert.deepEqual Puzzles.findOne('leaf').feedsInto, ['wew']
 
   it 'requires leaf', ->
-    model.Puzzles.insert
+    Puzzles.insert
       _id: 'meta'
       name: 'Foo'
       canon: 'foo'
@@ -151,4 +149,4 @@ describe 'unfeedMeta', ->
     chai.assert.throws ->
       callAs 'feedMeta', 'jeff', 'leaf', 'meta'
     , Meteor.Error
-    chai.assert.deepEqual model.Puzzles.findOne('meta').puzzles, ['yoy']
+    chai.assert.deepEqual Puzzles.findOne('meta').puzzles, ['yoy']

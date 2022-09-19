@@ -4,9 +4,11 @@ import chai from 'chai'
 
 export waitForDocument = (collection, query, matcher) ->
   handle = null
+  cursor = try
+    collection.find(query)
   try
     await new Promise (resolve, reject) ->
-      handle = collection.find(query).observe
+      handle = cursor.observe
         added: (doc) ->
           if matcher?
             try
@@ -15,6 +17,7 @@ export waitForDocument = (collection, query, matcher) ->
             catch err
               reject err
           else resolve doc
+      console.log 'handle must be assigned'
   finally
     handle.stop()
 

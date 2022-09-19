@@ -5,8 +5,6 @@ import { lat, lng, distance } from './imports/location.coffee'
 import botuser from './imports/botuser.coffee'
 import keyword_or_positional from './imports/keyword_or_positional.coffee'
 
-model = share.model # import
-
 # Geolocation-related utilities
 
 GEOLOCATION_DISTANCE_THRESHOLD = 10/5280 # 10 feet

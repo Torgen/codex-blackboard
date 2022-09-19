@@ -4,6 +4,7 @@ import md5 from 'md5'
 import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
 import abbrev from '../lib/imports/abbrev.coffee'
 import canonical from '/lib/imports/canonical.coffee'
+import { BBCollection, Messages, Names, Puzzles, collection, pretty_collection } from '/lib/imports/collections.coffee'
 import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
 import { mechanics } from '../lib/imports/mechanics.coffee'
 import { fileType } from '../lib/imports/mime_type.coffee'
@@ -17,8 +18,6 @@ import { awaitBundleLoaded } from '/client/imports/ui/pages/logistics/logistics_
 import '/client/imports/ui/pages/map/map_page.coffee'
 import '/client/imports/ui/pages/projector/projector.coffee'
 import '/client/imports/ui/pages/statistics/statistics_page.coffee'
-
-model = share.model
 
 # "Top level" templates:
 #   "blackboard" -- main blackboard page
@@ -181,7 +180,7 @@ Meteor.startup ->
       now.set Date.now()
     Meteor.subscribe 'oplogs-since', now.get(),
       onReady: -> suppress = false
-  share.model.Messages.find({room_name: 'oplog/0', timestamp: $gt: now.get()}).observe
+  Messages.find({room_name: 'oplog/0', timestamp: $gt: now.get()}).observe
     added: (msg) ->
       update msg.timestamp
       return unless Session.equals 'notifications', 'granted'
@@ -192,8 +191,8 @@ Meteor.startup ->
         size: 192
       body = msg.body
       if msg.type and msg.id
-        body = "#{body} #{share.model.pretty_collection(msg.type)}
-                #{share.model.collection(msg.type).findOne(msg.id)?.name}"
+        body = "#{body} #{pretty_collection(msg.type)}
+                #{collection(msg.type).findOne(msg.id)?.name}"
       data = undefined
       if msg.stream is 'callins'
         data = url: '/logistics'
@@ -219,7 +218,7 @@ Meteor.startup ->
     return unless myFaves
     faveSuppress = true
     myFaves.forEach (mech) ->
-      share.model.Puzzles.find(mechanics: mech).observeChanges
+      Puzzles.find(mechanics: mech).observeChanges
         added: (id, puzzle) ->
           return if faveSuppress
           share.notification.notify puzzle.name,
@@ -238,15 +237,15 @@ Meteor.startup ->
     me = Meteor.user()?._id
     return unless me?
     arnow = Date.now()  # Intentionally not reactive
-    share.model.Messages.find({$or: [{to: me}, {mention: me}], timestamp: $gt: arnow}).observeChanges
+    Messages.find({$or: [{to: me}, {mention: me}], timestamp: $gt: arnow}).observeChanges
       added: (msgid, message) ->
         [room_name, url] = if message.room_name is 'general/0'
           [GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
         else
           [type, id] = message.room_name.split '/'
-          target = share.model.Names.findOne id
+          target = Names.findOne id
           if target.type is type
-            pretty_type = share.model.pretty_collection(type).replace /^[a-z]/, (x) -> x.toUpperCase()
+            pretty_type = pretty_collection(type).replace /^[a-z]/, (x) -> x.toUpperCase()
             ["#{pretty_type} \"#{target.name}\"", share.Router.urlFor type, id]
           else
             [message.room_name, share.Router.chatUrlFor message.room_name]
@@ -280,7 +279,7 @@ Meteor.startup ->
       now.set Date.now()
     Meteor.subscribe 'announcements-since', now.get(),
       onReady: -> suppress = false
-    share.model.Messages.find({announced_at: $gt: now.get()}).observe
+    Messages.find({announced_at: $gt: now.get()}).observe
       added: (msg) ->
         update msg.announced_at
         return unless Session.equals 'notifications', 'granted'
@@ -291,8 +290,8 @@ Meteor.startup ->
           size: 192
         body = msg.body
         if msg.type and msg.id
-          body = "#{body} #{share.model.pretty_collection(msg.type)}
-                  #{share.model.collection(msg.type).findOne(msg.id)?.name}"
+          body = "#{body} #{pretty_collection(msg.type)}
+                  #{collection(msg.type).findOne(msg.id)?.name}"
         data = url: Meteor._relativeToSiteRootUrl '/'
         # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
         # notifications that already have sound effects.
@@ -436,3 +435,5 @@ BlackboardRouter = Backbone.Router.extend
 
 share.Router = new BlackboardRouter()
 Backbone.history.start {pushState: true}
+
+window.collections = BBCollection

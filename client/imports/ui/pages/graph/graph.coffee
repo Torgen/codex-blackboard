@@ -1,6 +1,8 @@
 'use strict'
 
 import './graph.html'
+import { Puzzles, Rounds } from '/lib/imports/collections.coffee'
+import { isStuck } from '/lib/imports/tags.coffee'
 import objectColor from '/client/imports/objectColor.coffee'
 import abbrev from '/lib/imports/abbrev.coffee'
 import cytoscape from 'cytoscape'
@@ -133,7 +135,7 @@ Template.graph.onRendered ->
       puzz_node.move parent: null
       @structure = true
 
-  @rounds = share.model.Rounds.find({}, fields: {name: 1, puzzles: 1}).observe
+  @rounds = Rounds.find({}, fields: {name: 1, puzzles: 1}).observe
     added: (doc) =>
       startAdding()
       id = "rounds_#{doc._id}"
@@ -181,7 +183,7 @@ Template.graph.onRendered ->
       node.addClass 'solved'
     else
       node.removeClass 'solved'
-    if share.model.isStuck doc
+    if isStuck doc
       node.addClass 'stuck'
     else
       node.removeClass 'stuck'
@@ -196,7 +198,7 @@ Template.graph.onRendered ->
         data: {id}
     node
     
-  @puzzles = share.model.Puzzles.find({}, fields: {name: 1, feedsInto: 1, puzzles: 1, solved: 1, 'tags.color': 1, 'tags.status': 1}).observe
+  @puzzles = Puzzles.find({}, fields: {name: 1, feedsInto: 1, puzzles: 1, solved: 1, 'tags.color': 1, 'tags.status': 1}).observe
     added: (doc) =>
       startAdding()
       node = ensureNode doc._id

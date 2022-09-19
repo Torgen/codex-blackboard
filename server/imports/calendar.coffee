@@ -1,6 +1,7 @@
 'use strict'
 
 import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.coffee'
+import { Calendar, CalendarEvents } from '/lib/imports/collections.coffee'
 
 # Cambridge is on Eastern time.
 CALENDAR_TIME_ZONE = Meteor.settings.calendar?.time_zone or process.env.CALENDAR_TIME_ZONE or 'America/New_York'
@@ -10,7 +11,7 @@ POLL_INTERVAL = 30000
 
 export class CalendarSync
   constructor: (@api) ->
-    cal = share.model.Calendar.findOne()
+    cal = Calendar.findOne()
     do =>
       if cal?
         @id = cal._id
@@ -38,7 +39,7 @@ export class CalendarSync
         console.log "Made calendar #{cal.id}"
         return cal.id
       
-      share.model.Calendar.insert { _id: @id }
+      Calendar.insert { _id: @id }
 
     promises = [@_pollAndReschedule()]
     acls = Promise.await @api.acl.list({calendarId: @id, maxResults: 250})
@@ -128,9 +129,9 @@ export class CalendarSync
         @syncToken = events.nextSyncToken
         break
     bulkUpdates = if bulkEventUpdates.length
-      share.model.CalendarEvents.rawCollection().bulkWrite bulkEventUpdates, ordered: false
+      CalendarEvents.rawCollection().bulkWrite bulkEventUpdates, ordered: false
     else Promise.resolve()
-    updateSync = share.model.Calendar.rawCollection().update {_id: @id},
+    updateSync = Calendar.rawCollection().update {_id: @id},
       $set: syncToken: @syncToken
     await Promise.all [bulkUpdates, updateSync]
 

@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
+import { collection } from '/lib/imports/collections.coffee'
 import { StaticJitsiMeeting } from '/lib/imports/settings.coffee'
 import { JITSI_SERVER, TEAM_NAME } from '/client/imports/server_settings.coffee'
 import { START_AUDIO_MUTED, START_VIDEO_MUTED } from './settings.coffee'
@@ -12,7 +13,7 @@ export jitsiRoom = (roomType, roomId) ->
     return unless StaticJitsiMeeting.get()
     meeting = StaticJitsiMeeting.get()
   else
-    override = share.model.collection(roomType)?.findOne(_id: roomId)?.tags?.jitsi?.value
+    override = collection(roomType)?.findOne(_id: roomId)?.tags?.jitsi?.value
     meeting = override if override?
   "#{canonical(TEAM_NAME)}_#{meeting}"
 

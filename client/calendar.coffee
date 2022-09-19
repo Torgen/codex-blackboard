@@ -1,17 +1,17 @@
 'use strict'
 
-model = share.model
+import { Calendar, CalendarEvents } from '/lib/imports/collections.coffee'
 
 calendar_container = (template) ->
   template.helpers
-    calendar_id: -> model.Calendar.findOne()?._id
-    upcoming_events: -> model.CalendarEvents.find {end: $gt: Session.get 'currentTime'}, {sort: start: 1}
+    calendar_id: -> Calendar.findOne()?._id
+    upcoming_events: -> CalendarEvents.find {end: $gt: Session.get 'currentTime'}, {sort: start: 1}
 
 calendar_container Template.calendar_dropdown 
 Template.calendar_dropdown.helpers
   next_event: ->
     now = Session.get 'currentTime'
-    model.CalendarEvents.findOne({end: $gt: now}, {sort: start: 1})?.start - now
+    CalendarEvents.findOne({end: $gt: now}, {sort: start: 1})?.start - now
 
 calendar_container Template.calendar_link
 calendar_container Template.calendar_add_link
@@ -37,7 +37,7 @@ Template.calendar_event.events
     Meteor.call 'setPuzzleForEvent', template.data.event._id, null
 
 attachable_events = ->
-  model.CalendarEvents.find
+  CalendarEvents.find
     end: $gt: Session.get 'currentTime'
     puzzle: null
   ,
@@ -55,7 +55,7 @@ Template.calendar_attachable_events.events
 calendar_puzzle_container = (template) ->
   template.helpers
     upcoming_events: ->
-      model.CalendarEvents.find
+      CalendarEvents.find
         end: $gt: Session.get 'currentTime'
         puzzle: @_id
       ,

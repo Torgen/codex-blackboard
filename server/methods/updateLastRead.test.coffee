@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { LastRead } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'updatelastRead', ->
   clock = null
@@ -35,28 +33,28 @@ describe 'updatelastRead', ->
     callAs 'updateLastRead', 'torgen',
       room_name: 'general/0',
       timestamp: 3
-    chai.assert.include model.LastRead.findOne({nick: 'torgen', room_name: 'general/0'}),
+    chai.assert.include LastRead.findOne({nick: 'torgen', room_name: 'general/0'}),
       timestamp: 3
 
   it 'advances', ->
-    model.LastRead.insert
+    LastRead.insert
       nick: 'torgen'
       room_name: 'general/0'
       timestamp: 2
     callAs 'updateLastRead', 'torgen',
       room_name: 'general/0'
       timestamp: 3
-    chai.assert.include model.LastRead.findOne({nick: 'torgen', room_name: 'general/0'}),
+    chai.assert.include LastRead.findOne({nick: 'torgen', room_name: 'general/0'}),
       timestamp: 3
 
   it 'doesn\'t retreat', ->
-    model.LastRead.insert
+    LastRead.insert
       nick: 'torgen'
       room_name: 'general/0'
       timestamp: 3
     callAs 'updateLastRead', 'torgen',
       room_name: 'general/0'
       timestamp: 2
-    chai.assert.include model.LastRead.findOne({nick: 'torgen', room_name: 'general/0'}),
+    chai.assert.include LastRead.findOne({nick: 'torgen', room_name: 'general/0'}),
       timestamp: 3
     

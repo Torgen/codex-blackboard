@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Puzzles } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'renameTag', ->
   clock = null
@@ -25,7 +23,7 @@ describe 'renameTag', ->
     resetDatabase()
 
   it 'fails without login', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -50,7 +48,7 @@ describe 'renameTag', ->
     , Match.Error
 
   it 'renames tag', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -72,7 +70,7 @@ describe 'renameTag', ->
       old_name: 'warMth'
       new_name: 'Temperature'
 
-    post = model.Puzzles.findOne(id)
+    post = Puzzles.findOne(id)
 
     chai.assert.deepInclude post,
       created: 1
@@ -87,7 +85,7 @@ describe 'renameTag', ->
           touched_by: 'torgen'
 
   it 'changes tag case', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -109,7 +107,7 @@ describe 'renameTag', ->
       old_name: 'warmth'
       new_name: 'warMth'
 
-    post = model.Puzzles.findOne(id)
+    post = Puzzles.findOne(id)
 
     chai.assert.deepInclude post,
       created: 1
@@ -124,7 +122,7 @@ describe 'renameTag', ->
           touched_by: 'torgen'
 
   it 'requires old tag exist', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -149,7 +147,7 @@ describe 'renameTag', ->
     , Meteor.Error
 
   it 'requires new tag not exist', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -179,7 +177,7 @@ describe 'renameTag', ->
     , Meteor.Error
 
   it 'will not set link', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []

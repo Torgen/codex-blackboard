@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Puzzles } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'makeNotMeta', ->
   clock = null
@@ -25,7 +23,7 @@ describe 'makeNotMeta', ->
     resetDatabase()
   
   it 'fails without login', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -41,7 +39,7 @@ describe 'makeNotMeta', ->
     , Match.Error
   
   it 'works when empty', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -53,7 +51,7 @@ describe 'makeNotMeta', ->
       puzzles: []
       tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
     chai.assert.isTrue callAs 'makeNotMeta', 'cjb', id
-    doc = model.Puzzles.findOne id
+    doc = Puzzles.findOne id
     chai.assert.deepEqual doc,
       _id: id
       name: 'Foo'
@@ -67,7 +65,7 @@ describe 'makeNotMeta', ->
       tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
 
   it 'fails when not empty', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -81,7 +79,7 @@ describe 'makeNotMeta', ->
         answer: {name: 'Answer', value: 'foo', touched: 2, touched_by: 'torgen'}
         temperature: {name: 'Temperature', value: '12', touched: 2, touched_by: 'torgen'}
     chai.assert.isFalse callAs 'makeNotMeta', 'cjb', id
-    doc = model.Puzzles.findOne id
+    doc = Puzzles.findOne id
     chai.assert.deepEqual doc,
       _id: id
       name: 'Foo'

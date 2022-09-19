@@ -1,5 +1,6 @@
 'use strict'
 import canonical from '/lib/imports/canonical.coffee'
+import { Messages } from '/lib/imports/collections.coffee'
 import { NonEmptyString } from '/lib/imports/match.coffee'
 import emojify from './emoji.coffee'
 import sanitize from 'sanitize-html'
@@ -11,7 +12,7 @@ params.allowedAttributes = {
 }
 
 export ensureDawnOfTime = (room_name) ->
-  share.model.Messages.upsert room_name,
+  Messages.upsert room_name,
     $min: timestamp: Date.now() - 1
     $setOnInsert:
       system: true
@@ -66,5 +67,5 @@ export newMessage = (newMsg) ->
   newMsg.timestamp = Date.now()
   newMsg.mention = newMsg.mention?.map canonical
   ensureDawnOfTime newMsg.room_name
-  newMsg._id = share.model.Messages.insert newMsg
+  newMsg._id = Messages.insert newMsg
   return newMsg

@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Rounds } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'moveRound', ->
   
@@ -25,7 +23,7 @@ describe 'moveRound', ->
 
   beforeEach ->
     resetDatabase()
-    id1 = model.Rounds.insert
+    id1 = Rounds.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -36,7 +34,7 @@ describe 'moveRound', ->
       puzzles: ['yoy']
       link: 'https://puzzlehunt.mit.edu/foo'
       tags: {}
-    id2 = model.Rounds.insert
+    id2 = Rounds.insert
       name: 'Bar'
       canon: 'bar'
       created: 2
@@ -56,44 +54,44 @@ describe 'moveRound', ->
   describe 'when logged in', ->
     it 'moves later', ->
       callAs 'moveRound', 'jeff', id1, 1
-      chai.assert.include model.Rounds.findOne(id1),
+      chai.assert.include Rounds.findOne(id1),
         created: 1
         touched: 1
         sort_key: 2
-      chai.assert.include model.Rounds.findOne(id2),
+      chai.assert.include Rounds.findOne(id2),
         created: 2
         touched: 2
         sort_key: 1
 
     it 'moves earlier', ->
       callAs 'moveRound', 'jeff', id2, -1
-      chai.assert.include model.Rounds.findOne(id1),
+      chai.assert.include Rounds.findOne(id1),
         created: 1
         touched: 1
         sort_key: 2
-      chai.assert.include model.Rounds.findOne(id2),
+      chai.assert.include Rounds.findOne(id2),
         created: 2
         touched: 2
         sort_key: 1
 
     it 'bounces off top', ->
       callAs 'moveRound', 'jeff', id1, -1
-      chai.assert.include model.Rounds.findOne(id1),
+      chai.assert.include Rounds.findOne(id1),
         created: 1
         touched: 1
         sort_key: 1
-      chai.assert.include model.Rounds.findOne(id2),
+      chai.assert.include Rounds.findOne(id2),
         created: 2
         touched: 2
         sort_key: 2
 
     it 'bounces off botton', ->
       callAs 'moveRound', 'jeff', id2, 1
-      chai.assert.include model.Rounds.findOne(id1),
+      chai.assert.include Rounds.findOne(id1),
         created: 1
         touched: 1
         sort_key: 1
-      chai.assert.include model.Rounds.findOne(id2),
+      chai.assert.include Rounds.findOne(id2),
         created: 2
         touched: 2
         sort_key: 2

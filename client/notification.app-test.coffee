@@ -1,5 +1,6 @@
 'use strict'
 
+import { Puzzles, Rounds } from '/lib/imports/collections.coffee'
 import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -120,7 +121,7 @@ describe 'notifications', ->
   , ->
 
   testcase 'new puzzle', 'new-puzzles', (-> 'someoneelse'), ((v) -> sinon.match({body: 'Added puzzle Test Notification', icon: GRAVATAR_192, data: url: "/puzzles/#{v}"})), ->
-    round = share.model.Rounds.findOne name: 'Civilization'
+    round = Rounds.findOne name: 'Civilization'
     obj = await promiseCallOn other_conn, 'newPuzzle',
       name: 'Test Notification'
       round: round._id
@@ -134,7 +135,7 @@ describe 'notifications', ->
   , (id) -> promiseCallOn other_conn, 'deleteRound', id
 
   testcase 'new callin', 'callins', (-> 'someoneelse'), (-> sinon.match({body: 'New answer knob submitted for puzzle The Doors Of Cambridge', icon: GRAVATAR_192, data: url: "/logistics"})), ->
-    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    doors = Puzzles.findOne name: 'The Doors Of Cambridge'
     obj = await promiseCallOn other_conn, 'newCallIn',
       target: doors._id
       answer: 'knob'
@@ -142,7 +143,7 @@ describe 'notifications', ->
   , (id) -> promiseCallOn other_conn, 'cancelCallIn', id: id
 
   testcase 'answer', 'answers', (-> 'someoneelse'), ((id)-> sinon.match({body: 'Found an answer (KNOB) to puzzle The Doors Of Cambridge', icon: GRAVATAR_192, data: url: "/puzzles/#{id}"})), ->
-    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    doors = Puzzles.findOne name: 'The Doors Of Cambridge'
     await promiseCallOn other_conn, 'setAnswer',
       target: doors._id
       answer: 'knob'
@@ -151,7 +152,7 @@ describe 'notifications', ->
 
   testcase 'mechanics', 'favorite-mechanics', (-> 'The Doors Of Cambridge'), ((id)-> sinon.match({body: 'Mechanic "Nikoli Variants" added to puzzle "The Doors Of Cambridge"', tag: "#{id}/nikoli_variants", data: url: "/puzzles/#{id}"})), ->
     await promiseCall 'favoriteMechanic', 'nikoli_variants'
-    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    doors = Puzzles.findOne name: 'The Doors Of Cambridge'
     await promiseCallOn other_conn, 'addMechanic', doors._id, 'nikoli_variants'
     return doors._id
   , (id) ->
@@ -159,7 +160,7 @@ describe 'notifications', ->
     promiseCall 'removeMechanic', id, 'nikoli_variants'
 
   testcase 'private message', 'private-messages', (-> 'Private message from someoneelse in Puzzle "The Doors Of Cambridge"'), (({id, rand})-> sinon.match({body: "How you doin #{rand}", icon: GRAVATAR_192, data: url: "/puzzles/#{id}"})), ->
-    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    doors = Puzzles.findOne name: 'The Doors Of Cambridge'
     rand = Random.id()
     await promiseCallOn other_conn, 'newMessage',
       room_name: "puzzles/#{doors._id}"
@@ -169,7 +170,7 @@ describe 'notifications', ->
   , ->
 
   testcase 'mention', 'private-messages', (-> 'Mentioned by someoneelse in Puzzle "The Doors Of Cambridge"'), (({id, rand})-> sinon.match({body: "@testy How you doin #{rand}", icon: GRAVATAR_192, data: url: "/puzzles/#{id}"})), ->
-    doors = share.model.Puzzles.findOne name: 'The Doors Of Cambridge'
+    doors = Puzzles.findOne name: 'The Doors Of Cambridge'
     rand = Random.id()
     await promiseCallOn other_conn, 'newMessage',
       room_name: "puzzles/#{doors._id}"

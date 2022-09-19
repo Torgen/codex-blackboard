@@ -1,5 +1,6 @@
 'use strict'
 
+import { Messages, Puzzles } from '/lib/imports/collections.coffee'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee'
 import chai from 'chai'
 
@@ -15,7 +16,7 @@ describe 'logistics', ->
     it 'marks puzzle solved', ->
       await share.Router.LogisticsPage()
       await waitForSubscriptions()
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       await promiseCall 'deleteAnswer', target: pb._id
       chai.assert.isNotOk pb.solved
       chai.assert.isNotOk pb.tags.answer
@@ -29,16 +30,16 @@ describe 'logistics', ->
       chai.assert.equal correctButtons.length, 1
       correctButtons.click()
       await waitForMethods()
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       chai.assert.isOk pb.solved
       chai.assert.equal pb.tags.answer.value, 'teferi'
 
     it 'gets disappointed', ->
       await share.Router.LogisticsPage()
       await waitForSubscriptions()
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       await promiseCall 'deleteAnswer', target: pb._id
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       chai.assert.isNotOk pb.solved
       chai.assert.isNotOk pb.tags.answer
       await promiseCall 'newCallIn',
@@ -51,17 +52,17 @@ describe 'logistics', ->
       chai.assert.equal incorrectButtons.length, 1
       incorrectButtons.click()
       await waitForMethods()
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       chai.assert.isNotOk pb.solved
-      msg = share.model.Messages.findOne {room_name: "general/0", nick: 'testy', action: true, body: /^sadly relays/}
+      msg = Messages.findOne {room_name: "general/0", nick: 'testy', action: true, body: /^sadly relays/}
       chai.assert.isOk msg
 
     it 'accepts explanation on accepted interaction request', ->
       await share.Router.LogisticsPage()
       await waitForSubscriptions()
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       await promiseCall 'deleteAnswer', target: pb._id
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       chai.assert.isNotOk pb.solved
       chai.assert.isNotOk pb.tags.answer
       await promiseCall 'newCallIn',
@@ -75,17 +76,17 @@ describe 'logistics', ->
       chai.assert.equal correctButtons.length, 1
       correctButtons.click()
       await waitForMethods()
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       chai.assert.isNotOk pb.solved
-      msg = share.model.Messages.findOne {room_name: "general/0", nick: 'testy', action: true, body: 'reports that the interaction request "teferi" was ACCEPTED with response "phasing"! (Puzzle Box)'}
+      msg = Messages.findOne {room_name: "general/0", nick: 'testy', action: true, body: 'reports that the interaction request "teferi" was ACCEPTED with response "phasing"! (Puzzle Box)'}
       chai.assert.isOk msg
 
     it 'accepts explanation on rejected interaction request', ->
       await share.Router.LogisticsPage()
       await waitForSubscriptions()
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       await promiseCall 'deleteAnswer', target: pb._id
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       chai.assert.isNotOk pb.solved
       chai.assert.isNotOk pb.tags.answer
       await promiseCall 'newCallIn',
@@ -99,8 +100,8 @@ describe 'logistics', ->
       chai.assert.equal incorrectButtons.length, 1
       incorrectButtons.click()
       await waitForMethods()
-      pb = share.model.Puzzles.findOne name: 'Puzzle Box'
+      pb = Puzzles.findOne name: 'Puzzle Box'
       chai.assert.isNotOk pb.solved
-      msg = share.model.Messages.findOne {room_name: "general/0", nick: 'testy', action: true, body: 'sadly relays that the interaction request "teferi" was REJECTED with response "phasing". (Puzzle Box)'}
+      msg = Messages.findOne {room_name: "general/0", nick: 'testy', action: true, body: 'sadly relays that the interaction request "teferi" was REJECTED with response "phasing". (Puzzle Box)'}
       chai.assert.isOk msg
 

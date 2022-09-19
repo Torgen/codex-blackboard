@@ -1,13 +1,14 @@
 'use strict'
-model = share.model # import
 import canonical from '/lib/imports/canonical.coffee'
+import { PRESENCE_KEEPALIVE_MINUTES } from '/lib/imports/constants.coffee'
+import { Calendar, CalendarEvents, CallIns, LastRead, Messages, Polls, Presence, Puzzles, Roles, Rounds, collection } from '/lib/imports/collections.coffee'
 import { Settings } from '/lib/imports/settings.coffee'
 import { NonEmptyString } from '/lib/imports/match.coffee'
 
 DEBUG = !Meteor.isProduction
 
 puzzleQuery = (query) -> 
-  model.Puzzles.find query,
+  Puzzles.find query,
     fields:
       name: 1
       canon: 1
@@ -46,10 +47,10 @@ Meteor.publish = ((publish) ->
 )(Meteor.publish) if false # disable by default
 
 Meteor.publish 'all-roundsandpuzzles', loginRequired -> [
-  model.Rounds.find(), @puzzleQuery({})
+  Rounds.find(), @puzzleQuery({})
 ]
 
-Meteor.publish 'solved-puzzle-time', loginRequired -> model.Puzzles.find
+Meteor.publish 'solved-puzzle-time', loginRequired -> Puzzles.find
   solved: $exists: true
 ,
   fields: solverTime: 1
@@ -78,7 +79,7 @@ Meteor.publish null, loginRequired ->
     located_at: 1
 
 Meteor.publish null, loginRequired ->
-  handle = model.Presence.find({room_name: null, scope: 'online'}, {nick: 1}).observe
+  handle = Presence.find({room_name: null, scope: 'online'}, {nick: 1}).observe
     added: ({nick}) =>
       @added 'users', nick, {online: true}
     removed: ({nick}) =>
@@ -87,25 +88,25 @@ Meteor.publish null, loginRequired ->
   @ready()
 
 # Private messages to you
-Meteor.publish null, loginRequired -> model.Messages.find {to: @userId, deleted: $ne: true}
+Meteor.publish null, loginRequired -> Messages.find {to: @userId, deleted: $ne: true}
 # Messages that mention you
-Meteor.publish null, loginRequired -> model.Messages.find {mention: @userId, deleted: $ne: true}
+Meteor.publish null, loginRequired -> Messages.find {mention: @userId, deleted: $ne: true}
 
 # Calendar events
 Meteor.publish null, loginRequired -> [
-  model.Calendar.find({}, {fields: _id: 1}),
-  model.CalendarEvents.find()]
+  Calendar.find({}, {fields: _id: 1}),
+  CalendarEvents.find()]
 
-Meteor.publish 'announcements-since', loginRequired (since) -> model.Messages.find
+Meteor.publish 'announcements-since', loginRequired (since) -> Messages.find
   announced_at: $gt: since
   deleted: $ne: true
 
 # Roles
 Meteor.publish null, loginRequired ->
-  model.Roles.find({}, {fields: {holder: 1, claimed_at: 1}})
+  Roles.find({}, {fields: {holder: 1, claimed_at: 1}})
 
 Meteor.publish null, loginRequired ->
-  model.Roles.find({holder: @userId}, {fields: {renewed_at: 1, expires_at: 1}})
+  Roles.find({holder: @userId}, {fields: {renewed_at: 1, expires_at: 1}})
 
 # Share one map among all listeners
 do ->
@@ -133,7 +134,7 @@ do ->
       for h from handles
         h.changed 'users', holder, {"roles": [...held]}
 
-  handle = model.Roles.find({}, {fields: holder: 1}).observe
+  handle = Roles.find({}, {fields: holder: 1}).observe
     added: ({_id, holder}) -> addHolder _id, holder
     changed: ({_id, holder: newHolder}, {holder: oldHolder}) ->
       removeHolder _id, oldHolder
@@ -151,7 +152,7 @@ do ->
 # Your presence in all rooms, with _id changed to room_name.
 Meteor.publish null, loginRequired ->
   idToRoom = new Map
-  handle = model.LastRead.find({nick: @userId}).observeChanges
+  handle = LastRead.find({nick: @userId}).observeChanges
     added: (id, fields) =>
       idToRoom.set id, fields.room_name
       @added 'lastread', fields.room_name, fields
@@ -164,11 +165,11 @@ Meteor.publish null, loginRequired ->
 
 Meteor.publish 'all-presence', loginRequired ->
   # strip out unnecessary fields from presence to avoid wasted updates to clients
-  model.Presence.find {room_name: $ne: null}, fields:
+  Presence.find {room_name: $ne: null}, fields:
     timestamp: 0
     clients: 0
 Meteor.publish 'presence-for-room', loginRequired (room_name) ->
-  model.Presence.find {room_name, scope: 'chat'}, fields:
+  Presence.find {room_name, scope: 'chat'}, fields:
     timestamp: 0
     clients: 0
 
@@ -177,7 +178,7 @@ registerPresence = (room_name, scope) ->
   console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{Date.now()}, id #{@connection.id}:#{subscription_id}" if DEBUG
   keepalive = =>
     now = Date.now()
-    model.Presence.upsert {nick: @userId, room_name, scope},
+    Presence.upsert {nick: @userId, room_name, scope},
       $setOnInsert:
         joined_timestamp: now
       $max: timestamp: now
@@ -185,19 +186,19 @@ registerPresence = (room_name, scope) ->
         connection_id: @connection.id
         subscription_id: subscription_id
         timestamp: now
-    model.Presence.update {nick: @userId, room_name, scope},
+    Presence.update {nick: @userId, room_name, scope},
       $pull: clients:
         connection_id: @connection.id
         subscription_id: subscription_id
         timestamp: $lt: now
   keepalive()
-  interval = Meteor.setInterval keepalive, (model.PRESENCE_KEEPALIVE_MINUTES*60*1000)
+  interval = Meteor.setInterval keepalive, (PRESENCE_KEEPALIVE_MINUTES*60*1000)
   @onStop =>
     console.log "#{@userId} unsubscribing from #{scope}:#{room_name}, id #{@connection.id}:#{subscription_id}" if DEBUG
     Meteor.clearInterval interval
     now = Date.now()
     Meteor.setTimeout =>
-      model.Presence.update {nick: @userId, room_name, scope},
+      Presence.update {nick: @userId, room_name, scope},
         $max: timestamp: now
         $pull: clients:
           connection_id: @connection.id
@@ -217,7 +218,7 @@ Meteor.publish null, loginRequired -> Settings.find()
 Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
   check puzzle_id, NonEmptyString
   @added 'puzzles', puzzle_id, {}
-  lastChat = model.Messages.find 
+  lastChat = Messages.find 
     room_name: "puzzles/#{puzzle_id}"
     $or: [ {to: null}, {to: @userId}, {nick: @userId }]
     deleted: $ne: true
@@ -229,7 +230,7 @@ Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
   .observe
     added: (doc) => @changed 'puzzles', puzzle_id, {last_message_timestamp: doc.timestamp}
   lastReadCallback = (doc) => @changed 'puzzles', puzzle_id, {last_read_timestamp: doc.timestamp}
-  lastRead = model.LastRead.find
+  lastRead = LastRead.find
     room_name: "puzzles/#{puzzle_id}"
     nick: @userId
   .observe
@@ -243,7 +244,7 @@ Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
 # this is for the "that was easy" sound effect
 # everyone is subscribed to this all the time
 Meteor.publish 'last-answered-puzzle', loginRequired ->
-  collection = 'last-answer'
+  COLLECTION = 'last-answer'
   self = this
   uuid = Random.id()
 
@@ -259,14 +260,14 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
 
   publishIfMax = (doc) ->
     return unless max(doc)
-    self.changed collection, uuid, recent \
+    self.changed COLLECTION, uuid, recent \
       unless initializing
   publishNone = ->
     recent = {solved: Date.now()} # "no recent solved puzzle"
-    self.changed collection, uuid, recent \
+    self.changed COLLECTION, uuid, recent \
       unless initializing
 
-  handle = model.Puzzles.find(
+  handle = Puzzles.find(
     solved: $ne: null
   ).observe
     added: (doc) -> publishIfMax(doc)
@@ -280,7 +281,7 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
   publishNone() unless recent?
   # okay, mark the subscription as ready.
   initializing = false
-  self.added collection, uuid, recent
+  self.added COLLECTION, uuid, recent
   self.ready()
   # Stop observing the cursor when client unsubs.
   # Stopping a subscription automatically takes care of sending the
@@ -289,11 +290,11 @@ Meteor.publish 'last-answered-puzzle', loginRequired ->
 
 # limit site traffic by only pushing out changes relevant to a certain
 # round or puzzle
-Meteor.publish 'callins-by-puzzle', loginRequired (id) -> model.CallIns.find {target_type: 'puzzles', target: id}
+Meteor.publish 'callins-by-puzzle', loginRequired (id) -> CallIns.find {target_type: 'puzzles', target: id}
 
 # get recent messages
 Meteor.publish 'recent-messages', loginRequired (room_name, limit) ->
-  handle = model.Messages.find
+  handle = Messages.find
     room_name: room_name
     $or: [ {to: null}, {to: @userId}, {nick: @userId }]
     deleted: $ne: true
@@ -313,7 +314,7 @@ Meteor.publish 'recent-messages', loginRequired (room_name, limit) ->
 # Special subscription for the recent chats header because it ignores system
 # and presence messages and anything with an HTML body.
 Meteor.publish 'recent-header-messages', loginRequired ->
-  model.Messages.find
+  Messages.find
     system: $ne: true
     bodyIsHtml: $ne: true
     deleted: $ne: true
@@ -326,23 +327,23 @@ Meteor.publish 'recent-header-messages', loginRequired ->
 
 # Special subscription for desktop notifications
 Meteor.publish 'oplogs-since', loginRequired (since) ->
-  model.Messages.find
+  Messages.find
     room_name: 'oplog/0'
     timestamp: $gt: since
 
 Meteor.publish 'starred-messages', loginRequired (room_name) ->
-  model.Messages.find { room_name: room_name, starred: true, deleted: { $ne: true } },
+  Messages.find { room_name: room_name, starred: true, deleted: { $ne: true } },
     sort: [["timestamp", "asc"]]
 
 Meteor.publish 'callins', loginRequired ->
-  model.CallIns.find {status: $in: ['pending', 'rejected']},
+  CallIns.find {status: $in: ['pending', 'rejected']},
     sort: [["created","asc"]]
 
 # synthetic 'all-names' collection which maps ids to type/name/canon
 Meteor.publish null, loginRequired ->
   self = this
   handles = [ 'rounds', 'puzzles' ].map (type) ->
-    model.collection(type).find({}).observe
+    collection(type).find({}).observe
       added: (doc) ->
         self.added 'names', doc._id,
           type: type
@@ -363,7 +364,7 @@ Meteor.publish null, loginRequired ->
     handles.map (h) -> h.stop()
 
 Meteor.publish 'poll', loginRequired (id) ->
-  model.Polls.find _id: id
+  Polls.find _id: id
 
 ## Publish the 'facts' collection to all users
 Facts.setUserIdFilter -> true

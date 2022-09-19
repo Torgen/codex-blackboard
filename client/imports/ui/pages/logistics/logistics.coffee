@@ -3,6 +3,7 @@ import './logistics.html'
 import './logistics.less'
 import '/client/imports/ui/components/create_object/create_object.coffee'
 import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.coffee'
+import { CalendarEvents, CallIns, Puzzles, Rounds } from '/lib/imports/collections.coffee'
 import { confirm } from '/client/imports/modal.coffee'
 import { findByChannel } from '/client/imports/presence_index.coffee'
 import colorFromThingWithTags from '/client/imports/objectColor.coffee'
@@ -49,17 +50,17 @@ Template.logistics.onRendered ->
 
 Template.logistics.helpers
   rounds: ->
-    share.model.Rounds.find({}, sort: sort_key: 1)
+    Rounds.find({}, sort: sort_key: 1)
   standalone: (round) ->
     x = []
     for puzzle in round.puzzles
-      puz = share.model.Puzzles.findOne _id: puzzle
+      puz = Puzzles.findOne _id: puzzle
       x.push puz if puz.feedsInto.length is 0 and not puz.puzzles?
     x if x.length
   metas: (round) ->
     x = []
     for puzzle in round.puzzles
-      puz = share.model.Puzzles.findOne _id: puzzle
+      puz = Puzzles.findOne _id: puzzle
       x.push puz if puz.puzzles?
     x
   metaParams: (round) -> { round, puzzles: [] }
@@ -87,14 +88,14 @@ Template.logistics.helpers
       return wasStillCreating?
   unfeeding: ->
     if draggedPuzzle.get('meta')? and not draggedPuzzle.get('targetMeta')?
-      puzz = share.model.Puzzles.findOne(_id: draggedPuzzle.get 'id')
+      puzz = Puzzles.findOne(_id: draggedPuzzle.get 'id')
       return puzz if puzz?.feedsInto.length is 1
   editingPuzzle: ->
     _id = editingPuzzle.get()
     if _id?
-      share.model.Puzzles.findOne({_id})
+      Puzzles.findOne({_id})
   modalColor: ->
-    p = share.model.Puzzles.findOne(_id: editingPuzzle.get())
+    p = Puzzles.findOne(_id: editingPuzzle.get())
     colorFromThingWithTags p if p?
        
 
@@ -234,7 +235,7 @@ Template.logistics.events
       event.preventDefault()
       event.stopPropagation()
       data = JSON.parse event.originalEvent.dataTransfer.getData PUZZLE_MIME_TYPE
-      puzzle = share.model.Puzzles.findOne {_id: data.id}
+      puzzle = Puzzles.findOne {_id: data.id}
       if puzzle?
         if (await confirm
           ok_button: 'Yes, delete it'
@@ -285,12 +286,12 @@ Template.logistics_puzzle.events
 Template.logistics_puzzle_events.helpers
   soonest_ending_current_event: ->
     now = Session.get 'currentTime'
-    share.model.CalendarEvents.findOne({puzzle: @_id, start: {$lt: now}, end: {$gt: now}}, {sort: end: -1})
+    CalendarEvents.findOne({puzzle: @_id, start: {$lt: now}, end: {$gt: now}}, {sort: end: -1})
   next_future_event: ->
     now = Session.get 'currentTime'
-    share.model.CalendarEvents.findOne({puzzle: @_id, start: {$gt: now}}, {sort: start: 1})
+    CalendarEvents.findOne({puzzle: @_id, start: {$gt: now}}, {sort: start: 1})
   no_events: ->
-    share.model.CalendarEvents.find({puzzle: @_id}).count() is 0
+    CalendarEvents.find({puzzle: @_id}).count() is 0
 
 Template.logistics_meta.onCreated ->
   @creatingFeeder = new ReactiveVar false
@@ -368,7 +369,7 @@ Template.logistics_meta.events
 
 Template.logistics_meta.helpers
   color: -> colorFromThingWithTags @meta
-  puzzles: -> @meta.puzzles.map (_id) -> share.model.Puzzles.findOne {_id}
+  puzzles: -> @meta.puzzles.map (_id) -> Puzzles.findOne {_id}
   stuck: isStuck
   feederParams: ->
     round: @round._id
@@ -385,7 +386,7 @@ Template.logistics_meta.helpers
     draggedPuzzle.get('willDelete') and draggedPuzzle.equals('id', @meta._id)
   fromAnotherMeta: ->
     return not draggedPuzzle.equals 'meta', @meta._id
-  draggedPuzzle: -> share.model.Puzzles.findOne(_id: draggedPuzzle.get('id'))
+  draggedPuzzle: -> Puzzles.findOne(_id: draggedPuzzle.get('id'))
 
 Template.logistics_puzzle_presence.helpers
   presenceForScope: (scope) ->
@@ -393,16 +394,16 @@ Template.logistics_puzzle_presence.helpers
 
 Template.logistics_callins_table.helpers
   callins: ->
-    share.model.CallIns.find {status: 'pending'},
+    CallIns.find {status: 'pending'},
       sort: [["created","asc"]]
       transform: (c) ->
-        c.puzzle = if c.target then share.model.Puzzles.findOne(_id: c.target)
+        c.puzzle = if c.target then Puzzles.findOne(_id: c.target)
         c
 
 Template.logistics_callin_row.helpers
   lastAttempt: ->
     return null unless @puzzle?
-    share.model.CallIns.findOne {target_type: 'puzzles', target: @puzzle._id, status: 'rejected'},
+    CallIns.findOne {target_type: 'puzzles', target: @puzzle._id, status: 'rejected'},
       sort: resolved: -1
       limit: 1
       fields: resolved: 1
@@ -412,7 +413,7 @@ Template.logistics_callin_row.helpers
   solved: -> @puzzle?.solved
   alreadyTried: ->
     return unless @puzzle?
-    share.model.CallIns.findOne({target_type: 'puzzles', target: @puzzle._id, status: 'rejected', answer: @answer},
+    CallIns.findOne({target_type: 'puzzles', target: @puzzle._id, status: 'rejected', answer: @answer},
       fields: {}
     )?
   callinTypeIs: (type) -> @callin_type is type

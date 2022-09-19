@@ -1,5 +1,7 @@
 'use strict'
 
+import { Presence } from '/lib/imports/collections.coffee'
+
 presenceIndex = new Map
 
 ensure = (channel) ->
@@ -9,10 +11,8 @@ ensure = (channel) ->
     presenceIndex.set(channel, coll)
   return coll
 
-model = share.model
-
 Meteor.startup ->
-  model.Presence.find(scope: $in: ['chat', 'jitsi']).observe
+  Presence.find(scope: $in: ['chat', 'jitsi']).observe
     added: (doc) ->
       ensure(doc.room_name).upsert doc.nick,
         $min: joined_timestamp: doc.joined_timestamp

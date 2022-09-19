@@ -1,8 +1,7 @@
 'use strict'
 
-model = share.model
-
 import canonical from '/lib/imports/canonical.coffee'
+import { collection } from '/lib/imports/collections.coffee'
 import okCancelEvents from '/client/imports/ok_cancel_events.coffee'
 import './tag_table_rows.html'
 import '../edit_tag_name/edit_tag_name.coffee'
@@ -27,7 +26,7 @@ Template.tag_table_rows.events okCancelEvents '.bb-add-tag input',
     @adding.done()
     template.newTagName.set ''
     cval = canonical value
-    return if model.collection(@type).findOne(_id: @id).tags[cval]?
+    return if collection(@type).findOne(_id: @id).tags[cval]?
     Meteor.call 'setTag', {type: @type, object: @id, name: value, value: ''}
     # simulation is enough for us to start editing the value if the event was enter or tab
     if event.which in [9,13]
@@ -40,7 +39,7 @@ Template.tag_table_rows.events okCancelEvents '.bb-add-tag input',
 
 Template.tag_table_rows.helpers
   tags: ->
-    tags = model.collection(@type).findOne({_id: @id}, {fields: tags: 1})?.tags or {}
+    tags = collection(@type).findOne({_id: @id}, {fields: tags: 1})?.tags or {}
     (
       t = tags[canon]
       res = { _id: "#{@id}/#{canon}", name: t.name, canon, value: t.value, touched_by: t.touched_by }
@@ -54,10 +53,10 @@ Template.tag_table_rows.helpers
     val = Template.instance().newTagName.get()
     return 'error' if not val
     cval = canonical val
-    return 'error' if model.collection(@type).findOne(_id: @id).tags[cval]?
+    return 'error' if collection(@type).findOne(_id: @id).tags[cval]?
     return 'success'
   tagAddStatus: ->
     val = Template.instance().newTagName.get()
     return 'Cannot be empty' if not val
     cval = canonical val
-    return 'Tag already exists' if model.collection(@type).findOne(_id: @id).tags[cval]?
+    return 'Tag already exists' if collection(@type).findOne(_id: @id).tags[cval]?

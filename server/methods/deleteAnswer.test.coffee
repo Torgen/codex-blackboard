@@ -1,14 +1,13 @@
 'use strict'
 
-# Will access contents via share
+# For side effects 
 import '/lib/model.coffee'
+import { Messages, Puzzles } from '/lib/imports/collections.coffee'
 # Test only works on server side; move to /server if you add client tests.
 import { callAs } from '../../server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'deleteAnswer', ->
   clock = null
@@ -25,7 +24,7 @@ describe 'deleteAnswer', ->
     resetDatabase()
   
   it 'fails without login', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -40,7 +39,7 @@ describe 'deleteAnswer', ->
     , Match.Error
   
   it 'works when unanswered', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -51,7 +50,7 @@ describe 'deleteAnswer', ->
       solved_by: null
       tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
     callAs 'deleteAnswer', 'cjb', target: id
-    doc = model.Puzzles.findOne id
+    doc = Puzzles.findOne id
     chai.assert.deepEqual doc,
       _id: id
       name: 'Foo'
@@ -64,7 +63,7 @@ describe 'deleteAnswer', ->
       solved_by: null
       confirmed_by: null
       tags: status: {name: 'Status', value: 'stuck', touched: 2, touched_by: 'torgen'}
-    oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+    oplogs = Messages.find(room_name: 'oplog/0').fetch()
     chai.assert.equal oplogs.length, 1
     chai.assert.include oplogs[0],
       nick: 'cjb'
@@ -81,7 +80,7 @@ describe 'deleteAnswer', ->
       stream: ''
 
   it 'removes answer', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -95,7 +94,7 @@ describe 'deleteAnswer', ->
         answer: {name: 'Answer', value: 'foo', touched: 2, touched_by: 'torgen'}
         temperature: {name: 'Temperature', value: '12', touched: 2, touched_by: 'torgen'}
     callAs 'deleteAnswer', 'cjb', target: id
-    doc = model.Puzzles.findOne id
+    doc = Puzzles.findOne id
     chai.assert.deepEqual doc,
       _id: id
       name: 'Foo'
@@ -108,7 +107,7 @@ describe 'deleteAnswer', ->
       solved_by: null
       confirmed_by: null
       tags: temperature: {name: 'Temperature', value: '12', touched: 2, touched_by: 'torgen'}
-    oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+    oplogs = Messages.find(room_name: 'oplog/0').fetch()
     chai.assert.equal oplogs.length, 1
     chai.assert.include oplogs[0],
       nick: 'cjb'
@@ -125,7 +124,7 @@ describe 'deleteAnswer', ->
       stream: ''
 
   it 'removes backsolve and provided', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -140,7 +139,7 @@ describe 'deleteAnswer', ->
         backsolve: {name: 'Backsolve', value: 'yes', touched: 2, touched_by: 'torgen'}
         provided: {name: 'Provided', value: 'yes', touched: 2, touched_by: 'torgen'}
     callAs 'deleteAnswer', 'cjb', target: id
-    doc = model.Puzzles.findOne id
+    doc = Puzzles.findOne id
     chai.assert.deepEqual doc,
       _id: id
       name: 'Foo'
@@ -153,7 +152,7 @@ describe 'deleteAnswer', ->
       solved_by: null
       confirmed_by: null
       tags: {}
-    oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+    oplogs = Messages.find(room_name: 'oplog/0').fetch()
     chai.assert.equal oplogs.length, 1
     chai.assert.include oplogs[0],
       nick: 'cjb'

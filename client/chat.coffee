@@ -6,14 +6,13 @@ import { gravatarUrl, hashFromNickObject, nickAndName } from './imports/nickEmai
 import { computeMessageFollowup } from './imports/followup.coffee'
 import botuser from './imports/botuser.coffee'
 import canonical from '/lib/imports/canonical.coffee'
+import { LastRead, Messages, Names, Polls, Presence, Puzzles, collection } from '/lib/imports/collections.coffee'
 import { CHAT_LIMIT_INCREMENT, CLIENT_UUID, FOLLOWUP_STYLE, GENERAL_ROOM_NAME, INITIAL_CHAT_LIMIT } from '/client/imports/server_settings.coffee'
 import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import { reactiveLocalStorage } from './imports/storage.coffee'
 import {chunk_text, chunk_html} from './imports/chunk_text.coffee'
 import { confirm } from './imports/modal.coffee'
 import Favico from 'favico.js'
-
-model = share.model # import
 
 GENERAL_ROOM = GENERAL_ROOM_NAME
 GENERAL_ROOM_REGEX = new RegExp "^#{GENERAL_ROOM}$", 'i'
@@ -86,11 +85,11 @@ Template.chat.helpers
   object: ->
     type = Session.get 'type'
     type isnt 'general' and \
-      (model.collection(type)?.findOne Session.get("id"))
+      (collection(type)?.findOne Session.get("id"))
   solved: ->
     type = Session.get 'type'
     type isnt 'general' and \
-      (model.collection(type)?.findOne Session.get("id"))?.solved
+      (collection(type)?.findOne Session.get("id"))?.solved
 
 starred_messages_room = ->
   Template.currentData().room_name ? Session.get 'room_name'
@@ -101,7 +100,7 @@ Template.starred_messages.onCreated ->
 
 Template.starred_messages.helpers
   messages: ->
-    model.Messages.find {room_name: starred_messages_room(), starred: true },
+    Messages.find {room_name: starred_messages_room(), starred: true },
       sort: [['timestamp', 'asc']]
       transform: messageTransform
 
@@ -130,7 +129,7 @@ Template.poll.onCreated ->
 Template.poll.helpers
   show_votes: -> Template.instance().show_votes.get()
   options: ->
-    poll = model.Polls.findOne @
+    poll = Polls.findOne @
     return unless poll?
     votes = {}
     myVote = poll.votes[Meteor.userId()]?.canon
@@ -175,7 +174,7 @@ Template.messages.helpers
   ready: -> Session.equals('chatReady', true) and Template.instance().subscriptionsReady()
   # The dawn of time message has ID equal to the room name because it's
   # efficient to find it that way on the client, where there are no indexes.
-  startOfChannel: -> model.Messages.findOne(_id: Session.get 'room_name', from_chat_subscription: true)?
+  startOfChannel: -> Messages.findOne(_id: Session.get 'room_name', from_chat_subscription: true)?
   usefulEnough: (m) ->
     # test Session.get('nobot') last to get a fine-grained dependency
     # on the `nobot` session variable only for 'useless' messages
@@ -202,7 +201,7 @@ Template.messages.helpers
     # doesMentionNick and transforms aren't usually reactive, so we need to
     # recompute them if you log in as someone else.
     Meteor.userId()
-    return model.Messages.find {room_name, from_chat_subscription: true},
+    return Messages.find {room_name, from_chat_subscription: true},
       sort: [['timestamp','asc']]
       transform: messageTransform
       
@@ -306,7 +305,7 @@ Template.messages.events
 
 whos_here_helper = ->
   roomName = Session.get('room_name')
-  return model.Presence.find {room_name: roomName, scope: 'chat'}, {sort: ['joined_timestamp']}
+  return Presence.find {room_name: roomName, scope: 'chat'}, {sort: ['joined_timestamp']}
 
 Template.embedded_chat.onCreated ->
   @jitsi = new ReactiveVar null
@@ -336,7 +335,7 @@ Template.embedded_chat.onCreated ->
 jitsiRoomSubject = (type, id) ->
 
   if 'puzzles' is type
-    model.Puzzles.findOne(id).name ? 'Puzzle'
+    Puzzles.findOne(id).name ? 'Puzzle'
   else if '0' is id
     GENERAL_ROOM_NAME
   else
@@ -468,7 +467,7 @@ prettyRoomName = ->
   type = Session.get('type')
   id = Session.get('id')
   name = if type is "general" then GENERAL_ROOM else \
-    model.Names.findOne(id)?.name
+    Names.findOne(id)?.name
   return (name or "unknown")
 
 joinRoom = (type, id) ->
@@ -645,7 +644,7 @@ Template.messages_input.onCreated ->
         args.body = rest
         args.action = true
       when "/join"
-        result = model.Names.findOne {canon: canonical(rest.trim()), type: $in: ['rounds', 'puzzles']}
+        result = Names.findOne {canon: canonical(rest.trim()), type: $in: ['rounds', 'puzzles']}
         if (not result?) and GENERAL_ROOM_REGEX.test(rest.trim())
           result = {type:'general', _id:'0'}
         if error? or not result?
@@ -719,7 +718,7 @@ Template.messages_input.events
           on_behalf: $ne: true
         if template.history_ts?
           query.timestamp = $lt: template.history_ts
-        msg = model.Messages.findOne query,
+        msg = Messages.findOne query,
           sort: timestamp: -1
         if msg?
           template.history_ts = msg.timestamp
@@ -742,7 +741,7 @@ Template.messages_input.events
           timestamp: $gt: template.history_ts
           from_chat_subscription: true
           on_behalf: $ne: true
-        msg = model.Messages.findOne query,
+        msg = Messages.findOne query,
           sort: timestamp: 1
         if msg?
           template.history_ts = msg.timestamp
@@ -792,7 +791,7 @@ Template.messages_input.events
     template.activateFirst()
 
 updateLastRead = ->
-  lastMessage = model.Messages.findOne
+  lastMessage = Messages.findOne
     room_name: Session.get 'room_name'
     from_chat_subscription: true
   ,
@@ -844,7 +843,7 @@ Template.messages.onCreated -> @autorun ->
     return hideMessageAlert()
   Tracker.onInvalidate hideMessageAlert
   # watch the last read and update the session
-  lastread = model.LastRead.findOne room_name
+  lastread = LastRead.findOne room_name
   unless lastread
     Session.set 'lastread', undefined
     return hideMessageAlert()
@@ -853,7 +852,7 @@ Template.messages.onCreated -> @autorun ->
   total_unread = 0
   total_mentions = 0
   update = -> false # ignore initial updates
-  model.Messages.find
+  Messages.find
     room_name: room_name
     nick: $ne: nick
     timestamp: $gt: lastread.timestamp

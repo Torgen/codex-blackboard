@@ -1,14 +1,13 @@
 'use strict'
 
-# Will access contents via share
+# For side effects 
 import '/lib/model.coffee'
+import { CallIns, Messages, Puzzles } from '/lib/imports/collections.coffee'
 # Test only works on server side; move to /server if you add client tests.
 import { callAs } from '../../server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'cancelCallIn', ->
   clock = null
@@ -27,7 +26,7 @@ describe 'cancelCallIn', ->
   puzzle = null
   callin = null
   beforeEach ->
-    puzzle = model.Puzzles.insert
+    puzzle = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -37,7 +36,7 @@ describe 'cancelCallIn', ->
       solved: null
       solved_by: null
       tags: {}
-    callin = model.CallIns.insert
+    callin = CallIns.insert
       name: 'Foo:precipitate'
       target: puzzle
       answer: 'precipitate'
@@ -58,10 +57,10 @@ describe 'cancelCallIn', ->
       callAs 'cancelCallIn', 'cjb', id: callin
 
     it 'updates callin', ->
-      c = model.CallIns.findOne()
+      c = CallIns.findOne()
       chai.assert.include c,
         status: 'cancelled'
         resolved: 7
     
     it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle}).fetch(), 1
+      chai.assert.lengthOf Messages.find({type: 'puzzles', id: puzzle}).fetch(), 1

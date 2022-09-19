@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Messages, Rounds } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'deleteRound', ->
   driveMethods = null
@@ -39,7 +37,7 @@ describe 'deleteRound', ->
   describe 'when it is empty', ->
     id = null
     beforeEach ->
-      id = model.Rounds.insert
+      id = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -65,13 +63,13 @@ describe 'deleteRound', ->
         chai.assert.isTrue ret
 
       it 'deletes the round', ->
-        chai.assert.isUndefined model.Rounds.findOne(), 'no rounds after deletion'
+        chai.assert.isUndefined Rounds.findOne(), 'no rounds after deletion'
 
   describe 'when round isn\'t empty', ->
     id = null
     ret = null
     beforeEach ->
-      id = model.Rounds.insert
+      id = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -88,7 +86,7 @@ describe 'deleteRound', ->
       chai.assert.isFalse ret
 
     it 'leaves round', ->
-      chai.assert.isNotNull model.Rounds.findOne id
+      chai.assert.isNotNull Rounds.findOne id
     
     it 'doesn\'t oplog', ->
-      chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'
+      chai.assert.lengthOf Messages.find(room_name: 'oplog/0').fetch(), 0, 'oplogs'

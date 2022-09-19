@@ -1,14 +1,13 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
+import { Puzzles } from '/lib/imports/collections.coffee'
 # Test only works on server side; move to /server if you add client tests.
 import { callAs } from '../../server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'favorite', ->
   clock = null
@@ -40,7 +39,7 @@ describe 'favorite', ->
   describe 'when favorites is absent', ->
     id = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -69,18 +68,18 @@ describe 'favorite', ->
         chai.assert.isTrue ret
 
       it 'sets favorites', ->
-        chai.assert.deepEqual model.Puzzles.findOne(id).favorites,
+        chai.assert.deepEqual Puzzles.findOne(id).favorites,
           cjb: true
 
       it 'does not touch', ->
-        doc = model.Puzzles.findOne id
+        doc = Puzzles.findOne id
         chai.assert.equal doc.touched, 1
         chai.assert.equal doc.touched_by, 'torgen'
 
   describe 'when favorites has others', ->
     id = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -112,20 +111,20 @@ describe 'favorite', ->
         chai.assert.isTrue ret
 
       it 'sets favorites', ->
-        chai.assert.deepEqual model.Puzzles.findOne(id).favorites,
+        chai.assert.deepEqual Puzzles.findOne(id).favorites,
           torgen: true
           cscott: true
           cjb: true
 
       it 'does not touch', ->
-        doc = model.Puzzles.findOne id
+        doc = Puzzles.findOne id
         chai.assert.equal doc.touched, 1
         chai.assert.equal doc.touched_by, 'torgen'
 
   describe 'when favorites has self', ->
     id = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -157,11 +156,11 @@ describe 'favorite', ->
         chai.assert.isTrue ret
 
       it 'leaves favorites unchanged', ->
-        chai.assert.deepEqual model.Puzzles.findOne(id).favorites,
+        chai.assert.deepEqual Puzzles.findOne(id).favorites,
           torgen: true
           cjb: true
 
       it 'does not touch', ->
-        doc = model.Puzzles.findOne id
+        doc = Puzzles.findOne id
         chai.assert.equal doc.touched, 1
         chai.assert.equal doc.touched_by, 'torgen'

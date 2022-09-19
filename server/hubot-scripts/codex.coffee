@@ -22,6 +22,7 @@ import { scripts, rejoin, strip, thingRE, objectFromRoom } from '../imports/botu
 import { callAs, impersonating } from '../imports/impersonate.coffee'
 import { all_settings } from '/lib/imports/settings.coffee'
 import canonical from '/lib/imports/canonical.coffee'
+import { pretty_collection } from '/lib/imports/collections.coffee'
 import isDuplicateError from '/lib/imports/duplicate.coffee'
 import * as callin_types from '/lib/imports/callin_types.coffee'
 
@@ -171,7 +172,7 @@ export default scripts.codex = (robot) ->
       if not round
         descriptor =
           if tname
-            "a #{share.model.pretty_collection tname}"
+            "a #{pretty_collection tname}"
           else
             'anything'
         msg.reply useful: true, "I can't find #{descriptor} called \"#{rname}\"."
@@ -188,7 +189,7 @@ export default scripts.codex = (robot) ->
       extra.round = metaround._id
       extra.feedsInto = [round.object._id]
     else
-      msg.reply useful:true, "A new puzzle can't be created in \"#{rname}\" because it's a #{share.model.pretty_collection round.type}."
+      msg.reply useful:true, "A new puzzle can't be created in \"#{rname}\" because it's a #{pretty_collection round.type}."
       msg.finish()
       return
     if ptype isnt 'puzzle'
@@ -286,7 +287,7 @@ export default scripts.codex = (robot) ->
     if msg.match[2]?
       descriptor =
         if msg.match[3]?
-          "a #{share.model.pretty_collection msg.match[3]}"
+          "a #{pretty_collection msg.match[3]}"
         else
           'anything'
       type = if msg.match[3]? then msg.match[3].replace(/\s+/g,'')+'s'
@@ -314,7 +315,7 @@ export default scripts.codex = (robot) ->
     if msg.match[2]?
       descriptor =
         if msg.match[3]?
-          "a #{share.model.pretty_collection msg.match[3]}"
+          "a #{pretty_collection msg.match[3]}"
         else
           'anything'
       type = if msg.match[3]? then msg.match[3].replace(/\s+/g,'')+'s'

@@ -6,6 +6,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import {reactiveLocalStorage} from './imports/storage.coffee'
 import { CLIENT_UUID } from '/client/imports/server_settings.coffee'
+import { Puzzles } from '/lib/imports/collections.coffee'
 
 GRAVATAR_200 = 'https://secure.gravatar.com/avatar/a24f643d34150c3b4053989db38251c9.jpg?d=wavatar&s=200'
 
@@ -90,7 +91,7 @@ describe 'jitsi', ->
     mock2 = expectFactory()
     onceExp = mock2.expects('once').twice()
     dispose2 = mock2.expects('dispose').never()
-    puzz = share.model.Puzzles.findOne name: 'In Memoriam'
+    puzz = Puzzles.findOne name: 'In Memoriam'
     share.Router.PuzzlePage puzz._id
     await afterFlushPromise()
     await waitForSubscriptions()
@@ -114,7 +115,7 @@ describe 'jitsi', ->
     await waitForSubscriptions()
     $('.bb-jitsi-pin').click()
     await afterFlushPromise()
-    puzz = share.model.Puzzles.findOne name: 'In Memoriam'
+    puzz = Puzzles.findOne name: 'In Memoriam'
     share.Router.PuzzlePage puzz._id
     await afterFlushPromise()
     await waitForSubscriptions()
@@ -143,7 +144,7 @@ describe 'jitsi', ->
       return false
     await afterFlushPromise()
     dispose1.verify()
-    puzz = share.model.Puzzles.findOne name: 'In Memoriam'
+    puzz = Puzzles.findOne name: 'In Memoriam'
     share.Router.PuzzlePage puzz._id
     await afterFlushPromise()
     await waitForSubscriptions()
@@ -164,7 +165,7 @@ describe 'jitsi', ->
       reactiveLocalStorage.setItem 'jitsiTabUUID', Random.id()
       await afterFlushPromise()
       dispose1.verify()
-      puzz = share.model.Puzzles.findOne name: 'In Memoriam'
+      puzz = Puzzles.findOne name: 'In Memoriam'
       share.Router.PuzzlePage puzz._id
       await afterFlushPromise()
       await waitForSubscriptions()

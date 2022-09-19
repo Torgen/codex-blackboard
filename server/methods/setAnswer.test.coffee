@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { CallIns, Messages, Presence, Puzzles } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'setAnswer', ->
   clock = null
@@ -28,7 +26,7 @@ describe 'setAnswer', ->
     id = null
     ret = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -40,18 +38,18 @@ describe 'setAnswer', ->
         confirmed_by: null
         solverTime: 14
         tags: technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
-      model.Presence.insert
+      Presence.insert
         room_name: "puzzles/#{id}"
         nick: 'torgen'
         timestamp: 2
         scope: 'chat'
-      model.Presence.insert
+      Presence.insert
         room_name: "puzzles/#{id}"
         nick: 'botto'
         timestamp: 0
         bot: true
         scope: 'chat'
-      model.Presence.insert
+      Presence.insert
         room_name: "puzzles/#{id}"
         nick: 'idle'
         timestamp: -130001
@@ -74,7 +72,7 @@ describe 'setAnswer', ->
         chai.assert.isTrue ret
 
       it 'modifies document', ->
-        chai.assert.deepEqual model.Puzzles.findOne(id),
+        chai.assert.deepEqual Puzzles.findOne(id),
           _id: id
           name: 'Foo'
           canon: 'foo'
@@ -91,7 +89,7 @@ describe 'setAnswer', ->
             technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
       
       it 'oplogs', ->
-        oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+        oplogs = Messages.find(room_name: 'oplog/0').fetch()
         chai.assert.equal oplogs.length, 1
         chai.assert.include oplogs[0],
           nick: 'cjb'
@@ -106,7 +104,7 @@ describe 'setAnswer', ->
     id = null
     ret = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -128,7 +126,7 @@ describe 'setAnswer', ->
       chai.assert.isTrue ret
 
     it 'modifies document', ->
-      chai.assert.deepEqual model.Puzzles.findOne(id),
+      chai.assert.deepEqual Puzzles.findOne(id),
         _id: id
         name: 'Foo'
         canon: 'foo'
@@ -145,7 +143,7 @@ describe 'setAnswer', ->
           technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
     
     it 'oplogs', ->
-      oplogs = model.Messages.find(room_name: 'oplog/0').fetch()
+      oplogs = Messages.find(room_name: 'oplog/0').fetch()
       chai.assert.equal oplogs.length, 1
       chai.assert.include oplogs[0],
         nick: 'cjb'
@@ -161,7 +159,7 @@ describe 'setAnswer', ->
     id = null
     ret = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -175,18 +173,18 @@ describe 'setAnswer', ->
         tags:
           answer: {name: 'Answer', value: 'bar', touched: 2, touched_by: 'torgen'}
           technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
-      model.Presence.insert
+      Presence.insert
         room_name: "puzzles/#{id}"
         nick: 'torgen'
         timestamp: 2
         present: true
-      model.Presence.insert
+      Presence.insert
         room_name: "puzzles/#{id}"
         nick: 'botto'
         timestamp: 0
         bot: true
         scope: 'chat'
-      model.Presence.insert
+      Presence.insert
         room_name: "puzzles/#{id}"
         nick: 'idle'
         timestamp: -130001
@@ -199,7 +197,7 @@ describe 'setAnswer', ->
       chai.assert.isFalse ret
 
     it 'leaves document alone', ->
-      chai.assert.deepEqual model.Puzzles.findOne(id),
+      chai.assert.deepEqual Puzzles.findOne(id),
         _id: id
         name: 'Foo'
         canon: 'foo'
@@ -216,10 +214,10 @@ describe 'setAnswer', ->
           technology: {name: 'Technology', value: 'Pottery', touched: 2, touched_by: 'torgen'}
 
     it 'doesn\'t oplog', ->
-      chai.assert.lengthOf model.Messages.find(room_name: 'oplog/0').fetch(), 0
+      chai.assert.lengthOf Messages.find(room_name: 'oplog/0').fetch(), 0
 
   it 'modifies tags', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -235,7 +233,7 @@ describe 'setAnswer', ->
       answer: 'bar'
       backsolve: true
       provided: true
-    chai.assert.deepInclude model.Puzzles.findOne(id),
+    chai.assert.deepInclude Puzzles.findOne(id),
       tags:
         answer: {name: 'Answer', value: 'bar', touched: 7, touched_by: 'cjb'}
         backsolve: {name: 'Backsolve', value: 'yes', touched: 7, touched_by: 'cjb'}
@@ -246,7 +244,7 @@ describe 'setAnswer', ->
     cid1 = null
     cid2 = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -257,7 +255,7 @@ describe 'setAnswer', ->
         solved_by: null
         confirmed_by: null
         tags: {}
-      cid1 = model.CallIns.insert
+      cid1 = CallIns.insert
         target_type: 'puzzles'
         target: id
         name: 'Foo'
@@ -269,7 +267,7 @@ describe 'setAnswer', ->
         backsolve: false
         provided: false
         status: 'pending'
-      cid2 = model.CallIns.insert
+      cid2 = CallIns.insert
         target_type: 'puzzles'
         target: id
         name: 'Foo'
@@ -286,21 +284,21 @@ describe 'setAnswer', ->
         answer: 'bar'
         
     it 'updates callins', ->
-      chai.assert.include model.CallIns.findOne(cid1),
+      chai.assert.include CallIns.findOne(cid1),
         status: 'accepted'
         resolved: 7
-      chai.assert.include model.CallIns.findOne(cid2),
+      chai.assert.include CallIns.findOne(cid2),
         status: 'cancelled'
         resolved: 7
 
     it 'doesn\'t oplog for callins', ->
-      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'callins'}).fetch(), 0
+      chai.assert.lengthOf Messages.find({room_name: 'oplog/0', type: 'callins'}).fetch(), 0
 
     it 'oplogs for puzzle', ->
-      chai.assert.lengthOf model.Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
+      chai.assert.lengthOf Messages.find({room_name: 'oplog/0', type: 'puzzles', id: id}).fetch(), 1
 
     it 'sets solved_by correctly', ->
-      chai.assert.deepInclude model.Puzzles.findOne(id),
+      chai.assert.deepInclude Puzzles.findOne(id),
         solved: 7
         solved_by: 'codexbot'
         confirmed_by: 'cjb'

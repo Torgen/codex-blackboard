@@ -1,14 +1,13 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
+import { CalendarEvents, Messages, Puzzles, Rounds } from '/lib/imports/collections.coffee'
 # Test only works on server side; move to /server if you add client tests.
 import { callAs } from '../../server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'deletePuzzle', ->
   driveMethods = null
@@ -39,7 +38,7 @@ describe 'deletePuzzle', ->
   ev = null
   beforeEach ->
     resetDatabase()
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       created: 1
@@ -52,7 +51,7 @@ describe 'deletePuzzle', ->
       drive: 'ffoo'
       spreadsheet: 'sfoo'
       doc: 'dfoo'
-    meta = model.Puzzles.insert
+    meta = Puzzles.insert
       name: 'Meta'
       canon: 'meta'
       created: 1
@@ -66,7 +65,7 @@ describe 'deletePuzzle', ->
       drive: 'fmeta'
       spreadsheet: 'smeta'
       doc: 'dmeta'
-    rid = model.Rounds.insert
+    rid = Rounds.insert
       name: 'Bar'
       canon: 'bar'
       created: 1
@@ -77,7 +76,7 @@ describe 'deletePuzzle', ->
       solved_by: null
       puzzles: [id, meta]
       tags: {}
-    ev = model.CalendarEvents.insert
+    ev = CalendarEvents.insert
       puzzle: id
       summary: 'An event!'
 
@@ -92,10 +91,10 @@ describe 'deletePuzzle', ->
       ret = callAs 'deletePuzzle', 'cjb', id
 
     it 'oplogs', ->
-      chai.assert.lengthOf model.Messages.find({nick: 'cjb', type: 'puzzles', room_name: 'oplog/0'}).fetch(), 1
+      chai.assert.lengthOf Messages.find({nick: 'cjb', type: 'puzzles', room_name: 'oplog/0'}).fetch(), 1
 
     it 'removes puzzle from round', ->
-      chai.assert.deepEqual model.Rounds.findOne(rid),
+      chai.assert.deepEqual Rounds.findOne(rid),
         _id: rid
         name: 'Bar'
         canon: 'bar'
@@ -109,7 +108,7 @@ describe 'deletePuzzle', ->
         tags: {}
 
     it 'removes puzzle from meta', ->
-      chai.assert.deepEqual model.Puzzles.findOne(meta),
+      chai.assert.deepEqual Puzzles.findOne(meta),
         _id: meta
         name: 'Meta'
         canon: 'meta'
@@ -126,7 +125,7 @@ describe 'deletePuzzle', ->
         doc: 'dmeta'
 
     it 'removes puzzle from event', ->
-      chai.assert.deepEqual model.CalendarEvents.findOne(ev),
+      chai.assert.deepEqual CalendarEvents.findOne(ev),
         _id: ev
         summary: 'An event!'
 

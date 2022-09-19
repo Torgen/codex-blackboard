@@ -1,11 +1,11 @@
 'use strict'
 
-model = share.model # import
+import { Names } from '/lib/imports/collections.coffee'
 
 Template.link.onCreated ->
   @target = new ReactiveVar null
   @autorun =>
-    @target.set model.Names.findOne(Template.currentData().id)
+    @target.set Names.findOne(Template.currentData().id)
 
 Template.link.helpers
   target: -> Template.instance().target.get()

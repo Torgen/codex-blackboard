@@ -1,7 +1,6 @@
 'use strict'
 
-# Will access contents via share
-import '/lib/model.coffee'
+import { Calendar, CalendarEvents } from '/lib/imports/collections.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
@@ -55,14 +54,14 @@ describe 'CalendarSync', ->
   testCases = ->
     describe 'with existing calendar', ->
       beforeEach ->
-        share.model.Calendar.insert _id: 'testCalendar', syncToken: 'syncToken1'
-        share.model.CalendarEvents.insert
+        Calendar.insert _id: 'testCalendar', syncToken: 'syncToken1'
+        CalendarEvents.insert
           _id: 'evt1'
           summary: 'Event 1'
           location: 'Planet Nowhere'
           start: 1640814960000
           end: 1640818560000
-        share.model.CalendarEvents.insert
+        CalendarEvents.insert
           _id: 'evt3'
           summary: 'Will be deleted'
           start: 1640814960000
@@ -85,20 +84,20 @@ describe 'CalendarSync', ->
             {id: 'evt3', status: 'cancelled'}
           ]
         sync = new CalendarSync api
-        chai.assert.include share.model.Calendar.findOne(),
+        chai.assert.include Calendar.findOne(),
           _id: 'testCalendar'
           syncToken: 'syncToken2'
-        chai.assert.include share.model.CalendarEvents.findOne(_id: 'evt1'),
+        chai.assert.include CalendarEvents.findOne(_id: 'evt1'),
           summary: 'Event One'
           start: 1640815200000
           end: 1640818800000
           link: 'https://calendar.google.com/event/evt1'
-        chai.assert.include share.model.CalendarEvents.findOne(_id: 'evt2'),
+        chai.assert.include CalendarEvents.findOne(_id: 'evt2'),
           summary: 'Event Two'
           location: 'Kresge Auditorium'
           start: 1640901600000
           end: 1640905200000
-        chai.assert.isNotOk share.model.CalendarEvents.findOne(_id: 'evt3')
+        chai.assert.isNotOk CalendarEvents.findOne(_id: 'evt3')
 
       it 'does full sync when gone', ->
         e = new Error
@@ -113,15 +112,15 @@ describe 'CalendarSync', ->
             start: {dateTime: '2021-12-30T22:00:00+00:00'}, end: {dateTime: '2021-12-30T23:00:00+00:00'}}
           ]
         sync = new CalendarSync api
-        chai.assert.include share.model.Calendar.findOne(),
+        chai.assert.include Calendar.findOne(),
           _id: 'testCalendar'
           syncToken: 'syncToken2'
-        chai.assert.include share.model.CalendarEvents.findOne(_id: 'evt1'),
+        chai.assert.include CalendarEvents.findOne(_id: 'evt1'),
           summary: 'Event One'
           start: 1640815200000
           end: 1640818800000
           link: 'https://calendar.google.com/event/evt1'
-        chai.assert.include share.model.CalendarEvents.findOne(_id: 'evt2'),
+        chai.assert.include CalendarEvents.findOne(_id: 'evt2'),
           summary: 'Event Two'
           location: 'Kresge Auditorium'
           start: 1640901600000
@@ -154,15 +153,15 @@ describe 'CalendarSync', ->
           start: {dateTime: '2021-12-30T22:00:00+00:00'}, end: {dateTime: '2021-12-30T23:00:00+00:00'}}
         ]
       sync = new CalendarSync api
-      chai.assert.include share.model.Calendar.findOne(),
+      chai.assert.include Calendar.findOne(),
         _id: 'testCalendar'
         syncToken: 'syncToken1'
-      chai.assert.include share.model.CalendarEvents.findOne(_id: 'evt1'),
+      chai.assert.include CalendarEvents.findOne(_id: 'evt1'),
         summary: 'Event One'
         start: 1640815200000
         end: 1640818800000
         link: 'https://calendar.google.com/event/evt1'
-      chai.assert.include share.model.CalendarEvents.findOne(_id: 'evt2'),
+      chai.assert.include CalendarEvents.findOne(_id: 'evt2'),
         summary: 'Event Two'
         location: 'Kresge Auditorium'
         start: 1640901600000
@@ -192,10 +191,10 @@ describe 'CalendarSync', ->
         nextSyncToken: 'syncToken1'
         items: []
       sync = new CalendarSync api
-      chai.assert.include share.model.Calendar.findOne(),
+      chai.assert.include Calendar.findOne(),
         _id: 'testCalendar'
         syncToken: 'syncToken1'
-      chai.assert.isNotOk share.model.CalendarEvents.findOne()
+      chai.assert.isNotOk CalendarEvents.findOne()
 
   describe 'with acls already set', ->
     beforeEach ->

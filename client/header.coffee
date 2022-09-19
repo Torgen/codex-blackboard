@@ -1,6 +1,7 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
+import { LastRead, Messages, Puzzles, Roles, Rounds } from '/lib/imports/collections.coffee'
 import md5 from 'md5'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
@@ -9,8 +10,6 @@ import keyword_or_positional from './imports/keyword_or_positional.coffee'
 import loginWithCodex from '/client/imports/accounts.coffee'
 import { BB_DISABLE_RINGHUNTERS_HEADER, GENERAL_ROOM_NAME } from '/client/imports/server_settings.coffee'
 import './imports/timestamp.coffee'
-
-model = share.model # import
 
 # templates, event handlers, and subscriptions for the site-wide
 # header bar, including the login modals and general Spacebars helpers
@@ -44,13 +43,13 @@ do ->
 
 Template.registerHelper 'drive_link', (args) ->
   args = keyword_or_positional 'id', args
-  return model.drive_id_to_link(args.id)
+  "https://docs.google.com/folder/d/#{args.id}/edit"
 Template.registerHelper 'spread_link', (args) ->
   args = keyword_or_positional 'id', args
-  return model.spread_id_to_link(args.id)
+  "https://docs.google.com/spreadsheets/d/#{args.id}/edit"
 Template.registerHelper 'doc_link', (args) ->
   args = keyword_or_positional 'id', args
-  return model.doc_id_to_link(args.id)
+  "https://docs.google.com/document/d/#{args.id}/edit"
 
 # nicks
 Template.registerHelper 'nickOrName', (args) ->
@@ -64,13 +63,13 @@ Template.registerHelper 'nickAndName', (args) ->
 Template.registerHelper 'nickExists', (nick) ->
   Meteor.users.findOne(_id: nick)?
 Template.registerHelper 'onduty', (nick) ->
-  model.Roles.findOne('onduty')?.holder is nick
+  Roles.findOne('onduty')?.holder is nick
 
 privateMessageTransform = (msg) ->
   _id: msg._id
   message: msg
   read: ->
-    msg.timestamp <= model.LastRead.findOne('private')?.timestamp || msg.timestamp <= model.LastRead.findOne(msg.room_name)?.timestamp
+    msg.timestamp <= LastRead.findOne('private')?.timestamp || msg.timestamp <= LastRead.findOne(msg.room_name)?.timestamp
   showRoom: true
 
 Template.header_loginmute.onCreated ->
@@ -88,29 +87,29 @@ Template.header_loginmute.helpers
       gravatar_md5: hashFromNickObject user
     }
   unreadPrivateMessages: ->
-    count = model.Messages.find
+    count = Messages.find
       to: Meteor.userId()
-      timestamp: $gt: model.LastRead.findOne('private')?.timestamp ? 0
-    .fetch().filter((msg) -> msg.timestamp > (model.LastRead.findOne(msg.room_name)?.timestamp ? 0)).length
+      timestamp: $gt: LastRead.findOne('private')?.timestamp ? 0
+    .fetch().filter((msg) -> msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ? 0)).length
     count unless count is 0
   unreadMentions: ->
-    count = model.Messages.find
+    count = Messages.find
       mention: Meteor.userId()
-      timestamp: $gt: model.LastRead.findOne('private')?.timestamp ? 0
-    .fetch().filter((msg) -> msg.timestamp > (model.LastRead.findOne(msg.room_name)?.timestamp ? 0)).length
+      timestamp: $gt: LastRead.findOne('private')?.timestamp ? 0
+    .fetch().filter((msg) -> msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ? 0)).length
     count unless count is 0
   clamp: (value, limit) ->
     return unless value
     return "#{limit}+" if value > limit
     value
   privateMessages: ->
-    model.Messages.find
+    Messages.find
       to: Meteor.userId()
     ,
       sort: timestamp: -1
       transform: privateMessageTransform
   mentions: ->
-    model.Messages.find
+    Messages.find
       mention: Meteor.userId()
     ,
       sort: timestamp: -1
@@ -135,7 +134,7 @@ Template.header_loginmute.events
     template.visibleTab.set event.currentTarget.dataset.tab
   'click #bb-mark-private-read': (event, template) ->
     event.preventDefault()
-    latest = model.Messages.findOne({$or: [{to: Meteor.userId()}, {mention: Meteor.userId()}]}, {sort: timestamp: -1}).timestamp
+    latest = Messages.findOne({$or: [{to: Meteor.userId()}, {mention: Meteor.userId()}]}, {sort: timestamp: -1}).timestamp
     Meteor.call 'updateLastRead',
       room_name: 'private'
       timestamp: latest
@@ -209,7 +208,7 @@ min_meta_paths = (root) ->
   depths[root] = -1
   loop
     for id in current
-      puzzle = model.Puzzles.findOne id
+      puzzle = Puzzles.findOne id
       continue unless puzzle?
       for meta in puzzle.feedsInto
         unless depths[meta]?
@@ -276,7 +275,7 @@ Template.header_breadcrumb_extra_links.helpers
   jitsiUrl: -> jitsiUrl Template.parentData(1).type, Template.parentData(1).id
 
 Template.header_breadcrumb_round.helpers
-  round: -> model.Rounds.findOne @id if @id
+  round: -> Rounds.findOne @id if @id
   active: active
 
 Template.header_breadcrumb_metas.helpers
@@ -299,11 +298,11 @@ Template.header_breadcrumb_metas.helpers
       all: keys
 
 Template.header_breadcrumb_one_meta.helpers
-  puzzle: -> model.Puzzles.findOne @id if @id
+  puzzle: -> Puzzles.findOne @id if @id
   active: active
 
 Template.header_breadcrumb_puzzle.helpers
-  puzzle: -> model.Puzzles.findOne @id if @id
+  puzzle: -> Puzzles.findOne @id if @id
   active: active
 
 Template.header_breadcrumbs.onCreated ->
@@ -402,7 +401,7 @@ Template.header_lastchats.helpers
     options = [{room_name: 'oplog/0'}, {to: Meteor.userId()}]
     unless Session.equals('room_name', 'general/0')
       options.push room_name: 'general/0'
-    model.Messages.find {
+    Messages.find {
       $or: options, system: {$ne: true}, bodyIsHtml: {$ne: true}, header_ignore: {$ne: true}
     }, {sort: [["timestamp","desc"]], limit: RECENT_GENERAL_LIMIT}
   msgbody: ->

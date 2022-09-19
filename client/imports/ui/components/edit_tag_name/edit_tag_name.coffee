@@ -1,12 +1,13 @@
 import './edit_tag_name.html'
 
 import canonical from '/lib/imports/canonical.coffee'
+import { collection } from '/lib/imports/collections.coffee'
 import { editableTemplate } from '/client/imports/ok_cancel_events.coffee'
 
 editableTemplate Template.edit_tag_name,
   ok: (val, evt, tem) ->
     if val
-      thing = share.model.collection(tem.data.type).findOne(tem.data.id)
+      thing = collection(tem.data.type).findOne(tem.data.id)
       canon = canonical tem.data.name
       newCanon = canonical(val)
       if newCanon isnt canon and thing.tags[newCanon]?
@@ -27,7 +28,7 @@ Template.edit_tag_name.helpers
     cval = canonical val
     return 'info' if val is @name
     return 'success' if cval is canonical @name
-    return 'error' if share.model.collection(@type).findOne(_id: @id).tags[cval]?
+    return 'error' if collection(@type).findOne(_id: @id).tags[cval]?
     return 'success'
   tagEditStatus: ->
     val = Template.instance().newTagName.get()
@@ -35,5 +36,5 @@ Template.edit_tag_name.helpers
     return 'Unchanged' if val is @name
     cval = canonical val
     return if cval is canonical @name
-    return 'Tag already exists' if share.model.collection(@type).findOne(_id: @id).tags[cval]?
+    return 'Tag already exists' if collection(@type).findOne(_id: @id).tags[cval]?
   canon: -> canonical @name

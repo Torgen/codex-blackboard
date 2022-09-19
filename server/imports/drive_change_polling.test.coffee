@@ -1,15 +1,14 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
+import { Messages, Puzzles } from '/lib/imports/collections.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import delay from 'delay'
 import { waitForDocument } from '/lib/imports/testutils.coffee'
 import DriveChangeWatcher, {startPageTokens, driveFiles} from  './drive_change_polling.coffee'
-
-model = share.model
 
 SPREADSHEET_TYPE = 'application/vnd.google-apps.spreadsheet'
 DOC_TYPE = 'application/vnd.google-apps.document'
@@ -71,7 +70,7 @@ describe 'drive change polling', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    puzz = model.Puzzles.insert
+    puzz = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       drive: 'foo_drive'
@@ -92,15 +91,15 @@ describe 'drive change polling', ->
           webViewLink: 'https://blahblahblah.com'
       ]
     poller.poll()
-    chai.assert.include model.Puzzles.findOne(canon: 'foo'),
+    chai.assert.include Puzzles.findOne(canon: 'foo'),
       drive_touched: 31006
-    chai.assert.isUndefined model.Messages.findOne()
+    chai.assert.isUndefined Messages.findOne()
 
   it 'updates puzzle and does not announce when doc updated', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    puzz = model.Puzzles.insert
+    puzz = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       drive: 'foo_drive'
@@ -121,15 +120,15 @@ describe 'drive change polling', ->
           webViewLink: 'https://blahblahblah.com'
       ]
     poller.poll()
-    chai.assert.include model.Puzzles.findOne(canon: 'foo'),
+    chai.assert.include Puzzles.findOne(canon: 'foo'),
       drive_touched: 31006
-    chai.assert.isUndefined model.Messages.findOne()
+    chai.assert.isUndefined Messages.findOne()
 
   it 'updates puzzle and announces when new file updated', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    puzz = model.Puzzles.insert
+    puzz = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       drive: 'foo_drive'
@@ -150,11 +149,11 @@ describe 'drive change polling', ->
           webViewLink: 'https://blahblahblah.com'
       ]
     poller.poll()
-    chai.assert.include model.Puzzles.findOne(canon: 'foo'),
+    chai.assert.include Puzzles.findOne(canon: 'foo'),
       drive_touched: 31006
     chai.assert.include driveFiles.findOne('foo_other'),
       announced: 60007
-    chai.assert.deepInclude model.Messages.findOne(),
+    chai.assert.deepInclude Messages.findOne(),
       room_name: "puzzles/#{puzz}"
       system: true
       file_upload:
@@ -167,7 +166,7 @@ describe 'drive change polling', ->
     startPageTokens.insert
       timestamp: 30007
       token: 'firstPage'
-    puzz = model.Puzzles.insert
+    puzz = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       drive: 'foo_drive'
@@ -187,12 +186,12 @@ describe 'drive change polling', ->
           webViewLink: 'https://blahblahblah.com'
       ]
     poller.poll()
-    chai.assert.include model.Puzzles.findOne(canon: 'foo'),
+    chai.assert.include Puzzles.findOne(canon: 'foo'),
       drive_touched: 31006
       doc: 'foo_doc'
     chai.assert.include driveFiles.findOne('foo_doc'),
       announced: 60007
-    chai.assert.deepInclude model.Messages.findOne(),
+    chai.assert.deepInclude Messages.findOne(),
       room_name: "puzzles/#{puzz}"
       system: true
       file_upload:
@@ -208,7 +207,7 @@ describe 'drive change polling', ->
     driveFiles.insert
       _id: 'foo_other'
       announced: 5
-    puzz = model.Puzzles.insert
+    puzz = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       drive: 'foo_drive'
@@ -229,9 +228,9 @@ describe 'drive change polling', ->
           webViewLink: 'https://blahblahblah.com'
       ]
     poller.poll()
-    chai.assert.include model.Puzzles.findOne(canon: 'foo'),
+    chai.assert.include Puzzles.findOne(canon: 'foo'),
       drive_touched: 31006
-    chai.assert.isUndefined model.Messages.findOne()
+    chai.assert.isUndefined Messages.findOne()
 
   it 'announces in general chat when new file updated', ->
     startPageTokens.insert
@@ -254,7 +253,7 @@ describe 'drive change polling', ->
     poller.poll()
     chai.assert.include driveFiles.findOne('foo_other'),
       announced: 60007
-    chai.assert.deepInclude model.Messages.findOne(),
+    chai.assert.deepInclude Messages.findOne(),
       room_name: 'general/0'
       system: true
       file_upload:
@@ -285,7 +284,7 @@ describe 'drive change polling', ->
           webViewLink: 'https://blahblahblah.com'
       ]
     poller.poll()
-    chai.assert.isUndefined model.Messages.findOne()
+    chai.assert.isUndefined Messages.findOne()
 
   it 'does not announce when new file updated in unknown folder', ->
     startPageTokens.insert
@@ -306,7 +305,7 @@ describe 'drive change polling', ->
           webViewLink: 'https://blahblahblah.com'
       ]
     poller.poll()
-    chai.assert.isUndefined model.Messages.findOne()
+    chai.assert.isUndefined Messages.findOne()
 
 # Test when initial poll fails, polls are rescheduled
 
@@ -342,7 +341,7 @@ describe 'drive change polling', ->
           webViewLink: 'https://blahblahblah.com'
       ]
     poller.poll()
-    chai.assert.deepInclude model.Messages.findOne(),
+    chai.assert.deepInclude Messages.findOne(),
       room_name: 'general/0'
       system: true
       file_upload:
@@ -378,7 +377,7 @@ describe 'drive change polling', ->
       ]
     ).onSecondCall().rejects 'error'
     poller.poll()
-    chai.assert.isUndefined model.Messages.findOne()
+    chai.assert.isUndefined Messages.findOne()
     chai.assert.include list.getCall(0).args[0],
       pageToken: 'firstPage'
     chai.assert.include list.getCall(1).args[0],

@@ -1,15 +1,13 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { CallIns, Messages, Puzzles, Roles } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import { RoleRenewalTime } from '/lib/imports/settings.coffee'
-
-model = share.model
 
 describe 'incorrectCallIn', ->
   clock = null
@@ -31,7 +29,7 @@ describe 'incorrectCallIn', ->
 
   describe 'on answer', ->
     beforeEach ->
-      puzzle = model.Puzzles.insert
+      puzzle = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -42,7 +40,7 @@ describe 'incorrectCallIn', ->
         solved_by: null
         tags: {}
         feedsInto: []
-      callin = model.CallIns.insert
+      callin = CallIns.insert
         name: 'Foo:precipitate'
         target: puzzle
         target_type: 'puzzles'
@@ -54,7 +52,7 @@ describe 'incorrectCallIn', ->
         backsolve: false
         provided: false
         status: 'pending'
-      model.Roles.insert
+      Roles.insert
         _id: 'onduty'
         holder: 'cjb'
         claimed_at: 2
@@ -71,22 +69,22 @@ describe 'incorrectCallIn', ->
         callAs 'incorrectCallIn', 'cjb', callin
 
       it 'updates callin', ->
-        c = model.CallIns.findOne callin
+        c = CallIns.findOne callin
         chai.assert.include c,
           status: 'rejected'
             resolved: 7
 
       it 'oplogs', ->
-        chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
+        chai.assert.lengthOf Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 1
 
       it "notifies puzzle chat", ->
-        chai.assert.lengthOf model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch(), 1
+        chai.assert.lengthOf Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch(), 1
 
       it "notifies general chat", ->
-        chai.assert.lengthOf model.Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch(), 1
+        chai.assert.lengthOf Messages.find(room_name: 'general/0', dawn_of_time: $ne: true).fetch(), 1
 
       it 'renews onduty', ->
-        chai.assert.deepInclude model.Roles.findOne('onduty'),
+        chai.assert.deepInclude Roles.findOne('onduty'),
           holder: 'cjb'
           claimed_at: 2
           renewed_at: 7
@@ -97,7 +95,7 @@ describe 'incorrectCallIn', ->
         callAs 'incorrectCallIn', 'cscott', callin
 
       it 'leaves onduty alone', ->
-        chai.assert.deepInclude model.Roles.findOne('onduty'),
+        chai.assert.deepInclude Roles.findOne('onduty'),
           holder: 'cjb'
           claimed_at: 2
           renewed_at: 2
@@ -105,7 +103,7 @@ describe 'incorrectCallIn', ->
   
   describe 'on interaction request', ->
     beforeEach ->
-      puzzle = model.Puzzles.insert
+      puzzle = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -116,7 +114,7 @@ describe 'incorrectCallIn', ->
         solved_by: null
         tags: {}
         feedsInto: []
-      callin = model.CallIns.insert
+      callin = CallIns.insert
         name: 'Foo:precipitate'
         target: puzzle
         target_type: 'puzzles'
@@ -141,16 +139,16 @@ describe 'incorrectCallIn', ->
           callAs 'incorrectCallIn', 'cjb', callin
 
         it 'updates callin', ->
-          c = model.CallIns.findOne callin
+          c = CallIns.findOne callin
           chai.assert.include c,
             status: 'rejected'
             resolved: 7
 
         it 'does not oplog', ->
-          chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
+          chai.assert.lengthOf Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
 
         it "notifies puzzle chat", ->
-          o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'cjb'
@@ -160,7 +158,7 @@ describe 'incorrectCallIn', ->
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it "notifies general chat", ->
-          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'cjb'
@@ -181,17 +179,17 @@ describe 'incorrectCallIn', ->
           callAs 'incorrectCallIn', 'cjb', callin, 'sediment'
 
         it 'updates callin', ->
-          c = model.CallIns.findOne callin
+          c = CallIns.findOne callin
           chai.assert.include c,
             status: 'rejected'
             response: 'sediment'
             resolved: 7
 
         it 'does not oplog', ->
-          chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
+          chai.assert.lengthOf Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
 
         it "notifies puzzle chat", ->
-          o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'cjb'
@@ -202,7 +200,7 @@ describe 'incorrectCallIn', ->
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it "notifies general chat", ->
-          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'cjb'
@@ -214,7 +212,7 @@ describe 'incorrectCallIn', ->
 
   describe 'on message to hq', ->
     beforeEach ->
-      puzzle = model.Puzzles.insert
+      puzzle = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -225,7 +223,7 @@ describe 'incorrectCallIn', ->
         solved_by: null
         tags: {}
         feedsInto: []
-      callin = model.CallIns.insert
+      callin = CallIns.insert
         name: 'Foo:precipitate'
         target: puzzle
         target_type: 'puzzles'
@@ -250,16 +248,16 @@ describe 'incorrectCallIn', ->
           callAs 'incorrectCallIn', 'cjb', callin
 
         it 'updates callin', ->
-          c = model.CallIns.findOne callin
+          c = CallIns.findOne callin
           chai.assert.include c,
             status: 'rejected'
             resolved: 7
 
         it 'does not oplog', ->
-          chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
+          chai.assert.lengthOf Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
 
         it "notifies puzzle chat", ->
-          o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'cjb'
@@ -269,7 +267,7 @@ describe 'incorrectCallIn', ->
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it "notifies general chat", ->
-          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'cjb'
@@ -290,17 +288,17 @@ describe 'incorrectCallIn', ->
           callAs 'incorrectCallIn', 'cjb', callin, 'sediment'
 
         it 'updates callin', ->
-          c = model.CallIns.findOne callin
+          c = CallIns.findOne callin
           chai.assert.include c,
             status: 'rejected'
             response: 'sediment'
             resolved: 7
 
         it 'does not oplog', ->
-          chai.assert.lengthOf model.Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
+          chai.assert.lengthOf Messages.find({type: 'puzzles', id: puzzle, stream: 'callins'}).fetch(), 0
 
         it "notifies puzzle chat", ->
-          o = model.Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "puzzles/#{puzzle}", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'cjb'
@@ -311,7 +309,7 @@ describe 'incorrectCallIn', ->
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it "notifies general chat", ->
-          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'cjb'
@@ -323,7 +321,7 @@ describe 'incorrectCallIn', ->
   
   describe 'on expected callback', ->
     beforeEach ->
-      puzzle = model.Puzzles.insert
+      puzzle = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -334,7 +332,7 @@ describe 'incorrectCallIn', ->
         solved_by: null
         tags: {}
         feedsInto: []
-      callin = model.CallIns.insert
+      callin = CallIns.insert
         name: 'Foo:precipitate'
         target: puzzle
         target_type: 'puzzles'

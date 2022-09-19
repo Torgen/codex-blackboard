@@ -1,9 +1,10 @@
 import './edit_field.html'
+import { collection } from '/lib/imports/collections.coffee'
 import { editableTemplate } from '/client/imports/ok_cancel_events.coffee'
 
 editableTemplate Template.edit_field,
   ok: (value, evt, tem) ->
-    if value isnt share.model.collection(tem.data.type).findOne(tem.data.id)?[tem.data.field]
+    if value isnt collection(tem.data.type).findOne(tem.data.id)?[tem.data.field]
       Meteor.call 'setField',
         type: tem.data.type
         object: tem.data.id
@@ -11,4 +12,4 @@ editableTemplate Template.edit_field,
           [tem.data.field]: value
 
 Template.edit_field.helpers
-  value: -> share.model.collection(@type).findOne(_id: @id)?[@field] ? ''
+  value: -> collection(@type).findOne(_id: @id)?[@field] ? ''

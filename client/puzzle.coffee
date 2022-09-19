@@ -1,6 +1,8 @@
 'use strict'
 
 import canonical from '/lib/imports/canonical.coffee'
+import { CallIns, Puzzles, Rounds, pretty_collection } from '/lib/imports/collections.coffee'
+import { getTag, isStuck } from '/lib/imports/tags.coffee'
 import { confirm } from '/client/imports/modal.coffee'
 import color from './imports/objectColor.coffee'
 import embeddable from './imports/embeddable.coffee'
@@ -10,8 +12,6 @@ import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee'
 import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.coffee'
 import '/client/imports/ui/components/onduty/current.coffee'
 import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee'
-
-model = share.model # import
 
 capType = (puzzle) ->
   if puzzle?.puzzles?
@@ -46,37 +46,37 @@ Template.puzzle_info.onCreated ->
     @subscribe 'callins-by-puzzle', id
 
 Template.puzzle_info.helpers
-  tag: (name) -> (model.getTag this, name) or ''
-  getPuzzle: -> model.Puzzles.findOne this
+  tag: (name) -> (getTag this, name) or ''
+  getPuzzle: -> Puzzles.findOne this
   caresabout: ->
-    cared = model.getTag @puzzle, "Cares About"
+    cared = getTag @puzzle, "Cares About"
     (
       name: tag
       canon: canonical tag
     ) for tag in cared?.split(',') or []
   callins: ->
     return unless @puzzle?
-    model.CallIns.find
+    CallIns.find
       target_type: 'puzzles'
       target: @puzzle._id
     ,
       sort: {created: 1}
   callin_status: -> callin_types.past_status_message @status, @callin_type
-  metameta: -> model.Puzzles.find({_id: {$in: @puzzle.puzzles}, puzzles: {$exists: true}}).count() > 0
+  metameta: -> Puzzles.find({_id: {$in: @puzzle.puzzles}, puzzles: {$exists: true}}).count() > 0
   grandfeeders: -> Template.instance().grandfeeders.get()
   unattached: -> Template.instance().unattached.get()
-  nonfeeders: -> model.Puzzles.find(feedsInto: $size: 0)
+  nonfeeders: -> Puzzles.find(feedsInto: $size: 0)
   unsetcaredabout: ->
     return unless @puzzle
-    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+    r = for meta in (Puzzles.findOne m for m in @puzzle.feedsInto)
       continue unless meta?
       for tag in meta.tags.cares_about?.value.split(',') or []
-        continue if model.getTag @puzzle, tag
+        continue if getTag @puzzle, tag
         { name: tag, canon: canonical(tag), meta: meta.name }
     [].concat r...
   metatags: ->
     return unless @puzzle?
-    r = for meta in (model.Puzzles.findOne m for m in @puzzle.feedsInto)
+    r = for meta in (Puzzles.findOne m for m in @puzzle.feedsInto)
       continue unless meta?
       for canon, tag of meta.tags
         continue unless /^meta /i.test tag.name
@@ -104,10 +104,10 @@ Template.puzzle_info.events
 
 dataHelper = ->
   r = {}
-  puzzle = r.puzzle = model.Puzzles.findOne Session.get 'id'
-  round = r.round = model.Rounds.findOne puzzles: puzzle?._id
+  puzzle = r.puzzle = Puzzles.findOne Session.get 'id'
+  round = r.round = Rounds.findOne puzzles: puzzle?._id
   r.isMeta = puzzle?.puzzles?
-  r.stuck = model.isStuck puzzle
+  r.stuck = isStuck puzzle
   r.capType = capType puzzle
   return r
 
@@ -131,24 +131,24 @@ Template.puzzle.onCreated ->
     if Session.equals 'view', 'doc'
       @docLoaded.set true
       return
-    model.Puzzles.findOne(Session.get('id'), {fields: {doc: 1}})
+    Puzzles.findOne(Session.get('id'), {fields: {doc: 1}})
     @docLoaded.set false
   this.autorun ->
     # set page title
     id = Session.get 'id'
-    puzzle = model.Puzzles.findOne id
+    puzzle = Puzzles.findOne id
     name = puzzle?.name or id
     $("title").text("#{capType puzzle}: #{name}")
   @autorun ->
     return unless Session.equals 'type', 'puzzles'
-    if currentViewIs model.Puzzles.findOne(Session.get('id')), 'info'
+    if currentViewIs Puzzles.findOne(Session.get('id')), 'info'
       Session.set 'topRight', null
     else
       Session.set 'topRight', 'puzzle_info_frame'
   @autorun ->
     id = Session.get 'id'
     return unless id
-    puzzle = model.Puzzles.findOne id,
+    puzzle = Puzzles.findOne id,
       fields: 'tags.color.value': 1
     if puzzle?
       Session.set 'color', color puzzle
@@ -156,13 +156,13 @@ Template.puzzle.onCreated ->
       Session.set 'color', 'white'
 
 Template.puzzle_summon_button.helpers
-  stuck: -> model.isStuck this
+  stuck: -> isStuck this
 
 Template.puzzle_summon_button.events
   "click .bb-summon-btn.stuck": (event, template) ->
     if (await confirm
       message: 'Are you sure you want to cancel this request for help?'
-      ok_button: "Yes, this #{model.pretty_collection(Session.get 'type')} is no longer stuck"
+      ok_button: "Yes, this #{pretty_collection(Session.get 'type')} is no longer stuck"
       no_button: 'Nevermind, this is still STUCK'
     )
       Meteor.call 'unsummon',

@@ -1,16 +1,14 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
+import { Messages, Puzzles, Roles, Rounds } from '/lib/imports/collections.coffee'
 import { callAs, impersonating } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import isDuplicateError from '/lib/imports/duplicate.coffee'
 import { PuzzleUrlPrefix, RoleRenewalTime, UrlSeparator } from '/lib/imports/settings.coffee'
-
-model = share.model
 
 describe 'newPuzzle', ->
   driveMethods = null
@@ -52,7 +50,7 @@ describe 'newPuzzle', ->
     id = null
     describe 'when onduty', -> 
       beforeEach ->
-        round = model.Rounds.insert
+        round = Rounds.insert
           name: 'Round'
           canon: 'round'
           created: 1
@@ -60,7 +58,7 @@ describe 'newPuzzle', ->
           touched: 1
           touched_by: 'cjb'
           puzzles: []
-        model.Roles.insert
+        Roles.insert
           _id: 'onduty'
           holder: 'torgen'
           claimed_at: 2
@@ -73,7 +71,7 @@ describe 'newPuzzle', ->
         ._id
 
       it 'creates puzzle', ->
-        chai.assert.deepInclude model.Puzzles.findOne(id),
+        chai.assert.deepInclude Puzzles.findOne(id),
           name: 'Foo'
           canon: 'foo'
           created: 7
@@ -88,16 +86,16 @@ describe 'newPuzzle', ->
           tags: {}
 
       it 'adds puzzle to round', ->
-        chai.assert.deepInclude model.Rounds.findOne(round),
+        chai.assert.deepInclude Rounds.findOne(round),
           touched: 7
           touched_by: 'torgen'
           puzzles: [id]
       
       it 'oplogs', ->
-        chai.assert.lengthOf model.Messages.find({id: id, type: 'puzzles'}).fetch(), 1
+        chai.assert.lengthOf Messages.find({id: id, type: 'puzzles'}).fetch(), 1
       
       it 'renews onduty', ->
-        chai.assert.deepInclude model.Roles.findOne('onduty'),
+        chai.assert.deepInclude Roles.findOne('onduty'),
           holder: 'torgen'
           claimed_at: 2
           renewed_at: 7
@@ -105,7 +103,7 @@ describe 'newPuzzle', ->
 
     describe 'when someone else is onduty', -> 
       beforeEach ->
-        round = model.Rounds.insert
+        round = Rounds.insert
           name: 'Round'
           canon: 'round'
           created: 1
@@ -113,7 +111,7 @@ describe 'newPuzzle', ->
           touched: 1
           touched_by: 'cjb'
           puzzles: []
-        model.Roles.insert
+        Roles.insert
           _id: 'onduty'
           holder: 'florgen'
           claimed_at: 2
@@ -126,7 +124,7 @@ describe 'newPuzzle', ->
         ._id
 
       it 'leaves onduty alone', ->
-        chai.assert.deepInclude model.Roles.findOne('onduty'),
+        chai.assert.deepInclude Roles.findOne('onduty'),
           holder: 'florgen'
           claimed_at: 2
           renewed_at: 2
@@ -134,7 +132,7 @@ describe 'newPuzzle', ->
 
     describe 'when nobody is onduty', -> 
       beforeEach ->
-        round = model.Rounds.insert
+        round = Rounds.insert
           name: 'Round'
           canon: 'round'
           created: 1
@@ -149,12 +147,12 @@ describe 'newPuzzle', ->
         ._id
 
       it 'leaves onduty alone', ->
-        chai.assert.isNotOk model.Roles.findOne('onduty')
+        chai.assert.isNotOk Roles.findOne('onduty')
 
   describe 'with mechanics', ->
     round = null
     beforeEach ->
-      round = model.Rounds.insert
+      round = Rounds.insert
         name: 'Round'
         canon: 'round'
         created: 1
@@ -170,7 +168,7 @@ describe 'newPuzzle', ->
         round: round
         mechanics: ['crossword', 'crossword', 'cryptic_clues']
       ._id
-      chai.assert.deepEqual model.Puzzles.findOne(id).mechanics, ['crossword', 'cryptic_clues']
+      chai.assert.deepEqual Puzzles.findOne(id).mechanics, ['crossword', 'cryptic_clues']
 
     it 'rejects bad mechanics', ->
       chai.assert.throws ->
@@ -184,7 +182,7 @@ describe 'newPuzzle', ->
 
   it 'derives link', ->
     impersonating 'cjb', -> PuzzleUrlPrefix.set 'https://testhuntpleaseign.org/puzzles'
-    round = model.Rounds.insert
+    round = Rounds.insert
       name: 'Round'
       canon: 'round'
       created: 1
@@ -196,7 +194,7 @@ describe 'newPuzzle', ->
       name: 'Foo Puzzle'
       round: round
     ._id
-    chai.assert.deepInclude model.Puzzles.findOne(id),
+    chai.assert.deepInclude Puzzles.findOne(id),
       name: 'Foo Puzzle'
       canon: 'foo_puzzle'
       created: 7
@@ -215,7 +213,7 @@ describe 'newPuzzle', ->
     id1 = null
     error = null
     beforeEach ->
-      id1 = model.Puzzles.insert
+      id1 = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -228,7 +226,7 @@ describe 'newPuzzle', ->
         drive: 'fid'
         spreadsheet: 'sid'
         tags: {}
-      round = model.Rounds.insert
+      round = Rounds.insert
         name: 'Round'
         canon: 'round'
         created: 1
@@ -247,19 +245,19 @@ describe 'newPuzzle', ->
       chai.assert.isTrue isDuplicateError(error), "#{error}"
 
     it 'doesn\'t touch', ->
-      chai.assert.include model.Puzzles.findOne(id1),
+      chai.assert.include Puzzles.findOne(id1),
         created: 1
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
 
     it 'doesn\'t oplog', ->
-      chai.assert.lengthOf model.Messages.find({id: id1, type: 'puzzles'}).fetch(), 0
+      chai.assert.lengthOf Messages.find({id: id1, type: 'puzzles'}).fetch(), 0
 
   describe 'when drive fails', ->
     round = null
     beforeEach ->
-      round = model.Rounds.insert
+      round = Rounds.insert
         name: 'Round'
         canon: 'round'
         created: 1
@@ -275,6 +273,6 @@ describe 'newPuzzle', ->
         link: 'https://puzzlehunt.mit.edu/foo'
         round: round
       ._id
-      chai.assert.include model.Puzzles.findOne(id),
+      chai.assert.include Puzzles.findOne(id),
         drive_status: 'failed'
         drive_error_message: 'Error: user limits'

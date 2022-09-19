@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effetcs
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Puzzles, Rounds } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 testCase = (method, collection) ->
   describe method, ->
@@ -119,5 +117,5 @@ testCase = (method, collection) ->
         touched_by: 'cjb'
         touched: 4
 
-testCase 'moveWithinMeta', model.Puzzles
-testCase 'moveWithinRound', model.Rounds
+testCase 'moveWithinMeta', Puzzles
+testCase 'moveWithinRound', Rounds

@@ -1,5 +1,6 @@
 'use strict'
 
+import { Puzzles, Rounds } from '/lib/imports/collections.coffee'
 import PuzzleDrag from './puzzle_drag.coffee'
 import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './app_test_helpers.coffee'
 import chai from 'chai'
@@ -19,12 +20,12 @@ describe 'drag-and-drop', ->
     share.Router.EditPage()
     await waitForSubscriptions()
     await afterFlushPromise()
-    round = -> share.model.Rounds.findOne name: 'Civilization'
-    meta = -> share.model.Puzzles.findOne name: 'St. Andrew\'s Links'
+    round = -> Rounds.findOne name: 'Civilization'
+    meta = -> Puzzles.findOne name: 'St. Andrew\'s Links'
     metaId = meta()._id
-    pos = share.model.Puzzles.findOne name: 'Part Of Speech'
-    invent = share.model.Puzzles.findOne name: 'Inventory Quest'
-    kids = share.model.Puzzles.findOne name: 'Fascinating Kids'
+    pos = Puzzles.findOne name: 'Part Of Speech'
+    invent = Puzzles.findOne name: 'Inventory Quest'
+    kids = Puzzles.findOne name: 'Fascinating Kids'
     posJQ = $ "#m#{metaId} tr[data-puzzle-id=\"#{pos._id}\"]"
     inventJQ = $ "#m#{metaId} tr[data-puzzle-id=\"#{invent._id}\"]"
     kidsJQ = $ "#m#{metaId} tr[data-puzzle-id=\"#{kids._id}\"]"

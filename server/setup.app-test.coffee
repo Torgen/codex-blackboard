@@ -1,6 +1,7 @@
 'use strict'
 
 import { NonEmptyString, ObjectWith } from '/lib/imports/match.coffee'
+import { collection } from '/lib/imports/collections.coffee'
 
 Accounts.removeDefaultRateLimit()
 
@@ -15,5 +16,5 @@ Meteor.methods
     now = Date.now()
     args.fields.touched = now
     args.fields.touched_by = @userId
-    share.model.collection(args.type).update args.object, $set: args.fields
+    collection(args.type).update args.object, $set: args.fields
     return true

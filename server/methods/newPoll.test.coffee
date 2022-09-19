@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Messages, Polls } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'newPoll', ->
   clock = null
@@ -56,7 +54,7 @@ describe 'newPoll', ->
 
   it 'canonicalizes options', ->
     callAs 'newPoll', 'torgen', 'general/0', 'What up?', ['Red', 'Orange', 'Yellow', 'Green', 'red']
-    chai.assert.deepInclude model.Polls.findOne(),
+    chai.assert.deepInclude Polls.findOne(),
       created: 7
       created_by: 'torgen'
       question: 'What up?'
@@ -70,8 +68,8 @@ describe 'newPoll', ->
 
   it 'creates message', ->
     callAs 'newPoll', 'torgen', 'general/0', 'What up?', ['Red', 'Orange', 'Yellow', 'Green', 'Blue']
-    p = model.Polls.findOne()._id
-    chai.assert.deepInclude model.Messages.findOne(dawn_of_time: $ne: true),
+    p = Polls.findOne()._id
+    chai.assert.deepInclude Messages.findOne(dawn_of_time: $ne: true),
       room_name: 'general/0'
       nick: 'torgen'
       body: 'What up?'

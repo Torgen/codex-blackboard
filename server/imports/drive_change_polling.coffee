@@ -1,8 +1,7 @@
 'use strict'
 
 import {fileType} from '/lib/imports/mime_type.coffee'
-
-model = share.model
+import { Messages, Puzzles } from '/lib/imports/collections.coffee'
 
 GDRIVE_DOC_MIME_TYPE = 'application/vnd.google-apps.document'
 
@@ -60,7 +59,7 @@ export default class DriveChangeWatcher
           if parents.includes @rootDir
             channel = 'general/0'
           else
-            puzzle = await model.Puzzles.rawCollection().findOne {drive: $in: parents}
+            puzzle = await Puzzles.rawCollection().findOne {drive: $in: parents}
             return unless puzzle?
             puzzleId = puzzle._id
             channel = "puzzles/#{puzzleId}" unless puzzle.spreadsheet is fileId or puzzle.doc is fileId
@@ -88,14 +87,14 @@ export default class DriveChangeWatcher
           filter: _id: puzzle
           update: updateDoc
       puzzlePromise = if bulkPuzzleUpdates.length
-        model.Puzzles.rawCollection().bulkWrite bulkPuzzleUpdates, ordered: false
+        Puzzles.rawCollection().bulkWrite bulkPuzzleUpdates, ordered: false
       else
         Promise.resolve()
       created.forEach ({name, mimeType, webViewLink, channel}, fileId) ->
         # Would be nice to use bulk write here, but since we're not forcing a particular ID
         # we could have mismatched meteor vs. mongo ID types.
         now = Date.now()
-        model.Messages.insert
+        Messages.insert
           body: "#{fileType(mimeType)} \"#{name}\" added to drive folder: #{webViewLink}"
           system: true
           room_name: channel

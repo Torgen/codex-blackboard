@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Messages, Rounds } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'renameRound', ->
   clock = null
@@ -27,7 +25,7 @@ describe 'renameRound', ->
   describe 'when new name is unique', ->
     id = null
     beforeEach ->
-      id = model.Rounds.insert
+      id = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -56,7 +54,7 @@ describe 'renameRound', ->
         chai.assert.isTrue ret
 
       it 'renames round', ->
-        round = model.Rounds.findOne id
+        round = Rounds.findOne id
         chai.assert.include round,
           name: 'Bar'
           canon: 'bar'
@@ -64,14 +62,14 @@ describe 'renameRound', ->
           touched_by: 'cjb'
 
       it 'oplogs', ->
-        chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1, 'oplogs'
+        chai.assert.lengthOf Messages.find({id: id, type: 'rounds'}).fetch(), 1, 'oplogs'
 
   describe 'when a round exists with that name', ->
     id1 = null
     id2 = null
     ret = null
     beforeEach ->
-      id1 = model.Rounds.insert
+      id1 = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -80,7 +78,7 @@ describe 'renameRound', ->
         touched_by: 'torgen'
         link: 'https://puzzlehunt.mit.edu/foo'
         tags: {}
-      id2 = model.Rounds.insert
+      id2 = Rounds.insert
         name: 'Bar'
         canon: 'bar'
         created: 2
@@ -97,11 +95,11 @@ describe 'renameRound', ->
       chai.assert.isFalse ret
 
     it 'leaves round alone', ->
-      chai.assert.include model.Rounds.findOne(id1),
+      chai.assert.include Rounds.findOne(id1),
         name: 'Foo'
         canon: 'foo'
         touched: 1
         touched_by: 'torgen'
 
     it 'doesn\'t oplog', ->
-      chai.assert.lengthOf model.Messages.find({id: {$in: [id1, id2]}, type: 'rounds'}).fetch(), 0
+      chai.assert.lengthOf Messages.find({id: {$in: [id1, id2]}, type: 'rounds'}).fetch(), 0

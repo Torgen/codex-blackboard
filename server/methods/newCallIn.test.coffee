@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { CallIns, Messages, Puzzles, Rounds } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'newCallIn', ->
   clock = null
@@ -34,7 +32,7 @@ describe 'newCallIn', ->
       , Meteor.Error
 
     it 'fails when target is not a puzzle', ->
-      id = model.Rounds.insert
+      id = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -55,7 +53,7 @@ describe 'newCallIn', ->
     describe 'on puzzle which exists', ->
       id = null
       beforeEach ->
-        id = model.Puzzles.insert
+        id = Puzzles.insert
           name: 'Foo'
           canon: 'foo'
           created: 1
@@ -87,7 +85,7 @@ describe 'newCallIn', ->
             answer: 'precipitate'
 
         it 'creates document', ->
-          c = model.CallIns.findOne()
+          c = CallIns.findOne()
           chai.assert.include c,
             name: 'answer:Foo:precipitate'
             target: id
@@ -101,7 +99,7 @@ describe 'newCallIn', ->
             status: 'pending'
 
         it 'oplogs', ->
-          o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             type: 'puzzles'
@@ -112,7 +110,7 @@ describe 'newCallIn', ->
           chai.assert.include o[0].body, 'precipitate', 'message'
 
         it 'notifies puzzle chat', ->
-          o = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'torgen'
@@ -121,7 +119,7 @@ describe 'newCallIn', ->
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it 'notifies general chat', ->
-          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'torgen'
@@ -134,7 +132,7 @@ describe 'newCallIn', ->
           target: id
           answer: 'precipitate'
           backsolve: true
-        c = model.CallIns.findOne()
+        c = CallIns.findOne()
         chai.assert.include c,
           target: id
           answer: 'precipitate'
@@ -149,7 +147,7 @@ describe 'newCallIn', ->
           target: id
           answer: 'precipitate'
           provided: true
-        c = model.CallIns.findOne()
+        c = CallIns.findOne()
         chai.assert.include c,
           target: id
           answer: 'precipitate'
@@ -160,7 +158,7 @@ describe 'newCallIn', ->
           status: 'pending'
 
     it 'notifies meta chat for puzzle', ->
-      meta = model.Puzzles.insert
+      meta = Puzzles.insert
         name: 'Meta'
         canon: 'meta'
         created: 2
@@ -171,7 +169,7 @@ describe 'newCallIn', ->
         solved_by: null
         tags: {}
         feedsInto: []
-      p = model.Puzzles.insert
+      p = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 2
@@ -182,8 +180,8 @@ describe 'newCallIn', ->
         solved_by: null
         tags: {}
         feedsInto: [meta]
-      model.Puzzles.update meta, $push: puzzles: p
-      r = model.Rounds.insert
+      Puzzles.update meta, $push: puzzles: p
+      r = Rounds.insert
         name: 'Bar'
         canon: 'bar'
         created: 1
@@ -195,7 +193,7 @@ describe 'newCallIn', ->
       callAs 'newCallIn', 'torgen',
         target: p
         answer: 'precipitate'
-      m = model.Messages.find(room_name: "puzzles/#{meta}", dawn_of_time: $ne: true).fetch()
+      m = Messages.find(room_name: "puzzles/#{meta}", dawn_of_time: $ne: true).fetch()
       chai.assert.lengthOf m, 1
       chai.assert.include m[0],
         nick: 'torgen'
@@ -214,7 +212,7 @@ describe 'newCallIn', ->
       , Meteor.Error
 
     it 'fails when target is not a puzzle', ->
-      id = model.Rounds.insert
+      id = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -236,7 +234,7 @@ describe 'newCallIn', ->
     describe 'on puzzle which exists', ->
       id = null
       beforeEach ->
-        id = model.Puzzles.insert
+        id = Puzzles.insert
           name: 'Foo'
           canon: 'foo'
           created: 1
@@ -289,7 +287,7 @@ describe 'newCallIn', ->
             callin_type: 'interaction request'
 
         it 'creates document', ->
-          c = model.CallIns.findOne()
+          c = CallIns.findOne()
           chai.assert.include c,
             name: 'interaction request:Foo:pay the cat tax'
             target: id
@@ -301,7 +299,7 @@ describe 'newCallIn', ->
             status: 'pending'
 
         it 'oplogs', ->
-          o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             type: 'puzzles'
@@ -312,7 +310,7 @@ describe 'newCallIn', ->
           chai.assert.include o[0].body, 'pay the cat tax', 'message'
 
         it 'notifies puzzle chat', ->
-          o = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'torgen'
@@ -322,7 +320,7 @@ describe 'newCallIn', ->
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it 'notifies general chat', ->
-          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'torgen'
@@ -342,7 +340,7 @@ describe 'newCallIn', ->
       , Meteor.Error
 
     it 'fails when target is not a puzzle', ->
-      id = model.Rounds.insert
+      id = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -364,7 +362,7 @@ describe 'newCallIn', ->
     describe 'on puzzle which exists', ->
       id = null
       beforeEach ->
-        id = model.Puzzles.insert
+        id = Puzzles.insert
           name: 'Foo'
           canon: 'foo'
           created: 1
@@ -417,7 +415,7 @@ describe 'newCallIn', ->
             callin_type: 'message to hq'
 
         it 'creates document', ->
-          c = model.CallIns.findOne()
+          c = CallIns.findOne()
           chai.assert.include c,
             name: 'message to hq:Foo:pay the cat tax'
             target: id
@@ -429,7 +427,7 @@ describe 'newCallIn', ->
             status: 'pending'
 
         it 'oplogs', ->
-          o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             type: 'puzzles'
@@ -440,7 +438,7 @@ describe 'newCallIn', ->
           chai.assert.include o[0].body, 'pay the cat tax', 'message'
 
         it 'notifies puzzle chat', ->
-          o = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'torgen'
@@ -450,7 +448,7 @@ describe 'newCallIn', ->
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it 'notifies general chat', ->
-          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'torgen'
@@ -470,7 +468,7 @@ describe 'newCallIn', ->
       , Meteor.Error
 
     it 'fails when target is not a puzzle', ->
-      id = model.Rounds.insert
+      id = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -492,7 +490,7 @@ describe 'newCallIn', ->
     describe 'on puzzle which exists', ->
       id = null
       beforeEach ->
-        id = model.Puzzles.insert
+        id = Puzzles.insert
           name: 'Foo'
           canon: 'foo'
           created: 1
@@ -545,7 +543,7 @@ describe 'newCallIn', ->
             callin_type: 'expected callback'
 
         it 'creates document', ->
-          c = model.CallIns.findOne()
+          c = CallIns.findOne()
           chai.assert.include c,
             name: 'expected callback:Foo:pay the cat tax'
             target: id
@@ -557,7 +555,7 @@ describe 'newCallIn', ->
             status: 'pending'
 
         it 'oplogs', ->
-          o = model.Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: 'oplog/0', dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             type: 'puzzles'
@@ -568,7 +566,7 @@ describe 'newCallIn', ->
           chai.assert.include o[0].body, 'pay the cat tax', 'message'
 
         it 'notifies puzzle chat', ->
-          o = model.Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "puzzles/#{id}", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'torgen'
@@ -578,7 +576,7 @@ describe 'newCallIn', ->
           chai.assert.notInclude o[0].body, '(Foo)', 'message'
 
         it 'notifies general chat', ->
-          o = model.Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
+          o = Messages.find(room_name: "general/0", dawn_of_time: $ne: true).fetch()
           chai.assert.lengthOf o, 1
           chai.assert.include o[0],
             nick: 'torgen'

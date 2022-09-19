@@ -1,5 +1,5 @@
 'use strict'
-model = share.model
+import { Calendar, CalendarEvents, Puzzles, Rounds } from '/lib/imports/collections.coffee'
 import { callAs, impersonating } from './imports/impersonate.coffee'
 import md5 from 'md5'
 
@@ -34,7 +34,7 @@ SAMPLE_NICKS = [
 ]
 
 Meteor.startup ->
-  if share.DO_BATCH_PROCESSING and POPULATE_DB_WHEN_RESET and model.Rounds.find().count() is 0
+  if share.DO_BATCH_PROCESSING and POPULATE_DB_WHEN_RESET and Rounds.find().count() is 0
     # Meteor.call is sync on server!
     console.log 'Populating initial puzzle database...'
     console.log '(use production:true in settings.json to disable this)'
@@ -452,17 +452,17 @@ Meteor.startup ->
         mechanics: ['runaround']
       
     # fake calendar
-    model.Calendar.insert _id: 'fake'
-    model.CalendarEvents.insert
+    Calendar.insert _id: 'fake'
+    CalendarEvents.insert
       _id: 'fake1'
       summary: 'Create test data'
       start: Date.now() - 3600000
       end: Date.now() + 3600000
       location: 'The Cloud'
-    model.CalendarEvents.insert
+    CalendarEvents.insert
       _id: 'fake2'
       summary: 'Do the Brainstorm runaround'
-      puzzle: model.Puzzles.findOne(canon: 'the_brainstorm')._id
+      puzzle: Puzzles.findOne(canon: 'the_brainstorm')._id
       start: Date.now() + 1200000
       end: Date.now() + 3000000
 

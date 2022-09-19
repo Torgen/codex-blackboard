@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Messages, Puzzles } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'setTag', ->
   clock = null
@@ -25,7 +23,7 @@ describe 'setTag', ->
     resetDatabase()
 
   it 'fails without login', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -50,7 +48,7 @@ describe 'setTag', ->
     , Match.Error
 
   it 'adds new tag', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -71,7 +69,7 @@ describe 'setTag', ->
       object: id
       name: 'Cares About'
       value: 'temperature'
-    chai.assert.deepInclude model.Puzzles.findOne(id),
+    chai.assert.deepInclude Puzzles.findOne(id),
       created: 1
       created_by: 'cjb'
       touched: 7
@@ -91,7 +89,7 @@ describe 'setTag', ->
           touched_by: 'torgen'
 
   it 'overwrites old tag', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -111,7 +109,7 @@ describe 'setTag', ->
       name: 'Cares About'
       value: 'temperature,pressure'
 
-    chai.assert.deepInclude model.Puzzles.findOne(id),
+    chai.assert.deepInclude Puzzles.findOne(id),
       created: 1
       created_by: 'cjb'
       touched: 7
@@ -124,7 +122,7 @@ describe 'setTag', ->
           touched_by: 'torgen'
 
   it 'defers to setAnswer', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -144,7 +142,7 @@ describe 'setTag', ->
       name: 'answEr'
       value: 'bar'
 
-    chai.assert.deepInclude model.Puzzles.findOne(id),
+    chai.assert.deepInclude Puzzles.findOne(id),
       created: 1
       created_by: 'cjb'
       touched: 7
@@ -162,7 +160,7 @@ describe 'setTag', ->
           value: 'temperature'
           touched: 3
           touched_by: 'cscott'
-    chai.assert.include model.Messages.findOne(room_name: 'oplog/0', body: 'Found an answer (BAR) to'),
+    chai.assert.include Messages.findOne(room_name: 'oplog/0', body: 'Found an answer (BAR) to'),
       id: id
       nick: 'torgen'
       oplog: true
@@ -170,7 +168,7 @@ describe 'setTag', ->
       stream: 'answers'
 
   it 'sets link', ->
-    id = model.Puzzles.insert
+    id = Puzzles.insert
       name: 'Foo'
       canon: 'foo'
       feedsInto: []
@@ -190,7 +188,7 @@ describe 'setTag', ->
       name: 'link'
       value: 'https://moliday.holasses/puzzles/foo'
 
-    chai.assert.deepInclude model.Puzzles.findOne(id),
+    chai.assert.deepInclude Puzzles.findOne(id),
       created: 1
       created_by: 'cjb'
       touched: 7
@@ -202,4 +200,4 @@ describe 'setTag', ->
           value: 'temperature'
           touched: 3
           touched_by: 'cscott'
-    chai.assert.doesNotHaveAnyKeys model.Puzzles.findOne(id).tags, ['link']
+    chai.assert.doesNotHaveAnyKeys Puzzles.findOne(id).tags, ['link']

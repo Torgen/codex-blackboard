@@ -1,16 +1,14 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs, impersonating } from '../../server/imports/impersonate.coffee'
+import { Messages, Roles, Rounds } from '/lib/imports/collections.coffee'
+import { callAs, impersonating } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import isDuplicateError from '/lib/imports/duplicate.coffee'
 import { RoleRenewalTime, RoundUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee'
-
-model = share.model
 
 describe 'newRound', ->
   driveMethods = null
@@ -54,7 +52,7 @@ describe 'newRound', ->
     id = null
     describe 'when onduty', ->
       beforeEach ->
-        model.Roles.insert
+        Roles.insert
           _id: 'onduty'
           holder: 'torgen'
           claimed_at: 2
@@ -66,11 +64,11 @@ describe 'newRound', ->
         ._id
 
       it 'oplogs', ->
-        chai.assert.lengthOf model.Messages.find({id: id, type: 'rounds'}).fetch(), 1
+        chai.assert.lengthOf Messages.find({id: id, type: 'rounds'}).fetch(), 1
 
       it 'creates round', ->
         # Round is created, then drive et al are added
-        round = model.Rounds.findOne id
+        round = Rounds.findOne id
         chai.assert.deepInclude round,
           name: 'Foo'
           canon: 'foo'
@@ -85,7 +83,7 @@ describe 'newRound', ->
           chai.assert.notProperty round, prop
 
       it 'renews onduty', ->
-        chai.assert.deepInclude model.Roles.findOne('onduty'),
+        chai.assert.deepInclude Roles.findOne('onduty'),
           holder: 'torgen'
           claimed_at: 2
           renewed_at: 7
@@ -93,7 +91,7 @@ describe 'newRound', ->
     
     describe 'when someone else is onduty', ->
       beforeEach ->
-        model.Roles.insert
+        Roles.insert
           _id: 'onduty'
           holder: 'florgen'
           claimed_at: 2
@@ -105,7 +103,7 @@ describe 'newRound', ->
         ._id
 
       it 'leaves onduty alone', ->
-        chai.assert.deepInclude model.Roles.findOne('onduty'),
+        chai.assert.deepInclude Roles.findOne('onduty'),
           holder: 'florgen'
           claimed_at: 2
           renewed_at: 2
@@ -119,7 +117,7 @@ describe 'newRound', ->
         ._id
 
       it 'leaves onduty alone', ->
-        chai.assert.isNotOk model.Roles.findOne('onduty')
+        chai.assert.isNotOk Roles.findOne('onduty')
   
   it 'derives link', ->
     impersonating 'cjb', -> RoundUrlPrefix.set 'https://testhuntpleaseign.org/rounds'
@@ -127,7 +125,7 @@ describe 'newRound', ->
       name: 'Foo Round'
     ._id
     # Round is created, then drive et al are added
-    round = model.Rounds.findOne id
+    round = Rounds.findOne id
     chai.assert.deepInclude round,
       name: 'Foo Round'
       canon: 'foo_round'
@@ -143,7 +141,7 @@ describe 'newRound', ->
     id1 = null
     error = null
     beforeEach ->
-      id1 = model.Rounds.insert
+      id1 = Rounds.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -163,11 +161,11 @@ describe 'newRound', ->
       chai.assert.isTrue isDuplicateError(error), "#{error}"
 
     it 'doesn\'t touch', ->
-      chai.assert.include model.Rounds.findOne(id1),
+      chai.assert.include Rounds.findOne(id1),
         created: 1
         created_by: 'torgen'
         touched: 1
         touched_by: 'torgen'
 
     it 'doesn\'t oplog', ->
-      chai.assert.lengthOf model.Messages.find({id: id1, type: 'rounds'}).fetch(), 0
+      chai.assert.lengthOf Messages.find({id: id1, type: 'rounds'}).fetch(), 0

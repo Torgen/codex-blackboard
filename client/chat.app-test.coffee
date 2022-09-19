@@ -1,6 +1,8 @@
 'use strict'
 
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
+import { waitForDocument } from '/lib/imports/testutils.coffee'
+import { Messages, Puzzles, Rounds } from '/lib/imports/collections.coffee'
 import chai from 'chai'
 
 describe 'chat', ->
@@ -29,19 +31,21 @@ describe 'chat', ->
     chai.assert.isDefined $('img[src^="https://memegen.link/doge"]').html(), 'meme'
 
   it 'updates read marker', ->
-    id = share.model.Puzzles.findOne(name: 'Temperance')._id
+    id = Puzzles.findOne(name: 'Temperance')._id
+    joinedPresence = waitForDocument Messages, {presence: 'join', nick: 'testy', room_name: "puzzles/#{id}", timestamp: $gte: Date.now()}
     share.Router.ChatPage('puzzles', id)
+    await afterFlushPromise()
     await waitForSubscriptions()
     await afterFlushPromise()
-    # The read marker is inserted by a mutation observer, so we need to wait for it to run.
+    await joinedPresence
     await afterFlushPromise()
-    top = $('.bb-message-last-read').offset().top
+    chai.assert.isNotOk $('.bb-message-last-read').offset(), 'before'
     $('#messageInput').focus()
     await waitForMethods()
-    chai.assert.isAbove $('.bb-message-last-read').offset().top, top, 'after'
+    chai.assert.isOk $('.bb-message-last-read').offset(), 'after'
 
   it 'scrolls through history', ->
-    id = share.model.Puzzles.findOne(name: 'Joy')._id
+    id = Puzzles.findOne(name: 'Joy')._id
     share.Router.ChatPage('puzzles', id)
     await waitForSubscriptions()
     await afterFlushPromise()
@@ -71,7 +75,7 @@ describe 'chat', ->
 
   it 'loads more', ->
     @timeout 30000
-    puzz = share.model.Puzzles.findOne name: 'Literary Collection'
+    puzz = Puzzles.findOne name: 'Literary Collection'
     share.Router.ChatPage('puzzles', puzz._id)
     room = "puzzles/#{puzz._id}"
     await waitForSubscriptions()
@@ -94,7 +98,7 @@ describe 'chat', ->
     chai.assert.isAbove allMessages.length, 250
 
   it 'deletes message', ->
-    puzz = share.model.Puzzles.findOne name: 'Freak Out'
+    puzz = Puzzles.findOne name: 'Freak Out'
     share.Router.ChatPage('puzzles', puzz._id)
     room = "puzzles/#{puzz._id}"
     await waitForSubscriptions()
@@ -112,10 +116,10 @@ describe 'chat', ->
     await waitForMethods()
     $badmsg = $("#messages [data-message-id=\"#{msg._id}\"]")
     chai.assert.isNotOk $badmsg[0]
-    chai.assert.isNotOk share.model.Messages.findOne msg._id
+    chai.assert.isNotOk Messages.findOne msg._id
 
   it 'aborts deleting message', ->
-    puzz = share.model.Puzzles.findOne name: 'Freak Out'
+    puzz = Puzzles.findOne name: 'Freak Out'
     share.Router.ChatPage('puzzles', puzz._id)
     room = "puzzles/#{puzz._id}"
     await waitForSubscriptions()
@@ -133,11 +137,11 @@ describe 'chat', ->
     await waitForMethods()
     $badmsg = $("#messages [data-message-id=\"#{msg._id}\"]")
     chai.assert.isOk $badmsg[0]
-    chai.assert.isOk share.model.Messages.findOne msg._id
+    chai.assert.isOk Messages.findOne msg._id
 
   describe '/join', ->
     it 'joins puzzle', ->
-      puzz = share.model.Puzzles.findOne name: 'Painted Potsherds'
+      puzz = Puzzles.findOne name: 'Painted Potsherds'
       share.Router.ChatPage('general', '0')
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -149,7 +153,7 @@ describe 'chat', ->
       chai.assert.equal Session.get('id'), puzz._id
 
     it 'joins round', ->
-      rnd = share.model.Rounds.findOne name: 'Civilization'
+      rnd = Rounds.findOne name: 'Civilization'
       share.Router.ChatPage('general', '0')
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -161,7 +165,7 @@ describe 'chat', ->
       chai.assert.equal Session.get('id'), rnd._id
 
     it 'joins general', ->
-      rnd = share.model.Rounds.findOne name: 'Civilization'
+      rnd = Rounds.findOne name: 'Civilization'
       share.Router.ChatPage('rounds', rnd._id)
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -188,7 +192,7 @@ describe 'chat', ->
   describe 'typeahead', ->
 
     it 'accepts keyboard commands', ->
-      id = share.model.Puzzles.findOne(name: 'Disgust')._id
+      id = Puzzles.findOne(name: 'Disgust')._id
       share.Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -222,7 +226,7 @@ describe 'chat', ->
       chai.assert.equal 0, typeahead.length
 
     it 'allows clicks', ->
-      id = share.model.Puzzles.findOne(name: 'Space Elevator')._id
+      id = Puzzles.findOne(name: 'Space Elevator')._id
       share.Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -241,7 +245,7 @@ describe 'chat', ->
   describe 'submit', ->
 
     it 'mentions', ->
-      id = share.model.Puzzles.findOne(name: 'Showcase')._id
+      id = Puzzles.findOne(name: 'Showcase')._id
       share.Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -250,12 +254,12 @@ describe 'chat', ->
       input.trigger $.Event 'keydown', which: 13
       await waitForMethods()
       await afterFlushPromise()
-      msg = share.model.Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
+      msg = Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
       chai.assert.deepInclude msg,
         mention: ['kwal', 'cscott']
 
     it 'nonexistent mentions', ->
-      id = share.model.Puzzles.findOne(name: 'Soooo Cute!')._id
+      id = Puzzles.findOne(name: 'Soooo Cute!')._id
       share.Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -264,11 +268,11 @@ describe 'chat', ->
       input.trigger $.Event 'keydown', which: 13
       await waitForMethods()
       await afterFlushPromise()
-      msg = share.model.Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
+      msg = Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
       chai.assert.deepEqual msg.mention, ['kwal']
 
     it 'action', ->
-      id = share.model.Puzzles.findOne(name: 'This SHOULD Be Easy')._id
+      id = Puzzles.findOne(name: 'This SHOULD Be Easy')._id
       share.Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -277,14 +281,14 @@ describe 'chat', ->
       input.trigger $.Event 'keydown', which: 13
       await waitForMethods()
       await afterFlushPromise()
-      msg = share.model.Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
+      msg = Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
       chai.assert.deepInclude msg,
         action: true
         mention: ['cscott']
         body: 'heard about @Cscott'
 
     it 'messages', ->
-      id = share.model.Puzzles.findOne(name: 'Charm School')._id
+      id = Puzzles.findOne(name: 'Charm School')._id
       share.Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -293,13 +297,13 @@ describe 'chat', ->
       input.trigger $.Event 'keydown', which: 13
       await waitForMethods()
       await afterFlushPromise()
-      msg = share.model.Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
+      msg = Messages.findOne {nick: 'testy', room_name: "puzzles/#{id}"}, {sort: {timestamp: -1}}
       chai.assert.deepInclude msg,
         to: 'kwal'
       chai.assert.isNotOk msg.mention
 
     it 'errors on message to nobody', ->
-      id = share.model.Puzzles.findOne(name: 'Charm School')._id
+      id = Puzzles.findOne(name: 'Charm School')._id
       share.Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
@@ -312,7 +316,7 @@ describe 'chat', ->
 
   describe 'polls', ->
     it 'lets you change your vote', ->
-      id = share.model.Puzzles.findOne(name: 'Amateur Hour')._id
+      id = Puzzles.findOne(name: 'Amateur Hour')._id
       share.Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()

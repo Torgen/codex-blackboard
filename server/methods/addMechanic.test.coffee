@@ -1,14 +1,13 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
+import { Puzzles } from '/lib/imports/collections.coffee'
 # Test only works on server side; move to /server if you add client tests.
 import { callAs } from '../../server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'addMechanic', ->
   clock = null
@@ -32,7 +31,7 @@ describe 'addMechanic', ->
   describe 'to puzzle with empty mechanics', ->
     id = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -53,11 +52,11 @@ describe 'addMechanic', ->
         callAs 'addMechanic', 'cjb', id, 'cryptic_clues'
 
       it 'appends mechanic', ->
-        doc = model.Puzzles.findOne id
+        doc = Puzzles.findOne id
         chai.assert.deepInclude doc, mechanics: ['cryptic_clues']
 
       it 'touches', ->
-        doc = model.Puzzles.findOne id
+        doc = Puzzles.findOne id
         chai.assert.include doc,
           touched: 7
           touched_by: 'cjb'
@@ -65,7 +64,7 @@ describe 'addMechanic', ->
   describe 'to puzzle with mechanics', ->
     id = null
     beforeEach ->
-      id = model.Puzzles.insert
+      id = Puzzles.insert
         name: 'Foo'
         canon: 'foo'
         created: 1
@@ -93,11 +92,11 @@ describe 'addMechanic', ->
           callAs 'addMechanic', 'cjb', id, 'cryptic_clues'
 
         it 'appends mechanic', ->
-          doc = model.Puzzles.findOne id
+          doc = Puzzles.findOne id
           chai.assert.deepInclude doc, mechanics: ['nikoli_variants', 'cryptic_clues']
 
         it 'touches', ->
-          doc = model.Puzzles.findOne id
+          doc = Puzzles.findOne id
           chai.assert.include doc,
             touched: 7
             touched_by: 'cjb'
@@ -107,11 +106,11 @@ describe 'addMechanic', ->
           callAs 'addMechanic', 'cjb', id, 'nikoli_variants'
 
         it 'leaves mechanics unchanged', ->
-          doc = model.Puzzles.findOne id
+          doc = Puzzles.findOne id
           chai.assert.deepInclude doc, mechanics: ['nikoli_variants']
 
         it 'touches', ->
-          doc = model.Puzzles.findOne id
+          doc = Puzzles.findOne id
           chai.assert.include doc,
             touched: 7
             touched_by: 'cjb'

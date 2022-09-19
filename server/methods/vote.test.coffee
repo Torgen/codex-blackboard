@@ -1,14 +1,12 @@
 'use strict'
 
-# Will access contents via share
+# For side effects
 import '/lib/model.coffee'
-# Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee'
+import { Polls } from '/lib/imports/collections.coffee'
+import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
-
-model = share.model
 
 describe 'vote', ->
   clock = null
@@ -25,7 +23,7 @@ describe 'vote', ->
     resetDatabase()
 
   it 'fails without login', ->
-    model.Polls.insert
+    Polls.insert
       _id: 'foo'
       options: [{canon: 'foo', option: 'Foo'}, {canon: 'bar', option: 'Bar'}]
       created: 2
@@ -47,17 +45,17 @@ describe 'vote', ->
 
   it 'no-ops when no such poll', ->
     callAs 'vote', 'torgen', 'foo', 'bar'
-    chai.assert.notExists model.Polls.findOne()
+    chai.assert.notExists Polls.findOne()
 
   it 'no-ops when no such option', ->
-    model.Polls.insert
+    Polls.insert
       _id: 'foo'
       options: [{canon: 'foo', option: 'Foo'}, {canon: 'bar', option: 'Bar'}]
       created: 2
       created_by: 'cscott'
       votes: metasj: {canon: 'foo', timestamp: 4}
     callAs 'vote', 'torgen', 'foo', 'qux'
-    chai.assert.deepEqual model.Polls.findOne(),
+    chai.assert.deepEqual Polls.findOne(),
       _id: 'foo'
       options: [{canon: 'foo', option: 'Foo'}, {canon: 'bar', option: 'Bar'}]
       created: 2
@@ -65,14 +63,14 @@ describe 'vote', ->
       votes: metasj: {canon: 'foo', timestamp: 4}
 
   it 'adds vote', ->
-    model.Polls.insert
+    Polls.insert
       _id: 'foo'
       options: [{canon: 'foo', option: 'Foo'}, {canon: 'bar', option: 'Bar'}]
       created: 2
       created_by: 'cscott'
       votes: metasj: {canon: 'foo', timestamp: 4}
     callAs 'vote', 'torgen', 'foo', 'bar'
-    chai.assert.deepEqual model.Polls.findOne(),
+    chai.assert.deepEqual Polls.findOne(),
       _id: 'foo'
       options: [{canon: 'foo', option: 'Foo'}, {canon: 'bar', option: 'Bar'}]
       created: 2
@@ -82,14 +80,14 @@ describe 'vote', ->
         torgen: {canon: 'bar', timestamp: 7}
 
   it 'changes vote', ->
-    model.Polls.insert
+    Polls.insert
       _id: 'foo'
       options: [{canon: 'foo', option: 'Foo'}, {canon: 'bar', option: 'Bar'}]
       created: 2
       created_by: 'cscott'
       votes: metasj: {canon: 'foo', timestamp: 4}
     callAs 'vote', 'metasj', 'foo', 'bar'
-    chai.assert.deepEqual model.Polls.findOne(),
+    chai.assert.deepEqual Polls.findOne(),
       _id: 'foo'
       options: [{canon: 'foo', option: 'Foo'}, {canon: 'bar', option: 'Bar'}]
       created: 2

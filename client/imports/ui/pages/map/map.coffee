@@ -6,11 +6,12 @@ import {MarkerClusterer} from "@googlemaps/markerclusterer"
 import {MarkerWithLabel} from "@googlemaps/markerwithlabel"
 import md5 from 'md5'
 import {positionOrDefault, solarLongitude} from './geography.coffee'
+import { MAPS_API_KEY } from '/client/imports/server_settings.coffee'
 
 loaded = new ReactiveVar false
 do ->
   loader = new Loader
-    apiKey: share.settings.MAPS_API_KEY
+    apiKey: MAPS_API_KEY
     version: 'weekly'
   await loader.load()
   loaded.set true
