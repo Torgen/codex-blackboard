@@ -1,10 +1,11 @@
 'use strict'
 
-import '../000batch.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 import { Drive } from './drive.coffee'
 import { Readable } from 'stream'
+
+import * as batch from '/server/imports/batch.coffee'
 
 OWNER_PERM =
   role: 'writer'
@@ -49,14 +50,14 @@ describe 'drive', ->
     sinon.verifyAndRestore()
 
   it 'propagates errors', ->
-    sinon.replace share, 'DO_BATCH_PROCESSING', false
+    sinon.replace batch, 'DO_BATCH_PROCESSING', false
     files.expects('list').once().rejects code: 400
     chai.assert.throws ->
       new Drive api
 
   testCase = (perms) ->
     it 'creates folder when batch is enabled', ->
-      sinon.replace share, 'DO_BATCH_PROCESSING', true
+      sinon.replace batch, 'DO_BATCH_PROCESSING', true
       files.expects('list').withArgs sinon.match
         q: 'name=\'Test Folder\' and \'root\' in parents'
         pageSize: 1
@@ -105,7 +106,7 @@ describe 'drive', ->
     describe 'with batch disabled', ->
       drive = null
       beforeEach ->
-        sinon.replace share, 'DO_BATCH_PROCESSING', false
+        sinon.replace batch, 'DO_BATCH_PROCESSING', false
         files.expects('list').withArgs sinon.match
           q: 'name=\'Test Folder\' and \'root\' in parents'
           pageSize: 1

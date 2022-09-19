@@ -1,14 +1,15 @@
 # Start a hubot, connected to our chat room.
 'use strict'
 
-return unless share.DO_BATCH_PROCESSING
-
 import { scripts } from '/server/imports/botutil.coffee'
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee'
 import Robot from './imports/hubot.coffee'
 import hubot_help from 'hubot-help'
 # Required so external hubot scripts written in coffeescript can be loaded
 # dynamically.
 import 'coffeescript/register'
+
+return unless DO_BATCH_PROCESSING
 
 # Log messages?
 DEBUG = !Meteor.isProduction

@@ -2,6 +2,7 @@
 import canonical from '../lib/imports/canonical.coffee'
 import { createHash } from 'crypto'
 import { StringWithLength } from '../lib/imports/match.coffee'
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee'
 
 PASSWORD = Meteor.settings?.password ? process.env.TEAM_PASSWORD 
 
@@ -11,7 +12,7 @@ Meteor.users.deny
 sha1 = (x) ->
   createHash('sha1').update(x).digest('hex')
 
-if share.DO_BATCH_PROCESSING
+if DO_BATCH_PROCESSING
   if PASSWORD?
     sha_password = sha1 PASSWORD
     Meteor.startup ->

@@ -4,11 +4,12 @@ import { CalendarSync } from './imports/calendar.coffee'
 import googleauth from './imports/googleauth.coffee'
 import { RETRY_RESPONSE_CODES } from './imports/googlecommon.coffee'
 import { google } from 'googleapis'
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee'
 
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-return unless share.DO_BATCH_PROCESSING
+return unless DO_BATCH_PROCESSING
 return if Meteor.isAppTest
 
 Promise.await do ->

@@ -3,6 +3,7 @@
 import { Readable } from 'stream'
 import delay from 'delay'
 import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.coffee'
+import * as batch from '/server/imports/batch.coffee'
 
 # Drive folder settings
 WORKSHEET_NAME = (name) -> "Worksheet: #{name}"
@@ -138,7 +139,7 @@ ensureFolder = (drive, name, parent) ->
   }
 
 awaitOrEnsureFolder = (drive, name, parent) ->
-  if share.DO_BATCH_PROCESSING
+  if batch.DO_BATCH_PROCESSING
     res = await ensureFolder drive, name, parent
     await res.permissionsPromise
     return res.folder

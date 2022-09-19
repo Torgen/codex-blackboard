@@ -1,6 +1,7 @@
 'use strict'
 import { Calendar, CalendarEvents, Puzzles, Rounds } from '/lib/imports/collections.coffee'
 import { callAs, impersonating } from './imports/impersonate.coffee'
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee'
 import md5 from 'md5'
 
 # if the database is empty on server start, create some sample data.
@@ -34,7 +35,7 @@ SAMPLE_NICKS = [
 ]
 
 Meteor.startup ->
-  if share.DO_BATCH_PROCESSING and POPULATE_DB_WHEN_RESET and Rounds.find().count() is 0
+  if DO_BATCH_PROCESSING and POPULATE_DB_WHEN_RESET and Rounds.find().count() is 0
     # Meteor.call is sync on server!
     console.log 'Populating initial puzzle database...'
     console.log '(use production:true in settings.json to disable this)'

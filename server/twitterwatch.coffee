@@ -13,8 +13,9 @@
 
 import { TwitterApi, ETwitterStreamEvent } from 'twitter-api-v2'
 import tweetToMessage from './imports/twitter.coffee'
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee'
 
-return unless share.DO_BATCH_PROCESSING
+return unless DO_BATCH_PROCESSING
 settings = Meteor.settings?.twitter ? {}
 settings.consumer_key ?= process.env.TWITTER_CONSUMER_KEY
 settings.consumer_secret ?= process.env.TWITTER_CONSUMER_SECRET

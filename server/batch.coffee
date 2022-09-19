@@ -1,8 +1,10 @@
 'use strict'
-return unless share.DO_BATCH_PROCESSING
 
 import watchPresence from './imports/presence.coffee'
 import { RoleManager } from './imports/roles.coffee'
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee'
+
+return unless DO_BATCH_PROCESSING
 
 # Does various fixups of the collections.
 # Was in lib/model.coffee, but that meant it was loaded on the client even
