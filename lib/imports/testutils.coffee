@@ -17,7 +17,6 @@ export waitForDocument = (collection, query, matcher) ->
             catch err
               reject err
           else resolve doc
-      console.log 'handle must be assigned'
   finally
     handle.stop()
 
