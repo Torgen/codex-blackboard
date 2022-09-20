@@ -47,7 +47,7 @@ distanceTo = (nick) ->
   return null unless n? and n.located_at?
   return distance(n.located_at, p)
 
-isNickNear = share.isNickNear = (nick) ->
+isNickNear = (nick) ->
   return true if canonical(nick) is Meteor.userId() # that's me!
   dist = distanceTo(nick)
   return false unless dist?
