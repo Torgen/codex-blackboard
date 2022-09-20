@@ -1,6 +1,7 @@
 'use strict'
 
 import {waitForSubscriptions, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee'
+import Router from '/client/imports/router.coffee'
 import chai from 'chai'
 import denodeify from 'denodeify'
 
@@ -16,7 +17,7 @@ describe 'graph', ->
 
   it 'renders', ->
     p = awaitRender()
-    share.Router.GraphPage()
+    Router.GraphPage()
     await login('testy', 'Teresa Tybalt', '', 'failphrase')
     await afterFlushPromise()
     await waitForSubscriptions()

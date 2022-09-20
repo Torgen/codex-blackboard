@@ -1,6 +1,7 @@
 'use strict'
 
 import { Messages, Puzzles } from '/lib/imports/collections.coffee'
+import Router from '/client/imports/router.coffee'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee'
 import chai from 'chai'
 
@@ -14,7 +15,7 @@ describe 'logistics', ->
 
   describe 'callins', ->
     it 'marks puzzle solved', ->
-      await share.Router.LogisticsPage()
+      await Router.LogisticsPage()
       await waitForSubscriptions()
       pb = Puzzles.findOne name: 'Puzzle Box'
       await promiseCall 'deleteAnswer', target: pb._id
@@ -35,7 +36,7 @@ describe 'logistics', ->
       chai.assert.equal pb.tags.answer.value, 'teferi'
 
     it 'gets disappointed', ->
-      await share.Router.LogisticsPage()
+      await Router.LogisticsPage()
       await waitForSubscriptions()
       pb = Puzzles.findOne name: 'Puzzle Box'
       await promiseCall 'deleteAnswer', target: pb._id
@@ -58,7 +59,7 @@ describe 'logistics', ->
       chai.assert.isOk msg
 
     it 'accepts explanation on accepted interaction request', ->
-      await share.Router.LogisticsPage()
+      await Router.LogisticsPage()
       await waitForSubscriptions()
       pb = Puzzles.findOne name: 'Puzzle Box'
       await promiseCall 'deleteAnswer', target: pb._id
@@ -82,7 +83,7 @@ describe 'logistics', ->
       chai.assert.isOk msg
 
     it 'accepts explanation on rejected interaction request', ->
-      await share.Router.LogisticsPage()
+      await Router.LogisticsPage()
       await waitForSubscriptions()
       pb = Puzzles.findOne name: 'Puzzle Box'
       await promiseCall 'deleteAnswer', target: pb._id

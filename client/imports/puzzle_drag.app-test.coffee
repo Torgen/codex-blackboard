@@ -1,6 +1,7 @@
 'use strict'
 
 import { Puzzles, Rounds } from '/lib/imports/collections.coffee'
+import Router from '/client/imports/router.coffee'
 import PuzzleDrag from './puzzle_drag.coffee'
 import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './app_test_helpers.coffee'
 import chai from 'chai'
@@ -17,7 +18,7 @@ describe 'drag-and-drop', ->
     logout()
 
   it 'allows drag and drop within a meta', ->
-    share.Router.EditPage()
+    Router.EditPage()
     await waitForSubscriptions()
     await afterFlushPromise()
     round = -> Rounds.findOne name: 'Civilization'

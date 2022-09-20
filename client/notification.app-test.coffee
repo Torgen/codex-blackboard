@@ -2,6 +2,7 @@
 
 import { Puzzles, Rounds } from '/lib/imports/collections.coffee'
 import * as notification from '/client/imports/notification.coffee'
+import Router from '/client/imports/router.coffee'
 import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -13,7 +14,7 @@ describe 'notifications dropdown', ->
   @timeout 10000
   before ->
     await login('testy', 'Teresa Tybalt', 'fake@artifici.al', 'failphrase')
-    share.Router.BlackboardPage()
+    Router.BlackboardPage()
 
   after ->
     logout()
@@ -52,7 +53,7 @@ describe 'notifications', ->
       nickname: 'someoneelse'
       real_name: 'Someone Else'
       password: 'failphrase'
-    share.Router.BlackboardPage()
+    Router.BlackboardPage()
   
   after ->
     logout()

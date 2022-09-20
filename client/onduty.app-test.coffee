@@ -1,6 +1,7 @@
 'use strict'
 
 import { Roles } from '/lib/imports/collections.coffee'
+import Router from '/client/imports/router.coffee'
 import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import {waitForDeletion} from '/lib/imports/testutils.coffee'
 import chai from 'chai'
@@ -14,7 +15,7 @@ describe 'onduty', ->
 
   it 'updates while logged in', ->
     await login('testy', 'Teresa Tybalt', '', 'failphrase')
-    share.Router.BlackboardPage()
+    Router.BlackboardPage()
     await waitForSubscriptions()
     $('[data-onduty="claim"]').click()
     await waitForMethods()
@@ -37,7 +38,7 @@ describe 'onduty', ->
     await promiseCallOn other_conn, 'claimOnduty',
       from: null
     await login('testy', 'Teresa Tybalt', '', 'failphrase')
-    share.Router.BlackboardPage()
+    Router.BlackboardPage()
     await waitForSubscriptions()
     chai.assert.deepInclude Roles.findOne('onduty'),
       holder: 'incognito'

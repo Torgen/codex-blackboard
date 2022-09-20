@@ -3,6 +3,7 @@
 import canonical from '/lib/imports/canonical.coffee'
 import { LastRead, Messages, Puzzles, Roles, Rounds } from '/lib/imports/collections.coffee'
 import md5 from 'md5'
+import Router from '/client/imports/router.coffee'
 import { jitsiUrl } from './imports/jitsi.coffee'
 import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee'
 import botuser from './imports/botuser.coffee'
@@ -29,7 +30,7 @@ do ->
         ("height=480,width=480,menubar=no,toolbar=no,personalbar=no,"+\
         "status=yes,resizeable=yes,scrollbars=yes")
     else
-      share.Router.navigate rawHref, {trigger:true}
+      Router.navigate rawHref, {trigger:true}
   Template.page.events
     'click a.puzzles-link': clickHandler
     'click a.rounds-link': clickHandler
@@ -127,9 +128,9 @@ Template.header_loginmute.events
     event.preventDefault()
     Meteor.logout()
   "click .bb-unprotect": (event, template) ->
-    share.Router.navigate "/edit", {trigger: true}
+    Router.navigate "/edit", {trigger: true}
   "click .bb-protect": (event, template) ->
-    share.Router.navigate "/", {trigger: true}
+    Router.navigate "/", {trigger: true}
   'click li[data-tab]:not(.active)': (event, template) ->
     template.visibleTab.set event.currentTarget.dataset.tab
   'click #bb-mark-private-read': (event, template) ->

@@ -1,6 +1,7 @@
 'use strict'
 
 import {waitForSubscriptions, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee'
+import Router from '/client/imports/router.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
 
@@ -20,7 +21,7 @@ describe 'projector', ->
     await logout()
 
   it 'operates', ->
-    share.Router.ProjectorPage()
+    Router.ProjectorPage()
     await afterFlushPromise()
     page = $('#projector_page')
     unless page.children().size()

@@ -1,5 +1,6 @@
 
 import { reactiveLocalStorage } from '/client/imports/storage.coffee'
+import Router from '/client/imports/router.coffee'
 
 keystring = (k) -> "notification.stream.#{k}"
 
@@ -71,7 +72,7 @@ export notify = (title, settings) ->
     n = new Notification title, settings
     if settings.data?.url?
       n.onclick = ->
-        share.Router.navigate settings.data.url, trigger: true
+        Router.navigate settings.data.url, trigger: true
         window.focus()
   catch err
     console.log err.message
@@ -83,7 +84,7 @@ setupNotifications = ->
       navigator.serviceWorker.addEventListener 'message', (msg) ->
         console.log msg.data unless Meteor.isProduction
         return unless msg.data.action is 'navigate'
-        share.Router.navigate msg.data.url, trigger: true
+        Router.navigate msg.data.url, trigger: true
       notify = (title, settings) -> reg.showNotification title, settings
       finishSetupNotifications()
     ).catch (error) -> Session.set 'notifications', 'default'

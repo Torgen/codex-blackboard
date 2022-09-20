@@ -1,5 +1,6 @@
 'use strict'
 
+import Router from '/client/imports/router.coffee'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import { waitForDocument } from '/lib/imports/testutils.coffee'
 import { Messages, Puzzles, Rounds } from '/lib/imports/collections.coffee'
@@ -16,7 +17,7 @@ describe 'chat', ->
     logout()
 
   it 'general chat', ->
-    share.Router.ChatPage('general', '0')
+    Router.ChatPage('general', '0')
     await afterFlushPromise()
     await waitForSubscriptions()
     await afterFlushPromise()
@@ -33,7 +34,7 @@ describe 'chat', ->
   it 'updates read marker', ->
     id = Puzzles.findOne(name: 'Temperance')._id
     joinedPresence = waitForDocument Messages, {presence: 'join', nick: 'testy', room_name: "puzzles/#{id}", timestamp: $gte: Date.now()}
-    share.Router.ChatPage('puzzles', id)
+    Router.ChatPage('puzzles', id)
     await afterFlushPromise()
     await waitForSubscriptions()
     await afterFlushPromise()
@@ -46,7 +47,7 @@ describe 'chat', ->
 
   it 'scrolls through history', ->
     id = Puzzles.findOne(name: 'Joy')._id
-    share.Router.ChatPage('puzzles', id)
+    Router.ChatPage('puzzles', id)
     await waitForSubscriptions()
     await afterFlushPromise()
     input = $ '#messageInput'
@@ -76,7 +77,7 @@ describe 'chat', ->
   it 'loads more', ->
     @timeout 30000
     puzz = Puzzles.findOne name: 'Literary Collection'
-    share.Router.ChatPage('puzzles', puzz._id)
+    Router.ChatPage('puzzles', puzz._id)
     room = "puzzles/#{puzz._id}"
     await waitForSubscriptions()
     await afterFlushPromise()
@@ -99,7 +100,7 @@ describe 'chat', ->
 
   it 'deletes message', ->
     puzz = Puzzles.findOne name: 'Freak Out'
-    share.Router.ChatPage('puzzles', puzz._id)
+    Router.ChatPage('puzzles', puzz._id)
     room = "puzzles/#{puzz._id}"
     await waitForSubscriptions()
     await afterFlushPromise()
@@ -120,7 +121,7 @@ describe 'chat', ->
 
   it 'aborts deleting message', ->
     puzz = Puzzles.findOne name: 'Freak Out'
-    share.Router.ChatPage('puzzles', puzz._id)
+    Router.ChatPage('puzzles', puzz._id)
     room = "puzzles/#{puzz._id}"
     await waitForSubscriptions()
     await afterFlushPromise()
@@ -142,7 +143,7 @@ describe 'chat', ->
   describe '/join', ->
     it 'joins puzzle', ->
       puzz = Puzzles.findOne name: 'Painted Potsherds'
-      share.Router.ChatPage('general', '0')
+      Router.ChatPage('general', '0')
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -154,7 +155,7 @@ describe 'chat', ->
 
     it 'joins round', ->
       rnd = Rounds.findOne name: 'Civilization'
-      share.Router.ChatPage('general', '0')
+      Router.ChatPage('general', '0')
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -166,7 +167,7 @@ describe 'chat', ->
 
     it 'joins general', ->
       rnd = Rounds.findOne name: 'Civilization'
-      share.Router.ChatPage('rounds', rnd._id)
+      Router.ChatPage('rounds', rnd._id)
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -177,7 +178,7 @@ describe 'chat', ->
       chai.assert.equal Session.get('id'), 0
 
     it 'joins puzzle', ->
-      share.Router.ChatPage('general', '0')
+      Router.ChatPage('general', '0')
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -193,7 +194,7 @@ describe 'chat', ->
 
     it 'accepts keyboard commands', ->
       id = Puzzles.findOne(name: 'Disgust')._id
-      share.Router.ChatPage('puzzles', id)
+      Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -227,7 +228,7 @@ describe 'chat', ->
 
     it 'allows clicks', ->
       id = Puzzles.findOne(name: 'Space Elevator')._id
-      share.Router.ChatPage('puzzles', id)
+      Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -246,7 +247,7 @@ describe 'chat', ->
 
     it 'mentions', ->
       id = Puzzles.findOne(name: 'Showcase')._id
-      share.Router.ChatPage('puzzles', id)
+      Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -260,7 +261,7 @@ describe 'chat', ->
 
     it 'nonexistent mentions', ->
       id = Puzzles.findOne(name: 'Soooo Cute!')._id
-      share.Router.ChatPage('puzzles', id)
+      Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -273,7 +274,7 @@ describe 'chat', ->
 
     it 'action', ->
       id = Puzzles.findOne(name: 'This SHOULD Be Easy')._id
-      share.Router.ChatPage('puzzles', id)
+      Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -289,7 +290,7 @@ describe 'chat', ->
 
     it 'messages', ->
       id = Puzzles.findOne(name: 'Charm School')._id
-      share.Router.ChatPage('puzzles', id)
+      Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -304,7 +305,7 @@ describe 'chat', ->
 
     it 'errors on message to nobody', ->
       id = Puzzles.findOne(name: 'Charm School')._id
-      share.Router.ChatPage('puzzles', id)
+      Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
       input = $ '#messageInput'
@@ -317,7 +318,7 @@ describe 'chat', ->
   describe 'polls', ->
     it 'lets you change your vote', ->
       id = Puzzles.findOne(name: 'Amateur Hour')._id
-      share.Router.ChatPage('puzzles', id)
+      Router.ChatPage('puzzles', id)
       await waitForSubscriptions()
       await afterFlushPromise()
       poll = await promiseCall 'newPoll', "puzzles/#{id}", 'Flip a coin', ['heads', 'tails']

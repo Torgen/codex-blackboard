@@ -1,6 +1,7 @@
 'use strict'
 
 import { CallIns, Puzzles } from '/lib/imports/collections.coffee'
+import Router from '/client/imports/router.coffee'
 import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 
@@ -21,13 +22,13 @@ describe 'puzzle', ->
       id = Puzzles.findOne(name: 'Interstellar Spaceship')._id
 
     it 'renders puzzle view', ->
-      share.Router.PuzzlePage id, 'puzzle'
+      Router.PuzzlePage id, 'puzzle'
       await waitForSubscriptions()
       await afterFlushPromise()
 
     describe 'in info view', ->
       beforeEach ->
-        share.Router.PuzzlePage id, 'info'
+        Router.PuzzlePage id, 'info'
         await waitForSubscriptions()
         await afterFlushPromise()
 
@@ -56,13 +57,13 @@ describe 'puzzle', ->
       id = Puzzles.findOne(name: 'Anger')._id
 
     it 'renders puzzle view', ->
-      share.Router.PuzzlePage id, 'puzzle'
+      Router.PuzzlePage id, 'puzzle'
       await waitForSubscriptions()
       await afterFlushPromise()
 
     describe 'in info view', ->
       beforeEach ->
-        share.Router.PuzzlePage id, 'info'
+        Router.PuzzlePage id, 'info'
         await waitForSubscriptions()
         await afterFlushPromise()
 
@@ -91,12 +92,12 @@ describe 'puzzle', ->
       id = Puzzles.findOne(name: 'Cross Words')._id
 
     it 'renders puzzle view', ->
-      share.Router.PuzzlePage id, 'puzzle'
+      Router.PuzzlePage id, 'puzzle'
       await waitForSubscriptions()
       await afterFlushPromise()
 
     it 'renders info view', ->
-      share.Router.PuzzlePage id, 'info'
+      Router.PuzzlePage id, 'info'
       await waitForSubscriptions()
       await afterFlushPromise()
 
@@ -106,7 +107,7 @@ describe 'puzzle', ->
     beforeEach ->
       await waitForSubscriptions()
       id = Puzzles.findOne(name: 'Cross Words')._id
-      share.Router.PuzzlePage id, 'puzzle'
+      Router.PuzzlePage id, 'puzzle'
       await waitForSubscriptions()
       await afterFlushPromise()
 

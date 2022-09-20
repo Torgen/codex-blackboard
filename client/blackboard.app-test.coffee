@@ -1,6 +1,7 @@
 'use strict'
 
 import { Rounds, Puzzles } from '/lib/imports/collections.coffee'
+import Router from '/client/imports/router.coffee'
 import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee'
 import chai from 'chai'
 import { reactiveLocalStorage } from './imports/storage.coffee'
@@ -14,7 +15,7 @@ describe 'blackboard', ->
     logout()
 
   it 'sorts rounds in requested order', ->
-    share.Router.BlackboardPage()
+    Router.BlackboardPage()
     await waitForSubscriptions()
     # there should be table headers for the two rounds, in the right order.
     civ = Rounds.findOne name: 'Civilization'
@@ -30,7 +31,7 @@ describe 'blackboard', ->
     chai.assert.isBelow $("#round#{civ._id}").offset().top, $("#round#{emo._id}").offset().top
 
   it 'navigates to puzzle on click', ->
-    share.Router.BlackboardPage()
+    Router.BlackboardPage()
     await waitForSubscriptions()
     isss = Puzzles.findOne name: 'Interstellar Spaceship'
     chai.assert.isOk isss
@@ -41,7 +42,7 @@ describe 'blackboard', ->
     chai.assert.equal Session.get('id'), isss._id
 
   it 'hides solved', ->
-    share.Router.BlackboardPage()
+    Router.BlackboardPage()
     await waitForSubscriptions()
 
     joy = Puzzles.findOne name: 'Joy'
@@ -90,7 +91,7 @@ describe 'blackboard', ->
       p2 = new Promise (resolve) ->
         other_conn.subscribe 'register-presence', "puzzles/#{puzz2._id}", 'jitsi', onReady: resolve
       await Promise.all [p1,p2]
-      share.Router.BlackboardPage()
+      Router.BlackboardPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       $('.bb-show-filter-by-user').click()
@@ -132,7 +133,7 @@ describe 'blackboard', ->
   describe 'in edit mode', ->
 
     it 'allows reordering puzzles', ->
-      share.Router.EditPage()
+      Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       wall_street = Puzzles.findOne name: 'Wall Street'
@@ -151,7 +152,7 @@ describe 'blackboard', ->
       chai.assert.isBelow mathsJQ.offset().top, cheatersJQ.offset().top, 'after up'
 
     it 'allows reordering metas', ->
-      share.Router.EditPage()
+      Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       sadness = Puzzles.findOne name: 'Sadness'
@@ -183,7 +184,7 @@ describe 'blackboard', ->
       await afterFlushPromise()
 
     it 'alphabetizes within a meta', ->
-      share.Router.EditPage()
+      Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       # there should be a table header for the Civilization round.
@@ -204,7 +205,7 @@ describe 'blackboard', ->
       chai.assert.isBelow cluelessJQ.offset().top, akaJQ.offset().top, 'after manual'
 
     it 'allows creating and deleting puzzles with buttons', ->
-      share.Router.EditPage()
+      Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       $('button.bb-add-round').click()
@@ -280,7 +281,7 @@ describe 'blackboard', ->
       chai.assert.isNotOk Puzzles.findOne indirect._id
 
     it 'adds and deletes tags', ->
-      share.Router.EditPage()
+      Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       bank = -> Puzzles.findOne name: 'Letter Bank'
@@ -353,7 +354,7 @@ describe 'blackboard', ->
       chai.assert.notOk deleted.tags.meme
 
     it 'renames tag', ->
-      share.Router.EditPage()
+      Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       disgust = Puzzles.findOne name: 'Disgust'
@@ -375,7 +376,7 @@ describe 'blackboard', ->
       chai.assert.isNotOk disgust.tags.color5
 
     it 'empty name aborts', ->
-      share.Router.EditPage()
+      Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       disgust = Puzzles.findOne name: 'Disgust'
@@ -393,7 +394,7 @@ describe 'blackboard', ->
       chai.assert.isOk disgust.tags.color3
 
     it 'will not clobber a tag', ->
-      share.Router.EditPage()
+      Router.EditPage()
       await waitForSubscriptions()
       await afterFlushPromise()
       disgust = Puzzles.findOne name: 'Disgust'
@@ -411,7 +412,7 @@ describe 'blackboard', ->
       chai.assert.isOk disgust.tags.color2
 
   it 'makes a puzzle a favorite', ->
-    share.Router.BlackboardPage()
+    Router.BlackboardPage()
     await waitForSubscriptions()
     await afterFlushPromise()
     chai.assert.isUndefined $('#favorites').html()
