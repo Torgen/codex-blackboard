@@ -3,6 +3,7 @@
 # For side effects
 import '/lib/model.coffee'
 import { Messages, Puzzles } from '/lib/imports/collections.coffee'
+import { drive } from '/lib/imports/environment.coffee'
 import { callAs } from '/server/imports/impersonate.coffee'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -21,10 +22,6 @@ describe 'renamePuzzle', ->
         spreadId: 'sid'
       renamePuzzle: sinon.spy()
       deletePuzzle: sinon.spy()
-    if share.drive?
-      sinon.stub(share, 'drive').value(driveMethods)
-    else
-      share.drive = driveMethods
 
   afterEach ->
     clock.restore()
@@ -60,9 +57,10 @@ describe 'renamePuzzle', ->
     describe 'when logged in', ->
       ret = null
       beforeEach ->
-        ret = callAs 'renamePuzzle', 'cjb',
-          id: id
-          name: 'Bar'
+        drive.withValue driveMethods, ->
+          ret = callAs 'renamePuzzle', 'cjb',
+            id: id
+            name: 'Bar'
 
       it 'returns true', ->
         chai.assert.isTrue ret
@@ -112,9 +110,10 @@ describe 'renamePuzzle', ->
         drive: 'f2'
         spreadsheet: 's2'
         tags: {}
-      ret = callAs 'renamePuzzle', 'cjb',
-        id: id1
-        name: 'Bar'
+      drive.withValue driveMethods, ->
+        ret = callAs 'renamePuzzle', 'cjb',
+          id: id1
+          name: 'Bar'
 
     it 'returns false', ->
       chai.assert.isFalse ret

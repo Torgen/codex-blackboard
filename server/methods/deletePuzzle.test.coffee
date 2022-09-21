@@ -3,6 +3,7 @@
 # For side effects
 import '/lib/model.coffee'
 import { CalendarEvents, Messages, Puzzles, Rounds } from '/lib/imports/collections.coffee'
+import { drive } from '/lib/imports/environment.coffee'
 # Test only works on server side; move to /server if you add client tests.
 import { callAs } from '../../server/imports/impersonate.coffee'
 import chai from 'chai'
@@ -23,10 +24,6 @@ describe 'deletePuzzle', ->
         docId: 'did'
       renamePuzzle: sinon.spy()
       deletePuzzle: sinon.spy()
-    if share.drive?
-      sinon.stub(share, 'drive').value(driveMethods)
-    else
-      share.drive = driveMethods
 
   afterEach ->
     clock.restore()
@@ -88,7 +85,8 @@ describe 'deletePuzzle', ->
   describe 'when logged in', ->
     ret = null
     beforeEach ->
-      ret = callAs 'deletePuzzle', 'cjb', id
+      drive.withValue driveMethods, ->
+        ret = callAs 'deletePuzzle', 'cjb', id
 
     it 'oplogs', ->
       chai.assert.lengthOf Messages.find({nick: 'cjb', type: 'puzzles', room_name: 'oplog/0'}).fetch(), 1

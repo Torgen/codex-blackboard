@@ -7,6 +7,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 import Robot from '../imports/hubot.coffee'
+import { drive } from '/lib/imports/environment.coffee'
 import { waitForDocument } from '/lib/imports/testutils.coffee'
 import { all_settings, EmbedPuzzles, MaximumMemeLength, PuzzleUrlPrefix, RoundUrlPrefix } from '/lib/imports/settings.coffee'
 import { impersonating } from '../imports/impersonate.coffee'
@@ -14,6 +15,7 @@ import { impersonating } from '../imports/impersonate.coffee'
 describe 'codex hubot script', ->
   robot = null
   clock = null
+  driveMethods = null
 
   beforeEach ->
     resetDatabase()
@@ -33,15 +35,10 @@ describe 'codex hubot script', ->
         docId: 'did'
       renamePuzzle: sinon.spy()
       deletePuzzle: sinon.spy()
-    if share.drive?
-      sinon.stub(share, 'drive').value(driveMethods)
-    else
-      share.drive = driveMethods
 
   afterEach ->
     robot.shutdown()
     clock.restore()
-    sinon.restore()
 
   describe 'setAnswer', ->
     it 'fails when puzzle does not exist', ->
@@ -602,7 +599,7 @@ describe 'codex hubot script', ->
             touched_by: 'torgen'
             callin_type: 'expected callback'
 
-  describe 'newPuzzle', ->
+  describe 'newPuzzle', -> drive.withValue driveMethods, ->
     beforeEach -> PuzzleUrlPrefix.ensure()
 
     it 'creates in named meta', ->
@@ -810,7 +807,7 @@ describe 'codex hubot script', ->
         useful: true
         mention: ['torgen']
 
-  describe 'deletePuzzle', ->
+  describe 'deletePuzzle', -> drive.withValue driveMethods, ->
     it 'deletes puzzle', ->
       pid = Puzzles.insert
         name: 'Foo'

@@ -4,6 +4,7 @@ import { PRESENCE_KEEPALIVE_MINUTES } from '/lib/imports/constants.coffee'
 import { BBCollection, CalendarEvents, Calendar, CallIns, LastRead, Messages, Names, Polls, Presence, Puzzles, Roles, Rounds, collection, pretty_collection } from '/lib/imports/collections.coffee'
 import canonical from './imports/canonical.coffee'
 import isDuplicateError from './imports/duplicate.coffee'
+import { drive as driveEnv } from './imports/environment.coffee'
 import { ArrayMembers, ArrayWithLength, EqualsString, NumberInRange, NonEmptyString, IdOrObject, ObjectWith, OptionalKWArg } from './imports/match.coffee'
 import { IsMechanic } from './imports/mechanics.coffee'
 import { getTag, isStuck, canonicalTags } from './imports/tags.coffee'
@@ -133,7 +134,7 @@ do ->
     return unless Meteor.isServer
     res = null
     try
-      res = share.drive.createPuzzle(name) ? {}
+      res = driveEnv.get()?.createPuzzle(name) ? {}
       unless res?.id
         res.status = 'skipped'
     catch e
@@ -154,12 +155,12 @@ do ->
     check drive, NonEmptyString
     check spreadsheet, Match.Optional(NonEmptyString)
     return unless Meteor.isServer
-    share.drive.renamePuzzle(new_name, drive, spreadsheet)
+    driveEnv.get()?.renamePuzzle(new_name, drive, spreadsheet)
 
   deleteDriveFolder = (drive) ->
     check drive, NonEmptyString
     return unless Meteor.isServer
-    share.drive.deletePuzzle drive
+    driveEnv.get()?.deletePuzzle drive
 
   moveWithinParent = if Meteor.isServer
     require('/server/imports/move_within_parent.coffee').default
@@ -1188,7 +1189,7 @@ do ->
       check @userId, NonEmptyString
       return unless Meteor.isServer
       # Return special folder used for uploads to general Ringhunters chat
-      return share.drive.ringhuntersFolder
+      return driveEnv.get()?.ringhuntersFolder
 
     # if a round/puzzle folder gets accidentally deleted, this can be used to
     # manually re-create it.

@@ -9,23 +9,11 @@ import sinon from 'sinon'
 import { resetDatabase } from 'meteor/xolvio:cleaner'
 
 describe 'deleteRound', ->
-  driveMethods = null
   clock = null
   beforeEach ->
     clock = sinon.useFakeTimers
       now: 7
       toFake: ['Date']
-    driveMethods =
-      createPuzzle: sinon.fake.returns
-        id: 'fid' # f for folder
-        spreadId: 'sid'
-        docId: 'did'
-      renamePuzzle: sinon.spy()
-      deletePuzzle: sinon.spy()
-    if share.drive?
-      sinon.stub(share, 'drive').value(driveMethods)
-    else
-      share.drive = driveMethods
 
   afterEach ->
     clock.restore()

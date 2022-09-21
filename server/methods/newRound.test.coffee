@@ -11,23 +11,11 @@ import isDuplicateError from '/lib/imports/duplicate.coffee'
 import { RoleRenewalTime, RoundUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee'
 
 describe 'newRound', ->
-  driveMethods = null
   clock = null
   beforeEach ->
     clock = sinon.useFakeTimers
       now: 7
       toFake: ['Date']
-    driveMethods =
-      createPuzzle: sinon.fake.returns
-        id: 'fid' # f for folder
-        spreadId: 'sid'
-        docId: 'did'
-      renamePuzzle: sinon.spy()
-      deletePuzzle: sinon.spy()
-    if share.drive?
-      sinon.stub(share, 'drive').value(driveMethods)
-    else
-      share.drive = driveMethods
 
   afterEach ->
     clock.restore()
