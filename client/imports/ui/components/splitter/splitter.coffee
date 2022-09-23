@@ -1,7 +1,8 @@
 # cscott's very simple splitter widget
 'use strict'
 
-import { reactiveLocalStorage } from './imports/storage.coffee'
+import './splitter.html'
+import { reactiveLocalStorage } from '/client/imports/storage.coffee'
 
 class Dimension
   constructor: (@targetClass, @posProperty, @sizeProperty, @startProperty, @splitterProperty, @limitVar) ->
@@ -41,7 +42,7 @@ heightRange = ->
   wh = windowHeight.get() + 46
   wh - wh % 300
 
-Splitter = share.Splitter =
+Splitter =
   vsize: new Dimension '.bb-right-content', 'pageY', 'offsetHeight', 'offsetTop', 'vsize', windowHeight
   hsize: new Dimension  '.bb-splitter', 'pageX', 'offsetWidth', 'offsetLeft','hsize'
   handleEvent: (event, template) ->
@@ -50,6 +51,9 @@ Splitter = share.Splitter =
       @vsize.handleEvent event, template
     else
       @hsize.handleEvent event, template
+
+export vsize = -> Splitter.vsize.get()
+export hsize = -> Splitter.hsize.get()
  
 ['hsize', 'vsize'].forEach (dim) ->
   Tracker.autorun ->
@@ -76,5 +80,5 @@ Template.horizontal_splitter.onDestroyed ->
   $('html').removeClass('fullHeight')
 
 Template.vertical_splitter.helpers
-  vsize: -> share.Splitter.vsize.get()
-  vsizePlusHandle: -> +share.Splitter.vsize.get() + 6
+  vsize: -> Splitter.vsize.get()
+  vsizePlusHandle: -> +Splitter.vsize.get() + 6

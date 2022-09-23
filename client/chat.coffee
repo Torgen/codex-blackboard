@@ -15,6 +15,7 @@ import {chunk_text, chunk_html} from './imports/chunk_text.coffee'
 import { confirm } from './imports/modal.coffee'
 import isVisible from '/client/imports/visible.coffee'
 import Favico from 'favico.js'
+import { hsize } from '/client/imports/ui/components/splitter/splitter.coffee'
 
 GENERAL_ROOM = GENERAL_ROOM_NAME
 GENERAL_ROOM_REGEX = new RegExp "^#{GENERAL_ROOM}$", 'i'
@@ -406,7 +407,7 @@ Template.embedded_chat.helpers
   jitsiSize: ->
     # Set up dependencies
     return unless Template.instance().jitsi.get()?
-    sizeWouldBe = Math.floor(share.Splitter.hsize.get() * 9 / 16)
+    sizeWouldBe = Math.floor(hsize() * 9 / 16)
     if CAP_JITSI_HEIGHT.get()
       return Math.min 75, sizeWouldBe
     sizeWouldBe

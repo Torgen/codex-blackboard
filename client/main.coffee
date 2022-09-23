@@ -15,6 +15,7 @@ import { GENERAL_ROOM_NAME, NAME_PLACEHOLDER, TEAM_NAME } from '/client/imports/
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
 import * as notification from '/client/imports/notification.coffee'
 import Router from '/client/imports/router.coffee'
+import '/client/imports/ui/components/splitter/splitter.coffee'
 import '/client/imports/ui/pages/graph/graph_page.coffee'
 import '/client/imports/ui/pages/map/map_page.coffee'
 import '/client/imports/ui/pages/projector/projector.coffee'
