@@ -20,7 +20,7 @@ Template.logistics_page.onCreated ->
   # during the hunt. Session preserves values across reloads and doesn't
   # trigger if the value doesn't change.
   Session.set 'topRight', null
-  await import('/client/imports/ui/pages/logistics/logistics.coffee')
+  await blimport('/client/imports/ui/pages/logistics/logistics.coffee')
   bundleLoaded.set true
 
 Template.logistics_page.helpers

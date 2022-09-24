@@ -3,7 +3,7 @@ import './map_page.html'
 Template.map_page.onCreated ->
   @followTheSun = new ReactiveVar false
   @loaded = new ReactiveVar false
-  await import('./map.coffee')
+  await blimport('./map.coffee')
   @loaded.set true
 
 Template.map_page.helpers

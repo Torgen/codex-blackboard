@@ -9,7 +9,7 @@ Template.projector.onCreated ->
   @loaded = new ReactiveVar false
   @previousView = new ReactiveVar null
   @currentViewIndex = new ReactiveVar 0
-  await Promise.all [import('./projector.less'), import('../map/map.coffee'), import('../graph/graph.coffee'), import('../statistics/statistics_chart.coffee')]
+  await Promise.all [blimport('./projector.less'), blimport('../map/map.coffee'), blimport('../graph/graph.coffee'), blimport('../statistics/statistics_chart.coffee')]
   @loaded.set true
   @tenSeconds = Meteor.setInterval =>
     index = @currentViewIndex.get()

@@ -4,7 +4,7 @@ import './graph_page.html'
 
 Template.graph_page.onCreated ->
   @loaded = new ReactiveVar false
-  await import('./graph.coffee')
+  await blimport('./graph.coffee')
   @loaded.set true
 
 Template.graph_page.events
