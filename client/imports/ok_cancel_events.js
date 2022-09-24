@@ -1,47 +1,63 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+let okCancelEvents;
+export var editableTemplate = function(template, callbacks) {
+  template.onCreated(function() {
+    return this.editable = new ReactiveVar(false);
+  });
 
-export editableTemplate = (template, callbacks) ->
-  template.onCreated ->
-    @editable = new ReactiveVar false
+  template.events({
+    'click/bb-edit .bb-editable'(evt, t) {
+      t.editable.set(true);
+      return Tracker.afterFlush(() => t.$('input[type="text"]').focus());
+    }
+  });
 
-  template.events
-    'click/bb-edit .bb-editable': (evt, t) ->
-      t.editable.set true
-      Tracker.afterFlush ->
-        t.$('input[type="text"]').focus()
+  template.events(okCancelEvents('input[type="text"]', {
+    ok(v, e, t) {
+      if (!t.editable.get()) { return; }
+      t.editable.set(false);
+      v = v.replace(/^\s+|\s+$/, '');
+      return callbacks.ok?.(v, e, t);
+    },
+    cancel(e, t) {
+      t.editable.set(false);
+      return callbacks.cancel?.(e, t);
+    }
+  }
+  )
+  );
 
-  template.events okCancelEvents 'input[type="text"]',
-    ok: (v, e, t) ->
-      return unless t.editable.get()
-      t.editable.set false
-      v = v.replace /^\s+|\s+$/, ''
-      callbacks.ok?(v, e, t)
-    cancel: (e, t) ->
-      t.editable.set false
-      callbacks.cancel?(e, t)
+  return template.helpers({
+    editing() { return Template.instance().editable.get(); }});
+};
 
-  template.helpers
-    editing: -> Template.instance().editable.get()
-
-# Returns an event map that handles the "escape" and "return" keys and
-# "blur" events on a text input (given by selector) and interprets them
-# as "ok" or "cancel".
-# (Borrowed from Meteor 'todos' example.)
-export default okCancelEvents = (selector, callbacks) ->
-  ok = callbacks.ok or (->)
-  cancel = callbacks.cancel or (->)
-  evspec = ("#{ev} #{selector}" for ev in ['keyup','keydown','focusout'])
-  events = {}
-  events[evspec.join(', ')] = (evt, template) ->
-    if evt.type is "keydown" and evt.which is 27
-      # escape = cancel
-      cancel.call this, evt, template
-    # tab would cause focusout, but we want to handle it specially.
-    else if evt.type is "keyup" and evt.which is 13 or evt.type is 'keydown' and evt.which is 9 or evt.type is "focusout"
-      # blur/return/enter = ok/submit if non-empty
-      value = String(evt.target.value or "")
-      if value
-        ok.call this, value, evt, template
-      else
-        cancel.call this, evt, template
-  events
+// Returns an event map that handles the "escape" and "return" keys and
+// "blur" events on a text input (given by selector) and interprets them
+// as "ok" or "cancel".
+// (Borrowed from Meteor 'todos' example.)
+export default okCancelEvents = function(selector, callbacks) {
+  const ok = callbacks.ok || (function() {});
+  const cancel = callbacks.cancel || (function() {});
+  const evspec = (['keyup','keydown','focusout'].map((ev) => `${ev} ${selector}`));
+  const events = {};
+  events[evspec.join(', ')] = function(evt, template) {
+    if ((evt.type === "keydown") && (evt.which === 27)) {
+      // escape = cancel
+      return cancel.call(this, evt, template);
+    // tab would cause focusout, but we want to handle it specially.
+    } else if (((evt.type === "keyup") && (evt.which === 13)) || ((evt.type === 'keydown') && (evt.which === 9)) || (evt.type === "focusout")) {
+      // blur/return/enter = ok/submit if non-empty
+      const value = String(evt.target.value || "");
+      if (value) {
+        return ok.call(this, value, evt, template);
+      } else {
+        return cancel.call(this, evt, template);
+      }
+    }
+  };
+  return events;
+};

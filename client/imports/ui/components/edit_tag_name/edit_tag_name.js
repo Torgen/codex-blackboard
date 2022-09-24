@@ -1,40 +1,56 @@
-import './edit_tag_name.html'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import './edit_tag_name.html';
 
-import canonical from '/lib/imports/canonical.coffee'
-import { collection } from '/lib/imports/collections.coffee'
-import { editableTemplate } from '/client/imports/ok_cancel_events.coffee'
+import canonical from '/lib/imports/canonical.coffee';
+import { collection } from '/lib/imports/collections.coffee';
+import { editableTemplate } from '/client/imports/ok_cancel_events.coffee';
 
-editableTemplate Template.edit_tag_name,
-  ok: (val, evt, tem) ->
-    if val
-      thing = collection(tem.data.type).findOne(tem.data.id)
-      canon = canonical tem.data.name
-      newCanon = canonical(val)
-      if newCanon isnt canon and thing.tags[newCanon]?
-        return
-      Meteor.call 'renameTag', {type:tem.data.type, object:tem.data.id, old_name:tem.data.name, new_name: val}
+editableTemplate(Template.edit_tag_name, {
+  ok(val, evt, tem) {
+    if (val) {
+      const thing = collection(tem.data.type).findOne(tem.data.id);
+      const canon = canonical(tem.data.name);
+      const newCanon = canonical(val);
+      if ((newCanon !== canon) && (thing.tags[newCanon] != null)) {
+        return;
+      }
+      return Meteor.call('renameTag', {type:tem.data.type, object:tem.data.id, old_name:tem.data.name, new_name: val});
+    }
+  }
+});
 
-Template.edit_tag_name.onCreated ->
-  @newTagName = new ReactiveVar @data.name
+Template.edit_tag_name.onCreated(function() {
+  return this.newTagName = new ReactiveVar(this.data.name);
+});
 
-Template.edit_tag_name.events
-  'input/focus input': (event, template) ->
-    template.newTagName.set event.currentTarget.value
+Template.edit_tag_name.events({
+  'input/focus input'(event, template) {
+    return template.newTagName.set(event.currentTarget.value);
+  }
+});
 
-Template.edit_tag_name.helpers
-  tagEditClass: ->
-    val = Template.instance().newTagName.get()
-    return 'error' if not val
-    cval = canonical val
-    return 'info' if val is @name
-    return 'success' if cval is canonical @name
-    return 'error' if collection(@type).findOne(_id: @id).tags[cval]?
-    return 'success'
-  tagEditStatus: ->
-    val = Template.instance().newTagName.get()
-    return 'Cannot be empty' if not val
-    return 'Unchanged' if val is @name
-    cval = canonical val
-    return if cval is canonical @name
-    return 'Tag already exists' if collection(@type).findOne(_id: @id).tags[cval]?
-  canon: -> canonical @name
+Template.edit_tag_name.helpers({
+  tagEditClass() {
+    const val = Template.instance().newTagName.get();
+    if (!val) { return 'error'; }
+    const cval = canonical(val);
+    if (val === this.name) { return 'info'; }
+    if (cval === canonical(this.name)) { return 'success'; }
+    if (collection(this.type).findOne({_id: this.id}).tags[cval] != null) { return 'error'; }
+    return 'success';
+  },
+  tagEditStatus() {
+    const val = Template.instance().newTagName.get();
+    if (!val) { return 'Cannot be empty'; }
+    if (val === this.name) { return 'Unchanged'; }
+    const cval = canonical(val);
+    if (cval === canonical(this.name)) { return; }
+    if (collection(this.type).findOne({_id: this.id}).tags[cval] != null) { return 'Tag already exists'; }
+  },
+  canon() { return canonical(this.name); }
+});

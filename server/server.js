@@ -1,370 +1,506 @@
-'use strict'
-import canonical from '/lib/imports/canonical.coffee'
-import { PRESENCE_KEEPALIVE_MINUTES } from '/lib/imports/constants.coffee'
-import { Calendar, CalendarEvents, CallIns, LastRead, Messages, Polls, Presence, Puzzles, Roles, Rounds, collection } from '/lib/imports/collections.coffee'
-import { Settings } from '/lib/imports/settings.coffee'
-import { NonEmptyString } from '/lib/imports/match.coffee'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import canonical from '/lib/imports/canonical.coffee';
+import { PRESENCE_KEEPALIVE_MINUTES } from '/lib/imports/constants.coffee';
+import { Calendar, CalendarEvents, CallIns, LastRead, Messages, Polls, Presence, Puzzles, Roles, Rounds, collection } from '/lib/imports/collections.coffee';
+import { Settings } from '/lib/imports/settings.coffee';
+import { NonEmptyString } from '/lib/imports/match.coffee';
 
-DEBUG = !Meteor.isProduction
+const DEBUG = !Meteor.isProduction;
 
-puzzleQuery = (query) -> 
-  Puzzles.find query,
-    fields:
-      name: 1
-      canon: 1
-      link: 1
-      created: 1
-      created_by: 1
-      touched: 1
-      touched_by: 1
-      solved: 1
-      solved_by: 1
-      tags: 1
-      drive: 1
-      spreadsheet: 1
-      doc: 1
-      drive_touched: 1
-      drive_status: 1
-      drive_error_message: 1
-      "favorites.#{@userId}": 1
-      mechanics: 1
-      puzzles: 1
-      order_by: 1
+const puzzleQuery = function(query) { 
+  return Puzzles.find(query, {
+    fields: {
+      name: 1,
+      canon: 1,
+      link: 1,
+      created: 1,
+      created_by: 1,
+      touched: 1,
+      touched_by: 1,
+      solved: 1,
+      solved_by: 1,
+      tags: 1,
+      drive: 1,
+      spreadsheet: 1,
+      doc: 1,
+      drive_touched: 1,
+      drive_status: 1,
+      drive_error_message: 1,
+      [`favorites.${this.userId}`]: 1,
+      mechanics: 1,
+      puzzles: 1,
+      order_by: 1,
       feedsInto: 1
+    }
+  }
+  );
+};
 
-loginRequired = (f) -> ->
-  return @ready() unless @userId
-  @puzzleQuery = puzzleQuery
-  f.apply @, arguments
+const loginRequired = f => (function() {
+  if (!this.userId) { return this.ready(); }
+  this.puzzleQuery = puzzleQuery;
+  return f.apply(this, arguments);
+});
 
-# hack! log subscriptions so we can see what's going on server-side
-Meteor.publish = ((publish) ->
-  (name, func) ->
-    func2 = ->
-      console.log 'client subscribed to', name, arguments
-      func.apply(this, arguments)
-    publish.call(Meteor, name, func2)
-)(Meteor.publish) if false # disable by default
+// hack! log subscriptions so we can see what's going on server-side
+if (false) { Meteor.publish = ((publish => (function(name, func) {
+  const func2 = function() {
+    console.log('client subscribed to', name, arguments);
+    return func.apply(this, arguments);
+  };
+  return publish.call(Meteor, name, func2);
+})))(Meteor.publish); } // disable by default
 
-Meteor.publish 'all-roundsandpuzzles', loginRequired -> [
-  Rounds.find(), @puzzleQuery({})
-]
+Meteor.publish('all-roundsandpuzzles', loginRequired(function() { return [
+  Rounds.find(), this.puzzleQuery({})
+]; }));
 
-Meteor.publish 'solved-puzzle-time', loginRequired -> Puzzles.find
-  solved: $exists: true
+Meteor.publish('solved-puzzle-time', loginRequired(() => Puzzles.find(
+  {solved: {$exists: true}}
 ,
-  fields: solverTime: 1
+  {fields: {solverTime: 1}}))
+);
 
-# Login not required for this because it's needed for nick autocomplete.
-Meteor.publish null, ->
-  Meteor.users.find {}, fields:
-    priv_located: 0
-    priv_located_at: 0
+// Login not required for this because it's needed for nick autocomplete.
+Meteor.publish(null, () => Meteor.users.find({}, { fields: {
+  priv_located: 0,
+  priv_located_at: 0,
+  priv_located_order: 0,
+  located: 0,
+  located_at: 0,
+  services: 0,
+  favorite_mechanics: 0
+}
+}
+));
+
+// Login required for this since it returns you.
+Meteor.publish(null, loginRequired(function() {
+  return Meteor.users.find(this.userId, { fields: {
+    services: 0,
     priv_located_order: 0
-    located: 0
-    located_at: 0
-    services: 0
-    favorite_mechanics: 0
+  }
+}
+  );
+})
+);
 
-# Login required for this since it returns you.
-Meteor.publish null, loginRequired ->
-  Meteor.users.find @userId, fields:
-    services: 0
-    priv_located_order: 0
+// Login required for this since it includes location
+Meteor.publish(null, loginRequired(() => Meteor.users.find({}, { fields: {
+  located: 1,
+  located_at: 1
+}
+}
+))
+);
 
-# Login required for this since it includes location
-Meteor.publish null, loginRequired ->
-  Meteor.users.find {}, fields:
-    located: 1
-    located_at: 1
+Meteor.publish(null, loginRequired(function() {
+  const handle = Presence.find({room_name: null, scope: 'online'}, {nick: 1}).observe({
+    added: ({nick}) => {
+      return this.added('users', nick, {online: true});
+    },
+    removed: ({nick}) => {
+      return this.removed('users', nick);
+    }
+  });
+  this.onStop(() => handle.stop());
+  return this.ready();
+})
+);
 
-Meteor.publish null, loginRequired ->
-  handle = Presence.find({room_name: null, scope: 'online'}, {nick: 1}).observe
-    added: ({nick}) =>
-      @added 'users', nick, {online: true}
-    removed: ({nick}) =>
-      @removed 'users', nick
-  @onStop -> handle.stop()
-  @ready()
+// Private messages to you
+Meteor.publish(null, loginRequired(function() { return Messages.find({to: this.userId, deleted: {$ne: true}}); }));
+// Messages that mention you
+Meteor.publish(null, loginRequired(function() { return Messages.find({mention: this.userId, deleted: {$ne: true}}); }));
 
-# Private messages to you
-Meteor.publish null, loginRequired -> Messages.find {to: @userId, deleted: $ne: true}
-# Messages that mention you
-Meteor.publish null, loginRequired -> Messages.find {mention: @userId, deleted: $ne: true}
+// Calendar events
+Meteor.publish(null, loginRequired(() => [
+  Calendar.find({}, {fields: {_id: 1}}),
+  CalendarEvents.find()]));
 
-# Calendar events
-Meteor.publish null, loginRequired -> [
-  Calendar.find({}, {fields: _id: 1}),
-  CalendarEvents.find()]
+Meteor.publish('announcements-since', loginRequired(since => Messages.find({
+  announced_at: { $gt: since
+},
+  deleted: { $ne: true
+}
+}))
+);
 
-Meteor.publish 'announcements-since', loginRequired (since) -> Messages.find
-  announced_at: $gt: since
-  deleted: $ne: true
+// Roles
+Meteor.publish(null, loginRequired(() => Roles.find({}, {fields: {holder: 1, claimed_at: 1}}))
+);
 
-# Roles
-Meteor.publish null, loginRequired ->
-  Roles.find({}, {fields: {holder: 1, claimed_at: 1}})
+Meteor.publish(null, loginRequired(function() {
+  return Roles.find({holder: this.userId}, {fields: {renewed_at: 1, expires_at: 1}});
+})
+);
 
-Meteor.publish null, loginRequired ->
-  Roles.find({holder: @userId}, {fields: {renewed_at: 1, expires_at: 1}})
+// Share one map among all listeners
+(function() {
+  const handles = new Set;
+  const holders = new Map;
+  const addHolder = function(role, holder) {
+    let held = holders.get(holder);
+    if (held != null) {
+      held.add(role);
+      return (() => {
+        const result = [];
+        for (let h of handles) {
+          result.push(h.changed('users', holder, {"roles": [...held]}));
+        }
+        return result;
+      })();
+    } else {
+      held = new Set([role]);
+      holders.set(holder, held);
+      return (() => {
+        const result1 = [];
+        for (let h of handles) {
+          result1.push(h.added('users', holder, {"roles": [...held]}));
+        }
+        return result1;
+      })();
+    }
+  };
+  const removeHolder = function(role, holder) {
+    const held = holders.get(holder);
+    held.delete(role);
+    if (held.size === 0) {
+      holders.delete(holder);
+      return (() => {
+        const result = [];
+        for (let h of handles) {
+          result.push(h.removed('users', holder));
+        }
+        return result;
+      })();
+    } else {
+      return (() => {
+        const result1 = [];
+        for (let h of handles) {
+          result1.push(h.changed('users', holder, {"roles": [...held]}));
+        }
+        return result1;
+      })();
+    }
+  };
 
-# Share one map among all listeners
-do ->
-  handles = new Set
-  holders = new Map
-  addHolder = (role, holder) ->
-    held = holders.get holder
-    if held?
-      held.add role
-      for h from handles
-        h.changed 'users', holder, {"roles": [...held]}
-    else
-      held = new Set [role]
-      holders.set holder, held
-      for h from handles
-        h.added 'users', holder, {"roles": [...held]}
-  removeHolder = (role, holder) ->
-    held = holders.get holder
-    held.delete role
-    if held.size is 0
-      holders.delete holder
-      for h from handles
-        h.removed 'users', holder
-    else
-      for h from handles
-        h.changed 'users', holder, {"roles": [...held]}
-
-  handle = Roles.find({}, {fields: holder: 1}).observe
-    added: ({_id, holder}) -> addHolder _id, holder
-    changed: ({_id, holder: newHolder}, {holder: oldHolder}) ->
-      removeHolder _id, oldHolder
-      addHolder _id, newHolder
-    removed: ({_id, holder}) -> removeHolder _id, holder
+  const handle = Roles.find({}, {fields: {holder: 1}}).observe({
+    added({_id, holder}) { return addHolder(_id, holder); },
+    changed({_id, holder: newHolder}, {holder: oldHolder}) {
+      removeHolder(_id, oldHolder);
+      return addHolder(_id, newHolder);
+    },
+    removed({_id, holder}) { return removeHolder(_id, holder); }
+  });
   
-  Meteor.publish null, loginRequired ->
-    handles.add @
-    for [holder, roles] from holders.entries()
-      @added 'users', holder, {roles: [...roles]}
-    @onStop ->
-      handles.delete @
-    @ready()
+  return Meteor.publish(null, loginRequired(function() {
+    handles.add(this);
+    for (let [holder, roles] of holders.entries()) {
+      this.added('users', holder, {roles: [...roles]});
+    }
+    this.onStop(function() {
+      return handles.delete(this);
+    });
+    return this.ready();
+  })
+  );
+})();
 
-# Your presence in all rooms, with _id changed to room_name.
-Meteor.publish null, loginRequired ->
-  idToRoom = new Map
-  handle = LastRead.find({nick: @userId}).observeChanges
-    added: (id, fields) =>
-      idToRoom.set id, fields.room_name
-      @added 'lastread', fields.room_name, fields
-    changed: (id, {timestamp}) =>
-      return unless timestamp?
-      # There's no way to change the room name or nick of an existing lastread entry.
-      @changed 'lastread', idToRoom.get(id), {timestamp}
-  @onStop -> handle.stop()
-  @ready()
+// Your presence in all rooms, with _id changed to room_name.
+Meteor.publish(null, loginRequired(function() {
+  const idToRoom = new Map;
+  const handle = LastRead.find({nick: this.userId}).observeChanges({
+    added: (id, fields) => {
+      idToRoom.set(id, fields.room_name);
+      return this.added('lastread', fields.room_name, fields);
+    },
+    changed: (id, {timestamp}) => {
+      if (timestamp == null) { return; }
+      // There's no way to change the room name or nick of an existing lastread entry.
+      return this.changed('lastread', idToRoom.get(id), {timestamp});
+    }});
+  this.onStop(() => handle.stop());
+  return this.ready();
+})
+);
 
-Meteor.publish 'all-presence', loginRequired ->
-  # strip out unnecessary fields from presence to avoid wasted updates to clients
-  Presence.find {room_name: $ne: null}, fields:
-    timestamp: 0
-    clients: 0
-Meteor.publish 'presence-for-room', loginRequired (room_name) ->
-  Presence.find {room_name, scope: 'chat'}, fields:
-    timestamp: 0
-    clients: 0
+Meteor.publish('all-presence', loginRequired(() => // strip out unnecessary fields from presence to avoid wasted updates to clients
+Presence.find({room_name: {$ne: null}}, { fields: {
+  timestamp: 0,
+  clients: 0
+}
+}))
+);
+Meteor.publish('presence-for-room', loginRequired(room_name => Presence.find({room_name, scope: 'chat'}, { fields: {
+  timestamp: 0,
+  clients: 0
+}
+}
+))
+);
 
-registerPresence = (room_name, scope) ->
-  subscription_id = Random.id()
-  console.log "#{@userId} subscribing to #{scope}:#{room_name} at #{Date.now()}, id #{@connection.id}:#{subscription_id}" if DEBUG
-  keepalive = =>
-    now = Date.now()
-    Presence.upsert {nick: @userId, room_name, scope},
-      $setOnInsert:
+const registerPresence = function(room_name, scope) {
+  const subscription_id = Random.id();
+  if (DEBUG) { console.log(`${this.userId} subscribing to ${scope}:${room_name} at ${Date.now()}, id ${this.connection.id}:${subscription_id}`); }
+  const keepalive = () => {
+    const now = Date.now();
+    Presence.upsert({nick: this.userId, room_name, scope}, {
+      $setOnInsert: {
         joined_timestamp: now
-      $max: timestamp: now
-      $push: clients:
-        connection_id: @connection.id
-        subscription_id: subscription_id
+      },
+      $max: { timestamp: now
+    },
+      $push: { clients: {
+        connection_id: this.connection.id,
+        subscription_id,
         timestamp: now
-    Presence.update {nick: @userId, room_name, scope},
-      $pull: clients:
-        connection_id: @connection.id
-        subscription_id: subscription_id
-        timestamp: $lt: now
-  keepalive()
-  interval = Meteor.setInterval keepalive, (PRESENCE_KEEPALIVE_MINUTES*60*1000)
-  @onStop =>
-    console.log "#{@userId} unsubscribing from #{scope}:#{room_name}, id #{@connection.id}:#{subscription_id}" if DEBUG
-    Meteor.clearInterval interval
-    now = Date.now()
-    Meteor.setTimeout =>
-      Presence.update {nick: @userId, room_name, scope},
-        $max: timestamp: now
-        $pull: clients:
-          connection_id: @connection.id
-          subscription_id: subscription_id
-    , 2000
-  @ready()
+      }
+    }
+    }
+    );
+    return Presence.update({nick: this.userId, room_name, scope}, {
+      $pull: { clients: {
+        connection_id: this.connection.id,
+        subscription_id,
+        timestamp: { $lt: now
+      }
+      }
+    }
+    }
+    );
+  };
+  keepalive();
+  const interval = Meteor.setInterval(keepalive, (PRESENCE_KEEPALIVE_MINUTES*60*1000));
+  this.onStop(() => {
+    if (DEBUG) { console.log(`${this.userId} unsubscribing from ${scope}:${room_name}, id ${this.connection.id}:${subscription_id}`); }
+    Meteor.clearInterval(interval);
+    const now = Date.now();
+    return Meteor.setTimeout(() => {
+      return Presence.update({nick: this.userId, room_name, scope}, {
+        $max: { timestamp: now
+      },
+        $pull: { clients: {
+          connection_id: this.connection.id,
+          subscription_id
+        }
+      }
+      }
+      );
+    }
+    , 2000);
+  });
+  return this.ready();
+};
 
-Meteor.publish 'register-presence', loginRequired (room_name, scope) ->
-  check room_name, NonEmptyString
-  check scope, NonEmptyString
-  registerPresence.call @, room_name, scope
-Meteor.publish null, loginRequired ->
-  registerPresence.call @, null, 'online'
+Meteor.publish('register-presence', loginRequired(function(room_name, scope) {
+  check(room_name, NonEmptyString);
+  check(scope, NonEmptyString);
+  return registerPresence.call(this, room_name, scope);
+})
+);
+Meteor.publish(null, loginRequired(function() {
+  return registerPresence.call(this, null, 'online');
+})
+);
 
-Meteor.publish null, loginRequired -> Settings.find()
+Meteor.publish(null, loginRequired(() => Settings.find()));
 
-Meteor.publish 'last-puzzle-room-message', loginRequired (puzzle_id) ->
-  check puzzle_id, NonEmptyString
-  @added 'puzzles', puzzle_id, {}
-  lastChat = Messages.find 
-    room_name: "puzzles/#{puzzle_id}"
-    $or: [ {to: null}, {to: @userId}, {nick: @userId }]
-    deleted: $ne: true
+Meteor.publish('last-puzzle-room-message', loginRequired(function(puzzle_id) {
+  check(puzzle_id, NonEmptyString);
+  this.added('puzzles', puzzle_id, {});
+  const lastChat = Messages.find({ 
+    room_name: `puzzles/${puzzle_id}`,
+    $or: [ {to: null}, {to: this.userId}, {nick: this.userId }],
+    deleted: { $ne: true
+  },
     presence: null
-  ,
-    fields: timestamp: 1
-    sort: timestamp: -1
+  }
+  , {
+    fields: { timestamp: 1
+  },
+    sort: { timestamp: -1
+  },
     limit: 1
-  .observe
-    added: (doc) => @changed 'puzzles', puzzle_id, {last_message_timestamp: doc.timestamp}
-  lastReadCallback = (doc) => @changed 'puzzles', puzzle_id, {last_read_timestamp: doc.timestamp}
-  lastRead = LastRead.find
-    room_name: "puzzles/#{puzzle_id}"
-    nick: @userId
-  .observe
-    added: (doc) -> lastReadCallback
-    changed: (doc) -> lastReadCallback
-  @onStop ->
-    lastChat.stop()
-    lastRead.stop()
-  @ready()
+  }).observe({
+    added: doc => this.changed('puzzles', puzzle_id, {last_message_timestamp: doc.timestamp})});
+  const lastReadCallback = doc => this.changed('puzzles', puzzle_id, {last_read_timestamp: doc.timestamp});
+  const lastRead = LastRead.find({
+    room_name: `puzzles/${puzzle_id}`,
+    nick: this.userId}).observe({
+    added(doc) { return lastReadCallback; },
+    changed(doc) { return lastReadCallback; }
+  });
+  this.onStop(function() {
+    lastChat.stop();
+    return lastRead.stop();
+  });
+  return this.ready();
+})
+);
 
-# this is for the "that was easy" sound effect
-# everyone is subscribed to this all the time
-Meteor.publish 'last-answered-puzzle', loginRequired ->
-  COLLECTION = 'last-answer'
-  self = this
-  uuid = Random.id()
+// this is for the "that was easy" sound effect
+// everyone is subscribed to this all the time
+Meteor.publish('last-answered-puzzle', loginRequired(function() {
+  const COLLECTION = 'last-answer';
+  const self = this;
+  const uuid = Random.id();
 
-  recent = null
-  initializing = true
+  let recent = null;
+  let initializing = true;
 
-  max = (doc) ->
-    if doc.solved?
-      if (not recent?.target) or (doc.solved > recent.solved)
-        recent = {solved:doc.solved, target:doc._id}
-        return true
-    return false
+  const max = function(doc) {
+    if (doc.solved != null) {
+      if ((!recent?.target) || (doc.solved > recent.solved)) {
+        recent = {solved:doc.solved, target:doc._id};
+        return true;
+      }
+    }
+    return false;
+  };
 
-  publishIfMax = (doc) ->
-    return unless max(doc)
-    self.changed COLLECTION, uuid, recent \
-      unless initializing
-  publishNone = ->
-    recent = {solved: Date.now()} # "no recent solved puzzle"
-    self.changed COLLECTION, uuid, recent \
-      unless initializing
+  const publishIfMax = function(doc) {
+    if (!max(doc)) { return; }
+    if (!initializing) { return self.changed(COLLECTION, uuid, recent); }
+  };
+  const publishNone = function() {
+    recent = {solved: Date.now()}; // "no recent solved puzzle"
+    if (!initializing) { return self.changed(COLLECTION, uuid, recent); }
+  };
 
-  handle = Puzzles.find(
-    solved: $ne: null
-  ).observe
-    added: (doc) -> publishIfMax(doc)
-    changed: (doc, oldDoc) -> publishIfMax(doc)
-    removed: (doc) ->
-      publishNone() if doc._id is recent?.target
+  const handle = Puzzles.find({
+    solved: {$ne: null}
+  }).observe({
+    added(doc) { return publishIfMax(doc); },
+    changed(doc, oldDoc) { return publishIfMax(doc); },
+    removed(doc) {
+      if (doc._id === recent?.target) { return publishNone(); }
+    }
+  });
 
-  # observe only returns after initial added callbacks.
-  # if we still don't have a 'recent' (possibly because no puzzles have
-  # been answered), set it to current time
-  publishNone() unless recent?
-  # okay, mark the subscription as ready.
-  initializing = false
-  self.added COLLECTION, uuid, recent
-  self.ready()
-  # Stop observing the cursor when client unsubs.
-  # Stopping a subscription automatically takes care of sending the
-  # client any 'removed' messages
-  self.onStop -> handle.stop()
+  // observe only returns after initial added callbacks.
+  // if we still don't have a 'recent' (possibly because no puzzles have
+  // been answered), set it to current time
+  if (recent == null) { publishNone(); }
+  // okay, mark the subscription as ready.
+  initializing = false;
+  self.added(COLLECTION, uuid, recent);
+  self.ready();
+  // Stop observing the cursor when client unsubs.
+  // Stopping a subscription automatically takes care of sending the
+  // client any 'removed' messages
+  return self.onStop(() => handle.stop());
+})
+);
 
-# limit site traffic by only pushing out changes relevant to a certain
-# round or puzzle
-Meteor.publish 'callins-by-puzzle', loginRequired (id) -> CallIns.find {target_type: 'puzzles', target: id}
+// limit site traffic by only pushing out changes relevant to a certain
+// round or puzzle
+Meteor.publish('callins-by-puzzle', loginRequired(id => CallIns.find({target_type: 'puzzles', target: id})));
 
-# get recent messages
-Meteor.publish 'recent-messages', loginRequired (room_name, limit) ->
-  handle = Messages.find
-    room_name: room_name
-    $or: [ {to: null}, {to: @userId}, {nick: @userId }]
-    deleted: $ne: true
-  ,
-    sort: [['timestamp', 'desc']]
-    limit: limit
-  .observeChanges
-    added: (id, fields) =>
-      @added 'messages', id, {fields..., from_chat_subscription: true}
-    changed: (id, fields) =>
-      @changed 'messages', id, fields
-    removed: (id) =>
-      @removed 'messages', id
-  @onStop -> handle.stop()
-  @ready()
+// get recent messages
+Meteor.publish('recent-messages', loginRequired(function(room_name, limit) {
+  const handle = Messages.find({
+    room_name,
+    $or: [ {to: null}, {to: this.userId}, {nick: this.userId }],
+    deleted: { $ne: true
+  }
+  }
+  , {
+    sort: [['timestamp', 'desc']],
+    limit
+  }).observeChanges({
+    added: (id, fields) => {
+      return this.added('messages', id, {...fields, from_chat_subscription: true});
+    },
+    changed: (id, fields) => {
+      return this.changed('messages', id, fields);
+    },
+    removed: id => {
+      return this.removed('messages', id);
+    }
+  });
+  this.onStop(() => handle.stop());
+  return this.ready();
+})
+);
 
-# Special subscription for the recent chats header because it ignores system
-# and presence messages and anything with an HTML body.
-Meteor.publish 'recent-header-messages', loginRequired ->
-  Messages.find
-    system: $ne: true
-    bodyIsHtml: $ne: true
-    deleted: $ne: true
-    header_ignore: $ne: true
-    room_name: 'general/0'
-    $or: [ {to: null},  {nick: @userId }]
-  ,
-    sort: [['timestamp', 'desc']]
+// Special subscription for the recent chats header because it ignores system
+// and presence messages and anything with an HTML body.
+Meteor.publish('recent-header-messages', loginRequired(function() {
+  return Messages.find({
+    system: { $ne: true
+  },
+    bodyIsHtml: { $ne: true
+  },
+    deleted: { $ne: true
+  },
+    header_ignore: { $ne: true
+  },
+    room_name: 'general/0',
+    $or: [ {to: null},  {nick: this.userId }]
+  }
+  , {
+    sort: [['timestamp', 'desc']],
     limit: 2
+  }
+  );
+})
+);
 
-# Special subscription for desktop notifications
-Meteor.publish 'oplogs-since', loginRequired (since) ->
-  Messages.find
-    room_name: 'oplog/0'
-    timestamp: $gt: since
+// Special subscription for desktop notifications
+Meteor.publish('oplogs-since', loginRequired(since => Messages.find({
+  room_name: 'oplog/0',
+  timestamp: { $gt: since
+}
+}))
+);
 
-Meteor.publish 'starred-messages', loginRequired (room_name) ->
-  Messages.find { room_name: room_name, starred: true, deleted: { $ne: true } },
-    sort: [["timestamp", "asc"]]
+Meteor.publish('starred-messages', loginRequired(room_name => Messages.find({ room_name, starred: true, deleted: { $ne: true } },
+  {sort: [["timestamp", "asc"]]})));
 
-Meteor.publish 'callins', loginRequired ->
-  CallIns.find {status: $in: ['pending', 'rejected']},
-    sort: [["created","asc"]]
+Meteor.publish('callins', loginRequired(() => CallIns.find({status: {$in: ['pending', 'rejected']}},
+  {sort: [["created","asc"]]})));
 
-# synthetic 'all-names' collection which maps ids to type/name/canon
-Meteor.publish null, loginRequired ->
-  self = this
-  handles = [ 'rounds', 'puzzles' ].map (type) ->
-    collection(type).find({}).observe
-      added: (doc) ->
-        self.added 'names', doc._id,
-          type: type
-          name: doc.name
-          canon: canonical doc.name
-      removed: (doc) ->
-        self.removed 'names', doc._id
-      changed: (doc,olddoc) ->
-        return unless doc.name isnt olddoc.name
-        self.changed 'names', doc._id,
-          name: doc.name
-          canon: canonical doc.name
-  # observe only returns after initial added callbacks have run.  So now
-  # mark the subscription as ready
-  self.ready()
-  # stop observing the various cursors when client unsubs
-  self.onStop ->
-    handles.map (h) -> h.stop()
+// synthetic 'all-names' collection which maps ids to type/name/canon
+Meteor.publish(null, loginRequired(function() {
+  const self = this;
+  const handles = [ 'rounds', 'puzzles' ].map(type => collection(type).find({}).observe({
+    added(doc) {
+      return self.added('names', doc._id, {
+        type,
+        name: doc.name,
+        canon: canonical(doc.name)
+      }
+      );
+    },
+    removed(doc) {
+      return self.removed('names', doc._id);
+    },
+    changed(doc,olddoc) {
+      if (doc.name === olddoc.name) { return; }
+      return self.changed('names', doc._id, {
+        name: doc.name,
+        canon: canonical(doc.name)
+      }
+      );
+    }
+  }));
+  // observe only returns after initial added callbacks have run.  So now
+  // mark the subscription as ready
+  self.ready();
+  // stop observing the various cursors when client unsubs
+  return self.onStop(() => handles.map(h => h.stop()));
+})
+);
 
-Meteor.publish 'poll', loginRequired (id) ->
-  Polls.find _id: id
+Meteor.publish('poll', loginRequired(id => Polls.find({_id: id}))
+);
 
-## Publish the 'facts' collection to all users
-Facts.setUserIdFilter -> true
+//# Publish the 'facts' collection to all users
+Facts.setUserIdFilter(() => true);

@@ -1,71 +1,97 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import { Calendar, CalendarEvents } from '/lib/imports/collections.coffee';
 
-import { Calendar, CalendarEvents } from '/lib/imports/collections.coffee'
+const calendar_container = template => template.helpers({
+  calendar_id() { return Calendar.findOne()?._id; },
+  upcoming_events() { return CalendarEvents.find({end: {$gt: Session.get('currentTime')}}, {sort: {start: 1}}); }});
 
-calendar_container = (template) ->
-  template.helpers
-    calendar_id: -> Calendar.findOne()?._id
-    upcoming_events: -> CalendarEvents.find {end: $gt: Session.get 'currentTime'}, {sort: start: 1}
+calendar_container(Template.calendar_dropdown);
+Template.calendar_dropdown.helpers({
+  next_event() {
+    const now = Session.get('currentTime');
+    return CalendarEvents.findOne({end: {$gt: now}}, {sort: {start: 1}})?.start - now;
+  }
+});
 
-calendar_container Template.calendar_dropdown 
-Template.calendar_dropdown.helpers
-  next_event: ->
-    now = Session.get 'currentTime'
-    CalendarEvents.findOne({end: $gt: now}, {sort: start: 1})?.start - now
+calendar_container(Template.calendar_link);
+calendar_container(Template.calendar_add_link);
+calendar_container(Template.calendar_strip);
+calendar_container(Template.calendar_column);
 
-calendar_container Template.calendar_link
-calendar_container Template.calendar_add_link
-calendar_container Template.calendar_strip
-calendar_container Template.calendar_column
+Template.calendar_event.helpers({
+  dh_until_start() {
+    return (this.event.start - Session.get('currentTime')) / 360000;
+  },
+  url(str) {
+    try {
+      new URL(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+});
 
-Template.calendar_event.helpers
-  dh_until_start: ->
-    (@event.start - Session.get('currentTime')) / 360000
-  url: (str) ->
-    try
-      new URL str
-      return true
-    catch e
-      return false
+Template.calendar_event.events({
+  'click .bb-event-unattend'(event, template) {
+    return Meteor.call('removeEventAttendee', template.data.event._id, Meteor.userId());
+  },
+  'click .bb-event-attend'(event, template) {
+    return Meteor.call('addEventAttendee', template.data.event._id, Meteor.userId());
+  },
+  'click .bb-detach-event'(event, template) {
+    return Meteor.call('setPuzzleForEvent', template.data.event._id, null);
+  }
+});
 
-Template.calendar_event.events
-  'click .bb-event-unattend': (event, template) ->
-    Meteor.call 'removeEventAttendee', template.data.event._id, Meteor.userId()
-  'click .bb-event-attend': (event, template) ->
-    Meteor.call 'addEventAttendee', template.data.event._id, Meteor.userId()
-  'click .bb-detach-event': (event, template) ->
-    Meteor.call 'setPuzzleForEvent', template.data.event._id, null
+const attachable_events = () => CalendarEvents.find({
+  end: { $gt: Session.get('currentTime')
+},
+  puzzle: null
+}
+, {
+  sort: { start: 1
+},
+  fields: {
+    puzzle: 0,
+    location: 0
+  }
+}
+);
 
-attachable_events = ->
-  CalendarEvents.find
-    end: $gt: Session.get 'currentTime'
-    puzzle: null
-  ,
-    sort: start: 1
-    fields:
-      puzzle: 0
-      location: 0
+Template.calendar_attachable_events.helpers({attachable_events});
 
-Template.calendar_attachable_events.helpers {attachable_events}
+Template.calendar_attachable_events.events({
+  'click [data-event-id]'(event, template) {
+    return Meteor.call('setPuzzleForEvent', event.currentTarget.dataset.eventId, template.data.puzzle);
+  }
+});
 
-Template.calendar_attachable_events.events
-  'click [data-event-id]': (event, template) ->
-    Meteor.call 'setPuzzleForEvent', event.currentTarget.dataset.eventId, template.data.puzzle
-
-calendar_puzzle_container = (template) ->
-  template.helpers
-    upcoming_events: ->
-      CalendarEvents.find
-        end: $gt: Session.get 'currentTime'
-        puzzle: @_id
+const calendar_puzzle_container = function(template) {
+  return template.helpers({
+    upcoming_events() {
+      return CalendarEvents.find({
+        end: { $gt: Session.get('currentTime')
+      },
+        puzzle: this._id
+      }
       ,
-        sort: start: 1
+        {sort: {start: 1}});
+    }
+  });
+};
 
-calendar_puzzle_container Template.calendar_puzzle_cell
-calendar_puzzle_container Template.calendar_puzzle_events
+calendar_puzzle_container(Template.calendar_puzzle_cell);
+calendar_puzzle_container(Template.calendar_puzzle_events);
 
-Template.calendar_puzzle_cell.helpers {attachable_events}
+Template.calendar_puzzle_cell.helpers({attachable_events});
 
-Template.calendar_puzzle_cell_entry.events
-  'click .bb-detach-event': (event, template) ->
-    Meteor.call 'setPuzzleForEvent', template.data.event._id, null
+Template.calendar_puzzle_cell_entry.events({
+  'click .bb-detach-event'(event, template) {
+    return Meteor.call('setPuzzleForEvent', template.data.event._id, null);
+  }
+});

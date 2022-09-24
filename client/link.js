@@ -1,12 +1,18 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import { Names } from '/lib/imports/collections.coffee';
 
-import { Names } from '/lib/imports/collections.coffee'
+Template.link.onCreated(function() {
+  this.target = new ReactiveVar(null);
+  return this.autorun(() => {
+    return this.target.set(Names.findOne(Template.currentData().id));
+  });
+});
 
-Template.link.onCreated ->
-  @target = new ReactiveVar null
-  @autorun =>
-    @target.set Names.findOne(Template.currentData().id)
-
-Template.link.helpers
-  target: -> Template.instance().target.get()
-  text: -> Template.instance().data.text ? Template.instance().target.get()?.name
+Template.link.helpers({
+  target() { return Template.instance().target.get(); },
+  text() { return Template.instance().data.text ?? Template.instance().target.get()?.name; }
+});

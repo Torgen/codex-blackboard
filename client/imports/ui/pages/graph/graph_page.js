@@ -1,15 +1,22 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS208: Avoid top-level this
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import './graph_page.html';
 
-import './graph_page.html'
+Template.graph_page.onCreated(async function() {
+  this.loaded = new ReactiveVar(false);
+  await blimport('./graph.coffee');
+  return this.loaded.set(true);
+});
 
-Template.graph_page.onCreated ->
-  @loaded = new ReactiveVar false
-  await blimport('./graph.coffee')
-  @loaded.set true
+Template.graph_page.events({
+  'click .bb-layout'(event, template) {
+    return template.$('.bb-status-graph').trigger('bb-layout');
+  }
+});
 
-Template.graph_page.events
-  'click .bb-layout': (event, template) ->
-    template.$('.bb-status-graph').trigger('bb-layout')
-  
-Template.graph_page.helpers
-  loaded: -> Template.instance().loaded.get()
+Template.graph_page.helpers({
+  loaded() { return Template.instance().loaded.get(); }});

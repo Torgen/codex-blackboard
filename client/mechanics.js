@@ -1,28 +1,48 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import {mechanics} from '../lib/imports/mechanics.coffee';
 
-import {mechanics} from '../lib/imports/mechanics.coffee'
+Template.registerHelper('yourFavoriteMechanic', function() {
+  return Meteor.user().favorite_mechanics?.includes(this);
+});
 
-Template.registerHelper 'yourFavoriteMechanic', ->
-  Meteor.user().favorite_mechanics?.includes @
+Template.registerHelper('mechanicName', function() {
+  return mechanics[this].name;
+});
 
-Template.registerHelper 'mechanicName', ->
-  mechanics[@].name
+Template.mechanics.helpers({
+  mechanics() { return (() => {
+    const result = [];
+    for (let c in mechanics) {
+      const mech = mechanics[c];
+      result.push(mech);
+    }
+    return result;
+  })(); },
+  isChecked() { return Template.instance().data?.includes(this.canon); }
+});
 
-Template.mechanics.helpers
-  mechanics: -> mech for c, mech of mechanics
-  isChecked: -> Template.instance().data?.includes @canon
+Template.mechanics.events({
+  'click li a'(event, template) {
+    // Stop the dropdown from closing.
+    return event.stopPropagation();
+  }
+});
 
-Template.mechanics.events
-  'click li a': (event, template) ->
-    # Stop the dropdown from closing.
-    event.stopPropagation()
+Template.puzzle_mechanics.events({
+  'change input[data-mechanic]'(event, template) {
+    const method = event.currentTarget.checked ? 'addMechanic' : 'removeMechanic';
+    return Meteor.call(method, template.data._id, event.currentTarget.dataset.mechanic);
+  }
+});
 
-Template.puzzle_mechanics.events
-  'change input[data-mechanic]': (event, template) ->
-    method = if event.currentTarget.checked then 'addMechanic' else 'removeMechanic'
-    Meteor.call method, template.data._id, event.currentTarget.dataset.mechanic
-
-Template.favorite_mechanics.events
-  'change input[data-mechanic]': (event, template) ->
-    method = if event.currentTarget.checked then 'favoriteMechanic' else 'unfavoriteMechanic'
-    Meteor.call method, event.currentTarget.dataset.mechanic
+Template.favorite_mechanics.events({
+  'change input[data-mechanic]'(event, template) {
+    const method = event.currentTarget.checked ? 'favoriteMechanic' : 'unfavoriteMechanic';
+    return Meteor.call(method, event.currentTarget.dataset.mechanic);
+  }
+});

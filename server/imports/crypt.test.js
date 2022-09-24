@@ -1,18 +1,24 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import { crypt, decrypt } from './crypt.coffee';
+import { TextEncoder } from 'util';
+import chai from 'chai';
 
-import { crypt, decrypt } from './crypt.coffee'
-import { TextEncoder } from 'util'
-import chai from 'chai'
+const plain = 'Oops was brought to you by erasers: don\'t make a mistake without one';
+const password = 'Square One Television';
 
-plain = 'Oops was brought to you by erasers: don\'t make a mistake without one'
-password = 'Square One Television'
+describe('crypt', function() {
+  it('encrypts', function() {
+    const cipher = crypt(plain, password);
+    return chai.assert.notDeepEqual(new TextEncoder().encode(plain), cipher);
+  });
 
-describe 'crypt', ->
-  it 'encrypts', ->
-    cipher = crypt plain, password
-    chai.assert.notDeepEqual new TextEncoder().encode(plain), cipher
+  return it('decrypts to original', function() {
+    const cipher = crypt(plain, password);
 
-  it 'decrypts to original', ->
-    cipher = crypt plain, password
-
-    chai.assert.equal plain, decrypt cipher, password
+    return chai.assert.equal(plain, decrypt(cipher, password));
+  });
+});

@@ -1,86 +1,101 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import canonical from '../lib/imports/canonical.coffee';
+import { lat, lng, distance } from './imports/location.coffee';
+import botuser from './imports/botuser.coffee';
+import keyword_or_positional from './imports/keyword_or_positional.coffee';
+import isVisible from '/client/imports/visible.coffee';
 
-import canonical from '../lib/imports/canonical.coffee'
-import { lat, lng, distance } from './imports/location.coffee'
-import botuser from './imports/botuser.coffee'
-import keyword_or_positional from './imports/keyword_or_positional.coffee'
-import isVisible from '/client/imports/visible.coffee'
+// Geolocation-related utilities
 
-# Geolocation-related utilities
+const GEOLOCATION_DISTANCE_THRESHOLD = 10/5280; // 10 feet
+const GEOLOCATION_NEAR_DISTANCE = 1; // folks within a mile of you are "near"
 
-GEOLOCATION_DISTANCE_THRESHOLD = 10/5280 # 10 feet
-GEOLOCATION_NEAR_DISTANCE = 1 # folks within a mile of you are "near"
+const updateLocation = (function() {
+  let lastnick = null;
+  let last = null;
+  return function(pos, nick) {
+    if (pos == null) { return; }
+    if (nick !== lastnick) {
+      last = null;
+    }
+    if (last != null) {
+      if ((lat(pos) === lat(last)) && (lng(pos) === lng(last))) { return; }
+      if (distance(last, pos) < GEOLOCATION_DISTANCE_THRESHOLD) { return; }
+    }
+    last = pos;
+    lastnick = nick;
+    return Tracker.nonreactive(() => Meteor.call('locateNick', {location: pos}));
+  };
+})();
 
-updateLocation = do ->
-  lastnick = null
-  last = null
-  (pos, nick) ->
-    return unless pos?
-    if nick isnt lastnick
-      last = null
-    if last?
-      return if lat(pos) == lat(last) and lng(pos) == lng(last)
-      return if distance(last, pos) < GEOLOCATION_DISTANCE_THRESHOLD
-    last = pos
-    lastnick = nick
-    Tracker.nonreactive ->
-      Meteor.call 'locateNick', location: pos
-
-# As long as the user is logged in, stream position updates to server
-Tracker.autorun ->
-  Geolocation.setPaused !isVisible()
-  nick = Meteor.userId()
-  return unless nick?
-  pos = Geolocation.latLng(enableHighAccuracy:false)
-  return unless pos?
-  geojson =
-    type: 'Point'
+// As long as the user is logged in, stream position updates to server
+Tracker.autorun(function() {
+  Geolocation.setPaused(!isVisible());
+  const nick = Meteor.userId();
+  if (nick == null) { return; }
+  const pos = Geolocation.latLng({enableHighAccuracy:false});
+  if (pos == null) { return; }
+  const geojson = {
+    type: 'Point',
     coordinates: [pos.lng, pos.lat]
-  Session.set "position", geojson # always use most current location client-side
-  updateLocation geojson, nick
+  };
+  Session.set("position", geojson); // always use most current location client-side
+  return updateLocation(geojson, nick);
+});
 
-distanceTo = (nick) ->
-  return null unless nick
-  p = Session.get 'position'
-  return null unless p?
-  n = Meteor.users.findOne canonical nick
-  return null unless n? and n.located_at?
-  return distance(n.located_at, p)
+const distanceTo = function(nick) {
+  if (!nick) { return null; }
+  const p = Session.get('position');
+  if (p == null) { return null; }
+  const n = Meteor.users.findOne(canonical(nick));
+  if ((n == null) || (n.located_at == null)) { return null; }
+  return distance(n.located_at, p);
+};
 
-isNickNear = (nick) ->
-  return true if canonical(nick) is Meteor.userId() # that's me!
-  dist = distanceTo(nick)
-  return false unless dist?
-  return dist <= GEOLOCATION_NEAR_DISTANCE
+const isNickNear = function(nick) {
+  if (canonical(nick) === Meteor.userId()) { return true; } // that's me!
+  const dist = distanceTo(nick);
+  if (dist == null) { return false; }
+  return dist <= GEOLOCATION_NEAR_DISTANCE;
+};
 
-Template.registerHelper 'nickNear', (args) ->
-  args = keyword_or_positional 'nick', args
-  isNickNear args.nick
+Template.registerHelper('nickNear', function(args) {
+  args = keyword_or_positional('nick', args);
+  return isNickNear(args.nick);
+});
 
-CODEXBOT_LOCATIONS = [
-  'inside your computer'
-  'hanging around'
-  'solving puzzles'
-  'not amused'
-  'having fun!'
-  "Your Plastic Pal Who's Fun to Be With."
-  'fond of memes'
-  'waiting for you humans to find the coin already'
+const CODEXBOT_LOCATIONS = [
+  'inside your computer',
+  'hanging around',
+  'solving puzzles',
+  'not amused',
+  'having fun!',
+  "Your Plastic Pal Who's Fun to Be With.",
+  'fond of memes',
+  'waiting for you humans to find the coin already',
   'muttering about his precious'
-]
+];
 
-Template.registerHelper 'nickLocation', (args) ->
-  args = keyword_or_positional 'nick', args
-  return '' if canonical(args.nick) is Meteor.userId() # that's me!
-  if args.nick is botuser()._id
-    idx = Math.floor(Session.get('currentTime') / (10*60*1000))
-    return " is #{CODEXBOT_LOCATIONS[idx%CODEXBOT_LOCATIONS.length]}"
-  d = distanceTo(args.nick)
-  return '' unless d?
-  feet = d * 5280
-  return switch
-    when d > 5 then " is #{d.toFixed(0)} miles from you"
-    when d > 0.1 then " is #{d.toFixed(1)} miles from you"
-    when feet > 5 then " is #{feet.toFixed(0)} feet from you"
-    when feet > 0.5 then " is #{feet.toFixed(1)} feet from you"
-    else " is, perhaps, on your lap?"
+Template.registerHelper('nickLocation', function(args) {
+  args = keyword_or_positional('nick', args);
+  if (canonical(args.nick) === Meteor.userId()) { return ''; } // that's me!
+  if (args.nick === botuser()._id) {
+    const idx = Math.floor(Session.get('currentTime') / (10*60*1000));
+    return ` is ${CODEXBOT_LOCATIONS[idx%CODEXBOT_LOCATIONS.length]}`;
+  }
+  const d = distanceTo(args.nick);
+  if (d == null) { return ''; }
+  const feet = d * 5280;
+  switch (false) {
+    case d <= 5: return ` is ${d.toFixed(0)} miles from you`;
+    case d <= 0.1: return ` is ${d.toFixed(1)} miles from you`;
+    case feet <= 5: return ` is ${feet.toFixed(0)} feet from you`;
+    case feet <= 0.5: return ` is ${feet.toFixed(1)} feet from you`;
+    default: return " is, perhaps, on your lap?";
+  }
+});

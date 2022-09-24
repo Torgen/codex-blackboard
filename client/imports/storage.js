@@ -1,39 +1,53 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+class StorageWrapper {
+  constructor(storage) {
+    this.storage = storage;
+    this.dependencies = {};
+  }
 
-class StorageWrapper
-  constructor: (@storage) ->
-    @dependencies = {}
+  invalidate(key) {
+    return this.dependencies[key]?.changed();
+  }
 
-  invalidate: (key) ->
-    @dependencies[key]?.changed()
+  depend(key) {
+    let dep = this.dependencies[key];
+    if (dep == null) { dep = (this.dependencies[key] = new Tracker.Dependency); }
+    return dep.depend();
+  }
 
-  depend: (key) ->
-    dep = @dependencies[key]
-    dep = @dependencies[key] = new Tracker.Dependency unless dep?
-    dep.depend()
+  setItem(key, value) {
+    this.storage.setItem(key, value);
+    return this.invalidate(key);
+  }
 
-  setItem: (key, value) ->
-    @storage.setItem key, value
-    @invalidate key
+  removeItem(key) {
+    this.storage.removeItem(key);
+    return this.invalidate(key);
+  }
 
-  removeItem: (key) ->
-    @storage.removeItem key
-    @invalidate key
+  getItem(key) {
+    this.depend(key);
+    return this.storage.getItem(key);
+  }
+}
 
-  getItem: (key) ->
-    @depend key
-    @storage.getItem key
+export var reactiveLocalStorage = new StorageWrapper(window.localStorage);
 
-export reactiveLocalStorage = new StorageWrapper window.localStorage
+export var reactiveSessionStorage = new StorageWrapper(window.sessionStorage);
 
-export reactiveSessionStorage = new StorageWrapper window.sessionStorage
-
-addEventListener 'storage', (event) ->
-  wrapper = null
-  if event.storageArea is window.localStorage
-    wrapper = reactiveLocalStorage
-  else if event.storageArea is window.sessionStorage
-    wrapper = reactiveSessionStorage
-  else
-    throw new Error 'unknown storage area'
-  wrapper.invalidate event.key
+addEventListener('storage', function(event) {
+  let wrapper = null;
+  if (event.storageArea === window.localStorage) {
+    wrapper = reactiveLocalStorage;
+  } else if (event.storageArea === window.sessionStorage) {
+    wrapper = reactiveSessionStorage;
+  } else {
+    throw new Error('unknown storage area');
+  }
+  return wrapper.invalidate(event.key);
+});

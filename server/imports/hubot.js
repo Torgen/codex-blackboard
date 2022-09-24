@@ -1,246 +1,323 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import canonical from '/lib/imports/canonical.coffee';
+import { Messages, Presence } from '/lib/imports/collections.coffee';
+import md5 from 'md5';
+import { callAs } from './impersonate.coffee';
+import Hubot from 'hubot/es2015';
 
-import canonical from '/lib/imports/canonical.coffee'
-import { Messages, Presence } from '/lib/imports/collections.coffee'
-import md5 from 'md5'
-import { callAs } from './impersonate.coffee'
-import Hubot from 'hubot/es2015'
+// Log messages?
+const DEBUG = !Meteor.isProduction;
 
-# Log messages?
-DEBUG = !Meteor.isProduction
+// Monkey-patch Hubot to support private messages
+Hubot.Response.prototype.priv = function(...strings) {
+  return this.robot.adapter.priv(this.envelope, ...strings);
+};
 
-# Monkey-patch Hubot to support private messages
-Hubot.Response::priv = (strings...) ->
-  @robot.adapter.priv @envelope, strings...
+const tweakStrings = (strings, f) => strings.map(function(obj) {
+  if (typeof(obj) === 'string') { return f(obj); } else { return obj; }
+});
 
-tweakStrings = (strings, f) -> strings.map (obj) ->
-  if typeof(obj) == 'string' then f(obj) else obj
-
-class BlackboardAdapter extends Hubot.Adapter
-  constructor: (robot, @botname, @gravatar) ->
-    super robot
-    
-    # what's (the regexp for) my name?
-    robot.respond /(?:)/, -> false
-    @mynameRE = robot.listeners.pop().regex
+class BlackboardAdapter extends Hubot.Adapter {
+  static initClass() {
   
-  # Public: Raw method for sending data back to the chat source. Extend this.
-  #
-  # envelope - A Object with message, room and user details.
-  # strings  - One or more Strings for each message to send.
-  #
-  # Returns nothing.
-  send: (envelope, strings...) ->
-    return @priv envelope, strings... if envelope.message.private
-    @sendHelper envelope, strings, (string, props) =>
-      console.log "send #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      if envelope.message.direct and (not props.useful)
-        unless string.startsWith("@#{envelope.user.id}")
-          string = "@#{envelope.user.id}: #{string}"
-      callAs "newMessage", @botname, Object.assign {}, props,
-        body: string
-        room_name: envelope.room
-        bot_ignore: true
-
-  # Public: Raw method for sending emote data back to the chat source.
-  #
-  # envelope - A Object with message, room and user details.
-  # strings  - One or more Strings for each message to send.
-  #
-  # Returns nothing.
-  emote: (envelope, strings...) ->
-    if envelope.message.private
-      return @priv envelope, tweakStrings(strings, (s) -> "*** #{s} ***")...
-    @sendHelper envelope, strings, (string, props) =>
-      console.log "emote #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      callAs "newMessage", @botname, Object.assign {}, props,
-        body: string
-        room_name: envelope.room
-        action: true
-        bot_ignore: true
-
-  # Priv: our extension -- send a PM to user
-  priv: (envelope, strings...) ->
-    @sendHelper envelope, strings, (string, props) =>
-      console.log "priv #{envelope.room}: #{string} (#{envelope.user.id})" if DEBUG
-      callAs "newMessage", @botname, Object.assign {}, props,
-        to: "#{envelope.user.id}"
-        body: string
-        room_name: envelope.room
-        bot_ignore: true
-
-  # Public: Raw method for building a reply and sending it back to the chat
-  # source. Extend this.
-  #
-  # envelope - A Object with message, room and user details.
-  # strings  - One or more Strings for each reply to send.
-  #
-  # Returns nothing.
-  reply: (envelope, strings...) ->
-    if envelope.message.private
-      @priv envelope, strings...
-    else
-      @send envelope, [{mention: [envelope.user.id]}, ...tweakStrings(strings, (str) -> "@#{envelope.user.id}: #{str}")]...
-
-  # Public: Raw method for setting a topic on the chat source. Extend this.
-  #
-  # envelope - A Object with message, room and user details.
-  # strings  - One more more Strings to set as the topic.
-  #
-  # Returns nothing.
-  topic: (envelope, strings...) ->
-
-  # Public: Raw method for playing a sound in the chat source. Extend this.
-  #
-  # envelope - A Object with message, room and user details.
-  # strings  - One or more strings for each play message to send.
-  #
-  # Returns nothing
-  play: (envelope, strings...) ->
-
-  # Public: Raw method for invoking the bot to run. Extend this.
-  #
-  # Returns nothing.
-  run: ->
-    # register our nick
-    Meteor.users.upsert @botname,
-      $set:
-        nickname: @robot.name
-        gravatar_md5: md5 @gravatar
-        bot_wakeup: Date.now()
-      $unset: services: ''
-    # register our presence in general chat
-    @present = (room_name) =>
-      now = Date.now() 
-      Presence.upsert {scope: 'chat', room_name: room_name, nick: @botname},
-        $set:
-          timestamp: now
-          bot: true
-        $setOnInsert:
-          joined_timestamp: now
-        $push: clients:
-          connection_id: 'hubot_adapter'
-          timestamp: now
-      Presence.update {scope: 'chat', room_name: room_name, nick: @botname},
-        $pull: clients: 
-          connection_id: 'hubot_adapter'
-          timestamp: $lt: now
-    keepalive = => @present 'general/0'
-    keepalive()
-    @keepalive = Meteor.setInterval keepalive, 30*1000 # every 30s refresh presence
+    this.prototype.sendHelper = Meteor.bindEnvironment(function(envelope, strings, map) {
+      // be present in the room
+      try {
+        this.present(envelope.room);
+      } catch (error) {}
+      const props = Object.create(null);
+      const lines = [];
+      while (strings.length > 0) {
+        if (typeof(strings[0]) === 'function') {
+          strings[0] = strings[0]();
+          continue;
+        }
+        const string = strings.shift();
+        if (typeof(string) === 'object') {
+          Object.assign(props, string);
+          continue;
+        }
+        if (string != null) {
+          lines.push(string);
+        }
+      }
+      if (lines.length && envelope.message.direct && (!props.useful)) {
+        Messages.update(envelope.message.id, {$set: {useless_cmd: true}});
+      }
+      return lines.map(function(line) {
+        try {
+          return map(line, props);
+        } catch (err) {
+          if (DEBUG) { return console.error(`Hubot error: ${err}`); }
+        }
+      });
+    });
+  }
+  constructor(robot, botname, gravatar) {
+    super(robot);
     
-    IGNORED_NICKS = new Set ['', @botname]
-    # listen to the chat room, ignoring messages sent before we startup
-    startup = true
-    query = Messages.find(timestamp: $gt: Date.now())
-    @handle = query.observeChanges
-      added: (id, msg) =>
-        return if startup
-        return if msg.bot_ignore
-        return if IGNORED_NICKS.has msg.nick
-        # Copy user, adding room. Room is needed for the envelope, but if we
-        # made the user here anew we would need to query the users table to get
-        # the real name.
-        user = Object.create @robot.brain.userForId(msg.nick)
-        Object.assign user, room: msg.room_name
-        if msg.presence?
-          if msg.presence is 'join'
-            pm = new Hubot.EnterMessage user, null, id
-          else if msg.presence is 'part'
-            pm = new Hubot.LeaveMessage user, null, id
-          else
-            console.warn 'Weird presence message:', msg
-            return
-          @receive pm
-          return
-        return if msg.system or msg.action or msg.oplog or msg.bodyIsHtml or msg.poll
-        console.log "Received from #{msg.nick} in #{msg.room_name}: #{msg.body}"\
-          if DEBUG
-        tm = new Hubot.TextMessage(user, msg.body, id)
-        tm.private = msg.to?
-        # if private, ensure it's treated as a direct address
-        tm.direct = @mynameRE.test(tm.text)
-        if tm.private and not tm.direct
-          tm.text = "#{@robot.name} #{tm.text}"
-        @receive tm
-    startup = false
-    callAs "newMessage", @botname,
-      body: 'wakes up'
-      room_name: 'general/0'
-      action: true
-      bot_ignore: true
+    // what's (the regexp for) my name?
+    this.botname = botname;
+    this.gravatar = gravatar;
+    robot.respond(/(?:)/, () => false);
+    this.mynameRE = robot.listeners.pop().regex;
+  }
+  
+  // Public: Raw method for sending data back to the chat source. Extend this.
+  //
+  // envelope - A Object with message, room and user details.
+  // strings  - One or more Strings for each message to send.
+  //
+  // Returns nothing.
+  send(envelope, ...strings) {
+    if (envelope.message.private) { return this.priv(envelope, ...strings); }
+    return this.sendHelper(envelope, strings, (string, props) => {
+      if (DEBUG) { console.log(`send ${envelope.room}: ${string} (${envelope.user.id})`); }
+      if (envelope.message.direct && (!props.useful)) {
+        if (!string.startsWith(`@${envelope.user.id}`)) {
+          string = `@${envelope.user.id}: ${string}`;
+        }
+      }
+      return callAs("newMessage", this.botname, Object.assign({}, props, {
+        body: string,
+        room_name: envelope.room,
+        bot_ignore: true
+      }
+      )
+      );
+    });
+  }
+
+  // Public: Raw method for sending emote data back to the chat source.
+  //
+  // envelope - A Object with message, room and user details.
+  // strings  - One or more Strings for each message to send.
+  //
+  // Returns nothing.
+  emote(envelope, ...strings) {
+    if (envelope.message.private) {
+      return this.priv(envelope, ...tweakStrings(strings, s => `*** ${s} ***`));
+    }
+    return this.sendHelper(envelope, strings, (string, props) => {
+      if (DEBUG) { console.log(`emote ${envelope.room}: ${string} (${envelope.user.id})`); }
+      return callAs("newMessage", this.botname, Object.assign({}, props, {
+        body: string,
+        room_name: envelope.room,
+        action: true,
+        bot_ignore: true
+      }
+      )
+      );
+    });
+  }
+
+  // Priv: our extension -- send a PM to user
+  priv(envelope, ...strings) {
+    return this.sendHelper(envelope, strings, (string, props) => {
+      if (DEBUG) { console.log(`priv ${envelope.room}: ${string} (${envelope.user.id})`); }
+      return callAs("newMessage", this.botname, Object.assign({}, props, {
+        to: `${envelope.user.id}`,
+        body: string,
+        room_name: envelope.room,
+        bot_ignore: true
+      }
+      )
+      );
+    });
+  }
+
+  // Public: Raw method for building a reply and sending it back to the chat
+  // source. Extend this.
+  //
+  // envelope - A Object with message, room and user details.
+  // strings  - One or more Strings for each reply to send.
+  //
+  // Returns nothing.
+  reply(envelope, ...strings) {
+    if (envelope.message.private) {
+      return this.priv(envelope, ...strings);
+    } else {
+      return this.send(envelope, ...[{mention: [envelope.user.id]}, ...tweakStrings(strings, str => `@${envelope.user.id}: ${str}`)]);
+    }
+  }
+
+  // Public: Raw method for setting a topic on the chat source. Extend this.
+  //
+  // envelope - A Object with message, room and user details.
+  // strings  - One more more Strings to set as the topic.
+  //
+  // Returns nothing.
+  topic(envelope, ...strings) {}
+
+  // Public: Raw method for playing a sound in the chat source. Extend this.
+  //
+  // envelope - A Object with message, room and user details.
+  // strings  - One or more strings for each play message to send.
+  //
+  // Returns nothing
+  play(envelope, ...strings) {}
+
+  // Public: Raw method for invoking the bot to run. Extend this.
+  //
+  // Returns nothing.
+  run() {
+    // register our nick
+    Meteor.users.upsert(this.botname, {
+      $set: {
+        nickname: this.robot.name,
+        gravatar_md5: md5(this.gravatar),
+        bot_wakeup: Date.now()
+      },
+      $unset: { services: ''
+    }
+    }
+    );
+    // register our presence in general chat
+    this.present = room_name => {
+      const now = Date.now(); 
+      Presence.upsert({scope: 'chat', room_name, nick: this.botname}, {
+        $set: {
+          timestamp: now,
+          bot: true
+        },
+        $setOnInsert: {
+          joined_timestamp: now
+        },
+        $push: { clients: {
+          connection_id: 'hubot_adapter',
+          timestamp: now
+        }
+      }
+      }
+      );
+      return Presence.update({scope: 'chat', room_name, nick: this.botname}, {
+        $pull: { clients: { 
+          connection_id: 'hubot_adapter',
+          timestamp: { $lt: now
+        }
+        }
+      }
+      }
+      );
+    };
+    const keepalive = () => this.present('general/0');
+    keepalive();
+    this.keepalive = Meteor.setInterval(keepalive, 30*1000); // every 30s refresh presence
+    
+    const IGNORED_NICKS = new Set(['', this.botname]);
+    // listen to the chat room, ignoring messages sent before we startup
+    let startup = true;
+    const query = Messages.find({timestamp: {$gt: Date.now()}});
+    this.handle = query.observeChanges({
+      added: (id, msg) => {
+        if (startup) { return; }
+        if (msg.bot_ignore) { return; }
+        if (IGNORED_NICKS.has(msg.nick)) { return; }
+        // Copy user, adding room. Room is needed for the envelope, but if we
+        // made the user here anew we would need to query the users table to get
+        // the real name.
+        const user = Object.create(this.robot.brain.userForId(msg.nick));
+        Object.assign(user, {room: msg.room_name});
+        if (msg.presence != null) {
+          let pm;
+          if (msg.presence === 'join') {
+            pm = new Hubot.EnterMessage(user, null, id);
+          } else if (msg.presence === 'part') {
+            pm = new Hubot.LeaveMessage(user, null, id);
+          } else {
+            console.warn('Weird presence message:', msg);
+            return;
+          }
+          this.receive(pm);
+          return;
+        }
+        if (msg.system || msg.action || msg.oplog || msg.bodyIsHtml || msg.poll) { return; }
+        if (DEBUG) { console.log(`Received from ${msg.nick} in ${msg.room_name}: ${msg.body}`); }
+        const tm = new Hubot.TextMessage(user, msg.body, id);
+        tm.private = (msg.to != null);
+        // if private, ensure it's treated as a direct address
+        tm.direct = this.mynameRE.test(tm.text);
+        if (tm.private && !tm.direct) {
+          tm.text = `${this.robot.name} ${tm.text}`;
+        }
+        return this.receive(tm);
+      }
+    });
+    startup = false;
+    callAs("newMessage", this.botname, {
+      body: 'wakes up',
+      room_name: 'general/0',
+      action: true,
+      bot_ignore: true,
       header_ignore: true
-    @emit 'connected'
+    }
+    );
+    return this.emit('connected');
+  }
 
-  # Public: Raw method for shutting the bot down.
-  #
-  # Returns nothing.
-  close: ->
-    @handle?.stop()
-    Meteor.clearInterval @keepalive
+  // Public: Raw method for shutting the bot down.
+  //
+  // Returns nothing.
+  close() {
+    this.handle?.stop();
+    return Meteor.clearInterval(this.keepalive);
+  }
+}
+BlackboardAdapter.initClass();
 
-  sendHelper: Meteor.bindEnvironment (envelope, strings, map) ->
-    # be present in the room
-    try
-      @present envelope.room
-    props = Object.create(null)
-    lines = []
-    while strings.length > 0
-      if typeof(strings[0]) is 'function'
-        strings[0] = strings[0]()
-        continue
-      string = strings.shift()
-      if typeof(string) is 'object'
-        Object.assign props, string
-        continue
-      if string?
-        lines.push string
-    if lines.length and envelope.message.direct and (not props.useful)
-      Messages.update envelope.message.id, $set: useless_cmd: true
-    lines.map (line) ->
-      try
-        map(line, props)
-      catch err
-        console.error "Hubot error: #{err}" if DEBUG
+// grrrr, Meteor.bindEnvironment doesn't preserve `this` apparently
+const bind = function(f) {
+  const g = Meteor.bindEnvironment((self, ...args) => f.apply(self, args));
+  return function(...args) { return g(this, ...args); };
+};
 
-# grrrr, Meteor.bindEnvironment doesn't preserve `this` apparently
-bind = (f) ->
-  g = Meteor.bindEnvironment (self, args...) -> f.apply(self, args)
-  (args...) -> g @, args...
+Hubot.Robot.prototype.loadAdapter = function() {};
 
-Hubot.Robot::loadAdapter = -> 
+export default class Robot extends Hubot.Robot {
+  constructor(botname, gravatar) {
+    super(null, 'shell', false, botname, 'bot');
+    this.gravatar = gravatar;
+    this.hear = bind(this.hear);
+    this.respond = bind(this.respond);
+    this.enter = bind(this.enter);
+    this.leave = bind(this.leave);
+    this.topic = bind(this.topic);
+    this.error = bind(this.error);
+    this.catchAll = bind(this.catchAll);
+    this.adapter = new BlackboardAdapter(this, canonical(this.name), this.gravatar);
+  }
 
-export default class Robot extends Hubot.Robot
-  constructor: (botname, @gravatar) ->
-    super null, 'shell', false, botname, 'bot'
-    @hear = bind @hear
-    @respond = bind @respond
-    @enter = bind @enter
-    @leave = bind @leave
-    @topic = bind @topic
-    @error = bind @error
-    @catchAll = bind @catchAll
-    @adapter = new BlackboardAdapter @, canonical(@name), @gravatar
-
-  hear:    (regex, callback) -> super regex, @privatize callback
-  respond: (regex, callback) -> super regex, @privatize callback
-  enter: (callback) -> super @privatize callback
-  leave: (callback) -> super @privatize callback
-  topic: (callback) -> super @privatize callback
-  error: (callback) -> super  @privatize callback
-  catchAll: (callback) -> super @privatize callback
-  privately: (callback) ->
-    # Call the given callback on this such that any listeners it registers will
-    # behave as though they received a private message.
-    @private = true
-    try
-      callback @
-    finally
-      @private = false
-  privatize: (callback) ->
-    Meteor.bindEnvironment if @private
-      (resp) ->
-        resp.message.private = true
-        callback resp
-    else callback
+  hear(regex, callback) { return super.hear(regex, this.privatize(callback)); }
+  respond(regex, callback) { return super.respond(regex, this.privatize(callback)); }
+  enter(callback) { return super.enter(this.privatize(callback)); }
+  leave(callback) { return super.leave(this.privatize(callback)); }
+  topic(callback) { return super.topic(this.privatize(callback)); }
+  error(callback) { return super.error(this.privatize(callback)); }
+  catchAll(callback) { return super.catchAll(this.privatize(callback)); }
+  privately(callback) {
+    // Call the given callback on this such that any listeners it registers will
+    // behave as though they received a private message.
+    this.private = true;
+    try {
+      return callback(this);
+    } finally {
+      this.private = false;
+    }
+  }
+  privatize(callback) {
+    return Meteor.bindEnvironment(this.private ?
+      function(resp) {
+        resp.message.private = true;
+        return callback(resp);
+      }
+    : callback
+    );
+  }
+}
 

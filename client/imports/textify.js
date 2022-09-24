@@ -1,7 +1,7 @@
-'use strict'
-
-# Convert an HTML string to 
-export default textify = (string) ->
-  div = document.createElement 'div'
-  div.innerHTML = string
-  return div.innerText
+// Convert an HTML string to 
+let textify;
+export default textify = function(string) {
+  const div = document.createElement('div');
+  div.innerHTML = string;
+  return div.innerText;
+};

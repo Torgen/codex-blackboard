@@ -1,7 +1,11 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+export var impersonating = function(userId, f) {
+  if (DDP._CurrentMethodInvocation.get()) { throw Meteor.Error(400, 'already in call'); }
+  return DDP._CurrentMethodInvocation.withValue({userId}, () => f());
+};
 
-export impersonating = (userId, f) ->
-  throw Meteor.Error(400, 'already in call') if DDP._CurrentMethodInvocation.get()
-  DDP._CurrentMethodInvocation.withValue {userId}, -> f()
-
-export callAs = (method, user, args...) -> impersonating user, -> Meteor.call method, args...
+export var callAs = (method, user, ...args) => impersonating(user, () => Meteor.call(method, ...args));

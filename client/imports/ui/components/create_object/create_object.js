@@ -1,40 +1,58 @@
-import './create_object.html'
-import canonical from '/lib/imports/canonical.coffee'
-import { collection, pretty_collection } from '/lib/imports/collections.coffee'
-import okCancelEvents from '/client/imports/ok_cancel_events.coffee'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import './create_object.html';
+import canonical from '/lib/imports/canonical.coffee';
+import { collection, pretty_collection } from '/lib/imports/collections.coffee';
+import okCancelEvents from '/client/imports/ok_cancel_events.coffee';
 
-Template.create_object.onCreated ->
-  @name = new ReactiveVar ''
+Template.create_object.onCreated(function() {
+  return this.name = new ReactiveVar('');
+});
 
-Template.create_object.onRendered ->
-  @$('input').focus()
+Template.create_object.onRendered(function() {
+  return this.$('input').focus();
+});
 
-Template.create_object.events
-  'focus/input input': (event, template) ->
-    template.name.set event.currentTarget.value
+Template.create_object.events({
+  'focus/input input'(event, template) {
+    return template.name.set(event.currentTarget.value);
+  }
+});
 
-Template.create_object.events okCancelEvents 'input',
-  cancel: (evt, template) -> @done.done()
-  ok: (name, evt, template) ->
-    return unless @done.done()
-    type = pretty_collection(template.data.type)
-    type = type[0].toUpperCase() + type.slice(1)
-    Meteor.call "new#{type}", {name, ...@params}
-    template.name.set ''
+Template.create_object.events(okCancelEvents('input', {
+  cancel(evt, template) { return this.done.done(); },
+  ok(name, evt, template) {
+    if (!this.done.done()) { return; }
+    let type = pretty_collection(template.data.type);
+    type = type[0].toUpperCase() + type.slice(1);
+    Meteor.call(`new${type}`, {name, ...this.params});
+    return template.name.set('');
+  }
+}
+)
+);
 
-Template.create_object.helpers
-  pretty: -> pretty_collection(@type)
-  upperPretty: ->
-    type = pretty_collection(@type)
-    return type[0].toUpperCase() + type.slice(1)
-  titleAddClass: ->
-    val = Template.instance().name.get()
-    return 'error' if not val
-    cval = canonical val
-    return 'error' if collection(@type).findOne(canon: cval)?
-    return 'success'
-  titleAddStatus: ->
-    val = Template.instance().name.get()
-    return 'Cannot be empty' if not val
-    cval = canonical val
-    return "Conflicts with another #{pretty_collection(@type)}" if collection(@type).findOne(canon: cval)?
+Template.create_object.helpers({
+  pretty() { return pretty_collection(this.type); },
+  upperPretty() {
+    const type = pretty_collection(this.type);
+    return type[0].toUpperCase() + type.slice(1);
+  },
+  titleAddClass() {
+    const val = Template.instance().name.get();
+    if (!val) { return 'error'; }
+    const cval = canonical(val);
+    if (collection(this.type).findOne({canon: cval}) != null) { return 'error'; }
+    return 'success';
+  },
+  titleAddStatus() {
+    const val = Template.instance().name.get();
+    if (!val) { return 'Cannot be empty'; }
+    const cval = canonical(val);
+    if (collection(this.type).findOne({canon: cval}) != null) { return `Conflicts with another ${pretty_collection(this.type)}`; }
+  }
+});

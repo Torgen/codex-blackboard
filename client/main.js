@@ -1,242 +1,297 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS201: Simplify complex destructure assignments
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import md5 from 'md5';
+import { gravatarUrl, nickHash } from './imports/nickEmail.coffee';
+import abbrev from '../lib/imports/abbrev.coffee';
+import canonical from '/lib/imports/canonical.coffee';
+import { BBCollection, Messages, Names, Puzzles, collection, pretty_collection } from '/lib/imports/collections.coffee';
+import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee';
+import { mechanics } from '../lib/imports/mechanics.coffee';
+import { fileType } from '../lib/imports/mime_type.coffee';
+import { reactiveLocalStorage } from './imports/storage.coffee';
+import textify from './imports/textify.coffee';
+import embeddable from './imports/embeddable.coffee';
+import { GENERAL_ROOM_NAME, NAME_PLACEHOLDER, TEAM_NAME } from '/client/imports/server_settings.coffee';
+import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee';
+import * as notification from '/client/imports/notification.coffee';
+import Router from '/client/imports/router.coffee';
+import '/client/imports/ui/components/splitter/splitter.coffee';
+import '/client/imports/ui/pages/graph/graph_page.coffee';
+import '/client/imports/ui/pages/map/map_page.coffee';
+import '/client/imports/ui/pages/projector/projector.coffee';
+import '/client/imports/ui/pages/statistics/statistics_page.coffee';
 
-import md5 from 'md5'
-import { gravatarUrl, nickHash } from './imports/nickEmail.coffee'
-import abbrev from '../lib/imports/abbrev.coffee'
-import canonical from '/lib/imports/canonical.coffee'
-import { BBCollection, Messages, Names, Puzzles, collection, pretty_collection } from '/lib/imports/collections.coffee'
-import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee'
-import { mechanics } from '../lib/imports/mechanics.coffee'
-import { fileType } from '../lib/imports/mime_type.coffee'
-import { reactiveLocalStorage } from './imports/storage.coffee'
-import textify from './imports/textify.coffee'
-import embeddable from './imports/embeddable.coffee'
-import { GENERAL_ROOM_NAME, NAME_PLACEHOLDER, TEAM_NAME } from '/client/imports/server_settings.coffee'
-import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee'
-import * as notification from '/client/imports/notification.coffee'
-import Router from '/client/imports/router.coffee'
-import '/client/imports/ui/components/splitter/splitter.coffee'
-import '/client/imports/ui/pages/graph/graph_page.coffee'
-import '/client/imports/ui/pages/map/map_page.coffee'
-import '/client/imports/ui/pages/projector/projector.coffee'
-import '/client/imports/ui/pages/statistics/statistics_page.coffee'
+// "Top level" templates:
+//   "blackboard" -- main blackboard page
+//   "puzzle"     -- puzzle information page
+//   "round"      -- round information (much like the puzzle page)
+//   "chat"       -- chat room
+//   "oplogs"     -- operation logs
+//   "callins"    -- answer queue
+//   "facts"      -- server performance information
+Template.registerHelper("equal", (a, b) => a === b);
+Template.registerHelper("less", (a, b) => a < b);
+Template.registerHelper('any', function(...args) {
+  const adjustedLength = Math.max(args.length, 1), a = args.slice(0, adjustedLength - 1), options = args[adjustedLength - 1];
+  return a.some(x => x);
+});
+Template.registerHelper('includes', (haystack, needle) => haystack?.includes(needle));
+Template.registerHelper('all', function(...args) {
+  const adjustedLength = Math.max(args.length, 1), a = args.slice(0, adjustedLength - 1), options = args[adjustedLength - 1];
+  return a.every(x => x);
+});
+Template.registerHelper('not', a => !a);
+Template.registerHelper('split', (value, delimiter) => value.split(delimiter));
+Template.registerHelper('concat', function(...args) {
+  const adjustedLength = Math.max(args.length, 1), a = args.slice(0, adjustedLength - 1), options = args[adjustedLength - 1];
+  return a.join(options.delimiter ?? '');
+});
 
-# "Top level" templates:
-#   "blackboard" -- main blackboard page
-#   "puzzle"     -- puzzle information page
-#   "round"      -- round information (much like the puzzle page)
-#   "chat"       -- chat room
-#   "oplogs"     -- operation logs
-#   "callins"    -- answer queue
-#   "facts"      -- server performance information
-Template.registerHelper "equal", (a, b) -> a is b
-Template.registerHelper "less", (a, b) -> a < b
-Template.registerHelper 'any', (a..., options) ->
-  a.some (x) -> x
-Template.registerHelper 'includes', (haystack, needle) -> haystack?.includes needle 
-Template.registerHelper 'all', (a..., options) ->
-  a.every (x) -> x
-Template.registerHelper 'not', (a) -> not a
-Template.registerHelper 'split', (value, delimiter) -> value.split(delimiter)
-Template.registerHelper 'concat', (a..., options) ->
-  a.join(options.delimiter ? '')
+// session variables we want to make available from all templates
+((() => ['currentPage'].map((v) =>
+  Template.registerHelper(v, () => Session.get(v)))))();
+Template.registerHelper('abbrev', abbrev);
+Template.registerHelper('callinType', human_readable);
+Template.registerHelper('callinTypeAbbrev', ctabbrev);
+Template.registerHelper('canonical', canonical);
+Template.registerHelper('currentPageEquals', arg => // register a more precise dependency on the value of currentPage
+Session.equals('currentPage', arg));
+Template.registerHelper('typeEquals', arg => // register a more precise dependency on the value of type
+Session.equals('type', arg));
+Template.registerHelper('canEdit', () => Meteor.userId() && (Session.get('canEdit')) && 
+(Session.equals('currentPage', 'blackboard')));
 
-# session variables we want to make available from all templates
-do -> for v in ['currentPage']
-  Template.registerHelper v, () -> Session.get(v)
-Template.registerHelper 'abbrev', abbrev
-Template.registerHelper 'callinType', human_readable
-Template.registerHelper 'callinTypeAbbrev', ctabbrev
-Template.registerHelper 'canonical', canonical
-Template.registerHelper 'currentPageEquals', (arg) ->
-  # register a more precise dependency on the value of currentPage
-  Session.equals 'currentPage', arg
-Template.registerHelper 'typeEquals', (arg) ->
-  # register a more precise dependency on the value of type
-  Session.equals 'type', arg
-Template.registerHelper 'canEdit', () ->
-  Meteor.userId() and (Session.get 'canEdit') and \
-  (Session.equals 'currentPage', 'blackboard')
+Template.registerHelper('md5', md5);
+Template.registerHelper('fileType', fileType);
 
-Template.registerHelper 'md5', md5
-Template.registerHelper 'fileType', fileType
+Template.registerHelper('teamName', () => TEAM_NAME);
+Template.registerHelper('generalRoomName', () => GENERAL_ROOM_NAME);
 
-Template.registerHelper 'teamName', -> TEAM_NAME
-Template.registerHelper 'generalRoomName', -> GENERAL_ROOM_NAME
+Template.registerHelper('namePlaceholder', () => NAME_PLACEHOLDER);
 
-Template.registerHelper 'namePlaceholder', -> NAME_PLACEHOLDER
+Template.registerHelper('mynick', () => Meteor.userId());
 
-Template.registerHelper 'mynick', -> Meteor.userId()
+Template.registerHelper('embeddable', embeddable);
 
-Template.registerHelper 'embeddable', embeddable
+Template.registerHelper('plural', x => x !== 1);
 
-Template.registerHelper 'plural', (x) -> x != 1
+Template.registerHelper('nullToZero', x => x ?? 0);
 
-Template.registerHelper 'nullToZero', (x) -> x ? 0
+Template.registerHelper('canGoFullScreen', () => $('body').get(0)?.requestFullscreen != null);
 
-Template.registerHelper 'canGoFullScreen', -> $('body').get(0)?.requestFullscreen?
+Tracker.autorun(function() {
+  if (DARK_MODE.get()) {
+    return $('body').addClass('darkMode');
+  } else {
+    return $('body').removeClass('darkMode');
+  }
+});
 
-Tracker.autorun ->
-  if DARK_MODE.get()
-    $('body').addClass 'darkMode'
-  else
-    $('body').removeClass 'darkMode'
+Template.page.helpers({
+  splitter() { return Session.get('splitter'); },
+  topRight() { return Session.get('topRight'); },
+  type() { return Session.get('type'); },
+  id() { return Session.get('id'); },
+  color() { return Session.get('color'); }
+});
 
-Template.page.helpers
-  splitter: -> Session.get 'splitter'
-  topRight: -> Session.get 'topRight'
-  type: -> Session.get 'type'
-  id: -> Session.get 'id'
-  color: -> Session.get 'color'
+const allPuzzlesHandle = Meteor.subscribe('all-roundsandpuzzles');
 
-allPuzzlesHandle = Meteor.subscribe 'all-roundsandpuzzles'
+const debouncedUpdate = function() {
+  const now = new ReactiveVar(Date.now());
+  const update = (function() {
+    let next = now.get();
+    const push = _.debounce((() => now.set(next)), 1000);
+    return function(newNext) {
+      if (newNext > next) {
+        next = newNext;
+        return push();
+      }
+    };
+  })();
+  return {now, update};
+};
 
-debouncedUpdate = ->
-  now = new ReactiveVar Date.now()
-  update = do ->
-    next = now.get()
-    push = _.debounce (-> now.set next), 1000
-    (newNext) ->
-      if newNext > next
-        next = newNext
-        push()
-  {now, update}
-
-Meteor.startup ->
-  # Notifications based on oplogs
-  {now, update} = debouncedUpdate()
-  suppress = true
-  Tracker.autorun ->
-    if notification.count() is 0
-      suppress = true
-      return
-    else if suppress
-      now.set Date.now()
-    Meteor.subscribe 'oplogs-since', now.get(),
-      onReady: -> suppress = false
-  Messages.find({room_name: 'oplog/0', timestamp: $gt: now.get()}).observe
-    added: (msg) ->
-      update msg.timestamp
-      return unless notification.granted()
-      return unless notification.get(msg.stream)
-      return if suppress
-      gravatar = gravatarUrl
-        gravatar_md5: nickHash(msg.nick)
+Meteor.startup(function() {
+  // Notifications based on oplogs
+  const {now, update} = debouncedUpdate();
+  let suppress = true;
+  Tracker.autorun(function() {
+    if (notification.count() === 0) {
+      suppress = true;
+      return;
+    } else if (suppress) {
+      now.set(Date.now());
+    }
+    return Meteor.subscribe('oplogs-since', now.get(),
+      {onReady() { return suppress = false; }});
+  });
+  return Messages.find({room_name: 'oplog/0', timestamp: {$gt: now.get()}}).observe({
+    added(msg) {
+      update(msg.timestamp);
+      if (!notification.granted()) { return; }
+      if (!notification.get(msg.stream)) { return; }
+      if (suppress) { return; }
+      const gravatar = gravatarUrl({
+        gravatar_md5: nickHash(msg.nick),
         size: 192
-      body = msg.body
-      if msg.type and msg.id
-        body = "#{body} #{pretty_collection(msg.type)}
-                #{collection(msg.type).findOne(msg.id)?.name}"
-      data = undefined
-      if msg.stream is 'callins'
-        data = url: '/logistics'
-      else
-        data = url: Router.urlFor msg.type, msg.id
-      # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
-      # notifications that already have sound effects.
-      silent = MUTE_SOUND_EFFECTS.get() or ['callins', 'answers'].includes msg.stream
-      notification.notify msg.nick,
-        body: body
-        tag: msg._id
-        icon: gravatar
-        data: data
-        silent: silent
+      });
+      let {
+        body
+      } = msg;
+      if (msg.type && msg.id) {
+        body = `${body} ${pretty_collection(msg.type)} \
+${collection(msg.type).findOne(msg.id)?.name}`;
+      }
+      let data = undefined;
+      if (msg.stream === 'callins') {
+        data = {url: '/logistics'};
+      } else {
+        data = {url: Router.urlFor(msg.type, msg.id)};
+      }
+      // If sounde effects are off, notifications should be silent. If they're not, turn off sound for
+      // notifications that already have sound effects.
+      const silent = MUTE_SOUND_EFFECTS.get() || ['callins', 'answers'].includes(msg.stream);
+      return notification.notify(msg.nick, {
+        body,
+        tag: msg._id,
+        icon: gravatar,
+        data,
+        silent
+      }
+      );
+    }
+  });
+});
 
-Meteor.startup ->
-  # Notifications on favrite mechanics
-  Tracker.autorun ->
-    return unless allPuzzlesHandle?.ready()
-    return unless notification.granted()
-    return unless notification.get 'favorite-mechanics'
-    myFaves = Meteor.user()?.favorite_mechanics
-    return unless myFaves
-    faveSuppress = true
-    myFaves.forEach (mech) ->
-      Puzzles.find(mechanics: mech).observeChanges
-        added: (id, puzzle) ->
-          return if faveSuppress
-          notification.notify puzzle.name,
-            body: "Mechanic \"#{mechanics[mech].name}\" added to puzzle \"#{puzzle.name}\""
-            tag: "#{id}/#{mech}"
-            data: url: Router.urlFor 'puzzles', id
-            silent: MUTE_SOUND_EFFECTS.get()
-    faveSuppress = false
+Meteor.startup(() => // Notifications on favrite mechanics
+Tracker.autorun(function() {
+  if (!allPuzzlesHandle?.ready()) { return; }
+  if (!notification.granted()) { return; }
+  if (!notification.get('favorite-mechanics')) { return; }
+  const myFaves = Meteor.user()?.favorite_mechanics;
+  if (!myFaves) { return; }
+  let faveSuppress = true;
+  myFaves.forEach(mech => Puzzles.find({mechanics: mech}).observeChanges({
+    added(id, puzzle) {
+      if (faveSuppress) { return; }
+      return notification.notify(puzzle.name, {
+        body: `Mechanic \"${mechanics[mech].name}\" added to puzzle \"${puzzle.name}\"`,
+        tag: `${id}/${mech}`,
+        data: { url: Router.urlFor('puzzles', id)
+      },
+        silent: MUTE_SOUND_EFFECTS.get()
+      }
+      );
+    }
+  }));
+  return faveSuppress = false;
+}));
 
-Meteor.startup ->
-  # Notifications on private messages and mentions
-  Tracker.autorun ->
-    return unless allPuzzlesHandle?.ready()
-    return unless notification.granted()
-    return unless notification.get 'private-messages'
-    me = Meteor.user()?._id
-    return unless me?
-    arnow = Date.now()  # Intentionally not reactive
-    Messages.find({$or: [{to: me}, {mention: me}], timestamp: $gt: arnow}).observeChanges
-      added: (msgid, message) ->
-        [room_name, url] = if message.room_name is 'general/0'
-          [GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl '/']
-        else
-          [type, id] = message.room_name.split '/'
-          target = Names.findOne id
-          if target.type is type
-            pretty_type = pretty_collection(type).replace /^[a-z]/, (x) -> x.toUpperCase()
-            ["#{pretty_type} \"#{target.name}\"", Router.urlFor type, id]
-          else
-            [message.room_name, Router.chatUrlFor message.room_name]
-        gravatar = gravatarUrl
-          gravatar_md5: nickHash(message.nick)
+Meteor.startup(() => // Notifications on private messages and mentions
+Tracker.autorun(function() {
+  if (!allPuzzlesHandle?.ready()) { return; }
+  if (!notification.granted()) { return; }
+  if (!notification.get('private-messages')) { return; }
+  const me = Meteor.user()?._id;
+  if (me == null) { return; }
+  const arnow = Date.now();  // Intentionally not reactive
+  return Messages.find({$or: [{to: me}, {mention: me}], timestamp: {$gt: arnow}}).observeChanges({
+    added(msgid, message) {
+      const [room_name, url] = (() => {
+        if (message.room_name === 'general/0') {
+        return [GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl('/')];
+      } else {
+        const [type, id] = message.room_name.split('/');
+        const target = Names.findOne(id);
+        if (target.type === type) {
+          const pretty_type = pretty_collection(type).replace(/^[a-z]/, x => x.toUpperCase());
+          return [`${pretty_type} \"${target.name}\"`, Router.urlFor(type, id)];
+        } else {
+          return [message.room_name, Router.chatUrlFor(message.room_name)];
+        }
+      }
+      })();
+      const gravatar = gravatarUrl({
+        gravatar_md5: nickHash(message.nick),
+        size: 192
+      });
+      let {
+        body
+      } = message;
+      if (message.bodyIsHtml) {
+        body = textify(body);
+      }
+      const description = (message.to != null) ?
+        `Private message from ${message.nick} in ${room_name}`
+      :
+        `Mentioned by ${message.nick} in ${room_name}`;
+      return notification.notify(description, {
+        body,
+        tag: msgid,
+        data: {url},
+        icon: gravatar,
+        silent: MUTE_SOUND_EFFECTS.get()
+      }
+      );
+    }
+  });
+}));
+
+Meteor.startup(function() {
+  // Notifications on announcements
+  const {now, update} = debouncedUpdate();
+  let suppress = true;
+  return Tracker.autorun(function() {
+    if (!notification.granted()) { return; }
+    if (!notification.get('announcements')) {
+      suppress = true;
+      return;
+    } else if (suppress) {
+      now.set(Date.now());
+    }
+    Meteor.subscribe('announcements-since', now.get(),
+      {onReady() { return suppress = false; }});
+    return Messages.find({announced_at: {$gt: now.get()}}).observe({
+      added(msg) {
+        update(msg.announced_at);
+        if (!notification.granted()) { return; }
+        if (!notification.get('announcements')) { return; }
+        if (suppress) { return; }
+        const gravatar = gravatarUrl({
+          gravatar_md5: nickHash(msg.nick),
           size: 192
-        body = message.body
-        if message.bodyIsHtml
-          body = textify body
-        description = if message.to?
-          "Private message from #{message.nick} in #{room_name}"
-        else
-          "Mentioned by #{message.nick} in #{room_name}"
-        notification.notify description,
-          body: body
-          tag: msgid
-          data: {url}
-          icon: gravatar
-          silent: MUTE_SOUND_EFFECTS.get()
+        });
+        let {
+          body
+        } = msg;
+        if (msg.type && msg.id) {
+          body = `${body} ${pretty_collection(msg.type)} \
+${collection(msg.type).findOne(msg.id)?.name}`;
+        }
+        const data = {url: Meteor._relativeToSiteRootUrl('/')};
+        // If sounde effects are off, notifications should be silent. If they're not, turn off sound for
+        // notifications that already have sound effects.
+        const silent = MUTE_SOUND_EFFECTS.get();
+        return notification.notify(`Announcement by ${msg.nick}`, {
+          body,
+          tag: msg._id,
+          icon: gravatar,
+          data,
+          silent
+        }
+        );
+      }
+    });
+  });
+});
 
-Meteor.startup ->
-  # Notifications on announcements
-  {now, update} = debouncedUpdate()
-  suppress = true
-  Tracker.autorun ->
-    return unless notification.granted()
-    unless notification.get 'announcements'
-      suppress = true
-      return
-    else if suppress
-      now.set Date.now()
-    Meteor.subscribe 'announcements-since', now.get(),
-      onReady: -> suppress = false
-    Messages.find({announced_at: $gt: now.get()}).observe
-      added: (msg) ->
-        update msg.announced_at
-        return unless notification.granted()
-        return unless notification.get 'announcements'
-        return if suppress
-        gravatar = gravatarUrl
-          gravatar_md5: nickHash(msg.nick)
-          size: 192
-        body = msg.body
-        if msg.type and msg.id
-          body = "#{body} #{pretty_collection(msg.type)}
-                  #{collection(msg.type).findOne(msg.id)?.name}"
-        data = url: Meteor._relativeToSiteRootUrl '/'
-        # If sounde effects are off, notifications should be silent. If they're not, turn off sound for
-        # notifications that already have sound effects.
-        silent = MUTE_SOUND_EFFECTS.get()
-        notification.notify "Announcement by #{msg.nick}",
-          body: body
-          tag: msg._id
-          icon: gravatar
-          data: data
-          silent: silent
+Backbone.history.start({pushState: true});
 
-Backbone.history.start {pushState: true}
-
-window.collections = BBCollection
+window.collections = BBCollection;

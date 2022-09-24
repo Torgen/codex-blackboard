@@ -1,15 +1,23 @@
-import './map_page.html'
+/*
+ * decaffeinate suggestions:
+ * DS208: Avoid top-level this
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import './map_page.html';
 
-Template.map_page.onCreated ->
-  @followTheSun = new ReactiveVar false
-  @loaded = new ReactiveVar false
-  await blimport('./map.coffee')
-  @loaded.set true
+Template.map_page.onCreated(async function() {
+  this.followTheSun = new ReactiveVar(false);
+  this.loaded = new ReactiveVar(false);
+  await blimport('./map.coffee');
+  return this.loaded.set(true);
+});
 
-Template.map_page.helpers
-  loaded: -> Template.instance().loaded.get()
-  followTheSun: -> Template.instance().followTheSun.get()
+Template.map_page.helpers({
+  loaded() { return Template.instance().loaded.get(); },
+  followTheSun() { return Template.instance().followTheSun.get(); }
+});
 
-Template.map_page.events
-  'click .bb-follow-the-sun.active': (e, t) -> t.followTheSun.set false
-  'click .bb-follow-the-sun:not(.active)': (e, t) -> t.followTheSun.set true
+Template.map_page.events({
+  'click .bb-follow-the-sun.active'(e, t) { return t.followTheSun.set(false); },
+  'click .bb-follow-the-sun:not(.active)'(e, t) { return t.followTheSun.set(true); }
+});

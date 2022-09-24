@@ -1,53 +1,78 @@
-import { Puzzles } from '/lib/imports/collections.coffee'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import { Puzzles } from '/lib/imports/collections.coffee';
 
-export default class PuzzleFeed
-  constructor: (@field, @update) ->
-    @data = []
-    @hasNow = new ReactiveVar false
+export default class PuzzleFeed {
+  constructor(field, update) {
+    this.field = field;
+    this.update = update;
+    this.data = [];
+    this.hasNow = new ReactiveVar(false);
+  }
 
-  updateNow: ->
-    @update() if @_updateNow()
+  updateNow() {
+    if (this._updateNow()) { return this.update(); }
+  }
 
-  _updateNow: ->
-    time = Session.get 'currentTime'
-    if @hasNow.get()
-      if time > @data.at(-1).x
-        @data.at(-1).x = time
-        return true
-    else
-      unless @data.length and @data.at(-1).x > time
-        @hasNow.set true
-        @data.push {x: time, y: @data.length}
-        return true
-    return false
+  _updateNow() {
+    const time = Session.get('currentTime');
+    if (this.hasNow.get()) {
+      if (time > this.data.at(-1).x) {
+        this.data.at(-1).x = time;
+        return true;
+      }
+    } else {
+      if (!this.data.length || (this.data.at(-1).x <= time)) {
+        this.hasNow.set(true);
+        this.data.push({x: time, y: this.data.length});
+        return true;
+      }
+    }
+    return false;
+  }
 
-  addedAt: (doc, ix) -> 
-    @data.splice ix, 0, {x: doc[@field], y: ix + 1}
-    while ++ix < @data.length
-      @data[ix].y++
-    Tracker.nonreactive =>
-      if @hasNow.get() and @data.length > 1 and @data.at(-2).x > @data.at(-1).x
-        @hasNow.set false
-        @data.pop()
-    @update()
+  addedAt(doc, ix) { 
+    this.data.splice(ix, 0, {x: doc[this.field], y: ix + 1});
+    while (++ix < this.data.length) {
+      this.data[ix].y++;
+    }
+    Tracker.nonreactive(() => {
+      if (this.hasNow.get() && (this.data.length > 1) && (this.data.at(-2).x > this.data.at(-1).x)) {
+        this.hasNow.set(false);
+        return this.data.pop();
+      }
+    });
+    return this.update();
+  }
 
-  changedAt: (newDoc, oldDoc, ix) -> 
-    @data[ix].x = newDoc[@field]
-    Tracker.nonreactive =>
-      if @hasNow.get() and ix is @data.length - 2 and @data.at(-2).x > @data.at(-1).x
-        @hasNow.set false
-        @data.pop()
-    @update()
+  changedAt(newDoc, oldDoc, ix) { 
+    this.data[ix].x = newDoc[this.field];
+    Tracker.nonreactive(() => {
+      if (this.hasNow.get() && (ix === (this.data.length - 2)) && (this.data.at(-2).x > this.data.at(-1).x)) {
+        this.hasNow.set(false);
+        return this.data.pop();
+      }
+    });
+    return this.update();
+  }
 
-  removedAt: (doc, ix) -> 
-    @data.splice ix, 1
-    while ++ix < @data.length
-      @data[ix].y--
-    Tracker.nonreactive => @_updateNow()
-    @update()
+  removedAt(doc, ix) { 
+    this.data.splice(ix, 1);
+    while (++ix < this.data.length) {
+      this.data[ix].y--;
+    }
+    Tracker.nonreactive(() => this._updateNow());
+    return this.update();
+  }
 
-  observe: ->
-    Puzzles.find({[@field]: $ne: null}, {fields: {[@field]: 1}, sort: {[@field]: 1}}).observe
-      addedAt: @addedAt.bind @
-      changedAt: @changedAt.bind @
-      removedAt: @removedAt.bind @
+  observe() {
+    return Puzzles.find({[this.field]: {$ne: null}}, {fields: {[this.field]: 1}, sort: {[this.field]: 1}}).observe({
+      addedAt: this.addedAt.bind(this),
+      changedAt: this.changedAt.bind(this),
+      removedAt: this.removedAt.bind(this)
+    });
+  }
+}

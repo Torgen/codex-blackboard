@@ -1,23 +1,29 @@
-'use strict'
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+import { distance } from './location.coffee';
+import chai from 'chai';
 
-import { distance } from './location.coffee'
-import chai from 'chai'
-
-KRESGE =
-  type: 'Point'
+const KRESGE = {
+  type: 'Point',
   coordinates: [-71.0972017, 42.3581396]
+};
 
-NANO =
-  type: 'Point'
+const NANO = {
+  type: 'Point',
   coordinates: [-71.0925722, 42.3600819]
+};
 
-WATERLOO_MC =
-  type: 'Point'
+const WATERLOO_MC = {
+  type: 'Point',
   coordinates: [-80.5461258, 43.4721556]
+};
 
-describe 'distance', ->
-  it 'calculates distance', ->
-    chai.assert.approximately distance(KRESGE, WATERLOO_MC), 484, 0.5
-    # opposite direction should be the same
-    chai.assert.approximately distance(WATERLOO_MC, KRESGE), 484, 0.5
-    chai.assert.approximately distance(KRESGE, NANO), 0.27, 0.005
+describe('distance', () => it('calculates distance', function() {
+  chai.assert.approximately(distance(KRESGE, WATERLOO_MC), 484, 0.5);
+  // opposite direction should be the same
+  chai.assert.approximately(distance(WATERLOO_MC, KRESGE), 484, 0.5);
+  return chai.assert.approximately(distance(KRESGE, NANO), 0.27, 0.005);
+}));

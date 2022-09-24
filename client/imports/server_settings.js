@@ -1,41 +1,38 @@
-# This file contains various constants used throughout the client code.
-'use strict'
+// this is populated on the client based on the server's --settings
+const server = Meteor.settings?.public ?? {};
 
-# this is populated on the client based on the server's --settings
-server = Meteor.settings?.public ? {}
+// identify this particular client instance
+export var CLIENT_UUID = Random.id();
 
-# identify this particular client instance
-export CLIENT_UUID = Random.id()
+// used to create gravatars from nicks
+export var DEFAULT_HOST = server.defaultHost ?? 'codexian.us';
 
-# used to create gravatars from nicks
-export DEFAULT_HOST = server.defaultHost ? 'codexian.us'
+export var TEAM_NAME = server.teamName ?? 'Codex';
 
-export TEAM_NAME = server.teamName ? 'Codex'
+export var GENERAL_ROOM_NAME = server.chatName ?? 'Ringhunters';
 
-export GENERAL_ROOM_NAME = server.chatName ? 'Ringhunters'
+export var NAME_PLACEHOLDER = server.namePlaceholder ?? 'J. Random Codexian';
 
-export NAME_PLACEHOLDER = server.namePlaceholder ? 'J. Random Codexian'
+export var WHOSE_GITHUB = server.whoseGitHub ?? 'cjb';
 
-export WHOSE_GITHUB = server.whoseGitHub ? 'cjb'
+export var INITIAL_CHAT_LIMIT = server.initialChatLimit ?? 200;
 
-export INITIAL_CHAT_LIMIT = server.initialChatLimit ? 200
+export var CHAT_LIMIT_INCREMENT = server.chatLimitIncrement ?? 100;
 
-export CHAT_LIMIT_INCREMENT = server.chatLimitIncrement ? 100
+// Used to generate video chat links
+// No default; if unset, don't generate links.
+export var JITSI_SERVER = server.jitsi?.server ?? server.jitsiServer;
 
-# Used to generate video chat links
-# No default; if unset, don't generate links.
-export JITSI_SERVER = server.jitsi?.server ? server.jitsiServer
+// -- Performance settings --
 
-# -- Performance settings --
+// make fewer people subscribe to ringhunters chat.
+export var BB_DISABLE_RINGHUNTERS_HEADER = server.disableRinghunters ?? false;
 
-# make fewer people subscribe to ringhunters chat.
-export BB_DISABLE_RINGHUNTERS_HEADER = server.disableRinghunters ? false
+// disable PMs (more efficient queries if PMs are disabled)
+// (PMs are always allows in ringhunters)
+export var BB_DISABLE_PM = server.disablePM ?? false;
 
-# disable PMs (more efficient queries if PMs are disabled)
-# (PMs are always allows in ringhunters)
-export BB_DISABLE_PM = server.disablePM ? false
+// Set to 'none' to have no followup rendering.
+export var FOLLOWUP_STYLE = server.followupStyle ?? 'js';
 
-# Set to 'none' to have no followup rendering.
-export FOLLOWUP_STYLE = server.followupStyle ? 'js'
-
-export MAPS_API_KEY = server.mapsApiKey
+export var MAPS_API_KEY = server.mapsApiKey;
