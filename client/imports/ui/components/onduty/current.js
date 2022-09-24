@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 import './current.html';
 
 import { Roles } from '/lib/imports/collections.coffee';

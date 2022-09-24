@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 export var computeMessageFollowup = function(prev, curr) {
   let c;
   if (!prev?.classList?.contains("media")) { return false; }

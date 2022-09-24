@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 // this is populated on the client based on the server's --settings
 const server = Meteor.settings?.public ?? {};
 

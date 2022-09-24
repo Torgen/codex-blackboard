@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 const DEFAULT_ROOT_FOLDER_NAME = `MIT Mystery Hunt ${new Date().getFullYear()}`;
 export var ROOT_FOLDER_NAME = () => Meteor.settings.folder || process.env.DRIVE_ROOT_FOLDER || DEFAULT_ROOT_FOLDER_NAME;
 export var CODEX_ACCOUNT = () => Meteor.settings.driveowner || process.env.DRIVE_OWNER_ADDRESS;

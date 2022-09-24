@@ -1,3 +1,5 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
 
 import { ArrayMembers, NumberInRange, NonEmptyString, ObjectWith } from '/lib/imports/match.coffee';
 
