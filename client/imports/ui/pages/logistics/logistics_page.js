@@ -25,7 +25,7 @@ Template.logistics_page.onCreated(async function() {
   // during the hunt. Session preserves values across reloads and doesn't
   // trigger if the value doesn't change.
   Session.set('topRight', null);
-  await import('/client/imports/ui/pages/logistics/logistics.coffee');
+  await import('/client/imports/ui/pages/logistics/logistics.js');
   return bundleLoaded.set(true);
 });
 

@@ -10,7 +10,7 @@ import './map_page.html';
 Template.map_page.onCreated(async function() {
   this.followTheSun = new ReactiveVar(false);
   this.loaded = new ReactiveVar(false);
-  await import('./map.coffee');
+  await import('./map.js');
   return this.loaded.set(true);
 });
 

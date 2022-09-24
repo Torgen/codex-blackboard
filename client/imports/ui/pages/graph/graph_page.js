@@ -10,7 +10,7 @@ import './graph_page.html';
 
 Template.graph_page.onCreated(async function() {
   this.loaded = new ReactiveVar(false);
-  await import('./graph.coffee');
+  await import('./graph.js');
   return this.loaded.set(true);
 });
 
