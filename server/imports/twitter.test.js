@@ -5,11 +5,11 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Messages } from '/lib/imports/collections.coffee';
+import { Messages } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import tweetToMessage from './twitter.coffee';
+import tweetToMessage from './twitter.js';
 
 describe('tweetToMessage', function() {
   let clock = null;

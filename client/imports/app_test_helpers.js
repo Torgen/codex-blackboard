@@ -9,7 +9,7 @@ import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
 import { DDP } from 'meteor/ddp-client';
 import denodeify from 'denodeify';
-import loginWithCodex from '/client/imports/accounts.coffee';
+import loginWithCodex from '/client/imports/accounts.js';
 
 // Utility -- returns a promise which resolves when all subscriptions are done
 export var waitForSubscriptions = () => new Promise(function(resolve) {

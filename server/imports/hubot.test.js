@@ -6,14 +6,14 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects
-import '/lib/model.coffee';
-import { Messages, Presence } from '/lib/imports/collections.coffee';
+import '/lib/model.js';
+import { Messages, Presence } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import Robot from './hubot.coffee';
+import Robot from './hubot.js';
 import delay from 'delay';
-import { waitForDocument } from '/lib/imports//testutils.coffee';
+import { waitForDocument } from '/lib/imports//testutils.js';
 
 describe('hubot', function() {
 

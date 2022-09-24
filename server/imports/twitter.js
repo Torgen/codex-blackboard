@@ -7,7 +7,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let tweetToMessage;
-import { newMessage } from './newMessage.coffee';
+import { newMessage } from './newMessage.js';
 
 const linkify = (function() {
   // linkify hashtags, URLs, and usernames.  Do this all in one pass so

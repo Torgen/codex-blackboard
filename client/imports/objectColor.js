@@ -6,7 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let colorFromThingWithTags;
-import { getTag } from '/lib/imports/tags.coffee';
+import { getTag } from '/lib/imports/tags.js';
 import md5 from 'md5';
 import colornames from 'css-color-names';
 

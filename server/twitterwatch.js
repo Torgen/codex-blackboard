@@ -20,8 +20,8 @@
 // }
 
 import { TwitterApi, ETwitterStreamEvent } from 'twitter-api-v2';
-import tweetToMessage from './imports/twitter.coffee';
-import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee';
+import tweetToMessage from './imports/twitter.js';
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.js';
 
 if (!DO_BATCH_PROCESSING) { return; }
 const settings = Meteor.settings?.twitter ?? {};

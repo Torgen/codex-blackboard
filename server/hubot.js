@@ -6,9 +6,9 @@
  * DS209: Avoid top-level return
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { scripts } from '/server/imports/botutil.coffee';
-import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee';
-import Robot from './imports/hubot.coffee';
+import { scripts } from '/server/imports/botutil.js';
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.js';
+import Robot from './imports/hubot.js';
 import hubot_help from 'hubot-help';
 // Required so external hubot scripts written in coffeescript can be loaded
 // dynamically.

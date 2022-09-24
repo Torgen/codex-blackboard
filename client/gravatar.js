@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import {gravatarUrl, hashFromNickObject} from './imports/nickEmail.coffee';
+import {gravatarUrl, hashFromNickObject} from './imports/nickEmail.js';
 
 Template.gravatar.helpers({
   gravatar_md5() {

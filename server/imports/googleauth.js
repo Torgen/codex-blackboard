@@ -7,7 +7,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let googleauth;
-import { decrypt } from './crypt.coffee';
+import { decrypt } from './crypt.js';
 import { google } from 'googleapis';
 
 // Credentials

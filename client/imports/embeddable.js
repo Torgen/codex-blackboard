@@ -6,7 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let embeddable;
-import { EmbedPuzzles } from '/lib/imports/settings.coffee';
+import { EmbedPuzzles } from '/lib/imports/settings.js';
 
 export default embeddable = function(link) {
   if (!EmbedPuzzles.get()) { return false; }

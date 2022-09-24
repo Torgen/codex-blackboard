@@ -6,8 +6,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let moveWithinParent;
-import canonical from '/lib/imports/canonical.coffee';
-import { collection } from '/lib/imports/collections.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { collection } from '/lib/imports/collections.js';
 
 export default moveWithinParent = function(id, parentType, parentId, args) {
   const parent = collection(parentType).findOne({_id: parentId, puzzles: id});

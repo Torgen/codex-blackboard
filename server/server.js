@@ -7,11 +7,11 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '/lib/imports/canonical.coffee';
-import { PRESENCE_KEEPALIVE_MINUTES } from '/lib/imports/constants.coffee';
-import { Calendar, CalendarEvents, CallIns, LastRead, Messages, Polls, Presence, Puzzles, Roles, Rounds, collection } from '/lib/imports/collections.coffee';
-import { Settings } from '/lib/imports/settings.coffee';
-import { NonEmptyString } from '/lib/imports/match.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { PRESENCE_KEEPALIVE_MINUTES } from '/lib/imports/constants.js';
+import { Calendar, CalendarEvents, CallIns, LastRead, Messages, Polls, Presence, Puzzles, Roles, Rounds, collection } from '/lib/imports/collections.js';
+import { Settings } from '/lib/imports/settings.js';
+import { NonEmptyString } from '/lib/imports/match.js';
 
 const DEBUG = !Meteor.isProduction;
 

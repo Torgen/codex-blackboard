@@ -6,14 +6,14 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects
-import '/lib/model.coffee';
-import { CallIns, Messages, Puzzles, Roles } from '/lib/imports/collections.coffee';
+import '/lib/model.js';
+import { CallIns, Messages, Puzzles, Roles } from '/lib/imports/collections.js';
 // Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee';
+import { callAs } from '../../server/imports/impersonate.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import { RoleRenewalTime } from '/lib/imports/settings.coffee';
+import { RoleRenewalTime } from '/lib/imports/settings.js';
 
 describe('correctCallIn', function() {
   let clock = null;

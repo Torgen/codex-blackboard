@@ -7,8 +7,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 
-import { newMessage } from '/server/imports/newMessage.coffee';
-import { NonEmptyString } from '/lib/imports/match.coffee';
+import { newMessage } from '/server/imports/newMessage.js';
+import { NonEmptyString } from '/lib/imports/match.js';
 
 Meteor.methods({
   newMessage(args) {

@@ -6,8 +6,8 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { callAs } from '/server/imports/impersonate.coffee';
-import { Roles } from '/lib/imports/collections.coffee';
+import { callAs } from '/server/imports/impersonate.js';
+import { Roles } from '/lib/imports/collections.js';
 
 export class RoleManager {
 

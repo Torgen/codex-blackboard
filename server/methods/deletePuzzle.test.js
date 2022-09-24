@@ -6,11 +6,11 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects
-import '/lib/model.coffee';
-import { CalendarEvents, Messages, Puzzles, Rounds } from '/lib/imports/collections.coffee';
-import { drive } from '/lib/imports/environment.coffee';
+import '/lib/model.js';
+import { CalendarEvents, Messages, Puzzles, Rounds } from '/lib/imports/collections.js';
+import { drive } from '/lib/imports/environment.js';
 // Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.coffee';
+import { callAs } from '../../server/imports/impersonate.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';

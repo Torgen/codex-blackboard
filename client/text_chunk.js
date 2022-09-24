@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import {chunk_text} from './imports/chunk_text.coffee';
+import {chunk_text} from './imports/chunk_text.js';
 
 Template.text_chunks.helpers({
   chunks() { return chunk_text(this); }});

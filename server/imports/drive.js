@@ -9,8 +9,8 @@
  */
 import { Readable } from 'stream';
 import delay from 'delay';
-import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.coffee';
-import * as batch from '/server/imports/batch.coffee';
+import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.js';
+import * as batch from '/server/imports/batch.js';
 
 // Drive folder settings
 const WORKSHEET_NAME = name => `Worksheet: ${name}`;

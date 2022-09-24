@@ -7,7 +7,7 @@
  */
 import './fix_puzzle_drive.html';
 
-import { Puzzles } from '/lib/imports/collections.coffee';
+import { Puzzles } from '/lib/imports/collections.js';
 
 Template.fix_puzzle_drive.helpers({
   puzzle() { return Puzzles.findOne({_id: this.puzzle}, {fields: {drive: 1, drive_status: 1}}); }});

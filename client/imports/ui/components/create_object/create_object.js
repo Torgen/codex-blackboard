@@ -7,9 +7,9 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 import './create_object.html';
-import canonical from '/lib/imports/canonical.coffee';
-import { collection, pretty_collection } from '/lib/imports/collections.coffee';
-import okCancelEvents from '/client/imports/ok_cancel_events.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { collection, pretty_collection } from '/lib/imports/collections.js';
+import okCancelEvents from '/client/imports/ok_cancel_events.js';
 
 Template.create_object.onCreated(function() {
   return this.name = new ReactiveVar('');

@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import {positionOrDefault, solarLongitude} from './geography.coffee';
+import {positionOrDefault, solarLongitude} from './geography.js';
 import chai from 'chai';
 
 describe('positionOrDefault', function() {

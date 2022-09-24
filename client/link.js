@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Names } from '/lib/imports/collections.coffee';
+import { Names } from '/lib/imports/collections.js';
 
 Template.link.onCreated(function() {
   this.target = new ReactiveVar(null);

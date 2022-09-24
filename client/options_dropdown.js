@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { JITSI_SERVER } from '/client/imports/server_settings.coffee';
+import { JITSI_SERVER } from '/client/imports/server_settings.js';
 import { DARK_MODE, HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, STUCK_TO_TOP,
 HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS, HIDE_OLD_PRESENCE, LESS_COLORFUL,
 START_VIDEO_MUTED, START_AUDIO_MUTED, COMPACT_MODE, CURRENT_COLUMNS} from './imports/settings.coffee';

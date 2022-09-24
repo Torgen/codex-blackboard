@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Puzzles } from '/lib/imports/collections.coffee';
+import { Puzzles } from '/lib/imports/collections.js';
 
 export default class PuzzleFeed {
   constructor(field, update) {

@@ -6,7 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 import chai from 'chai';
-import './timestamp.coffee';
+import './timestamp.js';
 
 describe('pretty_ts', function() {
   before(() => Session.set('currentTime', 1));

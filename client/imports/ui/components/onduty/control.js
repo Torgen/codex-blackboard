@@ -8,8 +8,8 @@
  */
 
 import './control.html';
-import { Roles } from '/lib/imports/collections.coffee';
-import { EXPERT_MODE } from '/client/imports/settings.coffee';
+import { Roles } from '/lib/imports/collections.js';
+import { EXPERT_MODE } from '/client/imports/settings.js';
 
 Template.onduty_control.helpers({
   imonduty() { return (Roles.findOne({_id: 'onduty', holder: Meteor.userId()}) != null); },

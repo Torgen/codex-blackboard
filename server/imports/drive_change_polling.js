@@ -7,8 +7,8 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import {fileType} from '/lib/imports/mime_type.coffee';
-import { Messages, Puzzles } from '/lib/imports/collections.coffee';
+import {fileType} from '/lib/imports/mime_type.js';
+import { Messages, Puzzles } from '/lib/imports/collections.js';
 
 const GDRIVE_DOC_MIME_TYPE = 'application/vnd.google-apps.document';
 

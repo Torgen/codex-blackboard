@@ -5,16 +5,16 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import memes from './memes.coffee'; // for side effects
-import { Messages } from '/lib/imports/collections.coffee';
+import memes from './memes.js'; // for side effects
+import { Messages } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import Robot from '../imports/hubot.coffee';
-import { waitForDocument } from '/lib/imports/testutils.coffee';
-import { MaximumMemeLength } from '/lib/imports/settings.coffee';
+import Robot from '../imports/hubot.js';
+import { waitForDocument } from '/lib/imports/testutils.js';
+import { MaximumMemeLength } from '/lib/imports/settings.js';
 import delay from 'delay';
-import { impersonating } from '../imports/impersonate.coffee';
+import { impersonating } from '../imports/impersonate.js';
 
 describe('memes hubot script', function() {
   let robot = null;

@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import keyword_or_positional from './keyword_or_positional.coffee';
+import keyword_or_positional from './keyword_or_positional.js';
 
 const today_fmt = Intl.DateTimeFormat(navigator.language, {
   hour: 'numeric',

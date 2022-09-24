@@ -6,14 +6,14 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects
-import '/lib/model.coffee';
-import { Messages, Puzzles } from '/lib/imports/collections.coffee';
+import '/lib/model.js';
+import { Messages, Puzzles } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import delay from 'delay';
-import { waitForDocument } from '/lib/imports/testutils.coffee';
-import DriveChangeWatcher, {startPageTokens, driveFiles} from  './drive_change_polling.coffee';
+import { waitForDocument } from '/lib/imports/testutils.js';
+import DriveChangeWatcher, {startPageTokens, driveFiles} from  './drive_change_polling.js';
 
 const SPREADSHEET_TYPE = 'application/vnd.google-apps.spreadsheet';
 const DOC_TYPE = 'application/vnd.google-apps.document';

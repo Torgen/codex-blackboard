@@ -5,10 +5,10 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Puzzles, Rounds } from '/lib/imports/collections.coffee';
-import Router from '/client/imports/router.coffee';
-import PuzzleDrag from './puzzle_drag.coffee';
-import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './app_test_helpers.coffee';
+import { Puzzles, Rounds } from '/lib/imports/collections.js';
+import Router from '/client/imports/router.js';
+import PuzzleDrag from './puzzle_drag.js';
+import {waitForMethods, waitForSubscriptions, afterFlushPromise, login, logout} from './app_test_helpers.js';
 import chai from 'chai';
 
 // Because the security model doesn't let you create a DragEvent from JS, we have to extract the relevant bits from the

@@ -6,10 +6,10 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Puzzles, Rounds } from '/lib/imports/collections.coffee';
-import * as notification from '/client/imports/notification.coffee';
-import Router from '/client/imports/router.coffee';
-import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.coffee';
+import { Puzzles, Rounds } from '/lib/imports/collections.js';
+import * as notification from '/client/imports/notification.js';
+import Router from '/client/imports/router.js';
+import {waitForMethods, waitForSubscriptions, promiseCall, promiseCallOn, afterFlushPromise, login, logout} from './imports/app_test_helpers.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import delay from 'delay';

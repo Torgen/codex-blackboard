@@ -1,7 +1,7 @@
 // TODO: This file was created by bulk-decaffeinate.
 // Sanity-check the conversion and remove this comment.
-import { NonEmptyString, ObjectWith } from '/lib/imports/match.coffee';
-import { collection } from '/lib/imports/collections.coffee';
+import { NonEmptyString, ObjectWith } from '/lib/imports/match.js';
+import { collection } from '/lib/imports/collections.js';
 
 Accounts.removeDefaultRateLimit();
 

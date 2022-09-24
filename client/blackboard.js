@@ -7,26 +7,26 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '/lib/imports/canonical.coffee';
-import { getTag, isStuck } from '/lib/imports/tags.coffee';
-import { LastAnswer, Presence, Puzzles, Rounds } from '/lib/imports/collections.coffee';
-import { confirm } from '/client/imports/modal.coffee';
-import { findByChannel } from '/client/imports/presence_index.coffee';
-import { jitsiUrl } from './imports/jitsi.coffee';
-import puzzleColor  from './imports/objectColor.coffee';
-import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.coffee';
-import { TEAM_NAME, WHOSE_GITHUB } from '/client/imports/server_settings.coffee';
-import * as notification from '/client/imports/notification.coffee';
-import { reactiveLocalStorage } from './imports/storage.coffee';
-import PuzzleDrag from './imports/puzzle_drag.coffee';
-import okCancelEvents from './imports/ok_cancel_events.coffee';
-import '/client/imports/ui/components/create_object/create_object.coffee';
-import '/client/imports/ui/components/edit_field/edit_field.coffee';
-import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee';
-import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee';
-import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.coffee';
-import '/client/imports/ui/components/onduty/control.coffee';
-import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { getTag, isStuck } from '/lib/imports/tags.js';
+import { LastAnswer, Presence, Puzzles, Rounds } from '/lib/imports/collections.js';
+import { confirm } from '/client/imports/modal.js';
+import { findByChannel } from '/client/imports/presence_index.js';
+import { jitsiUrl } from './imports/jitsi.js';
+import puzzleColor  from './imports/objectColor.js';
+import { HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, MUTE_SOUND_EFFECTS, SORT_REVERSE, VISIBLE_COLUMNS } from './imports/settings.js';
+import { TEAM_NAME, WHOSE_GITHUB } from '/client/imports/server_settings.js';
+import * as notification from '/client/imports/notification.js';
+import { reactiveLocalStorage } from './imports/storage.js';
+import PuzzleDrag from './imports/puzzle_drag.js';
+import okCancelEvents from './imports/ok_cancel_events.js';
+import '/client/imports/ui/components/create_object/create_object.js';
+import '/client/imports/ui/components/edit_field/edit_field.js';
+import '/client/imports/ui/components/edit_tag_value/edit_tag_value.js';
+import '/client/imports/ui/components/edit_object_title/edit_object_title.js';
+import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.js';
+import '/client/imports/ui/components/onduty/control.js';
+import '/client/imports/ui/components/tag_table_rows/tag_table_rows.js';
 
 const SOUND_THRESHOLD_MS = 30*1000; // 30 seconds
 

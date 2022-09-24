@@ -6,14 +6,14 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects
-import '/lib/model.coffee';
-import { Roles } from '/lib/imports/collections.coffee';
+import '/lib/model.js';
+import { Roles } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import delay from 'delay';
-import { waitForDeletion, waitForDocument } from '/lib/imports/testutils.coffee';
-import { RoleManager } from './roles.coffee';
+import { waitForDeletion, waitForDocument } from '/lib/imports/testutils.js';
+import { RoleManager } from './roles.js';
 
 describe('RoleManager', function() {
   let clock = null;

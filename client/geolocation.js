@@ -6,11 +6,11 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '../lib/imports/canonical.coffee';
-import { lat, lng, distance } from './imports/location.coffee';
-import botuser from './imports/botuser.coffee';
-import keyword_or_positional from './imports/keyword_or_positional.coffee';
-import isVisible from '/client/imports/visible.coffee';
+import canonical from '../lib/imports/canonical.js';
+import { lat, lng, distance } from './imports/location.js';
+import botuser from './imports/botuser.js';
+import keyword_or_positional from './imports/keyword_or_positional.js';
+import isVisible from '/client/imports/visible.js';
 
 // Geolocation-related utilities
 

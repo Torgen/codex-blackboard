@@ -7,9 +7,9 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 import './edit_object_title.html';
-import canonical from '/lib/imports/canonical.coffee';
-import { collection, pretty_collection } from '/lib/imports/collections.coffee';
-import { editableTemplate } from '/client/imports/ok_cancel_events.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { collection, pretty_collection } from '/lib/imports/collections.js';
+import { editableTemplate } from '/client/imports/ok_cancel_events.js';
 
 editableTemplate(Template.edit_object_title, {
   ok(val, evt, tem) {

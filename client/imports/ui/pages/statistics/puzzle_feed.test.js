@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import PuzzleFeed from './puzzle_feed.coffee';
+import PuzzleFeed from './puzzle_feed.js';
 import {assert} from 'chai';
 import { spy } from 'sinon';
 

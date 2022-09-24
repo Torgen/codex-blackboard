@@ -5,12 +5,12 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import script, { brain } from './brain.coffee';
+import script, { brain } from './brain.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import Robot from '../imports/hubot.coffee';
-import { waitForDocument } from '/lib/imports/testutils.coffee';
+import Robot from '../imports/hubot.js';
+import { waitForDocument } from '/lib/imports/testutils.js';
 import delay from 'delay';
 
 describe('brain hubot script', function() {

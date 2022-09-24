@@ -7,12 +7,12 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '/lib/imports/canonical.coffee';
-import { collection } from '/lib/imports/collections.coffee';
-import okCancelEvents from '/client/imports/ok_cancel_events.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { collection } from '/lib/imports/collections.js';
+import okCancelEvents from '/client/imports/ok_cancel_events.js';
 import './tag_table_rows.html';
-import '../edit_tag_name/edit_tag_name.coffee';
-import '../edit_tag_value/edit_tag_value.coffee';
+import '../edit_tag_name/edit_tag_name.js';
+import '../edit_tag_value/edit_tag_value.js';
 
 Template.tag_table_rows.onCreated(function() {
   this.newTagName = new ReactiveVar('');

@@ -8,8 +8,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 
-import { reactiveLocalStorage } from '/client/imports/storage.coffee';
-import Router from '/client/imports/router.coffee';
+import { reactiveLocalStorage } from '/client/imports/storage.js';
+import Router from '/client/imports/router.js';
 
 const keystring = k => `notification.stream.${k}`;
 

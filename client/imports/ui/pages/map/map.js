@@ -9,13 +9,13 @@
  */
 import './map.html';
 import './cluster.html';
-import {gravatarUrl, nickHash, nickAndName} from '/client/imports/nickEmail.coffee';
+import {gravatarUrl, nickHash, nickAndName} from '/client/imports/nickEmail.js';
 import {Loader} from "@googlemaps/js-api-loader";
 import {MarkerClusterer} from "@googlemaps/markerclusterer";
 import {MarkerWithLabel} from "@googlemaps/markerwithlabel";
 import md5 from 'md5';
-import {positionOrDefault, solarLongitude} from './geography.coffee';
-import { MAPS_API_KEY } from '/client/imports/server_settings.coffee';
+import {positionOrDefault, solarLongitude} from './geography.js';
+import { MAPS_API_KEY } from '/client/imports/server_settings.js';
 
 const loaded = new ReactiveVar(false);
 (async function() {

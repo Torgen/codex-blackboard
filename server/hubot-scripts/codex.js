@@ -7,13 +7,13 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { scripts, rejoin, strip, thingRE, objectFromRoom } from '../imports/botutil.coffee';
-import { callAs, impersonating } from '../imports/impersonate.coffee';
-import { all_settings } from '/lib/imports/settings.coffee';
-import canonical from '/lib/imports/canonical.coffee';
-import { pretty_collection } from '/lib/imports/collections.coffee';
-import isDuplicateError from '/lib/imports/duplicate.coffee';
-import * as callin_types from '/lib/imports/callin_types.coffee';
+import { scripts, rejoin, strip, thingRE, objectFromRoom } from '../imports/botutil.js';
+import { callAs, impersonating } from '../imports/impersonate.js';
+import { all_settings } from '/lib/imports/settings.js';
+import canonical from '/lib/imports/canonical.js';
+import { pretty_collection } from '/lib/imports/collections.js';
+import isDuplicateError from '/lib/imports/duplicate.js';
+import * as callin_types from '/lib/imports/callin_types.js';
 
 export default scripts.codex = function(robot) {
 

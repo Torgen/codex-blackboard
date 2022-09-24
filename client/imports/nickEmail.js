@@ -6,8 +6,8 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '../../lib/imports/canonical.coffee';
-import { DEFAULT_HOST } from '/client/imports/server_settings.coffee';
+import canonical from '../../lib/imports/canonical.js';
+import { DEFAULT_HOST } from '/client/imports/server_settings.js';
 import md5 from 'md5';
 
 export var gravatarUrl = ({gravatar_md5, size}) => `https://secure.gravatar.com/avatar/${gravatar_md5}.jpg?d=wavatar&s=${size}`;

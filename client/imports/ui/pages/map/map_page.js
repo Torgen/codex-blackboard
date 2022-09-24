@@ -10,7 +10,7 @@ import './map_page.html';
 Template.map_page.onCreated(async function() {
   this.followTheSun = new ReactiveVar(false);
   this.loaded = new ReactiveVar(false);
-  await blimport('./map.coffee');
+  await import('./map.coffee');
   return this.loaded.set(true);
 });
 

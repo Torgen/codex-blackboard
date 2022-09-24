@@ -7,9 +7,9 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let watchPresence;
-import canonical from '/lib/imports/canonical.coffee';
-import { PRESENCE_KEEPALIVE_MINUTES } from '/lib/imports/constants.coffee';
-import { Messages, Presence, Puzzles } from '/lib/imports/collections.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { PRESENCE_KEEPALIVE_MINUTES } from '/lib/imports/constants.js';
+import { Messages, Presence, Puzzles } from '/lib/imports/collections.js';
 
 // look up a real name, if there is one
 const maybe_real_name = function(nick) {

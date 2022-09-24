@@ -8,11 +8,11 @@
  */
 import './edit_tag_value.html';
 
-import canonical from '/lib/imports/canonical.coffee';
-import { collection } from '/lib/imports/collections.coffee';
-import { confirm } from '/client/imports/modal.coffee';
-import { cssColorToHex, hexToCssColor } from '/client/imports/objectColor.coffee';
-import { editableTemplate } from '/client/imports/ok_cancel_events.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { collection } from '/lib/imports/collections.js';
+import { confirm } from '/client/imports/modal.js';
+import { cssColorToHex, hexToCssColor } from '/client/imports/objectColor.js';
+import { editableTemplate } from '/client/imports/ok_cancel_events.js';
 
 
 editableTemplate(Template.edit_tag_value, {

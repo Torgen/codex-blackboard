@@ -22,7 +22,7 @@
 // Author:
 //   tapichu/cscott
 
-import { scripts } from '/server/imports/botutil.coffee';
+import { scripts } from '/server/imports/botutil.js';
 
 const phrases = [
   "Yes, master?",

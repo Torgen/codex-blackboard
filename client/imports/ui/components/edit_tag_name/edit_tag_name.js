@@ -8,9 +8,9 @@
  */
 import './edit_tag_name.html';
 
-import canonical from '/lib/imports/canonical.coffee';
-import { collection } from '/lib/imports/collections.coffee';
-import { editableTemplate } from '/client/imports/ok_cancel_events.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { collection } from '/lib/imports/collections.js';
+import { editableTemplate } from '/client/imports/ok_cancel_events.js';
 
 editableTemplate(Template.edit_tag_name, {
   ok(val, evt, tem) {

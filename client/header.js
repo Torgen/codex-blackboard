@@ -6,17 +6,17 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '/lib/imports/canonical.coffee';
-import { LastRead, Messages, Puzzles, Roles, Rounds } from '/lib/imports/collections.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { LastRead, Messages, Puzzles, Roles, Rounds } from '/lib/imports/collections.js';
 import md5 from 'md5';
-import Router from '/client/imports/router.coffee';
-import { jitsiUrl } from './imports/jitsi.coffee';
-import { hashFromNickObject, nickAndName } from './imports/nickEmail.coffee';
-import botuser from './imports/botuser.coffee';
-import keyword_or_positional from './imports/keyword_or_positional.coffee';
-import loginWithCodex from '/client/imports/accounts.coffee';
-import { BB_DISABLE_RINGHUNTERS_HEADER, GENERAL_ROOM_NAME } from '/client/imports/server_settings.coffee';
-import './imports/timestamp.coffee';
+import Router from '/client/imports/router.js';
+import { jitsiUrl } from './imports/jitsi.js';
+import { hashFromNickObject, nickAndName } from './imports/nickEmail.js';
+import botuser from './imports/botuser.js';
+import keyword_or_positional from './imports/keyword_or_positional.js';
+import loginWithCodex from '/client/imports/accounts.js';
+import { BB_DISABLE_RINGHUNTERS_HEADER, GENERAL_ROOM_NAME } from '/client/imports/server_settings.js';
+import './imports/timestamp.js';
 
 // templates, event handlers, and subscriptions for the site-wide
 // header bar, including the login modals and general Spacebars helpers

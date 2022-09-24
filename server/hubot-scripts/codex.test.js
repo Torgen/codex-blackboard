@@ -6,17 +6,17 @@
  * DS205: Consider reworking code to avoid use of IIFEs
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import codex from './codex.coffee';
-import '/lib/model.coffee';
-import { CallIns, Messages, Polls, Puzzles, Rounds } from '/lib/imports/collections.coffee';
+import codex from './codex.js';
+import '/lib/model.js';
+import { CallIns, Messages, Polls, Puzzles, Rounds } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import Robot from '../imports/hubot.coffee';
-import { drive } from '/lib/imports/environment.coffee';
-import { waitForDocument } from '/lib/imports/testutils.coffee';
-import { all_settings, EmbedPuzzles, MaximumMemeLength, PuzzleUrlPrefix, RoundUrlPrefix } from '/lib/imports/settings.coffee';
-import { impersonating } from '../imports/impersonate.coffee';
+import Robot from '../imports/hubot.js';
+import { drive } from '/lib/imports/environment.js';
+import { waitForDocument } from '/lib/imports/testutils.js';
+import { all_settings, EmbedPuzzles, MaximumMemeLength, PuzzleUrlPrefix, RoundUrlPrefix } from '/lib/imports/settings.js';
+import { impersonating } from '../imports/impersonate.js';
 
 describe('codex hubot script', function() {
   let robot = null;

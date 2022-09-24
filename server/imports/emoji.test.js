@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import emojify from './emoji.coffee';
+import emojify from './emoji.js';
 import chai from 'chai';
 
 describe('emojify', function() {

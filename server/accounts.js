@@ -6,10 +6,10 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '../lib/imports/canonical.coffee';
+import canonical from '../lib/imports/canonical.js';
 import { createHash } from 'crypto';
-import { StringWithLength } from '../lib/imports/match.coffee';
-import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee';
+import { StringWithLength } from '../lib/imports/match.js';
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.js';
 
 const PASSWORD = Meteor.settings?.password ?? process.env.TEAM_PASSWORD;
 

@@ -15,7 +15,7 @@ Template.projector.onCreated(async function() {
   this.loaded = new ReactiveVar(false);
   this.previousView = new ReactiveVar(null);
   this.currentViewIndex = new ReactiveVar(0);
-  await Promise.all([blimport('./projector.less'), blimport('../map/map.coffee'), blimport('../graph/graph.coffee'), blimport('../statistics/statistics_chart.coffee')]);
+  await Promise.all([import('./projector.less'), import('../map/map.coffee'), import('../graph/graph.coffee'), import('../statistics/statistics_chart.coffee')]);
   this.loaded.set(true);
   return this.tenSeconds = Meteor.setInterval(() => {
     const index = this.currentViewIndex.get();

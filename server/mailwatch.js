@@ -23,8 +23,8 @@
 // package.
 
 import { MailListener } from 'mail-listener6';
-import { newMessage } from './imports/newMessage.coffee';
-import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee';
+import { newMessage } from './imports/newMessage.js';
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.js';
 
 const watch = Meteor.settings?.watch ?? {};
 if (watch.username == null) { watch.username = process.env.MAILWATCH_USERNAME; }

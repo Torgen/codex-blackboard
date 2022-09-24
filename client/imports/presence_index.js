@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Presence } from '/lib/imports/collections.coffee';
+import { Presence } from '/lib/imports/collections.js';
 
 const presenceIndex = new Map;
 

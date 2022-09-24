@@ -7,10 +7,10 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '/lib/imports/canonical.coffee';
-import { Messages, Presence } from '/lib/imports/collections.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { Messages, Presence } from '/lib/imports/collections.js';
 import md5 from 'md5';
-import { callAs } from './impersonate.coffee';
+import { callAs } from './impersonate.js';
 import Hubot from 'hubot/es2015';
 
 // Log messages?

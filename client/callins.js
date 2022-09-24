@@ -7,9 +7,9 @@
  * DS208: Avoid top-level this
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { MUTE_SOUND_EFFECTS, EXPERT_MODE } from './imports/settings.coffee';
-import { CallIns } from '/lib/imports/collections.coffee';
-import * as callin_types from '/lib/imports/callin_types.coffee';
+import { MUTE_SOUND_EFFECTS, EXPERT_MODE } from './imports/settings.js';
+import { CallIns } from '/lib/imports/collections.js';
+import * as callin_types from '/lib/imports/callin_types.js';
 
 Meteor.startup(function() {
   let newCallInSound;

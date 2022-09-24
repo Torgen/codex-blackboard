@@ -8,7 +8,7 @@
 import './statistics_chart.html';
 import Chart from 'chart.js/auto';
 import 'chartjs-adapter-dayjs-3';
-import PuzzleFeed from './puzzle_feed.coffee';
+import PuzzleFeed from './puzzle_feed.js';
 
 Template.statistics_chart.onCreated(function() {
   const update = () => this.chart?.update();

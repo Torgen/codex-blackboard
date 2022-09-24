@@ -8,10 +8,10 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 import './graph.html';
-import { Puzzles, Rounds } from '/lib/imports/collections.coffee';
-import { isStuck } from '/lib/imports/tags.coffee';
-import objectColor from '/client/imports/objectColor.coffee';
-import abbrev from '/lib/imports/abbrev.coffee';
+import { Puzzles, Rounds } from '/lib/imports/collections.js';
+import { isStuck } from '/lib/imports/tags.js';
+import objectColor from '/client/imports/objectColor.js';
+import abbrev from '/lib/imports/abbrev.js';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import layout_utilities from 'cytoscape-layout-utilities';

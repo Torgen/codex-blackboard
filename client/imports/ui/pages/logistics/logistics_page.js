@@ -6,7 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 import './logistics_page.html';
-import { EXPERT_MODE } from '/client/imports/settings.coffee';
+import { EXPERT_MODE } from '/client/imports/settings.js';
 
 const bundleLoaded = new ReactiveVar(false);
 
@@ -25,7 +25,7 @@ Template.logistics_page.onCreated(async function() {
   // during the hunt. Session preserves values across reloads and doesn't
   // trigger if the value doesn't change.
   Session.set('topRight', null);
-  await blimport('/client/imports/ui/pages/logistics/logistics.coffee');
+  await import('/client/imports/ui/pages/logistics/logistics.coffee');
   return bundleLoaded.set(true);
 });
 

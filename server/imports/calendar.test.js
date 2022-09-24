@@ -5,13 +5,13 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Calendar, CalendarEvents } from '/lib/imports/collections.coffee';
+import { Calendar, CalendarEvents } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import delay from 'delay';
-import { waitForDocument } from '/lib/imports/testutils.coffee';
-import { CalendarSync } from './calendar.coffee';
+import { waitForDocument } from '/lib/imports/testutils.js';
+import { CalendarSync } from './calendar.js';
 
 describe('CalendarSync', function() {
   let clock = null;

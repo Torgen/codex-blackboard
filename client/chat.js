@@ -8,22 +8,22 @@
  * DS208: Avoid top-level this
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import Router from '/client/imports/router.coffee';
+import Router from '/client/imports/router.js';
 // Cannot destructure for testing purposes.
-import jitsiModule, {jitsiUrl, jitsiRoom} from './imports/jitsi.coffee';
-import { gravatarUrl, hashFromNickObject, nickAndName } from './imports/nickEmail.coffee';
-import { computeMessageFollowup } from './imports/followup.coffee';
-import botuser from './imports/botuser.coffee';
-import canonical from '/lib/imports/canonical.coffee';
-import { LastRead, Messages, Names, Polls, Presence, Puzzles, collection } from '/lib/imports/collections.coffee';
-import { CHAT_LIMIT_INCREMENT, CLIENT_UUID, FOLLOWUP_STYLE, GENERAL_ROOM_NAME, INITIAL_CHAT_LIMIT } from '/client/imports/server_settings.coffee';
-import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.coffee';
-import { reactiveLocalStorage } from './imports/storage.coffee';
-import {chunk_text, chunk_html} from './imports/chunk_text.coffee';
-import { confirm } from './imports/modal.coffee';
-import isVisible from '/client/imports/visible.coffee';
+import jitsiModule, {jitsiUrl, jitsiRoom} from './imports/jitsi.js';
+import { gravatarUrl, hashFromNickObject, nickAndName } from './imports/nickEmail.js';
+import { computeMessageFollowup } from './imports/followup.js';
+import botuser from './imports/botuser.js';
+import canonical from '/lib/imports/canonical.js';
+import { LastRead, Messages, Names, Polls, Presence, Puzzles, collection } from '/lib/imports/collections.js';
+import { CHAT_LIMIT_INCREMENT, CLIENT_UUID, FOLLOWUP_STYLE, GENERAL_ROOM_NAME, INITIAL_CHAT_LIMIT } from '/client/imports/server_settings.js';
+import { CAP_JITSI_HEIGHT, HIDE_OLD_PRESENCE, HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS } from './imports/settings.js';
+import { reactiveLocalStorage } from './imports/storage.js';
+import {chunk_text, chunk_html} from './imports/chunk_text.js';
+import { confirm } from './imports/modal.js';
+import isVisible from '/client/imports/visible.js';
 import Favico from 'favico.js';
-import { hsize } from '/client/imports/ui/components/splitter/splitter.coffee';
+import { hsize } from '/client/imports/ui/components/splitter/splitter.js';
 
 const GENERAL_ROOM = GENERAL_ROOM_NAME;
 const GENERAL_ROOM_REGEX = new RegExp(`^${GENERAL_ROOM}$`, 'i');

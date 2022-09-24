@@ -5,13 +5,13 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Messages, Presence, Puzzles } from '/lib/imports/collections.coffee';
+import { Messages, Presence, Puzzles } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
 import delay from 'delay';
-import { waitForDocument } from '/lib/imports/testutils.coffee';
-import watchPresence from './presence.coffee';
+import { waitForDocument } from '/lib/imports/testutils.js';
+import watchPresence from './presence.js';
 
 describe('presence', function() {
   let clock = null;

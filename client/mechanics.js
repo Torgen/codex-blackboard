@@ -6,7 +6,7 @@
  * DS205: Consider reworking code to avoid use of IIFEs
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import {mechanics} from '../lib/imports/mechanics.coffee';
+import {mechanics} from '../lib/imports/mechanics.js';
 
 Template.registerHelper('yourFavoriteMechanic', function() {
   return Meteor.user().favorite_mechanics?.includes(this);

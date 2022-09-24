@@ -6,8 +6,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects 
-import './locateNick.coffee';
-import { callAs } from '/server/imports/impersonate.coffee';
+import './locateNick.js';
+import { callAs } from '/server/imports/impersonate.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';

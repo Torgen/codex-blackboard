@@ -6,8 +6,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 import './edit_field.html';
-import { collection } from '/lib/imports/collections.coffee';
-import { editableTemplate } from '/client/imports/ok_cancel_events.coffee';
+import { collection } from '/lib/imports/collections.js';
+import { editableTemplate } from '/client/imports/ok_cancel_events.js';
 
 editableTemplate(Template.edit_field, {
   ok(value, evt, tem) {

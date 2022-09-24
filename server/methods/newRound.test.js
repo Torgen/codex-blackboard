@@ -6,14 +6,14 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects
-import '/lib/model.coffee';
-import { Messages, Roles, Rounds } from '/lib/imports/collections.coffee';
-import { callAs, impersonating } from '/server/imports/impersonate.coffee';
+import '/lib/model.js';
+import { Messages, Roles, Rounds } from '/lib/imports/collections.js';
+import { callAs, impersonating } from '/server/imports/impersonate.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import isDuplicateError from '/lib/imports/duplicate.coffee';
-import { RoleRenewalTime, RoundUrlPrefix, UrlSeparator } from '/lib/imports/settings.coffee';
+import isDuplicateError from '/lib/imports/duplicate.js';
+import { RoleRenewalTime, RoundUrlPrefix, UrlSeparator } from '/lib/imports/settings.js';
 
 describe('newRound', function() {
   let clock = null;

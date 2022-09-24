@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { distance } from './location.coffee';
+import { distance } from './location.js';
 import chai from 'chai';
 
 const KRESGE = {

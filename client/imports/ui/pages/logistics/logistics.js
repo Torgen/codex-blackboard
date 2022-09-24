@@ -9,13 +9,13 @@
  */
 import './logistics.html';
 import './logistics.less';
-import '/client/imports/ui/components/create_object/create_object.coffee';
-import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.coffee';
-import { CalendarEvents, CallIns, Puzzles, Rounds } from '/lib/imports/collections.coffee';
-import { confirm } from '/client/imports/modal.coffee';
-import { findByChannel } from '/client/imports/presence_index.coffee';
-import colorFromThingWithTags from '/client/imports/objectColor.coffee';
-import { isStuck } from '/lib/imports/tags.coffee';
+import '/client/imports/ui/components/create_object/create_object.js';
+import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.js';
+import { CalendarEvents, CallIns, Puzzles, Rounds } from '/lib/imports/collections.js';
+import { confirm } from '/client/imports/modal.js';
+import { findByChannel } from '/client/imports/presence_index.js';
+import colorFromThingWithTags from '/client/imports/objectColor.js';
+import { isStuck } from '/lib/imports/tags.js';
 
 const nameAndUrlFromDroppedLink = function(dataTransfer) {
   const url = dataTransfer.getData('url');

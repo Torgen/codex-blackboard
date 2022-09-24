@@ -6,11 +6,11 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '/lib/imports/canonical.coffee';
-import { collection } from '/lib/imports/collections.coffee';
-import { StaticJitsiMeeting } from '/lib/imports/settings.coffee';
-import { JITSI_SERVER, TEAM_NAME } from '/client/imports/server_settings.coffee';
-import { START_AUDIO_MUTED, START_VIDEO_MUTED } from './settings.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { collection } from '/lib/imports/collections.js';
+import { StaticJitsiMeeting } from '/lib/imports/settings.js';
+import { JITSI_SERVER, TEAM_NAME } from '/client/imports/server_settings.js';
+import { START_AUDIO_MUTED, START_VIDEO_MUTED } from './settings.js';
 
 export var jitsiRoom = function(roomType, roomId) {
   if (!roomId) { return; }

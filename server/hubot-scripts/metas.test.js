@@ -5,15 +5,15 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import metas from './metas.coffee';
-import '/lib/model.coffee';
-import { Messages, Puzzles } from '/lib/imports/collections.coffee';
+import metas from './metas.js';
+import '/lib/model.js';
+import { Messages, Puzzles } from '/lib/imports/collections.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import Robot from '../imports/hubot.coffee';
-import { waitForDocument } from '/lib/imports/testutils.coffee';
-import { impersonating } from '../imports/impersonate.coffee';
+import Robot from '../imports/hubot.js';
+import { waitForDocument } from '/lib/imports/testutils.js';
+import { impersonating } from '../imports/impersonate.js';
 
 describe('metas hubot script', function() {
   let robot = null;

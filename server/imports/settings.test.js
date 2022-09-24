@@ -5,9 +5,9 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import settings from '/lib/imports/settings.coffee';
+import settings from '/lib/imports/settings.js';
 // Test only works on server side; move to /server if you add client tests.
-import { callAs, impersonating } from './impersonate.coffee';
+import { callAs, impersonating } from './impersonate.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';

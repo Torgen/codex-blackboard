@@ -7,7 +7,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 import './splitter.html';
-import { reactiveLocalStorage } from '/client/imports/storage.coffee';
+import { reactiveLocalStorage } from '/client/imports/storage.js';
 
 class Dimension {
   constructor(targetClass, posProperty, sizeProperty, startProperty, splitterProperty, limitVar) {

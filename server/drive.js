@@ -5,13 +5,13 @@
  * DS209: Avoid top-level return
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Drive, FailDrive } from './imports/drive.coffee';
-import DriveChangeWatcher from './imports/drive_change_polling.coffee';
-import { RETRY_RESPONSE_CODES } from './imports/googlecommon.coffee';
-import { drive as driveEnv } from '/lib/imports/environment.coffee';
-import googleauth from './imports/googleauth.coffee';
+import { Drive, FailDrive } from './imports/drive.js';
+import DriveChangeWatcher from './imports/drive_change_polling.js';
+import { RETRY_RESPONSE_CODES } from './imports/googlecommon.js';
+import { drive as driveEnv } from '/lib/imports/environment.js';
+import googleauth from './imports/googleauth.js';
 import { google } from 'googleapis';
-import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee';
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.js';
 
 // helper functions to perform Google Drive operations
 

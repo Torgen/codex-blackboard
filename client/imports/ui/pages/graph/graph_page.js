@@ -10,7 +10,7 @@ import './graph_page.html';
 
 Template.graph_page.onCreated(async function() {
   this.loaded = new ReactiveVar(false);
-  await blimport('./graph.coffee');
+  await import('./graph.coffee');
   return this.loaded.set(true);
 });
 

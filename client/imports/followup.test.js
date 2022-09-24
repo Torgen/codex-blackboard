@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { computeMessageFollowup } from './followup.coffee';
+import { computeMessageFollowup } from './followup.js';
 import chai from 'chai';
 
 const TORGEN_MSG = $('<div class="bb-message media" data-nick="torgen">Yo</div>')[0];

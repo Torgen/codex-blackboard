@@ -6,9 +6,9 @@
  * DS209: Avoid top-level return
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import watchPresence from './imports/presence.coffee';
-import { RoleManager } from './imports/roles.coffee';
-import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee';
+import watchPresence from './imports/presence.js';
+import { RoleManager } from './imports/roles.js';
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.js';
 
 if (!DO_BATCH_PROCESSING) { return; }
 

@@ -7,8 +7,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 
-import {rejoin, strip, scripts,thingRE, objectFromRoom, puzzleOrThis } from '../imports/botutil.coffee';
-import { callAs } from '../imports/impersonate.coffee';
+import {rejoin, strip, scripts,thingRE, objectFromRoom, puzzleOrThis } from '../imports/botutil.js';
+import { callAs } from '../imports/impersonate.js';
 
 const makeMeta = function(msg) {
   const name = msg.match[1];

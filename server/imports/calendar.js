@@ -6,8 +6,8 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.coffee';
-import { Calendar, CalendarEvents } from '/lib/imports/collections.coffee';
+import { ROOT_FOLDER_NAME, CODEX_ACCOUNT, SHARE_GROUP } from './googlecommon.js';
+import { Calendar, CalendarEvents } from '/lib/imports/collections.js';
 
 // Cambridge is on Eastern time.
 const CALENDAR_TIME_ZONE = Meteor.settings.calendar?.time_zone || process.env.CALENDAR_TIME_ZONE || 'America/New_York';

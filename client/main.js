@@ -9,25 +9,25 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 import md5 from 'md5';
-import { gravatarUrl, nickHash } from './imports/nickEmail.coffee';
-import abbrev from '../lib/imports/abbrev.coffee';
-import canonical from '/lib/imports/canonical.coffee';
-import { BBCollection, Messages, Names, Puzzles, collection, pretty_collection } from '/lib/imports/collections.coffee';
-import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.coffee';
-import { mechanics } from '../lib/imports/mechanics.coffee';
-import { fileType } from '../lib/imports/mime_type.coffee';
-import { reactiveLocalStorage } from './imports/storage.coffee';
-import textify from './imports/textify.coffee';
-import embeddable from './imports/embeddable.coffee';
-import { GENERAL_ROOM_NAME, NAME_PLACEHOLDER, TEAM_NAME } from '/client/imports/server_settings.coffee';
-import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.coffee';
-import * as notification from '/client/imports/notification.coffee';
-import Router from '/client/imports/router.coffee';
-import '/client/imports/ui/components/splitter/splitter.coffee';
-import '/client/imports/ui/pages/graph/graph_page.coffee';
-import '/client/imports/ui/pages/map/map_page.coffee';
-import '/client/imports/ui/pages/projector/projector.coffee';
-import '/client/imports/ui/pages/statistics/statistics_page.coffee';
+import { gravatarUrl, nickHash } from './imports/nickEmail.js';
+import abbrev from '../lib/imports/abbrev.js';
+import canonical from '/lib/imports/canonical.js';
+import { BBCollection, Messages, Names, Puzzles, collection, pretty_collection } from '/lib/imports/collections.js';
+import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.js';
+import { mechanics } from '../lib/imports/mechanics.js';
+import { fileType } from '../lib/imports/mime_type.js';
+import { reactiveLocalStorage } from './imports/storage.js';
+import textify from './imports/textify.js';
+import embeddable from './imports/embeddable.js';
+import { GENERAL_ROOM_NAME, NAME_PLACEHOLDER, TEAM_NAME } from '/client/imports/server_settings.js';
+import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.js';
+import * as notification from '/client/imports/notification.js';
+import Router from '/client/imports/router.js';
+import '/client/imports/ui/components/splitter/splitter.js';
+import '/client/imports/ui/pages/graph/graph_page.js';
+import '/client/imports/ui/pages/map/map_page.js';
+import '/client/imports/ui/pages/projector/projector.js';
+import '/client/imports/ui/pages/statistics/statistics_page.js';
 
 // "Top level" templates:
 //   "blackboard" -- main blackboard page

@@ -7,10 +7,10 @@
  */
 import chai from 'chai';
 import sinon from 'sinon';
-import { Drive } from './drive.coffee';
+import { Drive } from './drive.js';
 import { Readable } from 'stream';
 
-import * as batch from '/server/imports/batch.coffee';
+import * as batch from '/server/imports/batch.js';
 
 const OWNER_PERM = {
   role: 'writer',

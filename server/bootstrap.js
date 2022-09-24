@@ -5,9 +5,9 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Calendar, CalendarEvents, Puzzles, Rounds } from '/lib/imports/collections.coffee';
-import { callAs, impersonating } from './imports/impersonate.coffee';
-import { DO_BATCH_PROCESSING } from '/server/imports/batch.coffee';
+import { Calendar, CalendarEvents, Puzzles, Rounds } from '/lib/imports/collections.js';
+import { callAs, impersonating } from './imports/impersonate.js';
+import { DO_BATCH_PROCESSING } from '/server/imports/batch.js';
 import md5 from 'md5';
 
 // if the database is empty on server start, create some sample data.

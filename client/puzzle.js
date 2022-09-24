@@ -7,18 +7,18 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '/lib/imports/canonical.coffee';
-import { CallIns, Puzzles, Rounds, pretty_collection } from '/lib/imports/collections.coffee';
-import { getTag, isStuck } from '/lib/imports/tags.coffee';
-import { confirm } from '/client/imports/modal.coffee';
-import color from './imports/objectColor.coffee';
-import embeddable from './imports/embeddable.coffee';
-import * as callin_types from '/lib/imports/callin_types.coffee';
-import '/client/imports/ui/components/edit_object_title/edit_object_title.coffee';
-import '/client/imports/ui/components/edit_tag_value/edit_tag_value.coffee';
-import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.coffee';
-import '/client/imports/ui/components/onduty/current.coffee';
-import '/client/imports/ui/components/tag_table_rows/tag_table_rows.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { CallIns, Puzzles, Rounds, pretty_collection } from '/lib/imports/collections.js';
+import { getTag, isStuck } from '/lib/imports/tags.js';
+import { confirm } from '/client/imports/modal.js';
+import color from './imports/objectColor.js';
+import embeddable from './imports/embeddable.js';
+import * as callin_types from '/lib/imports/callin_types.js';
+import '/client/imports/ui/components/edit_object_title/edit_object_title.js';
+import '/client/imports/ui/components/edit_tag_value/edit_tag_value.js';
+import '/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.js';
+import '/client/imports/ui/components/onduty/current.js';
+import '/client/imports/ui/components/tag_table_rows/tag_table_rows.js';
 
 const capType = function(puzzle) {
   if (puzzle?.puzzles != null) {

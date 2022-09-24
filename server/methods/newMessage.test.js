@@ -6,9 +6,9 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects 
-import './newMessage.coffee';
-import { Messages } from '/lib/imports/collections.coffee';
-import { callAs } from '/server/imports/impersonate.coffee';
+import './newMessage.js';
+import { Messages } from '/lib/imports/collections.js';
+import { callAs } from '/server/imports/impersonate.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';

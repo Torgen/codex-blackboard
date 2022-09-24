@@ -6,8 +6,8 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { CHAT_LIMIT_INCREMENT } from '/client/imports/server_settings.coffee';
-import { Messages, pretty_collection } from '/lib/imports/collections.coffee';
+import { CHAT_LIMIT_INCREMENT } from '/client/imports/server_settings.js';
+import { Messages, pretty_collection } from '/lib/imports/collections.js';
 
 const room_name = 'oplog/0';
 

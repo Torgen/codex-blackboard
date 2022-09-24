@@ -8,8 +8,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 
-import { INITIAL_CHAT_LIMIT } from '/client/imports/server_settings.coffee';
-import { awaitBundleLoaded } from '/client/imports/ui/pages/logistics/logistics_page.coffee';
+import { INITIAL_CHAT_LIMIT } from '/client/imports/server_settings.js';
+import { awaitBundleLoaded } from '/client/imports/ui/pages/logistics/logistics_page.js';
 
 const distToTop = x => Math.abs(x.getBoundingClientRect().top - 110);
 

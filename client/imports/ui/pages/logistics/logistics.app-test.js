@@ -5,9 +5,9 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { Messages, Puzzles } from '/lib/imports/collections.coffee';
-import Router from '/client/imports/router.coffee';
-import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.coffee';
+import { Messages, Puzzles } from '/lib/imports/collections.js';
+import Router from '/client/imports/router.js';
+import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.js';
 import chai from 'chai';
 
 describe('logistics', function() {

@@ -6,15 +6,15 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 // For side effects
-import '/lib/model.coffee';
-import { Messages, Puzzles, Roles, Rounds } from '/lib/imports/collections.coffee';
-import { callAs, impersonating } from '/server/imports/impersonate.coffee';
+import '/lib/model.js';
+import { Messages, Puzzles, Roles, Rounds } from '/lib/imports/collections.js';
+import { callAs, impersonating } from '/server/imports/impersonate.js';
 import chai from 'chai';
 import sinon from 'sinon';
 import { resetDatabase } from 'meteor/xolvio:cleaner';
-import isDuplicateError from '/lib/imports/duplicate.coffee';
-import { drive } from '/lib/imports/environment.coffee';
-import { PuzzleUrlPrefix, RoleRenewalTime, UrlSeparator } from '/lib/imports/settings.coffee';
+import isDuplicateError from '/lib/imports/duplicate.js';
+import { drive } from '/lib/imports/environment.js';
+import { PuzzleUrlPrefix, RoleRenewalTime, UrlSeparator } from '/lib/imports/settings.js';
 
 describe('newPuzzle', function() {
   let driveMethods = null;

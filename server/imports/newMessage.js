@@ -6,10 +6,10 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import canonical from '/lib/imports/canonical.coffee';
-import { Messages } from '/lib/imports/collections.coffee';
-import { NonEmptyString } from '/lib/imports/match.coffee';
-import emojify from './emoji.coffee';
+import canonical from '/lib/imports/canonical.js';
+import { Messages } from '/lib/imports/collections.js';
+import { NonEmptyString } from '/lib/imports/match.js';
+import emojify from './emoji.js';
 import sanitize from 'sanitize-html';
 
 const params = {...sanitize.defaults};

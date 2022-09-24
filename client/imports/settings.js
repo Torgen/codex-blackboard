@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import { reactiveLocalStorage } from './storage.coffee';
+import { reactiveLocalStorage } from './storage.js';
 
 class Setting {
   constructor(name, helper) {

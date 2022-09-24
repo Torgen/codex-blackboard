@@ -8,8 +8,8 @@
 // Description:
 //   Get a meme from https://memegen.link
 
-import { scripts } from '/server/imports/botutil.coffee';
-import { MaximumMemeLength } from '/lib/imports/settings.coffee';
+import { scripts } from '/server/imports/botutil.js';
+import { MaximumMemeLength } from '/lib/imports/settings.js';
 
 export default scripts.memes = function(robot) {
   robot.commands.push('bot Y U NO <text> - Generates the Y U NO GUY with the bottom caption of <text>');

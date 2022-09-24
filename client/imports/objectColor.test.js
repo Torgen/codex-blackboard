@@ -5,7 +5,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-import objectColor, {cssColorToHex, hexToCssColor } from './objectColor.coffee';
+import objectColor, {cssColorToHex, hexToCssColor } from './objectColor.js';
 import chai from 'chai';
 
 describe('objectColor', function() {
