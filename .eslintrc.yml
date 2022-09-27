@@ -24,7 +24,7 @@ globals:
 # Parser vars #
 ###############
 parserOptions:
-  ecmaVersion: 2023
+  ecmaVersion: 2022
   sourceType: module
 
 ###########
