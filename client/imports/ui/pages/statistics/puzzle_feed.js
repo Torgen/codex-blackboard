@@ -31,6 +31,13 @@ export default class PuzzleFeed {
     return false;
   }
 
+  maybePopNow() {
+    if (this.hasNow.get() && this.data.at(-2).x > this.data.at(-1).x) {
+      this.hasNow.set(false);
+      this.data.pop()
+    }
+  }
+
   addedAt(doc, ix) {
     this.data.splice(ix, 0, { x: doc[this.field], y: ix + 1 });
     while (++ix < this.data.length) {
@@ -38,13 +45,9 @@ export default class PuzzleFeed {
     }
     Tracker.nonreactive(() => {
       if (
-        this.hasNow.get() &&
-        this.data.length > 1 &&
-        this.data.at(-2).x > this.data.at(-1).x
+        this.data.length > 1
       ) {
-        this.hasNow.set(false);
-        this.data.pop();
-        return;
+        this.maybePopNow();
       }
     });
     this.update();
@@ -54,13 +57,9 @@ export default class PuzzleFeed {
     this.data[ix].x = newDoc[this.field];
     Tracker.nonreactive(() => {
       if (
-        this.hasNow.get() &&
-        ix === this.data.length - 2 &&
-        this.data.at(-2).x > this.data.at(-1).x
+        ix === this.data.length - 2
       ) {
-        this.hasNow.set(false);
-        this.data.pop();
-        return;
+        this.maybePopNow();
       }
     });
     this.update();
