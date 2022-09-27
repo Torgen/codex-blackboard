@@ -269,49 +269,44 @@ function round_helper() {
   const dir = SORT_REVERSE.get() ? "desc" : "asc";
   return Rounds.find({}, { sort: [["sort_key", dir]] });
 }
+function maybeFilterSolved(puzzles) {
+  const editing = Meteor.userId() && Session.get("canEdit");
+  if (editing || !HIDE_SOLVED.get()) {
+    return puzzles;
+  }
+  return puzzles.filter((pp) => pp.puzzle.solved == null);
+}
 function meta_helper() {
-  // the following is a map() instead of a direct find() to preserve order
-  const r = (() => {
-    const result = [];
-    for (let index = 0; index < this.puzzles.length; index++) {
-      const id = this.puzzles[index];
-      const puzzle = Puzzles.findOne({ _id: id, puzzles: { $ne: null } });
-      if (puzzle == null) {
-        continue;
-      }
-      result.push({
-        _id: id,
-        parent: this._id,
-        puzzle,
-        num_puzzles: puzzle.puzzles.length,
-      });
+  // find({_id: {$in: list}}) doesn't preserve order or use the _id index.
+  const r = [];
+  for (let _id of this.puzzles) {
+    const puzzle = Puzzles.findOne({ _id, puzzles: { $ne: null } });
+    if (puzzle == null) {
+      continue;
     }
-    return result;
-  })();
+    r.push({
+      _id,
+      parent: this._id,
+      puzzle,
+      num_puzzles: puzzle.puzzles.length,
+    });
+  }
   return r;
 }
 function unassigned_helper() {
-  const p = (() => {
-    const result = [];
-    for (let index = 0; index < this.puzzles.length; index++) {
-      const id = this.puzzles[index];
-      const puzzle = Puzzles.findOne({
-        _id: id,
-        feedsInto: { $size: 0 },
-        puzzles: { $exists: false },
-      });
-      if (puzzle == null) {
-        continue;
-      }
-      result.push({ _id: id, parent: this._id, puzzle });
+  const p = [];
+  for (let _id of this.puzzles) {
+    const puzzle = Puzzles.findOne({
+      _id,
+      feedsInto: { $size: 0 },
+      puzzles: { $exists: false },
+    });
+    if (puzzle == null) {
+      continue;
     }
-    return result;
-  })();
-  const editing = Meteor.userId() && Session.get("canEdit");
-  if (editing || !HIDE_SOLVED.get()) {
-    return p;
+    p.push({ _id, parent: this._id, puzzle });
   }
-  return p.filter((pp) => pp.puzzle.solved == null);
+  return maybeFilterSolved(p);
 }
 
 //############# groups, rounds, and puzzles ####################
@@ -371,22 +366,19 @@ Template.blackboard_status_grid.helpers({
     }
   },
   unassigned() {
-    return (() => {
-      const result = [];
-      for (let index = 0; index < this.puzzles.length; index++) {
-        const id = this.puzzles[index];
-        const puzzle = Puzzles.findOne({
-          _id: id,
-          feedsInto: { $size: 0 },
-          puzzles: { $exists: false },
-        });
-        if (puzzle == null) {
-          continue;
-        }
-        result.push(puzzle._id);
+    const result = [];
+    for (let _id of this.puzzles) {
+      const puzzle = Puzzles.findOne({
+        _id,
+        feedsInto: { $size: 0 },
+        puzzles: { $exists: false },
+      });
+      if (puzzle == null) {
+        continue;
       }
-      return result;
-    })();
+      result.push(puzzle._id);
+    }
+    return result;
   },
   puzzles(ps) {
     const p = ps.map((id, index) => ({
@@ -481,26 +473,22 @@ Template.blackboard_round.onCreated(function () {
 Template.blackboard_round.helpers({
   // the following is a map() instead of a direct find() to preserve order
   metas() {
-    const r = (() => {
-      const result = [];
-      for (let index = 0; index < this.puzzles.length; index++) {
-        const id = this.puzzles[index];
-        const puzzle = Puzzles.findOne({ _id: id, puzzles: { $ne: null } });
-        if (puzzle == null) {
-          continue;
-        }
-        result.push({
-          _id: id,
-          puzzle,
-          num_puzzles: puzzle.puzzles.length,
-          num_solved: Puzzles.find({
-            _id: { $in: puzzle.puzzles },
-            solved: { $ne: null },
-          }).length,
-        });
+    const r = [];
+    for (let _id of this.puzzles) {
+      const puzzle = Puzzles.findOne({ _id, puzzles: { $ne: null } });
+      if (puzzle == null) {
+        continue;
       }
-      return result;
-    })();
+      r.push({
+        _id,
+        puzzle,
+        num_puzzles: puzzle.puzzles.length,
+        num_solved: Puzzles.find({
+          _id: { $in: puzzle.puzzles },
+          solved: { $ne: null },
+        }).length,
+      });
+    }
     if (SORT_REVERSE.get()) {
       r.reverse();
     }
@@ -532,17 +520,7 @@ Template.blackboard_round.helpers({
     }
     return false;
   },
-  addingTag() {
-    const instance = Template.instance();
-    return {
-      adding() {
-        return instance.addingTag.get();
-      },
-      done() {
-        instance.addingTag.set(false);
-      },
-    };
-  },
+  addingTag: addingTagHelper,
   addingUnassigned() {
     return Template.instance().addingUnassigned.get();
   },
@@ -735,31 +713,21 @@ Template.blackboard_meta.helpers({
       _id: id,
       puzzle: Puzzles.findOne(id) || { _id: id },
     }));
-    const editing = Meteor.userId() && Session.get("canEdit");
-    if (editing || !HIDE_SOLVED.get()) {
-      return p;
-    }
-    return p.filter((pp) => pp.puzzle.solved == null);
+    return maybeFilterSolved(p);
   },
   stuck: isStuck,
   numHidden() {
     if (!HIDE_SOLVED.get()) {
       return 0;
     }
-    const y = (() => {
-      const result = [];
-      for (let index = 0; index < this.puzzle.puzzles.length; index++) {
-        const id = this.puzzle.puzzles[index];
-        const x = Puzzles.findOne(id);
-        if (x?.solved == null) {
-          continue;
-        } else {
-          result.push(undefined);
-        }
+    let count = 0;
+    for (let id of this.puzzle.puzzles) {
+      const x = Puzzles.findOne(id);
+      if (x?.solved != null) {
+        count++
       }
-      return result;
-    })();
-    return y.length;
+    }
+    return count;
   },
   collapsed() {
     return (
@@ -830,7 +798,17 @@ Template.blackboard_puzzle_cells.events({
 Template.blackboard_puzzle_cells.onCreated(function () {
   this.addingTag = new ReactiveVar(false);
 });
-
+function addingTagHelper() {
+  const instance = Template.instance();
+  return {
+    adding() {
+      return instance.addingTag.get();
+    },
+    done() {
+      instance.addingTag.set(false);
+    },
+  };
+}
 Template.blackboard_puzzle_cells.helpers({
   allMetas() {
     if (!this) {
@@ -865,17 +843,7 @@ Template.blackboard_puzzle_cells.helpers({
   jitsiLink() {
     return jitsiUrl("puzzles", this.puzzle?._id);
   },
-  addingTag() {
-    const instance = Template.instance();
-    return {
-      adding() {
-        return instance.addingTag.get();
-      },
-      done() {
-        instance.addingTag.set(false);
-      },
-    };
-  },
+  addingTag: addingTagHelper,
 });
 
 Template.blackboard_column_body_answer.helpers({
