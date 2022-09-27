@@ -10,7 +10,6 @@ import md5 from "md5";
 import Router from "/client/imports/router.js";
 import { jitsiUrl } from "./imports/jitsi.js";
 import { hashFromNickObject, nickAndName } from "./imports/nickEmail.js";
-import botuser from "./imports/botuser.js";
 import keyword_or_positional from "./imports/keyword_or_positional.js";
 import loginWithCodex from "/client/imports/accounts.js";
 import {
@@ -111,6 +110,21 @@ Template.header_loginmute.onCreated(function () {
   this.visibleTab = new ReactiveVar("private");
 });
 
+function unreadHelper(filter) {
+  const count = Messages.find({
+    timestamp: { $gt: LastRead.findOne("private")?.timestamp ?? 0 },
+    ...filter
+  })
+    .fetch()
+    .filter(
+      (msg) =>
+        msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0)
+    ).length;
+  if (count !== 0) {
+    return count;
+  }
+}
+
 //############# log in/protect/mute panel ####################
 Template.header_loginmute.helpers({
   sessionNick() {
@@ -127,32 +141,10 @@ Template.header_loginmute.helpers({
     };
   },
   unreadPrivateMessages() {
-    const count = Messages.find({
-      to: Meteor.userId(),
-      timestamp: { $gt: LastRead.findOne("private")?.timestamp ?? 0 },
-    })
-      .fetch()
-      .filter(
-        (msg) =>
-          msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0)
-      ).length;
-    if (count !== 0) {
-      return count;
-    }
+    return unreadHelper({to: Meteor.userId()})
   },
   unreadMentions() {
-    const count = Messages.find({
-      mention: Meteor.userId(),
-      timestamp: { $gt: LastRead.findOne("private")?.timestamp ?? 0 },
-    })
-      .fetch()
-      .filter(
-        (msg) =>
-          msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0)
-      ).length;
-    if (count !== 0) {
-      return count;
-    }
+    return unreadHelper({mention: Meteor.userId()})
   },
   clamp(value, limit) {
     if (!value) {
