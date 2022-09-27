@@ -1,54 +1,43 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 // For side effects
-import '/lib/model.js';
-import { Messages, Roles } from '/lib/imports/collections.js';
-import { callAs } from '/server/imports/impersonate.js';
-import chai from 'chai';
-import sinon from 'sinon';
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import "/lib/model.js";
+import { Messages, Roles } from "/lib/imports/collections.js";
+import { callAs } from "/server/imports/impersonate.js";
+import chai from "chai";
+import { resetDatabase } from "meteor/xolvio:cleaner";
 
-describe('releaseOnduty', function() {
-
-  beforeEach(function() {
+describe("releaseOnduty", function () {
+  beforeEach(function () {
     resetDatabase();
-    return Roles.insert({
-      _id: 'onduty',
-      holder: 'torgen',
+    Roles.insert({
+      _id: "onduty",
+      holder: "torgen",
       claimed_at: 7,
       renewed_at: 7,
-      expires_at: 360007
+      expires_at: 360007,
     });
   });
 
-  it('fails without login', () => chai.assert.throws(() => Meteor.call('releaseOnduty')
-  , Match.Error));
+  it("fails without login", () =>
+    chai.assert.throws(() => Meteor.call("releaseOnduty"), Match.Error));
 
-  it('ends your onduty', function() {
-    chai.assert.isTrue(callAs('releaseOnduty', 'torgen'));
-    chai.assert.isNotOk(Roles.findOne('onduty'));
-    return chai.assert.deepInclude(Messages.findOne({room_name: 'oplog/0'}), {
-      nick: 'torgen',
+  it("ends your onduty", function () {
+    chai.assert.isTrue(callAs("releaseOnduty", "torgen"));
+    chai.assert.isNotOk(Roles.findOne("onduty"));
+    chai.assert.deepInclude(Messages.findOne({ room_name: "oplog/0" }), {
+      nick: "torgen",
       id: null,
-      type: 'roles'
-    }
-    );
+      type: "roles",
+    });
   });
 
-  return it('ignoses someone elses onduty', function() {
-    chai.assert.isFalse(callAs('releaseOnduty', 'cjb'));
-    chai.assert.deepInclude(Roles.findOne('onduty'), {
-      holder: 'torgen',
+  it("ignoses someone elses onduty", function () {
+    chai.assert.isFalse(callAs("releaseOnduty", "cjb"));
+    chai.assert.deepInclude(Roles.findOne("onduty"), {
+      holder: "torgen",
       claimed_at: 7,
       renewed_at: 7,
-      expires_at: 360007
-    }
-    );
-    return chai.assert.isNotOk(Messages.findOne({room_name: 'oplog/0'}));
+      expires_at: 360007,
+    });
+    chai.assert.isNotOk(Messages.findOne({ room_name: "oplog/0" }));
   });
 });

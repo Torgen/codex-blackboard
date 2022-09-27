@@ -1,64 +1,82 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-import { JITSI_SERVER } from '/client/imports/server_settings.js';
-import { DARK_MODE, HIDE_SOLVED, HIDE_SOLVED_FAVES, HIDE_SOLVED_METAS, STUCK_TO_TOP,
-HIDE_USELESS_BOT_MESSAGES, MUTE_SOUND_EFFECTS, HIDE_OLD_PRESENCE, LESS_COLORFUL,
-START_VIDEO_MUTED, START_AUDIO_MUTED, COMPACT_MODE, CURRENT_COLUMNS} from './imports/settings.coffee';
+import { JITSI_SERVER } from "/client/imports/server_settings.js";
+import {
+  DARK_MODE,
+  HIDE_SOLVED,
+  HIDE_SOLVED_FAVES,
+  HIDE_SOLVED_METAS,
+  STUCK_TO_TOP,
+  HIDE_USELESS_BOT_MESSAGES,
+  MUTE_SOUND_EFFECTS,
+  HIDE_OLD_PRESENCE,
+  LESS_COLORFUL,
+  START_VIDEO_MUTED,
+  START_AUDIO_MUTED,
+  COMPACT_MODE,
+  CURRENT_COLUMNS,
+} from "./imports/settings.js";
 
 Template.options_dropdown.helpers({
-  jitsi: (typeof JITSI_SERVER !== 'undefined' && JITSI_SERVER !== null)});
+  jitsi: typeof JITSI_SERVER !== "undefined" && JITSI_SERVER !== null,
+});
 
 Template.options_dropdown.events({
-  'click .bb-display-settings li a'(event, template) {
+  "click .bb-display-settings li a"(event, template) {
     // Stop the dropdown from closing.
-    return event.stopPropagation();
+    event.stopPropagation();
   },
-  'click a[name="bb-dark-mode"] [data-darkmode]:not(.disabled)'(event, template) {
-    return DARK_MODE.set(event.currentTarget.dataset.darkmode);
+  'click a[name="bb-dark-mode"] [data-darkmode]:not(.disabled)'(
+    event,
+    template
+  ) {
+    DARK_MODE.set(event.currentTarget.dataset.darkmode);
   },
-  'change .bb-hide-solved input'(event, template) {
-    return HIDE_SOLVED.set(event.target.checked);
+  "change .bb-hide-solved input"(event, template) {
+    HIDE_SOLVED.set(event.target.checked);
   },
-  'change .bb-hide-solved-meta input'(event, template) {
-    return HIDE_SOLVED_METAS.set(event.target.checked);
+  "change .bb-hide-solved-meta input"(event, template) {
+    HIDE_SOLVED_METAS.set(event.target.checked);
   },
-  'change .bb-hide-solved-faves input'(event, template) {
-    return HIDE_SOLVED_FAVES.set(event.target.checked);
+  "change .bb-hide-solved-faves input"(event, template) {
+    HIDE_SOLVED_FAVES.set(event.target.checked);
   },
-  'change .bb-compact-mode input'(event, template) {
-    return COMPACT_MODE.set(event.target.checked);
+  "change .bb-compact-mode input"(event, template) {
+    COMPACT_MODE.set(event.target.checked);
   },
-  'change .bb-boring-mode input'(event, template) {
-    return LESS_COLORFUL.set(event.target.checked);
+  "change .bb-boring-mode input"(event, template) {
+    LESS_COLORFUL.set(event.target.checked);
   },
-  'change .bb-stuck-to-top input'(event, template) {
-    return STUCK_TO_TOP.set(event.target.checked);
+  "change .bb-stuck-to-top input"(event, template) {
+    STUCK_TO_TOP.set(event.target.checked);
   },
-  'change .bb-bot-mute input'(event, template) {
-    return HIDE_USELESS_BOT_MESSAGES.set(event.target.checked);
+  "change .bb-bot-mute input"(event, template) {
+    HIDE_USELESS_BOT_MESSAGES.set(event.target.checked);
   },
-  'change .bb-sfx-mute input'(event, template) {
-    return MUTE_SOUND_EFFECTS.set(event.target.checked);
+  "change .bb-sfx-mute input"(event, template) {
+    MUTE_SOUND_EFFECTS.set(event.target.checked);
   },
-  'change .bb-hide-old-presence input'(event, template) {
-    return HIDE_OLD_PRESENCE.set(event.target.checked);
+  "change .bb-hide-old-presence input"(event, template) {
+    HIDE_OLD_PRESENCE.set(event.target.checked);
   },
-  'change .bb-start-video-muted input'(event, template) {
-    return START_VIDEO_MUTED.set(event.target.checked);
+  "change .bb-start-video-muted input"(event, template) {
+    START_VIDEO_MUTED.set(event.target.checked);
   },
-  'change .bb-start-audio-muted input'(event, template) {
-    return START_AUDIO_MUTED.set(event.target.checked);
+  "change .bb-start-audio-muted input"(event, template) {
+    START_AUDIO_MUTED.set(event.target.checked);
   },
-  'change input[data-column-visibility]'(event, template) {
-    return CURRENT_COLUMNS.set(template.$('input[data-column-visibility]:checked').map(function() { return this.dataset.columnVisibility; }).get());
-  }
+  "change input[data-column-visibility]"(event, template) {
+    CURRENT_COLUMNS.set(
+      template
+        .$("input[data-column-visibility]:checked")
+        .map(function () {
+          return this.dataset.columnVisibility;
+        })
+        .get()
+    );
+  },
 });
 
 Template.options_dropdown_column_checkbox.helpers({
-  columnVisible() { return CURRENT_COLUMNS.get().includes(this); }});
+  columnVisible() {
+    return CURRENT_COLUMNS.get().includes(this);
+  },
+});

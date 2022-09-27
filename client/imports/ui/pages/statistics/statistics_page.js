@@ -1,17 +1,13 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS208: Avoid top-level this
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-import './statistics_page.html';
+import "./statistics_page.html";
 
-Template.statistics_page.onCreated(async function() {
+Template.statistics_page.onCreated(async function () {
   this.loaded = new ReactiveVar(false);
-  await import('./statistics_chart.js');
-  return this.loaded.set(true);
+  await import("./statistics_chart.js");
+  this.loaded.set(true);
 });
 
 Template.statistics_page.helpers({
-  loaded() { return Template.instance().loaded.get(); }});
+  loaded() {
+    return Template.instance().loaded.get();
+  },
+});

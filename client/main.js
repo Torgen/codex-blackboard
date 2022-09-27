@@ -1,33 +1,36 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS201: Simplify complex destructure assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-import md5 from 'md5';
-import { gravatarUrl, nickHash } from './imports/nickEmail.js';
-import abbrev from '../lib/imports/abbrev.js';
-import canonical from '/lib/imports/canonical.js';
-import { BBCollection, Messages, Names, Puzzles, collection, pretty_collection } from '/lib/imports/collections.js';
-import { human_readable, abbrev as ctabbrev } from '../lib/imports/callin_types.js';
-import { mechanics } from '../lib/imports/mechanics.js';
-import { fileType } from '../lib/imports/mime_type.js';
-import { reactiveLocalStorage } from './imports/storage.js';
-import textify from './imports/textify.js';
-import embeddable from './imports/embeddable.js';
-import { GENERAL_ROOM_NAME, NAME_PLACEHOLDER, TEAM_NAME } from '/client/imports/server_settings.js';
-import { DARK_MODE, MUTE_SOUND_EFFECTS } from './imports/settings.js';
-import * as notification from '/client/imports/notification.js';
-import Router from '/client/imports/router.js';
-import '/client/imports/ui/components/splitter/splitter.js';
-import '/client/imports/ui/pages/graph/graph_page.js';
-import '/client/imports/ui/pages/map/map_page.js';
-import '/client/imports/ui/pages/projector/projector.js';
-import '/client/imports/ui/pages/statistics/statistics_page.js';
+import md5 from "md5";
+import { gravatarUrl, nickHash } from "./imports/nickEmail.js";
+import abbrev from "../lib/imports/abbrev.js";
+import canonical from "/lib/imports/canonical.js";
+import {
+  BBCollection,
+  Messages,
+  Names,
+  Puzzles,
+  collection,
+  pretty_collection,
+} from "/lib/imports/collections.js";
+import {
+  human_readable,
+  abbrev as ctabbrev,
+} from "../lib/imports/callin_types.js";
+import { mechanics } from "../lib/imports/mechanics.js";
+import { fileType } from "../lib/imports/mime_type.js";
+import textify from "./imports/textify.js";
+import embeddable from "./imports/embeddable.js";
+import {
+  GENERAL_ROOM_NAME,
+  NAME_PLACEHOLDER,
+  TEAM_NAME,
+} from "/client/imports/server_settings.js";
+import { DARK_MODE, MUTE_SOUND_EFFECTS } from "./imports/settings.js";
+import * as notification from "/client/imports/notification.js";
+import Router from "/client/imports/router.js";
+import "/client/imports/ui/components/splitter/splitter.js";
+import "/client/imports/ui/pages/graph/graph_page.js";
+import "/client/imports/ui/pages/map/map_page.js";
+import "/client/imports/ui/pages/projector/projector.js";
+import "/client/imports/ui/pages/statistics/statistics_page.js";
 
 // "Top level" templates:
 //   "blackboard" -- main blackboard page
@@ -39,261 +42,339 @@ import '/client/imports/ui/pages/statistics/statistics_page.js';
 //   "facts"      -- server performance information
 Template.registerHelper("equal", (a, b) => a === b);
 Template.registerHelper("less", (a, b) => a < b);
-Template.registerHelper('any', function(...args) {
-  const adjustedLength = Math.max(args.length, 1), a = args.slice(0, adjustedLength - 1), options = args[adjustedLength - 1];
-  return a.some(x => x);
+Template.registerHelper("any", function (...args) {
+  const adjustedLength = Math.max(args.length, 1),
+    a = args.slice(0, adjustedLength - 1),
+    options = args[adjustedLength - 1];
+  return a.some((x) => x);
 });
-Template.registerHelper('includes', (haystack, needle) => haystack?.includes(needle));
-Template.registerHelper('all', function(...args) {
-  const adjustedLength = Math.max(args.length, 1), a = args.slice(0, adjustedLength - 1), options = args[adjustedLength - 1];
-  return a.every(x => x);
+Template.registerHelper("includes", (haystack, needle) =>
+  haystack?.includes(needle)
+);
+Template.registerHelper("all", function (...args) {
+  const adjustedLength = Math.max(args.length, 1),
+    a = args.slice(0, adjustedLength - 1),
+    options = args[adjustedLength - 1];
+  return a.every((x) => x);
 });
-Template.registerHelper('not', a => !a);
-Template.registerHelper('split', (value, delimiter) => value.split(delimiter));
-Template.registerHelper('concat', function(...args) {
-  const adjustedLength = Math.max(args.length, 1), a = args.slice(0, adjustedLength - 1), options = args[adjustedLength - 1];
-  return a.join(options.delimiter ?? '');
+Template.registerHelper("not", (a) => !a);
+Template.registerHelper("split", (value, delimiter) => value.split(delimiter));
+Template.registerHelper("concat", function (...args) {
+  const adjustedLength = Math.max(args.length, 1),
+    a = args.slice(0, adjustedLength - 1),
+    options = args[adjustedLength - 1];
+  return a.join(options.delimiter ?? "");
 });
 
 // session variables we want to make available from all templates
-((() => ['currentPage'].map((v) =>
-  Template.registerHelper(v, () => Session.get(v)))))();
-Template.registerHelper('abbrev', abbrev);
-Template.registerHelper('callinType', human_readable);
-Template.registerHelper('callinTypeAbbrev', ctabbrev);
-Template.registerHelper('canonical', canonical);
-Template.registerHelper('currentPageEquals', arg => // register a more precise dependency on the value of currentPage
-Session.equals('currentPage', arg));
-Template.registerHelper('typeEquals', arg => // register a more precise dependency on the value of type
-Session.equals('type', arg));
-Template.registerHelper('canEdit', () => Meteor.userId() && (Session.get('canEdit')) && 
-(Session.equals('currentPage', 'blackboard')));
+(() =>
+  ["currentPage"].map((v) =>
+    Template.registerHelper(v, () => Session.get(v))
+  ))();
+Template.registerHelper("abbrev", abbrev);
+Template.registerHelper("callinType", human_readable);
+Template.registerHelper("callinTypeAbbrev", ctabbrev);
+Template.registerHelper("canonical", canonical);
 
-Template.registerHelper('md5', md5);
-Template.registerHelper('fileType', fileType);
+// register a more precise dependency on the value of currentPage
+Template.registerHelper("currentPageEquals", (arg) =>
+  Session.equals("currentPage", arg)
+);
 
-Template.registerHelper('teamName', () => TEAM_NAME);
-Template.registerHelper('generalRoomName', () => GENERAL_ROOM_NAME);
+// register a more precise dependency on the value of type
+Template.registerHelper("typeEquals", (arg) => Session.equals("type", arg));
+Template.registerHelper(
+  "canEdit",
+  () =>
+    Meteor.userId() &&
+    Session.get("canEdit") &&
+    Session.equals("currentPage", "blackboard")
+);
 
-Template.registerHelper('namePlaceholder', () => NAME_PLACEHOLDER);
+Template.registerHelper("md5", md5);
+Template.registerHelper("fileType", fileType);
 
-Template.registerHelper('mynick', () => Meteor.userId());
+Template.registerHelper("teamName", () => TEAM_NAME);
+Template.registerHelper("generalRoomName", () => GENERAL_ROOM_NAME);
 
-Template.registerHelper('embeddable', embeddable);
+Template.registerHelper("namePlaceholder", () => NAME_PLACEHOLDER);
 
-Template.registerHelper('plural', x => x !== 1);
+Template.registerHelper("mynick", () => Meteor.userId());
 
-Template.registerHelper('nullToZero', x => x ?? 0);
+Template.registerHelper("embeddable", embeddable);
 
-Template.registerHelper('canGoFullScreen', () => $('body').get(0)?.requestFullscreen != null);
+Template.registerHelper("plural", (x) => x !== 1);
 
-Tracker.autorun(function() {
+Template.registerHelper("nullToZero", (x) => x ?? 0);
+
+Template.registerHelper(
+  "canGoFullScreen",
+  () => $("body").get(0)?.requestFullscreen != null
+);
+
+Tracker.autorun(function () {
   if (DARK_MODE.get()) {
-    return $('body').addClass('darkMode');
+    return $("body").addClass("darkMode");
   } else {
-    return $('body').removeClass('darkMode');
+    return $("body").removeClass("darkMode");
   }
 });
 
 Template.page.helpers({
-  splitter() { return Session.get('splitter'); },
-  topRight() { return Session.get('topRight'); },
-  type() { return Session.get('type'); },
-  id() { return Session.get('id'); },
-  color() { return Session.get('color'); }
+  splitter() {
+    return Session.get("splitter");
+  },
+  topRight() {
+    return Session.get("topRight");
+  },
+  type() {
+    return Session.get("type");
+  },
+  id() {
+    return Session.get("id");
+  },
+  color() {
+    return Session.get("color");
+  },
 });
 
-const allPuzzlesHandle = Meteor.subscribe('all-roundsandpuzzles');
+const allPuzzlesHandle = Meteor.subscribe("all-roundsandpuzzles");
 
-const debouncedUpdate = function() {
+function debouncedUpdate() {
   const now = new ReactiveVar(Date.now());
-  const update = (function() {
+  const update = (function () {
     let next = now.get();
-    const push = _.debounce((() => now.set(next)), 1000);
-    return function(newNext) {
+    const push = _.debounce(() => now.set(next), 1000);
+    return function (newNext) {
       if (newNext > next) {
         next = newNext;
         return push();
       }
     };
   })();
-  return {now, update};
-};
+  return { now, update };
+}
 
-Meteor.startup(function() {
+Meteor.startup(function () {
   // Notifications based on oplogs
-  const {now, update} = debouncedUpdate();
+  const { now, update } = debouncedUpdate();
   let suppress = true;
-  Tracker.autorun(function() {
+  Tracker.autorun(function () {
     if (notification.count() === 0) {
       suppress = true;
       return;
     } else if (suppress) {
       now.set(Date.now());
     }
-    return Meteor.subscribe('oplogs-since', now.get(),
-      {onReady() { return suppress = false; }});
+    Meteor.subscribe("oplogs-since", now.get(), {
+      onReady() {
+        return (suppress = false);
+      },
+    });
   });
-  return Messages.find({room_name: 'oplog/0', timestamp: {$gt: now.get()}}).observe({
+  Messages.find({
+    room_name: "oplog/0",
+    timestamp: { $gt: now.get() },
+  }).observe({
     added(msg) {
       update(msg.timestamp);
-      if (!notification.granted()) { return; }
-      if (!notification.get(msg.stream)) { return; }
-      if (suppress) { return; }
+      if (!notification.granted()) {
+        return;
+      }
+      if (!notification.get(msg.stream)) {
+        return;
+      }
+      if (suppress) {
+        return;
+      }
       const gravatar = gravatarUrl({
         gravatar_md5: nickHash(msg.nick),
-        size: 192
+        size: 192,
       });
-      let {
-        body
-      } = msg;
+      let { body } = msg;
       if (msg.type && msg.id) {
         body = `${body} ${pretty_collection(msg.type)} \
 ${collection(msg.type).findOne(msg.id)?.name}`;
       }
       let data = undefined;
-      if (msg.stream === 'callins') {
-        data = {url: '/logistics'};
+      if (msg.stream === "callins") {
+        data = { url: "/logistics" };
       } else {
-        data = {url: Router.urlFor(msg.type, msg.id)};
+        data = { url: Router.urlFor(msg.type, msg.id) };
       }
       // If sounde effects are off, notifications should be silent. If they're not, turn off sound for
       // notifications that already have sound effects.
-      const silent = MUTE_SOUND_EFFECTS.get() || ['callins', 'answers'].includes(msg.stream);
-      return notification.notify(msg.nick, {
+      const silent =
+        MUTE_SOUND_EFFECTS.get() || ["callins", "answers"].includes(msg.stream);
+      notification.notify(msg.nick, {
         body,
         tag: msg._id,
         icon: gravatar,
         data,
-        silent
-      }
-      );
-    }
+        silent,
+      });
+    },
   });
 });
 
-Meteor.startup(() => // Notifications on favrite mechanics
-Tracker.autorun(function() {
-  if (!allPuzzlesHandle?.ready()) { return; }
-  if (!notification.granted()) { return; }
-  if (!notification.get('favorite-mechanics')) { return; }
-  const myFaves = Meteor.user()?.favorite_mechanics;
-  if (!myFaves) { return; }
-  let faveSuppress = true;
-  myFaves.forEach(mech => Puzzles.find({mechanics: mech}).observeChanges({
-    added(id, puzzle) {
-      if (faveSuppress) { return; }
-      return notification.notify(puzzle.name, {
-        body: `Mechanic \"${mechanics[mech].name}\" added to puzzle \"${puzzle.name}\"`,
-        tag: `${id}/${mech}`,
-        data: { url: Router.urlFor('puzzles', id)
-      },
-        silent: MUTE_SOUND_EFFECTS.get()
-      }
-      );
+Meteor.startup(() =>
+  // Notifications on favrite mechanics
+  Tracker.autorun(function () {
+    if (!allPuzzlesHandle?.ready()) {
+      return;
     }
-  }));
-  return faveSuppress = false;
-}));
+    if (!notification.granted()) {
+      return;
+    }
+    if (!notification.get("favorite-mechanics")) {
+      return;
+    }
+    const myFaves = Meteor.user()?.favorite_mechanics;
+    if (!myFaves) {
+      return;
+    }
+    let faveSuppress = true;
+    myFaves.forEach((mech) =>
+      Puzzles.find({ mechanics: mech }).observeChanges({
+        added(id, puzzle) {
+          if (faveSuppress) {
+            return;
+          }
+          return notification.notify(puzzle.name, {
+            body: `Mechanic \"${mechanics[mech].name}\" added to puzzle \"${puzzle.name}\"`,
+            tag: `${id}/${mech}`,
+            data: { url: Router.urlFor("puzzles", id) },
+            silent: MUTE_SOUND_EFFECTS.get(),
+          });
+        },
+      })
+    );
+    faveSuppress = false;
+  })
+);
 
-Meteor.startup(() => // Notifications on private messages and mentions
-Tracker.autorun(function() {
-  if (!allPuzzlesHandle?.ready()) { return; }
-  if (!notification.granted()) { return; }
-  if (!notification.get('private-messages')) { return; }
-  const me = Meteor.user()?._id;
-  if (me == null) { return; }
-  const arnow = Date.now();  // Intentionally not reactive
-  return Messages.find({$or: [{to: me}, {mention: me}], timestamp: {$gt: arnow}}).observeChanges({
-    added(msgid, message) {
-      const [room_name, url] = (() => {
-        if (message.room_name === 'general/0') {
-        return [GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl('/')];
-      } else {
-        const [type, id] = message.room_name.split('/');
-        const target = Names.findOne(id);
-        if (target.type === type) {
-          const pretty_type = pretty_collection(type).replace(/^[a-z]/, x => x.toUpperCase());
-          return [`${pretty_type} \"${target.name}\"`, Router.urlFor(type, id)];
-        } else {
-          return [message.room_name, Router.chatUrlFor(message.room_name)];
+Meteor.startup(() =>
+  // Notifications on private messages and mentions
+  Tracker.autorun(function () {
+    if (!allPuzzlesHandle?.ready()) {
+      return;
+    }
+    if (!notification.granted()) {
+      return;
+    }
+    if (!notification.get("private-messages")) {
+      return;
+    }
+    const me = Meteor.user()?._id;
+    if (me == null) {
+      return;
+    }
+    const arnow = Date.now(); // Intentionally not reactive
+    Messages.find({
+      $or: [{ to: me }, { mention: me }],
+      timestamp: { $gt: arnow },
+    }).observeChanges({
+      added(msgid, message) {
+        const [room_name, url] = (() => {
+          if (message.room_name === "general/0") {
+            return [GENERAL_ROOM_NAME, Meteor._relativeToSiteRootUrl("/")];
+          } else {
+            const [type, id] = message.room_name.split("/");
+            const target = Names.findOne(id);
+            if (target.type === type) {
+              const pretty_type = pretty_collection(type).replace(
+                /^[a-z]/,
+                (x) => x.toUpperCase()
+              );
+              return [
+                `${pretty_type} \"${target.name}\"`,
+                Router.urlFor(type, id),
+              ];
+            } else {
+              return [message.room_name, Router.chatUrlFor(message.room_name)];
+            }
+          }
+        })();
+        const gravatar = gravatarUrl({
+          gravatar_md5: nickHash(message.nick),
+          size: 192,
+        });
+        let { body } = message;
+        if (message.bodyIsHtml) {
+          body = textify(body);
         }
-      }
-      })();
-      const gravatar = gravatarUrl({
-        gravatar_md5: nickHash(message.nick),
-        size: 192
-      });
-      let {
-        body
-      } = message;
-      if (message.bodyIsHtml) {
-        body = textify(body);
-      }
-      const description = (message.to != null) ?
-        `Private message from ${message.nick} in ${room_name}`
-      :
-        `Mentioned by ${message.nick} in ${room_name}`;
-      return notification.notify(description, {
-        body,
-        tag: msgid,
-        data: {url},
-        icon: gravatar,
-        silent: MUTE_SOUND_EFFECTS.get()
-      }
-      );
-    }
-  });
-}));
+        const description =
+          message.to != null
+            ? `Private message from ${message.nick} in ${room_name}`
+            : `Mentioned by ${message.nick} in ${room_name}`;
+        notification.notify(description, {
+          body,
+          tag: msgid,
+          data: { url },
+          icon: gravatar,
+          silent: MUTE_SOUND_EFFECTS.get(),
+        });
+      },
+    });
+  })
+);
 
-Meteor.startup(function() {
+Meteor.startup(function () {
   // Notifications on announcements
-  const {now, update} = debouncedUpdate();
+  const { now, update } = debouncedUpdate();
   let suppress = true;
-  return Tracker.autorun(function() {
-    if (!notification.granted()) { return; }
-    if (!notification.get('announcements')) {
+  Tracker.autorun(function () {
+    if (!notification.granted()) {
+      return;
+    }
+    if (!notification.get("announcements")) {
       suppress = true;
       return;
     } else if (suppress) {
       now.set(Date.now());
     }
-    Meteor.subscribe('announcements-since', now.get(),
-      {onReady() { return suppress = false; }});
-    return Messages.find({announced_at: {$gt: now.get()}}).observe({
+    Meteor.subscribe("announcements-since", now.get(), {
+      onReady() {
+        suppress = false;
+      },
+    });
+    Messages.find({ announced_at: { $gt: now.get() } }).observe({
       added(msg) {
         update(msg.announced_at);
-        if (!notification.granted()) { return; }
-        if (!notification.get('announcements')) { return; }
-        if (suppress) { return; }
+        if (!notification.granted()) {
+          return;
+        }
+        if (!notification.get("announcements")) {
+          return;
+        }
+        if (suppress) {
+          return;
+        }
         const gravatar = gravatarUrl({
           gravatar_md5: nickHash(msg.nick),
-          size: 192
+          size: 192,
         });
-        let {
-          body
-        } = msg;
+        let { body } = msg;
         if (msg.type && msg.id) {
           body = `${body} ${pretty_collection(msg.type)} \
 ${collection(msg.type).findOne(msg.id)?.name}`;
         }
-        const data = {url: Meteor._relativeToSiteRootUrl('/')};
+        const data = { url: Meteor._relativeToSiteRootUrl("/") };
         // If sounde effects are off, notifications should be silent. If they're not, turn off sound for
         // notifications that already have sound effects.
         const silent = MUTE_SOUND_EFFECTS.get();
-        return notification.notify(`Announcement by ${msg.nick}`, {
+        notification.notify(`Announcement by ${msg.nick}`, {
           body,
           tag: msg._id,
           icon: gravatar,
           data,
-          silent
-        }
-        );
-      }
+          silent,
+        });
+      },
     });
   });
 });
 
-Backbone.history.start({pushState: true});
+Backbone.history.start({ pushState: true });
 
 window.collections = BBCollection;

@@ -31,7 +31,13 @@
     "twitter-api-v2": "^1.12.7"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/sinon": "^10.0.13",
     "chai": "^4.3.6",
+    "eslint": "^8.24.0",
+    "eslint-plugin-jsonc": "^2.4.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1",
     "puppeteer": "^18.0.5",
     "sinon": "^14.0.0"
   },

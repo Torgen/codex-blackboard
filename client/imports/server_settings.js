@@ -1,5 +1,3 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
 // this is populated on the client based on the server's --settings
 const server = Meteor.settings?.public ?? {};
 
@@ -7,15 +5,15 @@ const server = Meteor.settings?.public ?? {};
 export var CLIENT_UUID = Random.id();
 
 // used to create gravatars from nicks
-export var DEFAULT_HOST = server.defaultHost ?? 'codexian.us';
+export var DEFAULT_HOST = server.defaultHost ?? "codexian.us";
 
-export var TEAM_NAME = server.teamName ?? 'Codex';
+export var TEAM_NAME = server.teamName ?? "Codex";
 
-export var GENERAL_ROOM_NAME = server.chatName ?? 'Ringhunters';
+export var GENERAL_ROOM_NAME = server.chatName ?? "Ringhunters";
 
-export var NAME_PLACEHOLDER = server.namePlaceholder ?? 'J. Random Codexian';
+export var NAME_PLACEHOLDER = server.namePlaceholder ?? "J. Random Codexian";
 
-export var WHOSE_GITHUB = server.whoseGitHub ?? 'cjb';
+export var WHOSE_GITHUB = server.whoseGitHub ?? "cjb";
 
 export var INITIAL_CHAT_LIMIT = server.initialChatLimit ?? 200;
 
@@ -35,6 +33,6 @@ export var BB_DISABLE_RINGHUNTERS_HEADER = server.disableRinghunters ?? false;
 export var BB_DISABLE_PM = server.disablePM ?? false;
 
 // Set to 'none' to have no followup rendering.
-export var FOLLOWUP_STYLE = server.followupStyle ?? 'js';
+export var FOLLOWUP_STYLE = server.followupStyle ?? "js";
 
 export var MAPS_API_KEY = server.mapsApiKey;

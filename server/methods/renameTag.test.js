@@ -1,246 +1,247 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 // For side effects
-import '/lib/model.js';
-import { Puzzles } from '/lib/imports/collections.js';
-import { callAs } from '/server/imports/impersonate.js';
-import chai from 'chai';
-import sinon from 'sinon';
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+import "/lib/model.js";
+import { Puzzles } from "/lib/imports/collections.js";
+import { callAs } from "/server/imports/impersonate.js";
+import chai from "chai";
+import sinon from "sinon";
+import { resetDatabase } from "meteor/xolvio:cleaner";
 
-describe('renameTag', function() {
+describe("renameTag", function () {
   let clock = null;
 
-  beforeEach(() => clock = sinon.useFakeTimers({
-    now: 7,
-    toFake: ['Date']}));
+  beforeEach(
+    () =>
+      (clock = sinon.useFakeTimers({
+        now: 7,
+        toFake: ["Date"],
+      }))
+  );
 
   afterEach(() => clock.restore());
 
   beforeEach(() => resetDatabase());
 
-  it('fails without login', function() {
+  it("fails without login", function () {
     const id = Puzzles.insert({
-      name: 'Foo',
-      canon: 'foo',
+      name: "Foo",
+      canon: "foo",
       feedsInto: [],
       created: 1,
-      created_by: 'cjb',
+      created_by: "cjb",
       touched: 3,
-      touched_by: 'cscott',
+      touched_by: "cscott",
       solved: 3,
-      solved_by: 'cscott',
+      solved_by: "cscott",
       tags: {
         warmth: {
-          name: 'Warmth',
-          value: 'bar',
-          touched_by: 'cscott',
-          touched: 3
-        }
-      }
+          name: "Warmth",
+          value: "bar",
+          touched_by: "cscott",
+          touched: 3,
+        },
+      },
     });
-    return chai.assert.throws(() => Meteor.call('renameTag', {
-      type: 'puzzles',
-      object: id,
-      old_name: 'warmth',
-      new_name: 'temperature'
-    }
-    )
-    , Match.Error);
+    chai.assert.throws(
+      () =>
+        Meteor.call("renameTag", {
+          type: "puzzles",
+          object: id,
+          old_name: "warmth",
+          new_name: "temperature",
+        }),
+      Match.Error
+    );
   });
 
-  it('renames tag', function() {
+  it("renames tag", function () {
     const id = Puzzles.insert({
-      name: 'Foo',
-      canon: 'foo',
+      name: "Foo",
+      canon: "foo",
       feedsInto: [],
       created: 1,
-      created_by: 'cjb',
+      created_by: "cjb",
       touched: 3,
-      touched_by: 'cscott',
+      touched_by: "cscott",
       solved: 3,
-      solved_by: 'cscott',
+      solved_by: "cscott",
       tags: {
         warmth: {
-          name: 'Warmth',
-          value: 'bar',
-          touched_by: 'cscott',
-          touched: 3
-        }
-      }
+          name: "Warmth",
+          value: "bar",
+          touched_by: "cscott",
+          touched: 3,
+        },
+      },
     });
-    callAs('renameTag', 'torgen', {
-      type: 'puzzles',
+    callAs("renameTag", "torgen", {
+      type: "puzzles",
       object: id,
-      old_name: 'warMth',
-      new_name: 'Temperature'
-    }
-    );
+      old_name: "warMth",
+      new_name: "Temperature",
+    });
 
     const post = Puzzles.findOne(id);
 
-    return chai.assert.deepInclude(post, {
+    chai.assert.deepInclude(post, {
       created: 1,
-      created_by: 'cjb',
+      created_by: "cjb",
       touched: 7,
-      touched_by: 'torgen',
+      touched_by: "torgen",
       tags: {
         temperature: {
-          name: 'Temperature',
-          value: 'bar',
+          name: "Temperature",
+          value: "bar",
           touched: 7,
-          touched_by: 'torgen'
-        }
-      }
-    }
-    );
+          touched_by: "torgen",
+        },
+      },
+    });
   });
 
-  it('changes tag case', function() {
+  it("changes tag case", function () {
     const id = Puzzles.insert({
-      name: 'Foo',
-      canon: 'foo',
+      name: "Foo",
+      canon: "foo",
       feedsInto: [],
       created: 1,
-      created_by: 'cjb',
+      created_by: "cjb",
       touched: 3,
-      touched_by: 'cscott',
+      touched_by: "cscott",
       solved: 3,
-      solved_by: 'cscott',
+      solved_by: "cscott",
       tags: {
         warmth: {
-          name: 'Warmth',
-          value: 'bar',
-          touched_by: 'cscott',
-          touched: 3
-        }
-      }
+          name: "Warmth",
+          value: "bar",
+          touched_by: "cscott",
+          touched: 3,
+        },
+      },
     });
-    callAs('renameTag', 'torgen', {
-      type: 'puzzles',
+    callAs("renameTag", "torgen", {
+      type: "puzzles",
       object: id,
-      old_name: 'warmth',
-      new_name: 'warMth'
-    }
-    );
+      old_name: "warmth",
+      new_name: "warMth",
+    });
 
     const post = Puzzles.findOne(id);
 
-    return chai.assert.deepInclude(post, {
+    chai.assert.deepInclude(post, {
       created: 1,
-      created_by: 'cjb',
+      created_by: "cjb",
       touched: 7,
-      touched_by: 'torgen',
+      touched_by: "torgen",
       tags: {
         warmth: {
-          name: 'warMth',
-          value: 'bar',
+          name: "warMth",
+          value: "bar",
           touched: 7,
-          touched_by: 'torgen'
-        }
-      }
-    }
+          touched_by: "torgen",
+        },
+      },
+    });
+  });
+
+  it("requires old tag exist", function () {
+    const id = Puzzles.insert({
+      name: "Foo",
+      canon: "foo",
+      feedsInto: [],
+      created: 1,
+      created_by: "cjb",
+      touched: 3,
+      touched_by: "cscott",
+      solved: 3,
+      solved_by: "cscott",
+      tags: {
+        warmth: {
+          name: "Warmth",
+          value: "bar",
+          touched_by: "cscott",
+          touched: 3,
+        },
+      },
+    });
+    chai.assert.throws(
+      () =>
+        callAs("renameTag", "torgen", {
+          type: "puzzles",
+          object: id,
+          old_name: "heat",
+          new_name: "Temperature",
+        }),
+      Meteor.Error
     );
   });
 
-  it('requires old tag exist', function() {
+  it("requires new tag not exist", function () {
     const id = Puzzles.insert({
-      name: 'Foo',
-      canon: 'foo',
+      name: "Foo",
+      canon: "foo",
       feedsInto: [],
       created: 1,
-      created_by: 'cjb',
+      created_by: "cjb",
       touched: 3,
-      touched_by: 'cscott',
+      touched_by: "cscott",
       solved: 3,
-      solved_by: 'cscott',
+      solved_by: "cscott",
       tags: {
         warmth: {
-          name: 'Warmth',
-          value: 'bar',
-          touched_by: 'cscott',
-          touched: 3
-        }
-      }
-    });
-    return chai.assert.throws(() => callAs('renameTag', 'torgen', {
-      type: 'puzzles',
-      object: id,
-      old_name: 'heat',
-      new_name: 'Temperature'
-    }
-    )
-    , Meteor.Error);
-  });
-
-  it('requires new tag not exist', function() {
-    const id = Puzzles.insert({
-      name: 'Foo',
-      canon: 'foo',
-      feedsInto: [],
-      created: 1,
-      created_by: 'cjb',
-      touched: 3,
-      touched_by: 'cscott',
-      solved: 3,
-      solved_by: 'cscott',
-      tags: {
-        warmth: {
-          name: 'Warmth',
-          value: 'bar',
-          touched_by: 'cscott',
-          touched: 3
+          name: "Warmth",
+          value: "bar",
+          touched_by: "cscott",
+          touched: 3,
         },
         temperature: {
-          name: 'Temperature',
-          value: '4degC',
-          touched_by: 'cscott',
-          touched: 3
-        }
-      }
+          name: "Temperature",
+          value: "4degC",
+          touched_by: "cscott",
+          touched: 3,
+        },
+      },
     });
-    return chai.assert.throws(() => callAs('renameTag', 'torgen', {
-      type: 'puzzles',
-      object: id,
-      old_name: 'warmth',
-      new_name: 'Temperature'
-    }
-    )
-    , Meteor.Error);
+    chai.assert.throws(
+      () =>
+        callAs("renameTag", "torgen", {
+          type: "puzzles",
+          object: id,
+          old_name: "warmth",
+          new_name: "Temperature",
+        }),
+      Meteor.Error
+    );
   });
 
-  return it('will not set link', function() {
+  it("will not set link", function () {
     const id = Puzzles.insert({
-      name: 'Foo',
-      canon: 'foo',
+      name: "Foo",
+      canon: "foo",
       feedsInto: [],
       created: 1,
-      created_by: 'cjb',
+      created_by: "cjb",
       touched: 3,
-      touched_by: 'cscott',
+      touched_by: "cscott",
       solved: 3,
-      solved_by: 'cscott',
+      solved_by: "cscott",
       tags: {
         warmth: {
-          name: 'Warmth',
-          value: 'bar',
-          touched_by: 'cscott',
-          touched: 3
-        }
-      }
+          name: "Warmth",
+          value: "bar",
+          touched_by: "cscott",
+          touched: 3,
+        },
+      },
     });
-    return chai.assert.throws(() => callAs('renameTag', 'torgen', {
-      type: 'puzzles',
-      object: id,
-      old_name: 'warmth',
-      new_name: 'Link'
-    }
-    )
-    , Match.Error);
+    chai.assert.throws(
+      () =>
+        callAs("renameTag", "torgen", {
+          type: "puzzles",
+          object: id,
+          old_name: "warmth",
+          new_name: "Link",
+        }),
+      Match.Error
+    );
   });
 });

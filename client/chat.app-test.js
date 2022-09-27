@@ -1,401 +1,422 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-import Router from '/client/imports/router.js';
-import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from './imports/app_test_helpers.js';
-import { waitForDocument } from '/lib/imports/testutils.js';
-import { Messages, Puzzles, Rounds } from '/lib/imports/collections.js';
-import chai from 'chai';
+import Router from "/client/imports/router.js";
+import {
+  waitForSubscriptions,
+  waitForMethods,
+  afterFlushPromise,
+  promiseCall,
+  login,
+  logout,
+} from "./imports/app_test_helpers.js";
+import { waitForDocument } from "/lib/imports/testutils.js";
+import { Messages, Puzzles, Rounds } from "/lib/imports/collections.js";
+import chai from "chai";
 
-describe('chat', function() {
+describe("chat", function () {
   this.timeout(10000);
-  before(async function() {
-    await login('testy', 'Teresa Tybalt', '', 'failphrase');
+  before(async function () {
+    await login("testy", "Teresa Tybalt", "", "failphrase");
     await waitForSubscriptions();
-    return await afterFlushPromise();
+    await afterFlushPromise();
   });
-  
+
   after(() => logout());
 
-  it('general chat', async function() {
-    Router.ChatPage('general', '0');
+  it("general chat", async function () {
+    Router.ChatPage("general", "0");
     await afterFlushPromise();
     await waitForSubscriptions();
     await afterFlushPromise();
-    chai.assert.equal($('.bb-chat-presence-block').length, 0, "before");
-    $('.bb-show-whos-here').click();
+    chai.assert.equal($(".bb-chat-presence-block").length, 0, "before");
+    $(".bb-show-whos-here").click();
     await afterFlushPromise();
-    chai.assert.equal($('.bb-chat-presence-block tr').length, 2, "opened");
-    $('.bb-show-whos-here').click();
+    chai.assert.equal($(".bb-chat-presence-block tr").length, 2, "opened");
+    $(".bb-show-whos-here").click();
     await afterFlushPromise();
-    chai.assert.equal($('.bb-chat-presence-block').length, 0, "closed");
-    chai.assert.isDefined($('a[href^="https://codexian.us"]').html(), 'link');
-    return chai.assert.isDefined($('img[src^="https://memegen.link/doge"]').html(), 'meme');
+    chai.assert.equal($(".bb-chat-presence-block").length, 0, "closed");
+    chai.assert.isDefined($('a[href^="https://codexian.us"]').html(), "link");
+    chai.assert.isDefined(
+      $('img[src^="https://memegen.link/doge"]').html(),
+      "meme"
+    );
   });
 
-  it('updates read marker', async function() {
-    const id = Puzzles.findOne({name: 'Temperance'})._id;
-    const joinedPresence = waitForDocument(Messages, {presence: 'join', nick: 'testy', room_name: `puzzles/${id}`, timestamp: {$gte: Date.now()}});
-    Router.ChatPage('puzzles', id);
+  it("updates read marker", async function () {
+    const id = Puzzles.findOne({ name: "Temperance" })._id;
+    const joinedPresence = waitForDocument(Messages, {
+      presence: "join",
+      nick: "testy",
+      room_name: `puzzles/${id}`,
+      timestamp: { $gte: Date.now() },
+    });
+    Router.ChatPage("puzzles", id);
     await afterFlushPromise();
     await waitForSubscriptions();
     await afterFlushPromise();
     await joinedPresence;
     await afterFlushPromise();
-    chai.assert.isNotOk($('.bb-message-last-read').offset(), 'before');
-    $('#messageInput').focus();
+    chai.assert.isNotOk($(".bb-message-last-read").offset(), "before");
+    $("#messageInput").focus();
     await waitForMethods();
-    return chai.assert.isOk($('.bb-message-last-read').offset(), 'after');
+    chai.assert.isOk($(".bb-message-last-read").offset(), "after");
   });
 
-  it('scrolls through history', async function() {
-    const id = Puzzles.findOne({name: 'Joy'})._id;
-    Router.ChatPage('puzzles', id);
+  it("scrolls through history", async function () {
+    const id = Puzzles.findOne({ name: "Joy" })._id;
+    Router.ChatPage("puzzles", id);
     await waitForSubscriptions();
     await afterFlushPromise();
-    const input = $('#messageInput');
-    input.val('/me tests actions');
-    input.trigger($.Event('keydown', {which: 13}));
-    chai.assert.equal(input.val(), '', 'after first submit');
-    input.val('say another thing');
-    input.trigger($.Event('keydown', {which: 13}));
-    chai.assert.equal(input.val(), '', 'after second submit');
+    const input = $("#messageInput");
+    input.val("/me tests actions");
+    input.trigger($.Event("keydown", { which: 13 }));
+    chai.assert.equal(input.val(), "", "after first submit");
+    input.val("say another thing");
+    input.trigger($.Event("keydown", { which: 13 }));
+    chai.assert.equal(input.val(), "", "after second submit");
     await waitForSubscriptions();
-    input.trigger($.Event('keydown', {key: 'Up'}));
-    chai.assert.equal(input.val(), 'say another thing', 'after first up');
-    input.trigger($.Event('keydown', {key: 'Up'}));
-    chai.assert.equal(input.val(), '/me tests actions', 'after second up');
-    input.trigger($.Event('keydown', {key: 'Up'}));
-    chai.assert.equal(input.val(), '/me tests actions', 'after third up');
-    input.trigger($.Event('keydown', {key: 'Down'}));
-    chai.assert.equal(input.val(), '/me tests actions', 'after down with selection at start');
+    input.trigger($.Event("keydown", { key: "Up" }));
+    chai.assert.equal(input.val(), "say another thing", "after first up");
+    input.trigger($.Event("keydown", { key: "Up" }));
+    chai.assert.equal(input.val(), "/me tests actions", "after second up");
+    input.trigger($.Event("keydown", { key: "Up" }));
+    chai.assert.equal(input.val(), "/me tests actions", "after third up");
+    input.trigger($.Event("keydown", { key: "Down" }));
+    chai.assert.equal(
+      input.val(),
+      "/me tests actions",
+      "after down with selection at start"
+    );
     input[0].setSelectionRange(input.val().length, input.val().length);
-    input.trigger($.Event('keydown', {key: 'Down'}));
-    chai.assert.equal(input.val(), 'say another thing', 'after first down');
-    input.trigger($.Event('keydown', {key: 'Down'}));
-    chai.assert.equal(input.val(), '', 'after second down');
-    input.trigger($.Event('keydown', {key: 'Down'}));
-    return chai.assert.equal(input.val(), '', 'after third down');
+    input.trigger($.Event("keydown", { key: "Down" }));
+    chai.assert.equal(input.val(), "say another thing", "after first down");
+    input.trigger($.Event("keydown", { key: "Down" }));
+    chai.assert.equal(input.val(), "", "after second down");
+    input.trigger($.Event("keydown", { key: "Down" }));
+    chai.assert.equal(input.val(), "", "after third down");
   });
 
-  it('loads more', async function() {
+  it("loads more", async function () {
     this.timeout(30000);
-    const puzz = Puzzles.findOne({name: 'Literary Collection'});
-    Router.ChatPage('puzzles', puzz._id);
+    const puzz = Puzzles.findOne({ name: "Literary Collection" });
+    Router.ChatPage("puzzles", puzz._id);
     const room = `puzzles/${puzz._id}`;
     await waitForSubscriptions();
     await afterFlushPromise();
     for (let _ = 1; _ <= 125; _++) {
-      await promiseCall('newMessage', {
-        body: 'spam',
-        room_name: room
-      }
-      );
-      await promiseCall('newMessage', {
-        body: 'spams chat',
+      await promiseCall("newMessage", {
+        body: "spam",
+        room_name: room,
+      });
+      await promiseCall("newMessage", {
+        body: "spams chat",
         action: true,
-        room_name: room
-      }
-      );
+        room_name: room,
+      });
     }
-    let allMessages = $('#messages > *');
+    let allMessages = $("#messages > *");
     chai.assert.isAbove(allMessages.length, 200);
     chai.assert.isBelow(allMessages.length, 250);
-    document.querySelector('.bb-chat-load-more').scrollIntoView();
-    $('.bb-chat-load-more').click();
+    document.querySelector(".bb-chat-load-more").scrollIntoView();
+    $(".bb-chat-load-more").click();
     await waitForSubscriptions();
-    allMessages = $('#messages > *');
-    return chai.assert.isAbove(allMessages.length, 250);
+    allMessages = $("#messages > *");
+    chai.assert.isAbove(allMessages.length, 250);
   });
 
-  it('deletes message', async function() {
-    const puzz = Puzzles.findOne({name: 'Freak Out'});
-    Router.ChatPage('puzzles', puzz._id);
+  it("deletes message", async function () {
+    const puzz = Puzzles.findOne({ name: "Freak Out" });
+    Router.ChatPage("puzzles", puzz._id);
     const room = `puzzles/${puzz._id}`;
     await waitForSubscriptions();
     await afterFlushPromise();
-    const msg = await promiseCall('newMessage', {
-        body: 'my social security number is XXX-YY-ZZZZ',
-        room_name: room
-      }
-    );
+    const msg = await promiseCall("newMessage", {
+      body: "my social security number is XXX-YY-ZZZZ",
+      room_name: room,
+    });
     await afterFlushPromise();
     let $badmsg = $(`#messages [data-message-id=\"${msg._id}\"]`);
     chai.assert.isOk($badmsg[0]);
-    $badmsg.find('.bb-delete-message').click();
+    $badmsg.find(".bb-delete-message").click();
     await afterFlushPromise();
-    $('.bb-confirm-ok').click();
+    $(".bb-confirm-ok").click();
     await afterFlushPromise();
     await waitForMethods();
     $badmsg = $(`#messages [data-message-id=\"${msg._id}\"]`);
     chai.assert.isNotOk($badmsg[0]);
-    return chai.assert.isNotOk(Messages.findOne(msg._id));
+    chai.assert.isNotOk(Messages.findOne(msg._id));
   });
 
-  it('aborts deleting message', async function() {
-    const puzz = Puzzles.findOne({name: 'Freak Out'});
-    Router.ChatPage('puzzles', puzz._id);
+  it("aborts deleting message", async function () {
+    const puzz = Puzzles.findOne({ name: "Freak Out" });
+    Router.ChatPage("puzzles", puzz._id);
     const room = `puzzles/${puzz._id}`;
     await waitForSubscriptions();
     await afterFlushPromise();
-    const msg = await promiseCall('newMessage', {
-        body: 'my social security number is XXX-YY-ZZZZ',
-        room_name: room
-      }
-    );
+    const msg = await promiseCall("newMessage", {
+      body: "my social security number is XXX-YY-ZZZZ",
+      room_name: room,
+    });
     await afterFlushPromise();
     let $badmsg = $(`#messages [data-message-id=\"${msg._id}\"]`);
     chai.assert.isOk($badmsg[0]);
-    $badmsg.find('.bb-delete-message').click();
+    $badmsg.find(".bb-delete-message").click();
     await afterFlushPromise();
-    $('.bb-confirm-cancel').click();
+    $(".bb-confirm-cancel").click();
     await afterFlushPromise();
     await waitForMethods();
     $badmsg = $(`#messages [data-message-id=\"${msg._id}\"]`);
     chai.assert.isOk($badmsg[0]);
-    return chai.assert.isOk(Messages.findOne(msg._id));
+    chai.assert.isOk(Messages.findOne(msg._id));
   });
 
-  describe('/join', function() {
-    it('joins puzzle', async function() {
-      const puzz = Puzzles.findOne({name: 'Painted Potsherds'});
-      Router.ChatPage('general', '0');
+  describe("/join", function () {
+    it("joins puzzle", async function () {
+      const puzz = Puzzles.findOne({ name: "Painted Potsherds" });
+      Router.ChatPage("general", "0");
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('/join painted potsherds');
-      input.trigger($.Event('keydown', {which: 13}));
-      chai.assert.equal(input.val(), '');
-      chai.assert.equal(Session.get('type'), 'puzzles');
-      return chai.assert.equal(Session.get('id'), puzz._id);
+      const input = $("#messageInput");
+      input.val("/join painted potsherds");
+      input.trigger($.Event("keydown", { which: 13 }));
+      chai.assert.equal(input.val(), "");
+      chai.assert.equal(Session.get("type"), "puzzles");
+      chai.assert.equal(Session.get("id"), puzz._id);
     });
 
-    it('joins round', async function() {
-      const rnd = Rounds.findOne({name: 'Civilization'});
-      Router.ChatPage('general', '0');
+    it("joins round", async function () {
+      const rnd = Rounds.findOne({ name: "Civilization" });
+      Router.ChatPage("general", "0");
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('/join civilization');
-      input.trigger($.Event('keydown', {which: 13}));
-      chai.assert.equal(input.val(), '');
-      chai.assert.equal(Session.get('type'), 'rounds');
-      return chai.assert.equal(Session.get('id'), rnd._id);
+      const input = $("#messageInput");
+      input.val("/join civilization");
+      input.trigger($.Event("keydown", { which: 13 }));
+      chai.assert.equal(input.val(), "");
+      chai.assert.equal(Session.get("type"), "rounds");
+      chai.assert.equal(Session.get("id"), rnd._id);
     });
 
-    it('joins general', async function() {
-      const rnd = Rounds.findOne({name: 'Civilization'});
-      Router.ChatPage('rounds', rnd._id);
+    it("joins general", async function () {
+      const rnd = Rounds.findOne({ name: "Civilization" });
+      Router.ChatPage("rounds", rnd._id);
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('/join ringhunters');
-      input.trigger($.Event('keydown', {which: 13}));
-      chai.assert.equal(input.val(), '');
-      chai.assert.equal(Session.get('type'), 'general');
-      return chai.assert.equal(Session.get('id'), 0);
+      const input = $("#messageInput");
+      input.val("/join ringhunters");
+      input.trigger($.Event("keydown", { which: 13 }));
+      chai.assert.equal(input.val(), "");
+      chai.assert.equal(Session.get("type"), "general");
+      chai.assert.equal(Session.get("id"), 0);
     });
 
-    return it('joins puzzle', async function() {
-      Router.ChatPage('general', '0');
+    return it("joins puzzle", async function () {
+      Router.ChatPage("general", "0");
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('/join pelvic splanchnic ganglion');
-      input.trigger($.Event('keydown', {which: 13}));
-      chai.assert.equal(input.val(), '/join pelvic splanchnic ganglion');
-      chai.assert.equal(Session.get('type'), 'general');
-      chai.assert.equal(Session.get('id'), 0);
+      const input = $("#messageInput");
+      input.val("/join pelvic splanchnic ganglion");
+      input.trigger($.Event("keydown", { which: 13 }));
+      chai.assert.equal(input.val(), "/join pelvic splanchnic ganglion");
+      chai.assert.equal(Session.get("type"), "general");
+      chai.assert.equal(Session.get("id"), 0);
       await afterFlushPromise();
-      return chai.assert.isTrue(input.hasClass('error'));
+      chai.assert.isTrue(input.hasClass("error"));
     });
   });
 
-  describe('typeahead', function() {
-
-    it('accepts keyboard commands', async function() {
-      const id = Puzzles.findOne({name: 'Disgust'})._id;
-      Router.ChatPage('puzzles', id);
+  describe("typeahead", function () {
+    it("accepts keyboard commands", async function () {
+      const id = Puzzles.findOne({ name: "Disgust" })._id;
+      Router.ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('/m a');
+      const input = $("#messageInput");
+      input.val("/m a");
       input.click();
       await afterFlushPromise();
-      let a = $('#messageInputTypeahead li.active a');
-      chai.assert.equal('kwal', a.data('value'), 'initial');
-      input.trigger($.Event('keydown', {key: 'Down'}));
+      let a = $("#messageInputTypeahead li.active a");
+      chai.assert.equal("kwal", a.data("value"), "initial");
+      input.trigger($.Event("keydown", { key: "Down" }));
       await afterFlushPromise();
-      a = $('#messageInputTypeahead li.active a');
-      chai.assert.equal('testy', a.data('value'), 'one down');
-      input.trigger($.Event('keydown', {key: 'Up'}));
+      a = $("#messageInputTypeahead li.active a");
+      chai.assert.equal("testy", a.data("value"), "one down");
+      input.trigger($.Event("keydown", { key: "Up" }));
       await afterFlushPromise();
-      a = $('#messageInputTypeahead li.active a');
-      chai.assert.equal('kwal', a.data('value'), 'up after down');
-      input.trigger($.Event('keydown', {key: 'Up'}));
+      a = $("#messageInputTypeahead li.active a");
+      chai.assert.equal("kwal", a.data("value"), "up after down");
+      input.trigger($.Event("keydown", { key: "Up" }));
       await afterFlushPromise();
-      a = $('#messageInputTypeahead li.active a');
-      chai.assert.equal('zachary', a.data('value'), 'wraparound up');
-      input.trigger($.Event('keydown', {key: 'Down'}));
+      a = $("#messageInputTypeahead li.active a");
+      chai.assert.equal("zachary", a.data("value"), "wraparound up");
+      input.trigger($.Event("keydown", { key: "Down" }));
       await afterFlushPromise();
-      a = $('#messageInputTypeahead li.active a');
-      chai.assert.equal('kwal', a.data('value'), 'wraparound down');
-      input.trigger($.Event('keydown', {key: 'Tab'}));
+      a = $("#messageInputTypeahead li.active a");
+      chai.assert.equal("kwal", a.data("value"), "wraparound down");
+      input.trigger($.Event("keydown", { key: "Tab" }));
       await afterFlushPromise();
-      chai.assert.equal(input.val(), '/m kwal ');
+      chai.assert.equal(input.val(), "/m kwal ");
       chai.assert.equal(input[0].selectionStart, 8);
-      const typeahead = $('#messageInputTypeahead');
-      return chai.assert.equal(0, typeahead.length);
+      const typeahead = $("#messageInputTypeahead");
+      chai.assert.equal(0, typeahead.length);
     });
 
-    return it('allows clicks', async function() {
-      const id = Puzzles.findOne({name: 'Space Elevator'})._id;
-      Router.ChatPage('puzzles', id);
+    return it("allows clicks", async function () {
+      const id = Puzzles.findOne({ name: "Space Elevator" })._id;
+      Router.ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('Yo @es hmu');
+      const input = $("#messageInput");
+      input.val("Yo @es hmu");
       input[0].setSelectionRange(4, 4);
       input.click();
       await afterFlushPromise();
       $('a[data-value="testy"]').click();
       await afterFlushPromise();
-      chai.assert.equal(input.val(), 'Yo @testy  hmu');
+      chai.assert.equal(input.val(), "Yo @testy  hmu");
       chai.assert.equal(input[0].selectionStart, 10);
-      const typeahead = $('#messageInputTypeahead');
-      return chai.assert.equal(0, typeahead.length);
+      const typeahead = $("#messageInputTypeahead");
+      chai.assert.equal(0, typeahead.length);
     });
   });
 
-  describe('submit', function() {
-
-    it('mentions', async function() {
-      const id = Puzzles.findOne({name: 'Showcase'})._id;
-      Router.ChatPage('puzzles', id);
+  describe("submit", function () {
+    it("mentions", async function () {
+      const id = Puzzles.findOne({ name: "Showcase" })._id;
+      Router.ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('@kwal you hear about @Cscott?');
-      input.trigger($.Event('keydown', {which: 13}));
+      const input = $("#messageInput");
+      input.val("@kwal you hear about @Cscott?");
+      input.trigger($.Event("keydown", { which: 13 }));
       await waitForMethods();
       await afterFlushPromise();
-      const msg = Messages.findOne({nick: 'testy', room_name: `puzzles/${id}`}, {sort: {timestamp: -1}});
-      return chai.assert.deepInclude(msg,
-        {mention: ['kwal', 'cscott']});
-  });
-
-    it('nonexistent mentions', async function() {
-      const id = Puzzles.findOne({name: 'Soooo Cute!'})._id;
-      Router.ChatPage('puzzles', id);
-      await waitForSubscriptions();
-      await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('@kwal exists but @flibby does not');
-      input.trigger($.Event('keydown', {which: 13}));
-      await waitForMethods();
-      await afterFlushPromise();
-      const msg = Messages.findOne({nick: 'testy', room_name: `puzzles/${id}`}, {sort: {timestamp: -1}});
-      return chai.assert.deepEqual(msg.mention, ['kwal']);
-  });
-
-    it('action', async function() {
-      const id = Puzzles.findOne({name: 'This SHOULD Be Easy'})._id;
-      Router.ChatPage('puzzles', id);
-      await waitForSubscriptions();
-      await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('/me heard about @Cscott');
-      input.trigger($.Event('keydown', {which: 13}));
-      await waitForMethods();
-      await afterFlushPromise();
-      const msg = Messages.findOne({nick: 'testy', room_name: `puzzles/${id}`}, {sort: {timestamp: -1}});
-      return chai.assert.deepInclude(msg, {
-        action: true,
-        mention: ['cscott'],
-        body: 'heard about @Cscott'
-      }
+      const msg = Messages.findOne(
+        { nick: "testy", room_name: `puzzles/${id}` },
+        { sort: { timestamp: -1 } }
       );
+      chai.assert.deepInclude(msg, { mention: ["kwal", "cscott"] });
     });
 
-    it('messages', async function() {
-      const id = Puzzles.findOne({name: 'Charm School'})._id;
-      Router.ChatPage('puzzles', id);
+    it("nonexistent mentions", async function () {
+      const id = Puzzles.findOne({ name: "Soooo Cute!" })._id;
+      Router.ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('/msg kwal you hear about @Cscott?');
-      input.trigger($.Event('keydown', {which: 13}));
+      const input = $("#messageInput");
+      input.val("@kwal exists but @flibby does not");
+      input.trigger($.Event("keydown", { which: 13 }));
       await waitForMethods();
       await afterFlushPromise();
-      const msg = Messages.findOne({nick: 'testy', room_name: `puzzles/${id}`}, {sort: {timestamp: -1}});
-      chai.assert.deepInclude(msg,
-        {to: 'kwal'});
-      return chai.assert.isNotOk(msg.mention);
+      const msg = Messages.findOne(
+        { nick: "testy", room_name: `puzzles/${id}` },
+        { sort: { timestamp: -1 } }
+      );
+      chai.assert.deepEqual(msg.mention, ["kwal"]);
     });
 
-    return it('errors on message to nobody', async function() {
-      const id = Puzzles.findOne({name: 'Charm School'})._id;
-      Router.ChatPage('puzzles', id);
+    it("action", async function () {
+      const id = Puzzles.findOne({ name: "This SHOULD Be Easy" })._id;
+      Router.ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
-      const input = $('#messageInput');
-      input.val('/msg cromslor you hear about @Cscott?');
-      input.trigger($.Event('keydown', {which: 13}));
-      chai.assert.equal(input.val(), '/msg cromslor you hear about @Cscott?');
+      const input = $("#messageInput");
+      input.val("/me heard about @Cscott");
+      input.trigger($.Event("keydown", { which: 13 }));
+      await waitForMethods();
       await afterFlushPromise();
-      return chai.assert.isTrue(input.hasClass('error'));
+      const msg = Messages.findOne(
+        { nick: "testy", room_name: `puzzles/${id}` },
+        { sort: { timestamp: -1 } }
+      );
+      chai.assert.deepInclude(msg, {
+        action: true,
+        mention: ["cscott"],
+        body: "heard about @Cscott",
+      });
+    });
+
+    it("messages", async function () {
+      const id = Puzzles.findOne({ name: "Charm School" })._id;
+      Router.ChatPage("puzzles", id);
+      await waitForSubscriptions();
+      await afterFlushPromise();
+      const input = $("#messageInput");
+      input.val("/msg kwal you hear about @Cscott?");
+      input.trigger($.Event("keydown", { which: 13 }));
+      await waitForMethods();
+      await afterFlushPromise();
+      const msg = Messages.findOne(
+        { nick: "testy", room_name: `puzzles/${id}` },
+        { sort: { timestamp: -1 } }
+      );
+      chai.assert.deepInclude(msg, { to: "kwal" });
+      chai.assert.isNotOk(msg.mention);
+    });
+
+    return it("errors on message to nobody", async function () {
+      const id = Puzzles.findOne({ name: "Charm School" })._id;
+      Router.ChatPage("puzzles", id);
+      await waitForSubscriptions();
+      await afterFlushPromise();
+      const input = $("#messageInput");
+      input.val("/msg cromslor you hear about @Cscott?");
+      input.trigger($.Event("keydown", { which: 13 }));
+      chai.assert.equal(input.val(), "/msg cromslor you hear about @Cscott?");
+      await afterFlushPromise();
+      chai.assert.isTrue(input.hasClass("error"));
     });
   });
 
-  return describe('polls', () => it('lets you change your vote', async function() {
-    const id = Puzzles.findOne({name: 'Amateur Hour'})._id;
-    Router.ChatPage('puzzles', id);
-    await waitForSubscriptions();
-    await afterFlushPromise();
-    const poll = await promiseCall('newPoll', `puzzles/${id}`, 'Flip a coin', ['heads', 'tails']);
-    await waitForSubscriptions();  // when the message with the poll renders, the subscription to the poll also happens.
-    await afterFlushPromise();
-    const results = $('#messages td.results .bar');
-    chai.assert.equal(results.length, 2);
-    chai.assert.equal(results[0].style.width, '0%');
-    chai.assert.equal(results[1].style.width, '0%');
-    await promiseCall('setAnyField', {
-      type: 'polls',
-      object: poll,
-      fields: {
-        votes: {
-          cscott: {
-            canon: 'heads',
-            timestamp: 1
+  return describe("polls", () =>
+    it("lets you change your vote", async function () {
+      const id = Puzzles.findOne({ name: "Amateur Hour" })._id;
+      Router.ChatPage("puzzles", id);
+      await waitForSubscriptions();
+      await afterFlushPromise();
+      const poll = await promiseCall(
+        "newPoll",
+        `puzzles/${id}`,
+        "Flip a coin",
+        ["heads", "tails"]
+      );
+      await afterFlushPromise();
+      await waitForSubscriptions(); // when the message with the poll renders, the subscription to the poll also happens.
+      await afterFlushPromise();
+      const results = $("#messages td.results .bar");
+      chai.assert.equal(results.length, 2);
+      chai.assert.equal(results[0].style.width, "0%");
+      chai.assert.equal(results[1].style.width, "0%");
+      await promiseCall("setAnyField", {
+        type: "polls",
+        object: poll,
+        fields: {
+          votes: {
+            cscott: {
+              canon: "heads",
+              timestamp: 1,
+            },
+            kwal: {
+              canon: "tails",
+              timestamp: 2,
+            },
+            zachary: {
+              canon: "heads",
+              timestamp: 3,
+            },
           },
-          kwal: {
-            canon: 'tails',
-            timestamp: 2
-          },
-          zachary: {
-            canon: 'heads',
-            timestamp: 3
-          }
-        }
-      }
-    }
-    );
-    await afterFlushPromise();
-    chai.assert.equal(results[0].style.width, '100%');
-    chai.assert.equal(results[1].style.width, '50%');
-    $('button[data-option="tails"]').click();
-    await waitForMethods();
-    await afterFlushPromise();
-    chai.assert.equal(results[0].style.width, '100%');
-    chai.assert.equal(results[1].style.width, '100%');
-    $('button[data-option="heads"]').click();
-    await waitForMethods();
-    await afterFlushPromise();
-    chai.assert.equal(results[0].style.width, '100%');
-    return chai.assert.equal(results[1].style.width, '33.3333%');
-  }));
+        },
+      });
+      await afterFlushPromise();
+      chai.assert.equal(results[0].style.width, "100%");
+      chai.assert.equal(results[1].style.width, "50%");
+      $('button[data-option="tails"]').click();
+      await waitForMethods();
+      await afterFlushPromise();
+      chai.assert.equal(results[0].style.width, "100%");
+      chai.assert.equal(results[1].style.width, "100%");
+      $('button[data-option="heads"]').click();
+      await waitForMethods();
+      await afterFlushPromise();
+      chai.assert.equal(results[0].style.width, "100%");
+      chai.assert.equal(results[1].style.width, "33.3333%");
+    }));
 });

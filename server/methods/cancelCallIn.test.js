@@ -1,25 +1,21 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-// For side effects 
-import '/lib/model.js';
-import { CallIns, Messages, Puzzles } from '/lib/imports/collections.js';
-// Test only works on server side; move to /server if you add client tests.
-import { callAs } from '../../server/imports/impersonate.js';
-import chai from 'chai';
-import sinon from 'sinon';
-import { resetDatabase } from 'meteor/xolvio:cleaner';
+// For side effects
+import "/lib/model.js";
+import { CallIns, Messages, Puzzles } from "/lib/imports/collections.js";
+import { callAs } from "/server/imports/impersonate.js";
+import chai from "chai";
+import sinon from "sinon";
+import { resetDatabase } from "meteor/xolvio:cleaner";
 
-describe('cancelCallIn', function() {
+describe("cancelCallIn", function () {
   let clock = null;
 
-  beforeEach(() => clock = sinon.useFakeTimers({
-    now: 7,
-    toFake: ['Date']}));
+  beforeEach(
+    () =>
+      (clock = sinon.useFakeTimers({
+        now: 7,
+        toFake: ["Date"],
+      }))
+  );
 
   afterEach(() => clock.restore());
 
@@ -27,45 +23,52 @@ describe('cancelCallIn', function() {
 
   let puzzle = null;
   let callin = null;
-  beforeEach(function() {
+  beforeEach(function () {
     puzzle = Puzzles.insert({
-      name: 'Foo',
-      canon: 'foo',
+      name: "Foo",
+      canon: "foo",
       created: 1,
-      created_by: 'cscott',
+      created_by: "cscott",
       touched: 1,
-      touched_by: 'cscott',
+      touched_by: "cscott",
       solved: null,
       solved_by: null,
-      tags: {}});
-    return callin = CallIns.insert({
-      name: 'Foo:precipitate',
+      tags: {},
+    });
+    callin = CallIns.insert({
+      name: "Foo:precipitate",
       target: puzzle,
-      answer: 'precipitate',
+      answer: "precipitate",
       created: 2,
-      created_by: 'torgen',
+      created_by: "torgen",
       submitted_to_hq: true,
       backsolve: false,
       provided: false,
-      status: 'pending'
+      status: "pending",
     });
   });
-      
-  it('fails without login', () => chai.assert.throws(() => Meteor.call('cancelCallIn', {id: callin})
-  , Match.Error));
 
-  return describe('when logged in', function() {
-    beforeEach(() => callAs('cancelCallIn', 'cjb', {id: callin}));
+  it("fails without login", () =>
+    chai.assert.throws(
+      () => Meteor.call("cancelCallIn", { id: callin }),
+      Match.Error
+    ));
 
-    it('updates callin', function() {
+  describe("when logged in", function () {
+    beforeEach(() => callAs("cancelCallIn", "cjb", { id: callin }));
+
+    it("updates callin", function () {
       const c = CallIns.findOne();
-      return chai.assert.include(c, {
-        status: 'cancelled',
-        resolved: 7
-      }
-      );
+      chai.assert.include(c, {
+        status: "cancelled",
+        resolved: 7,
+      });
     });
-    
-    return it('oplogs', () => chai.assert.lengthOf(Messages.find({type: 'puzzles', id: puzzle}).fetch(), 1));
+
+    it("oplogs", () =>
+      chai.assert.lengthOf(
+        Messages.find({ type: "puzzles", id: puzzle }).fetch(),
+        1
+      ));
   });
 });

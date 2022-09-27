@@ -1,37 +1,28 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-import canonical from '/lib/imports/canonical.js';
-import { Messages } from '/lib/imports/collections.js';
-import { NonEmptyString } from '/lib/imports/match.js';
-import emojify from './emoji.js';
-import sanitize from 'sanitize-html';
+import canonical from "/lib/imports/canonical.js";
+import { Messages } from "/lib/imports/collections.js";
+import { NonEmptyString } from "/lib/imports/match.js";
+import emojify from "./emoji.js";
+import sanitize from "sanitize-html";
 
-const params = {...sanitize.defaults};
+const params = { ...sanitize.defaults };
 params.allowedAttributes = {
-  ...params.allowedAttributes, 
-  '*': ['class'],
+  ...params.allowedAttributes,
+  "*": ["class"],
 };
 
-export var ensureDawnOfTime = room_name => Messages.upsert(room_name, {
-  $min: { timestamp: Date.now() - 1
-},
-  $setOnInsert: {
-    system: true,
-    dawn_of_time: true,
-    room_name,
-    bot_ignore: true
-  }
-}
-);
-Meteor.startup(() => ['general/0', 'oplog/0'].forEach(ensureDawnOfTime));
+export const ensureDawnOfTime = (room_name) =>
+  Messages.upsert(room_name, {
+    $min: { timestamp: Date.now() - 1 },
+    $setOnInsert: {
+      system: true,
+      dawn_of_time: true,
+      room_name,
+      bot_ignore: true,
+    },
+  });
+Meteor.startup(() => ["general/0", "oplog/0"].forEach(ensureDawnOfTime));
 
-export var newMessage = function(newMsg) {
+export function newMessage(newMsg) {
   check(newMsg, {
     body: String,
     nick: NonEmptyString,
@@ -51,7 +42,7 @@ export var newMessage = function(newMsg) {
     // Nick will be sender's address.
     mail: Match.Optional({
       sender_name: Match.Optional(String),
-      subject: String
+      subject: String,
     }),
     // Present only in messages received via Twitter.
     // Nick will be sender's handle
@@ -65,10 +56,9 @@ export var newMessage = function(newMsg) {
       // Numeric id of quoted tweet as a string, if this was a quote-retweet
       quote_id_str: Match.Optional(NonEmptyString),
       // Twitter handle of tweeter of quoted tweet, if this was a quote-retweet
-      quote_nick: Match.Optional(NonEmptyString)
-    })
-  }
-  );
+      quote_nick: Match.Optional(NonEmptyString),
+    }),
+  });
   // translate emojis!
   if (newMsg.bodyIsHtml) {
     newMsg.body = sanitize(newMsg.body, params);
@@ -78,10 +68,12 @@ export var newMessage = function(newMsg) {
   } else {
     newMsg.body = emojify(newMsg.body);
   }
-  if (newMsg.to != null) { newMsg.to = canonical(newMsg.to); }
+  if (newMsg.to != null) {
+    newMsg.to = canonical(newMsg.to);
+  }
   newMsg.timestamp = Date.now();
   newMsg.mention = newMsg.mention?.map(canonical);
   ensureDawnOfTime(newMsg.room_name);
   newMsg._id = Messages.insert(newMsg);
   return newMsg;
-};
+}

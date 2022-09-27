@@ -1,22 +1,28 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-import { Calendar, CalendarEvents } from '/lib/imports/collections.js';
+import { Calendar, CalendarEvents } from "/lib/imports/collections.js";
 
-const calendar_container = template => template.helpers({
-  calendar_id() { return Calendar.findOne()?._id; },
-  upcoming_events() { return CalendarEvents.find({end: {$gt: Session.get('currentTime')}}, {sort: {start: 1}}); }});
+function calendar_container(template) {
+  template.helpers({
+    calendar_id() {
+      return Calendar.findOne()?._id;
+    },
+    upcoming_events() {
+      return CalendarEvents.find(
+        { end: { $gt: Session.get("currentTime") } },
+        { sort: { start: 1 } }
+      );
+    },
+  });
+}
 
 calendar_container(Template.calendar_dropdown);
 Template.calendar_dropdown.helpers({
   next_event() {
-    const now = Session.get('currentTime');
-    return CalendarEvents.findOne({end: {$gt: now}}, {sort: {start: 1}})?.start - now;
-  }
+    const now = Session.get("currentTime");
+    return (
+      CalendarEvents.findOne({ end: { $gt: now } }, { sort: { start: 1 } })
+        ?.start - now
+    );
+  },
 });
 
 calendar_container(Template.calendar_link);
@@ -26,7 +32,7 @@ calendar_container(Template.calendar_column);
 
 Template.calendar_event.helpers({
   dh_until_start() {
-    return (this.event.start - Session.get('currentTime')) / 360000;
+    return (this.event.start - Session.get("currentTime")) / 360000;
   },
   url(str) {
     try {
@@ -35,65 +41,74 @@ Template.calendar_event.helpers({
     } catch (e) {
       return false;
     }
-  }
+  },
 });
 
 Template.calendar_event.events({
-  'click .bb-event-unattend'(event, template) {
-    return Meteor.call('removeEventAttendee', template.data.event._id, Meteor.userId());
+  "click .bb-event-unattend"(event, template) {
+    Meteor.call(
+      "removeEventAttendee",
+      template.data.event._id,
+      Meteor.userId()
+    );
   },
-  'click .bb-event-attend'(event, template) {
-    return Meteor.call('addEventAttendee', template.data.event._id, Meteor.userId());
+  "click .bb-event-attend"(event, template) {
+    Meteor.call("addEventAttendee", template.data.event._id, Meteor.userId());
   },
-  'click .bb-detach-event'(event, template) {
-    return Meteor.call('setPuzzleForEvent', template.data.event._id, null);
-  }
+  "click .bb-detach-event"(event, template) {
+    Meteor.call("setPuzzleForEvent", template.data.event._id, null);
+  },
 });
 
-const attachable_events = () => CalendarEvents.find({
-  end: { $gt: Session.get('currentTime')
-},
-  puzzle: null
+function attachable_events() {
+  CalendarEvents.find(
+    {
+      end: { $gt: Session.get("currentTime") },
+      puzzle: null,
+    },
+    {
+      sort: { start: 1 },
+      fields: {
+        puzzle: 0,
+        location: 0,
+      },
+    }
+  );
 }
-, {
-  sort: { start: 1
-},
-  fields: {
-    puzzle: 0,
-    location: 0
-  }
-}
-);
 
-Template.calendar_attachable_events.helpers({attachable_events});
+Template.calendar_attachable_events.helpers({ attachable_events });
 
 Template.calendar_attachable_events.events({
-  'click [data-event-id]'(event, template) {
-    return Meteor.call('setPuzzleForEvent', event.currentTarget.dataset.eventId, template.data.puzzle);
-  }
+  "click [data-event-id]"(event, template) {
+    Meteor.call(
+      "setPuzzleForEvent",
+      event.currentTarget.dataset.eventId,
+      template.data.puzzle
+    );
+  },
 });
 
-const calendar_puzzle_container = function(template) {
-  return template.helpers({
+function calendar_puzzle_container(template) {
+  template.helpers({
     upcoming_events() {
-      return CalendarEvents.find({
-        end: { $gt: Session.get('currentTime')
-      },
-        puzzle: this._id
-      }
-      ,
-        {sort: {start: 1}});
-    }
+      return CalendarEvents.find(
+        {
+          end: { $gt: Session.get("currentTime") },
+          puzzle: this._id,
+        },
+        { sort: { start: 1 } }
+      );
+    },
   });
-};
+}
 
 calendar_puzzle_container(Template.calendar_puzzle_cell);
 calendar_puzzle_container(Template.calendar_puzzle_events);
 
-Template.calendar_puzzle_cell.helpers({attachable_events});
+Template.calendar_puzzle_cell.helpers({ attachable_events });
 
 Template.calendar_puzzle_cell_entry.events({
-  'click .bb-detach-event'(event, template) {
-    return Meteor.call('setPuzzleForEvent', template.data.event._id, null);
-  }
+  "click .bb-detach-event"(event, template) {
+    Meteor.call("setPuzzleForEvent", template.data.event._id, null);
+  },
 });

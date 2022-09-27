@@ -1,16 +1,14 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-let embeddable;
-import { EmbedPuzzles } from '/lib/imports/settings.js';
+import { EmbedPuzzles } from "/lib/imports/settings.js";
 
-export default embeddable = function(link) {
-  if (!EmbedPuzzles.get()) { return false; }
-  if (!link) { return false; }
-  if ((window.location.protocol === 'https:') && !link.startsWith('https:')) { return false; }
+export default function embeddable(link) {
+  if (!EmbedPuzzles.get()) {
+    return false;
+  }
+  if (!link) {
+    return false;
+  }
+  if (window.location.protocol === "https:" && !link.startsWith("https:")) {
+    return false;
+  }
   return true;
-};
+}

@@ -1,11 +1,4 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-import { Puzzles } from '/lib/imports/collections.js';
+import { Puzzles } from "/lib/imports/collections.js";
 
 export default class PuzzleFeed {
   constructor(field, update) {
@@ -16,65 +9,80 @@ export default class PuzzleFeed {
   }
 
   updateNow() {
-    if (this._updateNow()) { return this.update(); }
+    if (this._updateNow()) {
+      this.update();
+    }
   }
 
   _updateNow() {
-    const time = Session.get('currentTime');
+    const time = Session.get("currentTime");
     if (this.hasNow.get()) {
       if (time > this.data.at(-1).x) {
         this.data.at(-1).x = time;
         return true;
       }
     } else {
-      if (!this.data.length || (this.data.at(-1).x <= time)) {
+      if (!this.data.length || this.data.at(-1).x <= time) {
         this.hasNow.set(true);
-        this.data.push({x: time, y: this.data.length});
+        this.data.push({ x: time, y: this.data.length });
         return true;
       }
     }
     return false;
   }
 
-  addedAt(doc, ix) { 
-    this.data.splice(ix, 0, {x: doc[this.field], y: ix + 1});
+  addedAt(doc, ix) {
+    this.data.splice(ix, 0, { x: doc[this.field], y: ix + 1 });
     while (++ix < this.data.length) {
       this.data[ix].y++;
     }
     Tracker.nonreactive(() => {
-      if (this.hasNow.get() && (this.data.length > 1) && (this.data.at(-2).x > this.data.at(-1).x)) {
+      if (
+        this.hasNow.get() &&
+        this.data.length > 1 &&
+        this.data.at(-2).x > this.data.at(-1).x
+      ) {
         this.hasNow.set(false);
-        return this.data.pop();
+        this.data.pop();
+        return;
       }
     });
-    return this.update();
+    this.update();
   }
 
-  changedAt(newDoc, oldDoc, ix) { 
+  changedAt(newDoc, oldDoc, ix) {
     this.data[ix].x = newDoc[this.field];
     Tracker.nonreactive(() => {
-      if (this.hasNow.get() && (ix === (this.data.length - 2)) && (this.data.at(-2).x > this.data.at(-1).x)) {
+      if (
+        this.hasNow.get() &&
+        ix === this.data.length - 2 &&
+        this.data.at(-2).x > this.data.at(-1).x
+      ) {
         this.hasNow.set(false);
-        return this.data.pop();
+        this.data.pop();
+        return;
       }
     });
-    return this.update();
+    this.update();
   }
 
-  removedAt(doc, ix) { 
+  removedAt(doc, ix) {
     this.data.splice(ix, 1);
     while (++ix < this.data.length) {
       this.data[ix].y--;
     }
     Tracker.nonreactive(() => this._updateNow());
-    return this.update();
+    this.update();
   }
 
   observe() {
-    return Puzzles.find({[this.field]: {$ne: null}}, {fields: {[this.field]: 1}, sort: {[this.field]: 1}}).observe({
+    return Puzzles.find(
+      { [this.field]: { $ne: null } },
+      { fields: { [this.field]: 1 }, sort: { [this.field]: 1 } }
+    ).observe({
       addedAt: this.addedAt.bind(this),
       changedAt: this.changedAt.bind(this),
-      removedAt: this.removedAt.bind(this)
+      removedAt: this.removedAt.bind(this),
     });
   }
 }

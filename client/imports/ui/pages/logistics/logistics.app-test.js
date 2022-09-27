@@ -1,125 +1,135 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-import { Messages, Puzzles } from '/lib/imports/collections.js';
-import Router from '/client/imports/router.js';
-import {waitForSubscriptions, waitForMethods, afterFlushPromise, promiseCall, login, logout} from '/client/imports/app_test_helpers.js';
-import chai from 'chai';
+import { Messages, Puzzles } from "/lib/imports/collections.js";
+import Router from "/client/imports/router.js";
+import {
+  waitForSubscriptions,
+  waitForMethods,
+  afterFlushPromise,
+  promiseCall,
+  login,
+  logout,
+} from "/client/imports/app_test_helpers.js";
+import chai from "chai";
 
-describe('logistics', function() {
+describe("logistics", function () {
   this.timeout(10000);
-  before(() => login('testy', 'Teresa Tybalt', '', 'failphrase'));
-  
+  before(() => login("testy", "Teresa Tybalt", "", "failphrase"));
+
   after(() => logout());
 
-  return describe('callins', function() {
-    it('marks puzzle solved', async function() {
+  describe("callins", function () {
+    it("marks puzzle solved", async function () {
       await Router.LogisticsPage();
       await waitForSubscriptions();
-      let pb = Puzzles.findOne({name: 'Puzzle Box'});
-      await promiseCall('deleteAnswer', {target: pb._id});
+      let pb = Puzzles.findOne({ name: "Puzzle Box" });
+      await promiseCall("deleteAnswer", { target: pb._id });
       chai.assert.isNotOk(pb.solved);
       chai.assert.isNotOk(pb.tags.answer);
-      await promiseCall('newCallIn', {
-        callin_type: 'answer',
-        target_type: 'puzzles',
+      await promiseCall("newCallIn", {
+        callin_type: "answer",
+        target_type: "puzzles",
         target: pb._id,
-        answer: 'teferi'
-      }
-      );
+        answer: "teferi",
+      });
       await afterFlushPromise();
-      const correctButtons = $('.bb-callin-correct');
+      const correctButtons = $(".bb-callin-correct");
       chai.assert.equal(correctButtons.length, 1);
       correctButtons.click();
       await waitForMethods();
-      pb = Puzzles.findOne({name: 'Puzzle Box'});
+      pb = Puzzles.findOne({ name: "Puzzle Box" });
       chai.assert.isOk(pb.solved);
-      return chai.assert.equal(pb.tags.answer.value, 'teferi');
+      chai.assert.equal(pb.tags.answer.value, "teferi");
     });
 
-    it('gets disappointed', async function() {
+    it("gets disappointed", async function () {
       await Router.LogisticsPage();
       await waitForSubscriptions();
-      let pb = Puzzles.findOne({name: 'Puzzle Box'});
-      await promiseCall('deleteAnswer', {target: pb._id});
-      pb = Puzzles.findOne({name: 'Puzzle Box'});
+      let pb = Puzzles.findOne({ name: "Puzzle Box" });
+      await promiseCall("deleteAnswer", { target: pb._id });
+      pb = Puzzles.findOne({ name: "Puzzle Box" });
       chai.assert.isNotOk(pb.solved);
       chai.assert.isNotOk(pb.tags.answer);
-      await promiseCall('newCallIn', {
-        callin_type: 'answer',
-        target_type: 'puzzles',
+      await promiseCall("newCallIn", {
+        callin_type: "answer",
+        target_type: "puzzles",
         target: pb._id,
-        answer: 'teferi'
-      }
-      );
+        answer: "teferi",
+      });
       await afterFlushPromise();
-      const incorrectButtons = $('.bb-callin-incorrect');
+      const incorrectButtons = $(".bb-callin-incorrect");
       chai.assert.equal(incorrectButtons.length, 1);
       incorrectButtons.click();
       await waitForMethods();
-      pb = Puzzles.findOne({name: 'Puzzle Box'});
+      pb = Puzzles.findOne({ name: "Puzzle Box" });
       chai.assert.isNotOk(pb.solved);
-      const msg = Messages.findOne({room_name: "general/0", nick: 'testy', action: true, body: /^sadly relays/});
-      return chai.assert.isOk(msg);
+      const msg = Messages.findOne({
+        room_name: "general/0",
+        nick: "testy",
+        action: true,
+        body: /^sadly relays/,
+      });
+      chai.assert.isOk(msg);
     });
 
-    it('accepts explanation on accepted interaction request', async function() {
+    it("accepts explanation on accepted interaction request", async function () {
       await Router.LogisticsPage();
       await waitForSubscriptions();
-      let pb = Puzzles.findOne({name: 'Puzzle Box'});
-      await promiseCall('deleteAnswer', {target: pb._id});
-      pb = Puzzles.findOne({name: 'Puzzle Box'});
+      let pb = Puzzles.findOne({ name: "Puzzle Box" });
+      await promiseCall("deleteAnswer", { target: pb._id });
+      pb = Puzzles.findOne({ name: "Puzzle Box" });
       chai.assert.isNotOk(pb.solved);
       chai.assert.isNotOk(pb.tags.answer);
-      await promiseCall('newCallIn', {
-        callin_type: 'interaction request',
-        target_type: 'puzzles',
+      await promiseCall("newCallIn", {
+        callin_type: "interaction request",
+        target_type: "puzzles",
         target: pb._id,
-        answer: 'teferi'
-      }
-      );
+        answer: "teferi",
+      });
       await afterFlushPromise();
-      $('input.response').val('phasing');
-      const correctButtons = $('.bb-callin-correct');
+      $("input.response").val("phasing");
+      const correctButtons = $(".bb-callin-correct");
       chai.assert.equal(correctButtons.length, 1);
       correctButtons.click();
       await waitForMethods();
-      pb = Puzzles.findOne({name: 'Puzzle Box'});
+      pb = Puzzles.findOne({ name: "Puzzle Box" });
       chai.assert.isNotOk(pb.solved);
-      const msg = Messages.findOne({room_name: "general/0", nick: 'testy', action: true, body: 'reports that the interaction request "teferi" was ACCEPTED with response "phasing"! (Puzzle Box)'});
-      return chai.assert.isOk(msg);
+      const msg = Messages.findOne({
+        room_name: "general/0",
+        nick: "testy",
+        action: true,
+        body: 'reports that the interaction request "teferi" was ACCEPTED with response "phasing"! (Puzzle Box)',
+      });
+      chai.assert.isOk(msg);
     });
 
-    return it('accepts explanation on rejected interaction request', async function() {
+    it("accepts explanation on rejected interaction request", async function () {
       await Router.LogisticsPage();
       await waitForSubscriptions();
-      let pb = Puzzles.findOne({name: 'Puzzle Box'});
-      await promiseCall('deleteAnswer', {target: pb._id});
-      pb = Puzzles.findOne({name: 'Puzzle Box'});
+      let pb = Puzzles.findOne({ name: "Puzzle Box" });
+      await promiseCall("deleteAnswer", { target: pb._id });
+      pb = Puzzles.findOne({ name: "Puzzle Box" });
       chai.assert.isNotOk(pb.solved);
       chai.assert.isNotOk(pb.tags.answer);
-      await promiseCall('newCallIn', {
-        callin_type: 'interaction request',
-        target_type: 'puzzles',
+      await promiseCall("newCallIn", {
+        callin_type: "interaction request",
+        target_type: "puzzles",
         target: pb._id,
-        answer: 'teferi'
-      }
-      );
+        answer: "teferi",
+      });
       await afterFlushPromise();
-      $('input.response').val('phasing');
-      const incorrectButtons = $('.bb-callin-incorrect');
+      $("input.response").val("phasing");
+      const incorrectButtons = $(".bb-callin-incorrect");
       chai.assert.equal(incorrectButtons.length, 1);
       incorrectButtons.click();
       await waitForMethods();
-      pb = Puzzles.findOne({name: 'Puzzle Box'});
+      pb = Puzzles.findOne({ name: "Puzzle Box" });
       chai.assert.isNotOk(pb.solved);
-      const msg = Messages.findOne({room_name: "general/0", nick: 'testy', action: true, body: 'sadly relays that the interaction request "teferi" was REJECTED with response "phasing". (Puzzle Box)'});
-      return chai.assert.isOk(msg);
+      const msg = Messages.findOne({
+        room_name: "general/0",
+        nick: "testy",
+        action: true,
+        body: 'sadly relays that the interaction request "teferi" was REJECTED with response "phasing". (Puzzle Box)',
+      });
+      chai.assert.isOk(msg);
     });
   });
 });
-

@@ -1,10 +1,3 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 // Description:
 //   Hubot is very attentive (ping hubot)
 //
@@ -22,7 +15,7 @@
 // Author:
 //   tapichu/cscott
 
-import { scripts } from '/server/imports/botutil.js';
+import { scripts } from "/server/imports/botutil.js";
 
 const phrases = [
   "Yes, master?",
@@ -64,7 +57,7 @@ const phrases = [
   "I'm ready and waiting",
   "Ah, at last",
   "I'm here",
-  "Something need doing?"
+  "Something need doing?",
 ];
 
 const secrets = [
@@ -76,54 +69,55 @@ const secrets = [
   "You are of royal birth, but there was a mixup at the hospital.",
   "One of KFC's eleven herbs and spices is: salt.",
   "One of KFC's eleven herbs and spices is: pepper.",
-  "McDonald's \"special sauce\" is mostly mayonnaise, relish, and mustard."
+  'McDonald\'s "special sauce" is mostly mayonnaise, relish, and mustard.',
 ];
 
-const regex_escape = s => s.replace(/[\^\\$*+?.()|{}\[\]\/]/g, '\\$&');
+function regex_escape(s) {
+  return s.replace(/[\^\\$*+?.()|{}\[\]\/]/g, "\\$&");
+}
 
-scripts.ping = function(robot) {
-
+scripts.ping = function (robot) {
   const name_regex = new RegExp(`${regex_escape(robot.name)}\\?$`, "i");
-  robot.hear(name_regex, function(msg) {
+  robot.hear(name_regex, function (msg) {
     msg.reply(msg.random(phrases));
-    return msg.finish();
+    msg.finish();
   });
 
   if (robot.alias) {
     const alias_regex = new RegExp(`${regex_escape(robot.alias)}\\?$`, "i");
-    robot.hear(alias_regex, function(msg) {
+    robot.hear(alias_regex, function (msg) {
       msg.reply(msg.random(phrases));
-      return msg.finish();
+      msg.finish();
     });
   }
 
-  robot.commands.push('bot ping - Reply with pong');
-  robot.respond(/PING$/i, function(msg) {
+  robot.commands.push("bot ping - Reply with pong");
+  robot.respond(/PING$/i, function (msg) {
     msg.reply("PONG");
-    return msg.finish();
+    msg.finish();
   });
 
-  robot.commands.push('bot echo <text> - Reply back with <text>');
-  robot.respond(/ECHO (.*)$/i, function(msg) {
+  robot.commands.push("bot echo <text> - Reply back with <text>");
+  robot.respond(/ECHO (.*)$/i, function (msg) {
     msg.reply(msg.match[1]);
-    return msg.finish();
+    msg.finish();
   });
 
-  robot.commands.push('bot time - Reply with current time');
-  robot.respond(/TIME$/i, function(msg) {
+  robot.commands.push("bot time - Reply with current time");
+  robot.respond(/TIME$/i, function (msg) {
     msg.reply(`Server time is: ${new Date()}`);
-    return msg.finish();
+    msg.finish();
   });
 
-  robot.commands.push('bot cry - Make the bot cry');
-  robot.respond(/CRY$/i, function(msg) {
+  robot.commands.push("bot cry - Make the bot cry");
+  robot.respond(/CRY$/i, function (msg) {
     msg.emote("cries");
-    return msg.finish();
+    msg.finish();
   });
 
-  robot.commands.push('bot tell me a secret - Reply via private message');
-  return robot.respond(/TELL ME A SECRET$/i, function(msg) {
+  robot.commands.push("bot tell me a secret - Reply via private message");
+  robot.respond(/TELL ME A SECRET$/i, function (msg) {
     msg.priv(msg.random(secrets));
-    return msg.finish();
+    msg.finish();
   });
 };
