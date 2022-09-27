@@ -293,9 +293,8 @@ function meta_helper() {
   }
   return r;
 }
-function unassigned_helper() {
-  const p = [];
-  for (let _id of this.puzzles) {
+function forEachUnassigned(puzzles, fn) {
+  for (let _id of puzzles) {
     const puzzle = Puzzles.findOne({
       _id,
       feedsInto: { $size: 0 },
@@ -304,8 +303,14 @@ function unassigned_helper() {
     if (puzzle == null) {
       continue;
     }
-    p.push({ _id, parent: this._id, puzzle });
+    fn(puzzle);
   }
+}
+function unassigned_helper() {
+  const p = [];
+  forEachUnassigned(this.puzzles, (puzzle) => {
+    p.push({ _id, parent: this._id, puzzle });
+  });
   return maybeFilterSolved(p);
 }
 
@@ -367,17 +372,9 @@ Template.blackboard_status_grid.helpers({
   },
   unassigned() {
     const result = [];
-    for (let _id of this.puzzles) {
-      const puzzle = Puzzles.findOne({
-        _id,
-        feedsInto: { $size: 0 },
-        puzzles: { $exists: false },
-      });
-      if (puzzle == null) {
-        continue;
-      }
+    forEachUnassigned(this.puzzles, (puzzle) => {
       result.push(puzzle._id);
-    }
+    });
     return result;
   },
   puzzles(ps) {
@@ -471,23 +468,16 @@ Template.blackboard_round.onCreated(function () {
 });
 
 Template.blackboard_round.helpers({
-  // the following is a map() instead of a direct find() to preserve order
   metas() {
-    const r = [];
-    for (let _id of this.puzzles) {
-      const puzzle = Puzzles.findOne({ _id, puzzles: { $ne: null } });
-      if (puzzle == null) {
-        continue;
+    const r = meta_helper.call(this);
+    for ( let puzzle of r ) {
+      let solved = 0;
+      for ( let _id of puzzle.puzzles ) {
+        if (Puzzles.findOne({_id, solved: {$ne: null }}) != null) {
+          solved++;
+        }
       }
-      r.push({
-        _id,
-        puzzle,
-        num_puzzles: puzzle.puzzles.length,
-        num_solved: Puzzles.find({
-          _id: { $in: puzzle.puzzles },
-          solved: { $ne: null },
-        }).length,
-      });
+      puzzle.num_solved = solved;
     }
     if (SORT_REVERSE.get()) {
       r.reverse();
