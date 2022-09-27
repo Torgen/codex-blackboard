@@ -155,6 +155,13 @@ function debouncedUpdate() {
   return { now, update };
 }
 
+function gravatarForNotification(msg) {
+  return gravatarUrl({
+    gravatar_md5: nickHash(msg.nick),
+    size: 192,
+  });
+}
+
 Meteor.startup(function () {
   // Notifications based on oplogs
   const { now, update } = debouncedUpdate();
@@ -178,19 +185,9 @@ Meteor.startup(function () {
   }).observe({
     added(msg) {
       update(msg.timestamp);
-      if (!notification.granted()) {
+      if (!notification.granted() || !notification.get(msg.stream) || suppress) {
         return;
       }
-      if (!notification.get(msg.stream)) {
-        return;
-      }
-      if (suppress) {
-        return;
-      }
-      const gravatar = gravatarUrl({
-        gravatar_md5: nickHash(msg.nick),
-        size: 192,
-      });
       let { body } = msg;
       if (msg.type && msg.id) {
         body = `${body} ${pretty_collection(msg.type)} \
@@ -202,14 +199,14 @@ ${collection(msg.type).findOne(msg.id)?.name}`;
       } else {
         data = { url: Router.urlFor(msg.type, msg.id) };
       }
-      // If sounde effects are off, notifications should be silent. If they're not, turn off sound for
+      // If sound effects are off, notifications should be silent. If they're not, turn off sound for
       // notifications that already have sound effects.
       const silent =
         MUTE_SOUND_EFFECTS.get() || ["callins", "answers"].includes(msg.stream);
       notification.notify(msg.nick, {
         body,
         tag: msg._id,
-        icon: gravatar,
+        icon: gravatarForNotification(msg),
         data,
         silent,
       });
@@ -341,32 +338,17 @@ Meteor.startup(function () {
     Messages.find({ announced_at: { $gt: now.get() } }).observe({
       added(msg) {
         update(msg.announced_at);
-        if (!notification.granted()) {
+        if (!notification.granted() || !notification.get("announcements") || suppress) {
           return;
-        }
-        if (!notification.get("announcements")) {
-          return;
-        }
-        if (suppress) {
-          return;
-        }
-        const gravatar = gravatarUrl({
-          gravatar_md5: nickHash(msg.nick),
-          size: 192,
-        });
-        let { body } = msg;
-        if (msg.type && msg.id) {
-          body = `${body} ${pretty_collection(msg.type)} \
-${collection(msg.type).findOne(msg.id)?.name}`;
         }
         const data = { url: Meteor._relativeToSiteRootUrl("/") };
-        // If sounde effects are off, notifications should be silent. If they're not, turn off sound for
+        // If sound effects are off, notifications should be silent. If they're not, turn off sound for
         // notifications that already have sound effects.
         const silent = MUTE_SOUND_EFFECTS.get();
         notification.notify(`Announcement by ${msg.nick}`, {
-          body,
+          body: msg.body,
           tag: msg._id,
-          icon: gravatar,
+          icon: gravatarForNotification(msg),
           data,
           silent,
         });
