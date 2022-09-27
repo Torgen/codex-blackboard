@@ -34,7 +34,7 @@ export default class PuzzleFeed {
   maybePopNow() {
     if (this.hasNow.get() && this.data.at(-2).x > this.data.at(-1).x) {
       this.hasNow.set(false);
-      this.data.pop()
+      this.data.pop();
     }
   }
 
@@ -44,9 +44,7 @@ export default class PuzzleFeed {
       this.data[ix].y++;
     }
     Tracker.nonreactive(() => {
-      if (
-        this.data.length > 1
-      ) {
+      if (this.data.length > 1) {
         this.maybePopNow();
       }
     });
@@ -56,9 +54,7 @@ export default class PuzzleFeed {
   changedAt(newDoc, oldDoc, ix) {
     this.data[ix].x = newDoc[this.field];
     Tracker.nonreactive(() => {
-      if (
-        ix === this.data.length - 2
-      ) {
+      if (ix === this.data.length - 2) {
         this.maybePopNow();
       }
     });

@@ -340,7 +340,7 @@ Template.logistics.events({
 
   "drop #bb-logistics-new-round"(event, template) {
     event.currentTarget.classList.remove("dragover");
-    droppingLink(event, function(name, link) {
+    droppingLink(event, function (name, link) {
       Meteor.call("newRound", { name, link });
     });
   },

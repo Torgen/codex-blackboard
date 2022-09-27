@@ -113,12 +113,11 @@ Template.header_loginmute.onCreated(function () {
 function unreadHelper(filter) {
   const count = Messages.find({
     timestamp: { $gt: LastRead.findOne("private")?.timestamp ?? 0 },
-    ...filter
+    ...filter,
   })
     .fetch()
     .filter(
-      (msg) =>
-        msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0)
+      (msg) => msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0)
     ).length;
   if (count !== 0) {
     return count;
@@ -141,10 +140,10 @@ Template.header_loginmute.helpers({
     };
   },
   unreadPrivateMessages() {
-    return unreadHelper({to: Meteor.userId()})
+    return unreadHelper({ to: Meteor.userId() });
   },
   unreadMentions() {
-    return unreadHelper({mention: Meteor.userId()})
+    return unreadHelper({ mention: Meteor.userId() });
   },
   clamp(value, limit) {
     if (!value) {

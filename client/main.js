@@ -185,7 +185,11 @@ Meteor.startup(function () {
   }).observe({
     added(msg) {
       update(msg.timestamp);
-      if (!notification.granted() || !notification.get(msg.stream) || suppress) {
+      if (
+        !notification.granted() ||
+        !notification.get(msg.stream) ||
+        suppress
+      ) {
         return;
       }
       let { body } = msg;
@@ -338,7 +342,11 @@ Meteor.startup(function () {
     Messages.find({ announced_at: { $gt: now.get() } }).observe({
       added(msg) {
         update(msg.announced_at);
-        if (!notification.granted() || !notification.get("announcements") || suppress) {
+        if (
+          !notification.granted() ||
+          !notification.get("announcements") ||
+          suppress
+        ) {
           return;
         }
         const data = { url: Meteor._relativeToSiteRootUrl("/") };

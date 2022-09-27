@@ -724,7 +724,7 @@ Template.blackboard_meta.helpers({
     for (let id of this.puzzle.puzzles) {
       const x = Puzzles.findOne(id);
       if (x?.solved != null) {
-        count++
+        count++;
       }
     }
     return count;
