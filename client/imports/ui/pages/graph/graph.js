@@ -257,6 +257,17 @@ Template.graph.onRendered(function () {
     }
     return node;
   };
+  const addNodeMetaEdge = (meta, node) => {
+    const mn = ensureNode(meta);
+    this.structure = true;
+    this.cy.add({
+      group: "edges",
+      data: {
+        source: node.data("id"),
+        target: mn.data("id"),
+      },
+    });
+  };
 
   this.puzzles = Puzzles.find(
     {},
@@ -276,15 +287,7 @@ Template.graph.onRendered(function () {
       const node = ensureNode(doc._id);
       setPuzzleData(node, doc);
       for (let meta of doc.feedsInto) {
-        const mn = ensureNode(meta);
-        this.structure = true;
-        this.cy.add({
-          group: "edges",
-          data: {
-            source: node.data("id"),
-            target: mn.data("id"),
-          },
-        });
+        addNodeMetaEdge(meta, node);
       }
     },
     changed: (newDoc, oldDoc) => {
@@ -298,15 +301,7 @@ Template.graph.onRendered(function () {
         if (oldMetas.has(meta)) {
           continue;
         }
-        const mn = ensureNode(meta);
-        this.structure = true;
-        this.cy.add({
-          group: "edges",
-          data: {
-            source: node.data("id"),
-            target: mn.data("id"),
-          },
-        });
+        addNodeMetaEdge(meta, node);
       }
       for (meta of oldMetas) {
         if (newMetas.has(meta)) {
