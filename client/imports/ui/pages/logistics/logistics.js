@@ -199,25 +199,31 @@ function closeButtonOnDragLeave(event, template) {
   event.currentTarget.classList.remove("dragover");
 }
 
+function droppingLink(event, fn) {
+  if (event.originalEvent.dataTransfer.types.includes(PUZZLE_MIME_TYPE)) {
+    return;
+  }
+  if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
+    event.preventDefault();
+    const { name, url } = nameAndUrlFromDroppedLink(
+      event.originalEvent.dataTransfer
+    );
+    fn(name, url);
+  }
+}
+
 function makePuzzleOnDrop(targetId, puzzleParams) {
   return Template.logistics.events({
     [`drop #${targetId} .round-name`](event, template) {
       event.currentTarget.closest("##{targetId}").classList.remove("dragover");
-      if (event.originalEvent.dataTransfer.types.includes(PUZZLE_MIME_TYPE)) {
-        return;
-      }
-      if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
-        event.preventDefault();
-        const { name, url } = nameAndUrlFromDroppedLink(
-          event.originalEvent.dataTransfer
-        );
+      droppingLink(event, (name, link) => {
         Meteor.call("newPuzzle", {
           name,
-          link: url,
+          link,
           round: this._id,
           ...puzzleParams,
         });
-      }
+      });
     },
   });
 }
@@ -334,19 +340,9 @@ Template.logistics.events({
 
   "drop #bb-logistics-new-round"(event, template) {
     event.currentTarget.classList.remove("dragover");
-    if (event.originalEvent.dataTransfer.types.includes(PUZZLE_MIME_TYPE)) {
-      return;
-    }
-    if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
-      event.preventDefault();
-      const { name, url } = nameAndUrlFromDroppedLink(
-        event.originalEvent.dataTransfer
-      );
-      Meteor.call("newRound", {
-        name,
-        link: url,
-      });
-    }
+    droppingLink(event, function(name, link) {
+      Meteor.call("newRound", { name, link });
+    });
   },
   "drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone"(
     event,
@@ -415,17 +411,21 @@ Template.logistics_puzzle.helpers({
   },
 });
 
+function editButton(event, puzzleId) {
+  if (event.button !== 0) {
+    return;
+  }
+  if (event.ctrlKey || event.altKey || event.metaKey) {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  editingPuzzle.set(puzzleId);
+}
+
 Template.logistics_puzzle.events({
   "click .bb-logistics-edit-puzzle"(event, template) {
-    if (event.button !== 0) {
-      return;
-    }
-    if (event.ctrlKey || event.altKey || event.metaKey) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    editingPuzzle.set(this._id);
+    editButton(event, this._id);
   },
   "dragover .puzzle"(event, template) {
     if (
@@ -480,15 +480,7 @@ Template.logistics_meta.events({
     template.creatingFeeder.set(true);
   },
   "click header .bb-logistics-edit-puzzle"(event, template) {
-    if (event.button !== 0) {
-      return;
-    }
-    if (event.ctrlKey || event.altKey || event.metaKey) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    editingPuzzle.set(this.meta._id);
+    editButton(event, this.meta._id);
   },
   "dragstart .feeders .puzzle"(event, template) {
     const data = {
@@ -582,18 +574,14 @@ Template.logistics_meta.events({
         return;
       }
       Meteor.call("feedMeta", data.id, template.data.meta._id);
-    } else if (
-      event.originalEvent.dataTransfer.types.includes("text/uri-list")
-    ) {
-      event.preventDefault();
-      const { name, url } = nameAndUrlFromDroppedLink(
-        event.originalEvent.dataTransfer
-      );
-      Meteor.call("newPuzzle", {
-        name,
-        link: url,
-        feedsInto: [this.meta._id],
-        round: this.round._id,
+    } else {
+      droppingLink(event, (name, link) => {
+        Meteor.call("newPuzzle", {
+          name,
+          link,
+          feedsInto: [this.meta._id],
+          round: this.round._id,
+        });
       });
     }
   },
