@@ -65,6 +65,12 @@ Template.logistics.onRendered(function () {
   });
 });
 
+Template.logistics_round_menu.helpers({
+  rounds() {
+    return Rounds.find({}, { sort: { sort_key: 1 } });
+  },
+});
+
 Template.logistics.helpers({
   rounds() {
     return Rounds.find({}, { sort: { sort_key: 1 } });
@@ -139,7 +145,8 @@ Template.logistics.helpers({
   unfeeding() {
     if (
       draggedPuzzle.get("meta") != null &&
-      draggedPuzzle.get("targetMeta") == null
+      draggedPuzzle.get("targetMeta") == null &&
+      !draggedPuzzle.get("willDelete")
     ) {
       const puzz = Puzzles.findOne({ _id: draggedPuzzle.get("id") });
       if (puzz?.feedsInto.length === 1) {
@@ -215,7 +222,7 @@ function droppingLink(event, fn) {
 function makePuzzleOnDrop(targetId, puzzleParams) {
   return Template.logistics.events({
     [`drop #${targetId} .round-name`](event, template) {
-      event.currentTarget.closest("##{targetId}").classList.remove("dragover");
+      event.currentTarget.closest(`#${targetId}`).classList.remove("dragover");
       droppingLink(event, (name, link) => {
         Meteor.call("newPuzzle", {
           name,
@@ -472,7 +479,7 @@ Template.logistics_puzzle_events.helpers({
 
 Template.logistics_meta.onCreated(function () {
   this.creatingFeeder = new ReactiveVar(false);
-  this.draggingLink = new ReactiveVar(false);
+  this.draggingLink = new ReactiveVar(null);
 });
 
 Template.logistics_meta.events({
@@ -624,6 +631,9 @@ Template.logistics_meta.helpers({
     );
   },
   fromAnotherMeta() {
+    if (draggedPuzzle.equals("id", undefined)) {
+      return false;
+    }
     return !draggedPuzzle.equals("meta", this.meta._id);
   },
   draggedPuzzle() {
