@@ -25,7 +25,7 @@ export default scripts.codex = function (robot) {
       return;
     }
     return target;
-  };
+  }
 
   // setAnswer
   robot.commands.push(

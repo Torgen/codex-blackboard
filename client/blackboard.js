@@ -470,7 +470,7 @@ Template.blackboard_round.onCreated(function () {
 Template.blackboard_round.helpers({
   metas() {
     const r = meta_helper.call(this);
-    for (let {puzzle} of r) {
+    for (let { puzzle } of r) {
       let solved = 0;
       for (let _id of puzzle.puzzles) {
         if (Puzzles.findOne({ _id, solved: { $ne: null } }) != null) {
