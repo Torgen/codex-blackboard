@@ -309,7 +309,7 @@ function forEachUnassigned(puzzles, fn) {
 function unassigned_helper() {
   const p = [];
   forEachUnassigned(this.puzzles, (puzzle) => {
-    p.push({ _id, parent: this._id, puzzle });
+    p.push({ _id: puzzle._id, parent: this._id, puzzle });
   });
   return maybeFilterSolved(p);
 }
@@ -470,7 +470,7 @@ Template.blackboard_round.onCreated(function () {
 Template.blackboard_round.helpers({
   metas() {
     const r = meta_helper.call(this);
-    for (let puzzle of r) {
+    for (let {puzzle} of r) {
       let solved = 0;
       for (let _id of puzzle.puzzles) {
         if (Puzzles.findOne({ _id, solved: { $ne: null } }) != null) {
