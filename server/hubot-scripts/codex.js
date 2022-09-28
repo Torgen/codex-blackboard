@@ -68,6 +68,38 @@ export default scripts.codex = function (robot) {
     }
   );
 
+  function newCallIn(msg, name, prefix, params) {
+    const who = msg.envelope.user.id;
+    if (name != null) {
+      target = callAs("getByName", who, {
+        name,
+        optional_type: "puzzles",
+      });
+      if (!target) {
+        msg.reply({ useful: true }, `I can't find a puzzle called "${name}".`);
+        msg.finish();
+        return;
+      }
+    } else {
+      target = objectFromRoom(msg);
+      if (target == null) {
+        return;
+      }
+    }
+    callAs("newCallIn", who, {
+      target_type: target.type,
+      target: target.object._id,
+      ...params,
+    });
+    // I don't mind a little redundancy, but if it bothers you uncomment this:
+    //suppressRoom: msg.envelope.room
+    msg.reply(
+      { useful: true },
+      `Okay, ${prefix}"${answer}" for ${target.object.name} added to call-in list!`
+    );
+    msg.finish();
+  }
+
   // newCallIn
   robot.commands.push(
     "bot call in <answer> [for <puzzle>] - Updates codex blackboard"
@@ -83,45 +115,15 @@ export default scripts.codex = function (robot) {
       /$/i
     ),
     function (msg) {
-      let target;
       const backsolve = /backsolve/.test(msg.match[1]);
       const provided = /provided/.test(msg.match[1]);
       const answer = strip(msg.match[3]);
       const name = msg.match[4] != null ? strip(msg.match[4]) : undefined;
-      const who = msg.envelope.user.id;
-      if (name != null) {
-        target = callAs("getByName", who, {
-          name,
-          optional_type: "puzzles",
-        });
-        if (!target) {
-          msg.reply(
-            { useful: true },
-            `I can't find a puzzle called "${name}".`
-          );
-          msg.finish();
-          return;
-        }
-      } else {
-        target = objectFromRoom(msg);
-        if (target == null) {
-          return;
-        }
-      }
-      callAs("newCallIn", who, {
-        target_type: target.type,
-        target: target.object._id,
+      newCallIn(msg, name, "", {
         answer,
         backsolve,
         provided,
       });
-      // I don't mind a little redundancy, but if it bothers you uncomment this:
-      //suppressRoom: msg.envelope.room
-      msg.reply(
-        { useful: true },
-        `Okay, "${answer}" for ${target.object.name} added to call-in list!`
-      );
-      msg.finish();
     }
   );
 
@@ -145,48 +147,17 @@ export default scripts.codex = function (robot) {
       /$/i
     ),
     function (msg) {
-      let target;
       const callin_type = {
         request_interaction: callin_types.INTERACTION_REQUEST,
         tell_hq: callin_types.MESSAGE_TO_HQ,
         expect_callback: callin_types.EXPECTED_CALLBACK,
       }[canonical(msg.match[1])];
-
       const answer = strip(msg.match[2]);
       const name = msg.match[3] != null ? strip(msg.match[3]) : undefined;
-      const who = msg.envelope.user.id;
-      if (name != null) {
-        target = callAs("getByName", who, {
-          name,
-          optional_type: "puzzles",
-        });
-        if (!target) {
-          msg.reply(
-            { useful: true },
-            `I can't find a puzzle called "${name}".`
-          );
-          msg.finish();
-          return;
-        }
-      } else {
-        target = objectFromRoom(msg);
-        if (target == null) {
-          return;
-        }
-      }
-      callAs("newCallIn", who, {
-        target_type: target.type,
-        target: target.object._id,
+      newCallIn(msg, name, `${callin_type} `, {
         answer,
         callin_type,
       });
-      // I don't mind a little redundancy, but if it bothers you uncomment this:
-      //suppressRoom: msg.envelope.room
-      msg.reply(
-        { useful: true },
-        `Okay, ${callin_type} "${answer}" for ${target.object.name} added to call-in list!`
-      );
-      msg.finish();
     }
   );
 
@@ -456,6 +427,35 @@ export default scripts.codex = function (robot) {
     msg.finish();
   });
 
+  function tagChangeTarget(msg) {
+    let target, type;
+    if (msg.match[2] != null) {
+      const descriptor =
+        msg.match[3] != null
+          ? `a ${pretty_collection(msg.match[3])}`
+          : "anything";
+      type =
+        msg.match[3] != null
+          ? msg.match[3].replace(/\s+/g, "") + "s"
+          : undefined;
+      target = callAs("getByName", msg.envelope.user.id, {
+        name: strip(msg.match[4]),
+        optional_type: type,
+      });
+      if (target == null) {
+        msg.reply(
+          { useful: true },
+          `I can't find ${descriptor} called "${strip(msg.match[4])}".`
+        );
+        msg.finish();
+        return;
+      }
+      return target;
+    } else {
+      return objectFromRoom(msg);
+    }
+  }
+
   // Tags
   robot.commands.push(
     "bot set <tag> [of <puzzle|round>] to <value> - Adds additional information to blackboard"
@@ -472,37 +472,13 @@ export default scripts.codex = function (robot) {
       /$/i
     ),
     function (msg) {
-      let target, type;
       const tag_name = strip(msg.match[1]);
       const tag_value = strip(msg.match[5]);
-      const who = msg.envelope.user.id;
-      if (msg.match[2] != null) {
-        const descriptor =
-          msg.match[3] != null
-            ? `a ${pretty_collection(msg.match[3])}`
-            : "anything";
-        type =
-          msg.match[3] != null
-            ? msg.match[3].replace(/\s+/g, "") + "s"
-            : undefined;
-        target = callAs("getByName", who, {
-          name: strip(msg.match[4]),
-          optional_type: type,
-        });
-        if (target == null) {
-          msg.reply(
-            { useful: true },
-            `I can't find ${descriptor} called "${strip(msg.match[4])}".`
-          );
-          return msg.finish();
-        }
-      } else {
-        target = objectFromRoom(msg);
-        if (target == null) {
-          return;
-        }
+      const target = tagChangeTarget(msg);
+      if (target == null) {
+        return;
       }
-      callAs("setTag", who, {
+      callAs("setTag", msg.envelope.user.id, {
         type: target.type,
         object: target.object._id,
         name: tag_name,
@@ -530,37 +506,12 @@ export default scripts.codex = function (robot) {
       /$/i
     ),
     function (msg) {
-      let target, type;
       const tag_name = strip(msg.match[1]);
-      const who = msg.envelope.user.id;
-      if (msg.match[2] != null) {
-        const descriptor =
-          msg.match[3] != null
-            ? `a ${pretty_collection(msg.match[3])}`
-            : "anything";
-        type =
-          msg.match[3] != null
-            ? msg.match[3].replace(/\s+/g, "") + "s"
-            : undefined;
-        target = callAs("getByName", who, {
-          name: strip(msg.match[4]),
-          optional_type: type,
-        });
-        if (target == null) {
-          msg.reply(
-            { useful: true },
-            `I can't find ${descriptor} called "${strip(msg.match[4])}".`
-          );
-          msg.finish();
-          return;
-        }
-      } else {
-        target = objectFromRoom(msg);
-        if (target == null) {
-          return;
-        }
+      const target = tagChangeTarget(msg);
+      if (target == null) {
+        return;
       }
-      const res = callAs("deleteTag", who, {
+      const res = callAs("deleteTag", msg.envelope.user.id, {
         type: target.type,
         object: target.object._id,
         name: tag_name,
@@ -580,13 +531,8 @@ export default scripts.codex = function (robot) {
     }
   );
 
-  // Stuck
-  robot.commands.push(
-    "bot stuck[ on <puzzle>][ because <reason>] - summons help and marks puzzle as stuck on the blackboard"
-  );
-  robot.respond(
-    rejoin("stuck(?: on ", thingRE, ")?(?: because ", thingRE, ")?", /$/i),
-    function (msg) {
+  function modifyStuckStatus(messageForOtherRoom, fn) {
+    return function (msg) {
       let target;
       const who = msg.envelope.user.id;
       if (msg.match[1] != null) {
@@ -613,10 +559,7 @@ export default scripts.codex = function (robot) {
         msg.finish();
         return;
       }
-      const result = callAs("summon", who, {
-        object: target.object._id,
-        how: msg.match[2],
-      });
+      const result = fn(who, target.object._id, msg.match[2]);
       if (result != null) {
         msg.reply({ useful: true }, result);
         msg.finish();
@@ -626,53 +569,32 @@ export default scripts.codex = function (robot) {
         msg.envelope.room !== "general/0" &&
         msg.envelope.room !== `puzzles/${target.object._id}`
       ) {
-        msg.reply({ useful: true }, "Help is on the way.");
+        msg.reply({ useful: true }, messageForOtherRoom);
       }
       msg.finish();
-    }
+    };
+  }
+
+  // Stuck
+  robot.commands.push(
+    "bot stuck[ on <puzzle>][ because <reason>] - summons help and marks puzzle as stuck on the blackboard"
+  );
+  robot.respond(
+    rejoin("stuck(?: on ", thingRE, ")?(?: because ", thingRE, ")?", /$/i),
+    modifyStuckStatus("Help is on the way.", (who, object, how) =>
+      callAs("summon", who, { object, how })
+    )
   );
 
   robot.commands.push(
     "but unstuck[ on <puzzle>] - marks puzzle no longer stuck on the blackboard"
   );
-  robot.respond(rejoin("unstuck(?: on ", thingRE, ")?", /$/i), function (msg) {
-    let target;
-    const who = msg.envelope.user.id;
-    if (msg.match[1] != null) {
-      target = callAs("getByName", who, {
-        name: msg.match[1],
-        optional_type: "puzzles",
-      });
-      if (target == null) {
-        msg.reply({ useful: true }, `I don't know what "${msg.match[1]}" is.`);
-        msg.finish();
-        return;
-      }
-    } else {
-      target = objectFromRoom(msg);
-      if (target == null) {
-        return;
-      }
-    }
-    if (target.type !== "puzzles") {
-      msg.reply({ useful: true }, "Only puzzles can be stuck.");
-      msg.finish();
-      return;
-    }
-    const result = callAs("unsummon", who, { object: target.object._id });
-    if (result != null) {
-      msg.reply({ useful: true }, result);
-      msg.finish();
-      return;
-    }
-    if (
-      msg.envelope.room !== "general/0" &&
-      msg.envelope.room !== `puzzles/${target.object._id}`
-    ) {
-      msg.reply({ useful: true }, "Call for help cancelled");
-    }
-    msg.finish();
-  });
+  robot.respond(
+    rejoin("unstuck(?: on ", thingRE, ")?", /$/i),
+    modifyStuckStatus("Call for help cancelled", (who, object) =>
+      callAs("unsummon", who, { object })
+    )
+  );
 
   const wordOrQuote = /([^\"\'\s]+|\"[^\"]+\"|\'[^\']+\')/;
 
