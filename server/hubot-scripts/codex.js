@@ -14,6 +14,18 @@ import * as callin_types from "/lib/imports/callin_types.js";
 
 export default scripts.codex = function (robot) {
   //# ANSWERS
+  function targetByName(msg, name, who) {
+    const target = callAs("getByName", who, {
+      name,
+      optional_type: "puzzles",
+    });
+    if (!target) {
+      msg.reply({ useful: true }, `I can't find a puzzle called "${name}".`);
+      msg.finish();
+      return;
+    }
+    return target;
+  };
 
   // setAnswer
   robot.commands.push(
@@ -25,13 +37,8 @@ export default scripts.codex = function (robot) {
       const name = strip(msg.match[1]);
       const answer = strip(msg.match[2]);
       const who = msg.envelope.user.id;
-      const target = callAs("getByName", who, {
-        name,
-        optional_type: "puzzles",
-      });
+      const target = targetByName(msg, name, who);
       if (!target) {
-        msg.reply({ useful: true }, `I can't find a puzzle called "${name}".`);
-        msg.finish();
         return;
       }
       const res = callAs("setAnswer", who, {
@@ -69,15 +76,11 @@ export default scripts.codex = function (robot) {
   );
 
   function newCallIn(msg, name, prefix, params) {
+    let target;
     const who = msg.envelope.user.id;
     if (name != null) {
-      target = callAs("getByName", who, {
-        name,
-        optional_type: "puzzles",
-      });
+      target = targetByName(msg, name, who);
       if (!target) {
-        msg.reply({ useful: true }, `I can't find a puzzle called "${name}".`);
-        msg.finish();
         return;
       }
     } else {
@@ -170,15 +173,8 @@ export default scripts.codex = function (robot) {
     function (msg) {
       const name = strip(msg.match[4]);
       const who = msg.envelope.user.id;
-      let target = callAs("getByName", who, {
-        name,
-        optional_type: "puzzles",
-      });
+      const target = targetByName(msg, name, who);
       if (!target) {
-        target = callAs("getByName", who, { name });
-      }
-      if (!target) {
-        msg.reply({ useful: true }, `I can't find a puzzle called "${name}".`);
         return;
       }
       callAs("deleteAnswer", who, {
@@ -319,12 +315,8 @@ export default scripts.codex = function (robot) {
   robot.respond(rejoin(/Delete puzzle /, thingRE, /$/i), function (msg) {
     const name = strip(msg.match[1]);
     const who = msg.envelope.user.id;
-    const puzzle = callAs("getByName", who, {
-      name,
-      optional_type: "puzzles",
-    });
+    const puzzle = targetByName(msg, name, who);
     if (!puzzle) {
-      msg.reply({ useful: true }, `I can't find a puzzle called "${name}".`);
       return;
     }
     const res = callAs("deletePuzzle", who, puzzle.object._id);
