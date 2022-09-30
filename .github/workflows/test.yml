@@ -68,4 +68,4 @@ jobs:
       - name: Rerun Coverage
         run: "curl --location --request GET 'https://coveralls.io/rerun_build?\
           repo_token=${{ secrets.github_token }}&\
-          build_num=${{ env.GITHUB_RUN_ID }}'"
+          build_num=${{ github.run_id }}'"
