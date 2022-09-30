@@ -67,6 +67,5 @@ jobs:
           parallel-finished: true
       - name: Rerun Coverage
         run: "curl --location --request GET 'https://coveralls.io/rerun_build?\
-          repo_token=${{ secrets.github_token }}&\
-          repo_name=${{github.repository}}&\
+          repo_token=${{ secrets.COVERALLS_REPO_TOKEN }}&\
           build_num=${{ github.run_id }}'"
