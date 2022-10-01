@@ -10,6 +10,7 @@ import {
 } from "/client/imports/app_test_helpers.js";
 import { waitForDocument } from "/lib/imports/testutils.js";
 import chai from "chai";
+import dragMock from "drag-mock";
 
 describe("logistics", function () {
   this.timeout(10000);
@@ -296,6 +297,129 @@ describe("logistics", function () {
           await promiseCall("deleteRound", round._id);
         }
       });
+    });
+  });
+
+  describe("feed meta", function () {
+    it("is standalone", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for feeder",
+      });
+      const meta = await promiseCall("newPuzzle", {
+        name: "new meta for feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const standalone = await promiseCall("newPuzzle", {
+        name: "standalone to feed meta",
+        round: round._id,
+      });
+      try {
+        const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
+        function getStandalone() {
+          return $(
+            `.bb-logistics-standalone [href="/puzzles/${standalone._id}"]`
+          );
+        }
+        let drag = dragMock
+          .dragStart(getStandalone().get(0))
+          .dragEnter($meta.get(0));
+        await afterFlushPromise();
+        chai.assert.isTrue(
+          getStandalone().is(".would-disappear"),
+          "would disappear"
+        );
+        chai.assert.isOk(
+          $meta.find(`[href="/puzzles/${standalone._id}"]`),
+          "appears in meta"
+        );
+        chai.assert.notInclude(
+          Puzzles.findOne(meta._id).puzzles,
+          standalone._id,
+          "not in meta yet"
+        );
+        drag.drop($meta.get(0));
+        await waitForMethods();
+        await afterFlushPromise();
+        chai.assert.include(
+          Puzzles.findOne(meta._id).puzzles,
+          standalone._id,
+          "is in meta"
+        );
+        chai.assert.isNotOk(getStandalone().get(0), "is not outside meta");
+      } finally {
+        await promiseCall("deletePuzzle", standalone._id);
+        await promiseCall("deletePuzzle", meta._id);
+        await promiseCall("deleteRound", round._id);
+      }
+    });
+
+    it("feeds another meta", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for feeder",
+      });
+      const meta1 = await promiseCall("newPuzzle", {
+        name: "meta containing feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const meta2 = await promiseCall("newPuzzle", {
+        name: "new meta for feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const feeder = await promiseCall("newPuzzle", {
+        name: "feeder to one meta",
+        round: round._id,
+        feedsInto: [meta1._id],
+      });
+      try {
+        const $meta1 = $(`.bb-logistics-meta[data-puzzle-id="${meta1._id}"]`);
+        const $meta2 = $(`.bb-logistics-meta[data-puzzle-id="${meta2._id}"]`);
+        function feederInMeta1() {
+          return $meta1.find(`[href="/puzzles/${feeder._id}"]`);
+        }
+        let drag = dragMock
+          .dragStart(feederInMeta1().get(0))
+          .dragLeave($meta1.get(0))
+          .dragEnter($meta2.get(0));
+        await afterFlushPromise();
+        chai.assert.isFalse(
+          feederInMeta1().is(".would-disappear"),
+          "would not disappear"
+        );
+        chai.assert.isOk(
+          $meta2.find(`[href="/puzzles/${feeder._id}"]`),
+          "appears in meta2"
+        );
+        chai.assert.notInclude(
+          Puzzles.findOne(meta2._id).puzzles,
+          feeder._id,
+          "not in meta2 yet"
+        );
+        drag.drop($meta2.get(0));
+        await waitForMethods();
+        await afterFlushPromise();
+        chai.assert.include(
+          Puzzles.findOne(meta2._id).puzzles,
+          feeder._id,
+          "is in meta2"
+        );
+        chai.assert.include(
+          Puzzles.findOne(meta1._id).puzzles,
+          feeder._id,
+          "is still in meta1"
+        );
+      } finally {
+        await promiseCall("deletePuzzle", feeder._id);
+        await promiseCall("deletePuzzle", meta1._id);
+        await promiseCall("deletePuzzle", meta2._id);
+        await promiseCall("deleteRound", round._id);
+      }
     });
   });
 });
