@@ -22,6 +22,7 @@ import "./imports/timestamp.js";
 // header bar, including the login modals and general Spacebars helpers
 
 function clickHandler(event, template) {
+  console.log("clickHandler");
   if (event.button !== 0) {
     return;
   } // check right-click

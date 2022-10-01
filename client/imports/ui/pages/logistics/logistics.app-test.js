@@ -578,4 +578,54 @@ describe("logistics", function () {
       }
     });
   });
+
+  describe("edit modal", function () {
+    it("closes on escape", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const modalShown = new Promise(function (resolve) {
+        $("#bb-logistics-edit-dialog").one("shown", resolve);
+      });
+      console.log("about to show");
+      // jQuery's click() ignores the click handlers and follows the link; the dom method triggers the handlers.
+      $(
+        `[href="/puzzles/${
+          Puzzles.findOne({ name: "Joy" })._id
+        }"] .bb-logistics-edit-puzzle`
+      )
+        .get(0)
+        .click();
+      await modalShown;
+      const modalHidden = new Promise(function (resolve) {
+        $("#bb-logistics-edit-dialog").one("hidden", resolve);
+      });
+      console.log("about to hide");
+      $(document).trigger(new $.Event("keydown", { which: 27 }));
+      await modalHidden;
+    });
+
+    it("closes on backdrop click", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const modalShown = new Promise(function (resolve) {
+        $("#bb-logistics-edit-dialog").one("shown", resolve);
+      });
+      console.log("about to show");
+      // jQuery's click() ignores the click handlers and follows the link; the dom method triggers the handlers.
+      $(
+        `[href="/puzzles/${
+          Puzzles.findOne({ name: "Joy" })._id
+        }"] .bb-logistics-edit-puzzle`
+      )
+        .get(0)
+        .click();
+      await modalShown;
+      const modalHidden = new Promise(function (resolve) {
+        $("#bb-logistics-edit-dialog").one("hidden", resolve);
+      });
+      console.log("about to hide");
+      $(".modal-backdrop").click();
+      await modalHidden;
+    });
+  });
 });
