@@ -325,7 +325,8 @@ describe("logistics", function () {
         }
         let drag = dragMock
           .dragStart(getStandalone().get(0))
-          .dragEnter($meta.get(0));
+          .dragEnter($meta.get(0))
+          .dragOver($meta.get(0));
         await afterFlushPromise();
         chai.assert.isTrue(
           getStandalone().is(".would-disappear"),
