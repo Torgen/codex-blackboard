@@ -256,4 +256,46 @@ describe("logistics", function () {
       });
     });
   });
+
+  describe("new feeder", function () {
+    describe("when clicking button", function () {
+      it("creates feeder in meta", async function () {
+        await Router.LogisticsPage();
+        await waitForSubscriptions();
+        const round = await promiseCall("newRound", {
+          name: "new round for feeder",
+        });
+        const meta = await promiseCall("newPuzzle", {
+          name: "new meta for feeder",
+          round: round._id,
+          puzzles: [],
+        });
+        try {
+          const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
+          $meta.find("header .new-puzzle").click();
+          await afterFlushPromise();
+          const $textbox = $meta.find(".feeders input");
+          chai.assert.isTrue($textbox.is(":focus"));
+          $textbox
+            .val("new feeder in meta")
+            .trigger(new $.Event("keyup", { which: 13 }));
+          const feeder = await waitForDocument(Puzzles, {
+            name: "new feeder in meta",
+          });
+          try {
+            chai.assert.deepInclude(feeder, {
+              created_by: "testy",
+              feedsInto: [meta._id],
+            });
+            chai.assert.include(Rounds.findOne(round._id).puzzles, feeder._id);
+          } finally {
+            await promiseCall("deletePuzzle", feeder._id);
+          }
+        } finally {
+          await promiseCall("deletePuzzle", meta._id);
+          await promiseCall("deleteRound", round._id);
+        }
+      });
+    });
+  });
 });
