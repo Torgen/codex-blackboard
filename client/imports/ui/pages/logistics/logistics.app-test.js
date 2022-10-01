@@ -422,4 +422,160 @@ describe("logistics", function () {
       }
     });
   });
+
+  describe("unfeed meta", function () {
+    it("becomes standalone", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for feeder",
+      });
+      const meta = await promiseCall("newPuzzle", {
+        name: "meta containing feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const feeder = await promiseCall("newPuzzle", {
+        name: "feeder to one meta",
+        round: round._id,
+        feedsInto: [meta._id],
+      });
+      try {
+        function getFeeder() {
+          return $(`.feeders [href="/puzzles/${feeder._id}"]`);
+        }
+        function getMeta() {
+          return $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
+        }
+        let drag = dragMock
+          .dragStart(getFeeder().get(0))
+          .dragEnter(getMeta().get(0));
+        await afterFlushPromise();
+        chai.assert.isNotOk(
+          $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
+          "before leave"
+        );
+        chai.assert.isFalse(
+          getFeeder().is(".would-disappear"),
+          "not blurred yet"
+        );
+        drag = drag.dragLeave(getMeta().get(0));
+        await afterFlushPromise();
+        chai.assert.isOk(
+          $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
+          "after leave"
+        );
+        chai.assert.isTrue(
+          getFeeder().is(".would-disappear"),
+          "would disappear"
+        );
+        chai.assert.include(
+          Puzzles.findOne(meta._id).puzzles,
+          feeder._id,
+          "not removed yet"
+        );
+        drag = drag.drop(document.querySelector(".bb-logistics"));
+        await waitForMethods();
+        chai.assert.isOk(
+          $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
+          "after drop"
+        );
+        chai.assert.isNotOk(getFeeder().get(0));
+        chai.assert.notInclude(
+          Puzzles.findOne(meta._id).puzzles,
+          feeder._id,
+          "removed after drag"
+        );
+      } finally {
+        await promiseCall("deletePuzzle", feeder._id);
+        await promiseCall("deletePuzzle", meta._id);
+        await promiseCall("deleteRound", round._id);
+      }
+    });
+
+    it("still feeds another", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for feeder",
+      });
+      const meta1 = await promiseCall("newPuzzle", {
+        name: "meta keeping feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const meta2 = await promiseCall("newPuzzle", {
+        name: "meta losing feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const feeder = await promiseCall("newPuzzle", {
+        name: "feeder to two metas",
+        round: round._id,
+        feedsInto: [meta1._id, meta2._id],
+      });
+      try {
+        function getMeta2() {
+          return $(`.bb-logistics-meta[data-puzzle-id="${meta2._id}"]`);
+        }
+        function getFeeder() {
+          return getMeta2().find(`.feeders [href="/puzzles/${feeder._id}"]`);
+        }
+        let drag = dragMock
+          .dragStart(getFeeder().get(0))
+          .dragEnter(getMeta2().get(0));
+        await afterFlushPromise();
+        chai.assert.isNotOk(
+          $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
+          "before leave"
+        );
+        chai.assert.isFalse(
+          getFeeder().is(".would-disappear"),
+          "not blurred yet"
+        );
+        drag = drag.dragLeave(getMeta2().get(0));
+        await afterFlushPromise();
+        chai.assert.isNotOk(
+          $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
+          "after leave"
+        );
+        chai.assert.isTrue(
+          getFeeder().is(".would-disappear"),
+          "would disappear"
+        );
+        chai.assert.include(
+          Puzzles.findOne(meta2._id).puzzles,
+          feeder._id,
+          "not removed yet"
+        );
+        chai.assert.include(
+          Puzzles.findOne(meta1._id).puzzles,
+          feeder._id,
+          "not removed from uninvolved meta"
+        );
+        drag = drag.drop(document.querySelector(".bb-logistics"));
+        await waitForMethods();
+        chai.assert.isNotOk(
+          $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
+          "after drop"
+        );
+        chai.assert.isNotOk(getFeeder().get(0), "removed from meta2");
+        chai.assert.notInclude(
+          Puzzles.findOne(meta2._id).puzzles,
+          feeder._id,
+          "removed after drag"
+        );
+        chai.assert.include(
+          Puzzles.findOne(meta1._id).puzzles,
+          feeder._id,
+          "never removed from uninvolved meta"
+        );
+      } finally {
+        await promiseCall("deletePuzzle", feeder._id);
+        await promiseCall("deletePuzzle", meta1._id);
+        await promiseCall("deletePuzzle", meta2._id);
+        await promiseCall("deleteRound", round._id);
+      }
+    });
+  });
 });
