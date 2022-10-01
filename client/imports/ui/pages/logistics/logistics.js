@@ -419,7 +419,6 @@ Template.logistics_puzzle.helpers({
 });
 
 function editButton(event, puzzleId) {
-  console.log(`puzzleId: ${puzzleId}, button: ${event.button}`);
   if (event.button !== 0) {
     return;
   }
@@ -433,7 +432,6 @@ function editButton(event, puzzleId) {
 
 Template.logistics_puzzle.events({
   "click .bb-logistics-edit-puzzle"(event, template) {
-    console.log("click edit in feeder");
     editButton(event, this._id);
   },
   "dragover .puzzle"(event, template) {
@@ -489,7 +487,6 @@ Template.logistics_meta.events({
     template.creatingFeeder.set(true);
   },
   "click header .bb-logistics-edit-puzzle"(event, template) {
-    console.log("click edit in meta");
     editButton(event, this.meta._id);
   },
   "dragstart .feeders .puzzle"(event, template) {
