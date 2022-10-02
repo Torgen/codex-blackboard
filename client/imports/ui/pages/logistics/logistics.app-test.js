@@ -162,6 +162,42 @@ describe("logistics", function () {
         }
       });
     });
+
+    describe("when link dropped", function () {
+      it("creates round from text", async function () {
+        await Router.LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = document.querySelector("#bb-logistics-new-round");
+        const fakeLink = document.createElement("div");
+        fakeLink.ondragstart = function (event) {
+          event.dataTransfer.setData(
+            "text/uri-list",
+            "https://molasses.holiday/foo"
+          );
+          event.dataTransfer.setData("url", "https://molasses.holiday/foo");
+          event.dataTransfer.setData(
+            "text/html",
+            '<a href="https://molasses.holiday/foo">\n\n   Foo   \n\n </a>'
+          );
+          event.dataTransfer.effectAllowed = "all";
+        };
+        dragMock
+          .dragStart(fakeLink)
+          .dragEnter($newRound)
+          .dragOver($newRound)
+          .drop($newRound);
+        const newRound = await waitForDocument(Rounds, {
+          name: "Foo",
+        });
+        try {
+          chai.assert.include(newRound, {
+            link: "https://molasses.holiday/foo",
+          });
+        } finally {
+          await promiseCall("deleteRound", newRound._id);
+        }
+      });
+    });
   });
 
   describe("new meta button", function () {
@@ -204,6 +240,52 @@ describe("logistics", function () {
               $meta.find("header .puzzle-name").text(),
               "new meta in round"
             );
+          } finally {
+            await promiseCall("deletePuzzle", newMeta._id);
+          }
+        } finally {
+          await promiseCall("deleteRound", round._id);
+        }
+      });
+    });
+
+    describe("when link dropped", function () {
+      it("creates meta from text", async function () {
+        await Router.LogisticsPage();
+        await waitForSubscriptions();
+        const round = await promiseCall("newRound", {
+          name: "round for drag and drop",
+        });
+        try {
+          const $newMeta = document.querySelector("#bb-logistics-new-meta");
+          const fakeLink = document.createElement("div");
+          fakeLink.ondragstart = function (event) {
+            event.dataTransfer.setData(
+              "text/uri-list",
+              "https://molasses.holiday/foo"
+            );
+            event.dataTransfer.setData("url", "https://molasses.holiday/foo");
+            event.dataTransfer.setData(
+              "text/html",
+              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>'
+            );
+            event.dataTransfer.effectAllowed = "all";
+          };
+          let drag = dragMock.dragStart(fakeLink).dragEnter($newMeta);
+          await afterFlushPromise();
+          const $round = $(
+            `#bb-logistics-new-meta [data-round-id="${round._id}"]`
+          ).get(0);
+          drag.dragEnter($round).drop($round);
+          const newMeta = await waitForDocument(Puzzles, {
+            name: "Dropped puzzle",
+          });
+          try {
+            chai.assert.deepInclude(newMeta, {
+              link: "https://molasses.holiday/foo",
+              puzzles: [],
+            });
+            chai.assert.include(Rounds.findOne(round._id).puzzles, newMeta._id);
           } finally {
             await promiseCall("deletePuzzle", newMeta._id);
           }
@@ -256,6 +338,57 @@ describe("logistics", function () {
         }
       });
     });
+
+    describe("when link dropped", function () {
+      it("creates standalone from text", async function () {
+        await Router.LogisticsPage();
+        await waitForSubscriptions();
+        const round = await promiseCall("newRound", {
+          name: "round for drag and drop",
+        });
+        try {
+          const $newStandalone = document.querySelector(
+            "#bb-logistics-new-standalone"
+          );
+          const fakeLink = document.createElement("div");
+          fakeLink.ondragstart = function (event) {
+            event.dataTransfer.setData(
+              "text/uri-list",
+              "https://molasses.holiday/foo"
+            );
+            event.dataTransfer.setData("url", "https://molasses.holiday/foo");
+            event.dataTransfer.setData(
+              "text/html",
+              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>'
+            );
+            event.dataTransfer.effectAllowed = "all";
+          };
+          let drag = dragMock.dragStart(fakeLink).dragEnter($newStandalone);
+          await afterFlushPromise();
+          const $round = $(
+            `#bb-logistics-new-standalone [data-round-id="${round._id}"]`
+          ).get(0);
+          drag.dragEnter($round).drop($round);
+          const newStandalone = await waitForDocument(Puzzles, {
+            name: "Dropped puzzle",
+          });
+          try {
+            chai.assert.deepInclude(newStandalone, {
+              link: "https://molasses.holiday/foo",
+            });
+            chai.assert.doesNotHaveAnyKeys(newStandalone, ["puzzles"]);
+            chai.assert.include(
+              Rounds.findOne(round._id).puzzles,
+              newStandalone._id
+            );
+          } finally {
+            await promiseCall("deletePuzzle", newStandalone._id);
+          }
+        } finally {
+          await promiseCall("deleteRound", round._id);
+        }
+      });
+    });
   });
 
   describe("new feeder", function () {
@@ -291,6 +424,67 @@ describe("logistics", function () {
             chai.assert.include(Rounds.findOne(round._id).puzzles, feeder._id);
           } finally {
             await promiseCall("deletePuzzle", feeder._id);
+          }
+        } finally {
+          await promiseCall("deletePuzzle", meta._id);
+          await promiseCall("deleteRound", round._id);
+        }
+      });
+    });
+
+    describe("when link dropped", function () {
+      it("creates feeder from text", async function () {
+        await Router.LogisticsPage();
+        await waitForSubscriptions();
+        const round = await promiseCall("newRound", {
+          name: "round for drag and drop",
+        });
+        const meta = await promiseCall("newPuzzle", {
+          name: "meta for drag and drop",
+          round: round._id,
+          puzzles: [],
+        });
+        try {
+          const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
+          const fakeLink = document.createElement("div");
+          fakeLink.ondragstart = function (event) {
+            event.dataTransfer.setData(
+              "text/uri-list",
+              "https://molasses.holiday/foo"
+            );
+            event.dataTransfer.setData("url", "https://molasses.holiday/foo");
+            event.dataTransfer.setData(
+              "text/html",
+              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>'
+            );
+            event.dataTransfer.effectAllowed = "all";
+          };
+          let drag = dragMock
+            .dragStart(fakeLink)
+            .dragEnter($meta.get(0))
+            .dragOver($meta.get(0));
+          await afterFlushPromise();
+          chai.assert.isOk($meta.find(".puzzle.dragged-link").get(0));
+          drag.drop($meta.get(0));
+          const newFeeder = await waitForDocument(Puzzles, {
+            name: "Dropped puzzle",
+          });
+          try {
+            chai.assert.deepInclude(newFeeder, {
+              feedsInto: [meta._id],
+              link: "https://molasses.holiday/foo",
+            });
+            chai.assert.doesNotHaveAnyKeys(newFeeder, ["puzzles"]);
+            chai.assert.include(
+              Puzzles.findOne(meta._id).puzzles,
+              newFeeder._id
+            );
+            chai.assert.include(
+              Rounds.findOne(round._id).puzzles,
+              newFeeder._id
+            );
+          } finally {
+            await promiseCall("deletePuzzle", newFeeder._id);
           }
         } finally {
           await promiseCall("deletePuzzle", meta._id);
