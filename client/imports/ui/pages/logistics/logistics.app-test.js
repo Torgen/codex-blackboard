@@ -551,6 +551,63 @@ describe("logistics", function () {
       }
     });
 
+    it("is meta", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for feeder",
+      });
+      const metameta = await promiseCall("newPuzzle", {
+        name: "new metameta for feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const meta = await promiseCall("newPuzzle", {
+        name: "meta to feed metameta",
+        round: round._id,
+        puzzles: [],
+      });
+      try {
+        const $metameta = $(`.bb-logistics-meta[data-puzzle-id="${metameta._id}"]`);
+        function getMeta() {
+          return $(
+            `.bb-logistics-meta[data-puzzle-id="${meta._id}"] header a.meta`
+          );
+        }
+        let drag = dragMock
+          .dragStart(getMeta().get(0))
+          .dragEnter($metameta.get(0))
+          .dragOver($metameta.get(0));
+        await afterFlushPromise();
+        chai.assert.isFalse(
+          getMeta().is(".would-disappear"),
+          "would disappear"
+        );
+        chai.assert.isOk(
+          $metameta.find(`[href="/puzzles/${meta._id}"]`),
+          "appears in metameta"
+        );
+        chai.assert.notInclude(
+          Puzzles.findOne(metameta._id).puzzles,
+          meta._id,
+          "not in metameta yet"
+        );
+        drag.drop($metameta.get(0));
+        await waitForMethods();
+        await afterFlushPromise();
+        chai.assert.include(
+          Puzzles.findOne(metameta._id).puzzles,
+          meta._id,
+          "is in meta"
+        );
+        chai.assert.isOk(getMeta().get(0), "is still meta");
+      } finally {
+        await promiseCall("deletePuzzle", metameta._id);
+        await promiseCall("deletePuzzle", meta._id);
+        await promiseCall("deleteRound", round._id);
+      }
+    });
+
     it("feeds another meta", async function () {
       await Router.LogisticsPage();
       await waitForSubscriptions();
@@ -809,7 +866,7 @@ describe("logistics", function () {
       // jQuery's click() ignores the click handlers and follows the link; the dom method triggers the handlers.
       $(
         `[href="/puzzles/${
-          Puzzles.findOne({ name: "Joy" })._id
+          Puzzles.findOne({ name: "Temperance" })._id
         }"] .bb-logistics-edit-puzzle`
       )
         .get(0)
