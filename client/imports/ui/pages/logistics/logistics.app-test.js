@@ -568,7 +568,9 @@ describe("logistics", function () {
         puzzles: [],
       });
       try {
-        const $metameta = $(`.bb-logistics-meta[data-puzzle-id="${metameta._id}"]`);
+        const $metameta = $(
+          `.bb-logistics-meta[data-puzzle-id="${metameta._id}"]`
+        );
         function getMeta() {
           return $(
             `.bb-logistics-meta[data-puzzle-id="${meta._id}"] header a.meta`
@@ -878,6 +880,95 @@ describe("logistics", function () {
       console.log("about to hide");
       $(".modal-backdrop").click();
       await modalHidden;
+    });
+  });
+
+  describe("delete button", function () {
+    it("deletes feeder", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for feeder",
+      });
+      const meta = await promiseCall("newPuzzle", {
+        name: "meta containing feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const feeder = await promiseCall("newPuzzle", {
+        name: "feeder to one meta",
+        round: round._id,
+        feedsInto: [meta._id],
+      });
+      try {
+        const $deleteButton = $("#bb-logistics-delete");
+        function getFeeder() {
+          return $(`.feeders a[href="/puzzles/${feeder._id}"]`);
+        }
+        let drag = dragMock
+          .dragStart(getFeeder().get(0))
+          .dragEnter($deleteButton.get(0))
+          .dragOver($deleteButton.get(0));
+        await afterFlushPromise();
+        chai.assert.isTrue(getFeeder().is(".would-disappear"));
+        drag.drop($deleteButton.get(0));
+        await afterFlushPromise();
+        $("#confirmModal .bb-confirm-ok").click();
+        await waitForMethods();
+        try {
+          chai.assert.isNotOk(Puzzles.findOne(feeder._id));
+          chai.assert.isNotOk(getFeeder().get(0));
+        } catch {
+          await promiseCall("deletePuzzle", feeder._id);
+        }
+      } finally {
+        await promiseCall("deletePuzzle", meta._id);
+        await promiseCall("deleteRound", round._id);
+      }
+    });
+
+    it("deletes meta", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for feeder",
+      });
+      const meta = await promiseCall("newPuzzle", {
+        name: "meta containing feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const feeder = await promiseCall("newPuzzle", {
+        name: "feeder to one meta",
+        round: round._id,
+        feedsInto: [meta._id],
+      });
+      try {
+        const $deleteButton = $("#bb-logistics-delete");
+        function getMeta() {
+          return $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
+        }
+        let drag = dragMock
+          .dragStart(getMeta().find("header .meta").get(0))
+          .dragEnter($deleteButton.get(0))
+          .dragOver($deleteButton.get(0));
+        await afterFlushPromise();
+        chai.assert.isTrue(getMeta().is(".would-disappear"));
+        drag.drop($deleteButton.get(0));
+        await afterFlushPromise();
+        $("#confirmModal .bb-confirm-ok").click();
+        await waitForMethods();
+        try {
+          chai.assert.isNotOk(Puzzles.findOne(meta._id));
+          chai.assert.isOk(Puzzles.findOne(feeder._id));
+          chai.assert.isNotOk(getMeta().get(0));
+        } catch {
+          await promiseCall("deletePuzzle", meta._id);
+        }
+      } finally {
+        await promiseCall("deletePuzzle", feeder._id);
+        await promiseCall("deleteRound", round._id);
+      }
     });
   });
 });
