@@ -519,7 +519,7 @@ describe("logistics", function () {
         }
         let drag = dragMock
           .dragStart(getStandalone().get(0))
-          .dragOver($('.bb-logistics').get(0))
+          .dragOver($(".bb-logistics").get(0))
           .dragEnter($meta.get(0))
           .dragOver($meta.get(0));
         await afterFlushPromise();
@@ -641,7 +641,7 @@ describe("logistics", function () {
         let drag = dragMock
           .dragStart(feederInMeta1().get(0))
           .dragLeave($meta1.get(0))
-          .dragOver($('bb-logistics').get(0))
+          .dragOver($("bb-logistics").get(0))
           .dragEnter($meta2.get(0));
         await afterFlushPromise();
         chai.assert.isFalse(
@@ -715,7 +715,9 @@ describe("logistics", function () {
           getFeeder().is(".would-disappear"),
           "not blurred yet"
         );
-        drag = drag.dragLeave(getMeta().get(0)).dragOver($('.bb-logistics').get(0));
+        drag = drag
+          .dragLeave(getMeta().get(0))
+          .dragOver($(".bb-logistics").get(0));
         await afterFlushPromise();
         chai.assert.isOk(
           $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
