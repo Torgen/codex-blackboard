@@ -641,7 +641,7 @@ describe("logistics", function () {
         let drag = dragMock
           .dragStart(feederInMeta1().get(0))
           .dragLeave($meta1.get(0))
-          .dragOver($("bb-logistics").get(0))
+          .dragOver($(".bb-logistics").get(0))
           .dragEnter($meta2.get(0));
         await afterFlushPromise();
         chai.assert.isFalse(
