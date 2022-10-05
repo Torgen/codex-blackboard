@@ -1,4 +1,9 @@
-import { Messages, Puzzles, Rounds } from "/lib/imports/collections.js";
+import {
+  CalendarEvents,
+  Messages,
+  Puzzles,
+  Rounds,
+} from "/lib/imports/collections.js";
 import Router from "/client/imports/router.js";
 import {
   waitForSubscriptions,
@@ -935,7 +940,7 @@ describe("logistics", function () {
       await Router.LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for feeder",
+        name: "new round for standalone",
       });
       const meta = await promiseCall("newPuzzle", {
         name: "meta containing feeder",
@@ -970,6 +975,135 @@ describe("logistics", function () {
           await promiseCall("deletePuzzle", meta._id);
         }
       } finally {
+        await promiseCall("deletePuzzle", feeder._id);
+        await promiseCall("deleteRound", round._id);
+      }
+    });
+  });
+
+  describe("calendar events", function () {
+    it("assigns to standalone by dragging", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for standalone",
+      });
+      const standalone = await promiseCall("newPuzzle", {
+        name: "standalone to receive event",
+        round: round._id,
+      });
+      const event = await promiseCall("newCalendarEvent", {
+        start: Date.now() + 3600000,
+        end: Date.now() + 7200000,
+        summary: "Event to assign",
+      });
+      try {
+        const $standalone = document.querySelector(
+          `.bb-logistics-standalone [href="/puzzles/${standalone._id}"]`
+        );
+        dragMock
+          .dragStart(
+            document.querySelector(
+              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`
+            )
+          )
+          .dragOver(document.querySelector(".bb-logistics"))
+          .dragEnter($standalone)
+          .dragOver($standalone)
+          .drop($standalone);
+        await waitForDocument(CalendarEvents, {
+          _id: event,
+          puzzle: standalone._id,
+        });
+      } finally {
+        await promiseCall("deleteCalendarEvent", event);
+        await promiseCall("deletePuzzle", standalone._id);
+        await promiseCall("deleteRound", round._id);
+      }
+    });
+
+    it("assigns to meta by dragging", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for meta",
+      });
+      const meta = await promiseCall("newPuzzle", {
+        name: "meta to receive event",
+        round: round._id,
+        puzzles: [],
+      });
+      const event = await promiseCall("newCalendarEvent", {
+        start: Date.now() + 3600000,
+        end: Date.now() + 7200000,
+        summary: "Event to assign",
+      });
+      try {
+        const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
+        const $metaPuzzle = $meta.find("header .meta");
+        dragMock
+          .dragStart(
+            document.querySelector(
+              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`
+            )
+          )
+          .dragOver(document.querySelector(".bb-logistics"))
+          .dragEnter($meta.get(0))
+          .dragOver($meta.get(0))
+          .dragEnter($metaPuzzle.get(0))
+          .dragOver($metaPuzzle.get(0))
+          .drop($metaPuzzle.get(0));
+        await waitForDocument(CalendarEvents, { _id: event, puzzle: meta._id });
+      } finally {
+        await promiseCall("deleteCalendarEvent", event);
+        await promiseCall("deletePuzzle", meta._id);
+        await promiseCall("deleteRound", round._id);
+      }
+    });
+
+    it("assigns to feeder by dragging", async function () {
+      await Router.LogisticsPage();
+      await waitForSubscriptions();
+      const round = await promiseCall("newRound", {
+        name: "new round for feeder",
+      });
+      const meta = await promiseCall("newPuzzle", {
+        name: "meta to receive feeder",
+        round: round._id,
+        puzzles: [],
+      });
+      const feeder = await promiseCall("newPuzzle", {
+        name: "feeder to receive event",
+        round: round._id,
+        feedsInto: [meta._id],
+      });
+      const event = await promiseCall("newCalendarEvent", {
+        start: Date.now() + 3600000,
+        end: Date.now() + 7200000,
+        summary: "Event to assign",
+      });
+      try {
+        const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
+        const $feeder = $meta.find(`.feeders [href="/puzzles/${feeder._id}"]`);
+        dragMock
+          .dragStart(
+            document.querySelector(
+              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`
+            )
+          )
+          .dragOver(document.querySelector(".bb-logistics"))
+          .dragEnter($meta.get(0))
+          .dragOver($meta.get(0))
+          .dragEnter($feeder.get(0))
+          .dragOver($feeder.get(0))
+          .drop($feeder.get(0));
+        await waitForDocument(CalendarEvents, {
+          _id: event,
+          puzzle: feeder._id,
+        });
+      } finally {
+        await promiseCall("deleteCalendarEvent", event);
+        await promiseCall("deletePuzzle", meta._id);
         await promiseCall("deletePuzzle", feeder._id);
         await promiseCall("deleteRound", round._id);
       }
