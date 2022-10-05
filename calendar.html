@@ -119,7 +119,7 @@
     {{/if}}
     {{#if event.location}}
       {{#if url event.location}}
-        <div class="bb-event-link"><i class="fas fa-link" title="Link"></i> <a href="{{event.location}}" target="_blank">{{event.location}}</a></div>
+        <div class="bb-event-link"><i class="fas fa-link" title="Link"></i> <a href="{{event.location}}" target="_blank" rel="noopener noreferrer">{{event.location}}</a></div>
       {{else}}
         <div class="bb-event-location"><i class="fas fa-map-marker" title="Location"></i> <a href="https://maps.google.com/maps/search/{{event.location}}" target="_blank">{{event.location}}</a></div>
       {{/if}}

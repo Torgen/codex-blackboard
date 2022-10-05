@@ -196,7 +196,7 @@ Click here to stay in this meeting instead.{{/if}}">
           <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
           {{> message_delete_button}}
           {{#with message.file_upload}}
-            <span data-mime-type="{{mimeType}}">{{fileType mimeType}}</span> "<a target="_blank" href="{{webViewLink}}">{{name}}</a>" added to drive folder.
+            <span data-mime-type="{{mimeType}}">{{fileType mimeType}}</span> "<a target="_blank" href="{{webViewLink}}" rel="noopener noreferrer">{{name}}</a>" added to drive folder.
           {{else}}
             {{>chat_format_body body=message.body bodyIsHtml=message.bodyIsHtml}}
           {{/with}}

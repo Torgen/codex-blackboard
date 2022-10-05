@@ -7,7 +7,7 @@
   }}
   {{#unless equal callin.callin_type "expected callback"}}
     {{#if hunt_link}}
-      <a href="{{hunt_link}}" target="_blank" class="copy-and-go btn btn-primary btn-mini" data-clipboard-target="#answer-{{callin._id}}" title="copy, mark submitted, and go">
+      <a href="{{hunt_link}}" target="_blank" rel="noopener noreferrer" class="copy-and-go btn btn-primary btn-mini" data-clipboard-target="#answer-{{callin._id}}" title="copy, mark submitted, and go">
         <i class="fas fa-clipboard"></i><i class="fas fa-check"></i><i class="fas fa-share"></i>
       </a> 
     {{/if}}

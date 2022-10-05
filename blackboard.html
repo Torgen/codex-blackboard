@@ -7,9 +7,9 @@
 <div class="bb-menu-drawer fade">
   <ul class="nav nav-list bb-sidenav">
     <li><a class="logistics-link" href="/logistics"><i class="fas fa-dolly"></i> Logistics</a></li>
-    <li><a href="https://www.github.com/{{whoseGitHub}}/codex-blackboard/issues" target="_blank"><i class="fab fa-github"></i> Issues</a></li>
+    <li><a href="https://www.github.com/{{whoseGitHub}}/codex-blackboard/issues" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> Issues</a></li>
     {{#with driveFolder}}
-      <li><a href="{{drive_link this}}" target="_blank"><i class="fab fa-google-drive"></i> Google Drive Folder</a></li>
+      <li><a href="{{drive_link this}}" target="_blank" rel="noopener noreferrer"><i class="fab fa-google-drive"></i> Google Drive Folder</a></li>
     {{/with}}
     <li class="separator"></li>
     {{>calendar_link}}
@@ -208,7 +208,7 @@
       {{else}}
         <span class="collapse-toggle"></span>
         {{>link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
-        {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site"><i class="fas fa-link"></i></a>{{/if}}
+        {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site" rel="noopener noreferrer"><i class="fas fa-link"></i></a>{{/if}}
       {{/edit_object_title}}
       {{#unless compactMode}}
         <table class="bb-tag-table"><tbody>
@@ -337,11 +337,11 @@
       {{else if equal puzzle.drive_status "fixing"}}
         <i class="pull-right fas fa-cog fa-spin bb-drive-status" title="fixing..."></i>
       {{/if}}
-      {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right"><i class="fas fa-th"></i></a>{{/if}}
-      {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right"><i class="fas fa-file"></i></a>{{/if}}
+      {{#if puzzle.spreadsheet}}<a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Spreadsheet for puzzle" class="pull-right" rel="noopener noreferrer"><i class="fas fa-th"></i></a>{{/if}}
+      {{#if puzzle.doc}}<a href="{{doc_link puzzle.doc}}" target="_blank" title="Doc for puzzle" class="pull-right" rel="noopener noreferrer"><i class="fas fa-file"></i></a>{{/if}}
       {{>link id=puzzle._id title="Chat room for puzzle" chat=true class="pull-right" icon="fas fa-comments"}}
-      {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" target="_blank" title="Link to hunt site"><i class="fas fa-puzzle-piece"></i></a>{{/if}}
-      {{#with jitsiLink}}<a class="pull-right" href="{{this}}" title="Link to video call" target="jitsi"><i class="fas fa-video"></i></a>{{/with}}
+      {{#if puzzle.link}}<a class="pull-right" href="{{puzzle.link}}" target="_blank" title="Link to hunt site" rel="noopener noreferrer"><i class="fas fa-puzzle-piece"></i></a>{{/if}}
+      {{#with jitsiLink}}<a class="pull-right" href="{{this}}" title="Link to video call" target="jitsi" rel="noopener noreferrer"><i class="fas fa-video"></i></a>{{/with}}
       {{>favorite puzzle}}
     {{/edit_object_title}}
     {{#if canEdit}}

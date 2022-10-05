@@ -3,9 +3,9 @@
 <header class="{{#if stuck}}bb-status-stuck{{else if puzzle.solved}}bb-status-solved{{/if}}">
   <h2>
     {{>onduty_current}}{{> header_breadcrumbs_unsolved_buttons puzzle}}
-    {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}"><i class="fab fa-google-drive"></i></a>{{else}}{{>fix_puzzle_drive puzzle=puzzle._id}}{{/if}}
+    {{#if puzzle.drive}}<a class="bb-drive-link" title="Open Drive folder in new window" target="_blank" href="{{drive_link puzzle.drive}}" rel="noopener noreferrer"><i class="fab fa-google-drive"></i></a>{{else}}{{>fix_puzzle_drive puzzle=puzzle._id}}{{/if}}
     {{>favorite puzzle}}
-    {{#if puzzle.link}}<a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class="fas fa-link"></i></a>{{/if}}
+    {{#if puzzle.link}}<a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window" rel="noopener noreferrer"><i class="fas fa-link"></i></a>{{/if}}
     {{>calendar_attachable_events puzzle=puzzle._id}}
   </h2>
   {{> edit_object_title id=puzzle._id type="puzzles" editable=true}}
@@ -138,15 +138,15 @@
 <div class="bb-pop-full-menu">
   {{#if currentViewIs "spreadsheet"}}
     {{#if puzzle.spreadsheet}}
-      <a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Open spreadsheet in new window"><i class='fas fa-external-link-alt'></i></a>
+      <a href="{{spread_link puzzle.spreadsheet}}" target="_blank" title="Open spreadsheet in new window" rel="noopener noreferrer"><i class='fas fa-external-link-alt'></i></a>
     {{/if}}
   {{else if currentViewIs "doc"}}
     {{#if puzzle.doc}}
-      <a href="{{doc_link puzzle.doc}}" target="_blank" title="Open document in new window"><i class='fas fa-external-link-alt'></i></a>
+      <a href="{{doc_link puzzle.doc}}" target="_blank" title="Open document in new window" rel="noopener noreferrer"><i class='fas fa-external-link-alt'></i></a>
     {{/if}}
   {{else if currentViewIs "puzzle"}}
     {{#if puzzle.link}}
-      <a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window"><i class='fas fa-external-link-alt'></i></a>
+      <a href="{{puzzle.link}}" target="_blank" title="Open puzzle in new window" rel="noopener noreferrer"><i class='fas fa-external-link-alt'></i></a>
     {{/if}}
   {{/if}}
   {{#if canGoFullScreen}}

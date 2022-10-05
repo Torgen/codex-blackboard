@@ -18,6 +18,6 @@
 
 <template name="text_chunk_text">{{this}}</template>
 
-<template name="text_chunk_url"><a href="{{url}}" target="_blank">{{original}}</a></template>
+<template name="text_chunk_url"><a href="{{url}}" target="_blank" rel="noopener noreferrer">{{original}}</a></template>
 
-<template name="text_chunk_url_image"><a href="{{url}}" target="_blank">{{#if image original}}<img src="{{url}}" class="inline-image image-loading" onload="window.imageScrollHack(this)" >{{else}}{{original}}{{/if}}</a></template>
+<template name="text_chunk_url_image"><a href="{{url}}" target="_blank" rel="noopener noreferrer">{{#if image original}}<img src="{{url}}" class="inline-image image-loading" onload="window.imageScrollHack(this)" >{{else}}{{original}}{{/if}}</a></template>

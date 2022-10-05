@@ -187,7 +187,7 @@
   <tr>
     <td>{{>link id=target title="Chat room" chat=true icon="fas fa-comments" class="pull-right"}}{{>link id=target}}{{#if hunt_link}}
     <br/><small>&nbsp;↦&nbsp;<a href="{{hunt_link}}"
-            target="_blank">on&nbsp;hunt&nbsp;site
+            target="_blank" rel="noopener noreferrer">on&nbsp;hunt&nbsp;site
     </a></small>
     {{/if}}{{#if solved}}<div class="dupe">Already Solved</div>{{/if}}</td>
     <td><div id="answer-{{_id}}" class="answer">{{answer}}</div>{{#if backsolve}}(backsolve){{/if}}{{#if provided}}(provided){{/if}}
