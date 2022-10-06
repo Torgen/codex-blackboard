@@ -55,17 +55,17 @@ const loginRequired = (f) =>
     return f.apply(this, arguments);
   };
 
+/*
 // hack! log subscriptions so we can see what's going on server-side
-if (false) {
-  Meteor.publish = ((publish) =>
-    function (name, func) {
-      const func2 = function () {
-        console.log("client subscribed to", name, arguments);
-        return func.apply(this, arguments);
-      };
-      return publish.call(Meteor, name, func2);
-    })(Meteor.publish);
-} // disable by default
+const oldPublish = Meteor.publish;
+Meteor.publish = function (name, func) {
+  const func2 = function () {
+    console.log("client subscribed to", name, arguments);
+    return func.apply(this, arguments);
+  };
+  return publish.call(Meteor, name, func2);
+}
+*/
 
 Meteor.publish(
   "all-roundsandpuzzles",
