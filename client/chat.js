@@ -1298,6 +1298,24 @@ Template.messages.onCreated(function () {
     let total_unread = 0;
     let total_mentions = 0;
     let update = function () {}; // ignore initial updates
+    function added(item) {
+      if (item.system) {
+        return;
+      }
+      total_unread++;
+      if (doesMentionNick(item)) {
+        total_mentions++;
+      }
+    }
+    function removed(item) {
+      if (item.system) {
+        return;
+      }
+      total_unread--;
+      if (doesMentionNick(item)) {
+        total_mentions--;
+      }
+    }
     Messages.find({
       room_name,
       nick: { $ne: nick },
@@ -1305,38 +1323,16 @@ Template.messages.onCreated(function () {
       from_chat_subscription: true,
     }).observe({
       added(item) {
-        if (item.system) {
-          return;
-        }
-        total_unread++;
-        if (doesMentionNick(item)) {
-          total_mentions++;
-        }
+        added(item);
         update();
       },
       removed(item) {
-        if (item.system) {
-          return;
-        }
-        total_unread--;
-        if (doesMentionNick(item)) {
-          total_mentions--;
-        }
+        removed(item);
         update();
       },
       changed(newItem, oldItem) {
-        if (!oldItem.system) {
-          total_unread--;
-          if (doesMentionNick(oldItem)) {
-            total_mentions--;
-          }
-        }
-        if (!newItem.system) {
-          total_unread++;
-          if (doesMentionNick(newItem)) {
-            total_mentions++;
-          }
-        }
+        removed(oldItem);
+        added(newItem);
         update();
       },
     });
