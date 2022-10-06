@@ -1248,9 +1248,6 @@ Template.chat.onRendered(function () {
 
 // App startup
 Meteor.startup(function () {
-  if (typeof Audio !== "function") {
-    return;
-  } // for phantomjs
   instachat.messageMentionSound = new Audio(
     Meteor._relativeToSiteRootUrl("/sound/Electro_-S_Bainbr-7955.wav")
   );

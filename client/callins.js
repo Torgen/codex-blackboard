@@ -3,17 +3,10 @@ import { CallIns } from "/lib/imports/collections.js";
 import * as callin_types from "/lib/imports/callin_types.js";
 
 Meteor.startup(function () {
-  let newCallInSound;
-  if (typeof Audio === "function") {
-    // for phantomjs
-    newCallInSound = new Audio(
-      Meteor._relativeToSiteRootUrl("/sound/new_callin.wav")
-    );
-  }
+  const newCallInSound = new Audio(
+    Meteor._relativeToSiteRootUrl("/sound/new_callin.wav")
+  );
 
-  if (newCallInSound?.play == null) {
-    return;
-  }
   // note that this observe 'leaks'; that's ok, the set of callins is small
   Tracker.autorun(function () {
     const sub = Meteor.subscribe("callins");

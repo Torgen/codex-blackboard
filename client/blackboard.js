@@ -34,15 +34,9 @@ const SOUND_THRESHOLD_MS = 30 * 1000; // 30 seconds
 const blackboard = {}; // store page global state
 
 Meteor.startup(function () {
-  if (typeof Audio === "function") {
-    // for phantomjs
-    blackboard.newAnswerSound = new Audio(
-      Meteor._relativeToSiteRootUrl("/sound/that_was_easy.wav")
-    );
-  }
-  if (blackboard.newAnswerSound?.play == null) {
-    return;
-  }
+  blackboard.newAnswerSound = new Audio(
+    Meteor._relativeToSiteRootUrl("/sound/that_was_easy.wav")
+  );
   // set up a persistent query so we can play the sound whenever we get a new
   // answer
   // note that this observe 'leaks' -- we're not setting it up/tearing it
