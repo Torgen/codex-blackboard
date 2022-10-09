@@ -5,7 +5,7 @@ import {
   login,
   logout,
 } from "/client/imports/app_test_helpers.js";
-import Router from "/client/imports/router.js";
+import { GraphPage } from "/client/imports/router.js";
 import chai from "chai";
 
 const awaitRender = () =>
@@ -18,7 +18,7 @@ describe("graph", function () {
 
   it("renders", async function () {
     let p = awaitRender();
-    Router.GraphPage();
+    GraphPage();
     await login("testy", "Teresa Tybalt", "", "failphrase");
     await afterFlushPromise();
     await waitForSubscriptions();

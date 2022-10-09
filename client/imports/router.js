@@ -1,5 +1,6 @@
 import { INITIAL_CHAT_LIMIT } from "/client/imports/server_settings.js";
 import { awaitBundleLoaded } from "/client/imports/ui/pages/logistics/logistics_page.js";
+import page from "page";
 
 const distToTop = (x) => Math.abs(x.getBoundingClientRect().top - 110);
 
@@ -35,141 +36,130 @@ function scrollAfter(x) {
   }
 }
 
-// Router
-const BlackboardRouter = Backbone.Router.extend({
-  routes: {
-    "": "BlackboardPage",
-    graph: "GraphPage",
-    map: "MapPage",
-    edit: "EditPage",
-    "rounds/:round": "RoundPage",
-    "puzzles/:puzzle": "PuzzlePage",
-    "puzzles/:puzzle/:view": "PuzzlePage",
-    "chat/:type/:id": "ChatPage",
-    oplogs: "OpLogPage",
-    facts: "FactsPage",
-    statistics: "StatisticsPage",
-    logistics: "LogisticsPage",
-    callins: "LogisticsRedirect",
-    projector: "ProjectorPage",
-  },
+page("/", BlackboardPage);
+page("/edit", EditPage);
+page("/graph", GraphPage);
+page("/map", MapPage);
+page("/rounds/:round", ({ params: { round } }) => RoundPage(round));
+page("/puzzles/:puzzle", ({ params: { puzzle } }) => PuzzlePage(puzzle));
+page("/puzzles/:puzzle/:view", ({ params: { puzzle, view } }) =>
+  PuzzlePage(puzzle, view)
+);
+page("/chat/:type/:id", ({ params: { type, id } }) => ChatPage(type, id));
+page("/oplogs", OpLogPage);
+page("/facts", FactsPage);
+page("/statistics", StatisticsPage);
+page("/logistics", LogisticsPage);
+page.redirect("/callins", "/logistics");
+page("/projector", ProjectorPage);
 
-  BlackboardPage() {
-    scrollAfter(() => {
-      this.Page("blackboard", "general", "0", true, true);
-      Session.set({
-        color: "inherit",
-        canEdit: undefined,
-        topRight: "blackboard_status_grid",
-      });
-    });
-  },
-
-  EditPage() {
-    scrollAfter(() => {
-      this.Page("blackboard", "general", "0", true, true);
-      Session.set({
-        color: "inherit",
-        canEdit: true,
-        topRight: "blackboard_status_grid",
-      });
-    });
-  },
-
-  GraphPage() {
-    this.Page("graph", "general", "0", false);
-  },
-
-  MapPage() {
-    this.Page("map", "general", "0", false);
-  },
-
-  async LogisticsPage() {
-    this.Page("logistics_page", "general", "0", true, true);
-    await awaitBundleLoaded();
-  },
-
-  LogisticsRedirect() {
-    this.navigate("/logistics", { trigger: true, replace: true });
-  },
-
-  ProjectorPage() {
-    this.Page("projector", "general", "0", false);
-  },
-
-  PuzzlePage(id, view = null) {
-    this.Page("puzzle", "puzzles", id, true, true);
+export function BlackboardPage() {
+  scrollAfter(() => {
+    Page("blackboard", "general", "0", true, true);
     Session.set({
-      timestamp: 0,
-      view,
+      color: "inherit",
+      canEdit: undefined,
+      topRight: "blackboard_status_grid",
     });
-  },
+  });
+}
 
-  RoundPage(id) {
-    this.goToChat("rounds", id, 0);
-  },
-
-  ChatPage(type, id) {
-    if (type === "general") {
-      id = "0";
-    }
-    this.Page("chat", type, id, true);
-  },
-
-  OpLogPage() {
-    this.Page("oplog", "oplog", "0", false);
-  },
-
-  FactsPage() {
-    this.Page("facts", "facts", "0", false);
-  },
-
-  StatisticsPage() {
-    this.Page("statistics", "general", "0", false);
-  },
-
-  Page(page, type, id, has_chat, splitter) {
-    const old_room = Session.get("room_name");
-    const new_room = has_chat ? `${type}/${id}` : null;
-    if (old_room !== new_room) {
-      // if switching between a puzzle room and full-screen chat, don't reset limit.
-      Session.set({
-        room_name: new_room,
-        limit: INITIAL_CHAT_LIMIT,
-      });
-    }
+export function EditPage() {
+  scrollAfter(() => {
+    Page("blackboard", "general", "0", true, true);
     Session.set({
-      splitter: splitter ?? false,
-      currentPage: page,
-      type,
-      id,
+      color: "inherit",
+      canEdit: true,
+      topRight: "blackboard_status_grid",
     });
-    // cancel modals if they were active
-    $(".modal").modal("hide");
-  },
+  });
+}
 
-  urlFor(type, id) {
-    return Meteor._relativeToSiteRootUrl(`/${type}/${id}`);
-  },
-  chatUrlFor(type, id) {
-    return Meteor._relativeToSiteRootUrl(`/chat${this.urlFor(type, id)}`);
-  },
+export function GraphPage() {
+  Page("graph", "general", "0", false);
+}
 
-  goTo(type, id) {
-    this.navigate(this.urlFor(type, id), { trigger: true });
-  },
+export function MapPage() {
+  Page("map", "general", "0", false);
+}
 
-  goToRound(round) {
-    this.goTo("rounds", round._id);
-  },
+export async function LogisticsPage() {
+  Page("logistics_page", "general", "0", true, true);
+  await awaitBundleLoaded();
+}
 
-  goToPuzzle(puzzle) {
-    this.goTo("puzzles", puzzle._id);
-  },
+export function ProjectorPage() {
+  Page("projector", "general", "0", false);
+}
 
-  goToChat(type, id) {
-    this.navigate(this.chatUrlFor(type, id), { trigger: true });
-  },
-});
+export function PuzzlePage(id, view = null) {
+  Page("puzzle", "puzzles", id, true, true);
+  Session.set({
+    timestamp: 0,
+    view,
+  });
+}
 
-export default new BlackboardRouter();
+export function RoundPage(id) {
+  page.redirect(chatUrlFor("rounds", id));
+}
+
+export function ChatPage(type, id) {
+  if (type === "general") {
+    id = "0";
+  }
+  Page("chat", type, id, true);
+}
+
+export function OpLogPage() {
+  Page("oplog", "oplog", "0", false);
+}
+
+export function FactsPage() {
+  Page("facts", "facts", "0", false);
+}
+
+export function StatisticsPage() {
+  Page("statistics", "general", "0", false);
+}
+
+function Page(page, type, id, has_chat, splitter) {
+  const old_room = Session.get("room_name");
+  const new_room = has_chat ? `${type}/${id}` : null;
+  if (old_room !== new_room) {
+    // if switching between a puzzle room and full-screen chat, don't reset limit.
+    Session.set({
+      room_name: new_room,
+      limit: INITIAL_CHAT_LIMIT,
+    });
+  }
+  Session.set({
+    splitter: splitter ?? false,
+    currentPage: page,
+    type,
+    id,
+  });
+  // cancel modals if they were active
+  $(".modal").modal("hide");
+}
+
+export function urlFor(type, id) {
+  return Meteor._relativeToSiteRootUrl(`/${type}/${id}`);
+}
+
+function chatUrlFor(type, id) {
+  return Meteor._relativeToSiteRootUrl(`/chat${urlFor(type, id)}`);
+}
+
+export function goToChat(type, id) {
+  page(chatUrlFor(type, id));
+}
+
+export function navigate(to) {
+  if (typeof to !== "string") {
+    throw new Error("target of navigate must be string");
+  }
+  page(to);
+}
+
+page.start({ click: false });

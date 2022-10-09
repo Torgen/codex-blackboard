@@ -1,5 +1,5 @@
 import { reactiveLocalStorage } from "/client/imports/storage.js";
-import Router from "/client/imports/router.js";
+import { navigate } from "/client/imports/router.js";
 
 const keystring = (k) => `notification.stream.${k}`;
 
@@ -90,7 +90,7 @@ export function notify(title, settings) {
     const n = new Notification(title, settings);
     if (settings.data?.url != null) {
       return (n.onclick = function () {
-        Router.navigate(settings.data.url, { trigger: true });
+        navigate(settings.data.url, { trigger: true });
         return window.focus();
       });
     }
@@ -112,7 +112,7 @@ function setupNotifications() {
           if (msg.data.action !== "navigate") {
             return;
           }
-          return Router.navigate(msg.data.url, { trigger: true });
+          return navigate(msg.data.url, { trigger: true });
         });
         notify = (title, settings) => reg.showNotification(title, settings);
         return finishSetupNotifications();

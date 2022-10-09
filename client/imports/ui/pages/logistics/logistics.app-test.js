@@ -4,7 +4,7 @@ import {
   Puzzles,
   Rounds,
 } from "/lib/imports/collections.js";
-import Router from "/client/imports/router.js";
+import { LogisticsPage } from "/client/imports/router.js";
 import {
   waitForSubscriptions,
   waitForMethods,
@@ -25,7 +25,7 @@ describe("logistics", function () {
 
   describe("callins", function () {
     it("marks puzzle solved", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       let pb = Puzzles.findOne({ name: "Puzzle Box" });
       await promiseCall("deleteAnswer", { target: pb._id });
@@ -48,7 +48,7 @@ describe("logistics", function () {
     });
 
     it("gets disappointed", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       let pb = Puzzles.findOne({ name: "Puzzle Box" });
       await promiseCall("deleteAnswer", { target: pb._id });
@@ -78,7 +78,7 @@ describe("logistics", function () {
     });
 
     it("accepts explanation on accepted interaction request", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       let pb = Puzzles.findOne({ name: "Puzzle Box" });
       await promiseCall("deleteAnswer", { target: pb._id });
@@ -109,7 +109,7 @@ describe("logistics", function () {
     });
 
     it("accepts explanation on rejected interaction request", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       let pb = Puzzles.findOne({ name: "Puzzle Box" });
       await promiseCall("deleteAnswer", { target: pb._id });
@@ -143,7 +143,7 @@ describe("logistics", function () {
   describe("new round button", function () {
     describe("when clicked", function () {
       it("creates round on enter", async function () {
-        await Router.LogisticsPage();
+        await LogisticsPage();
         await waitForSubscriptions();
         const $newRound = $("#bb-logistics-new-round");
         $newRound.mousedown().click();
@@ -170,7 +170,7 @@ describe("logistics", function () {
 
     describe("when link dropped", function () {
       it("creates round from text", async function () {
-        await Router.LogisticsPage();
+        await LogisticsPage();
         await waitForSubscriptions();
         const $newRound = document.querySelector("#bb-logistics-new-round");
         const fakeLink = document.createElement("div");
@@ -208,7 +208,7 @@ describe("logistics", function () {
   describe("new meta button", function () {
     describe("when clicked", function () {
       it("creates meta in round", async function () {
-        await Router.LogisticsPage();
+        await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
           name: "new round for meta",
@@ -256,7 +256,7 @@ describe("logistics", function () {
 
     describe("when link dropped", function () {
       it("creates meta from text", async function () {
-        await Router.LogisticsPage();
+        await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
           name: "round for drag and drop",
@@ -304,7 +304,7 @@ describe("logistics", function () {
   describe("new standalone button", function () {
     describe("when clicked", function () {
       it("creates standalone in round", async function () {
-        await Router.LogisticsPage();
+        await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
           name: "new round for standalone",
@@ -346,7 +346,7 @@ describe("logistics", function () {
 
     describe("when link dropped", function () {
       it("creates standalone from text", async function () {
-        await Router.LogisticsPage();
+        await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
           name: "round for drag and drop",
@@ -399,7 +399,7 @@ describe("logistics", function () {
   describe("new feeder", function () {
     describe("when clicking button", function () {
       it("creates feeder in meta", async function () {
-        await Router.LogisticsPage();
+        await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
           name: "new round for feeder",
@@ -439,7 +439,7 @@ describe("logistics", function () {
 
     describe("when link dropped", function () {
       it("creates feeder from text", async function () {
-        await Router.LogisticsPage();
+        await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
           name: "round for drag and drop",
@@ -501,7 +501,7 @@ describe("logistics", function () {
 
   describe("feed meta", function () {
     it("is standalone", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for feeder",
@@ -558,7 +558,7 @@ describe("logistics", function () {
     });
 
     it("is meta", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for feeder",
@@ -617,7 +617,7 @@ describe("logistics", function () {
     });
 
     it("feeds another meta", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for feeder",
@@ -686,7 +686,7 @@ describe("logistics", function () {
 
   describe("unfeed meta", function () {
     it("becomes standalone", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for feeder",
@@ -757,7 +757,7 @@ describe("logistics", function () {
     });
 
     it("still feeds another", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for feeder",
@@ -844,7 +844,7 @@ describe("logistics", function () {
 
   describe("edit modal", function () {
     it("closes on escape", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const modalShown = new Promise(function (resolve) {
         $("#bb-logistics-edit-dialog").one("shown", resolve);
@@ -868,7 +868,7 @@ describe("logistics", function () {
     });
 
     it("closes on backdrop click", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const modalShown = new Promise(function (resolve) {
         $("#bb-logistics-edit-dialog").one("shown", resolve);
@@ -894,7 +894,7 @@ describe("logistics", function () {
 
   describe("delete button", function () {
     it("deletes feeder", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for feeder",
@@ -937,7 +937,7 @@ describe("logistics", function () {
     });
 
     it("deletes meta", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for standalone",
@@ -983,7 +983,7 @@ describe("logistics", function () {
 
   describe("calendar events", function () {
     it("assigns to standalone by dragging", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for standalone",
@@ -1023,7 +1023,7 @@ describe("logistics", function () {
     });
 
     it("assigns to meta by dragging", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for meta",
@@ -1062,7 +1062,7 @@ describe("logistics", function () {
     });
 
     it("assigns to feeder by dragging", async function () {
-      await Router.LogisticsPage();
+      await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
         name: "new round for feeder",

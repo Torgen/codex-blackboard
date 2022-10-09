@@ -1,4 +1,4 @@
-import Router from "/client/imports/router.js";
+import { ChatPage } from "/client/imports/router.js";
 import {
   waitForSubscriptions,
   waitForMethods,
@@ -22,7 +22,7 @@ describe("chat", function () {
   after(() => logout());
 
   it("general chat", async function () {
-    Router.ChatPage("general", "0");
+    ChatPage("general", "0");
     await afterFlushPromise();
     await waitForSubscriptions();
     await afterFlushPromise();
@@ -48,7 +48,7 @@ describe("chat", function () {
       room_name: `puzzles/${id}`,
       timestamp: { $gte: Date.now() },
     });
-    Router.ChatPage("puzzles", id);
+    ChatPage("puzzles", id);
     await afterFlushPromise();
     await waitForSubscriptions();
     await afterFlushPromise();
@@ -62,7 +62,7 @@ describe("chat", function () {
 
   it("scrolls through history", async function () {
     const id = Puzzles.findOne({ name: "Joy" })._id;
-    Router.ChatPage("puzzles", id);
+    ChatPage("puzzles", id);
     await waitForSubscriptions();
     await afterFlushPromise();
     const input = $("#messageInput");
@@ -97,7 +97,7 @@ describe("chat", function () {
   it("loads more", async function () {
     this.timeout(30000);
     const puzz = Puzzles.findOne({ name: "Literary Collection" });
-    Router.ChatPage("puzzles", puzz._id);
+    ChatPage("puzzles", puzz._id);
     const room = `puzzles/${puzz._id}`;
     await waitForSubscriptions();
     await afterFlushPromise();
@@ -124,7 +124,7 @@ describe("chat", function () {
 
   it("deletes message", async function () {
     const puzz = Puzzles.findOne({ name: "Freak Out" });
-    Router.ChatPage("puzzles", puzz._id);
+    ChatPage("puzzles", puzz._id);
     const room = `puzzles/${puzz._id}`;
     await waitForSubscriptions();
     await afterFlushPromise();
@@ -147,7 +147,7 @@ describe("chat", function () {
 
   it("aborts deleting message", async function () {
     const puzz = Puzzles.findOne({ name: "Freak Out" });
-    Router.ChatPage("puzzles", puzz._id);
+    ChatPage("puzzles", puzz._id);
     const room = `puzzles/${puzz._id}`;
     await waitForSubscriptions();
     await afterFlushPromise();
@@ -171,7 +171,7 @@ describe("chat", function () {
   describe("/join", function () {
     it("joins puzzle", async function () {
       const puzz = Puzzles.findOne({ name: "Painted Potsherds" });
-      Router.ChatPage("general", "0");
+      ChatPage("general", "0");
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -184,7 +184,7 @@ describe("chat", function () {
 
     it("joins round", async function () {
       const rnd = Rounds.findOne({ name: "Civilization" });
-      Router.ChatPage("general", "0");
+      ChatPage("general", "0");
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -197,7 +197,7 @@ describe("chat", function () {
 
     it("joins general", async function () {
       const rnd = Rounds.findOne({ name: "Civilization" });
-      Router.ChatPage("rounds", rnd._id);
+      ChatPage("rounds", rnd._id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -209,7 +209,7 @@ describe("chat", function () {
     });
 
     return it("joins puzzle", async function () {
-      Router.ChatPage("general", "0");
+      ChatPage("general", "0");
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -226,7 +226,7 @@ describe("chat", function () {
   describe("typeahead", function () {
     it("accepts keyboard commands", async function () {
       const id = Puzzles.findOne({ name: "Disgust" })._id;
-      Router.ChatPage("puzzles", id);
+      ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -261,7 +261,7 @@ describe("chat", function () {
 
     return it("allows clicks", async function () {
       const id = Puzzles.findOne({ name: "Space Elevator" })._id;
-      Router.ChatPage("puzzles", id);
+      ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -281,7 +281,7 @@ describe("chat", function () {
   describe("submit", function () {
     it("mentions", async function () {
       const id = Puzzles.findOne({ name: "Showcase" })._id;
-      Router.ChatPage("puzzles", id);
+      ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -298,7 +298,7 @@ describe("chat", function () {
 
     it("nonexistent mentions", async function () {
       const id = Puzzles.findOne({ name: "Soooo Cute!" })._id;
-      Router.ChatPage("puzzles", id);
+      ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -315,7 +315,7 @@ describe("chat", function () {
 
     it("action", async function () {
       const id = Puzzles.findOne({ name: "This SHOULD Be Easy" })._id;
-      Router.ChatPage("puzzles", id);
+      ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -336,7 +336,7 @@ describe("chat", function () {
 
     it("messages", async function () {
       const id = Puzzles.findOne({ name: "Charm School" })._id;
-      Router.ChatPage("puzzles", id);
+      ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -354,7 +354,7 @@ describe("chat", function () {
 
     return it("errors on message to nobody", async function () {
       const id = Puzzles.findOne({ name: "Charm School" })._id;
-      Router.ChatPage("puzzles", id);
+      ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
@@ -369,7 +369,7 @@ describe("chat", function () {
   return describe("polls", () =>
     it("lets you change your vote", async function () {
       const id = Puzzles.findOne({ name: "Amateur Hour" })._id;
-      Router.ChatPage("puzzles", id);
+      ChatPage("puzzles", id);
       await waitForSubscriptions();
       await afterFlushPromise();
       const poll = await promiseCall(

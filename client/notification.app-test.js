@@ -1,6 +1,6 @@
 import { Puzzles, Rounds } from "/lib/imports/collections.js";
 import * as notification from "/client/imports/notification.js";
-import Router from "/client/imports/router.js";
+import { BlackboardPage } from "/client/imports/router.js";
 import {
   waitForSubscriptions,
   promiseCall,
@@ -20,7 +20,7 @@ describe("notifications dropdown", function () {
   this.timeout(10000);
   before(async function () {
     await login("testy", "Teresa Tybalt", "fake@artifici.al", "failphrase");
-    Router.BlackboardPage();
+    BlackboardPage();
   });
 
   after(() => logout());
@@ -78,7 +78,7 @@ describe("notifications", function () {
       real_name: "Someone Else",
       password: "failphrase",
     });
-    Router.BlackboardPage();
+    BlackboardPage();
   });
 
   after(() => logout());

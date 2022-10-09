@@ -3,7 +3,7 @@ import {
   login,
   logout,
 } from "/client/imports/app_test_helpers.js";
-import Router from "/client/imports/router.js";
+import { ProjectorPage } from "/client/imports/router.js";
 import chai from "chai";
 import sinon from "sinon";
 
@@ -19,7 +19,7 @@ describe("projector", function () {
   after(async () => await logout());
 
   it("operates", async function () {
-    Router.ProjectorPage();
+    ProjectorPage();
     await afterFlushPromise();
     const page = $("#projector_page");
     if (!page.children().size()) {

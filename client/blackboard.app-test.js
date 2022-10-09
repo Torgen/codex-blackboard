@@ -1,5 +1,5 @@
 import { Rounds, Puzzles } from "/lib/imports/collections.js";
-import Router from "/client/imports/router.js";
+import { BlackboardPage, EditPage } from "/client/imports/router.js";
 import {
   waitForMethods,
   waitForSubscriptions,
@@ -19,7 +19,7 @@ describe("blackboard", function () {
   after(() => logout());
 
   it("sorts rounds in requested order", async function () {
-    Router.BlackboardPage();
+    BlackboardPage();
     await waitForSubscriptions();
     // there should be table headers for the two rounds, in the right order.
     const civ = Rounds.findOne({ name: "Civilization" });
@@ -45,7 +45,7 @@ describe("blackboard", function () {
   });
 
   it("navigates to puzzle on click", async function () {
-    Router.BlackboardPage();
+    BlackboardPage();
     await waitForSubscriptions();
     const isss = Puzzles.findOne({ name: "Interstellar Spaceship" });
     chai.assert.isOk(isss);
@@ -59,7 +59,7 @@ describe("blackboard", function () {
   });
 
   it("hides solved", async function () {
-    Router.BlackboardPage();
+    BlackboardPage();
     await waitForSubscriptions();
 
     const joy = Puzzles.findOne({ name: "Joy" });
@@ -126,7 +126,7 @@ describe("blackboard", function () {
         )
       );
       await Promise.all([p1, p2]);
-      Router.BlackboardPage();
+      BlackboardPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       $(".bb-show-filter-by-user").click();
@@ -186,7 +186,7 @@ describe("blackboard", function () {
 
   describe("in edit mode", function () {
     it("allows reordering puzzles", async function () {
-      Router.EditPage();
+      EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       const wall_street = Puzzles.findOne({ name: "Wall Street" });
@@ -222,7 +222,7 @@ describe("blackboard", function () {
     });
 
     it("allows reordering metas", async function () {
-      Router.EditPage();
+      EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       const sadness = Puzzles.findOne({ name: "Sadness" });
@@ -279,7 +279,7 @@ describe("blackboard", function () {
     });
 
     it("alphabetizes within a meta", async function () {
-      Router.EditPage();
+      EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       // there should be a table header for the Civilization round.
@@ -315,7 +315,7 @@ describe("blackboard", function () {
     });
 
     it("allows creating and deleting puzzles with buttons", async function () {
-      Router.EditPage();
+      EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       $("button.bb-add-round").click();
@@ -400,7 +400,7 @@ describe("blackboard", function () {
     });
 
     it("adds and deletes tags", async function () {
-      Router.EditPage();
+      EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       const bank = () => Puzzles.findOne({ name: "Letter Bank" });
@@ -502,7 +502,7 @@ describe("blackboard", function () {
     });
 
     it("renames tag", async function () {
-      Router.EditPage();
+      EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       let disgust = Puzzles.findOne({ name: "Disgust" });
@@ -536,7 +536,7 @@ describe("blackboard", function () {
     });
 
     it("empty name aborts", async function () {
-      Router.EditPage();
+      EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       let disgust = Puzzles.findOne({ name: "Disgust" });
@@ -565,7 +565,7 @@ describe("blackboard", function () {
     });
 
     return it("will not clobber a tag", async function () {
-      Router.EditPage();
+      EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
       let disgust = Puzzles.findOne({ name: "Disgust" });
@@ -595,7 +595,7 @@ describe("blackboard", function () {
   });
 
   return it("makes a puzzle a favorite", async function () {
-    Router.BlackboardPage();
+    BlackboardPage();
     await waitForSubscriptions();
     await afterFlushPromise();
     chai.assert.isUndefined($("#favorites").html());

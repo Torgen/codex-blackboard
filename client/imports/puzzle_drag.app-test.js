@@ -1,5 +1,5 @@
 import { Puzzles, Rounds } from "/lib/imports/collections.js";
-import Router from "/client/imports/router.js";
+import { EditPage } from "/client/imports/router.js";
 import PuzzleDrag from "./puzzle_drag.js";
 import {
   waitForSubscriptions,
@@ -19,7 +19,7 @@ describe("drag-and-drop", function () {
   after(() => logout());
 
   it("allows drag and drop within a meta", async function () {
-    Router.EditPage();
+    EditPage();
     await waitForSubscriptions();
     await afterFlushPromise();
     const round = () => Rounds.findOne({ name: "Civilization" });

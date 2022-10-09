@@ -1,12 +1,15 @@
 import {
   waitForSubscriptions,
-  waitForMethods,
   afterFlushPromise,
-  promiseCall,
   login,
   logout,
 } from "./imports/app_test_helpers.js";
-import Router from "/client/imports/router.js";
+import {
+  BlackboardPage,
+  EditPage,
+  PuzzlePage,
+  LogisticsPage,
+} from "/client/imports/router.js";
 import jitsiModule from "./imports/jitsi.js";
 import chai from "chai";
 import sinon from "sinon";
@@ -54,7 +57,7 @@ describe("jitsi", function () {
     const mock = expectFactory();
     const onceExp = mock.expects("once").twice();
 
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();
@@ -83,22 +86,22 @@ describe("jitsi", function () {
 
   it("shares meeting between blackboard and edit", async function () {
     const mock = expectFactory();
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();
-    Router.EditPage();
+    EditPage();
     await afterFlushPromise();
     chai.assert.equal(factory.callCount, 1);
   });
 
   it("shares meeting between blackboard and logistics", async function () {
     const mock = expectFactory();
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();
-    await Router.LogisticsPage();
+    await LogisticsPage();
     await waitForSubscriptions();
     await afterFlushPromise();
     chai.assert.equal(factory.callCount, 1);
@@ -107,7 +110,7 @@ describe("jitsi", function () {
   it("joins new meeting when moving from blackboard to puzzle", async function () {
     const mock1 = expectFactory();
     const dispose1 = mock1.expects("dispose").never();
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();
@@ -117,7 +120,7 @@ describe("jitsi", function () {
     const onceExp = mock2.expects("once").twice();
     const dispose2 = mock2.expects("dispose").never();
     const puzz = Puzzles.findOne({ name: "In Memoriam" });
-    Router.PuzzlePage(puzz._id);
+    PuzzlePage(puzz._id);
     await afterFlushPromise();
     await waitForSubscriptions();
     dispose1.verify();
@@ -139,14 +142,14 @@ describe("jitsi", function () {
   it("stays in meeting when pinned", async function () {
     const mock1 = expectFactory();
     const dispose1 = mock1.expects("dispose").never();
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();
     $(".bb-jitsi-pin").click();
     await afterFlushPromise();
     const puzz = Puzzles.findOne({ name: "In Memoriam" });
-    Router.PuzzlePage(puzz._id);
+    PuzzlePage(puzz._id);
     await afterFlushPromise();
     await waitForSubscriptions();
     dispose1.verify();
@@ -161,7 +164,7 @@ describe("jitsi", function () {
     const mock1 = expectFactory();
     const on1 = mock1.expects("once").twice();
     const dispose1 = mock1.expects("dispose").never();
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();
@@ -180,7 +183,7 @@ describe("jitsi", function () {
     await afterFlushPromise();
     dispose1.verify();
     const puzz = Puzzles.findOne({ name: "In Memoriam" });
-    Router.PuzzlePage(puzz._id);
+    PuzzlePage(puzz._id);
     await afterFlushPromise();
     await waitForSubscriptions();
     const mock2 = expectFactory();
@@ -191,7 +194,7 @@ describe("jitsi", function () {
   it("disposes when another tab joins meeting", async function () {
     const mock1 = expectFactory();
     const dispose1 = mock1.expects("dispose").never();
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();
@@ -202,7 +205,7 @@ describe("jitsi", function () {
       await afterFlushPromise();
       dispose1.verify();
       const puzz = Puzzles.findOne({ name: "In Memoriam" });
-      Router.PuzzlePage(puzz._id);
+      PuzzlePage(puzz._id);
       await afterFlushPromise();
       await waitForSubscriptions();
     } finally {
@@ -212,7 +215,7 @@ describe("jitsi", function () {
 
   it("join button clobbers other tab", async function () {
     reactiveLocalStorage.setItem("jitsiTabUUID", Random.id());
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();
@@ -228,7 +231,7 @@ describe("jitsi", function () {
   return it("doesn't rejoin when mute preference changes", async function () {
     const mock1 = expectFactory();
     const dispose1 = mock1.expects("dispose").never();
-    Router.BlackboardPage();
+    BlackboardPage();
     await defaultLogin();
     await afterFlushPromise();
     await waitForSubscriptions();

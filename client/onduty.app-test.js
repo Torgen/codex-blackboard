@@ -1,5 +1,5 @@
 import { Roles } from "/lib/imports/collections.js";
-import Router from "/client/imports/router.js";
+import { BlackboardPage } from "/client/imports/router.js";
 import {
   waitForMethods,
   waitForSubscriptions,
@@ -18,7 +18,7 @@ describe("onduty", function () {
 
   it("updates while logged in", async function () {
     await login("testy", "Teresa Tybalt", "", "failphrase");
-    Router.BlackboardPage();
+    BlackboardPage();
     await waitForSubscriptions();
     $('[data-onduty="claim"]').click();
     await waitForMethods();
@@ -42,7 +42,7 @@ describe("onduty", function () {
     });
     await promiseCallOn(other_conn, "claimOnduty", { from: null });
     await login("testy", "Teresa Tybalt", "", "failphrase");
-    Router.BlackboardPage();
+    BlackboardPage();
     await waitForSubscriptions();
     chai.assert.deepInclude(Roles.findOne("onduty"), { holder: "incognito" });
     chai.assert.deepInclude(Meteor.users.findOne("incognito"), {

@@ -1,4 +1,4 @@
-import Router from "/client/imports/router.js";
+import { urlFor, goToChat } from "/client/imports/router.js";
 // Cannot destructure for testing purposes.
 import jitsiModule, { jitsiUrl, jitsiRoom } from "./imports/jitsi.js";
 import {
@@ -691,7 +691,7 @@ Template.embedded_chat.helpers({
     if (instance.jitsiType() === "general") {
       return Meteor._relativeToSiteRootUrl("/");
     }
-    return Router.urlFor(instance.jitsiType(), instance.jitsiId());
+    return urlFor(instance.jitsiType(), instance.jitsiId());
   },
 });
 
@@ -758,7 +758,7 @@ function prettyRoomName() {
 }
 
 function joinRoom(type, id) {
-  Router.goToChat(type, id);
+  goToChat(type, id);
   Tracker.afterFlush(() => scrollMessagesView());
   $("#messageInput").select();
 }

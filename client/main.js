@@ -25,7 +25,7 @@ import {
 } from "/client/imports/server_settings.js";
 import { DARK_MODE, MUTE_SOUND_EFFECTS } from "./imports/settings.js";
 import * as notification from "/client/imports/notification.js";
-import Router from "/client/imports/router.js";
+import { urlFor, chatUrlFor } from "/client/imports/router.js";
 import "/client/imports/ui/components/splitter/splitter.js";
 import "/client/imports/ui/pages/graph/graph_page.js";
 import "/client/imports/ui/pages/map/map_page.js";
@@ -201,7 +201,7 @@ ${collection(msg.type).findOne(msg.id)?.name}`;
       if (msg.stream === "callins") {
         data = { url: "/logistics" };
       } else {
-        data = { url: Router.urlFor(msg.type, msg.id) };
+        data = { url: urlFor(msg.type, msg.id) };
       }
       // If sound effects are off, notifications should be silent. If they're not, turn off sound for
       // notifications that already have sound effects.
@@ -244,7 +244,7 @@ Meteor.startup(() =>
           return notification.notify(puzzle.name, {
             body: `Mechanic \"${mechanics[mech].name}\" added to puzzle \"${puzzle.name}\"`,
             tag: `${id}/${mech}`,
-            data: { url: Router.urlFor("puzzles", id) },
+            data: { url: urlFor("puzzles", id) },
             silent: MUTE_SOUND_EFFECTS.get(),
           });
         },
@@ -287,12 +287,9 @@ Meteor.startup(() =>
                 /^[a-z]/,
                 (x) => x.toUpperCase()
               );
-              return [
-                `${pretty_type} \"${target.name}\"`,
-                Router.urlFor(type, id),
-              ];
+              return [`${pretty_type} \"${target.name}\"`, urlFor(type, id)];
             } else {
-              return [message.room_name, Router.chatUrlFor(message.room_name)];
+              return [message.room_name, chatUrlFor(message.room_name)];
             }
           }
         })();
@@ -364,7 +361,5 @@ Meteor.startup(function () {
     });
   });
 });
-
-Backbone.history.start({ pushState: true });
 
 window.collections = BBCollection;

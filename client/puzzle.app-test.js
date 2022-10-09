@@ -1,5 +1,5 @@
 import { CallIns, Puzzles } from "/lib/imports/collections.js";
-import Router from "/client/imports/router.js";
+import { PuzzlePage } from "/client/imports/router.js";
 import {
   waitForSubscriptions,
   waitForMethods,
@@ -28,7 +28,7 @@ describe("puzzle", function () {
     });
 
     it("renders puzzle view", async function () {
-      Router.PuzzlePage(id, "puzzle");
+      PuzzlePage(id, "puzzle");
       await afterFlushPromise();
       await waitForSubscriptions();
       await afterFlushPromise();
@@ -36,7 +36,7 @@ describe("puzzle", function () {
 
     return describe("in info view", function () {
       beforeEach(async function () {
-        Router.PuzzlePage(id, "info");
+        PuzzlePage(id, "info");
         await afterFlushPromise();
         await waitForSubscriptions();
         await afterFlushPromise();
@@ -73,14 +73,14 @@ describe("puzzle", function () {
     });
 
     it("renders puzzle view", async function () {
-      Router.PuzzlePage(id, "puzzle");
+      PuzzlePage(id, "puzzle");
       await waitForSubscriptions();
       await afterFlushPromise();
     });
 
     return describe("in info view", function () {
       beforeEach(async function () {
-        Router.PuzzlePage(id, "info");
+        PuzzlePage(id, "info");
         await waitForSubscriptions();
         await afterFlushPromise();
       });
@@ -122,13 +122,13 @@ describe("puzzle", function () {
     });
 
     it("renders puzzle view", async function () {
-      Router.PuzzlePage(id, "puzzle");
+      PuzzlePage(id, "puzzle");
       await waitForSubscriptions();
       await afterFlushPromise();
     });
 
     return it("renders info view", async function () {
-      Router.PuzzlePage(id, "info");
+      PuzzlePage(id, "info");
       await waitForSubscriptions();
       await afterFlushPromise();
     });
@@ -140,7 +140,7 @@ describe("puzzle", function () {
     beforeEach(async function () {
       await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Cross Words" })._id;
-      Router.PuzzlePage(id, "puzzle");
+      PuzzlePage(id, "puzzle");
       await waitForSubscriptions();
       await afterFlushPromise();
     });

@@ -7,7 +7,7 @@ import {
   Rounds,
 } from "/lib/imports/collections.js";
 import md5 from "md5";
-import Router from "/client/imports/router.js";
+import { navigate } from "/client/imports/router.js";
 import { jitsiUrl } from "./imports/jitsi.js";
 import { hashFromNickObject, nickAndName } from "./imports/nickEmail.js";
 import keyword_or_positional from "./imports/keyword_or_positional.js";
@@ -45,7 +45,7 @@ function clickHandler(event, template) {
         "status=yes,resizeable=yes,scrollbars=yes"
     );
   } else {
-    Router.navigate(rawHref, { trigger: true });
+    navigate(rawHref, { trigger: true });
   }
 }
 Template.page.events({
@@ -192,10 +192,10 @@ Template.header_loginmute.events({
     Meteor.logout();
   },
   "click .bb-unprotect"(event, template) {
-    Router.navigate("/edit", { trigger: true });
+    navigate("/edit");
   },
   "click .bb-protect"(event, template) {
-    Router.navigate("/", { trigger: true });
+    navigate("/");
   },
   "click li[data-tab]:not(.active)"(event, template) {
     template.visibleTab.set(event.currentTarget.dataset.tab);
