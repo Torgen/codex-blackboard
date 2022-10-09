@@ -350,4 +350,232 @@ describe("newPuzzle", function () {
         });
       }));
   });
+
+  describe("when round does not exist", function () {
+    let err = null;
+    beforeEach(function () {
+      try {
+        callAs("newPuzzle", "torgen", {
+          name: "Foo",
+          link: "https://puzzlehunt.mit.edu/foo",
+          round: "nonsuch",
+        });
+      } catch (e) {
+        err = e;
+      }
+    });
+    it("throws error", function () {
+      chai.assert.isOk(err);
+    });
+    it("does not create puzzle", function () {
+      chai.assert.isNotOk(Puzzles.findOne({ name: "Foo" }));
+    });
+  });
+
+  describe("when a meta does not exist", function () {
+    let err = null;
+    let round = null;
+    let meta = null;
+    beforeEach(function () {
+      meta = Puzzles.insert({
+        name: "Meta",
+        canon: "meta",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        solved: null,
+        solved_by: null,
+        link: "https://puzzlehunt.mit.edu/meta",
+        drive: "fid",
+        spreadsheet: "sid",
+        tags: {},
+        puzzles: [],
+        feedsInto: [],
+      });
+      round = Rounds.insert({
+        name: "Round",
+        canon: "round",
+        created: 1,
+        created_by: "cjb",
+        touched: 1,
+        touched_by: "cjb",
+        puzzles: [meta],
+      });
+      try {
+        callAs("newPuzzle", "torgen", {
+          name: "Foo",
+          link: "https://puzzlehunt.mit.edu/foo",
+          round,
+          feedsInto: [meta, "nonsuch"],
+        });
+      } catch (e) {
+        err = e;
+      }
+    });
+    it("throws error", function () {
+      chai.assert.isOk(err);
+    });
+    it("does not create puzzle", function () {
+      chai.assert.isNotOk(Puzzles.findOne({ name: "Foo" }));
+    });
+    it("does not modify round", function () {
+      chai.assert.deepEqual(Rounds.findOne(round).puzzles, [meta]);
+    });
+    it("does not modify existing meta", function () {
+      chai.assert.isEmpty(Puzzles.findOne(meta).puzzles);
+    });
+  });
+
+  describe("when a meta is duplicated", function () {
+    let round = null;
+    let meta = null;
+    let puzzle = null;
+    beforeEach(function () {
+      meta = Puzzles.insert({
+        name: "Meta",
+        canon: "meta",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        solved: null,
+        solved_by: null,
+        link: "https://puzzlehunt.mit.edu/meta",
+        drive: "fid",
+        spreadsheet: "sid",
+        tags: {},
+        puzzles: [],
+        feedsInto: [],
+      });
+      round = Rounds.insert({
+        name: "Round",
+        canon: "round",
+        created: 1,
+        created_by: "cjb",
+        touched: 1,
+        touched_by: "cjb",
+        puzzles: [meta],
+      });
+      puzzle = callAs("newPuzzle", "torgen", {
+        name: "Foo",
+        link: "https://puzzlehunt.mit.edu/foo",
+        round,
+        feedsInto: [meta, meta],
+      });
+    });
+    it("adds to round", function () {
+      chai.assert.deepEqual(Rounds.findOne(round).puzzles, [meta, puzzle._id]);
+    });
+    it("feeds meta once", function () {
+      chai.assert.deepEqual(Puzzles.findOne(meta).puzzles, [puzzle._id]);
+    });
+    it("deduplicates metas", function () {
+      chai.assert.deepEqual(Puzzles.findOne(puzzle._id).feedsInto, [meta]);
+    });
+  });
+
+  describe("when a feeder does not exist", function () {
+    let err = null;
+    let round = null;
+    let feeder = null;
+    beforeEach(function () {
+      feeder = Puzzles.insert({
+        name: "Feeder",
+        canon: "feeder",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        solved: null,
+        solved_by: null,
+        link: "https://puzzlehunt.mit.edu/feeder",
+        drive: "fid",
+        spreadsheet: "sid",
+        tags: {},
+        feedsInto: [],
+      });
+      round = Rounds.insert({
+        name: "Round",
+        canon: "round",
+        created: 1,
+        created_by: "cjb",
+        touched: 1,
+        touched_by: "cjb",
+        puzzles: [feeder],
+      });
+      try {
+        callAs("newPuzzle", "torgen", {
+          name: "Foo",
+          link: "https://puzzlehunt.mit.edu/foo",
+          round,
+          puzzles: [feeder, "nonsuch"],
+        });
+      } catch (e) {
+        err = e;
+      }
+    });
+    it("throws error", function () {
+      chai.assert.isOk(err);
+    });
+    it("does not create puzzle", function () {
+      chai.assert.isNotOk(Puzzles.findOne({ name: "Foo" }));
+    });
+    it("does not modify existing feeder", function () {
+      chai.assert.isEmpty(Puzzles.findOne(feeder).feedsInto);
+    });
+    it("does not modify round", function () {
+      chai.assert.deepEqual(Rounds.findOne(round).puzzles, [feeder]);
+    });
+  });
+
+  describe("when a feeder is duplicated", function () {
+    let round = null;
+    let feeder = null;
+    let puzzle = null;
+    beforeEach(function () {
+      feeder = Puzzles.insert({
+        name: "Feeder",
+        canon: "feeder",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        solved: null,
+        solved_by: null,
+        link: "https://puzzlehunt.mit.edu/feeder",
+        drive: "fid",
+        spreadsheet: "sid",
+        tags: {},
+        feedsInto: [],
+      });
+      round = Rounds.insert({
+        name: "Round",
+        canon: "round",
+        created: 1,
+        created_by: "cjb",
+        touched: 1,
+        touched_by: "cjb",
+        puzzles: [feeder],
+      });
+      puzzle = callAs("newPuzzle", "torgen", {
+        name: "Foo",
+        link: "https://puzzlehunt.mit.edu/foo",
+        round,
+        puzzles: [feeder, feeder],
+      });
+    });
+    it("adds to round", function () {
+      chai.assert.deepEqual(Rounds.findOne(round).puzzles, [
+        feeder,
+        puzzle._id,
+      ]);
+    });
+    it("is fed once", function () {
+      chai.assert.deepEqual(Puzzles.findOne(feeder).feedsInto, [puzzle._id]);
+    });
+    it("deduplicates metas", function () {
+      chai.assert.deepEqual(Puzzles.findOne(puzzle._id).puzzles, [feeder]);
+    });
+  });
 });
