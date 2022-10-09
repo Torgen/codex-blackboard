@@ -19,6 +19,8 @@ jobs:
           - coverage.full.lcov
     steps:
       - uses: actions/checkout@master
+        with:
+          submodules: recursive
       - name: Read Meteor version
         run: sed -e "s/@/_VERSION=/" < .meteor/release >> "$GITHUB_ENV"
       - name: Use Node.js 14.x

@@ -25,6 +25,7 @@ jobs:
       - uses: actions/checkout@master
         with:
           ref: ${{ matrix.ref }}
+          submodules: recursive
       - name: Read Meteor version
         run: sed -e "s/@/_VERSION=/" < .meteor/release >> "$GITHUB_ENV"
       - name: Use Node.js 14.x
