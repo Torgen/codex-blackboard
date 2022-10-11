@@ -9,7 +9,7 @@ import chai from "chai";
 import delay from "delay";
 
 describe("login", function () {
-  this.timeout(10000);
+  this.timeout(20000);
   it("only sends email hash", async function () {
     await login("testy", "Teresa Tybalt", "fake@artifici.al", "failphrase");
     await waitForSubscriptions();
