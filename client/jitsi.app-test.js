@@ -31,7 +31,7 @@ const defaultLogin = () =>
   login("testy", "Teresa Tybalt", "fake@artifici.al", "failphrase");
 
 describe("jitsi", function () {
-  this.timeout(10000);
+  this.timeout(20000);
 
   let factory = null;
   beforeEach(function () {
