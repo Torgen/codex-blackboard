@@ -13,7 +13,7 @@ import chai from "chai";
 import { reactiveLocalStorage } from "./imports/storage.js";
 
 describe("blackboard", function () {
-  this.timeout(20000);
+  this.timeout(30000);
   before(() => login("testy", "Teresa Tybalt", "", "failphrase"));
 
   after(() => logout());
