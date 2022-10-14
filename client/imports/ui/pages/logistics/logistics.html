@@ -151,9 +151,29 @@
     <h3>
       {{>onduty_control}}
       {{>calendar_add_link}}
+      <span class="bb-logistics-dynamic-settings-header" title="Dynamic Settings"><i class="fas fa-circle-chevron-{{#if settings_expanded}}down{{else}}right{{/if}}"></i> <i class="fas fa-gears"></i></span>
     </h3>
+    {{#if settings_expanded}}
+      <table class="table table-condensed bb-logistics-dynamic-settings"><tbody>
+      {{#each setting in settings}}
+        {{>logistics_dynamic_setting setting}}
+      {{/each}}
+      </tbody></table>
+    {{/if}}
     {{>starred_messages canModify=mynick}}
   </div>
+</template>
+
+<template name="logistics_dynamic_setting">
+  <tr title="{{description}}">
+    <th>{{name}}</th>
+    <td class="control-group {{settingEditClass}}">
+      <input name="{{canon}}" type="{{input_type}}" class="input-block-level" min="0" value="{{get}}" checked="{{get}}">
+      {{#with settingEditStatus}}
+        <div class="tooltip top in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{this}}</div></div>
+      {{/with}}
+    </td>
+  </tr>
 </template>
 
 <template name="logistics_callins_table">

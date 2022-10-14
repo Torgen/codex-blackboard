@@ -11,6 +11,8 @@ import {
 import { confirm } from "/client/imports/modal.js";
 import { findByChannel } from "/client/imports/presence_index.js";
 import colorFromThingWithTags from "/client/imports/objectColor.js";
+import okCancelEvents from "/client/imports/ok_cancel_events.js";
+import { all_settings } from "/lib/imports/settings.js";
 import { isStuck } from "/lib/imports/tags.js";
 
 function nameAndUrlFromDroppedLink(dataTransfer) {
@@ -720,4 +722,88 @@ Template.logistics_callin_row.events({
       },
     });
   },
+});
+
+Template.logistics_topright_panel.onCreated(function() {
+  this.settings_expanded = new ReactiveVar(false);
+});
+
+Template.logistics_topright_panel.helpers({
+  settings_expanded() {
+    return Template.instance().settings_expanded.get();
+  },
+  settings() {
+    return Object.values(all_settings);
+  }
+});
+
+Template.logistics_topright_panel.events({
+  "click .bb-logistics-dynamic-settings-header"(event, template) {
+    template.settings_expanded.set(!template.settings_expanded.get());
+  }
+});
+
+Template.logistics_dynamic_setting.onCreated(function() {
+  this.currentValue = new ReactiveVar(null);
+})
+
+Template.logistics_dynamic_setting.helpers({
+  input_type() {
+    switch(this.matcher) {
+      case Boolean: return "checkbox";
+      case Match.Integer: return "number";
+      default: return "text";
+    }
+  },
+  settingEditClass() {
+    try {
+      const value = Template.instance().currentValue.get();
+      if (value == null) { return; }
+      const newValue = this.convert(value);
+      if (newValue === this.get()) {
+        return "info";
+      }
+      return "success";
+    } catch (error) {
+      return "error";
+    }
+  },
+  settingEditStatus() {
+    try {
+      const value = Template.instance().currentValue.get();
+      if (value == null) { return; }
+      const newValue = this.convert(value);
+      if (newValue === this.get()) {
+        return "unchanged";
+      }
+    } catch (error) {
+      return error.message.replaceAll("Match error: ", "");
+    }},
+});
+
+Template.logistics_dynamic_setting.events({
+  'input/focus input[type="text"]'(event, template){
+    template.currentValue.set(event.currentTarget.value);
+  },
+  'blur input[type="text"]'(event, template){
+    template.currentValue.set(null);
+  },
+  'change input[type="checkbox"]'(event, template) {
+    this.set(event.currentTarget.checked);
+  },
+  ...okCancelEvents('input[type="text"],input[type="number"]', {
+    ok(value, event, template) {
+      try {
+        this.convert(value);
+        this.set(value);
+      } catch(error) {
+        event.currentTarget.value = this.get();
+      }
+      event.currentTarget.blur();
+    },
+    cancel(event, template) {
+      event.currentTarget.value = this.get();
+      event.currentTarget.blur();
+    },
+  }),
 });

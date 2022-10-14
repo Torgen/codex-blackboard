@@ -4,7 +4,8 @@ Some of the settings for the blackboard are easy to specify in advance--for exam
 Other settings can only be determined once the hunt has started, which is not when you want to restart the blackboard
 to modify environment variables. These settings can be controlled via the bot. Note that the current, authoritative
 list of settings, including their default and current values, can be enumerated by entering `/msg bot global list` in
-any chat room. You can set any setting by saying `bot global set SETTING NAME to VALUE` in any chat room. The bot will
+any chat room. You can edit any dynamic setting from the Logistics page by clicking the gear icon in the top right
+panel. You can also edit them from any chat room by saying `bot global set SETTING NAME to VALUE`. The bot will
 tell you if your value is illegal for the setting you chose.
 
 ## Round URL Prefix
