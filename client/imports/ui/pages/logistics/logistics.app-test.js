@@ -4,6 +4,7 @@ import {
   Puzzles,
   Rounds,
 } from "/lib/imports/collections.js";
+import { EmbedPuzzles, RoundUrlPrefix } from "/lib/imports/settings.js";
 import { LogisticsPage } from "/client/imports/router.js";
 import {
   waitForSubscriptions,
@@ -1107,6 +1108,109 @@ describe("logistics", function () {
         await promiseCall("deletePuzzle", feeder._id);
         await promiseCall("deleteRound", round._id);
       }
+    });
+  });
+
+  describe("dynamic settings editor", function () {
+    it("toggles visibility", async function () {
+      await LogisticsPage();
+      await waitForSubscriptions();
+      chai.assert.isNotOk(
+        document.querySelector(".bb-logistics-dynamic-settings")
+      );
+      document.querySelector(".bb-logistics-dynamic-settings-header").click();
+      await afterFlushPromise();
+      chai.assert.isOk(
+        document.querySelector(".bb-logistics-dynamic-settings")
+      );
+      document.querySelector(".bb-logistics-dynamic-settings-header").click();
+      await afterFlushPromise();
+      chai.assert.isNotOk(
+        document.querySelector(".bb-logistics-dynamic-settings")
+      );
+    });
+
+    describe("settings", function () {
+      beforeEach(async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        document.querySelector(".bb-logistics-dynamic-settings-header").click();
+        await afterFlushPromise();
+      });
+
+      afterEach(async function () {
+        if (document.querySelector(".bb-logistics-dynamic-settings")) {
+          document
+            .querySelector(".bb-logistics-dynamic-settings-header")
+            .click();
+          await afterFlushPromise();
+        }
+      });
+
+      it("toggles booleans", async function () {
+        const input = document.querySelector('input[name="embed_puzzles"]');
+        chai.assert.isTrue(input.checked);
+        input.click();
+        await waitForMethods();
+        chai.assert.isFalse(EmbedPuzzles.get(), "after one click");
+        input.click();
+        await waitForMethods();
+        chai.assert.isTrue(EmbedPuzzles.get(), "after two clicks");
+      });
+
+      describe("urls", function () {
+        afterEach(async function () {
+          RoundUrlPrefix.set("");
+          await waitForMethods();
+        });
+        it("says when unmodified", async function () {
+          const input = $('input[name="round_url_prefix"]');
+          input.focus();
+          await afterFlushPromise();
+          chai.assert.isTrue(input.parent().hasClass("info"));
+          chai.assert.equal(
+            input.siblings(".bb-edit-status").text(),
+            "unchanged"
+          );
+        });
+        it("rejects malformed", async function () {
+          const input = $('input[name="round_url_prefix"]');
+          input.val("not a url").focus();
+          await afterFlushPromise();
+          chai.assert.isTrue(input.parent().hasClass("error"));
+          input.trigger(new $.Event("keyup", { which: 13 }));
+          await waitForMethods();
+          chai.assert.equal(input.val(), "");
+          chai.assert.equal(RoundUrlPrefix.get(), "");
+        });
+        it("rejects bad protocols", async function () {
+          const input = $('input[name="round_url_prefix"]');
+          input.val("ftp://foo.com").focus();
+          await afterFlushPromise();
+          chai.assert.isTrue(input.parent().hasClass("error"));
+          input.trigger(new $.Event("keyup", { which: 13 }));
+          await waitForMethods();
+          chai.assert.equal(input.val(), "");
+          chai.assert.equal(RoundUrlPrefix.get(), "");
+        });
+        it("accepts good protocols", async function () {
+          const input = $('input[name="round_url_prefix"]');
+          input.val("http://foo.com").focus();
+          await afterFlushPromise();
+          chai.assert.isTrue(input.parent().hasClass("success"));
+          input.trigger(new $.Event("keyup", { which: 13 }));
+          await waitForMethods();
+          chai.assert.equal(RoundUrlPrefix.get(), "http://foo.com");
+        });
+        it("cancels on escape", async function () {
+          const input = $('input[name="round_url_prefix"]');
+          input.val("http://foo.com").focus();
+          await afterFlushPromise();
+          input.trigger(new $.Event("keydown", { which: 27 }));
+          await afterFlushPromise();
+          chai.assert.equal(input.val(), "");
+        });
+      });
     });
   });
 });
