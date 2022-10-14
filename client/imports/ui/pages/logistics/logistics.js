@@ -724,7 +724,7 @@ Template.logistics_callin_row.events({
   },
 });
 
-Template.logistics_topright_panel.onCreated(function() {
+Template.logistics_topright_panel.onCreated(function () {
   this.settings_expanded = new ReactiveVar(false);
 });
 
@@ -734,31 +734,36 @@ Template.logistics_topright_panel.helpers({
   },
   settings() {
     return Object.values(all_settings);
-  }
+  },
 });
 
 Template.logistics_topright_panel.events({
   "click .bb-logistics-dynamic-settings-header"(event, template) {
     template.settings_expanded.set(!template.settings_expanded.get());
-  }
+  },
 });
 
-Template.logistics_dynamic_setting.onCreated(function() {
+Template.logistics_dynamic_setting.onCreated(function () {
   this.currentValue = new ReactiveVar(null);
-})
+});
 
 Template.logistics_dynamic_setting.helpers({
   input_type() {
-    switch(this.matcher) {
-      case Boolean: return "checkbox";
-      case Match.Integer: return "number";
-      default: return "text";
+    switch (this.matcher) {
+      case Boolean:
+        return "checkbox";
+      case Match.Integer:
+        return "number";
+      default:
+        return "text";
     }
   },
   settingEditClass() {
     try {
       const value = Template.instance().currentValue.get();
-      if (value == null) { return; }
+      if (value == null) {
+        return;
+      }
       const newValue = this.convert(value);
       if (newValue === this.get()) {
         return "info";
@@ -771,21 +776,24 @@ Template.logistics_dynamic_setting.helpers({
   settingEditStatus() {
     try {
       const value = Template.instance().currentValue.get();
-      if (value == null) { return; }
+      if (value == null) {
+        return;
+      }
       const newValue = this.convert(value);
       if (newValue === this.get()) {
         return "unchanged";
       }
     } catch (error) {
       return error.message.replaceAll("Match error: ", "");
-    }},
+    }
+  },
 });
 
 Template.logistics_dynamic_setting.events({
-  'input/focus input[type="text"]'(event, template){
+  'input/focus input[type="text"]'(event, template) {
     template.currentValue.set(event.currentTarget.value);
   },
-  'blur input[type="text"]'(event, template){
+  'blur input[type="text"]'(event, template) {
     template.currentValue.set(null);
   },
   'change input[type="checkbox"]'(event, template) {
@@ -796,7 +804,7 @@ Template.logistics_dynamic_setting.events({
       try {
         this.convert(value);
         this.set(value);
-      } catch(error) {
+      } catch (error) {
         event.currentTarget.value = this.get();
       }
       event.currentTarget.blur();
