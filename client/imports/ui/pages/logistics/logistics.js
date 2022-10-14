@@ -747,6 +747,24 @@ Template.logistics_dynamic_setting.onCreated(function () {
   this.currentValue = new ReactiveVar(null);
 });
 
+function currentValueHelper(unchanged, success, errorFn) {
+  return function () {
+    try {
+      const value = Template.instance().currentValue.get();
+      if (value == null) {
+        return;
+      }
+      const newValue = this.convert(value);
+      if (newValue === this.get()) {
+        return unchanged;
+      }
+      return success;
+    } catch (error) {
+      return errorFn(error);
+    }
+  };
+}
+
 Template.logistics_dynamic_setting.helpers({
   input_type() {
     switch (this.matcher) {
@@ -758,35 +776,10 @@ Template.logistics_dynamic_setting.helpers({
         return "text";
     }
   },
-  settingEditClass() {
-    try {
-      const value = Template.instance().currentValue.get();
-      if (value == null) {
-        return;
-      }
-      const newValue = this.convert(value);
-      if (newValue === this.get()) {
-        return "info";
-      }
-      return "success";
-    } catch (error) {
-      return "error";
-    }
-  },
-  settingEditStatus() {
-    try {
-      const value = Template.instance().currentValue.get();
-      if (value == null) {
-        return;
-      }
-      const newValue = this.convert(value);
-      if (newValue === this.get()) {
-        return "unchanged";
-      }
-    } catch (error) {
-      return error.message.replaceAll("Match error: ", "");
-    }
-  },
+  settingEditClass: currentValueHelper("info", "success", () => "error"),
+  settingEditStatus: currentValueHelper("unchanged", null, (error) =>
+    error.message.replaceAll("Match error: ", "")
+  ),
 });
 
 Template.logistics_dynamic_setting.events({
