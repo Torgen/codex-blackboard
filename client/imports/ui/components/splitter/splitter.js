@@ -34,28 +34,52 @@ class Dimension {
   }
   handleEvent(event, template) {
     event.preventDefault(); // don't highlight text, etc.
+    if (this.dragging.get()) {
+      return;
+    } // If this is a second touch
     const pane = $(event.currentTarget).closest(this.targetClass);
     this.dragging.set(true);
-    const initialPos = event[this.posProperty];
+    let posThing = event;
+    if (event.originalEvent.changedTouches?.length == 1) {
+      posThing = event.originalEvent.changedTouches.item(0);
+    }
+    const initialPos = posThing[this.posProperty];
     const initialSize =
       event.currentTarget.offsetParent[this.sizeProperty] -
       event.currentTarget[this.startProperty] -
       event.currentTarget[this.sizeProperty];
     const mouseMove = (mmevt) => {
-      const newSize = initialSize - (mmevt[this.posProperty] - initialPos);
+      let posThing = mmevt;
+      // TODO: if multiple touches, find one that started on the handle
+      if (mmevt.originalEvent.changedTouches?.length == 1) {
+        posThing = mmevt.originalEvent.changedTouches.item(0);
+      }
+      const newSize = initialSize - (posThing[this.posProperty] - initialPos);
       this.set(newSize);
     };
     var mouseUp = (muevt) => {
       pane.removeClass("active");
-      $(document).unbind("mousemove", mouseMove).unbind("mouseup", mouseUp);
+      $(document).off(".splitterDrag");
       reactiveLocalStorage.setItem(
         `splitter.h${heightRange()}.${this.splitterProperty}`,
         this.size.get()
       );
       this.dragging.set(false);
     };
+    var touchEnd = (teevt) => {
+      for (let touch of teevt.originalEvent.changedTouches) {
+        if (touch.identifier === posThing.identifier) {
+          mouseUp(teevt);
+          return;
+        }
+      }
+    };
     pane.addClass("active");
-    $(document).bind("mousemove", mouseMove).bind("mouseup", mouseUp);
+    $(document)
+      .on("mousemove.splitterDrag", mouseMove)
+      .on("mouseup.splitterDrag", mouseUp)
+      .on("touchmove.splitterDrag", mouseMove)
+      .on("touchend.splitterDrag", touchEnd);
   }
 }
 
@@ -123,7 +147,7 @@ Template.horizontal_splitter.helpers({
 });
 
 Template.horizontal_splitter.events({
-  "mousedown .bb-splitter-handle"(e, t) {
+  "mousedown/touchstart .bb-splitter-handle"(e, t) {
     return Splitter.handleEvent(e, t);
   },
 });
