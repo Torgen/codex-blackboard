@@ -31,6 +31,7 @@ import "/client/imports/ui/pages/graph/graph_page.js";
 import "/client/imports/ui/pages/map/map_page.js";
 import "/client/imports/ui/pages/projector/projector.js";
 import "/client/imports/ui/pages/statistics/statistics_page.js";
+import "/client/imports/ui/pages/login/login.js";
 
 // "Top level" templates:
 //   "blackboard" -- main blackboard page
