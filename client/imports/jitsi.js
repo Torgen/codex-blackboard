@@ -77,6 +77,7 @@ export function createJitsiMeet(room, container) {
       startWithVideoMuted: START_VIDEO_MUTED.get(),
       prejoinPageEnabled: false,
       enableTalkWhileMuted: false,
+      disableDeepLinking: true,
       "analytics.disabled": true,
     },
   });
