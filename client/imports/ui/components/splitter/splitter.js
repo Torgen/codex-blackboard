@@ -4,7 +4,7 @@ import { reactiveLocalStorage } from "/client/imports/storage.js";
 const windowSizeDep = new Tracker.Dependency();
 function defaultSize() {
   windowSizeDep.depend();
-  return Math.min(300, window.innerWidth/4);
+  return Math.min(300, window.innerWidth / 4);
 }
 
 class Dimension {
@@ -99,15 +99,15 @@ pointerQuery.addEventListener("change", function (event) {
   splitterSize.set(event.matches ? 12 : 6);
 });
 
-window.addEventListener("resize", function(event) {
+window.addEventListener("resize", function (event) {
   windowSizeDep.changed();
 });
 function heightLimit() {
-  windowSizeDep.depend()
+  windowSizeDep.depend();
   return window.innerHeight - 40 - splitterSize.get();
 }
 var heightRange = function () {
-  windowSizeDep.depend()
+  windowSizeDep.depend();
   const wh = window.innerHeight;
   return wh - (wh % 300);
 };
