@@ -1,6 +1,12 @@
 import "./splitter.html";
 import { reactiveLocalStorage } from "/client/imports/storage.js";
 
+const windowSizeDep = new Tracker.Dependency();
+function defaultSize() {
+  windowSizeDep.depend();
+  return Math.min(300, window.innerWidth/4);
+}
+
 class Dimension {
   constructor(
     targetClass,
@@ -17,19 +23,20 @@ class Dimension {
     this.splitterProperty = splitterProperty;
     this.limitFn = limitFn;
     this.dragging = new ReactiveVar(false);
-    this.size = new ReactiveVar(300);
+    this.size = new ReactiveVar(null);
   }
   get() {
-    let limit = Math.max(this.size.get(), 0);
+    let limit = this.size.get();
+    if (limit == null) {
+      limit = defaultSize();
+    }
+    limit = Math.max(limit, 0);
     if (this.limitFn != null) {
       limit = Math.min(limit, this.limitFn());
     }
     return limit;
   }
   set(size) {
-    if (size == null) {
-      size = 300;
-    }
     this.size.set(size);
   }
   handleEvent(event, template) {
@@ -60,10 +67,13 @@ class Dimension {
     var mouseUp = (muevt) => {
       pane.removeClass("active");
       $(document).off(".splitterDrag");
-      reactiveLocalStorage.setItem(
-        `splitter.h${heightRange()}.${this.splitterProperty}`,
-        this.size.get()
-      );
+      const size = this.size.get();
+      const property = `splitter.h${heightRange()}.${this.splitterProperty}`;
+      if (size == null) {
+        reactiveLocalStorage.removeItem(property);
+      } else {
+        reactiveLocalStorage.setItem(property, size);
+      }
       this.dragging.set(false);
     };
     var touchEnd = (teevt) => {
@@ -89,13 +99,16 @@ pointerQuery.addEventListener("change", function (event) {
   splitterSize.set(event.matches ? 12 : 6);
 });
 
-const windowHeight = new ReactiveVar(window.innerHeight);
-window.addEventListener("resize", () => windowHeight.set(window.innerHeight));
+window.addEventListener("resize", function(event) {
+  windowSizeDep.changed();
+});
 function heightLimit() {
-  return windowHeight.get() - 40 - splitterSize.get();
+  windowSizeDep.depend()
+  return window.innerHeight - 40 - splitterSize.get();
 }
 var heightRange = function () {
-  const wh = windowHeight.get() + splitterSize.get();
+  windowSizeDep.depend()
+  const wh = window.innerHeight;
   return wh - (wh % 300);
 };
 
