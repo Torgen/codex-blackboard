@@ -26,6 +26,11 @@ html.fullHeight {
 
 /* splitter! */
 .bb-puzzleround {
+  /* This is also computed with a listener in splitter.js. */
+  --splitter-width: 6px;
+  @media (pointer: coarse) {
+    --splitter-width: 12px;
+  }
   position: relative; /* establish positioning context */
   width: 100%;
   padding-left: 0px; padding-right: 0px;
@@ -43,10 +48,11 @@ html.fullHeight {
     }
     .bb-splitter-handle {
       background: #ccc url('/img/vgrabber.gif') no-repeat center;
+      user-select: none;
       &:hover { background-color: #aaa; }
     }
     & > .bb-splitter-handle {
-      width: 6px;
+      width: var(--splitter-width);
       cursor: ew-resize;
       right: var(--right-column);
       @media (max-width: 767px) {
@@ -66,7 +72,7 @@ html.fullHeight {
         }
         position: absolute;
         right: calc(var(--right-column) + 16px);
-        margin-right: 6px;
+        margin-right: var(--splitter-width);
         background: var(--bg-color);
         border: 1px solid #888;
         padding-left: 2px; padding-right: 4px;
@@ -102,7 +108,7 @@ html.fullHeight {
         overflow: auto;
       }
       .bb-splitter-handle {
-        height: 6px;
+        height: var(--splitter-width);
         background-image: url('/img/hgrabber.gif');
         cursor: ns-resize;
         left: 0; right: 0;

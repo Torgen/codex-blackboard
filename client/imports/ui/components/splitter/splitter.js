@@ -8,21 +8,21 @@ class Dimension {
     sizeProperty,
     startProperty,
     splitterProperty,
-    limitVar
+    limitFn
   ) {
     this.targetClass = targetClass;
     this.posProperty = posProperty;
     this.sizeProperty = sizeProperty;
     this.startProperty = startProperty;
     this.splitterProperty = splitterProperty;
-    this.limitVar = limitVar;
+    this.limitFn = limitFn;
     this.dragging = new ReactiveVar(false);
     this.size = new ReactiveVar(300);
   }
   get() {
     let limit = Math.max(this.size.get(), 0);
-    if (this.limitVar != null) {
-      limit = Math.min(limit, this.limitVar.get());
+    if (this.limitFn != null) {
+      limit = Math.min(limit, this.limitFn());
     }
     return limit;
   }
@@ -83,12 +83,19 @@ class Dimension {
   }
 }
 
-const windowHeight = new ReactiveVar(window.innerHeight - 46);
-window.addEventListener("resize", () =>
-  windowHeight.set(window.innerHeight - 46)
-);
+const pointerQuery = window.matchMedia("(pointer: coarse)");
+const splitterSize = new ReactiveVar(pointerQuery.matches ? 12 : 6);
+pointerQuery.addEventListener("change", function (event) {
+  splitterSize.set(event.matches ? 12 : 6);
+});
+
+const windowHeight = new ReactiveVar(window.innerHeight);
+window.addEventListener("resize", () => windowHeight.set(window.innerHeight));
+function heightLimit() {
+  return windowHeight.get() - 40 - splitterSize.get();
+}
 var heightRange = function () {
-  const wh = windowHeight.get() + 46;
+  const wh = windowHeight.get() + splitterSize.get();
   return wh - (wh % 300);
 };
 
@@ -99,7 +106,7 @@ const Splitter = {
     "offsetHeight",
     "offsetTop",
     "vsize",
-    windowHeight
+    heightLimit
   ),
   hsize: new Dimension(
     ".bb-splitter",
@@ -165,6 +172,6 @@ Template.vertical_splitter.helpers({
     return Splitter.vsize.get();
   },
   vsizePlusHandle() {
-    return +Splitter.vsize.get() + 6;
+    return +Splitter.vsize.get() + splitterSize.get();
   },
 });
