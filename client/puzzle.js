@@ -125,18 +125,16 @@ Template.puzzle_info.helpers({
       if (meta == null) {
         continue;
       }
-      const v = [];
       for (let tag of meta.tags.cares_about?.value.split(",") || []) {
         if (getTag(this.puzzle, tag)) {
           continue;
         }
-        v.push({
+        result.push({
           name: tag,
           canon: canonical(tag),
           meta: meta.name,
         });
       }
-      result.push(v);
     }
     return result;
   },
@@ -149,19 +147,17 @@ Template.puzzle_info.helpers({
       if (meta == null) {
         continue;
       }
-      const v = [];
       for (let canon in meta.tags) {
         const tag = meta.tags[canon];
         if (!/^meta /i.test(tag.name)) {
           continue;
         }
-        v.push({
+        r.push({
           name: tag.name,
           value: tag.value,
           meta: meta.name,
         });
       }
-      r.push(v);
     }
     return r;
   },
