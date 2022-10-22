@@ -8,7 +8,10 @@ export function positionOrDefault(locatedAt, _id) {
     const sha = md5(_id);
     const x = parseInt(sha.substring(0, 4), 16) / 65536.0;
     const y = parseInt(sha.substring(4, 8), 16) / 65536.0;
-    return {lat: 110*y - 50, lng: 15*x - 55 + 25*Math.sin(y*2*Math.PI) + 34*y}
+    return {
+      lat: 110 * y - 50,
+      lng: 15 * x - 55 + 25 * Math.sin(y * 2 * Math.PI) + 34 * y,
+    };
   }
 }
 
