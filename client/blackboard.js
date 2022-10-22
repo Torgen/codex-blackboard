@@ -407,7 +407,7 @@ Template.blackboard.onDestroyed(function () {
 });
 
 Template.blackboard.events({
-  "click .bb-menu-button .btn"(event, template) {
+  "click .bb-show-menu"(event, template) {
     template.$(".bb-menu-drawer").modal("show");
   },
   "click .bb-menu-drawer a.bb-clear-jitsi-storage"(event, template) {

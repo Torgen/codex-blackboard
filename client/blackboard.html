@@ -1,8 +1,18 @@
 <template name="blackboard">
 <div class="bb-menu-button">
-<button class="btn btn-inverse btn-small">
+<button class="btn btn-inverse btn-small bb-show-menu">
 <i class="fas fa-list"></i>
 </button>
+<div class="btn-group bb-unlock-group">
+  <a href="/" title="Protect page" data-canEdit="false"
+          class="home-link bb-protect btn btn-small btn-inverse {{#unless canEdit}}active{{/unless}}">
+    <i class="fas fa-lock"></i>
+  </a>
+  <a href="/edit" title="Allow edits to puzzles" data-canEdit="true"
+          class="home-link bb-unprotect btn btn-small btn-inverse {{#if canEdit}}active{{/if}}">
+    <i class="fas fa-lock-open"></i>
+  </a>
+</div>
 </div>
 <div class="bb-menu-drawer fade">
   <ul class="nav nav-list bb-sidenav">
