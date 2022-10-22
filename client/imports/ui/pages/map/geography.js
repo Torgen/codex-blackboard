@@ -6,9 +6,9 @@ export function positionOrDefault(locatedAt, _id) {
     return { lat: coords[1], lng: coords[0] };
   } else {
     const sha = md5(_id);
-    const lat_xtra = (parseInt(sha.substring(0, 4), 16) - 32768) / 655360;
-    const lng_xtra = (parseInt(sha.substring(4, 8), 16) - 32768) / 655360;
-    return { lat: lat_xtra + 30, lng: lng_xtra - 40 };
+    const x = parseInt(sha.substring(0, 4), 16) / 65536.0;
+    const y = parseInt(sha.substring(4, 8), 16) / 65536.0;
+    return {lat: 110*y - 50, lng: 15*x - 55 + 25*Math.sin(y*2*Math.PI) + 34*y}
   }
 }
 

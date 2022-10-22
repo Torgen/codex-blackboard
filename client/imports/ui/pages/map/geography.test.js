@@ -10,8 +10,8 @@ describe("positionOrDefault", function () {
 
   it("randomizes unset position", () =>
     chai.assert.deepEqual(positionOrDefault(undefined, "sklanch"), {
-      lat: 29.957225036621093,
-      lng: -40.023388671875,
+      lat: -20.7275390625,
+      lng: -19.9964096744658,
     }));
 });
 
