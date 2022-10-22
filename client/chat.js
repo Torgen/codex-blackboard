@@ -128,22 +128,11 @@ instachat["readObserver"] = new MutationObserver((recs, obs) =>
 
 // Favicon instance, used for notifications
 // (first add host to path)
-let favicon = {
-  badge() {
-    return false;
-  },
-  reset() {
-    return false;
-  },
-};
-Meteor.startup(
-  () =>
-    (favicon = new Favico({
-      animation: "slide",
-      fontFamily: "Noto Sans",
-      fontStyle: "700",
-    }))
-);
+const favicon = new Favico({
+  animation: "slide",
+  fontFamily: "Noto Sans",
+  fontStyle: "700",
+});
 
 Template.chat.helpers({
   object() {
