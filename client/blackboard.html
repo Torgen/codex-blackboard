@@ -267,7 +267,7 @@
         {{/if}}
         {{#if any u.length addingUnassigned}}
           <tbody class="unassigned" id="unassigned{{_id}}">
-          <tr><th colspan="{{nCols}}">Unassigned</th></tr>
+          <tr class="unassigned"><th colspan="{{nCols}}">Unassigned</th></tr>
           {{#each u}}
             {{> blackboard_puzzle puzzle=puzzle parent=parent reorderable=true }}
           {{/each}}
@@ -441,17 +441,13 @@
   {{>edit_tag_value type="puzzles" id=puzzle._id name="Answer" editable=canEdit class="puzzle-answer answer"}}
 </template>
 
-<template name="blackboard_column_body_status">
-  {{#edit_tag_value type="puzzles" id=puzzle._id name="Status" editable=canEdit class="puzzle-status"}}
-    {{#if status}}<span class="bb-who-stuck">&mdash; by {{>gravatar_with_badges nick=set_by size=16}} {{nickAndName set_by}}</span>{{/if}}
-  {{/edit_tag_value}}
-</template>
+<template name="blackboard_column_body_status">{{!
+  }}{{#edit_tag_value type="puzzles" id=puzzle._id name="Status" editable=canEdit class="puzzle-status"}}{{!
+    }}{{#if status}}<span class="bb-who-stuck">&mdash; by {{>gravatar_with_badges nick=set_by size=16}} {{nickAndName set_by}}</span>{{/if}}{{!
+  }}{{/edit_tag_value}}{{!
+}}</template>
 
-<template name="blackboard_column_body_working">
-  <td class="puzzle-working">
-    {{#each whos_working}}{{> nick_presence }} {{/each}}
-  </td>
-</template>
+<template name="blackboard_column_body_working"><td class="puzzle-working">{{#each whos_working}}{{> nick_presence }} {{/each}}</td></template>
 
 <template name="blackboard_column_body_update">
   <td class="puzzle-update">
@@ -488,7 +484,7 @@
 <template name="blackboard_meta">
   {{#if showMeta}}
   <tbody class="meta" id="m{{puzzle._id}}" data-puzzle-id="{{puzzle._id}}"
-         style="{{#unless boringMode}}background-color: {{color}}{{/unless}}">
+         style="{{#unless boringMode}}--meta-color: {{color}}{{/unless}}">
     <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}} {{#if collapsed}}collapsed{{/if}}">
       {{> blackboard_puzzle_cells}}
     </tr>

@@ -438,9 +438,12 @@ input[type="color"] {
   padding-bottom: 30px;
   padding-left: 15px;
   padding-right: 15px;
+  @media (max-width: 767px) {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
   .soft-border;
   font-size: 93%; /* 13px for body text */
-
   h1.bb-blackboard-h1 {
     font-size: 200%;
     text-decoration: underline;
@@ -515,18 +518,54 @@ input[type="color"] {
   }
   .bb-puzzle {
     margin-bottom: 0;
+    @media (max-width: 767px) {
+      display: block;
+      border: none;
+      thead { display: none; }
+      & > tbody {
+        display: block;
+        margin-top: 2px;
+        border: none;
+        & > tr {
+          display: block;
+          border: 1px solid var(--meta-color);
+          & + tr { margin-top: -1px; }
+          & > td, & > th {
+            display: block;
+            border: none;
+            &.puzzle-status, &.puzzle-working  {
+              display: table-row;
+              &::before {  display: table-cell; padding-right: 0.5em; padding-left: 2px;}
+              &:empty { display: none; }
+            }
+            &.puzzle-status::before { content: "Status: "; }
+            &.puzzle-working::before { content: "Solvers: "; }
+            &.puzzle-answer {
+              &::before { content: "Answer: "; text-transform: none; }
+              &:empty::before { content: "Unsolved"; font-style: italic; }
+            }
+          }
+        }
+      }
+      & > tbody.meta, & > tbody.unassigned {
+        --meta-color: grey;
+        margin-left: 8px;
+        border-left: 4px solid var(--meta-color);
+        border-bottom: 0px solid var(--meta-color);
+        border-bottom-left-radius: 16px;
+        tr { border-radius: 8px; }
+        tr.meta, tr.metafooter, tr.unassigned { margin-left: -12px; }
+        tr.puzzle { margin-left: 4px; }
+      }
+    }
     tr.meta {
       .can-collapse();
     }
     tr.puzzle {
       .collapse-toggle { display: none !important; }
     }
-    tr.meta, tr.metafooter {
-      --tr-bg: var(--slightly-lighter);
-      .boring & {
-        background: var(--bg-color);
-        &.bb-status-stuck { background: var(--stuck-yellow); }
-      }
+    tr.meta, tr.metafooter, tr.unassigned {
+      --tint:  var(--slightly-lighter);
       .bb-puzzle-title {
         font-weight: bold;
         text-transform: uppercase;
@@ -534,15 +573,16 @@ input[type="color"] {
     }
     tr.metafooter .num-hidden { font-size: 10.5px }
     tr.puzzle, tr.round-empty {
-      --tr-bg: var(--much-lighter);
+      --tint:  var(--much-lighter);
+    }
+    tr.meta, tr.puzzle, tr.metafooter, tr.round-empty, tr.unassigned {
+      --tr-bg: linear-gradient(var(--tint), var(--tint));
+      background: var(--tr-bg), var(--meta-color);
+      &.bb-status-stuck { --tr-bg: repeating-linear-gradient(45deg, var(--stuck-yellow), var(--stuck-yellow) 10px, var(--tint) 10px, var(--tint) 20px); }
       .boring & {
         background: var(--bg-color);
         &.bb-status-stuck { background: var(--stuck-yellow); }
       }
-    }
-    tr.meta, tr.puzzle, tr.metafooter, tr.round-empty {
-      &.bb-status-stuck { background: repeating-linear-gradient(45deg, var(--stuck-yellow), var(--stuck-yellow) 10px, var(--tr-bg) 10px, var(--tr-bg) 20px); }
-      background: var(--tr-bg);
     }
     .bb-edit-icon, .bb-delete-icon, .bb-fix-drive, .bb-drive-status {
       margin-top: 3px;
@@ -597,9 +637,20 @@ input[type="color"] {
         &.pull-left { margin-left: -6px; margin-right: 4px; }
         &.pull-right { margin-left: 2px; margin-right: -3px; }
       }
+      @media (max-width: 480px) { 
+        input[type="checkbox"] {
+          margin: 0px;
+          width: 7px;
+          height: 7px;
+        }
+        .bb-edit-field[data-field="link"] { word-break: break-all;}
+        input[type="text"] { font-size: 7.3px; line-height: 150%; padding: 0px 3px; height: 13px; }
+        input[type="color"] { width: 10px; height: 10px; margin-top: 0px; &::-webkit-color-swatch-wrapper { padding: 1px;}}
+      }
       .bb-mechanics-dropdown .btn {
         font-size: 10.5px;
         padding: 0 6px;
+        @media (max-width: 480px) { font-size: 7.3px; line-height: 150%;  padding: 0px 3px; }
       }
     }
     td,th { padding-top: 0; padding-bottom: 0; }
@@ -720,9 +771,8 @@ input[type="color"] {
     padding-right: 0;
   }
   #roomName { width:85px; } /* narrow room name input */
-  .bb-omit-when-narrow, .puzzle-working, .puzzle-update { display: none !important; }
+  .bb-omit-when-narrow { display: none !important; }
   .bb-buttonbar .bb-login { float: right }
-  td.puzzle-answer { word-break: break-all; }
 
   #bb-body #bb-content > #bb-blackboard {
     padding-top: 0px;
@@ -759,6 +809,7 @@ input[type="color"] {
         padding: 2px;
         font-size: 75%;
         line-height: initial;
+        .btn { font-size: 7.3px; line-height: 150%; padding: 0px 3px; .caret { margin-top: 4px;} }
       }
     }
   }
