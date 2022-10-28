@@ -423,10 +423,18 @@ input[type="color"] {
   &.collapsed .bb-tag-table {
     display: none;
   }
-  .collapse-toggle::before {
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    content: "\f138";
+  .collapse-toggle {
+    background: none;
+    border: none;
+    font-size: inherit;
+    padding: 0;
+    color: inherit;
+    line-height: normal;
+    &::before {
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      content: "\f138";
+    }
   }
   &:not(.collapsed) .collapse-toggle::before {
     content: "\f13a";
@@ -560,9 +568,6 @@ input[type="color"] {
     }
     tr.meta {
       .can-collapse();
-    }
-    tr.puzzle {
-      .collapse-toggle { display: none !important; }
     }
     tr.meta, tr.metafooter, tr.unassigned {
       --tint:  var(--slightly-lighter);

@@ -216,7 +216,7 @@
             title="Delete this round"></i>
         {{/unless}}
       {{else}}
-        <span class="collapse-toggle"></span>
+        <button class="collapse-toggle"></button>
         {{>link id=_id title="Chat room for round" chat=true icon="fas fa-comments" class="pull-right bb-round-chat"}}
         {{#if link}}<a class="pull-right bb-round-chat" target="_blank" href="{{link}}" title="Link to hunt site" rel="noopener noreferrer"><i class="fas fa-link"></i></a>{{/if}}
       {{/edit_object_title}}
@@ -339,7 +339,7 @@
         title="Delete this puzzle"></i>
       {{> fix_puzzle_drive puzzle=puzzle._id}}
     {{else}}
-      <span class="collapse-toggle"></span>
+      {{#if collapse}}<button class="collapse-toggle"></button>{{/if}}
       {{#if equal puzzle.drive_status "creating"}}
         <i class="pull-right fas fa-ellipsis-h bb-drive-status" title="creating..."></i>
       {{else if equal puzzle.drive_status "failed"}}
@@ -486,7 +486,7 @@
   <tbody class="meta" id="m{{puzzle._id}}" data-puzzle-id="{{puzzle._id}}"
          style="{{#unless boringMode}}--meta-color: {{color}}{{/unless}}">
     <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}} {{#if collapsed}}collapsed{{/if}}">
-      {{> blackboard_puzzle_cells}}
+      {{> blackboard_puzzle_cells _id=_id parent=parent puzzle=puzzle reorderable=reorderable collapse=true}}
     </tr>
     {{#if any canEdit (not collapsed)}}
       {{#each p in puzzles}}
