@@ -1,94 +1,17 @@
-import canonical from "/lib/imports/canonical.js";
 import {
   LastRead,
   Messages,
   Puzzles,
-  Roles,
   Rounds,
 } from "/lib/imports/collections.js";
 import { navigate } from "/client/imports/router.js";
 import { jitsiUrl } from "./imports/jitsi.js";
-import { hashFromNickObject, nickAndName } from "./imports/nickEmail.js";
-import keyword_or_positional from "./imports/keyword_or_positional.js";
+import { hashFromNickObject } from "./imports/nickEmail.js";
 import {
   BB_DISABLE_RINGHUNTERS_HEADER,
   GENERAL_ROOM_NAME,
 } from "/client/imports/server_settings.js";
 import "./imports/timestamp.js";
-
-// templates, event handlers, and subscriptions for the site-wide
-// header bar, including the login modals and general Spacebars helpers
-
-function clickHandler(event, template) {
-  if (event.button !== 0) {
-    return;
-  } // check right-click
-  if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
-    return;
-  } // check alt/ctrl/shift/command clicks
-  const target = event.currentTarget;
-  // href on the element directly is absolute. We want the relative path if it exists for routing.
-  const rawHref = target.getAttribute("href");
-  if (/^https?:/.test(rawHref)) {
-    return;
-  }
-  event.preventDefault();
-  if (target.classList.contains("bb-pop-out")) {
-    // here we want the absolute path since it's for a new window.
-    window.open(
-      target.href,
-      "Pop out",
-      "height=480,width=480,menubar=no,toolbar=no,personalbar=no," +
-        "status=yes,resizeable=yes,scrollbars=yes"
-    );
-  } else {
-    navigate(rawHref);
-  }
-}
-Template.page.events({
-  "click a.puzzles-link": clickHandler,
-  "click a.rounds-link": clickHandler,
-  "click a.chat-link": clickHandler,
-  "click a.graph-link": clickHandler,
-  "click a.home-link": clickHandler,
-  "click a.oplogs-link": clickHandler,
-  "click a.callins-link": clickHandler,
-  "click a.logistics-link": clickHandler,
-  "click a.facts-link": clickHandler,
-});
-
-Template.registerHelper("drive_link", function (args) {
-  args = keyword_or_positional("id", args);
-  return `https://docs.google.com/folder/d/${args.id}/edit`;
-});
-Template.registerHelper("spread_link", function (args) {
-  args = keyword_or_positional("id", args);
-  return `https://docs.google.com/spreadsheets/d/${args.id}/edit`;
-});
-Template.registerHelper("doc_link", function (args) {
-  args = keyword_or_positional("id", args);
-  return `https://docs.google.com/document/d/${args.id}/edit`;
-});
-
-// nicks
-Template.registerHelper("nickOrName", function (args) {
-  const { nick } = keyword_or_positional("nick", args);
-  const n = Meteor.users.findOne(canonical(nick));
-  return n?.real_name || n?.nickname || nick;
-});
-Template.registerHelper("nickAndName", function (args) {
-  const { nick } = keyword_or_positional("nick", args);
-  const n = Meteor.users.findOne(canonical(nick ?? { nickname: nick }));
-  return nickAndName(n);
-});
-Template.registerHelper(
-  "nickExists",
-  (nick) => Meteor.users.findOne({ _id: nick }) != null
-);
-Template.registerHelper(
-  "onduty",
-  (nick) => Roles.findOne("onduty")?.holder === nick
-);
 
 const privateMessageTransform = (msg) => ({
   _id: msg._id,

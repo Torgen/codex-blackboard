@@ -5,18 +5,18 @@
 </button>
 <div class="btn-group bb-unlock-group">
   <a href="/" title="Protect page" data-canEdit="false"
-          class="home-link bb-protect btn btn-small btn-inverse {{#unless canEdit}}active{{/unless}}">
+          class="bb-protect btn btn-small btn-inverse {{#unless canEdit}}active{{/unless}}">
     <i class="fas fa-lock"></i>
   </a>
   <a href="/edit" title="Allow edits to puzzles" data-canEdit="true"
-          class="home-link bb-unprotect btn btn-small btn-inverse {{#if canEdit}}active{{/if}}">
+          class="bb-unprotect btn btn-small btn-inverse {{#if canEdit}}active{{/if}}">
     <i class="fas fa-lock-open"></i>
   </a>
 </div>
 </div>
 <div class="bb-menu-drawer fade">
   <ul class="nav nav-list bb-sidenav">
-    <li><a class="logistics-link" href="/logistics"><i class="fas fa-dolly"></i> Logistics</a></li>
+    <li><a href="/logistics"><i class="fas fa-dolly"></i> Logistics</a></li>
     <li><a href="https://www.github.com/{{whoseGitHub}}/codex-blackboard/issues" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> Issues</a></li>
     {{#with driveFolder}}
       <li><a href="{{drive_link this}}" target="_blank" rel="noopener noreferrer"><i class="fab fa-google-drive"></i> Google Drive Folder</a></li>

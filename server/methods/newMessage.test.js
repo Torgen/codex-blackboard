@@ -40,7 +40,7 @@ describe("newMessage", function () {
     it("allows classes", function () {
       const msg = callAs("newMessage", "torgen", {
         bodyIsHtml: true,
-        body: 'has requested help: stuck (puzzle <a class="puzzles-link" target=_blank href="/puzzles/2">Example</a>)',
+        body: 'has requested help: stuck (puzzle <a target=_blank href="/puzzles/2">Example</a>)',
         action: true,
       });
       chai.assert.deepEqual(Messages.findOne(msg._id), {
@@ -50,7 +50,7 @@ describe("newMessage", function () {
         bodyIsHtml: true,
         timestamp: 7,
         action: true,
-        body: 'has requested help: stuck (puzzle <a class="puzzles-link" target="_blank" href="/puzzles/2">Example</a>)',
+        body: 'has requested help: stuck (puzzle <a target="_blank" href="/puzzles/2">Example</a>)',
       });
     });
   });

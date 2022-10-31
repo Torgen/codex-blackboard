@@ -49,7 +49,7 @@ describe("blackboard", function () {
     await waitForSubscriptions();
     const isss = Puzzles.findOne({ name: "Interstellar Spaceship" });
     chai.assert.isOk(isss);
-    $(`#m${isss._id} tr.meta .puzzles-link`).trigger(
+    $(`#m${isss._id} tr.meta a[href^="/puzzles/"]`).trigger(
       $.Event("click", { button: 0 })
     );
     await afterFlushPromise();

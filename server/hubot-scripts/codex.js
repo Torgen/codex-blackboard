@@ -278,7 +278,7 @@ export default scripts.codex = function (robot) {
           );
           msg.reply(
             { useful: true, bodyIsHtml: true },
-            `There's already <a class='puzzles-link' href='${UI._escape(
+            `There's already <a href='${UI._escape(
               puzz_url
             )}'>a puzzle named ${UI._escape(existing.object.name)}</a>.`
           );
@@ -298,7 +298,7 @@ export default scripts.codex = function (robot) {
       );
       msg.reply(
         { useful: true, bodyIsHtml: true },
-        `Okay, I added <a class='puzzles-link' href='${UI._escape(
+        `Okay, I added <a href='${UI._escape(
           puzz_url
         )}'>${UI._escape(puzzle.name)}</a> to <a class='${
           round.type
@@ -366,7 +366,7 @@ export default scripts.codex = function (robot) {
           );
           msg.reply(
             { useful: true, bodyIsHtml: true },
-            `There's already <a class='rounds-link' href='${UI._escape(
+            `There's already <a href='${UI._escape(
               round_url
             )}'>a round named ${UI._escape(existing.object.name)}</a>.`
           );
@@ -383,7 +383,7 @@ export default scripts.codex = function (robot) {
       round_url = Meteor._relativeToSiteRootUrl(`/rounds/${round._id}`);
       msg.reply(
         { useful: true, bodyIsHtml: true },
-        `Okay, I created round <a class='rounds-link' href='${UI._escape(
+        `Okay, I created round <a href='${UI._escape(
           round_url
         )}'>${UI._escape(rname)}</a>.`
       );

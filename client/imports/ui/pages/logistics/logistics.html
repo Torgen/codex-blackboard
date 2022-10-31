@@ -102,7 +102,7 @@
 </template>
 
 <template name="logistics_puzzle">
-  <a href="/puzzles/{{_id}}" class="{{#if draggingIn}}dragged-link{{else if willDelete}}would-disappear{{/if}} puzzle puzzles-link {{#if solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
+  <a href="/puzzles/{{_id}}" class="{{#if draggingIn}}dragged-link{{else if willDelete}}would-disappear{{/if}} puzzle {{#if solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
     {{>logistics_puzzle_events this}}
     <span class="fill"><span class="puzzle-name">{{name}}</span></span>
     <i class="fas fa-edit bb-logistics-edit-puzzle"></i>
@@ -118,7 +118,7 @@
        data-puzzle-id="{{meta._id}}">
     <header>
       <div class="round">{{round.name}}</div>
-      <a href="/puzzles/{{meta._id}}" class="meta puzzles-link {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
+      <a href="/puzzles/{{meta._id}}" class="meta {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}}" draggable="true">
         {{>logistics_puzzle_events meta}}
         <span class="fill"><span class="puzzle-name">{{meta.name}}</span></span>
         <i class="fas fa-edit bb-logistics-edit-puzzle"></i>

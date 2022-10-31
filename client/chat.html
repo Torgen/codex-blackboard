@@ -38,7 +38,7 @@ Click here to stay in this meeting instead.{{/if}}">
             {{#if usingJitsiPin}}{{pinnedRoomName}}{{/if}}
             <i class="fas fa-thumbtack"></i>
           </a>
-          {{#if usingJitsiPin}}<a class="puzzles-link" href="{{pinnedRoomUrl}}" title="Return to {{pinnedRoomName}}"><i class="fas fa-undo"></i></a>{{/if}}
+          {{#if usingJitsiPin}}<a href="{{pinnedRoomUrl}}" title="Return to {{pinnedRoomName}}"><i class="fas fa-undo"></i></a>{{/if}}
           <a href="#" class="bb-jitsi-cap-height {{#if jitsiHeightCapped}}capped{{/if}}" title="Limit jitsi meeting to 75 pixels high"><i class="fas fa-compress-alt"></i></a>
           <a href="{{jitsiUrl}}" class="bb-pop-jitsi" target="jitsi" title="Open this meeting in another tab"><i class="fas fa-external-link-alt"></i></a>
         </div>
@@ -71,7 +71,7 @@ Click here to stay in this meeting instead.{{/if}}">
       {{#with typeaheadResults}}
         <ul id="messageInputTypeahead" class="typeahead dropdown-menu">
           {{#each this}}
-            <li class="{{#if selected _id}}active{{/if}}"><a href="#" data-value="{{_id}}">{{>gravatar_with_badges nick=_id size=16}} {{nickAndName _id}}{{#if onduty _id}} <i class="fas fa-pager" title="onduty"></i>{{/if}}</a></li>
+            <li class="{{#if selected _id}}active{{/if}}"><a href="#" data-value="{{_id}}">{{>gravatar_with_badges nick=_id size=16}} {{nickAndName _id}}{{#if isonduty _id}} <i class="fas fa-pager" title="onduty"></i>{{/if}}</a></li>
           {{else}}
             <li class="disabled"><a name="nomatch">No matches</a></li>
           {{/each}}
@@ -123,12 +123,12 @@ Click here to stay in this meeting instead.{{/if}}">
         {{else if message.mail}}
           Mail from {{#with message.mail.sender_name}}{{this}}{{else}}{{message.nick}}{{/with}} <i class="fas fa-envelope"></i> {{message.mail.subject}}
         {{else}}
-          <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{#if onduty message.nick}}<i class="fas fa-pager" title="On duty"></i> {{/if}}{{nickOrName message.nick}}</span>
+          <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{#if isonduty message.nick}}<i class="fas fa-pager" title="On duty"></i> {{/if}}{{nickOrName message.nick}}</span>
             {{#if any message.to (includes message.mention mynick)}}
               <small>({{#if message.to}}Private{{#unless equal message.to currentUser._id}}
                 to {{>gravatar nick=message.to size=12}}{{nickOrName message.to}}{{/unless}}{{else}}Mentioned you{{/if}}{{#if showRoom}}{{#let splitroom=(split message.room_name "/")}}
-                in {{#if equal splitroom.[0] "general"}}<a href="/" class="home-link">{{generalRoomName}}</a>
-                {{else}}{{>link id=splitroom.[1]}}{{/if}}{{/let}}<a href="/chat/{{message.room_name}}" class="chat-link bb-pop-out" target="pmchat" title="Open Chat in new window"><i class="fas fa-comments"></i> <i class="fas fa-external-link-alt"></i></a>{{/if}})</small>
+                in {{#if equal splitroom.[0] "general"}}<a href="/">{{generalRoomName}}</a>
+                {{else}}{{>link id=splitroom.[1]}}{{/if}}{{/let}}<a href="/chat/{{message.room_name}}" class="bb-pop-out" target="pmchat" title="Open Chat in new window"><i class="fas fa-comments"></i> <i class="fas fa-external-link-alt"></i></a>{{/if}})</small>
             {{/if}}
         {{/if}}
       </h5>

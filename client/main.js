@@ -1,37 +1,64 @@
 import md5 from "md5";
-import { gravatarUrl, nickHash } from "./imports/nickEmail.js";
-import abbrev from "../lib/imports/abbrev.js";
+import abbrev from "/lib/imports/abbrev.js";
+import {
+  human_readable,
+  abbrev as ctabbrev,
+} from "/lib/imports/callin_types.js";
 import canonical from "/lib/imports/canonical.js";
 import {
   BBCollection,
   Messages,
   Names,
   Puzzles,
+  Roles,
   collection,
   pretty_collection,
 } from "/lib/imports/collections.js";
-import {
-  human_readable,
-  abbrev as ctabbrev,
-} from "../lib/imports/callin_types.js";
-import { mechanics } from "../lib/imports/mechanics.js";
-import { fileType } from "../lib/imports/mime_type.js";
-import textify from "./imports/textify.js";
-import embeddable from "./imports/embeddable.js";
+import { mechanics } from "/lib/imports/mechanics.js";
+import { fileType } from "/lib/imports/mime_type.js";
+import embeddable from "/client/imports/embeddable.js";
+import keyword_or_positional from "/client/imports/keyword_or_positional.js";
+import { gravatarUrl, nickAndName, nickHash } from "/client/imports/nickEmail.js";
+import * as notification from "/client/imports/notification.js";
+import { chatUrlFor, navigate, urlFor } from "/client/imports/router.js";
 import {
   GENERAL_ROOM_NAME,
   NAME_PLACEHOLDER,
   TEAM_NAME,
 } from "/client/imports/server_settings.js";
-import { DARK_MODE, MUTE_SOUND_EFFECTS } from "./imports/settings.js";
-import * as notification from "/client/imports/notification.js";
-import { urlFor, chatUrlFor } from "/client/imports/router.js";
+import { DARK_MODE, MUTE_SOUND_EFFECTS } from "/client/imports/settings.js";
+import textify from "/client/imports/textify.js";
 import "/client/imports/ui/components/splitter/splitter.js";
 import "/client/imports/ui/pages/graph/graph_page.js";
 import "/client/imports/ui/pages/map/map_page.js";
 import "/client/imports/ui/pages/projector/projector.js";
 import "/client/imports/ui/pages/statistics/statistics_page.js";
 import "/client/imports/ui/pages/login/login.js";
+
+Template.page.events({
+  'click a[href^="/"]'(event, template) {
+    if (event.button !== 0) {
+      return;
+    } // check right-click
+    if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+      return;
+    } // check alt/ctrl/shift/command clicks
+    const target = event.currentTarget;
+    // href on the element directly is absolute. We want the relative path if it exists for routing.
+    event.preventDefault();
+    if (target.classList.contains("bb-pop-out")) {
+      // here we want the absolute path since it's for a new window.
+      window.open(
+        target.href,
+        "Pop out",
+        "height=480,width=480,menubar=no,toolbar=no,personalbar=no," +
+          "status=yes,resizeable=yes,scrollbars=yes"
+      );
+    } else {
+      navigate(target.getAttribute("href"));
+    }
+  }
+});
 
 // "Top level" templates:
 //   "blackboard" -- main blackboard page
@@ -68,22 +95,15 @@ Template.registerHelper("concat", function (...args) {
 });
 
 // session variables we want to make available from all templates
-(() =>
-  ["currentPage"].map((v) =>
-    Template.registerHelper(v, () => Session.get(v))
-  ))();
+["currentPage"].map(function (v) {
+  Template.registerHelper(v, () => Session.get(v));
+  Template.registerHelper(`${v}Equals`, (arg) => Session.equals(v, arg));
+});
 Template.registerHelper("abbrev", abbrev);
 Template.registerHelper("callinType", human_readable);
 Template.registerHelper("callinTypeAbbrev", ctabbrev);
 Template.registerHelper("canonical", canonical);
 
-// register a more precise dependency on the value of currentPage
-Template.registerHelper("currentPageEquals", (arg) =>
-  Session.equals("currentPage", arg)
-);
-
-// register a more precise dependency on the value of type
-Template.registerHelper("typeEquals", (arg) => Session.equals("type", arg));
 Template.registerHelper(
   "canEdit",
   () =>
@@ -111,6 +131,38 @@ Template.registerHelper("nullToZero", (x) => x ?? 0);
 Template.registerHelper(
   "canGoFullScreen",
   () => $("body").get(0)?.requestFullscreen != null
+);
+Template.registerHelper("drive_link", function (args) {
+  args = keyword_or_positional("id", args);
+  return `https://docs.google.com/folder/d/${args.id}/edit`;
+});
+Template.registerHelper("spread_link", function (args) {
+  args = keyword_or_positional("id", args);
+  return `https://docs.google.com/spreadsheets/d/${args.id}/edit`;
+});
+Template.registerHelper("doc_link", function (args) {
+  args = keyword_or_positional("id", args);
+  return `https://docs.google.com/document/d/${args.id}/edit`;
+});
+
+// nicks
+Template.registerHelper("nickOrName", function (args) {
+  const { nick } = keyword_or_positional("nick", args);
+  const n = Meteor.users.findOne(canonical(nick));
+  return n?.real_name || n?.nickname || nick;
+});
+Template.registerHelper("nickAndName", function (args) {
+  const { nick } = keyword_or_positional("nick", args);
+  const n = Meteor.users.findOne(canonical(nick ?? { nickname: nick }));
+  return nickAndName(n);
+});
+Template.registerHelper(
+  "nickExists",
+  (nick) => Meteor.users.findOne({ _id: nick }) != null
+);
+Template.registerHelper(
+  "isonduty",
+  (nick) => Roles.findOne("onduty")?.holder === nick
 );
 
 Tracker.autorun(function () {
