@@ -18,7 +18,11 @@ import { mechanics } from "/lib/imports/mechanics.js";
 import { fileType } from "/lib/imports/mime_type.js";
 import embeddable from "/client/imports/embeddable.js";
 import keyword_or_positional from "/client/imports/keyword_or_positional.js";
-import { gravatarUrl, nickAndName, nickHash } from "/client/imports/nickEmail.js";
+import {
+  gravatarUrl,
+  nickAndName,
+  nickHash,
+} from "/client/imports/nickEmail.js";
 import * as notification from "/client/imports/notification.js";
 import { chatUrlFor, navigate, urlFor } from "/client/imports/router.js";
 import {
@@ -57,7 +61,7 @@ Template.page.events({
     } else {
       navigate(target.getAttribute("href"));
     }
-  }
+  },
 });
 
 // "Top level" templates:
