@@ -1,4 +1,5 @@
 import "./map_page.html";
+import "/client/imports/ui/components/connection_button/connection_button.js";
 
 Template.map_page.onCreated(async function () {
   this.followTheSun = new ReactiveVar(false);

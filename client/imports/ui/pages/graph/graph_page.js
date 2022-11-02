@@ -1,4 +1,5 @@
 import "./graph_page.html";
+import "/client/imports/ui/components/connection_button/connection_button.js";
 
 Template.graph_page.onCreated(async function () {
   this.loaded = new ReactiveVar(false);

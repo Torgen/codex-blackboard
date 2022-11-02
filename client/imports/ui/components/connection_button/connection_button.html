@@ -1,0 +1,6 @@
+<template name="connection_button">
+  <button title="{{connectStatus.status}}{{#if connectStatus.retryTime}} until {{pretty_ts connectStatus.retryTime}}{{/if}}"
+          class="{{connectStatus.status}} btn {{style}}">
+    <span class="bb-statuslight"></span>
+  </button>
+</template>

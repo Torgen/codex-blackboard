@@ -12,6 +12,7 @@ import {
   GENERAL_ROOM_NAME,
 } from "/client/imports/server_settings.js";
 import "./imports/timestamp.js";
+import "./imports/ui/components/connection_button/connection_button.js";
 
 const privateMessageTransform = (msg) => ({
   _id: msg._id,
@@ -140,19 +141,6 @@ Template.header_loginmute.events({
     } else {
       $("body").on("click", clickOutsideAvatarDropdownHandler);
     }
-  },
-});
-
-Template.connection_button.helpers({
-  connectStatus: Meteor.status,
-});
-
-Template.connection_button.events({
-  "click .connected, click .connecting, click .waiting"(event, template) {
-    Meteor.disconnect();
-  },
-  "click .failed, click .offline"(event, template) {
-    Meteor.reconnect();
   },
 });
 
