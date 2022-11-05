@@ -1,6 +1,6 @@
 upstream codex {
-  {{#each port}}server localhost:{{this}};
-  {{else}}server localhost:{{port}};
+  {{#each port}}server unix:/tmp/codex.{{this}};
+  {{else}}server unix:/tmp/codex.{{port}};
   {{/each}}
 }
 

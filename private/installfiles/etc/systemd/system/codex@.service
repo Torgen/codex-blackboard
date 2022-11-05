@@ -17,7 +17,8 @@ WorkingDirectory=/opt/codex/bundle
 User=nobody
 Group=nogroup
 EnvironmentFile=/etc/codex-common.env
-Environment=PORT=%i
+Environment=UNIX_SOCKET_PATH=/tmp/codex.%i
+Environment=UNIX_SOCKET_PERMISSIONS=666
 Environment=DISABLE_BATCH_PROCESSING=true
 
 [Install]

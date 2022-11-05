@@ -65,10 +65,10 @@ sudo vim /etc/codex-batch.env
 # port 28001, and have nginx balance over them.
 PORTS=""
 if [ "$(nproc)" -eq 1 ]; then
-  PORTS="--port 28000"
+  PORTS="--port batch"
 else
   for index in $(seq 1 "$(nproc)"); do
-    port=$((index + 28000))
+    port=$((index))
     PORTS="$PORTS --port $port"
     sudo systemctl enable "codex@${port}.service"
   done

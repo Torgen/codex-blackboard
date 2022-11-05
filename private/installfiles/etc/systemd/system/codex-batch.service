@@ -18,7 +18,8 @@ User=nobody
 Group=nogroup
 EnvironmentFile=/etc/codex-common.env
 EnvironmentFile=/etc/codex-batch.env
-Environment=PORT=28000
+Environment=UNIX_SOCKET_PATH=/tmp/codex.batch
+Environment=UNIX_SOCKET_PERMISSIONS=666
 
 [Install]
 WantedBy=codex.target
