@@ -32,7 +32,4 @@ export var BB_DISABLE_RINGHUNTERS_HEADER = server.disableRinghunters ?? false;
 // (PMs are always allows in ringhunters)
 export var BB_DISABLE_PM = server.disablePM ?? false;
 
-// Set to 'none' to have no followup rendering.
-export var FOLLOWUP_STYLE = server.followupStyle ?? "js";
-
 export var MAPS_API_KEY = server.mapsApiKey;
