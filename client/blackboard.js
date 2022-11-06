@@ -224,23 +224,16 @@ Template.blackboard.events({
   },
   "click .bb-notification-enabled"(event, template) {
     if (notification.count() > 0) {
-      return (() => {
-        const result = [];
-        for (let item of notification.streams) {
-          result.push(notification.set(item.name, false));
-        }
-        return result;
-      })();
+      for (let item of notification.streams) {
+        notification.set(item.name, false);
+      }
     } else {
-      return (() => {
-        const result1 = [];
-        for (let item of notification.streams) {
-          result1.push(notification.set(item.name));
-        }
-        return result1;
-      })();
+      for (let item of notification.streams) {
+        // default value
+        notification.set(item.name);
+      }
     }
-  }, // default value
+  },
   "click .bb-notification-controls.dropdown-menu a"(event, template) {
     const $inp = $(event.currentTarget).find("input");
     const stream = $inp.attr("data-notification-stream");
