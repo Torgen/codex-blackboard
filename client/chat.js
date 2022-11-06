@@ -512,8 +512,8 @@ Template.embedded_chat.onCreated(function () {
 
 function jitsiRoomSubject(type, id) {
   if ("puzzles" === type) {
-    return Puzzles.findOne(id).name ?? "Puzzle";
-  } else if ("0" === id) {
+    return Puzzles.findOne(id).name ?? /* istanbul ignore next */ "Puzzle";
+  } else /* istanbul ignore else */ if ("0" === id) {
     return GENERAL_ROOM_NAME;
   } else {
     return "Video Call";
@@ -722,7 +722,7 @@ function prettyRoomName() {
   const type = Session.get("type");
   const id = Session.get("id");
   const name = type === "general" ? GENERAL_ROOM : Names.findOne(id)?.name;
-  return name || "unknown";
+  return name || /* instanbul ignore next */ "unknown";
 }
 
 function joinRoom(type, id) {
