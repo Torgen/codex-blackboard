@@ -1007,7 +1007,6 @@ Template.messages_input.onCreated(function () {
         hideMessageAlert();
         joinRoom(result.type, result._id);
         return true;
-        break;
       case "/msg":
       case "/m":
         // find who it's to
