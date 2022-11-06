@@ -1,13 +1,10 @@
 <template name="chat">
 
   {{> messages}}
-
-  {{#if object}}
-    {{#with object}}
-      {{> puzzle_callin_modal}}
-      {{> puzzle_summon_modal}}
-    {{/with}}
-  {{/if}}
+  {{#with object}}
+    {{> puzzle_callin_modal}}
+    {{> puzzle_summon_modal}}
+  {{/with}}
   <div class="navbar navbar-inverse navbar-fixed-bottom">
     {{>messages_input}}
   </div>

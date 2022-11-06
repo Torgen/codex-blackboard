@@ -139,12 +139,6 @@ Template.chat.helpers({
     const type = Session.get("type");
     return type !== "general" && collection(type)?.findOne(Session.get("id"));
   },
-  solved() {
-    const type = Session.get("type");
-    return (
-      type !== "general" && collection(type)?.findOne(Session.get("id"))?.solved
-    );
-  },
 });
 
 function starred_messages_room() {
