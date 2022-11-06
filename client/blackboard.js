@@ -816,12 +816,6 @@ Template.blackboard_puzzle_cells.helpers({
   addingTag: addingTagHelper,
 });
 
-Template.blackboard_column_body_answer.helpers({
-  answer() {
-    return getTag(this.puzzle, "answer") || "";
-  },
-});
-
 Template.blackboard_column_body_status.helpers({
   status() {
     return getTag(this.puzzle, "status") || "";
