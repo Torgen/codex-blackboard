@@ -1,4 +1,4 @@
-import { ChatPage } from "/client/imports/router.js";
+import { BlackboardPage, ChatPage, EditPage } from "/client/imports/router.js";
 import {
   waitForSubscriptions,
   waitForMethods,
@@ -208,7 +208,7 @@ describe("chat", function () {
       chai.assert.equal(Session.get("id"), 0);
     });
 
-    return it("joins puzzle", async function () {
+    it("joins puzzle", async function () {
       ChatPage("general", "0");
       await waitForSubscriptions();
       await afterFlushPromise();
@@ -259,7 +259,7 @@ describe("chat", function () {
       chai.assert.equal(0, typeahead.length);
     });
 
-    return it("allows clicks", async function () {
+    it("allows clicks", async function () {
       const id = Puzzles.findOne({ name: "Space Elevator" })._id;
       ChatPage("puzzles", id);
       await waitForSubscriptions();
@@ -352,7 +352,7 @@ describe("chat", function () {
       chai.assert.isNotOk(msg.mention);
     });
 
-    return it("errors on message to nobody", async function () {
+    it("errors on message to nobody", async function () {
       const id = Puzzles.findOne({ name: "Charm School" })._id;
       ChatPage("puzzles", id);
       await waitForSubscriptions();
@@ -366,7 +366,7 @@ describe("chat", function () {
     });
   });
 
-  return describe("polls", () =>
+  describe("polls", () =>
     it("lets you change your vote", async function () {
       const id = Puzzles.findOne({ name: "Amateur Hour" })._id;
       ChatPage("puzzles", id);
@@ -419,4 +419,74 @@ describe("chat", function () {
       chai.assert.equal(results[0].style.width, "100%");
       chai.assert.equal(results[1].style.width, "33.3333%");
     }));
+
+  describe("starred messages", function () {
+    describe("unstarred message in chat", function () {
+      let id;
+      before(async function () {
+        const msg = await promiseCall("newMessage", {
+          body: "Let's find the coin!",
+          room_name: "general/0",
+        });
+        id = msg._id;
+      });
+
+      it("can be starred", async function () {
+        ChatPage("general", "0");
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const $msg = $(`#messages [data-message-id="${id}"]`);
+        chai.assert.isOk($msg.get(0));
+        $msg.find(".bb-message-star").click();
+        await waitForMethods();
+        chai.assert.isTrue(Messages.findOne(id).starred);
+      });
+    });
+
+    describe("starred message in blackboard", function () {
+      let id;
+      before(async function () {
+        const msg = await promiseCall("newMessage", {
+          body: "Let's find the coin!",
+          room_name: "general/0",
+        });
+        id = msg._id;
+        await promiseCall("setStarred", id, true);
+      });
+
+      it("cannot be unstarred", async function () {
+        BlackboardPage();
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const $msg = $(`.bb-starred-messages [data-message-id="${id}"]`);
+        chai.assert.isOk($msg.get(0));
+        $msg.find(".bb-message-star").click();
+        await waitForMethods();
+        chai.assert.isTrue(Messages.findOne(id).starred);
+      });
+    });
+
+    describe("starred message in edit mode", function () {
+      let id;
+      before(async function () {
+        const msg = await promiseCall("newMessage", {
+          body: "Let's find the coin!",
+          room_name: "general/0",
+        });
+        id = msg._id;
+        await promiseCall("setStarred", id, true);
+      });
+
+      it("can be unstarred", async function () {
+        EditPage();
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const $msg = $(`.bb-starred-messages [data-message-id="${id}"]`);
+        chai.assert.isOk($msg.get(0));
+        $msg.find(".bb-message-star").click();
+        await waitForMethods();
+        chai.assert.isNotOk(Messages.findOne(id).starred);
+      });
+    });
+  });
 });
