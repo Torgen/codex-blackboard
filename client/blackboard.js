@@ -58,7 +58,7 @@ Meteor.startup(function () {
       }
       try {
         await blackboard.newAnswerSound.play();
-      } catch (err) {
+      } catch (err) /* istanbul ignore next */ {
         console.error(err.message, err);
       }
     },

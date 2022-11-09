@@ -29,7 +29,7 @@ Meteor.startup(function () {
         }
         try {
           await newCallInSound.play();
-        } catch (err) {
+        } catch (err) /* istanbul ignore next */ {
           console.error(err.message, err);
         }
       },
