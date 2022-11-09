@@ -65,30 +65,6 @@ Meteor.startup(function () {
   });
 });
 
-Meteor.startup(function () {
-  // see if we've got native emoji support, and add the 'has-emojis' class
-  // if so; inspired by
-  // https://stackoverflow.com/questions/27688046/css-reference-to-phones-emoji-font
-  const checkEmoji = function (char, x, y, fillStyle = "#000") {
-    const node = document.createElement("canvas");
-    const ctx = node.getContext("2d");
-    ctx.fillStyle = fillStyle;
-    ctx.textBaseline = "top";
-    ctx.font = "32px Arial";
-    ctx.fillText(char, 0, 0);
-    return ctx.getImageData(x, y, 1, 1);
-  };
-  const reddot = checkEmoji("\uD83D\uDD34", 16, 16);
-  const dancing = checkEmoji("\uD83D\uDD7A", 12, 16); // unicode 9.0
-  if (
-    reddot.data[0] > reddot.data[1] &&
-    dancing.data[0] + dancing.data[1] + dancing.data[2] > 0
-  ) {
-    console.log("has unicode 9 color emojis");
-    document.body.classList.add("has-emojis");
-  }
-});
-
 //######## general properties of the blackboard page ###########
 
 function setCompare(was, will) {
