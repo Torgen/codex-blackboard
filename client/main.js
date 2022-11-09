@@ -89,6 +89,15 @@ Meteor.startup(function () {
   }
 });
 
+// Update 'currentTime' every minute or so to allow pretty_ts to magically
+// update
+Meteor.startup(function () {
+  Session.set("currentTime", Date.now());
+  Meteor.setInterval(function () {
+    Session.set("currentTime", Date.now());
+  }, 60 * 1000);
+});
+
 // "Top level" templates:
 //   "blackboard" -- main blackboard page
 //   "puzzle"     -- puzzle information page

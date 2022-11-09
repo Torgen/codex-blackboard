@@ -892,10 +892,3 @@ Template.blackboard_column_header_working.onCreated(function () {
     this.subscribe("all-presence");
   });
 });
-
-// Update 'currentTime' every minute or so to allow pretty_ts to magically
-// update
-Meteor.startup(function () {
-  Session.set("currentTime", Date.now());
-  Meteor.setInterval(() => Session.set("currentTime", Date.now()), 60 * 1000);
-});
