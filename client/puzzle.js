@@ -358,6 +358,7 @@ const callinTypesHelpers = (template) =>
           return "Message to HQ";
         case callin_types.EXPECTED_CALLBACK:
           return "Expected Callback";
+        //istanbul ignore next
         default:
           return "";
       }
@@ -372,6 +373,7 @@ const callinTypesHelpers = (template) =>
           return "Message to send HQ";
         case callin_types.EXPECTED_CALLBACK:
           return "Callback to expect";
+        //istanbul ignore next
         default:
           return "";
       }
@@ -386,6 +388,7 @@ const callinTypesHelpers = (template) =>
           return "Any other reason for contacting HQ, including spending clue currency and reporting an error.";
         case callin_types.EXPECTED_CALLBACK:
           return "We will be contacted by HQ. No immediate action is required of the oncall.";
+        //istanbul ignore next
         default:
           return "";
       }
