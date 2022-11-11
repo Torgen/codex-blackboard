@@ -141,19 +141,19 @@
 </template>
 
 <template name="header_loginmute">
-  <li>
+  <li class="loginmute">
 <!-- login/mute buttons -->
   <div class="bb-buttonbar">
 {{#if currentPageEquals "blackboard"}}
     <div class="btn-group bb-unlock-group">
-     <button title="Protect page" data-canEdit="false"
+     <a href="/" title="Protect page" data-canEdit="false"
              class="bb-protect btn btn-small btn-inverse {{#unless canEdit}}active{{/unless}}">
       <i class="fas fa-lock"></i>
-     </button>
-     <button title="Allow edits to puzzles" data-canEdit="true"
+     </a>
+     <a href="/edit" title="Allow edits to puzzles" data-canEdit="true"
              class="bb-unprotect btn btn-small btn-inverse {{#if canEdit}}active{{/if}} {{#unless sessionNick}}disabled{{/unless}}">
       <i class="fas fa-lock-open"></i>
-     </button>
+     </a>
     </div>
 {{else}}
     {{> calendar_dropdown}}
