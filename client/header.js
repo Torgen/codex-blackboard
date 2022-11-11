@@ -65,9 +65,6 @@ Template.header_loginmute.helpers({
     return unreadHelper({ mention: Meteor.userId() });
   },
   clamp(value, limit) {
-    if (!value) {
-      return;
-    }
     if (value > limit) {
       return `${limit}+`;
     }
