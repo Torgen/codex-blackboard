@@ -51,9 +51,6 @@ Template.header_loginmute.helpers({
   sessionNick() {
     // TODO(torgen): replace with currentUser
     const user = Meteor.user();
-    if (user == null) {
-      return;
-    }
     return {
       name: user.nickname,
       canon: user._id,
