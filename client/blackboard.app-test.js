@@ -10,7 +10,7 @@ import {
   logout,
 } from "./imports/app_test_helpers.js";
 import chai from "chai";
-import { reactiveLocalStorage } from "./imports/storage.js";
+import { HIDE_SOLVED, HIDE_SOLVED_METAS } from "/client/imports/settings.js";
 
 describe("blackboard", function () {
   this.timeout(30000);
@@ -78,7 +78,7 @@ describe("blackboard", function () {
     chai.assert.isOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
     chai.assert.isNotOk($joy.find(".metafooter")[0]);
 
-    reactiveLocalStorage.setItem("hideSolved", "true");
+    HIDE_SOLVED.set(true);
     await afterFlushPromise();
     chai.assert.isNotOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
     chai.assert.isOk($joy.find(".metafooter")[0]);
@@ -93,7 +93,54 @@ describe("blackboard", function () {
     chai.assert.isOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
     chai.assert.isNotOk($joy.find(".metafooter")[0]);
 
-    reactiveLocalStorage.setItem("hideSolved", "false");
+    HIDE_SOLVED.set(false);
+  });
+
+  it("hides rounds with no unsolved metas or standalones", async function () {
+    BlackboardPage();
+    await waitForSubscriptions();
+    const round = await promiseCall("newRound", { name: "Hidden" });
+    await afterFlushPromise();
+    chai.assert.isOk(document.getElementById(`round${round._id}`));
+
+    HIDE_SOLVED_METAS.set(true);
+    try {
+      await afterFlushPromise();
+      chai.assert.isNotOk(document.getElementById(`round${round._id}`));
+
+      const standalone = await promiseCall("newPuzzle", {
+        name: "hide solved standalone",
+        round: round._id,
+      });
+      await afterFlushPromise();
+      chai.assert.isOk(document.getElementById(`round${round._id}`));
+
+      await promiseCall("setAnswer", {
+        target: standalone._id,
+        answer: "hitoride",
+      });
+      await afterFlushPromise();
+      chai.assert.isNotOk(document.getElementById(`round${round._id}`));
+
+      const meta = await promiseCall("newPuzzle", {
+        name: "hide solved meta",
+        round: round._id,
+        puzzles: [],
+      });
+      await promiseCall("newPuzzle", {
+        name: "hide solved feeder",
+        round: round._id,
+        feedsInto: [meta._id],
+      });
+      await afterFlushPromise();
+      chai.assert.isOk(document.getElementById(`round${round._id}`));
+
+      await promiseCall("setAnswer", { target: meta._id, answer: "isshouni" });
+      await afterFlushPromise();
+      chai.assert.isNotOk(document.getElementById(`round${round._id}`));
+    } finally {
+      HIDE_SOLVED_METAS.set(false);
+    }
   });
 
   describe("presence filter", function () {
@@ -564,7 +611,7 @@ describe("blackboard", function () {
       chai.assert.isOk(disgust.tags.color3);
     });
 
-    return it("will not clobber a tag", async function () {
+    it("will not clobber a tag", async function () {
       EditPage();
       await waitForSubscriptions();
       await afterFlushPromise();
@@ -594,7 +641,7 @@ describe("blackboard", function () {
     });
   });
 
-  return it("makes a puzzle a favorite", async function () {
+  it("makes a puzzle a favorite", async function () {
     BlackboardPage();
     await waitForSubscriptions();
     await afterFlushPromise();
