@@ -607,10 +607,7 @@ Meteor.publish(
 Meteor.publish(
   "pending-callins",
   loginRequired(() =>
-    CallIns.find(
-      { status: "pending" },
-      { sort: [["created", "asc"]] }
-    )
+    CallIns.find({ status: "pending" }, { sort: [["created", "asc"]] })
   )
 );
 
