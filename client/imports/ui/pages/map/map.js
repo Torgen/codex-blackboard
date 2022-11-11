@@ -9,6 +9,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { MarkerWithLabel } from "@googlemaps/markerwithlabel";
 import { positionOrDefault, solarLongitude } from "./geography.js";
+import summarize_markers from "./summarize_markers.js";
 import { MAPS_API_KEY } from "/client/imports/server_settings.js";
 
 const loaded = new ReactiveVar(false);
@@ -25,76 +26,14 @@ Template.map.onCreated(function () {
   this.map = new ReactiveVar(null);
 });
 
-const MAX_CIRCLES = 5;
 const GRAVATAR_SIZE = 64;
 
 class BlackboardRenderer {
   constructor() {
     this.markersAndViews = [];
   }
-  render({ markers, position }, stats) {
-    let fullOffline, fullOnline;
-    let marker, summaryOnline, summaryOffline;
-    let numOnline = 0;
-    let numOffline = 0;
-    markers = markers.slice(0);
-    markers.sort((a, b) => b.getOpacity() - a.getOpacity()); // Online first, then offline
-    for (marker of markers) {
-      if (marker.getOpacity() === 1.0) {
-        numOnline++;
-      } else {
-        numOffline++;
-      }
-    }
-    [fullOnline, fullOffline, summaryOnline, summaryOffline] = [0, 0, 0, 0];
-    if (numOnline + numOffline <= MAX_CIRCLES) {
-      [fullOnline, fullOffline] = [numOnline, numOffline];
-    } else if (numOffline === 0) {
-      [fullOnline, summaryOnline] = [4, numOnline - 4];
-    } else if (numOnline === 0) {
-      [fullOffline, summaryOffline] = [4, numOffline - 4];
-    } else if (numOnline === 1) {
-      [fullOnline, fullOffline, summaryOffline] = [1, 3, numOffline - 3];
-    } else if (numOffline === 1) {
-      [fullOnline, summaryOnline, fullOffline] = [3, numOnline - 3, 1];
-    } else {
-      [fullOnline, summaryOnline, summaryOffline] = [
-        3,
-        numOnline - 3,
-        numOffline,
-      ];
-    }
-    const pieces = [];
-    for (marker of markers) {
-      let piece = null;
-      if (
-        (marker.getOpacity() === 1.0 && fullOnline > 0 && fullOnline--) ||
-        (marker.getOpacity() < 1.0 && fullOffline > 0 && fullOffline--)
-      ) {
-        piece = {
-          gravatar: marker.getIcon(),
-          title: marker.getTitle(),
-          onlineness: marker.getOpacity() === 1.0 ? "online" : "offline",
-        };
-      } else if (marker.getOpacity() === 1.0 && summaryOnline > 0) {
-        piece = {
-          summary: summaryOnline,
-          title: `${summaryOnline} more online`,
-          onlineness: "online",
-        };
-        summaryOnline = 0;
-      } else if (marker.getOpacity() < 1.0 && summaryOffline > 0) {
-        piece = {
-          summary: summaryOffline,
-          title: `${summaryOffline} more offline`,
-          onlineness: "offline",
-        };
-        summaryOffline = 0;
-      } else {
-        continue;
-      }
-      pieces.push(piece);
-    }
+  render({ markers, position }, _stats) {
+    const pieces = summarize_markers(markers);
     const element = document.createElement("div");
     // We render the pieces in reverse order so the last one is on top, so the title attributes trigger in the intuitive way.
     const view = Blaze.renderWithData(
@@ -102,7 +41,7 @@ class BlackboardRenderer {
       pieces.reverse(),
       element
     );
-    marker = new MarkerWithLabel({
+    const marker = new MarkerWithLabel({
       position,
       icon: {
         url: "https://maps.gstatic.com/mapfiles/transparent.png",
