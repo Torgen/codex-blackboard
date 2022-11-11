@@ -671,7 +671,9 @@ Template.logistics_callins_table.helpers({
 Template.logistics_callin_row.onCreated(function () {
   this.autorun(() => {
     const data = Template.currentData();
-    if (!data.puzzle) { return; }
+    if (!data.puzzle) {
+      return;
+    }
     this.subscribe("callins-by-puzzle", data.puzzle._id);
   });
 });
