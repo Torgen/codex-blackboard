@@ -49,7 +49,7 @@ Template.logistics.onCreated(function () {
   this.creatingPuzzle = new ReactiveVar(null);
   this.autorun(() => {
     this.subscribe("all-presence");
-    this.subscribe("callins");
+    this.subscribe("pending-callins");
   });
 });
 
@@ -666,6 +666,14 @@ Template.logistics_callins_table.helpers({
       }
     );
   },
+});
+
+Template.logistics_callin_row.onCreated(function () {
+  this.autorun(() => {
+    const data = Template.currentData();
+    if (!data.puzzle) { return; }
+    this.subscribe("callins-by-puzzle", data.puzzle._id);
+  });
 });
 
 Template.logistics_callin_row.helpers({

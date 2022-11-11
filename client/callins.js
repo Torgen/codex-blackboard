@@ -9,7 +9,7 @@ Meteor.startup(function () {
 
   // note that this observe 'leaks'; that's ok, the set of callins is small
   Tracker.autorun(function () {
-    const sub = Meteor.subscribe("callins");
+    const sub = Meteor.subscribe("pending-callins");
     if (!sub.ready()) {
       return;
     } // reactive, will re-execute when ready
