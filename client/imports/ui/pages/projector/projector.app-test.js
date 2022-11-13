@@ -2,10 +2,11 @@ import {
   afterFlushPromise,
   login,
   logout,
-  waitForMethods,
 } from "/client/imports/app_test_helpers.js";
 import { ProjectorPage } from "/client/imports/router.js";
+import { PeriodicStats } from "/lib/imports/collections";
 import { StatsCollectionTime } from "/lib/imports/settings.js";
+import { waitForDocument } from "/lib/imports/testutils.js";
 import chai from "chai";
 import sinon from "sinon";
 
@@ -16,11 +17,7 @@ describe("projector", function () {
 
   afterEach(() => clock.restore());
 
-  before(async function () {
-    await login("testy", "Teresa Tybalt", "", "failphrase");
-    StatsCollectionTime.set(1);
-    await waitForMethods();
-  });
+  before(async () => await login("testy", "Teresa Tybalt", "", "failphrase"));
 
   after(async function () {
     StatsCollectionTime.set(0);
@@ -49,6 +46,8 @@ describe("projector", function () {
     );
     clock.tick(9000);
     await afterFlushPromise();
+    StatsCollectionTime.set(1);
+    await waitForDocument(PeriodicStats, { stream: "solvers_online" });
     chai.assert.isTrue(
       page
         .find('[data-projector-view="chart"]')
