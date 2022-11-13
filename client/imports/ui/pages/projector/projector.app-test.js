@@ -2,8 +2,10 @@ import {
   afterFlushPromise,
   login,
   logout,
+  waitForMethods,
 } from "/client/imports/app_test_helpers.js";
 import { ProjectorPage } from "/client/imports/router.js";
+import { StatsCollectionTime } from "/lib/imports/settings.js";
 import chai from "chai";
 import sinon from "sinon";
 
@@ -14,9 +16,16 @@ describe("projector", function () {
 
   afterEach(() => clock.restore());
 
-  before(async () => await login("testy", "Teresa Tybalt", "", "failphrase"));
+  before(async function () {
+    await login("testy", "Teresa Tybalt", "", "failphrase");
+    StatsCollectionTime.set(1);
+    await waitForMethods();
+  });
 
-  after(async () => await logout());
+  after(async function () {
+    StatsCollectionTime.set(0);
+    await logout();
+  });
 
   it("operates", async function () {
     ProjectorPage();
