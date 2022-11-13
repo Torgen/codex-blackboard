@@ -11,6 +11,7 @@ import {
   Puzzles,
   Roles,
   Rounds,
+  PeriodicStats,
   collection,
 } from "/lib/imports/collections.js";
 import { Settings } from "/lib/imports/settings.js";
@@ -609,6 +610,11 @@ Meteor.publish(
   loginRequired(() =>
     CallIns.find({ status: "pending" }, { sort: [["created", "asc"]] })
   )
+);
+
+Meteor.publish(
+  "periodic-stats",
+  loginRequired(() => PeriodicStats.find())
 );
 
 // synthetic 'all-names' collection which maps ids to type/name/canon

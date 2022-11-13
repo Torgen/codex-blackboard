@@ -1,6 +1,7 @@
 import watchPresence from "./imports/presence.js";
 import { RoleManager } from "./imports/roles.js";
 import { DO_BATCH_PROCESSING } from "/server/imports/batch.js";
+import collectPeriodicStats from "/server/imports/periodic_stats.js";
 
 if (DO_BATCH_PROCESSING) {
   // Does various fixups of the collections.
@@ -92,4 +93,6 @@ if (DO_BATCH_PROCESSING) {
 
   const roleManager = new RoleManager();
   roleManager.start();
+
+  const stats = collectPeriodicStats();
 }
