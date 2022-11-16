@@ -20,7 +20,7 @@
     "delay": "^5.0.0",
     "denodeify": "^1.2.1",
     "favico.js": "^0.3.10",
-    "gemoji": "^7.1.0",
+    "gemoji": "^8.0.0",
     "googleapis": "^109.0.1",
     "hubot": "github:Torgen/hubot",
     "hubot-help": "^1.0.1",
