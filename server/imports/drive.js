@@ -141,7 +141,7 @@ async function awaitFolder(drive, name, parent) {
       console.log(`${name} never existed`);
       throw new Error("never existed");
     } else {
-      console.log(`Waiting ${attempts} more times for ${name}`);
+      console.log(`Waiting ${triesLeft} more times for ${name}`);
       await delay(1000);
       triesLeft--;
     }
