@@ -30,7 +30,7 @@
     "normalize-text": "^2.4.1",
     "page": "^1.11.6",
     "sanitize-html": "^2.8.1",
-    "twitter-api-v2": "^1.12.10"
+    "twitter-api-v2": "^1.13.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
