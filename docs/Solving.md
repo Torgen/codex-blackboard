@@ -120,7 +120,7 @@ There is always a breadcrumb for this puzzle, and for the main blackboard. If th
 into a metapuzzle, directly, or indirectly, there will be a breadcrumb for the metapuzzle(s) as well.
 
 The content of the main pane can be changed by clicking an icon in this puzzles breadcrumb.
-The icons are: puzzle from the hunt website, spreadsheet, doc, puzzle info pane and puzzle chat.
+The icons are: puzzle from the hunt site, spreadsheet, doc, puzzle info pane and puzzle chat.
 The pane can be made "full screen", or popped out using the icons in the upper right of the main pane.
 In this case "full screen" means hiding the puzzle page header, thereby giving more solving space.
 </details>
