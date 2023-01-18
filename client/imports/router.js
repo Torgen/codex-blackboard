@@ -119,7 +119,13 @@ export function FactsPage() {
   Page("facts", "facts", "0", false);
 }
 
-export function StatisticsPage() {
+export function StatisticsPage(ctx) {
+  const params = new URLSearchParams(ctx.querystring);
+  function maybeDate(x) { if (x) { return new Date(x);} return null; }
+  Session.set({
+    start_time: maybeDate(params.get("start_time")),
+    end_time: maybeDate(params.get("end_time")),
+  });
   Page("statistics", "general", "0", false);
 }
 

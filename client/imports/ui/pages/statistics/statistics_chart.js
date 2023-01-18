@@ -91,6 +91,8 @@ Template.statistics_chart.onRendered(function () {
         },
         xAxis: {
           type: "time",
+          min () { return Session.get("start_time");},
+          max () { return Session.get("end_time"); },
         },
       },
       maintainAspectRatio: false,
