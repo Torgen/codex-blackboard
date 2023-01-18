@@ -7,7 +7,7 @@ import { PeriodicStats } from "/lib/imports/collections.js";
 function allSolversOnline() {
   return PeriodicStats.find(
     { stream: "solvers_online" },
-    { sort: { timestamp: "asc" }, fields: { timestamp: 1, value: 1 } }
+    { sort: { timestamp: 1 }, fields: { timestamp: 1, value: 1 } }
   ).map(function ({ timestamp, value }) {
     return { x: timestamp, y: value };
   });
@@ -35,7 +35,7 @@ Template.statistics_chart.onRendered(function () {
   this.autorun(() => {
     PeriodicStats.find(
       { stream: "solvers_online" },
-      { sort: { timestamp: "asc" }, fields: { timestamp: 1, value: 1 } }
+      { sort: { timestamp: 1 }, fields: { timestamp: 1, value: 1 } }
     ).observeChanges({
       added: (_id, { timestamp, value }) => {
         if (initial) {
