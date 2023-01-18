@@ -102,7 +102,7 @@ Template.statistics_chart.onRendered(function () {
         legend: {
           labels: {
             sort: function (a, b) {
-              return a.datasetIndex - b.datasetIndex;
+              return b.datasetIndex - a.datasetIndex;
             },
           },
         },
@@ -111,15 +111,11 @@ Template.statistics_chart.onRendered(function () {
     data: {
       datasets: [
         {
-          label: "Unlocked",
-          data: this.puzzleFeed.data,
+          label: "Online",
+          data: solvers,
           spanGaps: true,
-          borderColor: "blue",
-          backgroundColor: "lightblue",
-          fill: true,
-          order: 1,
-          stepped: true,
-          yAxisID: "yPuzzles",
+          borderColor: "black",
+          yAxisID: "yPeople",
         },
         {
           label: "Solved",
@@ -132,11 +128,14 @@ Template.statistics_chart.onRendered(function () {
           yAxisID: "yPuzzles",
         },
         {
-          label: "Online",
-          data: solvers,
+          label: "Unlocked",
+          data: this.puzzleFeed.data,
           spanGaps: true,
-          borderColor: "black",
-          yAxisID: "yPeople",
+          borderColor: "blue",
+          backgroundColor: "lightblue",
+          fill: true,
+          stepped: true,
+          yAxisID: "yPuzzles",
         },
       ],
     },
