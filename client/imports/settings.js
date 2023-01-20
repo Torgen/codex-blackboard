@@ -46,6 +46,7 @@ class DefaultTrueSetting extends Setting {
 
 export const START_VIDEO_MUTED = new DefaultTrueSetting("startVideoMuted");
 export var START_AUDIO_MUTED = new DefaultTrueSetting("startAudioMuted");
+export const FIRST_LOGIN = new DefaultTrueSetting("firstLogin");
 
 const darkModeDefault = (function () {
   const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");

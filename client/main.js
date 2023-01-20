@@ -30,7 +30,7 @@ import {
   NAME_PLACEHOLDER,
   TEAM_NAME,
 } from "/client/imports/server_settings.js";
-import { DARK_MODE, MUTE_SOUND_EFFECTS } from "/client/imports/settings.js";
+import { DARK_MODE, MUTE_SOUND_EFFECTS, FIRST_LOGIN } from "/client/imports/settings.js";
 import textify from "/client/imports/textify.js";
 import "/client/imports/ui/components/splitter/splitter.js";
 import "/client/imports/ui/pages/graph/graph_page.js";
@@ -88,6 +88,26 @@ Meteor.startup(function () {
     document.body.classList.add("has-emojis");
   }
 });
+
+Meteor.startup(function () {
+  Tracker.autorun(function (computation) {
+    if (Meteor.userId() == null) {
+      // Not logged in
+      return;
+    }
+    if (!FIRST_LOGIN.get()) {
+      // Have logged in before.
+      computation.stop();
+      return;
+    }
+
+    if (notification.shouldAsk()) {
+      notification.ask();
+    }
+
+    FIRST_LOGIN.set(false);
+  });
+})
 
 // Update 'currentTime' every minute or so to allow pretty_ts to magically
 // update
