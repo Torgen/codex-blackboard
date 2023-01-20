@@ -30,7 +30,11 @@ import {
   NAME_PLACEHOLDER,
   TEAM_NAME,
 } from "/client/imports/server_settings.js";
-import { DARK_MODE, MUTE_SOUND_EFFECTS, FIRST_LOGIN } from "/client/imports/settings.js";
+import {
+  DARK_MODE,
+  MUTE_SOUND_EFFECTS,
+  FIRST_LOGIN,
+} from "/client/imports/settings.js";
 import textify from "/client/imports/textify.js";
 import "/client/imports/ui/components/splitter/splitter.js";
 import "/client/imports/ui/pages/graph/graph_page.js";
@@ -107,7 +111,7 @@ Meteor.startup(function () {
 
     FIRST_LOGIN.set(false);
   });
-})
+});
 
 // Update 'currentTime' every minute or so to allow pretty_ts to magically
 // update
