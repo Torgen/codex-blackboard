@@ -1,11 +1,12 @@
 import { Puzzles } from "/lib/imports/collections.js";
 
 export default class PuzzleFeed {
-  constructor(field, update) {
+  constructor(field, update, query = {}) {
     this.field = field;
     this.update = update;
     this.data = [];
     this.hasNow = new ReactiveVar(false);
+    this.query = query;
   }
 
   updateNow() {
@@ -72,7 +73,7 @@ export default class PuzzleFeed {
 
   observe() {
     return Puzzles.find(
-      { [this.field]: { $ne: null } },
+      { [this.field]: { $ne: null }, ...this.query },
       { fields: { [this.field]: 1 }, sort: { [this.field]: 1 } }
     ).observe({
       addedAt: this.addedAt.bind(this),

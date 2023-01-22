@@ -17,6 +17,9 @@ Template.statistics_chart.onCreated(function () {
   const update = (this.update = () => this.chart?.update());
   this.puzzleFeed = new PuzzleFeed("created", update);
   this.solvedFeed = new PuzzleFeed("solved", update);
+  this.providedFeed = new PuzzleFeed("solved", update, {
+    "tags.provided.value": "yes",
+  });
   this.autorun(() => (this.statsSub = this.subscribe("periodic-stats")));
 });
 
@@ -55,6 +58,7 @@ Template.statistics_chart.onRendered(function () {
   this.autorun(() => {
     this.puzzleFeed.observe();
     this.solvedFeed.observe();
+    this.providedFeed.observe();
   });
   const ticks = {
     callback: function (value) {
@@ -122,6 +126,17 @@ Template.statistics_chart.onRendered(function () {
           spanGaps: true,
           borderColor: "black",
           yAxisID: "yPeople",
+          pointStyle: false,
+        },
+        {
+          label: "Provided",
+          data: this.providedFeed.data,
+          spanGaps: true,
+          borderColor: "goldenrod",
+          backgroundColor: "yellow",
+          fill: true,
+          stepped: true,
+          yAxisID: "yPuzzles",
         },
         {
           label: "Solved",
@@ -151,5 +166,8 @@ Template.statistics_chart.onRendered(function () {
   });
   this.autorun(() => {
     this.solvedFeed.updateNow();
+  });
+  this.autorun(() => {
+    this.providedFeed.updateNow();
   });
 });
