@@ -665,10 +665,22 @@ input[type="color"] {
     }
 
     .puzzle-working {
-      .using-jitsi & .nick.background {
-        opacity: 0.6;
+      .using-jitsi & {
+        .nick.background {
+          opacity: 0.6;
+        }
+        .in-jitsi, .in-chat {
+          display: block;
+          &:empty { display: none; }
+          &::before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            margin-right: 2px;
+          }
+        }
+        .in-jitsi::before { content: '\f03d'; }
+        .in-chat::before { content: '\f086'; }
       }
-      .nick:not(.background) + .nick.background { margin-left: 6px; }
     }
     td.puzzle-update {
       font-size: 85%;

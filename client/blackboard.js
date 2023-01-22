@@ -818,14 +818,14 @@ Template.blackboard_column_body_update.helpers({
 });
 
 Template.blackboard_column_body_working.helpers({
-  whos_working() {
+  whos_working(jitsi) {
     if (this.puzzle == null) {
       return [];
     }
     return findByChannel(
       `puzzles/${this.puzzle._id}`,
-      {},
-      { sort: { jitsi: -1, joined_timestamp: 1 } }
+      { jitsi },
+      { sort: { joined_timestamp: 1 } }
     );
   },
 });

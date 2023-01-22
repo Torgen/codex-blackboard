@@ -447,7 +447,7 @@
   }}{{/edit_tag_value}}{{!
 }}</template>
 
-<template name="blackboard_column_body_working"><td class="puzzle-working">{{#each whos_working}}{{> nick_presence }} {{/each}}</td></template>
+<template name="blackboard_column_body_working"><td class="puzzle-working"><div class="in-jitsi" title="In Jitsi">{{#each whos_working 1}}{{> nick_presence }} {{/each}}</div><div class="in-chat" title="In Chat">{{#each whos_working 0}}{{> nick_presence }} {{/each}}</div></td></template>
 
 <template name="blackboard_column_body_update">
   <td class="puzzle-update">
