@@ -59,8 +59,9 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.name }}
-          path: "${{ runner.temp }}/build-${{matrix.name}}\
-            /bundle/programs/web.browser/*.stats.json"
+          path: |
+            ${{ runner.temp }}/build-${{matrix.name}}/bundle/programs/web.browser/*.stats.json
+            ${{ runner.temp }}}/build-${{matrix.name}}/bundle/programs/web.browser/*.css
       - name: remove bundle-visualizer
         run: ~/.meteor/meteor remove bundle-visualizer
 

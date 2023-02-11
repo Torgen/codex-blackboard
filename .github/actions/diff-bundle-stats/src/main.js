@@ -12,6 +12,16 @@ async function getStatsFile(name) {
   return JSON.parse(contents);
 }
 
+async function getCssSize(name) {
+  const globber = await glob.create(`${name}/*.css`);
+  const files = await globber.glob();
+  if (files.length != 1) {
+    throw new Error(`Need exactly one ${name} css file`);
+  }
+  const stat = await fs.stat(files[0]);
+  return stat.size;
+}
+
 function recursiveSum(tree) {
   let sum = 0;
   for (const key in tree) {
@@ -36,9 +46,10 @@ function updateMap(map, mapKey, objKey, value) {
 
 async function main() {
   try {
-    const [base_stats, head_stats] = await Promise.all([getStatsFile('base'), getStatsFile('head')]);
+    const [base_stats, head_stats, base_css, head_css] = await Promise.all([getStatsFile('base'), getStatsFile('head'), getCssSize('base'), getCssSize('head')]);
     const minifiedDiff = head_stats.totalMinifiedBytes - base_stats.totalMinifiedBytes;
     const minifiedGzipDiff = head_stats.totalMinifiedGzipBytes - base_stats.totalMinifiedGzipBytes;
+    const cssDiff = head_css - base_css;
     const meteorPackageStats = new Map();
     const nodeModuleStats = new Map();
     function updateStats(name, byPackage) {
@@ -77,7 +88,7 @@ async function main() {
     }
     updateStats('base', base_stats.minifiedBytesByPackage);
     updateStats('head', head_stats.minifiedBytesByPackage);
-    const bundleDiff = minifiedDiff !== 0 || minifiedGzipDiff !== 0;
+    const bundleDiff = minifiedDiff !== 0 || minifiedGzipDiff !== 0 | cssDiff !== 0;
     function clearSame({base, head}, key, map) {
       if (base === head) {
         map.delete(key);
@@ -110,6 +121,7 @@ async function main() {
       );
       printDiffLine('Minified', base_stats.totalMinifiedBytes, head_stats.totalMinifiedBytes);
       printDiffLine('Gzipped', base_stats.totalMinifiedGzipBytes, head_stats.totalMinifiedGzipBytes);
+      printDiffLine('CSS', base_css, head_css);
     } else {
       outputLines.push('No change in bundle size.');
     }
