@@ -57,6 +57,29 @@
     left: 0;
   }
 }
+
+.bb-buttonbar {
+  display: flex;
+  flex-direction: row;
+  text-align: right;
+  padding-right: 5px;
+  .btn-group { text-align: left; }
+  .btn-toolbar { margin-top: 0; margin-bottom: 0; }
+  .tooltip-inner {
+    color: #000;
+    background-color: #eee;
+    border-color: black;
+    border-style: solid;
+    border-width: 0 1px 1px 1px;
+  }
+  .tooltip.bottom .tooltip-arrow {
+    border-bottom-color: #eee;
+  }
+  /* tweak to fix up moving buttons when tooltip appears */
+  .bb-protect { margin-right: -1px; }
+  .bb-unprotect { margin-left: 0; }
+}
+
 .bb-breadcrumbs {
   position: relative;
   display: flex;
@@ -74,12 +97,6 @@
     flex-shrink: 1;
   }
   .nav {
-    &.bb-omit-when-narrow {
-      @media (max-width: 767px) {
-        display: flex !important;
-        top: calc(-1 * @nav-height);
-      }
-    }
     height: @nav-height;
     display: flex;
     width: -webkit-max-content;
@@ -145,6 +162,8 @@
       }
     }
   }
+  .tooltip-inner { .bb-buttonbar .tooltip-inner; }
+  .tooltip.bottom .tooltip-arrow { .bb-buttonbar .tooltip.bottom .tooltip-arrow; }
 }
 
 .ellipsis() {
@@ -325,6 +344,31 @@
     margin-right: 0px;
   }
 }
+@media (max-width: 767px) {
+  .bb-omit-when-narrow { display: none !important; }
+  .bb-buttonbar .bb-login { float: right; }
+}
+@media (min-width: 768px) and (max-width: 980px) {
+  .bb-buttonbar .bb-login { float: right }
+}
+@media (max-width: 980px) {
+  /* navbar becomes unfixed below 980px */
+  .navbar-fixed-top {
+    margin-bottom: 0;
+    padding: 0;
+    position: fixed;
+  }
+}
+@media (max-width: 1440px) {
+  .nav li .bb-omit-when-narrow { display: none; }
+}
 
 /* ensure typeahead is shown over modals */
 ul.typeahead { z-index: 1099; }
+
+.bb-abbrev-when-narrow::before {
+  content: attr(data-full);
+  @media (max-width: 1200px)  {
+    content: attr(data-abbrev);
+  }
+}

@@ -34,6 +34,10 @@ html.fullHeight {
   position: relative; /* establish positioning context */
   width: 100%;
   padding-left: 0px; padding-right: 0px;
+  background-color: var(--bg-color);
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
+  padding-right: 2px; padding-left: 2px;
+  .navbar { margin: 0 10px; }
   .bb-splitter { /* vertical */
     position: relative;
     display: flex;
@@ -69,7 +73,7 @@ html.fullHeight {
       .bb-pop-full-menu {
         &:empty {
           display: none;
-        }
+        }        
         position: absolute;
         right: calc(var(--right-column) + 16px);
         margin-right: var(--splitter-width);
@@ -77,6 +81,9 @@ html.fullHeight {
         border: 1px solid #888;
         padding-left: 2px; padding-right: 4px;
         padding-top: 0px;
+        @media (max-width: 767px) {
+          right: 16px;
+        }
       }
       .bb-left-header {
         position: absolute; right: 100%; writing-mode: vertical-lr; top:10px;
@@ -88,6 +95,9 @@ html.fullHeight {
     table:not(.table-bordered) {
       tr > td:first-child { text-align: right }
       td.rightanswer, td.wronganswer { font-weight: bold }
+    }
+    .bb-left-content, .bb-top-right-content {
+      background: var(--much-lighter);
     }
     /* horizontal splitter in right half */
     .bb-right-content {
@@ -194,5 +204,13 @@ html.fullHeight {
         }
       }
     }
+  }
+}
+
+@media (max-width: 980px) {
+  .bb-puzzleround { padding-top: 0 !important; }
+  /* fixup fullHeight stuff */
+  html.fullHeight {
+    body { padding-right: 0; padding-left: 0; }
   }
 }
