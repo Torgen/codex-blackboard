@@ -13,8 +13,8 @@
     }
 }
 
-.bb-puzzleround .bb-chat-messages {
-  .bb-tiny-chat-messages;
+.bb-puzzleround {
+  .bb-tiny-chat-messages();
 }
 .bb-chat-messages {
   @chat-arrow-size: 6px;
@@ -315,27 +315,29 @@ table.poll {
 .bb-puzzle .background.near:before { opacity: 0.2; }
 
 .bb-tiny-chat-messages() {
-  .media {
-    margin-top: 0px;
-    margin-bottom: 0px;
-    /* hide chat bubble arrows when display gets too narrow */
-    &:before, &:after { display: none; }
-    .timestamp { float: right; /* still */ }
-    .media-object.pull-left { float: left; /* still */ margin: 0px; }
-    .img-rounded {
+  .bb-chat-messages {
+    .media {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      /* hide chat bubble arrows when display gets too narrow */
+      &:before, &:after { display: none; }
+      .timestamp { float: right; /* still */ }
+      .media-object.pull-left { float: left; /* still */ margin: 0px; }
+      .img-rounded {
+                border-radius: 0px;
+          -moz-border-radius: 0px;
+        -webkit-border-radius: 0px;
+      }
+    }
+    .media + .media.bb-message-followup { margin-top: -4px; }
+    .bb-message-action, .bb-message-system { padding-left: 6px; }
+    .bb-message-last-read { margin-left: 0px; margin-right: 0px; }
+    .bb-message-body {
+      /* min-height: 0; */
               border-radius: 0px;
-         -moz-border-radius: 0px;
+        -moz-border-radius: 0px;
       -webkit-border-radius: 0px;
     }
-  }
-  .media + .media.bb-message-followup { margin-top: -4px; }
-  .bb-message-action, .bb-message-system { padding-left: 6px; }
-  .bb-message-last-read { margin-left: 0px; margin-right: 0px; }
-  .bb-message-body {
-    /* min-height: 0; */
-            border-radius: 0px;
-       -moz-border-radius: 0px;
-    -webkit-border-radius: 0px;
   }
 }
 
@@ -349,9 +351,7 @@ table.poll {
     margin-left: 0px;
     margin-right: 0px;
   }
-  .bb-chat-messages {
-    .bb-tiny-chat-messages;
-  }
+  .bb-tiny-chat-messages();
 }
 /*
 @media (max-width: 432px) {
