@@ -20,6 +20,14 @@
     background: url('/img/irongrip.png');
     color: #c4c4c4;
     strong,b {  color: #f5f5f5; }
+    .messageRow {
+      color: #666; /*font-size: 1.2em; margin: 4px 5px;*/
+    }
+    .actionRow {
+      font-style: italic;
+      background-color: rgb(244,255,253);
+      color: rgb(4,121,170);
+    }
     .messageRow, .actionRow, .bb-lastupdate {
       &, & .timestamp { color: #c4c4c4; }
     }
@@ -312,6 +320,10 @@
 
 @media(max-width:480px) {
   .modal-header { display: none }
+  .navbar-fixed-top, .navbar-fixed-bottom {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
 }
 
 /* ensure typeahead is shown over modals */

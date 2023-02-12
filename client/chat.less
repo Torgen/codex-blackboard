@@ -12,10 +12,6 @@
       border-bottom-right-radius: 5px;
     }
 }
-
-.bb-puzzleround {
-  .bb-tiny-chat-messages();
-}
 .bb-chat-messages {
   @chat-arrow-size: 6px;
   @chat-arrow-height: 15px;
@@ -340,17 +336,11 @@ table.poll {
     }
   }
 }
+.bb-puzzleround {
+  .bb-tiny-chat-messages();
+}
 
 @media (max-width: 480px) {
-  body {
-    padding-left: 0px;
-    padding-right: 0px;
-    background: var(--bg-color);
-  }
-  .navbar-fixed-top, .navbar-fixed-bottom {
-    margin-left: 0px;
-    margin-right: 0px;
-  }
   .bb-tiny-chat-messages();
 }
 /*
@@ -358,18 +348,6 @@ table.poll {
   .bb-chat-messages .media-object.pull-left { display: none; }
 } 
 */
-.messageRow, .actionRow {
-  color: #666; /*font-size: 1.2em; margin: 4px 5px;*/
-}
-.actionRow {
-  font-style: italic;
-  background-color: rgb(244,255,253);
-  color: rgb(4,121,170);
-}
-.systemRow {
-  margin: 0; font-size: .8em; color: #aaa; padding: 1px 4px!important;
-}
-
 
 .bb-chat-presence-block {
   display: block;
