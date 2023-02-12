@@ -13,15 +13,8 @@
     }
 }
 
-.bb-content-area {
-  background-color: var(--bg-color);
-  box-shadow: 0px 2px 4px rgba(0,0,0,0.5);
-}
-.bb-puzzleround {
-  .bb-content-area;
-  .bb-chat-messages {
-    .bb-tiny-chat-messages;
-  }
+.bb-puzzleround .bb-chat-messages {
+  .bb-tiny-chat-messages;
 }
 .bb-chat-messages {
   @chat-arrow-size: 6px;
@@ -321,7 +314,7 @@ table.poll {
 }
 .bb-puzzle .background.near:before { opacity: 0.2; }
 
-.bb-tiny-chat-messages {
+.bb-tiny-chat-messages() {
   .media {
     margin-top: 0px;
     margin-bottom: 0px;
