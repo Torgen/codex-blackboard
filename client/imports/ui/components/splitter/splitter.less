@@ -160,38 +160,7 @@ html.fullHeight {
           left: 0; right: 0; margin-left: 0; margin-right: 0;
           bottom: var(--jitsi-height, 0);
         }
-        #bb-jitsi-container {
-          height: var(--jitsi-height, 0px);
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          .bb-pin-overlay {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--bg-color);
-            border: 1px solid #888;
-            padding-left: 2px; padding-right: 4px;
-            border-bottom-left-radius: 5px;
-            .bb-jitsi-pin {
-              color: grey;
-            }
-            .bb-jitsi-unpin {
-              color: #49afcd;
-              &.bb-jitsi-pin-used {
-                color: red;
-              }
-            }
-            .bb-jitsi-cap-height {
-              color: grey;
-              &.capped {
-                color: #49afcd;
-              }
-            }
-          }
-          iframe { display: block; }
-        }
+        
         .bb-chat-pop-out {
           position: absolute; top: 0; right: 14px;
           background: var(--bg-color);
@@ -205,6 +174,38 @@ html.fullHeight {
       }
     }
   }
+}
+#bb-jitsi-container {
+  height: var(--jitsi-height, 0px);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  .bb-pin-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--bg-color);
+    border: 1px solid #888;
+    padding-left: 2px; padding-right: 4px;
+    border-bottom-left-radius: 5px;
+    .bb-jitsi-pin {
+      color: grey;
+    }
+    .bb-jitsi-unpin {
+      color: #49afcd;
+      &.bb-jitsi-pin-used {
+        color: red;
+      }
+    }
+    .bb-jitsi-cap-height {
+      color: grey;
+      &.capped {
+        color: #49afcd;
+      }
+    }
+  }
+  iframe { display: block; }
 }
 
 @media (max-width: 980px) {

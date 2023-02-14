@@ -372,29 +372,30 @@ table.poll {
   background: url('/img/irongrip.png');
   display: flex;
   flex-direction: row;
-  #messageForm {
-    flex-grow: 1;
-    padding-left: 0;
-    padding-right: 10px;
-    textarea {
-      overflow: hidden;
-      margin-bottom: 0; margin-top: 5px;
-      resize: none; height: 30px;
-    }
-    .typeahead {
-      display: block;
-    }
-  }
-  #messageInput {
-    margin-top: 3px;
-    &.error {
-      background-color: pink;
-      border: 1px solid red;
-    }
-  }
   .bb-show-whos-here {
     flex-grow: 0;
     i {display: block; }
+  }
+}
+
+#messageForm {
+  flex-grow: 1;
+  padding-left: 0;
+  padding-right: 10px;
+  textarea {
+    overflow: hidden;
+    margin-bottom: 0; margin-top: 5px;
+    resize: none; height: 30px;
+  }
+  .typeahead {
+    display: block;
+  }
+}
+#messageInput {
+  margin-top: 3px;
+  &.error {
+    background-color: pink;
+    border: 1px solid red;
   }
 }
 @media (min-width: 481px) and (max-width: 980px) {
