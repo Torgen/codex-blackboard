@@ -42,6 +42,7 @@ html.fullHeight {
 .bb-splitter-handle {
   user-select: none;
   &:hover { background-color: #aaa; }
+  background: #ccc no-repeat center;
 }
 .bb-splitter { /* vertical */
   position: relative;
@@ -56,7 +57,7 @@ html.fullHeight {
     width: var(--splitter-width);
     cursor: ew-resize;
     right: var(--right-column);
-    background: #ccc url('/img/vgrabber.gif') no-repeat center;
+    background-image: url('/img/vgrabber.gif');
     @media (max-width: 767px) {
       display: none;
     }
