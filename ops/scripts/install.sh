@@ -35,7 +35,7 @@ sudo apt-get install -y mongodb-org nodejs software-properties-common
 
 # This will help us template some files
 sudo npm install -g handlebars-cmd
-cd "$scriptroot"/..
+cd "$scriptroot"/../..
 
 # Build the bundle, then install it.
 meteor npm install
@@ -46,12 +46,12 @@ cd /opt/codex/bundle/programs/server
 sudo npm install
 
 # Copy the static files
-sudo cp -a "$scriptroot"/installfiles/* /
+sudo cp -a "$scriptroot"/../installfiles/* /
 sudo systemctl daemon-reload
 node_path=$(npm root -g --no-update-notifier)
 
-handlebars < "$scriptroot/installtemplates/etc/codex-common.env.handlebars" --domainname "$domainname" | sudo bash -c "cat > /etc/codex-common.env"
-handlebars < "$scriptroot/installtemplates/etc/codex-batch.env.handlebars" --node_path "$node_path" | sudo bash -c "cat > /etc/codex-batch.env"
+handlebars < "$scriptroot/../installtemplates/etc/codex-common.env.handlebars" --domainname "$domainname" | sudo bash -c "cat > /etc/codex-common.env"
+handlebars < "$scriptroot/../installtemplates/etc/codex-batch.env.handlebars" --node_path "$node_path" | sudo bash -c "cat > /etc/codex-batch.env"
 sudo vim /etc/codex-common.env
 sudo chmod 600 /etc/codex-batch.env
 sudo vim /etc/codex-batch.env
@@ -93,7 +93,7 @@ sudo apt-get install -y nginx
 cd /etc/ssl/certs
 sudo openssl dhparam -out dhparam.pem 4096
 # shellcheck disable=SC2086 
-handlebars < "$scriptroot/installtemplates/etc/nginx/sites-available/codex.handlebars" $PORTS --domainname "$domainname" --staticroom "$(uuidgen)" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
+handlebars < "$scriptroot/../installtemplates/etc/nginx/sites-available/codex.handlebars" $PORTS --domainname "$domainname" --staticroom "$(uuidgen)" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
 sudo ln -s /etc/nginx/sites-{available,enabled}/codex
 sudo rm /etc/nginx/sites-enabled/default
   

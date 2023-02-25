@@ -7,7 +7,7 @@ BUNDLE=$1
 sudo mkdir /opt/codex2
 sudo chmod a+rwx /opt/codex2
 if [[ -z $BUNDLE ]]; then
-  cd "$scriptroot"/.. || exit
+  cd "$scriptroot"/../.. || exit
   meteor npm install
   meteor build --directory /opt/codex2
 else
