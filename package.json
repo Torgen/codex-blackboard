@@ -43,7 +43,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "playwright": "^1.32.0",
     "prettier": "^2.8.7",
-    "sinon": "^15.0.2"
+    "sinon": "^15.0.3"
   },
   "scripts": {
     "test": "meteor test --once --driver-package meteortesting:mocha",
