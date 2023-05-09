@@ -188,8 +188,8 @@ function toggleButtonOnDragEnter(event, template) {
     return;
   }
   if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
-    if (!event.currentTarget.classList.contains("open")) {
-      $(event.currentTarget).dropdown("toggle");
+    if (event.currentTarget.dataset.toggle) {
+      event.currentTarget.classList.add("open");
     }
     event.currentTarget.classList.add("dragover");
     lastEnter = event.target;
@@ -202,9 +202,7 @@ function closeButtonOnDragLeave(event, template) {
   } else if (event.currentTarget.contains(lastEnter)) {
     return;
   }
-  if (event.currentTarget.classList.contains("open")) {
-    $(event.currentTarget).dropdown("toggle");
-  }
+  event.currentTarget.classList.remove("open");
   event.currentTarget.classList.remove("dragover");
 }
 
@@ -225,6 +223,7 @@ function makePuzzleOnDrop(targetId, puzzleParams) {
   return Template.logistics.events({
     [`drop #${targetId} .round-name`](event, template) {
       event.currentTarget.closest(`#${targetId}`).classList.remove("dragover");
+      event.currentTarget.parentElement.classList.remove("active");
       droppingLink(event, (name, link) => {
         Meteor.call("newPuzzle", {
           name,
@@ -359,9 +358,7 @@ Template.logistics.events({
   ) {
     lastEnter = null;
     event.currentTarget.classList.remove("dragover");
-    if (event.currentTarget.classList.contains("open")) {
-      $(event.currentTarget).dropdown("toggle");
-    }
+    event.currentTarget.classList.remove("open");
   },
   async "drop #bb-logistics-delete"(event, template) {
     event.currentTarget.classList.remove("dragover");
