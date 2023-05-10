@@ -483,15 +483,16 @@
 
 <template name="blackboard_meta">
   {{#if showMeta}}
+  {{#let nh=numHidden ps=puzzles}}
   <tbody class="meta" id="m{{puzzle._id}}" data-puzzle-id="{{puzzle._id}}"
-         style="{{#unless boringMode}}--meta-color: {{color}}{{/unless}}">
+        style="{{#unless boringMode}}--meta-color: {{color}}{{/unless}}">
     <tr class="meta {{#if stuck puzzle}}bb-status-stuck{{/if}} {{#if collapsed}}collapsed{{/if}}">
       {{> blackboard_puzzle_cells _id=_id parent=parent puzzle=puzzle reorderable=reorderable collapse=true}}
     </tr>
     {{#if any canEdit (not collapsed)}}
-      {{#each p in puzzles}}
+      {{#each p in ps}}
         {{> blackboard_puzzle _id=p._id parent=puzzle._id puzzle=p.puzzle reorderable=(not puzzle.order_by)}}
-      {{else unless (any num_puzzles adding)}}
+      {{else unless (any num_puzzles adding nh)}}
         <tr class="round-empty"><td colspan="{{nCols}}">No puzzles feed this meta yet.</td></tr>
       {{/each}}
       {{#if adding}}
@@ -508,13 +509,14 @@
     </div>
   </td></tr>
   {{else unless collapsed}}
-    {{#with numHidden}}
+    {{#with nh}}
       <tr class="metafooter"><td colspan="{{nCols}}">
-        <span class="num-hidden">({{this}} puzzle{{#if plural this}}s{{/if}} hidden)</span>
+        <span class="num-hidden">({{this}} solved puzzle{{#if plural this}}s{{/if}} hidden)</span>
       </td></tr>
     {{/with}}
   {{/if}}
   </tbody>
+  {{/let}}
   {{/if}}
 </template>
 
