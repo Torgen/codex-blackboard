@@ -84,7 +84,7 @@ describe("blackboard", function () {
     chai.assert.isOk($joy.find(".metafooter")[0]);
     chai.assert.equal(
       $joy.find(".metafooter .num-hidden").text(),
-      "(1 puzzle hidden)"
+      "(1 solved puzzle hidden)"
     );
 
     await promiseCall("deleteAnswer", { target: warm._id });
