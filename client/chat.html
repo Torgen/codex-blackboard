@@ -17,9 +17,16 @@
     </div>
     {{#messages_input}}
       {{#if canJitsi}}
-        <button class="btn btn-mini btn-inverse bb-join-jitsi" title="Connect to Jitsi meeting.{{#if otherJitsi}} This will disconnect another tab from its meeting.{{/if}}">
+        {{#let jp=jitsiPresence}}
+        <button class="btn btn-mini btn-inverse bb-join-jitsi" title="Connect to Jitsi meeting.{{#with jp.count}}
+There {{#if plural this}}are{{else}}is{{/if}} already {{this}} other {{#if plural this}}people{{else}}person{{/if}} in the meeting.{{/with}}{{#if otherJitsi}}
+This will disconnect another tab from its meeting.{{/if}}">
           <i class="fas fa-video"></i>
+            {{#with jp.count}}
+              <span class="presence-count">{{this}}</span>
+            {{/with}}
         </button>
+        {{/let}}
       {{/if}}
     {{/messages_input}}
     <div id="bb-jitsi-container">

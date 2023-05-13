@@ -654,6 +654,13 @@ Template.embedded_chat.helpers({
     }
     return sizeWouldBe;
   },
+  jitsiPresence() {
+    const roomName = Session.get("room_name");
+    return Presence.find(
+      { room_name: roomName, scope: "jitsi", nick: { $ne: Meteor.userId() } },
+      { sort: ["joined_timestamp"] }
+    );
+  },
   jitsiPinSet() {
     return Template.instance().jitsiPinType.get() != null;
   },
