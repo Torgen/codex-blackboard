@@ -1,9 +1,5 @@
 import { getTag, isStuck } from "/lib/imports/tags.js";
-import {
-  Presence,
-  Puzzles,
-  Rounds,
-} from "/lib/imports/collections.js";
+import { Presence, Puzzles, Rounds } from "/lib/imports/collections.js";
 import { confirm } from "/client/imports/modal.js";
 import { findByChannel } from "/client/imports/presence_index.js";
 import { jitsiUrl } from "./imports/jitsi.js";

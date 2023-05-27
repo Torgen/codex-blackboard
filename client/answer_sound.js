@@ -17,15 +17,17 @@ Meteor.startup(function () {
     }
   }
   let useServiceWorker = false;
-  registrationPromise.then(function(reg) {
-    useServiceWorker = true;
-    navigator.serviceWorker.addEventListener("message", async function(msg) {
-      if (msg.data.action !== "playnewanswersound") {
-        return;
-      }
-      maybePlay();
-    });
-  }).catch(console.log);
+  registrationPromise
+    .then(function (reg) {
+      useServiceWorker = true;
+      navigator.serviceWorker.addEventListener("message", async function (msg) {
+        if (msg.data.action !== "playnewanswersound") {
+          return;
+        }
+        maybePlay();
+      });
+    })
+    .catch(console.log);
   // set up a persistent query so we can play the sound whenever we get a new
   // answer
   // note that this observe 'leaks' -- we're not setting it up/tearing it
@@ -43,7 +45,10 @@ Meteor.startup(function () {
       } // answer changed, not really new
       console.log("that was easy", doc, oldDoc);
       if (useServiceWorker) {
-        navigator.serviceWorker.controller.postMessage({type: "puzzlesolved", id: doc.target});
+        navigator.serviceWorker.controller.postMessage({
+          type: "puzzlesolved",
+          id: doc.target,
+        });
       } else {
         maybePlay();
       }

@@ -103,19 +103,21 @@ export function notify(title, settings) {
 
 function setupNotifications() {
   if (isAndroidChrome()) {
-    registrationPromise.then(function (reg) {
-      navigator.serviceWorker.addEventListener("message", function (msg) {
-        if (!Meteor.isProduction) {
-          console.log(msg.data);
-        }
-        if (msg.data.action !== "navigate") {
-          return;
-        }
-        return navigate(msg.data.url, { trigger: true });
-      });
-      notify = (title, settings) => reg.showNotification(title, settings);
-      finishSetupNotifications();
-    }).catch((error) => Session.set("notifications", "default"));
+    registrationPromise
+      .then(function (reg) {
+        navigator.serviceWorker.addEventListener("message", function (msg) {
+          if (!Meteor.isProduction) {
+            console.log(msg.data);
+          }
+          if (msg.data.action !== "navigate") {
+            return;
+          }
+          return navigate(msg.data.url, { trigger: true });
+        });
+        notify = (title, settings) => reg.showNotification(title, settings);
+        finishSetupNotifications();
+      })
+      .catch((error) => Session.set("notifications", "default"));
     return;
   }
   finishSetupNotifications();
