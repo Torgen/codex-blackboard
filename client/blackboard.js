@@ -1,6 +1,5 @@
 import { getTag, isStuck } from "/lib/imports/tags.js";
 import {
-  LastAnswer,
   Presence,
   Puzzles,
   Rounds,
@@ -13,7 +12,6 @@ import {
   HIDE_SOLVED,
   HIDE_SOLVED_FAVES,
   HIDE_SOLVED_METAS,
-  MUTE_SOUND_EFFECTS,
   SORT_REVERSE,
   VISIBLE_COLUMNS,
 } from "./imports/settings.js";
@@ -28,42 +26,6 @@ import "/client/imports/ui/components/edit_object_title/edit_object_title.js";
 import "/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.js";
 import "/client/imports/ui/components/onduty/control.js";
 import "/client/imports/ui/components/tag_table_rows/tag_table_rows.js";
-
-const SOUND_THRESHOLD_MS = 30 * 1000; // 30 seconds
-
-const blackboard = {}; // store page global state
-
-Meteor.startup(function () {
-  blackboard.newAnswerSound = new Audio(
-    Meteor._relativeToSiteRootUrl("/sound/that_was_easy.wav")
-  );
-  // set up a persistent query so we can play the sound whenever we get a new
-  // answer
-  // note that this observe 'leaks' -- we're not setting it up/tearing it
-  // down with the blackboard page, we're going to play the sound whatever
-  // page the user is currently on.  This is "fun".  Trust us...
-  Meteor.subscribe("last-answered-puzzle");
-  // ignore added; that's just the startup state.  Watch 'changed'
-  return LastAnswer.find({}).observe({
-    async changed(doc, oldDoc) {
-      if (doc.target == null) {
-        return;
-      } // 'no recent puzzle was solved'
-      if (doc.target === oldDoc.target) {
-        return;
-      } // answer changed, not really new
-      console.log("that was easy", doc, oldDoc);
-      if (MUTE_SOUND_EFFECTS.get()) {
-        return;
-      }
-      try {
-        await blackboard.newAnswerSound.play();
-      } catch (err) /* istanbul ignore next */ {
-        console.error(err.message, err);
-      }
-    },
-  });
-});
 
 //######## general properties of the blackboard page ###########
 

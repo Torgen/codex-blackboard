@@ -15,3 +15,10 @@ self.addEventListener("notificationclick", function (event) {
     }
   });
 });
+let lastSolved = null;
+self.addEventListener("message", function(event) {
+  if (event.data.type === "puzzlesolved" && event.data.id !== lastSolved) {
+    lastSolved = event.data.id;
+    event.source.postMessage({action: "playnewanswersound"});
+  }
+});

@@ -1,5 +1,6 @@
 import { reactiveLocalStorage } from "/client/imports/storage.js";
 import { navigate } from "/client/imports/router.js";
+import { registrationPromise } from "/client/imports/serviceworker.js";
 
 const keystring = (k) => `notification.stream.${k}`;
 
@@ -102,22 +103,19 @@ export function notify(title, settings) {
 
 function setupNotifications() {
   if (isAndroidChrome()) {
-    navigator.serviceWorker
-      .register(Meteor._relativeToSiteRootUrl("sw.js"))
-      .then(function (reg) {
-        navigator.serviceWorker.addEventListener("message", function (msg) {
-          if (!Meteor.isProduction) {
-            console.log(msg.data);
-          }
-          if (msg.data.action !== "navigate") {
-            return;
-          }
-          return navigate(msg.data.url, { trigger: true });
-        });
-        notify = (title, settings) => reg.showNotification(title, settings);
-        return finishSetupNotifications();
-      })
-      .catch((error) => Session.set("notifications", "default"));
+    registrationPromise.then(function (reg) {
+      navigator.serviceWorker.addEventListener("message", function (msg) {
+        if (!Meteor.isProduction) {
+          console.log(msg.data);
+        }
+        if (msg.data.action !== "navigate") {
+          return;
+        }
+        return navigate(msg.data.url, { trigger: true });
+      });
+      notify = (title, settings) => reg.showNotification(title, settings);
+      finishSetupNotifications();
+    }).catch((error) => Session.set("notifications", "default"));
     return;
   }
   finishSetupNotifications();
