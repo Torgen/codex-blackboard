@@ -16,7 +16,7 @@
     "cytoscape": "^3.25.0",
     "cytoscape-fcose": "^2.2.0",
     "cytoscape-layout-utilities": "^1.1.1",
-    "dayjs": "^1.11.7",
+    "dayjs": "^1.11.8",
     "delay": "^6.0.0",
     "denodeify": "^1.2.1",
     "favico.js": "^0.3.10",
