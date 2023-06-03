@@ -69,8 +69,8 @@ function distanceTo(nick) {
 
 function isNickNear(nick) {
   if (canonical(nick) === Meteor.userId()) {
-    return true;
-  } // that's me!
+    return false;  // You are near yourself, but we don't need to tell you that.
+  }
   const dist = distanceTo(nick);
   if (dist == null) {
     return false;
