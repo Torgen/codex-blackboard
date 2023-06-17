@@ -25,7 +25,9 @@
         {{value}}
         <i class="bb-edit-icon fas fa-pencil-alt"
             title="Change the value of this tag"></i>
-      {{else}}{{!
+      {{else if equal canon "answer"}}{{!
+        }}{{value}}{{!
+      }}{{else}}{{!
         }}{{>text_chunks value}}{{!
       }}{{/if}}{{>Template.contentBlock}}{{!
     }}{{/if}}{{!
