@@ -58,13 +58,7 @@
           <td id="answer-{{_id}}" class="answer">{{answer}}</td>
           <td class="bb-callin-metadata">
             {{> callin_type_dropdown}}
-            {{#let since=(pretty_ts timestamp=created style="seconds_since")}}
-              <i class="fas fa-{{#if less since 1200}}hourglass-start
-                                {{else if less since 2400}}hourglass-half
-                                {{else if less since 3600}}hourglass-end
-                                {{else if less since 86400}}clock
-                                {{else}}calendar{{/if}}" title="Created at {{pretty_ts timestamp=created}}"></i>
-            {{/let}}</td>
+            {{> time_since timestamp=created verb="Created"}}</td>
           <td class="form-inline">
             {{#if equal status "pending"}}
               {{>callin_resolution_buttons callin=this compact=true}}

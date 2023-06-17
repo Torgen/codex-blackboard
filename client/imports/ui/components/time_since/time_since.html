@@ -1,0 +1,11 @@
+<template name="time_since">
+{{! data context:
+    timestamp: the time a thing happened.
+    verb: A past tense verb for what the thing that happened was.
+}}
+  <i class="fas fa-{{#if less since 1200}}hourglass-start
+                    {{else if less since 2400}}hourglass-half
+                    {{else if less since 3600}}hourglass-end
+                    {{else if less since 86400}}clock
+                    {{else}}calendar{{/if}}" title="{{verb}} at {{pretty_ts timestamp=timestamp}}"></i>
+</template>

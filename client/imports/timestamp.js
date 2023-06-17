@@ -85,13 +85,9 @@ Template.registerHelper("pretty_ts", function (args) {
     case "duration":
     case "brief_duration":
     case "brief duration":
-    case "seconds_since":
       brief = style !== "duration";
       duration = (Session.get("currentTime") || Date.now()) - timestamp;
       seconds = Math.floor(duration / 1000);
-      if (style === "seconds_since") {
-        return seconds;
-      }
       if (seconds < -60) {
         return "in the future";
       }

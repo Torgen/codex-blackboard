@@ -15,6 +15,7 @@ import "/client/imports/ui/components/edit_tag_value/edit_tag_value.js";
 import "/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.js";
 import "/client/imports/ui/components/onduty/current.js";
 import "/client/imports/ui/components/tag_table_rows/tag_table_rows.js";
+import "/client/imports/ui/components/time_since/time_since.js";
 
 function capType(puzzle) {
   if (puzzle?.puzzles != null) {
