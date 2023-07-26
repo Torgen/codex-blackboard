@@ -21,7 +21,7 @@
     "denodeify": "^1.2.1",
     "favico.js": "^0.3.10",
     "gemoji": "^8.1.0",
-    "googleapis": "^122.0.0",
+    "googleapis": "^123.0.0",
     "hubot": "github:Torgen/hubot",
     "hubot-help": "^2.1.1",
     "mail-listener6": "^2.0.3",
