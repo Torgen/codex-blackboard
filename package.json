@@ -36,7 +36,7 @@
     "@types/chai": "^4.3.5",
     "@types/sinon": "^10.0.16",
     "babel-plugin-istanbul": "^6.1.1",
-    "chai": "^4.3.7",
+    "chai": "^4.3.8",
     "drag-mock": "^1.4.0",
     "eslint": "^8.47.0",
     "eslint-plugin-jsonc": "^2.9.0",
