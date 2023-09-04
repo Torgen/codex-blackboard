@@ -33,7 +33,7 @@
     "twitter-api-v2": "^1.15.1"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.5",
+    "@types/chai": "^4.3.6",
     "@types/sinon": "^10.0.16",
     "babel-plugin-istanbul": "^6.1.1",
     "chai": "^4.3.8",
