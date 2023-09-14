@@ -23,7 +23,7 @@
     "gemoji": "^8.1.0",
     "googleapis": "^126.0.1",
     "hubot": "github:Torgen/hubot",
-    "hubot-help": "^2.1.1",
+    "hubot-help": "^2.1.2",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
     "meteor-node-stubs": "^1.2.5",
