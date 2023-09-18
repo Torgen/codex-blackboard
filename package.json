@@ -8,7 +8,7 @@
     "@fortawesome/fontawesome-free": "^6.4.2",
     "@googlemaps/js-api-loader": "^1.16.2",
     "@googlemaps/markerclusterer": "^2.4.1",
-    "@googlemaps/markerwithlabel": "^2.0.23",
+    "@googlemaps/markerwithlabel": "^2.0.24",
     "chart.js": "^4.4.0",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "coffeescript": "^2.7.0",
