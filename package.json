@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@playwright/browser-chromium": "^1.38.0",
-    "@playwright/browser-firefox": "^1.38.0",
+    "@playwright/browser-firefox": "^1.38.1",
     "@types/chai": "^4.3.6",
     "@types/sinon": "^10.0.16",
     "babel-plugin-istanbul": "^6.1.1",
