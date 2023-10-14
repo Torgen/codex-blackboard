@@ -33,7 +33,7 @@
     "twitter-api-v2": "^1.15.2"
   },
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.38.1",
+    "@playwright/browser-chromium": "^1.39.0",
     "@playwright/browser-firefox": "^1.38.1",
     "@types/chai": "^4.3.8",
     "@types/sinon": "^10.0.19",
