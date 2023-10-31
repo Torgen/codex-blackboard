@@ -36,7 +36,7 @@
     "@playwright/browser-chromium": "^1.39.0",
     "@playwright/browser-firefox": "^1.39.0",
     "@types/chai": "^4.3.8",
-    "@types/sinon": "^10.0.19",
+    "@types/sinon": "^10.0.20",
     "babel-plugin-istanbul": "^6.1.1",
     "chai": "^4.3.10",
     "drag-mock": "^1.4.0",
