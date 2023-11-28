@@ -17,4 +17,4 @@ groups:
   playwright:
     dependency-type: "development"
     patterns:
-    - ".*playwright.*"
+      - ".*playwright.*"
