@@ -13,7 +13,7 @@ updates:
       playwright:
         dependency-type: "development"
         patterns:
-          - ".*playwright.*"
+          - "*playwright*"
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
