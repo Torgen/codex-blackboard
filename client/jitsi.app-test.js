@@ -23,6 +23,7 @@ const GRAVATAR_200 =
 class FakeJitsiMeet {
   dispose() {}
   once(event, handler) {}
+  on(event, handler) {}
   executeCommand(cmd, param) {}
   executeCommands(cmds) {}
 }
@@ -70,7 +71,7 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
         if (call.calledWith("videoConferenceJoined", sinon.match.func)) {
-          call.args[1]();
+          call.args[1]({id: "somebody"});
           return true;
         }
         return false;
@@ -128,7 +129,7 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
         if (call.calledWith("videoConferenceJoined", sinon.match.func)) {
-          call.args[1]();
+          call.args[1]({id: "somebody"});
           return true;
         }
         return false;
