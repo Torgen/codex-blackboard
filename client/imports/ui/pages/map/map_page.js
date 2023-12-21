@@ -14,7 +14,7 @@ Template.map_page.helpers({
   },
   followTheSun() {
     return Template.instance().followTheSun.get();
-  }
+  },
 });
 
 Template.map_page.events({
@@ -23,5 +23,5 @@ Template.map_page.events({
   },
   "click .bb-follow-the-sun:not(.active)"(e, t) {
     t.followTheSun.set(true);
-  }
+  },
 });

@@ -12,8 +12,8 @@ describe("locateNick", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -26,11 +26,11 @@ describe("locateNick", function () {
         Meteor.call("locateNick", {
           location: {
             type: "Point",
-            coordinates: [-122.036346, 37.368832]
+            coordinates: [-122.036346, 37.368832],
           },
-          timestamp: 5
+          timestamp: 5,
         }),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with old params", () =>
@@ -39,9 +39,9 @@ describe("locateNick", function () {
         callAs("locateNick", "torgen", {
           lat: 37.368832,
           lng: -122.036346,
-          timestamp: 5
+          timestamp: 5,
         }),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with non-point", () =>
@@ -52,12 +52,12 @@ describe("locateNick", function () {
             type: "LineString",
             coordinates: [
               [-122.036346, 37.368832],
-              [-122.078827, 37.419857]
-            ]
+              [-122.078827, 37.419857],
+            ],
           },
-          timestamp: 5
+          timestamp: 5,
         }),
-      Match.Error
+      Match.Error,
     ));
 
   describe("without queue position", function () {
@@ -68,17 +68,17 @@ describe("locateNick", function () {
         located_at: {
           // Mountain View, CA
           type: "Point",
-          coordinates: [-122.078827, 37.419857]
-        }
+          coordinates: [-122.078827, 37.419857],
+        },
       });
 
       callAs("locateNick", "torgen", {
         location: {
           // Sunnyvale, CA
           type: "Point",
-          coordinates: [-122.036346, 37.368832]
+          coordinates: [-122.036346, 37.368832],
         },
-        timestamp: 5
+        timestamp: 5,
       });
     });
 
@@ -86,8 +86,8 @@ describe("locateNick", function () {
       chai.assert.deepInclude(Meteor.users.findOne(id), {
         located_at: {
           type: "Point",
-          coordinates: [-122.078827, 37.419857]
-        }
+          coordinates: [-122.078827, 37.419857],
+        },
       }));
 
     it("sets private location fields", () =>
@@ -95,9 +95,9 @@ describe("locateNick", function () {
         priv_located: 5,
         priv_located_at: {
           type: "Point",
-          coordinates: [-122.036346, 37.368832]
+          coordinates: [-122.036346, 37.368832],
         },
-        priv_located_order: 7
+        priv_located_order: 7,
       }));
   });
 
@@ -107,22 +107,22 @@ describe("locateNick", function () {
       located_at: {
         // Mountain View, CA
         type: "Point",
-        coordinates: [-122.078827, 37.419857]
+        coordinates: [-122.078827, 37.419857],
       },
-      priv_located_order: 4
+      priv_located_order: 4,
     });
 
     callAs("locateNick", "torgen", {
       location: {
         // Sunnyvale, CA
         type: "Point",
-        coordinates: [-122.036346, 37.368832]
-      }
+        coordinates: [-122.036346, 37.368832],
+      },
     });
 
     chai.assert.deepInclude(Meteor.users.findOne(id), {
       priv_located: 7,
-      priv_located_order: 4
+      priv_located_order: 4,
     });
   });
 });

@@ -2,7 +2,7 @@ import {
   CalendarEvents,
   Messages,
   Puzzles,
-  Rounds
+  Rounds,
 } from "/lib/imports/collections.js";
 import { EmbedPuzzles, RoundUrlPrefix } from "/lib/imports/settings.js";
 import { LogisticsPage } from "/client/imports/router.js";
@@ -12,7 +12,7 @@ import {
   afterFlushPromise,
   promiseCall,
   login,
-  logout
+  logout,
 } from "/client/imports/app_test_helpers.js";
 import { waitForDocument } from "/lib/imports/testutils.js";
 import chai from "chai";
@@ -36,7 +36,7 @@ describe("logistics", function () {
         callin_type: "answer",
         target_type: "puzzles",
         target: pb._id,
-        answer: "teferi"
+        answer: "teferi",
       });
       await afterFlushPromise();
       const correctButtons = $(".bb-callin-correct");
@@ -60,7 +60,7 @@ describe("logistics", function () {
         callin_type: "answer",
         target_type: "puzzles",
         target: pb._id,
-        answer: "teferi"
+        answer: "teferi",
       });
       await afterFlushPromise();
       const incorrectButtons = $(".bb-callin-incorrect");
@@ -73,7 +73,7 @@ describe("logistics", function () {
         room_name: "general/0",
         nick: "testy",
         action: true,
-        body: /^sadly relays/
+        body: /^sadly relays/,
       });
       chai.assert.isOk(msg);
     });
@@ -90,7 +90,7 @@ describe("logistics", function () {
         callin_type: "interaction request",
         target_type: "puzzles",
         target: pb._id,
-        answer: "teferi"
+        answer: "teferi",
       });
       await afterFlushPromise();
       $("input.response").val("phasing");
@@ -104,7 +104,7 @@ describe("logistics", function () {
         room_name: "general/0",
         nick: "testy",
         action: true,
-        body: 'reports that the interaction request "teferi" was ACCEPTED with response "phasing"! (Puzzle Box)'
+        body: 'reports that the interaction request "teferi" was ACCEPTED with response "phasing"! (Puzzle Box)',
       });
       chai.assert.isOk(msg);
     });
@@ -121,7 +121,7 @@ describe("logistics", function () {
         callin_type: "interaction request",
         target_type: "puzzles",
         target: pb._id,
-        answer: "teferi"
+        answer: "teferi",
       });
       await afterFlushPromise();
       $("input.response").val("phasing");
@@ -135,7 +135,7 @@ describe("logistics", function () {
         room_name: "general/0",
         nick: "testy",
         action: true,
-        body: 'sadly relays that the interaction request "teferi" was REJECTED with response "phasing". (Puzzle Box)'
+        body: 'sadly relays that the interaction request "teferi" was REJECTED with response "phasing". (Puzzle Box)',
       });
       chai.assert.isOk(msg);
     });
@@ -157,11 +157,11 @@ describe("logistics", function () {
           .val("new round by click")
           .trigger(new $.Event("keyup", { which: 13 }));
         const newRound = await waitForDocument(Rounds, {
-          name: "new round by click"
+          name: "new round by click",
         });
         try {
           chai.assert.deepInclude(newRound, {
-            created_by: "testy"
+            created_by: "testy",
           });
         } finally {
           await promiseCall("deleteRound", newRound._id);
@@ -178,12 +178,12 @@ describe("logistics", function () {
         fakeLink.ondragstart = function (event) {
           event.dataTransfer.setData(
             "text/uri-list",
-            "https://molasses.holiday/foo"
+            "https://molasses.holiday/foo",
           );
           event.dataTransfer.setData("url", "https://molasses.holiday/foo");
           event.dataTransfer.setData(
             "text/html",
-            '<a href="https://molasses.holiday/foo">\n\n   Foo   \n\n </a>'
+            '<a href="https://molasses.holiday/foo">\n\n   Foo   \n\n </a>',
           );
           event.dataTransfer.effectAllowed = "all";
         };
@@ -193,11 +193,11 @@ describe("logistics", function () {
           .dragOver($newRound)
           .drop($newRound);
         const newRound = await waitForDocument(Rounds, {
-          name: "Foo"
+          name: "Foo",
         });
         try {
           chai.assert.include(newRound, {
-            link: "https://molasses.holiday/foo"
+            link: "https://molasses.holiday/foo",
           });
         } finally {
           await promiseCall("deleteRound", newRound._id);
@@ -212,7 +212,7 @@ describe("logistics", function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
-          name: "new round for meta"
+          name: "new round for meta",
         });
         try {
           const $newMeta = $("#bb-logistics-new-meta");
@@ -226,25 +226,25 @@ describe("logistics", function () {
             .val("new meta in round")
             .trigger(new $.Event("keyup", { which: 13 }));
           const newMeta = await waitForDocument(Puzzles, {
-            name: "new meta in round"
+            name: "new meta in round",
           });
           try {
             chai.assert.deepInclude(newMeta, {
               created_by: "testy",
-              puzzles: []
+              puzzles: [],
             });
             await afterFlushPromise();
             const $meta = $(
-              `.bb-logistics-meta[data-puzzle-id="${newMeta._id}"]`
+              `.bb-logistics-meta[data-puzzle-id="${newMeta._id}"]`,
             );
             chai.assert.isOk($meta.get());
             chai.assert.equal(
               $meta.find("header .round").text(),
-              "new round for meta"
+              "new round for meta",
             );
             chai.assert.equal(
               $meta.find("header .puzzle-name").text(),
-              "new meta in round"
+              "new meta in round",
             );
           } finally {
             await promiseCall("deletePuzzle", newMeta._id);
@@ -260,7 +260,7 @@ describe("logistics", function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
-          name: "round for drag and drop"
+          name: "round for drag and drop",
         });
         try {
           const $newMeta = document.querySelector("#bb-logistics-new-meta");
@@ -268,28 +268,28 @@ describe("logistics", function () {
           fakeLink.ondragstart = function (event) {
             event.dataTransfer.setData(
               "text/uri-list",
-              "https://molasses.holiday/foo"
+              "https://molasses.holiday/foo",
             );
             event.dataTransfer.setData("url", "https://molasses.holiday/foo");
             event.dataTransfer.setData(
               "text/html",
-              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>'
+              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>',
             );
             event.dataTransfer.effectAllowed = "all";
           };
           let drag = dragMock.dragStart(fakeLink).dragEnter($newMeta);
           await afterFlushPromise();
           const $round = $(
-            `#bb-logistics-new-meta [data-round-id="${round._id}"]`
+            `#bb-logistics-new-meta [data-round-id="${round._id}"]`,
           ).get(0);
           drag.dragEnter($round).drop($round);
           const newMeta = await waitForDocument(Puzzles, {
-            name: "Dropped puzzle"
+            name: "Dropped puzzle",
           });
           try {
             chai.assert.deepInclude(newMeta, {
               link: "https://molasses.holiday/foo",
-              puzzles: []
+              puzzles: [],
             });
             chai.assert.include(Rounds.findOne(round._id).puzzles, newMeta._id);
           } finally {
@@ -308,7 +308,7 @@ describe("logistics", function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
-          name: "new round for standalone"
+          name: "new round for standalone",
         });
         try {
           const $newStandalone = $("#bb-logistics-new-standalone");
@@ -322,11 +322,11 @@ describe("logistics", function () {
             .val("new standalone in round")
             .trigger(new $.Event("keyup", { which: 13 }));
           const puzzle = await waitForDocument(Puzzles, {
-            name: "new standalone in round"
+            name: "new standalone in round",
           });
           try {
             chai.assert.deepInclude(puzzle, {
-              created_by: "testy"
+              created_by: "testy",
             });
             chai.assert.doesNotHaveAnyKeys(puzzle, ["puzzles"]);
             await afterFlushPromise();
@@ -334,7 +334,7 @@ describe("logistics", function () {
             chai.assert.isOk($puzzle.get());
             chai.assert.equal(
               $puzzle.find(".puzzle-name").text(),
-              "new standalone in round"
+              "new standalone in round",
             );
           } finally {
             await promiseCall("deletePuzzle", puzzle._id);
@@ -350,42 +350,42 @@ describe("logistics", function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
-          name: "round for drag and drop"
+          name: "round for drag and drop",
         });
         try {
           const $newStandalone = document.querySelector(
-            "#bb-logistics-new-standalone"
+            "#bb-logistics-new-standalone",
           );
           const fakeLink = document.createElement("div");
           fakeLink.ondragstart = function (event) {
             event.dataTransfer.setData(
               "text/uri-list",
-              "https://molasses.holiday/foo"
+              "https://molasses.holiday/foo",
             );
             event.dataTransfer.setData("url", "https://molasses.holiday/foo");
             event.dataTransfer.setData(
               "text/html",
-              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>'
+              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>',
             );
             event.dataTransfer.effectAllowed = "all";
           };
           let drag = dragMock.dragStart(fakeLink).dragEnter($newStandalone);
           await afterFlushPromise();
           const $round = $(
-            `#bb-logistics-new-standalone [data-round-id="${round._id}"]`
+            `#bb-logistics-new-standalone [data-round-id="${round._id}"]`,
           ).get(0);
           drag.dragEnter($round).drop($round);
           const newStandalone = await waitForDocument(Puzzles, {
-            name: "Dropped puzzle"
+            name: "Dropped puzzle",
           });
           try {
             chai.assert.deepInclude(newStandalone, {
-              link: "https://molasses.holiday/foo"
+              link: "https://molasses.holiday/foo",
             });
             chai.assert.doesNotHaveAnyKeys(newStandalone, ["puzzles"]);
             chai.assert.include(
               Rounds.findOne(round._id).puzzles,
-              newStandalone._id
+              newStandalone._id,
             );
           } finally {
             await promiseCall("deletePuzzle", newStandalone._id);
@@ -403,12 +403,12 @@ describe("logistics", function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
-          name: "new round for feeder"
+          name: "new round for feeder",
         });
         const meta = await promiseCall("newPuzzle", {
           name: "new meta for feeder",
           round: round._id,
-          puzzles: []
+          puzzles: [],
         });
         try {
           const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
@@ -420,12 +420,12 @@ describe("logistics", function () {
             .val("new feeder in meta")
             .trigger(new $.Event("keyup", { which: 13 }));
           const feeder = await waitForDocument(Puzzles, {
-            name: "new feeder in meta"
+            name: "new feeder in meta",
           });
           try {
             chai.assert.deepInclude(feeder, {
               created_by: "testy",
-              feedsInto: [meta._id]
+              feedsInto: [meta._id],
             });
             chai.assert.include(Rounds.findOne(round._id).puzzles, feeder._id);
           } finally {
@@ -443,12 +443,12 @@ describe("logistics", function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const round = await promiseCall("newRound", {
-          name: "round for drag and drop"
+          name: "round for drag and drop",
         });
         const meta = await promiseCall("newPuzzle", {
           name: "meta for drag and drop",
           round: round._id,
-          puzzles: []
+          puzzles: [],
         });
         try {
           const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
@@ -456,12 +456,12 @@ describe("logistics", function () {
           fakeLink.ondragstart = function (event) {
             event.dataTransfer.setData(
               "text/uri-list",
-              "https://molasses.holiday/foo"
+              "https://molasses.holiday/foo",
             );
             event.dataTransfer.setData("url", "https://molasses.holiday/foo");
             event.dataTransfer.setData(
               "text/html",
-              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>'
+              '<a href="https://molasses.holiday/foo">\n\n   Dropped puzzle   \n\n </a>',
             );
             event.dataTransfer.effectAllowed = "all";
           };
@@ -473,21 +473,21 @@ describe("logistics", function () {
           chai.assert.isOk($meta.find(".puzzle.dragged-link").get(0));
           drag.drop($meta.get(0));
           const newFeeder = await waitForDocument(Puzzles, {
-            name: "Dropped puzzle"
+            name: "Dropped puzzle",
           });
           try {
             chai.assert.deepInclude(newFeeder, {
               feedsInto: [meta._id],
-              link: "https://molasses.holiday/foo"
+              link: "https://molasses.holiday/foo",
             });
             chai.assert.doesNotHaveAnyKeys(newFeeder, ["puzzles"]);
             chai.assert.include(
               Puzzles.findOne(meta._id).puzzles,
-              newFeeder._id
+              newFeeder._id,
             );
             chai.assert.include(
               Rounds.findOne(round._id).puzzles,
-              newFeeder._id
+              newFeeder._id,
             );
           } finally {
             await promiseCall("deletePuzzle", newFeeder._id);
@@ -505,22 +505,22 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for feeder"
+        name: "new round for feeder",
       });
       const meta = await promiseCall("newPuzzle", {
         name: "new meta for feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const standalone = await promiseCall("newPuzzle", {
         name: "standalone to feed meta",
-        round: round._id
+        round: round._id,
       });
       try {
         const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
         function getStandalone() {
           return $(
-            `.bb-logistics-standalone [href="/puzzles/${standalone._id}"]`
+            `.bb-logistics-standalone [href="/puzzles/${standalone._id}"]`,
           );
         }
         let drag = dragMock
@@ -531,16 +531,16 @@ describe("logistics", function () {
         await afterFlushPromise();
         chai.assert.isTrue(
           getStandalone().is(".would-disappear"),
-          "would disappear"
+          "would disappear",
         );
         chai.assert.isOk(
           $meta.find(`[href="/puzzles/${standalone._id}"]`),
-          "appears in meta"
+          "appears in meta",
         );
         chai.assert.notInclude(
           Puzzles.findOne(meta._id).puzzles,
           standalone._id,
-          "not in meta yet"
+          "not in meta yet",
         );
         drag.drop($meta.get(0));
         await waitForMethods();
@@ -548,7 +548,7 @@ describe("logistics", function () {
         chai.assert.include(
           Puzzles.findOne(meta._id).puzzles,
           standalone._id,
-          "is in meta"
+          "is in meta",
         );
         chai.assert.isNotOk(getStandalone().get(0), "is not outside meta");
       } finally {
@@ -562,25 +562,25 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for feeder"
+        name: "new round for feeder",
       });
       const metameta = await promiseCall("newPuzzle", {
         name: "new metameta for feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const meta = await promiseCall("newPuzzle", {
         name: "meta to feed metameta",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       try {
         const $metameta = $(
-          `.bb-logistics-meta[data-puzzle-id="${metameta._id}"]`
+          `.bb-logistics-meta[data-puzzle-id="${metameta._id}"]`,
         );
         function getMeta() {
           return $(
-            `.bb-logistics-meta[data-puzzle-id="${meta._id}"] header a.meta`
+            `.bb-logistics-meta[data-puzzle-id="${meta._id}"] header a.meta`,
           );
         }
         let drag = dragMock
@@ -590,16 +590,16 @@ describe("logistics", function () {
         await afterFlushPromise();
         chai.assert.isFalse(
           getMeta().is(".would-disappear"),
-          "would disappear"
+          "would disappear",
         );
         chai.assert.isOk(
           $metameta.find(`[href="/puzzles/${meta._id}"]`),
-          "appears in metameta"
+          "appears in metameta",
         );
         chai.assert.notInclude(
           Puzzles.findOne(metameta._id).puzzles,
           meta._id,
-          "not in metameta yet"
+          "not in metameta yet",
         );
         drag.drop($metameta.get(0));
         await waitForMethods();
@@ -607,7 +607,7 @@ describe("logistics", function () {
         chai.assert.include(
           Puzzles.findOne(metameta._id).puzzles,
           meta._id,
-          "is in meta"
+          "is in meta",
         );
         chai.assert.isOk(getMeta().get(0), "is still meta");
       } finally {
@@ -621,22 +621,22 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for feeder"
+        name: "new round for feeder",
       });
       const meta1 = await promiseCall("newPuzzle", {
         name: "meta containing feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const meta2 = await promiseCall("newPuzzle", {
         name: "new meta for feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const feeder = await promiseCall("newPuzzle", {
         name: "feeder to one meta",
         round: round._id,
-        feedsInto: [meta1._id]
+        feedsInto: [meta1._id],
       });
       try {
         const $meta1 = $(`.bb-logistics-meta[data-puzzle-id="${meta1._id}"]`);
@@ -652,16 +652,16 @@ describe("logistics", function () {
         await afterFlushPromise();
         chai.assert.isFalse(
           feederInMeta1().is(".would-disappear"),
-          "would not disappear"
+          "would not disappear",
         );
         chai.assert.isOk(
           $meta2.find(`[href="/puzzles/${feeder._id}"]`),
-          "appears in meta2"
+          "appears in meta2",
         );
         chai.assert.notInclude(
           Puzzles.findOne(meta2._id).puzzles,
           feeder._id,
-          "not in meta2 yet"
+          "not in meta2 yet",
         );
         drag.drop($meta2.get(0));
         await waitForMethods();
@@ -669,12 +669,12 @@ describe("logistics", function () {
         chai.assert.include(
           Puzzles.findOne(meta2._id).puzzles,
           feeder._id,
-          "is in meta2"
+          "is in meta2",
         );
         chai.assert.include(
           Puzzles.findOne(meta1._id).puzzles,
           feeder._id,
-          "is still in meta1"
+          "is still in meta1",
         );
       } finally {
         await promiseCall("deletePuzzle", feeder._id);
@@ -690,17 +690,17 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for feeder"
+        name: "new round for feeder",
       });
       const meta = await promiseCall("newPuzzle", {
         name: "meta containing feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const feeder = await promiseCall("newPuzzle", {
         name: "feeder to one meta",
         round: round._id,
-        feedsInto: [meta._id]
+        feedsInto: [meta._id],
       });
       try {
         function getFeeder() {
@@ -715,11 +715,11 @@ describe("logistics", function () {
         await afterFlushPromise();
         chai.assert.isNotOk(
           $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
-          "before leave"
+          "before leave",
         );
         chai.assert.isFalse(
           getFeeder().is(".would-disappear"),
-          "not blurred yet"
+          "not blurred yet",
         );
         drag = drag
           .dragLeave(getMeta().get(0))
@@ -727,28 +727,28 @@ describe("logistics", function () {
         await afterFlushPromise();
         chai.assert.isOk(
           $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
-          "after leave"
+          "after leave",
         );
         chai.assert.isTrue(
           getFeeder().is(".would-disappear"),
-          "would disappear"
+          "would disappear",
         );
         chai.assert.include(
           Puzzles.findOne(meta._id).puzzles,
           feeder._id,
-          "not removed yet"
+          "not removed yet",
         );
         drag = drag.drop(document.querySelector(".bb-logistics"));
         await waitForMethods();
         chai.assert.isOk(
           $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
-          "after drop"
+          "after drop",
         );
         chai.assert.isNotOk(getFeeder().get(0));
         chai.assert.notInclude(
           Puzzles.findOne(meta._id).puzzles,
           feeder._id,
-          "removed after drag"
+          "removed after drag",
         );
       } finally {
         await promiseCall("deletePuzzle", feeder._id);
@@ -761,22 +761,22 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for feeder"
+        name: "new round for feeder",
       });
       const meta1 = await promiseCall("newPuzzle", {
         name: "meta keeping feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const meta2 = await promiseCall("newPuzzle", {
         name: "meta losing feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const feeder = await promiseCall("newPuzzle", {
         name: "feeder to two metas",
         round: round._id,
-        feedsInto: [meta1._id, meta2._id]
+        feedsInto: [meta1._id, meta2._id],
       });
       try {
         function getMeta2() {
@@ -791,48 +791,48 @@ describe("logistics", function () {
         await afterFlushPromise();
         chai.assert.isNotOk(
           $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
-          "before leave"
+          "before leave",
         );
         chai.assert.isFalse(
           getFeeder().is(".would-disappear"),
-          "not blurred yet"
+          "not blurred yet",
         );
         drag = drag.dragLeave(getMeta2().get(0));
         await afterFlushPromise();
         chai.assert.isNotOk(
           $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
-          "after leave"
+          "after leave",
         );
         chai.assert.isTrue(
           getFeeder().is(".would-disappear"),
-          "would disappear"
+          "would disappear",
         );
         chai.assert.include(
           Puzzles.findOne(meta2._id).puzzles,
           feeder._id,
-          "not removed yet"
+          "not removed yet",
         );
         chai.assert.include(
           Puzzles.findOne(meta1._id).puzzles,
           feeder._id,
-          "not removed from uninvolved meta"
+          "not removed from uninvolved meta",
         );
         drag = drag.drop(document.querySelector(".bb-logistics"));
         await waitForMethods();
         chai.assert.isNotOk(
           $(`.bb-logistics-standalone [href="/puzzles/${feeder._id}"]`).get(0),
-          "after drop"
+          "after drop",
         );
         chai.assert.isNotOk(getFeeder().get(0), "removed from meta2");
         chai.assert.notInclude(
           Puzzles.findOne(meta2._id).puzzles,
           feeder._id,
-          "removed after drag"
+          "removed after drag",
         );
         chai.assert.include(
           Puzzles.findOne(meta1._id).puzzles,
           feeder._id,
-          "never removed from uninvolved meta"
+          "never removed from uninvolved meta",
         );
       } finally {
         await promiseCall("deletePuzzle", feeder._id);
@@ -855,7 +855,7 @@ describe("logistics", function () {
       $(
         `[href="/puzzles/${
           Puzzles.findOne({ name: "Joy" })._id
-        }"] .bb-logistics-edit-puzzle`
+        }"] .bb-logistics-edit-puzzle`,
       )
         .get(0)
         .click();
@@ -879,7 +879,7 @@ describe("logistics", function () {
       $(
         `[href="/puzzles/${
           Puzzles.findOne({ name: "Temperance" })._id
-        }"] .bb-logistics-edit-puzzle`
+        }"] .bb-logistics-edit-puzzle`,
       )
         .get(0)
         .click();
@@ -898,17 +898,17 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for feeder"
+        name: "new round for feeder",
       });
       const meta = await promiseCall("newPuzzle", {
         name: "meta containing feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const feeder = await promiseCall("newPuzzle", {
         name: "feeder to one meta",
         round: round._id,
-        feedsInto: [meta._id]
+        feedsInto: [meta._id],
       });
       try {
         const $deleteButton = $("#bb-logistics-delete");
@@ -941,17 +941,17 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for standalone"
+        name: "new round for standalone",
       });
       const meta = await promiseCall("newPuzzle", {
         name: "meta containing feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const feeder = await promiseCall("newPuzzle", {
         name: "feeder to one meta",
         round: round._id,
-        feedsInto: [meta._id]
+        feedsInto: [meta._id],
       });
       try {
         const $deleteButton = $("#bb-logistics-delete");
@@ -987,26 +987,26 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for standalone"
+        name: "new round for standalone",
       });
       const standalone = await promiseCall("newPuzzle", {
         name: "standalone to receive event",
-        round: round._id
+        round: round._id,
       });
       const event = await promiseCall("newCalendarEvent", {
         start: Date.now() + 3600000,
         end: Date.now() + 7200000,
-        summary: "Event to assign"
+        summary: "Event to assign",
       });
       try {
         const $standalone = document.querySelector(
-          `.bb-logistics-standalone [href="/puzzles/${standalone._id}"]`
+          `.bb-logistics-standalone [href="/puzzles/${standalone._id}"]`,
         );
         dragMock
           .dragStart(
             document.querySelector(
-              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`
-            )
+              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`,
+            ),
           )
           .dragOver(document.querySelector(".bb-logistics"))
           .dragEnter($standalone)
@@ -1014,7 +1014,7 @@ describe("logistics", function () {
           .drop($standalone);
         await waitForDocument(CalendarEvents, {
           _id: event,
-          puzzle: standalone._id
+          puzzle: standalone._id,
         });
       } finally {
         await promiseCall("deleteCalendarEvent", event);
@@ -1027,17 +1027,17 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for meta"
+        name: "new round for meta",
       });
       const meta = await promiseCall("newPuzzle", {
         name: "meta to receive event",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const event = await promiseCall("newCalendarEvent", {
         start: Date.now() + 3600000,
         end: Date.now() + 7200000,
-        summary: "Event to assign"
+        summary: "Event to assign",
       });
       try {
         const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
@@ -1045,8 +1045,8 @@ describe("logistics", function () {
         dragMock
           .dragStart(
             document.querySelector(
-              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`
-            )
+              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`,
+            ),
           )
           .dragOver(document.querySelector(".bb-logistics"))
           .dragEnter($meta.get(0))
@@ -1066,22 +1066,22 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       const round = await promiseCall("newRound", {
-        name: "new round for feeder"
+        name: "new round for feeder",
       });
       const meta = await promiseCall("newPuzzle", {
         name: "meta to receive feeder",
         round: round._id,
-        puzzles: []
+        puzzles: [],
       });
       const feeder = await promiseCall("newPuzzle", {
         name: "feeder to receive event",
         round: round._id,
-        feedsInto: [meta._id]
+        feedsInto: [meta._id],
       });
       const event = await promiseCall("newCalendarEvent", {
         start: Date.now() + 3600000,
         end: Date.now() + 7200000,
-        summary: "Event to assign"
+        summary: "Event to assign",
       });
       try {
         const $meta = $(`.bb-logistics-meta[data-puzzle-id="${meta._id}"]`);
@@ -1089,8 +1089,8 @@ describe("logistics", function () {
         dragMock
           .dragStart(
             document.querySelector(
-              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`
-            )
+              `.bb-calendar-column .bb-calendar-event[data-event-id="${event}"]`,
+            ),
           )
           .dragOver(document.querySelector(".bb-logistics"))
           .dragEnter($meta.get(0))
@@ -1100,7 +1100,7 @@ describe("logistics", function () {
           .drop($feeder.get(0));
         await waitForDocument(CalendarEvents, {
           _id: event,
-          puzzle: feeder._id
+          puzzle: feeder._id,
         });
       } finally {
         await promiseCall("deleteCalendarEvent", event);
@@ -1116,17 +1116,17 @@ describe("logistics", function () {
       await LogisticsPage();
       await waitForSubscriptions();
       chai.assert.isNotOk(
-        document.querySelector(".bb-logistics-dynamic-settings")
+        document.querySelector(".bb-logistics-dynamic-settings"),
       );
       document.querySelector(".bb-logistics-dynamic-settings-header").click();
       await afterFlushPromise();
       chai.assert.isOk(
-        document.querySelector(".bb-logistics-dynamic-settings")
+        document.querySelector(".bb-logistics-dynamic-settings"),
       );
       document.querySelector(".bb-logistics-dynamic-settings-header").click();
       await afterFlushPromise();
       chai.assert.isNotOk(
-        document.querySelector(".bb-logistics-dynamic-settings")
+        document.querySelector(".bb-logistics-dynamic-settings"),
       );
     });
 
@@ -1170,7 +1170,7 @@ describe("logistics", function () {
           chai.assert.isTrue(input.parent().hasClass("info"));
           chai.assert.equal(
             input.siblings(".bb-edit-status").text(),
-            "unchanged"
+            "unchanged",
           );
         });
         it("rejects malformed", async function () {

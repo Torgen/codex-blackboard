@@ -3,7 +3,7 @@ import {
   afterFlushPromise,
   promiseCall,
   login,
-  logout
+  logout,
 } from "/client/imports/app_test_helpers.js";
 import { GraphPage } from "/client/imports/router.js";
 import chai from "chai";
@@ -32,7 +32,7 @@ describe("graph", function () {
     p = awaitRender();
     const meta = await promiseCall("newPuzzle", {
       name: "Graph Test Meta",
-      round: round._id
+      round: round._id,
     });
     await afterFlushPromise();
     await p;
@@ -40,18 +40,18 @@ describe("graph", function () {
     const leaf = await promiseCall("newPuzzle", {
       name: "Graph Test Leaf",
       round: round._id,
-      feedsInto: [meta._id]
+      feedsInto: [meta._id],
     });
     await afterFlushPromise();
     await p;
     await promiseCall("renameRound", {
       id: round._id,
-      name: "Round of Graph Testing"
+      name: "Round of Graph Testing",
     });
     await afterFlushPromise();
     await promiseCall("renamePuzzle", {
       id: leaf._id,
-      name: "Leaf of Graph Testing"
+      name: "Leaf of Graph Testing",
     });
     await afterFlushPromise();
     p = awaitRender();

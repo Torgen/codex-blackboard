@@ -14,7 +14,7 @@ class Dimension {
     sizeProperty,
     startProperty,
     splitterProperty,
-    limitFn
+    limitFn,
   ) {
     this.targetClass = targetClass;
     this.posProperty = posProperty;
@@ -119,14 +119,14 @@ const Splitter = {
     "offsetHeight",
     "offsetTop",
     "vsize",
-    heightLimit
+    heightLimit,
   ),
   hsize: new Dimension(
     ".bb-splitter",
     "pageX",
     "offsetWidth",
     "offsetLeft",
-    "hsize"
+    "hsize",
   ),
   handleEvent(event, template) {
     if (!Meteor.isProduction) {
@@ -137,7 +137,7 @@ const Splitter = {
     } else {
       this.hsize.handleEvent(event, template);
     }
-  }
+  },
 };
 
 export var vsize = () => Splitter.vsize.get();
@@ -151,25 +151,25 @@ export var hsize = () => Splitter.hsize.get();
     }
     console.log(`about to set ${dim}`);
     const val = reactiveLocalStorage.getItem(
-      `splitter.h${heightRange()}.${dim}`
+      `splitter.h${heightRange()}.${dim}`,
     );
     if (val == null) {
       return;
     }
     x.set(val);
-  })
+  }),
 );
 
 Template.horizontal_splitter.helpers({
   hsize() {
     return Splitter.hsize.get();
-  }
+  },
 });
 
 Template.horizontal_splitter.events({
   "mousedown/touchstart .bb-splitter-handle"(e, t) {
     return Splitter.handleEvent(e, t);
-  }
+  },
 });
 
 Template.horizontal_splitter.onCreated(() => $("html").addClass("fullHeight"));
@@ -177,7 +177,7 @@ Template.horizontal_splitter.onCreated(() => $("html").addClass("fullHeight"));
 Template.horizontal_splitter.onRendered(() => $("html").addClass("fullHeight"));
 
 Template.horizontal_splitter.onDestroyed(() =>
-  $("html").removeClass("fullHeight")
+  $("html").removeClass("fullHeight"),
 );
 
 Template.vertical_splitter.helpers({
@@ -186,5 +186,5 @@ Template.vertical_splitter.helpers({
   },
   vsizePlusHandle() {
     return +Splitter.vsize.get() + splitterSize.get();
-  }
+  },
 });

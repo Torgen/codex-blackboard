@@ -13,8 +13,8 @@ describe("newPoll", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -27,22 +27,22 @@ describe("newPoll", function () {
         Meteor.call("newPoll", "general/0", "What up?", [
           "Sky",
           "Ceiling",
-          "Aliens"
+          "Aliens",
         ]),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with no options", () =>
     chai.assert.throws(
       () => callAs("newPoll", "torgen", "general/0", "What up?", []),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with one option", () =>
     chai.assert.throws(
       () =>
         callAs("newPoll", "torgen", "general/0", "What up?", ["everything"]),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with six options", () =>
@@ -54,9 +54,9 @@ describe("newPoll", function () {
           "Yellow",
           "Green",
           "Blue",
-          "Purple"
+          "Purple",
         ]),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with no room", () =>
@@ -65,9 +65,9 @@ describe("newPoll", function () {
         callAs("newPoll", "torgen", "", "What up?", [
           "Sky",
           "Ceiling",
-          "Aliens"
+          "Aliens",
         ]),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with no question", () =>
@@ -76,9 +76,9 @@ describe("newPoll", function () {
         callAs("newPoll", "torgen", "general/0", "", [
           "Sky",
           "Ceiling",
-          "Aliens"
+          "Aliens",
         ]),
-      Match.Error
+      Match.Error,
     ));
 
   it("canonicalizes options", function () {
@@ -87,7 +87,7 @@ describe("newPoll", function () {
       "Orange",
       "Yellow",
       "Green",
-      "red"
+      "red",
     ]);
     chai.assert.deepInclude(Polls.findOne(), {
       created: 7,
@@ -97,9 +97,9 @@ describe("newPoll", function () {
         { canon: "red", option: "Red" },
         { canon: "orange", option: "Orange" },
         { canon: "yellow", option: "Yellow" },
-        { canon: "green", option: "Green" }
+        { canon: "green", option: "Green" },
       ],
-      votes: {}
+      votes: {},
     });
   });
 
@@ -109,7 +109,7 @@ describe("newPoll", function () {
       "Orange",
       "Yellow",
       "Green",
-      "Blue"
+      "Blue",
     ]);
     const p = Polls.findOne()._id;
     chai.assert.deepInclude(Messages.findOne({ dawn_of_time: { $ne: true } }), {
@@ -117,7 +117,7 @@ describe("newPoll", function () {
       nick: "torgen",
       body: "What up?",
       timestamp: 7,
-      poll: p
+      poll: p,
     });
   });
 });

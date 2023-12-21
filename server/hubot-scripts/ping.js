@@ -57,7 +57,7 @@ const phrases = [
   "I'm ready and waiting",
   "Ah, at last",
   "I'm here",
-  "Something need doing?"
+  "Something need doing?",
 ];
 
 const secrets = [
@@ -69,7 +69,7 @@ const secrets = [
   "You are of royal birth, but there was a mixup at the hospital.",
   "One of KFC's eleven herbs and spices is: salt.",
   "One of KFC's eleven herbs and spices is: pepper.",
-  'McDonald\'s "special sauce" is mostly mayonnaise, relish, and mustard.'
+  'McDonald\'s "special sauce" is mostly mayonnaise, relish, and mustard.',
 ];
 
 function regex_escape(s) {

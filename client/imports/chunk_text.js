@@ -8,7 +8,7 @@ function linkify(text) {
     if (tail_start < match.index) {
       result.push({
         type: "text",
-        content: text.slice(tail_start, match.index)
+        content: text.slice(tail_start, match.index),
       });
     }
     tail_start = match.index + match[0].length;

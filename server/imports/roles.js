@@ -20,7 +20,7 @@ export class RoleManager {
 
     this.handle = Roles.find(
       { _id: "onduty" },
-      { fields: { holder: 1, expires_at: 1 } }
+      { fields: { holder: 1, expires_at: 1 } },
     ).observeChanges({
       added: (role, { holder, expires_at }) => {
         this.holder = holder;
@@ -44,7 +44,7 @@ export class RoleManager {
           this.timeout = null;
           this.holder = null;
         }
-      }
+      },
     });
   }
 

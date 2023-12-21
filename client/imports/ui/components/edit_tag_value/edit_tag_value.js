@@ -18,10 +18,10 @@ editableTemplate(Template.edit_tag_value, {
         type: tem.data.type,
         object: tem.data.id,
         name: tem.data.name,
-        value
+        value,
       });
     }
-  }
+  },
 });
 
 Template.edit_tag_value.helpers({
@@ -44,7 +44,7 @@ Template.edit_tag_value.helpers({
   },
   hexify(v) {
     return cssColorToHex(v);
-  }
+  },
 });
 
 Template.edit_tag_value.events({
@@ -57,7 +57,7 @@ Template.edit_tag_value.events({
       type: template.data.type,
       object: template.data.id,
       name: template.data.name,
-      value: text
+      value: text,
     });
   },
   async "click .bb-delete-icon"(event, template) {
@@ -69,14 +69,14 @@ Template.edit_tag_value.events({
       await confirm({
         ok_button: "Yes, delete it",
         no_button: "No, cancel",
-        message
+        message,
       })
     ) {
       Meteor.call("deleteTag", {
         type: template.data.type,
         object: template.data.id,
-        name: template.data.name
+        name: template.data.name,
       });
     }
-  }
+  },
 });

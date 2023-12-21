@@ -9,7 +9,7 @@ import isDuplicateError from "/lib/imports/duplicate.js";
 import {
   RoleRenewalTime,
   RoundUrlPrefix,
-  UrlSeparator
+  UrlSeparator,
 } from "/lib/imports/settings.js";
 
 describe("newRound", function () {
@@ -18,8 +18,8 @@ describe("newRound", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(function () {
@@ -40,9 +40,9 @@ describe("newRound", function () {
         Meteor.call("newRound", {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
-          puzzles: ["yoy"]
+          puzzles: ["yoy"],
         }),
-      Match.Error
+      Match.Error,
     ));
 
   describe("when none exists with that name", function () {
@@ -54,11 +54,11 @@ describe("newRound", function () {
           holder: "torgen",
           claimed_at: 2,
           renewed_at: 2,
-          expires_at: 3600002
+          expires_at: 3600002,
         });
         id = callAs("newRound", "torgen", {
           name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo"
+          link: "https://puzzlehunt.mit.edu/foo",
         })._id;
       });
 
@@ -77,10 +77,10 @@ describe("newRound", function () {
           touched_by: "torgen",
           puzzles: [],
           link: "https://puzzlehunt.mit.edu/foo",
-          tags: {}
+          tags: {},
         });
         ["solved", "solved_by", "drive", "spreadsheet", "doc"].forEach((prop) =>
-          chai.assert.notProperty(round, prop)
+          chai.assert.notProperty(round, prop),
         );
       });
 
@@ -89,7 +89,7 @@ describe("newRound", function () {
           holder: "torgen",
           claimed_at: 2,
           renewed_at: 7,
-          expires_at: 3600007
+          expires_at: 3600007,
         }));
     });
 
@@ -100,11 +100,11 @@ describe("newRound", function () {
           holder: "florgen",
           claimed_at: 2,
           renewed_at: 2,
-          expires_at: 3600002
+          expires_at: 3600002,
         });
         id = callAs("newRound", "torgen", {
           name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo"
+          link: "https://puzzlehunt.mit.edu/foo",
         })._id;
       });
 
@@ -113,7 +113,7 @@ describe("newRound", function () {
           holder: "florgen",
           claimed_at: 2,
           renewed_at: 2,
-          expires_at: 3600002
+          expires_at: 3600002,
         }));
     });
 
@@ -122,8 +122,8 @@ describe("newRound", function () {
         () =>
           (id = callAs("newRound", "torgen", {
             name: "Foo",
-            link: "https://puzzlehunt.mit.edu/foo"
-          })._id)
+            link: "https://puzzlehunt.mit.edu/foo",
+          })._id),
       );
 
       it("leaves onduty alone", () =>
@@ -133,7 +133,7 @@ describe("newRound", function () {
 
   it("derives link", function () {
     impersonating("cjb", () =>
-      RoundUrlPrefix.set("https://testhuntpleaseign.org/rounds")
+      RoundUrlPrefix.set("https://testhuntpleaseign.org/rounds"),
     );
     const id = callAs("newRound", "torgen", { name: "Foo Round" })._id;
     // Round is created, then drive et al are added
@@ -147,7 +147,7 @@ describe("newRound", function () {
       touched_by: "torgen",
       puzzles: [],
       link: "https://testhuntpleaseign.org/rounds/foo-round",
-      tags: {}
+      tags: {},
     });
   });
 
@@ -164,7 +164,7 @@ describe("newRound", function () {
         touched_by: "torgen",
         puzzles: ["yoy"],
         link: "https://puzzlehunt.mit.edu/foo",
-        tags: {}
+        tags: {},
       });
       try {
         callAs("newRound", "cjb", { name: "Foo" });
@@ -181,13 +181,13 @@ describe("newRound", function () {
         created: 1,
         created_by: "torgen",
         touched: 1,
-        touched_by: "torgen"
+        touched_by: "torgen",
       }));
 
     it("doesn't oplog", () =>
       chai.assert.lengthOf(
         Messages.find({ id: id1, type: "rounds" }).fetch(),
-        0
+        0,
       ));
   });
 });

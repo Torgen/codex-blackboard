@@ -38,7 +38,7 @@ describe("periodic stats collection", function () {
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
-      { value: 3 }
+      { value: 3 },
     );
     setTimeout.verify();
     const callback = setTimeout.firstCall.firstArg;
@@ -53,7 +53,7 @@ describe("periodic stats collection", function () {
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 60007 },
-      { value: 2 }
+      { value: 2 },
     );
     clearTimeout.once().withArgs("second timeout");
   });
@@ -71,7 +71,7 @@ describe("periodic stats collection", function () {
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
-      { value: 3 }
+      { value: 3 },
     );
     setTimeout.verify();
     setTimeout.resetHistory();
@@ -86,7 +86,7 @@ describe("periodic stats collection", function () {
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 90007 },
-      { value: 2 }
+      { value: 2 },
     );
     clearTimeout.verify();
     clearTimeout.resetHistory().once().withArgs("second timeout");
@@ -105,7 +105,7 @@ describe("periodic stats collection", function () {
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
-      { value: 3 }
+      { value: 3 },
     );
     setTimeout.verify();
     clearTimeout.once().withArgs("first timeout");
@@ -117,7 +117,7 @@ describe("periodic stats collection", function () {
         .callsFake(() => {
           resolve();
           return "second timeout";
-        })
+        }),
     );
     Presence.remove(c);
     clock.tick(30000);
@@ -140,11 +140,11 @@ describe("periodic stats collection", function () {
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
-      { value: 3 }
+      { value: 3 },
     );
     setTimeout.verify();
     const p = new Promise((resolve) =>
-      clearTimeout.once().withArgs("first timeout").callsFake(resolve)
+      clearTimeout.once().withArgs("first timeout").callsFake(resolve),
     );
     clock.tick(20000);
     impersonating("torgen", () => StatsCollectionTime.set(0));
@@ -158,7 +158,7 @@ describe("periodic stats collection", function () {
         .callsFake(() => {
           resolve();
           return "second timeout";
-        })
+        }),
     );
     clock.tick(20000);
     impersonating("torgen", () => StatsCollectionTime.set(1));
@@ -180,11 +180,11 @@ describe("periodic stats collection", function () {
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
-      { value: 3 }
+      { value: 3 },
     );
     setTimeout.verify();
     const p = new Promise((resolve) =>
-      clearTimeout.once().withArgs("first timeout").callsFake(resolve)
+      clearTimeout.once().withArgs("first timeout").callsFake(resolve),
     );
     clock.tick(40000);
     impersonating("torgen", () => StatsCollectionTime.set(0));
@@ -201,7 +201,7 @@ describe("periodic stats collection", function () {
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 80007 },
-      { value: 2 }
+      { value: 2 },
     );
     setTimeout.verify();
     clearTimeout.resetHistory().once().withArgs("second timeout");

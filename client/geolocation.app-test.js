@@ -4,14 +4,14 @@ import {
   afterFlushPromise,
   promiseCall,
   login,
-  logout
+  logout,
 } from "./imports/app_test_helpers.js";
 import chai from "chai";
 import { waitForDocument } from "/lib/imports/testutils.js";
 
 const KRESGE = {
   type: "Point",
-  coordinates: [-71.0972017, 42.3581396]
+  coordinates: [-71.0972017, 42.3581396],
 };
 
 describe("geolocation", function () {
@@ -29,7 +29,7 @@ describe("geolocation", function () {
     return waitForDocument(
       Meteor.users,
       { _id: "testy", located: { $ne: null } },
-      { located_at: KRESGE }
+      { located_at: KRESGE },
     );
   });
 });

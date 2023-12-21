@@ -10,11 +10,11 @@ Template.graph_page.onCreated(async function () {
 Template.graph_page.events({
   "click .bb-layout"(event, template) {
     template.$(".bb-status-graph").trigger("bb-layout");
-  }
+  },
 });
 
 Template.graph_page.helpers({
   loaded() {
     return Template.instance().loaded.get();
-  }
+  },
 });

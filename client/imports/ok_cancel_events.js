@@ -7,7 +7,7 @@ export function editableTemplate(template, callbacks) {
     "click/bb-edit .bb-editable"(evt, t) {
       t.editable.set(true);
       Tracker.afterFlush(() => t.$('input[type="text"]').focus());
-    }
+    },
   });
 
   template.events(
@@ -23,14 +23,14 @@ export function editableTemplate(template, callbacks) {
       cancel(e, t) {
         t.editable.set(false);
         callbacks.cancel?.(e, t);
-      }
-    })
+      },
+    }),
   );
 
   template.helpers({
     editing() {
       return Template.instance().editable.get();
-    }
+    },
   });
 }
 
@@ -42,7 +42,7 @@ function okCancelEvents(selector, callbacks) {
   const ok = callbacks.ok || function () {};
   const cancel = callbacks.cancel || function () {};
   const evspec = ["keyup", "keydown", "focusout"].map(
-    (ev) => `${ev} ${selector}`
+    (ev) => `${ev} ${selector}`,
   );
   const events = {};
   events[evspec.join(", ")] = function (evt, template) {

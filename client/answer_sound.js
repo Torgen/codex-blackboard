@@ -4,7 +4,7 @@ import { MUTE_SOUND_EFFECTS } from "./imports/settings.js";
 
 Meteor.startup(function () {
   const newAnswerSound = new Audio(
-    Meteor._relativeToSiteRootUrl("/sound/that_was_easy.wav")
+    Meteor._relativeToSiteRootUrl("/sound/that_was_easy.wav"),
   );
   async function maybePlay() {
     if (MUTE_SOUND_EFFECTS.get()) {
@@ -47,11 +47,11 @@ Meteor.startup(function () {
       if (useServiceWorker) {
         navigator.serviceWorker.controller.postMessage({
           type: "puzzlesolved",
-          id: doc.target
+          id: doc.target,
         });
       } else {
         maybePlay();
       }
-    }
+    },
   });
 });

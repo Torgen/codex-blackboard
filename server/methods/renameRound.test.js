@@ -12,8 +12,8 @@ describe("renameRound", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(function () {
@@ -36,8 +36,8 @@ describe("renameRound", function () {
           touched_by: "torgen",
           puzzles: ["yoy"],
           link: "https://puzzlehunt.mit.edu/foo",
-          tags: {}
-        }))
+          tags: {},
+        })),
     );
 
     it("fails without login", () =>
@@ -45,9 +45,9 @@ describe("renameRound", function () {
         () =>
           Meteor.call("renameRound", {
             id,
-            name: "Bar"
+            name: "Bar",
           }),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", function () {
@@ -56,8 +56,8 @@ describe("renameRound", function () {
         () =>
           (ret = callAs("renameRound", "cjb", {
             id,
-            name: "Bar"
-          }))
+            name: "Bar",
+          })),
       );
 
       it("returns true", () => chai.assert.isTrue(ret));
@@ -68,7 +68,7 @@ describe("renameRound", function () {
           name: "Bar",
           canon: "bar",
           touched: 7,
-          touched_by: "cjb"
+          touched_by: "cjb",
         });
       });
 
@@ -76,7 +76,7 @@ describe("renameRound", function () {
         chai.assert.lengthOf(
           Messages.find({ id, type: "rounds" }).fetch(),
           1,
-          "oplogs"
+          "oplogs",
         ));
     });
   });
@@ -94,7 +94,7 @@ describe("renameRound", function () {
         touched: 1,
         touched_by: "torgen",
         link: "https://puzzlehunt.mit.edu/foo",
-        tags: {}
+        tags: {},
       });
       id2 = Rounds.insert({
         name: "Bar",
@@ -104,11 +104,11 @@ describe("renameRound", function () {
         touched: 2,
         touched_by: "cscott",
         link: "https://puzzlehunt.mit.edu/foo",
-        tags: {}
+        tags: {},
       });
       ret = callAs("renameRound", "cjb", {
         id: id1,
-        name: "Bar"
+        name: "Bar",
       });
     });
 
@@ -119,13 +119,13 @@ describe("renameRound", function () {
         name: "Foo",
         canon: "foo",
         touched: 1,
-        touched_by: "torgen"
+        touched_by: "torgen",
       }));
 
     it("doesn't oplog", () =>
       chai.assert.lengthOf(
         Messages.find({ id: { $in: [id1, id2] }, type: "rounds" }).fetch(),
-        0
+        0,
       ));
   });
 });

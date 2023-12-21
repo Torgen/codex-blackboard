@@ -12,8 +12,8 @@ describe("unfeedMeta", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -32,7 +32,7 @@ describe("unfeedMeta", function () {
       puzzles: ["yoy", "leaf"],
       feedsInto: [],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {}
+      tags: {},
     });
     Puzzles.insert({
       _id: "leaf",
@@ -44,11 +44,11 @@ describe("unfeedMeta", function () {
       touched_by: "cjb",
       feedsInto: ["meta"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {}
+      tags: {},
     });
     chai.assert.throws(
       () => Meteor.call("feedMeta", "leaf", "meta"),
-      Match.Error
+      Match.Error,
     );
   });
 
@@ -64,7 +64,7 @@ describe("unfeedMeta", function () {
       puzzles: ["yoy", "leaf"],
       feedsInto: [],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {}
+      tags: {},
     });
     Puzzles.insert({
       _id: "leaf",
@@ -76,18 +76,18 @@ describe("unfeedMeta", function () {
       touched_by: "cjb",
       feedsInto: ["wew", "meta"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {}
+      tags: {},
     });
     callAs("unfeedMeta", "jeff", "leaf", "meta");
     chai.assert.deepInclude(Puzzles.findOne("meta"), {
       puzzles: ["yoy"],
       touched: 7,
-      touched_by: "jeff"
+      touched_by: "jeff",
     });
     chai.assert.deepInclude(Puzzles.findOne("leaf"), {
       feedsInto: ["wew"],
       touched: 7,
-      touched_by: "jeff"
+      touched_by: "jeff",
     });
   });
 
@@ -103,7 +103,7 @@ describe("unfeedMeta", function () {
       puzzles: ["yoy"],
       feedsInto: [],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {}
+      tags: {},
     });
     Puzzles.insert({
       _id: "leaf",
@@ -115,18 +115,18 @@ describe("unfeedMeta", function () {
       touched_by: "cjb",
       feedsInto: ["wew"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {}
+      tags: {},
     });
     callAs("unfeedMeta", "jeff", "leaf", "meta");
     chai.assert.deepInclude(Puzzles.findOne("meta"), {
       puzzles: ["yoy"],
       touched: 1,
-      touched_by: "torgen"
+      touched_by: "torgen",
     });
     chai.assert.deepInclude(Puzzles.findOne("leaf"), {
       feedsInto: ["wew"],
       touched: 2,
-      touched_by: "cjb"
+      touched_by: "cjb",
     });
   });
 
@@ -141,11 +141,11 @@ describe("unfeedMeta", function () {
       touched_by: "cjb",
       feedsInto: ["wew"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {}
+      tags: {},
     });
     chai.assert.throws(
       () => callAs("unfeedMeta", "jeff", "leaf", "meta"),
-      Meteor.Error
+      Meteor.Error,
     );
     chai.assert.deepEqual(Puzzles.findOne("leaf").feedsInto, ["wew"]);
   });
@@ -161,11 +161,11 @@ describe("unfeedMeta", function () {
       touched_by: "torgen",
       puzzles: ["yoy"],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {}
+      tags: {},
     });
     chai.assert.throws(
       () => callAs("feedMeta", "jeff", "leaf", "meta"),
-      Meteor.Error
+      Meteor.Error,
     );
     chai.assert.deepEqual(Puzzles.findOne("meta").puzzles, ["yoy"]);
   });

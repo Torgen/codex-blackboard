@@ -13,8 +13,8 @@ describe("newMessage", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -25,7 +25,7 @@ describe("newMessage", function () {
     it("strips script", function () {
       const msg = callAs("newMessage", "torgen", {
         bodyIsHtml: true,
-        body: 'Haha <script>alert("ownd")</script> you'
+        body: 'Haha <script>alert("ownd")</script> you',
       });
       chai.assert.deepEqual(Messages.findOne(msg._id), {
         _id: msg._id,
@@ -33,7 +33,7 @@ describe("newMessage", function () {
         nick: "torgen",
         bodyIsHtml: true,
         timestamp: 7,
-        body: "Haha  you"
+        body: "Haha  you",
       });
     });
 
@@ -41,7 +41,7 @@ describe("newMessage", function () {
       const msg = callAs("newMessage", "torgen", {
         bodyIsHtml: true,
         body: 'has requested help: stuck (puzzle <a target=_blank href="/puzzles/2">Example</a>)',
-        action: true
+        action: true,
       });
       chai.assert.deepEqual(Messages.findOne(msg._id), {
         _id: msg._id,
@@ -50,7 +50,7 @@ describe("newMessage", function () {
         bodyIsHtml: true,
         timestamp: 7,
         action: true,
-        body: 'has requested help: stuck (puzzle <a target="_blank" href="/puzzles/2">Example</a>)'
+        body: 'has requested help: stuck (puzzle <a target="_blank" href="/puzzles/2">Example</a>)',
       });
     });
   });

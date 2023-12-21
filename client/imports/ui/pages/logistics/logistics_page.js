@@ -11,7 +11,7 @@ export function awaitBundleLoaded() {
       }
       resolve();
       computation.stop();
-    })
+    }),
   );
 }
 
@@ -31,5 +31,5 @@ Template.logistics_page.onCreated(async function () {
 Template.logistics_page.helpers({
   bundleLoaded() {
     return bundleLoaded.get();
-  }
+  },
 });

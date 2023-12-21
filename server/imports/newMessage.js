@@ -7,7 +7,7 @@ import sanitize from "sanitize-html";
 const params = { ...sanitize.defaults };
 params.allowedAttributes = {
   ...params.allowedAttributes,
-  "*": ["class"]
+  "*": ["class"],
 };
 
 export const ensureDawnOfTime = (room_name) =>
@@ -17,8 +17,8 @@ export const ensureDawnOfTime = (room_name) =>
       system: true,
       dawn_of_time: true,
       room_name,
-      bot_ignore: true
-    }
+      bot_ignore: true,
+    },
   });
 Meteor.startup(() => ["general/0", "oplog/0"].forEach(ensureDawnOfTime));
 
@@ -42,7 +42,7 @@ export function newMessage(newMsg) {
     // Nick will be sender's address.
     mail: Match.Optional({
       sender_name: Match.Optional(String),
-      subject: String
+      subject: String,
     }),
     // Present only in messages received via Twitter.
     // Nick will be sender's handle
@@ -56,8 +56,8 @@ export function newMessage(newMsg) {
       // Numeric id of quoted tweet as a string, if this was a quote-retweet
       quote_id_str: Match.Optional(NonEmptyString),
       // Twitter handle of tweeter of quoted tweet, if this was a quote-retweet
-      quote_nick: Match.Optional(NonEmptyString)
-    })
+      quote_nick: Match.Optional(NonEmptyString),
+    }),
   });
   // translate emojis!
   if (newMsg.bodyIsHtml) {

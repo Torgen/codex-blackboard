@@ -43,7 +43,7 @@ import { DO_BATCH_PROCESSING } from "/server/imports/batch.js";
     appKey: settings.consumer_key,
     appSecret: settings.consumer_secret,
     accessToken: settings.access_token_key,
-    accessSecret: settings.access_token_secret
+    accessSecret: settings.access_token_secret,
   });
 
   // See https://dev.twitter.com/streaming/overview/request-parameters#track
@@ -55,6 +55,6 @@ import { DO_BATCH_PROCESSING } from "/server/imports/batch.js";
 
   stream.on(
     ETwitterStreamEvent.ConnectError,
-    Meteor.bindEnvironment((error) => console.warn("Twitter error:", error))
+    Meteor.bindEnvironment((error) => console.warn("Twitter error:", error)),
   );
 })(DO_BATCH_PROCESSING);

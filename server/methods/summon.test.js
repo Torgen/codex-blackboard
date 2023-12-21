@@ -13,8 +13,8 @@ describe("summon", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -39,9 +39,9 @@ describe("summon", function () {
             name: "Answer",
             value: "precipitate",
             touched: 2,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       });
       ret = callAs("summon", "torgen", { object: id });
     });
@@ -59,15 +59,15 @@ describe("summon", function () {
             name: "Answer",
             value: "precipitate",
             touched: 2,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       }));
 
     it("doesn't chat", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: { $ne: "oplog/0" } }).fetch(),
-        0
+        0,
       ));
 
     it("doesn't oplog", () =>
@@ -92,13 +92,13 @@ describe("summon", function () {
             name: "Status",
             value: "Stuck on you",
             touched: 2,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       });
       ret = callAs("summon", "torgen", {
         object: id,
-        how: "Stuck like glue"
+        how: "Stuck like glue",
       });
     });
     it("returns nothing", () => chai.assert.isUndefined(ret));
@@ -112,15 +112,15 @@ describe("summon", function () {
             name: "Status",
             value: "Stuck like glue",
             touched: 7,
-            touched_by: "torgen"
-          }
-        }
+            touched_by: "torgen",
+          },
+        },
       }));
 
     it("doesn't chat", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: { $ne: "oplog/0" } }).fetch(),
-        0
+        0,
       ));
 
     it("doesn't oplog", () =>
@@ -145,13 +145,13 @@ describe("summon", function () {
             name: "Status",
             value: "everything is fine",
             touched: 2,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       });
       ret = callAs("summon", "torgen", {
         object: id,
-        how: "Stuck like glue"
+        how: "Stuck like glue",
       });
     });
     it("returns nothing", () => chai.assert.isUndefined(ret));
@@ -165,15 +165,15 @@ describe("summon", function () {
             name: "Status",
             value: "Stuck like glue",
             touched: 7,
-            touched_by: "torgen"
-          }
-        }
+            touched_by: "torgen",
+          },
+        },
       }));
 
     it("notifies main chat", function () {
       const msgs = Messages.find({
         room_name: "general/0",
-        dawn_of_time: { $ne: true }
+        dawn_of_time: { $ne: true },
       }).fetch();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, ": Stuck like glue (");
@@ -184,7 +184,7 @@ describe("summon", function () {
     it("notifies puzzle chat", function () {
       const msgs = Messages.find({
         room_name: `puzzles/${id}`,
-        dawn_of_time: { $ne: true }
+        dawn_of_time: { $ne: true },
       }).fetch();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, ": Stuck like glue");
@@ -198,9 +198,9 @@ describe("summon", function () {
           room_name: "oplog/0",
           stream: "stuck",
           type: "puzzles",
-          id
+          id,
         }).fetch(),
-        1
+        1,
       ));
   });
 
@@ -217,8 +217,8 @@ describe("summon", function () {
           touched_by: "cjb",
           solved: null,
           solved_by: null,
-          tags: {}
-        }))
+          tags: {},
+        })),
     );
 
     it("fails without login", () =>
@@ -242,15 +242,15 @@ describe("summon", function () {
               name: "Status",
               value: "Stuck",
               touched: 7,
-              touched_by: "torgen"
-            }
-          }
+              touched_by: "torgen",
+            },
+          },
         }));
 
       it("notifies main chat", function () {
         const msgs = Messages.find({
           room_name: "general/0",
-          dawn_of_time: { $ne: true }
+          dawn_of_time: { $ne: true },
         }).fetch();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": Stuck (");
@@ -261,7 +261,7 @@ describe("summon", function () {
       it("notifies puzzle chat", function () {
         const msgs = Messages.find({
           room_name: `puzzles/${id}`,
-          dawn_of_time: { $ne: true }
+          dawn_of_time: { $ne: true },
         }).fetch();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": Stuck");
@@ -275,9 +275,9 @@ describe("summon", function () {
             room_name: "oplog/0",
             stream: "stuck",
             type: "puzzles",
-            id
+            id,
           }).fetch(),
-          1
+          1,
         ));
     });
 
@@ -287,8 +287,8 @@ describe("summon", function () {
         () =>
           (ret = callAs("summon", "torgen", {
             object: id,
-            how: "stucK like glue"
-          }))
+            how: "stucK like glue",
+          })),
       );
 
       it("returns nothing", () => chai.assert.isUndefined(ret));
@@ -302,15 +302,15 @@ describe("summon", function () {
               name: "Status",
               value: "stucK like glue",
               touched: 7,
-              touched_by: "torgen"
-            }
-          }
+              touched_by: "torgen",
+            },
+          },
         }));
 
       it("notifies main chat", function () {
         const msgs = Messages.find({
           room_name: "general/0",
-          dawn_of_time: { $ne: true }
+          dawn_of_time: { $ne: true },
         }).fetch();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": stucK like glue (");
@@ -321,7 +321,7 @@ describe("summon", function () {
       it("notifies puzzle chat", function () {
         const msgs = Messages.find({
           room_name: `puzzles/${id}`,
-          dawn_of_time: { $ne: true }
+          dawn_of_time: { $ne: true },
         }).fetch();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": stucK like glue");
@@ -335,9 +335,9 @@ describe("summon", function () {
             room_name: "oplog/0",
             stream: "stuck",
             type: "puzzles",
-            id
+            id,
           }).fetch(),
-          1
+          1,
         ));
     });
 
@@ -347,8 +347,8 @@ describe("summon", function () {
         () =>
           (ret = callAs("summon", "torgen", {
             object: id,
-            how: "no idea"
-          }))
+            how: "no idea",
+          })),
       );
 
       it("returns nothing", () => chai.assert.isUndefined(ret));
@@ -362,15 +362,15 @@ describe("summon", function () {
               name: "Status",
               value: "Stuck: no idea",
               touched: 7,
-              touched_by: "torgen"
-            }
-          }
+              touched_by: "torgen",
+            },
+          },
         }));
 
       it("notifies main chat", function () {
         const msgs = Messages.find({
           room_name: "general/0",
-          dawn_of_time: { $ne: true }
+          dawn_of_time: { $ne: true },
         }).fetch();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": no idea (");
@@ -382,7 +382,7 @@ describe("summon", function () {
       it("notifies puzzle chat", function () {
         const msgs = Messages.find({
           room_name: `puzzles/${id}`,
-          dawn_of_time: { $ne: true }
+          dawn_of_time: { $ne: true },
         }).fetch();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": no idea");
@@ -397,9 +397,9 @@ describe("summon", function () {
             room_name: "oplog/0",
             stream: "stuck",
             type: "puzzles",
-            id
+            id,
           }).fetch(),
-          1
+          1,
         ));
     });
   });
@@ -423,13 +423,13 @@ describe("summon", function () {
             name: "Status",
             value: "everything is fine",
             touched: 2,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       });
       ret = callAs("summon", "torgen", {
         object: id,
-        how: "Stuck like glue"
+        how: "Stuck like glue",
       });
     });
     it("returns nothing", () => chai.assert.isUndefined(ret));
@@ -443,15 +443,15 @@ describe("summon", function () {
             name: "Status",
             value: "Stuck like glue",
             touched: 7,
-            touched_by: "torgen"
-          }
-        }
+            touched_by: "torgen",
+          },
+        },
       }));
 
     it("notifies main chat", function () {
       const msgs = Messages.find({
         room_name: "general/0",
-        dawn_of_time: { $ne: true }
+        dawn_of_time: { $ne: true },
       }).fetch();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, ": Stuck like glue (");
@@ -462,7 +462,7 @@ describe("summon", function () {
     it("notifies puzzle chat", function () {
       const msgs = Messages.find({
         room_name: `puzzles/${id}`,
-        dawn_of_time: { $ne: true }
+        dawn_of_time: { $ne: true },
       }).fetch();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, ": Stuck like glue");
@@ -476,9 +476,9 @@ describe("summon", function () {
           room_name: "oplog/0",
           stream: "stuck",
           type: "puzzles",
-          id
+          id,
         }).fetch(),
-        1
+        1,
       ));
   });
 });

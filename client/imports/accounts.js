@@ -7,6 +7,6 @@ export default function (nickname, real_name, gravatar, password, callback) {
   }
   Accounts.callLoginMethod({
     methodArguments: [args],
-    userCallback: callback
+    userCallback: callback,
   });
 }

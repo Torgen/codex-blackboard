@@ -5,7 +5,7 @@ import {
   waitForSubscriptions,
   afterFlushPromise,
   login,
-  logout
+  logout,
 } from "./app_test_helpers.js";
 import chai from "chai";
 
@@ -35,12 +35,12 @@ describe("drag-and-drop", function () {
     chai.assert.isBelow(
       posJQ.offset().top,
       inventJQ.offset().top,
-      "before drag 1"
+      "before drag 1",
     );
     chai.assert.isAbove(
       kidsJQ.offset().top,
       inventJQ.offset().top,
-      "before drag 2"
+      "before drag 2",
     );
     const dt = new DataTransfer();
     const drag = new PuzzleDrag(
@@ -49,7 +49,7 @@ describe("drag-and-drop", function () {
       round(),
       inventJQ[0],
       inventJQ[0].getBoundingClientRect().top + 10,
-      dt
+      dt,
     );
     chai.assert.include(dt.types, "application/prs.codex-puzzle");
     chai.assert.isTrue(
@@ -59,19 +59,19 @@ describe("drag-and-drop", function () {
         round(),
         inventJQ[0],
         inventJQ[0].getBoundingClientRect().top + 12,
-        dt
-      )
+        dt,
+      ),
     );
     await afterFlushPromise();
     chai.assert.isBelow(
       posJQ.offset().top,
       inventJQ.offset().top,
-      "drag on self 1"
+      "drag on self 1",
     );
     chai.assert.isAbove(
       kidsJQ.offset().top,
       inventJQ.offset().top,
-      "drag on self 2"
+      "drag on self 2",
     );
     chai.assert.isTrue(
       drag.dragover(
@@ -80,14 +80,14 @@ describe("drag-and-drop", function () {
         round(),
         kidsJQ[0],
         kidsJQ[0].getBoundingClientRect().top + 9,
-        dt
-      )
+        dt,
+      ),
     );
     await afterFlushPromise();
     chai.assert.isAbove(
       kidsJQ.offset().top,
       inventJQ.offset().top,
-      "not far enough down"
+      "not far enough down",
     );
     chai.assert.isTrue(
       drag.dragover(
@@ -96,14 +96,14 @@ describe("drag-and-drop", function () {
         round(),
         kidsJQ[0],
         kidsJQ[0].getBoundingClientRect().top + 11,
-        dt
-      )
+        dt,
+      ),
     );
     await afterFlushPromise();
     chai.assert.isBelow(
       kidsJQ.offset().top,
       inventJQ.offset().top,
-      "after drag down"
+      "after drag down",
     );
     chai.assert.isTrue(
       drag.dragover(
@@ -112,19 +112,19 @@ describe("drag-and-drop", function () {
         round(),
         posJQ[0],
         posJQ[0].getBoundingClientRect().bottom - 4,
-        dt
-      )
+        dt,
+      ),
     );
     await afterFlushPromise();
     chai.assert.isBelow(
       posJQ.offset().top,
       inventJQ.offset().top,
-      "after drag up 1"
+      "after drag up 1",
     );
     chai.assert.isAbove(
       kidsJQ.offset().top,
       inventJQ.offset().top,
-      "after drag up 2"
+      "after drag up 2",
     );
   });
 });

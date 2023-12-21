@@ -14,14 +14,14 @@ Template.mechanics.helpers({
   },
   isChecked() {
     return Template.instance().data?.includes(this.canon);
-  }
+  },
 });
 
 Template.mechanics.events({
   "click li a"(event, template) {
     // Stop the dropdown from closing.
     event.stopPropagation();
-  }
+  },
 });
 
 Template.puzzle_mechanics.events({
@@ -32,9 +32,9 @@ Template.puzzle_mechanics.events({
     Meteor.call(
       method,
       template.data._id,
-      event.currentTarget.dataset.mechanic
+      event.currentTarget.dataset.mechanic,
     );
-  }
+  },
 });
 
 Template.favorite_mechanics.events({
@@ -43,5 +43,5 @@ Template.favorite_mechanics.events({
       ? "favoriteMechanic"
       : "unfavoriteMechanic";
     Meteor.call(method, event.currentTarget.dataset.mechanic);
-  }
+  },
 });

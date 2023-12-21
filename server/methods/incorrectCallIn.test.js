@@ -14,8 +14,8 @@ describe("incorrectCallIn", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -40,7 +40,7 @@ describe("incorrectCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        feedsInto: []
+        feedsInto: [],
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -53,21 +53,21 @@ describe("incorrectCallIn", function () {
         submitted_to_hq: true,
         backsolve: false,
         provided: false,
-        status: "pending"
+        status: "pending",
       });
       Roles.insert({
         _id: "onduty",
         holder: "cjb",
         claimed_at: 2,
         renewed_at: 2,
-        expires_at: 3600002
+        expires_at: 3600002,
       });
     });
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("incorrectCallIn", callin),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", function () {
@@ -83,27 +83,27 @@ describe("incorrectCallIn", function () {
           Messages.find({
             type: "puzzles",
             id: puzzle,
-            stream: "callins"
+            stream: "callins",
           }).fetch(),
-          1
+          1,
         ));
 
       it("notifies puzzle chat", () =>
         chai.assert.lengthOf(
           Messages.find({
             room_name: `puzzles/${puzzle}`,
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch(),
-          1
+          1,
         ));
 
       it("notifies general chat", () =>
         chai.assert.lengthOf(
           Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch(),
-          1
+          1,
         ));
 
       it("renews onduty", () =>
@@ -111,7 +111,7 @@ describe("incorrectCallIn", function () {
           holder: "cjb",
           claimed_at: 2,
           renewed_at: 7,
-          expires_at: 3600007
+          expires_at: 3600007,
         }));
     });
 
@@ -123,7 +123,7 @@ describe("incorrectCallIn", function () {
           holder: "cjb",
           claimed_at: 2,
           renewed_at: 2,
-          expires_at: 3600002
+          expires_at: 3600002,
         }));
     });
   });
@@ -140,7 +140,7 @@ describe("incorrectCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        feedsInto: []
+        feedsInto: [],
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -153,7 +153,7 @@ describe("incorrectCallIn", function () {
         submitted_to_hq: true,
         backsolve: false,
         provided: false,
-        status: "pending"
+        status: "pending",
       });
     });
 
@@ -161,7 +161,7 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin),
-          Match.Error
+          Match.Error,
         ));
 
       describe("when logged in", function () {
@@ -171,7 +171,7 @@ describe("incorrectCallIn", function () {
           const c = CallIns.findOne(callin);
           chai.assert.include(c, {
             status: "rejected",
-            resolved: 7
+            resolved: 7,
           });
         });
 
@@ -180,20 +180,20 @@ describe("incorrectCallIn", function () {
             Messages.find({
               type: "puzzles",
               id: puzzle,
-              stream: "callins"
+              stream: "callins",
             }).fetch(),
-            0
+            0,
           ));
 
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${puzzle}`,
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true
+            action: true,
           });
           chai.assert.include(o[0].body, "REJECTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -203,12 +203,12 @@ describe("incorrectCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true
+            action: true,
           });
           chai.assert.include(o[0].body, "REJECTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -221,7 +221,7 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin, "sediment"),
-          Match.Error
+          Match.Error,
         ));
 
       describe("when logged in", function () {
@@ -232,7 +232,7 @@ describe("incorrectCallIn", function () {
           chai.assert.include(c, {
             status: "rejected",
             response: "sediment",
-            resolved: 7
+            resolved: 7,
           });
         });
 
@@ -241,20 +241,20 @@ describe("incorrectCallIn", function () {
             Messages.find({
               type: "puzzles",
               id: puzzle,
-              stream: "callins"
+              stream: "callins",
             }).fetch(),
-            0
+            0,
           ));
 
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${puzzle}`,
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true
+            action: true,
           });
           chai.assert.include(o[0].body, "REJECTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -265,12 +265,12 @@ describe("incorrectCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true
+            action: true,
           });
           chai.assert.include(o[0].body, "REJECTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -293,7 +293,7 @@ describe("incorrectCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        feedsInto: []
+        feedsInto: [],
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -306,7 +306,7 @@ describe("incorrectCallIn", function () {
         submitted_to_hq: true,
         backsolve: false,
         provided: false,
-        status: "pending"
+        status: "pending",
       });
     });
 
@@ -314,7 +314,7 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin),
-          Match.Error
+          Match.Error,
         ));
 
       describe("when logged in", function () {
@@ -324,7 +324,7 @@ describe("incorrectCallIn", function () {
           const c = CallIns.findOne(callin);
           chai.assert.include(c, {
             status: "rejected",
-            resolved: 7
+            resolved: 7,
           });
         });
 
@@ -333,20 +333,20 @@ describe("incorrectCallIn", function () {
             Messages.find({
               type: "puzzles",
               id: puzzle,
-              stream: "callins"
+              stream: "callins",
             }).fetch(),
-            0
+            0,
           ));
 
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${puzzle}`,
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true
+            action: true,
           });
           chai.assert.include(o[0].body, "REJECTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -356,12 +356,12 @@ describe("incorrectCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true
+            action: true,
           });
           chai.assert.include(o[0].body, "REJECTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -374,7 +374,7 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin, "sediment"),
-          Match.Error
+          Match.Error,
         ));
 
       describe("when logged in", function () {
@@ -385,7 +385,7 @@ describe("incorrectCallIn", function () {
           chai.assert.include(c, {
             status: "rejected",
             response: "sediment",
-            resolved: 7
+            resolved: 7,
           });
         });
 
@@ -394,20 +394,20 @@ describe("incorrectCallIn", function () {
             Messages.find({
               type: "puzzles",
               id: puzzle,
-              stream: "callins"
+              stream: "callins",
             }).fetch(),
-            0
+            0,
           ));
 
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${puzzle}`,
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true
+            action: true,
           });
           chai.assert.include(o[0].body, "REJECTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -418,12 +418,12 @@ describe("incorrectCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true }
+            dawn_of_time: { $ne: true },
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true
+            action: true,
           });
           chai.assert.include(o[0].body, "REJECTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -446,7 +446,7 @@ describe("incorrectCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        feedsInto: []
+        feedsInto: [],
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -459,7 +459,7 @@ describe("incorrectCallIn", function () {
         submitted_to_hq: true,
         backsolve: false,
         provided: false,
-        status: "pending"
+        status: "pending",
       });
     });
 
@@ -467,13 +467,13 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin),
-          Match.Error
+          Match.Error,
         ));
 
       it("fails when logged in", () =>
         chai.assert.throws(
           () => callAs("incorrectCallIn", "cjb", callin),
-          Meteor.Error
+          Meteor.Error,
         ));
     });
 
@@ -481,13 +481,13 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin, "sediment"),
-          Match.Error
+          Match.Error,
         ));
 
       it("fails when logged in", () =>
         chai.assert.throws(
           () => callAs("incorrectCallIn", "cjb", callin, "sediment"),
-          Meteor.Error
+          Meteor.Error,
         ));
     });
   });

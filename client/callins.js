@@ -4,7 +4,7 @@ import * as callin_types from "/lib/imports/callin_types.js";
 
 Meteor.startup(function () {
   const newCallInSound = new Audio(
-    Meteor._relativeToSiteRootUrl("/sound/new_callin.wav")
+    Meteor._relativeToSiteRootUrl("/sound/new_callin.wav"),
   );
 
   // note that this observe 'leaks'; that's ok, the set of callins is small
@@ -32,7 +32,7 @@ Meteor.startup(function () {
         } catch (err) /* istanbul ignore next */ {
           console.error(err.message, err);
         }
-      }
+      },
     });
     initial = false;
   });
@@ -43,18 +43,18 @@ Template.callin_copy_and_go.events({
     event.preventDefault();
     const url = event.currentTarget.href;
     await navigator.clipboard.writeText(
-      $(event.currentTarget.dataset.clipboardTarget).text()
+      $(event.currentTarget.dataset.clipboardTarget).text(),
     );
     Meteor.call("setField", {
       type: "callins",
       object: this.callin._id,
       fields: {
         submitted_to_hq: true,
-        submitted_by: Meteor.userId()
-      }
+        submitted_by: Meteor.userId(),
+      },
     });
     window.open(url, "_blank");
-  }
+  },
 });
 
 Template.callin_type_dropdown.events({
@@ -63,10 +63,10 @@ Template.callin_type_dropdown.events({
       type: "callins",
       object: this._id,
       fields: {
-        callin_type: event.currentTarget.dataset.callinType
-      }
+        callin_type: event.currentTarget.dataset.callinType,
+      },
     });
-  }
+  },
 });
 
 Template.callin_resolution_buttons.helpers({
@@ -84,7 +84,7 @@ Template.callin_resolution_buttons.helpers({
   },
   cancel_message() {
     return callin_types.cancel_message(this.callin.callin_type);
-  }
+  },
 });
 
 Template.callin_resolution_buttons.events({
@@ -108,5 +108,5 @@ Template.callin_resolution_buttons.events({
 
   "click .bb-callin-cancel"(event, template) {
     Meteor.call("cancelCallIn", { id: this.callin._id });
-  }
+  },
 });

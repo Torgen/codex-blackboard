@@ -14,7 +14,7 @@ describe("presence", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 7,
-      toFake: ["setInterval", "clearInterval", "Date"]
+      toFake: ["setInterval", "clearInterval", "Date"],
     });
   });
 
@@ -31,12 +31,12 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       presence = watchPresence();
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" })
+        Messages.findOne({ presence: "join", nick: "torgen" }),
       );
     });
 
@@ -48,11 +48,11 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" })
+        Messages.findOne({ presence: "join", nick: "torgen" }),
       );
     });
 
@@ -64,11 +64,11 @@ describe("presence", function () {
         scope: "jitsi",
         timestamp: 9,
         joined_timestamp: 8,
-        clients: [{ connection_id: "test", timestamp: 9 }]
+        clients: [{ connection_id: "test", timestamp: 9 }],
       });
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" })
+        Messages.findOne({ presence: "join", nick: "torgen" }),
       );
     });
 
@@ -80,7 +80,7 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 9,
         joined_timestamp: 8,
-        clients: [{ connection_id: "test", timestamp: 9 }]
+        clients: [{ connection_id: "test", timestamp: 9 }],
       });
       waitForDocument(
         Messages,
@@ -89,8 +89,8 @@ describe("presence", function () {
           system: true,
           room_name: "general/0",
           body: "torgen joined the room.",
-          timestamp: 8
-        }
+          timestamp: 8,
+        },
       );
     });
 
@@ -99,7 +99,7 @@ describe("presence", function () {
       Meteor.users.insert({
         _id: "torgen",
         nickname: "Torgen",
-        real_name: "Dan Rosart"
+        real_name: "Dan Rosart",
       });
       Presence.insert({
         nick: "torgen",
@@ -107,7 +107,7 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 8,
         joined_timestamp: 8,
-        clients: [{ connection_id: "test", timestamp: 9 }]
+        clients: [{ connection_id: "test", timestamp: 9 }],
       });
       waitForDocument(
         Messages,
@@ -116,8 +116,8 @@ describe("presence", function () {
           system: true,
           room_name: "general/0",
           body: "Dan Rosart joined the room.",
-          timestamp: 8
-        }
+          timestamp: 8,
+        },
       );
     });
   });
@@ -130,13 +130,13 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       presence = watchPresence();
       Presence.remove(id);
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "part", nick: "torgen" })
+        Messages.findOne({ presence: "part", nick: "torgen" }),
       );
     });
 
@@ -147,13 +147,13 @@ describe("presence", function () {
         scope: "jitsi",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       presence = watchPresence();
       Presence.remove(id);
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "part", nick: "torgen" })
+        Messages.findOne({ presence: "part", nick: "torgen" }),
       );
     });
 
@@ -165,7 +165,7 @@ describe("presence", function () {
         scope: "jitsi",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       presence = watchPresence();
       clock.tick(240000);
@@ -181,7 +181,7 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       presence = watchPresence();
       Presence.update(id, { $set: { clients: [] } });
@@ -196,7 +196,7 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       presence = watchPresence();
       Presence.remove(id);
@@ -207,8 +207,8 @@ describe("presence", function () {
           system: true,
           room_name: "general/0",
           body: "torgen left the room.",
-          timestamp: 7
-        }
+          timestamp: 7,
+        },
       );
     });
 
@@ -219,12 +219,12 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       Meteor.users.insert({
         _id: "torgen",
         nickname: "Torgen",
-        real_name: "Dan Rosart"
+        real_name: "Dan Rosart",
       });
       presence = watchPresence();
       Presence.remove(id);
@@ -235,8 +235,8 @@ describe("presence", function () {
           system: true,
           room_name: "general/0",
           body: "Dan Rosart left the room.",
-          timestamp: 7
-        }
+          timestamp: 7,
+        },
       );
     });
   });
@@ -249,16 +249,16 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       Puzzles.insert({
         _id: "foo",
-        solverTime: 45
+        solverTime: 45,
       });
       presence = watchPresence();
       Presence.update(
         { nick: "torgen", room_name: "puzzles/foo" },
-        { $set: { timestamp: 15 } }
+        { $set: { timestamp: 15 } },
       );
       waitForDocument(Puzzles, { _id: "foo", solverTime: 54 }, {});
     });
@@ -271,16 +271,16 @@ describe("presence", function () {
         timestamp: 6,
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
-        bot: true
+        bot: true,
       });
       Puzzles.insert({
         _id: "foo",
-        solverTime: 45
+        solverTime: 45,
       });
       presence = watchPresence();
       Presence.update(
         { nick: "botto", room_name: "puzzles/foo" },
-        { $set: { timestamp: 15 } }
+        { $set: { timestamp: 15 } },
       );
       waitForDocument(Puzzles, { _id: "foo", solverTime: 45 }, {});
     });
@@ -292,21 +292,21 @@ describe("presence", function () {
         scope: "chat",
         timestamp: 6,
         joined_timestamp: 6,
-        clients: [{ connection_id: "test", timestamp: 6 }]
+        clients: [{ connection_id: "test", timestamp: 6 }],
       });
       Puzzles.insert({
         _id: "foo",
         solverTime: 45,
-        solved: 80
+        solved: 80,
       });
       presence = watchPresence();
       Presence.update(
         { nick: "torgen", room_name: "puzzles/foo" },
-        { $set: { timestamp: 15 } }
+        { $set: { timestamp: 15 } },
       );
       await delay(200);
       chai.assert.deepInclude(Puzzles.findOne("foo"), {
-        solverTime: 45
+        solverTime: 45,
       });
     });
   });

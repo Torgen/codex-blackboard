@@ -11,7 +11,7 @@ Template.projector.onCreated(async function () {
     import("./projector.less"),
     import("../map/map.js"),
     import("../graph/graph.js"),
-    import("../statistics/statistics_chart.js")
+    import("../statistics/statistics_chart.js"),
   ]);
   this.loaded.set(true);
   this.tenSeconds = Meteor.setInterval(() => {
@@ -42,7 +42,7 @@ Template.projector.helpers({
       return "projector-current-view";
     }
     return "projector-hidden-view";
-  }
+  },
 });
 
 Template.projector.onDestroyed(function () {

@@ -13,8 +13,8 @@ describe("setStarred", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -26,7 +26,7 @@ describe("setStarred", function () {
       nick: "torgen",
       body: "nobody star this",
       timestamp: 5,
-      room_name: "general/0"
+      room_name: "general/0",
     });
     chai.assert.throws(() => Meteor.call("setStarred", id, true), Match.Error);
   });
@@ -37,13 +37,13 @@ describe("setStarred", function () {
         nick: "torgen",
         body: "nobody star this",
         timestamp: 5,
-        room_name: "general/0"
+        room_name: "general/0",
       });
       callAs("setStarred", "cjb", id, true);
       chai.assert.include(Messages.findOne(id), {
         starred: true,
         announced_at: 7,
-        announced_by: "cjb"
+        announced_by: "cjb",
       });
     });
 
@@ -54,13 +54,13 @@ describe("setStarred", function () {
         timestamp: 5,
         room_name: "general/0",
         announced_at: 6,
-        announced_by: "cjb"
+        announced_by: "cjb",
       });
       callAs("setStarred", "cjb", id, false);
       chai.assert.include(Messages.findOne(id), {
         starred: null,
         announced_at: 6,
-        announced_by: "cjb"
+        announced_by: "cjb",
       });
     });
 
@@ -72,13 +72,13 @@ describe("setStarred", function () {
         room_name: "general/0",
         starred: false,
         announced_at: 6,
-        announced_by: "kwal"
+        announced_by: "kwal",
       });
       callAs("setStarred", "cjb", id, true);
       chai.assert.include(Messages.findOne(id), {
         starred: true,
         announced_at: 6,
-        announced_by: "kwal"
+        announced_by: "kwal",
       });
     });
   });
@@ -89,7 +89,7 @@ describe("setStarred", function () {
         nick: "torgen",
         body: "nobody star this",
         timestamp: 5,
-        room_name: "puzzles/0"
+        room_name: "puzzles/0",
       });
       callAs("setStarred", "cjb", id, true);
       const msg = Messages.findOne(id);
@@ -103,7 +103,7 @@ describe("setStarred", function () {
         nick: "torgen",
         body: "nobody star this",
         timestamp: 5,
-        room_name: "puzzles/0"
+        room_name: "puzzles/0",
       });
       callAs("setStarred", "cjb", id, false);
       chai.assert.include(Messages.findOne(id), { starred: null });
@@ -116,7 +116,7 @@ describe("setStarred", function () {
       body: "won't let you star this",
       action: true,
       timestamp: 5,
-      room_name: "general/0"
+      room_name: "general/0",
     });
     callAs("setStarred", "cjb", id, true);
     chai.assert.notInclude(Messages.findOne(id), { starred: null });

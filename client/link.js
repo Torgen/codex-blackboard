@@ -15,5 +15,5 @@ Template.link.helpers({
     return (
       Template.instance().data.text ?? Template.instance().target.get()?.name
     );
-  }
+  },
 });

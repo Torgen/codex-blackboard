@@ -26,15 +26,15 @@ export default class DriveChangeWatcher {
     this.env = env;
     let lastToken = startPageTokens.findOne(
       {},
-      { limit: 1, sort: { timestamp: -1 } }
+      { limit: 1, sort: { timestamp: -1 } },
     );
     if (!lastToken) {
       ({
-        data: { startPageToken }
+        data: { startPageToken },
       } = Promise.await(this.driveApi.changes.getStartPageToken()));
       lastToken = {
         timestamp: Date.now(),
-        token: startPageToken
+        token: startPageToken,
       };
       startPageTokens.insert(lastToken);
     }
@@ -42,7 +42,7 @@ export default class DriveChangeWatcher {
     this.lastPoll = lastToken.timestamp;
     this.timeoutHandle = this.env.setTimeout(
       () => this.poll(),
-      Math.max(0, lastToken.timestamp + POLL_INTERVAL - Date.now())
+      Math.max(0, lastToken.timestamp + POLL_INTERVAL - Date.now()),
     );
   }
 
@@ -58,8 +58,8 @@ export default class DriveChangeWatcher {
           this.driveApi.changes.list({
             pageToken: token,
             pageSize: 1000,
-            fields: CHANGES_FIELDS
-          })
+            fields: CHANGES_FIELDS,
+          }),
         ));
         updates = new Map(); // key: puzzle id, value: max modifiedTime of file with it as parent
         created = new Map(); // key: file ID, value: {name, mimeType, webViewLink, channel}
@@ -77,7 +77,7 @@ export default class DriveChangeWatcher {
               parents,
               createdTime,
               modifiedTime,
-              webViewLink
+              webViewLink,
             } = file;
             if (parents == null) {
               return;
@@ -95,7 +95,7 @@ export default class DriveChangeWatcher {
               channel = "general/0";
             } else {
               puzzle = await Puzzles.rawCollection().findOne({
-                drive: { $in: parents }
+                drive: { $in: parents },
               });
               if (puzzle == null) {
                 return;
@@ -134,11 +134,11 @@ export default class DriveChangeWatcher {
                   name,
                   mimeType,
                   webViewLink,
-                  channel
+                  channel,
                 });
               }
             }
-          })
+          }),
         );
         if (data.nextPageToken != null) {
           token = data.nextPageToken;
@@ -146,7 +146,7 @@ export default class DriveChangeWatcher {
           break;
         } else {
           throw new Error(
-            "Response had neither nextPageToken nor newStartPageToken"
+            "Response had neither nextPageToken nor newStartPageToken",
           );
         }
       }
@@ -160,33 +160,33 @@ export default class DriveChangeWatcher {
         bulkPuzzleUpdates.push({
           updateOne: {
             filter: { _id: puzzle },
-            update: updateDoc
-          }
+            update: updateDoc,
+          },
         });
         console.log(puzzle, updateDoc);
       }
       const puzzlePromise = bulkPuzzleUpdates.length
         ? Puzzles.rawCollection().bulkWrite(bulkPuzzleUpdates, {
-            ordered: false
+            ordered: false,
           })
         : Promise.resolve();
       created.forEach(function (
         { name, mimeType, webViewLink, channel },
-        fileId
+        fileId,
       ) {
         // Would be nice to use bulk write here, but since we're not forcing a particular ID
         // we could have mismatched meteor vs. mongo ID types.
         const now = Date.now();
         Messages.insert({
           body: `${fileType(
-            mimeType
+            mimeType,
           )} \"${name}\" added to drive folder: ${webViewLink}`,
           system: true,
           room_name: channel,
           bot_ignore: true,
           useful: true,
           file_upload: { name, mimeType, webViewLink, fileId },
-          timestamp: now
+          timestamp: now,
         });
         driveFiles.upsert(fileId, { $max: { announced: now } });
       });
@@ -198,13 +198,13 @@ export default class DriveChangeWatcher {
         {
           $set: {
             timestamp: pollStart,
-            token: data.newStartPageToken
-          }
+            token: data.newStartPageToken,
+          },
         },
         {
           multi: false,
-          sort: { timestamp: 1 }
-        }
+          sort: { timestamp: 1 },
+        },
       );
     } catch (e) {
       console.error(e);

@@ -14,8 +14,8 @@ describe("claimOnduty", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -28,7 +28,7 @@ describe("claimOnduty", function () {
   it("fails without login", () =>
     chai.assert.throws(
       () => Meteor.call("claimOnduty", { from: "cjb" }),
-      Match.Error
+      Match.Error,
     ));
 
   describe("when nobody is onduty", function () {
@@ -38,7 +38,7 @@ describe("claimOnduty", function () {
         holder: "torgen",
         claimed_at: 7,
         renewed_at: 7,
-        expires_at: 3600007
+        expires_at: 3600007,
       });
       const o = Messages.find({ room_name: "oplog/0" }).fetch();
       chai.assert.lengthOf(o, 1);
@@ -47,7 +47,7 @@ describe("claimOnduty", function () {
         id: "onduty",
         stream: "onduty",
         nick: "torgen",
-        body: "is now"
+        body: "is now",
       });
     });
 
@@ -57,7 +57,7 @@ describe("claimOnduty", function () {
         holder: "torgen",
         claimed_at: 7,
         renewed_at: 7,
-        expires_at: 3600007
+        expires_at: 3600007,
       });
       const o = Messages.find({ room_name: "oplog/0" }).fetch();
       chai.assert.lengthOf(o, 1);
@@ -66,7 +66,7 @@ describe("claimOnduty", function () {
         id: "onduty",
         stream: "onduty",
         nick: "torgen",
-        body: "is now"
+        body: "is now",
       });
     });
 
@@ -77,7 +77,7 @@ describe("claimOnduty", function () {
         holder: "torgen",
         claimed_at: 7,
         renewed_at: 7,
-        expires_at: 1800007
+        expires_at: 1800007,
       });
     });
   });
@@ -89,8 +89,8 @@ describe("claimOnduty", function () {
         holder: "cjb",
         claimed_at: 1,
         renewed_at: 1,
-        expires_at: 3600001
-      })
+        expires_at: 3600001,
+      }),
     );
 
     it("claims onduty from them", function () {
@@ -99,7 +99,7 @@ describe("claimOnduty", function () {
         holder: "torgen",
         claimed_at: 7,
         renewed_at: 7,
-        expires_at: 3600007
+        expires_at: 3600007,
       });
       const o = Messages.find({ room_name: "oplog/0" }).fetch();
       chai.assert.lengthOf(o, 1);
@@ -108,7 +108,7 @@ describe("claimOnduty", function () {
         id: "onduty",
         stream: "onduty",
         nick: "torgen",
-        body: "took over from @cjb as"
+        body: "took over from @cjb as",
       });
     });
 
@@ -116,13 +116,13 @@ describe("claimOnduty", function () {
       chai.assert.throws(
         () => callAs("claimOnduty", "torgen", { from: "cscott" }),
         Meteor.Error,
-        /412/
+        /412/,
       );
       chai.assert.deepInclude(Roles.findOne("onduty"), {
         holder: "cjb",
         claimed_at: 1,
         renewed_at: 1,
-        expires_at: 3600001
+        expires_at: 3600001,
       });
     });
 
@@ -130,13 +130,13 @@ describe("claimOnduty", function () {
       chai.assert.throws(
         () => callAs("claimOnduty", "torgen", { from: null }),
         Meteor.Error,
-        /412/
+        /412/,
       );
       chai.assert.deepInclude(Roles.findOne("onduty"), {
         holder: "cjb",
         claimed_at: 1,
         renewed_at: 1,
-        expires_at: 3600001
+        expires_at: 3600001,
       });
     });
   });

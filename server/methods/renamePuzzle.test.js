@@ -13,15 +13,15 @@ describe("renamePuzzle", function () {
   beforeEach(function () {
     clock = sinon.useFakeTimers({
       now: 7,
-      toFake: ["Date"]
+      toFake: ["Date"],
     });
     driveMethods = {
       createPuzzle: sinon.fake.returns({
         id: "fid", // f for folder
-        spreadId: "sid"
+        spreadId: "sid",
       }),
       renamePuzzle: sinon.spy(),
-      deletePuzzle: sinon.spy()
+      deletePuzzle: sinon.spy(),
     };
   });
 
@@ -48,8 +48,8 @@ describe("renamePuzzle", function () {
           link: "https://puzzlehunt.mit.edu/foo",
           drive: "fid",
           spreadsheet: "sid",
-          tags: {}
-        }))
+          tags: {},
+        })),
     );
 
     it("fails without login", () =>
@@ -57,9 +57,9 @@ describe("renamePuzzle", function () {
         () =>
           Meteor.call("renamePuzzle", {
             id,
-            name: "Bar"
+            name: "Bar",
           }),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", function () {
@@ -70,9 +70,9 @@ describe("renamePuzzle", function () {
           () =>
             (ret = callAs("renamePuzzle", "cjb", {
               id,
-              name: "Bar"
-            }))
-        )
+              name: "Bar",
+            })),
+        ),
       );
 
       it("returns true", () => chai.assert.isTrue(ret));
@@ -83,7 +83,7 @@ describe("renamePuzzle", function () {
           name: "Bar",
           canon: "bar",
           touched: 7,
-          touched_by: "cjb"
+          touched_by: "cjb",
         });
       });
 
@@ -91,13 +91,13 @@ describe("renamePuzzle", function () {
         chai.assert.deepEqual(driveMethods.renamePuzzle.getCall(0).args, [
           "Bar",
           "fid",
-          "sid"
+          "sid",
         ]));
 
       it("oplogs", () =>
         chai.assert.lengthOf(
           Messages.find({ id, type: "puzzles" }).fetch(),
-          1
+          1,
         ));
     });
   });
@@ -119,7 +119,7 @@ describe("renamePuzzle", function () {
         link: "https://puzzlehunt.mit.edu/foo",
         drive: "f1",
         spreadsheet: "s1",
-        tags: {}
+        tags: {},
       });
       id2 = Puzzles.insert({
         name: "Bar",
@@ -133,15 +133,15 @@ describe("renamePuzzle", function () {
         link: "https://puzzlehunt.mit.edu/foo",
         drive: "f2",
         spreadsheet: "s2",
-        tags: {}
+        tags: {},
       });
       drive.withValue(
         driveMethods,
         () =>
           (ret = callAs("renamePuzzle", "cjb", {
             id: id1,
-            name: "Bar"
-          }))
+            name: "Bar",
+          })),
       );
     });
 
@@ -152,14 +152,14 @@ describe("renamePuzzle", function () {
         name: "Foo",
         canon: "foo",
         touched: 1,
-        touched_by: "torgen"
+        touched_by: "torgen",
       }));
 
     it("doesn't oplog", () =>
       chai.assert.lengthOf(
         Messages.find({ id: { $in: [id1, id2] }, type: "puzzles" }).fetch(),
         0,
-        "oplogs"
+        "oplogs",
       ));
 
     it("doesn't rename drive", () =>

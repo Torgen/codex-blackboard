@@ -40,8 +40,8 @@ describe("summarize_markers", function () {
         { gravatar: "a.jpg", title: "a", onlineness: "online" },
         { gravatar: "c.jpg", title: "c", onlineness: "online" },
         { gravatar: "j.jpg", title: "j", onlineness: "offline" },
-        { gravatar: "h.jpg", title: "h", onlineness: "offline" }
-      ]
+        { gravatar: "h.jpg", title: "h", onlineness: "offline" },
+      ],
     );
   });
 
@@ -53,15 +53,15 @@ describe("summarize_markers", function () {
         E_ONLINE,
         B_ONLINE,
         F_ONLINE,
-        A_ONLINE
+        A_ONLINE,
       ]),
       [
         { gravatar: "d.jpg", title: "d", onlineness: "online" },
         { gravatar: "c.jpg", title: "c", onlineness: "online" },
         { gravatar: "e.jpg", title: "e", onlineness: "online" },
         { gravatar: "b.jpg", title: "b", onlineness: "online" },
-        { summary: 2, title: "2 more online", onlineness: "online" }
-      ]
+        { summary: 2, title: "2 more online", onlineness: "online" },
+      ],
     );
   });
 
@@ -73,15 +73,15 @@ describe("summarize_markers", function () {
         K_OFFLINE,
         H_OFFLINE,
         L_OFFLINE,
-        G_OFFLINE
+        G_OFFLINE,
       ]),
       [
         { gravatar: "j.jpg", title: "j", onlineness: "offline" },
         { gravatar: "i.jpg", title: "i", onlineness: "offline" },
         { gravatar: "k.jpg", title: "k", onlineness: "offline" },
         { gravatar: "h.jpg", title: "h", onlineness: "offline" },
-        { summary: 2, title: "2 more offline", onlineness: "offline" }
-      ]
+        { summary: 2, title: "2 more offline", onlineness: "offline" },
+      ],
     );
   });
 
@@ -93,15 +93,15 @@ describe("summarize_markers", function () {
         D_ONLINE,
         C_ONLINE,
         E_ONLINE,
-        B_ONLINE
+        B_ONLINE,
       ]),
       [
         { gravatar: "d.jpg", title: "d", onlineness: "online" },
         { gravatar: "c.jpg", title: "c", onlineness: "online" },
         { gravatar: "e.jpg", title: "e", onlineness: "online" },
         { gravatar: "b.jpg", title: "b", onlineness: "online" },
-        { summary: 2, title: "2 more offline", onlineness: "offline" }
-      ]
+        { summary: 2, title: "2 more offline", onlineness: "offline" },
+      ],
     );
   });
 
@@ -115,15 +115,15 @@ describe("summarize_markers", function () {
         C_ONLINE,
         E_ONLINE,
         B_ONLINE,
-        F_ONLINE
+        F_ONLINE,
       ]),
       [
         { gravatar: "d.jpg", title: "d", onlineness: "online" },
         { gravatar: "c.jpg", title: "c", onlineness: "online" },
         { gravatar: "e.jpg", title: "e", onlineness: "online" },
         { summary: 2, title: "2 more online", onlineness: "online" },
-        { summary: 3, title: "3 more offline", onlineness: "offline" }
-      ]
+        { summary: 3, title: "3 more offline", onlineness: "offline" },
+      ],
     );
   });
 
@@ -135,15 +135,15 @@ describe("summarize_markers", function () {
         K_OFFLINE,
         H_OFFLINE,
         L_OFFLINE,
-        D_ONLINE
+        D_ONLINE,
       ]),
       [
         { gravatar: "d.jpg", title: "d", onlineness: "online" },
         { gravatar: "j.jpg", title: "j", onlineness: "offline" },
         { gravatar: "i.jpg", title: "i", onlineness: "offline" },
         { gravatar: "k.jpg", title: "k", onlineness: "offline" },
-        { summary: 2, title: "2 more offline", onlineness: "offline" }
-      ]
+        { summary: 2, title: "2 more offline", onlineness: "offline" },
+      ],
     );
   });
 
@@ -155,15 +155,15 @@ describe("summarize_markers", function () {
         E_ONLINE,
         B_ONLINE,
         F_ONLINE,
-        J_OFFLINE
+        J_OFFLINE,
       ]),
       [
         { gravatar: "d.jpg", title: "d", onlineness: "online" },
         { gravatar: "c.jpg", title: "c", onlineness: "online" },
         { gravatar: "e.jpg", title: "e", onlineness: "online" },
         { summary: 2, title: "2 more online", onlineness: "online" },
-        { gravatar: "j.jpg", title: "j", onlineness: "offline" }
-      ]
+        { gravatar: "j.jpg", title: "j", onlineness: "offline" },
+      ],
     );
   });
 });

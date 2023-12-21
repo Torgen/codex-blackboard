@@ -13,8 +13,8 @@ describe("addIncorrectAnswer", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -26,9 +26,9 @@ describe("addIncorrectAnswer", function () {
       () =>
         callAs("addIncorrectAnswer", "torgen", {
           target: "something",
-          answer: "precipitate"
+          answer: "precipitate",
         }),
-      Meteor.Error
+      Meteor.Error,
     ));
 
   describe("which exists", function () {
@@ -48,9 +48,9 @@ describe("addIncorrectAnswer", function () {
             name: "Status",
             value: "stuck",
             touched: 2,
-            touched_by: "torgen"
-          }
-        }
+            touched_by: "torgen",
+          },
+        },
       });
       CallIns.insert({
         target_type: "puzzles",
@@ -60,7 +60,7 @@ describe("addIncorrectAnswer", function () {
         created: 4,
         created_by: "cjb",
         callin_type: "answer",
-        status: "pending"
+        status: "pending",
       });
     });
 
@@ -69,24 +69,24 @@ describe("addIncorrectAnswer", function () {
         () =>
           Meteor.call("addIncorrectAnswer", {
             target: id,
-            answer: "flimflam"
+            answer: "flimflam",
           }),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", function () {
       beforeEach(() =>
         callAs("addIncorrectAnswer", "cjb", {
           target: id,
-          answer: "flimflam"
-        })
+          answer: "flimflam",
+        }),
       );
 
       it("doesn't touch", function () {
         const doc = Puzzles.findOne(id);
         chai.assert.include(doc, {
           touched: 2,
-          touched_by: "torgen"
+          touched_by: "torgen",
         });
       });
 
@@ -97,7 +97,7 @@ describe("addIncorrectAnswer", function () {
           type: "puzzles",
           id,
           stream: "callins",
-          nick: "cjb"
+          nick: "cjb",
         });
         // oplog is lowercase
         chai.assert.include(o[0].body, "flimflam", "message");

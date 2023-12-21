@@ -1,7 +1,7 @@
 Template.favorite.helpers({
   favorite() {
     return this.favorites?.[Meteor.userId()];
-  }
+  },
 });
 
 Template.favorite.events({
@@ -10,5 +10,5 @@ Template.favorite.events({
   },
   "click .indifferent"(event, template) {
     Meteor.call("favorite", this._id);
-  }
+  },
 });

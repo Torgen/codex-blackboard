@@ -15,7 +15,7 @@ describe("hubot", function () {
   beforeEach(function () {
     clock = sinon.useFakeTimers({
       now: 7,
-      toFake: ["setInterval", "clearInterval", "Date"]
+      toFake: ["setInterval", "clearInterval", "Date"],
     });
     robot = new Robot("testbot", "testbot@testbot.test");
   });
@@ -31,17 +31,17 @@ describe("hubot", function () {
     robot.run();
     chai.assert.include(
       Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 7 }
+      { timestamp: 7 },
     );
     clock.tick(15000);
     chai.assert.include(
       Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 7 }
+      { timestamp: 7 },
     );
     clock.tick(15000);
     chai.assert.include(
       Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 30007 }
+      { timestamp: 30007 },
     );
   });
 
@@ -51,7 +51,7 @@ describe("hubot", function () {
       nick: "testbot",
       body: "wakes up",
       action: true,
-      room_name: "general/0"
+      room_name: "general/0",
     });
   });
 
@@ -62,7 +62,7 @@ describe("hubot", function () {
       timestamp: Date.now() - 2,
       nick: "torgen",
       room_name: "general/0",
-      body: "sample"
+      body: "sample",
     });
     robot.run();
     chai.assert.isFalse(spy.called);
@@ -75,7 +75,7 @@ describe("hubot", function () {
       timestamp: Date.now() + 1000,
       nick: "torgen",
       room_name: "general/0",
-      body: "sample"
+      body: "sample",
     });
     robot.run();
     chai.assert.isFalse(spy.called);
@@ -92,7 +92,7 @@ describe("hubot", function () {
         timestamp: Date.now() + 1,
         nick: "torgen",
         room_name: "general/0",
-        body: "sample"
+        body: "sample",
       });
     });
     chai.assert.isFalse(spy.called);
@@ -108,7 +108,7 @@ describe("hubot", function () {
       timestamp: Date.now() + 1,
       nick: "testbot",
       room_name: "general/0",
-      body: "sample"
+      body: "sample",
     });
     await delay(200);
     chai.assert.isFalse(spy.called);
@@ -125,7 +125,7 @@ describe("hubot", function () {
       nick: "torgen",
       room_name: "general/0",
       body: "<b>sample</b>",
-      bodyIsHtml: true
+      bodyIsHtml: true,
     });
     await delay(200);
     chai.assert.isFalse(spy.called);
@@ -142,7 +142,7 @@ describe("hubot", function () {
       nick: "torgen",
       room_name: "general/0",
       body: "samples a puzzle",
-      action: true
+      action: true,
     });
     await delay(200);
     chai.assert.isFalse(spy.called);
@@ -159,7 +159,7 @@ describe("hubot", function () {
       nick: "torgen",
       room_name: "general/0",
       body: "sample",
-      bot_ignore: true
+      bot_ignore: true,
     });
     await delay(200);
     chai.assert.isFalse(spy.called);
@@ -177,7 +177,7 @@ describe("hubot", function () {
         nick: "torgen",
         room_name: "general/0",
         presence: "join",
-        system: true
+        system: true,
       });
     });
     chai.assert.isFalse(spy.called);
@@ -195,7 +195,7 @@ describe("hubot", function () {
         nick: "torgen",
         room_name: "general/0",
         presence: "part",
-        system: true
+        system: true,
       });
     });
     chai.assert.isFalse(spy.called);
@@ -211,7 +211,7 @@ describe("hubot", function () {
       timestamp: Date.now() + 1,
       nick: "torgen",
       room_name: "general/0",
-      body: "testbot hello"
+      body: "testbot hello",
     });
     await waitForDocument(
       Messages,
@@ -221,8 +221,8 @@ describe("hubot", function () {
         nick: "testbot",
         room_name: "general/0",
         bot_ignore: true,
-        mention: ["torgen"]
-      }
+        mention: ["torgen"],
+      },
     );
     chai.assert.include(Messages.findOne(id), { useless_cmd: true });
   });
@@ -239,7 +239,7 @@ describe("hubot", function () {
       nick: "torgen",
       room_name: "general/0",
       body: "hello",
-      to: "testbot"
+      to: "testbot",
     });
     await waitForDocument(
       Messages,
@@ -248,11 +248,11 @@ describe("hubot", function () {
         timestamp: 9,
         nick: "testbot",
         room_name: "general/0",
-        bot_ignore: true
-      }
+        bot_ignore: true,
+      },
     );
     chai.assert.notDeepInclude(Messages.findOne(id), {
-      useless_cmd: true
+      useless_cmd: true,
     });
   });
 
@@ -266,7 +266,7 @@ describe("hubot", function () {
       timestamp: Date.now() + 1,
       nick: "torgen",
       room_name: "general/0",
-      body: "testbot hello"
+      body: "testbot hello",
     });
     await waitForDocument(
       Messages,
@@ -276,8 +276,8 @@ describe("hubot", function () {
         nick: "testbot",
         room_name: "general/0",
         bot_ignore: true,
-        action: true
-      }
+        action: true,
+      },
     );
     chai.assert.include(Messages.findOne(id), { useless_cmd: true });
   });
@@ -293,7 +293,7 @@ describe("hubot", function () {
       nick: "torgen",
       to: "testbot",
       room_name: "general/0",
-      body: "hello"
+      body: "hello",
     });
     await waitForDocument(
       Messages,
@@ -302,11 +302,11 @@ describe("hubot", function () {
         timestamp: 9,
         nick: "testbot",
         room_name: "general/0",
-        bot_ignore: true
-      }
+        bot_ignore: true,
+      },
     );
     chai.assert.notDeepInclude(Messages.findOne(id), {
-      useless_cmd: true
+      useless_cmd: true,
     });
   });
 
@@ -321,7 +321,7 @@ describe("hubot", function () {
       timestamp: Date.now(),
       nick: "torgen",
       room_name: "general/0",
-      body: "testbot hello"
+      body: "testbot hello",
     });
     await waitForDocument(
       Messages,
@@ -331,11 +331,11 @@ describe("hubot", function () {
         nick: "testbot",
         room_name: "general/0",
         bot_ignore: true,
-        useful: true
-      }
+        useful: true,
+      },
     );
     chai.assert.notDeepInclude(Messages.findOne(id), {
-      useless_cmd: true
+      useless_cmd: true,
     });
   });
 
@@ -350,7 +350,7 @@ describe("hubot", function () {
       timestamp: Date.now(),
       nick: "torgen",
       room_name: "general/0",
-      body: "testbot hello"
+      body: "testbot hello",
     });
     await waitForDocument(
       Messages,
@@ -359,8 +359,8 @@ describe("hubot", function () {
         timestamp: 9,
         nick: "testbot",
         room_name: "general/0",
-        bot_ignore: true
-      }
+        bot_ignore: true,
+      },
     );
     chai.assert.include(Messages.findOne(id), { useless_cmd: true });
   });

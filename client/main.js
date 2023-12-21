@@ -2,7 +2,7 @@ import md5 from "md5";
 import abbrev from "/lib/imports/abbrev.js";
 import {
   human_readable,
-  abbrev as ctabbrev
+  abbrev as ctabbrev,
 } from "/lib/imports/callin_types.js";
 import canonical from "/lib/imports/canonical.js";
 import {
@@ -12,7 +12,7 @@ import {
   Puzzles,
   Roles,
   collection,
-  pretty_collection
+  pretty_collection,
 } from "/lib/imports/collections.js";
 import { mechanics } from "/lib/imports/mechanics.js";
 import { fileType } from "/lib/imports/mime_type.js";
@@ -24,12 +24,12 @@ import { chatUrlFor, navigate, urlFor } from "/client/imports/router.js";
 import {
   GENERAL_ROOM_NAME,
   NAME_PLACEHOLDER,
-  TEAM_NAME
+  TEAM_NAME,
 } from "/lib/imports/server_settings.js";
 import {
   DARK_MODE,
   MUTE_SOUND_EFFECTS,
-  FIRST_LOGIN
+  FIRST_LOGIN,
 } from "/client/imports/settings.js";
 import textify from "/client/imports/textify.js";
 import "/client/imports/ui/components/splitter/splitter.js";
@@ -56,12 +56,12 @@ Template.page.events({
         target.href,
         "Pop out",
         "height=480,width=480,menubar=no,toolbar=no,personalbar=no," +
-          "status=yes,resizeable=yes,scrollbars=yes"
+          "status=yes,resizeable=yes,scrollbars=yes",
       );
     } else {
       navigate(target.getAttribute("href"));
     }
-  }
+  },
 });
 
 Meteor.startup(function () {
@@ -135,7 +135,7 @@ Template.registerHelper("any", function (...args) {
   return a.some((x) => x);
 });
 Template.registerHelper("includes", (haystack, needle) =>
-  haystack?.includes(needle)
+  haystack?.includes(needle),
 );
 Template.registerHelper("all", function (...args) {
   const adjustedLength = Math.max(args.length, 1),
@@ -167,7 +167,7 @@ Template.registerHelper(
   () =>
     Meteor.userId() &&
     Session.get("canEdit") &&
-    Session.equals("currentPage", "blackboard")
+    Session.equals("currentPage", "blackboard"),
 );
 
 Template.registerHelper("md5", md5);
@@ -188,7 +188,7 @@ Template.registerHelper("nullToZero", (x) => x ?? 0);
 
 Template.registerHelper(
   "canGoFullScreen",
-  () => $("body").get(0)?.requestFullscreen != null
+  () => $("body").get(0)?.requestFullscreen != null,
 );
 Template.registerHelper("drive_link", function (args) {
   args = keyword_or_positional("id", args);
@@ -216,11 +216,11 @@ Template.registerHelper("nickAndName", function (args) {
 });
 Template.registerHelper(
   "nickExists",
-  (nick) => Meteor.users.findOne({ _id: nick }) != null
+  (nick) => Meteor.users.findOne({ _id: nick }) != null,
 );
 Template.registerHelper(
   "isonduty",
-  (nick) => Roles.findOne("onduty")?.holder === nick
+  (nick) => Roles.findOne("onduty")?.holder === nick,
 );
 
 Tracker.autorun(function () {
@@ -246,7 +246,7 @@ Template.page.helpers({
   },
   color() {
     return Session.get("color");
-  }
+  },
 });
 
 const allPuzzlesHandle = Meteor.subscribe("all-roundsandpuzzles");
@@ -269,7 +269,7 @@ function debouncedUpdate() {
 function gravatarForNotification(msg) {
   return gravatarUrl({
     gravatar_md5: nickHash(msg.nick),
-    size: 192
+    size: 192,
   });
 }
 
@@ -287,12 +287,12 @@ Meteor.startup(function () {
     Meteor.subscribe("oplogs-since", now.get(), {
       onReady() {
         return (suppress = false);
-      }
+      },
     });
   });
   Messages.find({
     room_name: "oplog/0",
-    timestamp: { $gt: now.get() }
+    timestamp: { $gt: now.get() },
   }).observe({
     added(msg) {
       update(msg.timestamp);
@@ -323,9 +323,9 @@ ${collection(msg.type).findOne(msg.id)?.name}`;
         tag: msg._id,
         icon: gravatarForNotification(msg),
         data,
-        silent
+        silent,
       });
-    }
+    },
   });
 });
 
@@ -356,13 +356,13 @@ Meteor.startup(() =>
             body: `Mechanic \"${mechanics[mech].name}\" added to puzzle \"${puzzle.name}\"`,
             tag: `${id}/${mech}`,
             data: { url: urlFor("puzzles", id) },
-            silent: MUTE_SOUND_EFFECTS.get()
+            silent: MUTE_SOUND_EFFECTS.get(),
           });
-        }
-      })
+        },
+      }),
     );
     faveSuppress = false;
-  })
+  }),
 );
 
 Meteor.startup(() =>
@@ -384,7 +384,7 @@ Meteor.startup(() =>
     const arnow = Date.now(); // Intentionally not reactive
     Messages.find({
       $or: [{ to: me }, { mention: me }],
-      timestamp: { $gt: arnow }
+      timestamp: { $gt: arnow },
     }).observeChanges({
       added(msgid, message) {
         const [room_name, url] = (() => {
@@ -396,7 +396,7 @@ Meteor.startup(() =>
             if (target.type === type) {
               const pretty_type = pretty_collection(type).replace(
                 /^[a-z]/,
-                (x) => x.toUpperCase()
+                (x) => x.toUpperCase(),
               );
               return [`${pretty_type} \"${target.name}\"`, urlFor(type, id)];
             } else {
@@ -406,7 +406,7 @@ Meteor.startup(() =>
         })();
         const gravatar = gravatarUrl({
           gravatar_md5: nickHash(message.nick),
-          size: 192
+          size: 192,
         });
         let { body } = message;
         if (message.bodyIsHtml) {
@@ -421,11 +421,11 @@ Meteor.startup(() =>
           tag: msgid,
           data: { url },
           icon: gravatar,
-          silent: MUTE_SOUND_EFFECTS.get()
+          silent: MUTE_SOUND_EFFECTS.get(),
         });
-      }
+      },
     });
-  })
+  }),
 );
 
 Meteor.startup(function () {
@@ -445,7 +445,7 @@ Meteor.startup(function () {
     Meteor.subscribe("announcements-since", now.get(), {
       onReady() {
         suppress = false;
-      }
+      },
     });
     Messages.find({ announced_at: { $gt: now.get() } }).observe({
       added(msg) {
@@ -466,9 +466,9 @@ Meteor.startup(function () {
           tag: msg._id,
           icon: gravatarForNotification(msg),
           data,
-          silent
+          silent,
         });
-      }
+      },
     });
   });
 });

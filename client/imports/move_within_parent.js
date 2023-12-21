@@ -37,9 +37,9 @@ export default function (id, parentType, parentId, args) {
       $set: {
         puzzles: npuzzles,
         touched: Date.now(),
-        touched_by: canonical(args.who)
-      }
-    }
+        touched_by: canonical(args.who),
+      },
+    },
   );
   return true;
 }

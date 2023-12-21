@@ -12,8 +12,8 @@ describe("favorite", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -49,8 +49,8 @@ describe("favorite", function () {
           drive: "fid",
           spreadsheet: "sid",
           doc: "did",
-          tags: {}
-        }))
+          tags: {},
+        })),
     );
 
     it("fails without login", () =>
@@ -88,14 +88,14 @@ describe("favorite", function () {
           solved_by: null,
           favorites: {
             torgen: true,
-            cscott: true
+            cscott: true,
           },
           link: "https://puzzlehunt.mit.edu/foo",
           drive: "fid",
           spreadsheet: "sid",
           doc: "did",
-          tags: {}
-        }))
+          tags: {},
+        })),
     );
 
     it("fails without login", () =>
@@ -111,7 +111,7 @@ describe("favorite", function () {
         chai.assert.deepEqual(Puzzles.findOne(id).favorites, {
           torgen: true,
           cscott: true,
-          cjb: true
+          cjb: true,
         }));
 
       it("does not touch", function () {
@@ -137,14 +137,14 @@ describe("favorite", function () {
           solved_by: null,
           favorites: {
             torgen: true,
-            cjb: true
+            cjb: true,
           },
           link: "https://puzzlehunt.mit.edu/foo",
           drive: "fid",
           spreadsheet: "sid",
           doc: "did",
-          tags: {}
-        }))
+          tags: {},
+        })),
     );
 
     it("fails without login", () =>
@@ -159,7 +159,7 @@ describe("favorite", function () {
       it("leaves favorites unchanged", () =>
         chai.assert.deepEqual(Puzzles.findOne(id).favorites, {
           torgen: true,
-          cjb: true
+          cjb: true,
         }));
 
       it("does not touch", function () {

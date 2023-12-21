@@ -57,7 +57,7 @@ class BlackboardAdapter extends Hubot.Adapter {
             }
           }
         }
-      }
+      },
     );
   }
   constructor(robot, botname, gravatar) {
@@ -96,8 +96,8 @@ class BlackboardAdapter extends Hubot.Adapter {
         Object.assign({}, props, {
           body: string,
           room_name: envelope.room,
-          bot_ignore: true
-        })
+          bot_ignore: true,
+        }),
       );
     });
   }
@@ -124,8 +124,8 @@ class BlackboardAdapter extends Hubot.Adapter {
           body: string,
           room_name: envelope.room,
           action: true,
-          bot_ignore: true
-        })
+          bot_ignore: true,
+        }),
       );
     });
   }
@@ -143,8 +143,8 @@ class BlackboardAdapter extends Hubot.Adapter {
           to: `${envelope.user.id}`,
           body: string,
           room_name: envelope.room,
-          bot_ignore: true
-        })
+          bot_ignore: true,
+        }),
       );
     });
   }
@@ -165,8 +165,8 @@ class BlackboardAdapter extends Hubot.Adapter {
         envelope,
         ...[
           { mention: [envelope.user.id] },
-          ...tweakStrings(strings, (str) => `@${envelope.user.id}: ${str}`)
-        ]
+          ...tweakStrings(strings, (str) => `@${envelope.user.id}: ${str}`),
+        ],
       );
     }
   }
@@ -194,18 +194,18 @@ class BlackboardAdapter extends Hubot.Adapter {
       {
         $set: {
           timestamp: now,
-          bot: true
+          bot: true,
         },
         $setOnInsert: {
-          joined_timestamp: now
+          joined_timestamp: now,
         },
         $push: {
           clients: {
             connection_id: "hubot_adapter",
-            timestamp: now
-          }
-        }
-      }
+            timestamp: now,
+          },
+        },
+      },
     );
     Presence.update(
       { scope: "chat", room_name, nick: this.botname },
@@ -213,10 +213,10 @@ class BlackboardAdapter extends Hubot.Adapter {
         $pull: {
           clients: {
             connection_id: "hubot_adapter",
-            timestamp: { $lt: now }
-          }
-        }
-      }
+            timestamp: { $lt: now },
+          },
+        },
+      },
     );
   }
 
@@ -229,9 +229,9 @@ class BlackboardAdapter extends Hubot.Adapter {
       $set: {
         nickname: this.robot.name,
         gravatar_md5: md5(this.gravatar),
-        bot_wakeup: Date.now()
+        bot_wakeup: Date.now(),
       },
-      $unset: { services: "" }
+      $unset: { services: "" },
     });
     // register our presence in general chat
     const keepalive = () => this.present("general/0");
@@ -282,7 +282,7 @@ class BlackboardAdapter extends Hubot.Adapter {
         }
         if (DEBUG) {
           console.log(
-            `Received from ${msg.nick} in ${msg.room_name}: ${msg.body}`
+            `Received from ${msg.nick} in ${msg.room_name}: ${msg.body}`,
           );
         }
         const tm = new Hubot.TextMessage(user, msg.body, id);
@@ -293,7 +293,7 @@ class BlackboardAdapter extends Hubot.Adapter {
           tm.text = `${this.robot.name} ${tm.text}`;
         }
         this.receive(tm);
-      }
+      },
     });
     startup = false;
     callAs("newMessage", this.botname, {
@@ -301,7 +301,7 @@ class BlackboardAdapter extends Hubot.Adapter {
       room_name: "general/0",
       action: true,
       bot_ignore: true,
-      header_ignore: true
+      header_ignore: true,
     });
     this.emit("connected");
   }
@@ -340,7 +340,7 @@ export default class Robot extends Hubot.Robot {
     this.adapter = new BlackboardAdapter(
       this,
       canonical(this.name),
-      this.gravatar
+      this.gravatar,
     );
   }
 
@@ -382,7 +382,7 @@ export default class Robot extends Hubot.Robot {
             resp.message.private = true;
             return callback(resp);
           }
-        : callback
+        : callback,
     );
   }
 }

@@ -12,11 +12,11 @@ describe("removeEventAttendee", function () {
     Meteor.users.insert({ _id: "cjb" });
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cjb", "cscott"]
+      attendees: ["cjb", "cscott"],
     });
     chai.assert.throws(
       () => Meteor.call("removeEventAttendee", "evt1", "cjb"),
-      Match.Error
+      Match.Error,
     );
   });
 
@@ -28,11 +28,11 @@ describe("removeEventAttendee", function () {
   it("fails when no such user", function () {
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cscott"]
+      attendees: ["cscott"],
     });
     chai.assert.throws(
       () => callAs("removeEventAttendee", "cjb", "evt1", "cjb"),
-      Match.Error
+      Match.Error,
     );
   });
 
@@ -40,12 +40,12 @@ describe("removeEventAttendee", function () {
     Meteor.users.insert({ _id: "cjb" });
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cjb", "cscott"]
+      attendees: ["cjb", "cscott"],
     });
     chai.assert.isTrue(callAs("removeEventAttendee", "cjb", "evt1", "cjb"));
     chai.assert.deepEqual(CalendarEvents.findOne({ _id: "evt1" }), {
       _id: "evt1",
-      attendees: ["cscott"]
+      attendees: ["cscott"],
     });
   });
 
@@ -53,12 +53,12 @@ describe("removeEventAttendee", function () {
     Meteor.users.insert({ _id: "bjc" });
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["bjc", "cscott"]
+      attendees: ["bjc", "cscott"],
     });
     chai.assert.isTrue(callAs("removeEventAttendee", "cjb", "evt1", "bjc"));
     chai.assert.deepEqual(CalendarEvents.findOne({ _id: "evt1" }), {
       _id: "evt1",
-      attendees: ["cscott"]
+      attendees: ["cscott"],
     });
   });
 
@@ -66,12 +66,12 @@ describe("removeEventAttendee", function () {
     Meteor.users.insert({ _id: "cjb" });
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cscott"]
+      attendees: ["cscott"],
     });
     chai.assert.isTrue(callAs("removeEventAttendee", "cjb", "evt1", "cjb"));
     chai.assert.deepEqual(CalendarEvents.findOne({ _id: "evt1" }), {
       _id: "evt1",
-      attendees: ["cscott"]
+      attendees: ["cscott"],
     });
   });
 });

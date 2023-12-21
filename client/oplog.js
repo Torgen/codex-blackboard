@@ -14,7 +14,7 @@ Template.oplog.helpers({
   // efficient to find it that way on the client, where there are no indexes.
   startOfChannel() {
     return Messages.findOne({ _id: room_name }) != null;
-  }
+  },
 });
 
 Template.oplog.onRendered(function () {
@@ -31,5 +31,5 @@ Template.oplog.onCreated(function () {
 Template.oplog.events({
   "click .bb-oplog-load-more"(event, template) {
     Session.set("limit", Session.get("limit") + CHAT_LIMIT_INCREMENT);
-  }
+  },
 });

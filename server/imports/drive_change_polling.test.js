@@ -6,7 +6,7 @@ import sinon from "sinon";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import DriveChangeWatcher, {
   startPageTokens,
-  driveFiles
+  driveFiles,
 } from "./drive_change_polling.js";
 
 const SPREADSHEET_TYPE = "application/vnd.google-apps.spreadsheet";
@@ -25,19 +25,19 @@ describe("drive change polling", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 60007,
-      toFake: ["Date"]
+      toFake: ["Date"],
     });
 
     env = {
       setTimeout: sinon.stub(),
-      clearTimeout: sinon.stub()
+      clearTimeout: sinon.stub(),
     };
 
     api = {
       changes: {
         list() {},
-        getStartPageToken() {}
-      }
+        getStartPageToken() {},
+      },
     };
     changes = sinon.mock(api.changes);
   });
@@ -57,14 +57,14 @@ describe("drive change polling", function () {
     poller = new DriveChangeWatcher(api, "root_folder", env);
     chai.assert.include(startPageTokens.findOne(), {
       timestamp: 60007,
-      token: "firstPage"
+      token: "firstPage",
     });
   });
 
   it("polls immediately when poll is overdue", function () {
     startPageTokens.insert({
       timestamp: 7,
-      token: "firstPage"
+      token: "firstPage",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     chai.assert.equal(env.setTimeout.firstCall.lastArg, 0);
@@ -73,7 +73,7 @@ describe("drive change polling", function () {
   it("waits to poll", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     chai.assert.equal(env.setTimeout.firstCall.lastArg, 30000);
@@ -82,14 +82,14 @@ describe("drive change polling", function () {
   it("updates puzzle and does not announce when spreadsheet updated", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     const puzz = Puzzles.insert({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       doc: "foo_doc",
-      spreadsheet: "foo_sheet"
+      spreadsheet: "foo_sheet",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     changes
@@ -109,15 +109,15 @@ describe("drive change polling", function () {
                 parents: ["foo_drive"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
-      drive_touched: 31006
+      drive_touched: 31006,
     });
     chai.assert.isUndefined(Messages.findOne());
   });
@@ -125,14 +125,14 @@ describe("drive change polling", function () {
   it("updates puzzle and does not announce when doc updated", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     const puzz = Puzzles.insert({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       doc: "foo_doc",
-      spreadsheet: "foo_sheet"
+      spreadsheet: "foo_sheet",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     changes
@@ -152,15 +152,15 @@ describe("drive change polling", function () {
                 parents: ["foo_drive"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
-      drive_touched: 31006
+      drive_touched: 31006,
     });
     chai.assert.isUndefined(Messages.findOne());
   });
@@ -168,14 +168,14 @@ describe("drive change polling", function () {
   it("updates puzzle and announces when new file updated", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     const puzz = Puzzles.insert({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       doc: "foo_doc",
-      spreadsheet: "foo_sheet"
+      spreadsheet: "foo_sheet",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     changes
@@ -195,15 +195,15 @@ describe("drive change polling", function () {
                 parents: ["foo_drive"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
-      drive_touched: 31006
+      drive_touched: 31006,
     });
     chai.assert.include(driveFiles.findOne("foo_other"), { announced: 60007 });
     chai.assert.deepInclude(Messages.findOne(), {
@@ -213,21 +213,21 @@ describe("drive change polling", function () {
         mimeType: "image/svg+xml",
         webViewLink: "https://blahblahblah.com",
         name: "Drawing about Foo",
-        fileId: "foo_other"
-      }
+        fileId: "foo_other",
+      },
     });
   });
 
   it("updates puzzle announces and sets doc when new doc updated", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     const puzz = Puzzles.insert({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
-      spreadsheet: "foo_sheet"
+      spreadsheet: "foo_sheet",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     changes
@@ -247,16 +247,16 @@ describe("drive change polling", function () {
                 parents: ["foo_drive"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
       drive_touched: 31006,
-      doc: "foo_doc"
+      doc: "foo_doc",
     });
     chai.assert.include(driveFiles.findOne("foo_doc"), { announced: 60007 });
     chai.assert.deepInclude(Messages.findOne(), {
@@ -266,26 +266,26 @@ describe("drive change polling", function () {
         mimeType: DOC_TYPE,
         webViewLink: "https://blahblahblah.com",
         name: "Notes: Foo",
-        fileId: "foo_doc"
-      }
+        fileId: "foo_doc",
+      },
     });
   });
 
   it("updates puzzle and does not announce when announced file updated", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     driveFiles.insert({
       _id: "foo_other",
-      announced: 5
+      announced: 5,
     });
     const puzz = Puzzles.insert({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       doc: "foo_doc",
-      spreadsheet: "foo_sheet"
+      spreadsheet: "foo_sheet",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     changes
@@ -305,15 +305,15 @@ describe("drive change polling", function () {
                 parents: ["foo_drive"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
-      drive_touched: 31006
+      drive_touched: 31006,
     });
     chai.assert.isUndefined(Messages.findOne());
   });
@@ -321,7 +321,7 @@ describe("drive change polling", function () {
   it("announces in general chat when new file updated", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     changes
@@ -341,11 +341,11 @@ describe("drive change polling", function () {
                 parents: ["root_folder"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.include(driveFiles.findOne("foo_other"), { announced: 60007 });
@@ -356,19 +356,19 @@ describe("drive change polling", function () {
         mimeType: "image/svg+xml",
         webViewLink: "https://blahblahblah.com",
         name: "Drawing about Foo",
-        fileId: "foo_other"
-      }
+        fileId: "foo_other",
+      },
     });
   });
 
   it("does not announce in general chat when announced file updated", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     driveFiles.insert({
       _id: "foo_other",
-      announced: 5
+      announced: 5,
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     changes
@@ -388,11 +388,11 @@ describe("drive change polling", function () {
                 parents: ["root_folder"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.isUndefined(Messages.findOne());
@@ -401,7 +401,7 @@ describe("drive change polling", function () {
   it("does not announce when new file updated in unknown folder", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     changes
@@ -421,11 +421,11 @@ describe("drive change polling", function () {
                 parents: ["somewhere_else"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.isUndefined(Messages.findOne());
@@ -436,7 +436,7 @@ describe("drive change polling", function () {
   it("calls again with next page token", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     const list = changes
@@ -456,11 +456,11 @@ describe("drive change polling", function () {
                 parents: ["root_folder"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       })
       .onSecondCall()
       .resolves({
@@ -476,11 +476,11 @@ describe("drive change polling", function () {
                 parents: ["somewhere_else"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       });
     poller.poll();
     chai.assert.deepInclude(Messages.findOne(), {
@@ -490,21 +490,21 @@ describe("drive change polling", function () {
         mimeType: "image/svg+xml",
         webViewLink: "https://blahblahblah.com",
         name: "Drawing about Foo",
-        fileId: "foo_other"
-      }
+        fileId: "foo_other",
+      },
     });
     chai.assert.include(list.getCall(0).args[0], { pageToken: "firstPage" });
     chai.assert.include(list.getCall(1).args[0], { pageToken: "continue" });
     chai.assert.include(startPageTokens.findOne(), {
       timestamp: 60007,
-      token: "secondPage"
+      token: "secondPage",
     });
   });
 
   it("does not announce when failure on next page token", function () {
     startPageTokens.insert({
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
     poller = new DriveChangeWatcher(api, "root_folder", env);
     const list = changes
@@ -524,11 +524,11 @@ describe("drive change polling", function () {
                 parents: ["root_folder"],
                 createdTime: "1970-01-01T00:00:31.006Z",
                 modifiedTime: "1970-01-01T00:00:31.006Z",
-                webViewLink: "https://blahblahblah.com"
-              }
-            }
-          ]
-        }
+                webViewLink: "https://blahblahblah.com",
+              },
+            },
+          ],
+        },
       })
       .onSecondCall()
       .rejects("error");
@@ -538,7 +538,7 @@ describe("drive change polling", function () {
     chai.assert.include(list.getCall(1).args[0], { pageToken: "continue" });
     chai.assert.include(startPageTokens.findOne(), {
       timestamp: 30007,
-      token: "firstPage"
+      token: "firstPage",
     });
   });
 });

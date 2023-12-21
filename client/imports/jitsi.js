@@ -37,7 +37,7 @@ Meteor.startup(function () {
   }
   $("body").addClass("using-jitsi");
   $.getScript(`https://${JITSI_SERVER}/external_api.js`, () =>
-    jitsiLoaded.set(true)
+    jitsiLoaded.set(true),
   );
 });
 
@@ -71,9 +71,9 @@ export function createJitsiMeet(room, container) {
         "tileview",
         "videobackgroundblur",
         "help",
-        "hangup"
+        "hangup",
       ],
-      SHOW_CHROME_EXTENSION_BANNER: false
+      SHOW_CHROME_EXTENSION_BANNER: false,
     },
     configOverwrite: {
       // These properties are reactive, but changing them won't make us reload the room
@@ -83,8 +83,8 @@ export function createJitsiMeet(room, container) {
       prejoinPageEnabled: false,
       enableTalkWhileMuted: false,
       disableDeepLinking: true,
-      "analytics.disabled": true
-    }
+      "analytics.disabled": true,
+    },
   });
 }
 

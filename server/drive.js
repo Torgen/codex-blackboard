@@ -22,7 +22,7 @@ if (Meteor.isAppTest) {
         const api = google.drive({
           version: "v3",
           auth,
-          retryConfig: { statusCodesToRetry: RETRY_RESPONSE_CODES }
+          retryConfig: { statusCodesToRetry: RETRY_RESPONSE_CODES },
         });
         const drive = new Drive(api);
         console.log("Google Drive authorized and activated");
@@ -35,6 +35,6 @@ if (Meteor.isAppTest) {
         console.warn("Google Drive integration disabled.");
         driveEnv.bindSingleton(new FailDrive());
       }
-    })()
+    })(),
   );
 }

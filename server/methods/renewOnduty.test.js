@@ -14,8 +14,8 @@ describe("renewOnduty", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 70000,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -34,14 +34,14 @@ describe("renewOnduty", function () {
       holder: "torgen",
       claimed_at: 10,
       renewed_at: 10,
-      expires_at: 3600010
+      expires_at: 3600010,
     });
     chai.assert.isTrue(callAs("renewOnduty", "torgen"));
     chai.assert.deepInclude(Roles.findOne("onduty"), {
       holder: "torgen",
       claimed_at: 10,
       renewed_at: 70000,
-      expires_at: 3670000
+      expires_at: 3670000,
     });
   });
 
@@ -52,14 +52,14 @@ describe("renewOnduty", function () {
       holder: "torgen",
       claimed_at: 10,
       renewed_at: 10,
-      expires_at: 3600010
+      expires_at: 3600010,
     });
     chai.assert.isTrue(callAs("renewOnduty", "torgen"));
     chai.assert.deepInclude(Roles.findOne("onduty"), {
       holder: "torgen",
       claimed_at: 10,
       renewed_at: 70000,
-      expires_at: 1870000
+      expires_at: 1870000,
     });
   });
 
@@ -74,14 +74,14 @@ describe("renewOnduty", function () {
       holder: "cscott",
       claimed_at: 10,
       renewed_at: 10,
-      expires_at: 3600010
+      expires_at: 3600010,
     });
     chai.assert.isFalse(callAs("renewOnduty", "torgen"));
     chai.assert.deepInclude(Roles.findOne("onduty"), {
       holder: "cscott",
       claimed_at: 10,
       renewed_at: 10,
-      expires_at: 3600010
+      expires_at: 3600010,
     });
   });
 });

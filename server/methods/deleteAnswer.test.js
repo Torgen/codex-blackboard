@@ -14,8 +14,8 @@ describe("deleteAnswer", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"]
-      }))
+        toFake: ["Date"],
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -37,13 +37,13 @@ describe("deleteAnswer", function () {
           name: "Status",
           value: "stuck",
           touched: 2,
-          touched_by: "torgen"
-        }
-      }
+          touched_by: "torgen",
+        },
+      },
     });
     chai.assert.throws(
       () => Meteor.call("deleteAnswer", { target: id }),
-      Match.Error
+      Match.Error,
     );
   });
 
@@ -62,9 +62,9 @@ describe("deleteAnswer", function () {
           name: "Status",
           value: "stuck",
           touched: 2,
-          touched_by: "torgen"
-        }
-      }
+          touched_by: "torgen",
+        },
+      },
     });
     callAs("deleteAnswer", "cjb", { target: id });
     const doc = Puzzles.findOne(id);
@@ -84,9 +84,9 @@ describe("deleteAnswer", function () {
           name: "Status",
           value: "stuck",
           touched: 2,
-          touched_by: "torgen"
-        }
-      }
+          touched_by: "torgen",
+        },
+      },
     });
     const oplogs = Messages.find({ room_name: "oplog/0" }).fetch();
     chai.assert.equal(oplogs.length, 1);
@@ -102,7 +102,7 @@ describe("deleteAnswer", function () {
       action: true,
       system: false,
       to: null,
-      stream: ""
+      stream: "",
     });
   });
 
@@ -122,15 +122,15 @@ describe("deleteAnswer", function () {
           name: "Answer",
           value: "foo",
           touched: 2,
-          touched_by: "torgen"
+          touched_by: "torgen",
         },
         temperature: {
           name: "Temperature",
           value: "12",
           touched: 2,
-          touched_by: "torgen"
-        }
-      }
+          touched_by: "torgen",
+        },
+      },
     });
     callAs("deleteAnswer", "cjb", { target: id });
     const doc = Puzzles.findOne(id);
@@ -150,9 +150,9 @@ describe("deleteAnswer", function () {
           name: "Temperature",
           value: "12",
           touched: 2,
-          touched_by: "torgen"
-        }
-      }
+          touched_by: "torgen",
+        },
+      },
     });
     const oplogs = Messages.find({ room_name: "oplog/0" }).fetch();
     chai.assert.equal(oplogs.length, 1);
@@ -168,7 +168,7 @@ describe("deleteAnswer", function () {
       action: true,
       system: false,
       to: null,
-      stream: ""
+      stream: "",
     });
   });
 
@@ -188,21 +188,21 @@ describe("deleteAnswer", function () {
           name: "Answer",
           value: "foo",
           touched: 2,
-          touched_by: "torgen"
+          touched_by: "torgen",
         },
         backsolve: {
           name: "Backsolve",
           value: "yes",
           touched: 2,
-          touched_by: "torgen"
+          touched_by: "torgen",
         },
         provided: {
           name: "Provided",
           value: "yes",
           touched: 2,
-          touched_by: "torgen"
-        }
-      }
+          touched_by: "torgen",
+        },
+      },
     });
     callAs("deleteAnswer", "cjb", { target: id });
     const doc = Puzzles.findOne(id);
@@ -217,7 +217,7 @@ describe("deleteAnswer", function () {
       solved: null,
       solved_by: null,
       confirmed_by: null,
-      tags: {}
+      tags: {},
     });
     const oplogs = Messages.find({ room_name: "oplog/0" }).fetch();
     chai.assert.equal(oplogs.length, 1);
@@ -233,7 +233,7 @@ describe("deleteAnswer", function () {
       action: true,
       system: false,
       to: null,
-      stream: ""
+      stream: "",
     });
   });
 });

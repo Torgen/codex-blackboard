@@ -19,7 +19,7 @@ export function computeMessageFollowup(prev, curr) {
     "bb-message-pm",
     "bb-message-action",
     "bb-message-system",
-    "bb-oplog"
+    "bb-oplog",
   ]) {
     if (prev.classList.contains(c) !== curr.classList.contains(c)) {
       return false;

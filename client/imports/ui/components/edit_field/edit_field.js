@@ -11,15 +11,15 @@ editableTemplate(Template.edit_field, {
         type: tem.data.type,
         object: tem.data.id,
         fields: {
-          [tem.data.field]: value
-        }
+          [tem.data.field]: value,
+        },
       });
     }
-  }
+  },
 });
 
 Template.edit_field.helpers({
   value() {
     return collection(this.type).findOne({ _id: this.id })?.[this.field] ?? "";
-  }
+  },
 });

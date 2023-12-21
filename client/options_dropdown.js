@@ -12,11 +12,11 @@ import {
   START_VIDEO_MUTED,
   START_AUDIO_MUTED,
   COMPACT_MODE,
-  CURRENT_COLUMNS
+  CURRENT_COLUMNS,
 } from "./imports/settings.js";
 
 Template.options_dropdown.helpers({
-  jitsi: typeof JITSI_SERVER !== "undefined" && JITSI_SERVER !== null
+  jitsi: typeof JITSI_SERVER !== "undefined" && JITSI_SERVER !== null,
 });
 
 Template.options_dropdown.events({
@@ -26,7 +26,7 @@ Template.options_dropdown.events({
   },
   'click a[name="bb-dark-mode"] [data-darkmode]:not(.disabled)'(
     event,
-    template
+    template,
   ) {
     DARK_MODE.set(event.currentTarget.dataset.darkmode);
   },
@@ -70,13 +70,13 @@ Template.options_dropdown.events({
         .map(function () {
           return this.dataset.columnVisibility;
         })
-        .get()
+        .get(),
     );
-  }
+  },
 });
 
 Template.options_dropdown_column_checkbox.helpers({
   columnVisible() {
     return CURRENT_COLUMNS.get().includes(this.column);
-  }
+  },
 });

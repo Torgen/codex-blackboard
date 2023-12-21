@@ -21,11 +21,11 @@ function linkify(input) {
         return `${sp}<a href='${url}' target='_blank'>${url}</a>`;
       case hashtag == null:
         return `${sp}<a href='https://twitter.com/search?q=${encodeURIComponent(
-          hashtag
+          hashtag,
         )}' target='_blank'>${hashtag}</a>`;
       case username == null:
         return `${sp}<a href='https://twitter.com/${encodeURIComponent(
-          username.slice(1)
+          username.slice(1),
         )}' target='_blank'>${username}</a>`;
       default:
         return text;
@@ -51,7 +51,7 @@ function tweetToMessage(data) {
   const body = htmlify(data);
   const tweet = {
     id_str: data.id_str,
-    avatar: data.user.profile_image_url_https
+    avatar: data.user.profile_image_url_https,
   };
   if (data.quoted_status != null) {
     tweet.quote = htmlify(data.quoted_status);
@@ -65,7 +65,7 @@ function tweetToMessage(data) {
     body,
     bodyIsHtml: true,
     bot_ignore: true,
-    tweet
+    tweet,
   });
 }
 export default tweetToMessage;

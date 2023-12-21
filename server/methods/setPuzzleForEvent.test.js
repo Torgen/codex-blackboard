@@ -10,74 +10,74 @@ describe("setPuzzleForEvent", function () {
 
   it("fails without login", function () {
     Puzzles.insert({
-      _id: "puzz"
+      _id: "puzz",
     });
     CalendarEvents.insert({
-      _id: "evt"
+      _id: "evt",
     });
     chai.assert.throws(
       () => Meteor.call("setPuzzleForEvent", "evt", "puzz"),
-      Match.Error
+      Match.Error,
     );
   });
 
   it("fails when no such puzzle", function () {
     CalendarEvents.insert({
-      _id: "evt"
+      _id: "evt",
     });
     chai.assert.throws(
       () => callAs("setPuzzleForEvent", "cjb", "evt", "puzz"),
-      Match.Error
+      Match.Error,
     );
   });
 
   it("fails when no such event", function () {
     Puzzles.insert({
-      _id: "puzz"
+      _id: "puzz",
     });
     chai.assert.isFalse(callAs("setPuzzleForEvent", "cjb", "evt", "puzz"));
   });
 
   it("sets unset puzzle", function () {
     Puzzles.insert({
-      _id: "puzz"
+      _id: "puzz",
     });
     CalendarEvents.insert({
-      _id: "evt"
+      _id: "evt",
     });
     callAs("setPuzzleForEvent", "cjb", "evt", "puzz");
     chai.assert.deepEqual(CalendarEvents.findOne({ _id: "evt" }), {
       _id: "evt",
-      puzzle: "puzz"
+      puzzle: "puzz",
     });
   });
 
   it("overwrites set puzzle", function () {
     Puzzles.insert({
-      _id: "puzz"
+      _id: "puzz",
     });
     CalendarEvents.insert({
       _id: "evt",
-      puzzle: "fizz"
+      puzzle: "fizz",
     });
     callAs("setPuzzleForEvent", "cjb", "evt", "puzz");
     chai.assert.deepEqual(CalendarEvents.findOne({ _id: "evt" }), {
       _id: "evt",
-      puzzle: "puzz"
+      puzzle: "puzz",
     });
   });
 
   it("unsets puzzle", function () {
     Puzzles.insert({
-      _id: "puzz"
+      _id: "puzz",
     });
     CalendarEvents.insert({
       _id: "evt",
-      puzzle: "puzz"
+      puzzle: "puzz",
     });
     callAs("setPuzzleForEvent", "cjb", "evt", null);
     chai.assert.deepEqual(CalendarEvents.findOne({ _id: "evt" }), {
-      _id: "evt"
+      _id: "evt",
     });
   });
 });

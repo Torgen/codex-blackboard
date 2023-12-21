@@ -10,7 +10,7 @@ export function positionOrDefault(locatedAt, _id) {
     const y = parseInt(sha.substring(4, 8), 16) / 65536.0;
     return {
       lat: 110 * y - 50,
-      lng: 15 * x - 55 + 25 * Math.sin(y * 2 * Math.PI) + 34 * y
+      lng: 15 * x - 55 + 25 * Math.sin(y * 2 * Math.PI) + 34 * y,
     };
   }
 }

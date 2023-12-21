@@ -30,8 +30,8 @@ function scrollAfter(x) {
   if (nearTop != null) {
     Tracker.afterFlush(() =>
       $(`#${nearTop.id}`).get(0).scrollIntoView({
-        behavior: "smooth"
-      })
+        behavior: "smooth",
+      }),
     );
   }
 }
@@ -43,7 +43,7 @@ page("/map", MapPage);
 page("/rounds/:round", ({ params: { round } }) => RoundPage(round));
 page("/puzzles/:puzzle", ({ params: { puzzle } }) => PuzzlePage(puzzle));
 page("/puzzles/:puzzle/:view", ({ params: { puzzle, view } }) =>
-  PuzzlePage(puzzle, view)
+  PuzzlePage(puzzle, view),
 );
 page("/chat/:type/:id", ({ params: { type, id } }) => ChatPage(type, id));
 page("/oplogs", OpLogPage);
@@ -59,7 +59,7 @@ export function BlackboardPage() {
     Session.set({
       color: "inherit",
       canEdit: undefined,
-      topRight: "blackboard_status_grid"
+      topRight: "blackboard_status_grid",
     });
   });
 }
@@ -70,7 +70,7 @@ export function EditPage() {
     Session.set({
       color: "inherit",
       canEdit: true,
-      topRight: "blackboard_status_grid"
+      topRight: "blackboard_status_grid",
     });
   });
 }
@@ -96,7 +96,7 @@ export function PuzzlePage(id, view = null) {
   Page("puzzle", "puzzles", id, true, true);
   Session.set({
     timestamp: 0,
-    view
+    view,
   });
 }
 
@@ -129,7 +129,7 @@ export function StatisticsPage(ctx) {
   }
   Session.set({
     start_time: maybeDate(params.get("start_time")),
-    end_time: maybeDate(params.get("end_time"))
+    end_time: maybeDate(params.get("end_time")),
   });
   Page("statistics", "general", "0", false);
 }
@@ -141,14 +141,14 @@ function Page(page, type, id, has_chat, splitter) {
     // if switching between a puzzle room and full-screen chat, don't reset limit.
     Session.set({
       room_name: new_room,
-      limit: INITIAL_CHAT_LIMIT
+      limit: INITIAL_CHAT_LIMIT,
     });
   }
   Session.set({
     splitter: splitter ?? false,
     currentPage: page,
     type,
-    id
+    id,
   });
   // cancel modals if they were active
   $(".modal").modal("hide");

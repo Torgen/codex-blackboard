@@ -14,12 +14,12 @@ if (DO_BATCH_PROCESSING && !Meteor.isAppTest) {
         const api = google.calendar({
           version: "v3",
           auth,
-          retryConfig: { statusCodesToRetry: RETRY_RESPONSE_CODES }
+          retryConfig: { statusCodesToRetry: RETRY_RESPONSE_CODES },
         });
         new CalendarSync(api);
       } catch (e) {
         console.error(e);
       }
-    })()
+    })(),
   );
 }

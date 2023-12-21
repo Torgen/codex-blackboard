@@ -12,8 +12,8 @@ Meteor.methods({
       ObjectWith({
         type: NonEmptyString,
         object: NonEmptyString,
-        fields: Object
-      })
+        fields: Object,
+      }),
     );
     const now = Date.now();
     args.fields.touched = now;
@@ -28,5 +28,5 @@ Meteor.methods({
   deleteCalendarEvent(_id) {
     check(this.userId, NonEmptyString);
     CalendarEvents.remove({ _id });
-  }
+  },
 });

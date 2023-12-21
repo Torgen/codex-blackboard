@@ -18,7 +18,7 @@ describe("memes hubot script", function () {
     MaximumMemeLength.ensure();
     clock = sinon.useFakeTimers({
       now: 6,
-      toFake: ["Date"]
+      toFake: ["Date"],
     });
     // can't use plain hubot because this script uses priv, which isn't part of
     // the standard message class or adapter.
@@ -38,39 +38,39 @@ describe("memes hubot script", function () {
       nick: "torgen",
       room_name: "general/0",
       timestamp: 7,
-      body: "I don't always trigger all the meme templates, but when I do, I nailed it everywhere"
+      body: "I don't always trigger all the meme templates, but when I do, I nailed it everywhere",
     });
     const interesting = waitForDocument(
       Messages,
       { nick: "testbot", body: /https:\/\/memegen.link\/interesting/ },
       {
         room_name: "general/0",
-        timestamp: 7
-      }
+        timestamp: 7,
+      },
     );
     const buzz = waitForDocument(
       Messages,
       { nick: "testbot", body: /https:\/\/memegen.link\/buzz/ },
       {
         room_name: "general/0",
-        timestamp: 7
-      }
+        timestamp: 7,
+      },
     );
     const xy = waitForDocument(
       Messages,
       { nick: "testbot", body: /https:\/\/memegen.link\/xy/ },
       {
         room_name: "general/0",
-        timestamp: 7
-      }
+        timestamp: 7,
+      },
     );
     const success = waitForDocument(
       Messages,
       { nick: "testbot", body: /https:\/\/memegen.link\/success/ },
       {
         room_name: "general/0",
-        timestamp: 7
-      }
+        timestamp: 7,
+      },
     );
     return Promise.all([interesting, buzz, xy, success]);
   });
@@ -81,11 +81,11 @@ describe("memes hubot script", function () {
       nick: "torgen",
       room_name: "general/0",
       timestamp: 7,
-      body: "I don't always trigger all the meme templates, but when I do, I nailed it everywhere"
+      body: "I don't always trigger all the meme templates, but when I do, I nailed it everywhere",
     });
     await delay(200);
     chai.assert.isUndefined(
-      Messages.findOne({ nick: "testbot", timestamp: 7 })
+      Messages.findOne({ nick: "testbot", timestamp: 7 }),
     );
   });
 });

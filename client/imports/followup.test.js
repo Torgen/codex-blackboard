@@ -2,25 +2,25 @@ import { computeMessageFollowup } from "./followup.js";
 import chai from "chai";
 
 const TORGEN_MSG = $(
-  '<div class="bb-message media" data-nick="torgen">Yo</div>'
+  '<div class="bb-message media" data-nick="torgen">Yo</div>',
 )[0];
 const CJB_MSG = $(
-  '<div class="bb-message media" data-nick="cjb">Whazzup?</div>'
+  '<div class="bb-message media" data-nick="cjb">Whazzup?</div>',
 )[0];
 const CJB_ACTION = $(
-  '<div class="bb-message-action" data-nick="cjb">Whazzup?</div>'
+  '<div class="bb-message-action" data-nick="cjb">Whazzup?</div>',
 )[0];
 const TORGEN_PMTO_CJB = $(
-  '<div class="bb-message media bb-message-pm" data-nick="torgen" data-pm-to="cjb">Yo</div>'
+  '<div class="bb-message media bb-message-pm" data-nick="torgen" data-pm-to="cjb">Yo</div>',
 )[0];
 const TORGEN_PMTO_BOT = $(
-  '<div class="bb-message media bb-message-pm" data-nick="torgen" data-pm-to="codexbot">help</div>'
+  '<div class="bb-message media bb-message-pm" data-nick="torgen" data-pm-to="codexbot">help</div>',
 )[0];
 const CJB_PM_TO_BOT = $(
-  '<div class="bb-message media bb-message-pm" data-nick="cjb" data-pm-to="codexbot">help</div>'
+  '<div class="bb-message media bb-message-pm" data-nick="cjb" data-pm-to="codexbot">help</div>',
 )[0];
 const TWEET = $(
-  '<div class="bb-message media bb-message-tweet" data-nick="torgen">Never tweet</div>'
+  '<div class="bb-message media bb-message-tweet" data-nick="torgen">Never tweet</div>',
 )[0];
 
 describe("computeMessageFollowup", function () {
@@ -51,16 +51,16 @@ describe("computeMessageFollowup", function () {
 
   it("follows up for private messages from same person to same person", () =>
     chai.assert.isTrue(
-      computeMessageFollowup(TORGEN_PMTO_BOT, TORGEN_PMTO_BOT)
+      computeMessageFollowup(TORGEN_PMTO_BOT, TORGEN_PMTO_BOT),
     ));
 
   it("does not follow up for private messages from same person to different people", () =>
     chai.assert.isFalse(
-      computeMessageFollowup(TORGEN_PMTO_BOT, TORGEN_PMTO_CJB)
+      computeMessageFollowup(TORGEN_PMTO_BOT, TORGEN_PMTO_CJB),
     ));
 
   it("does not follow up for private messages from different people to same person ", () =>
     chai.assert.isFalse(
-      computeMessageFollowup(TORGEN_PMTO_BOT, CJB_PM_TO_BOT)
+      computeMessageFollowup(TORGEN_PMTO_BOT, CJB_PM_TO_BOT),
     ));
 });

@@ -13,7 +13,7 @@ cytoscape.use(layout_utilities);
 Template.graph.events({
   "bb-layout .bb-status-graph"(event, template) {
     template.layout?.(event);
-  }
+  },
 });
 
 Template.graph.onCreated(function () {
@@ -34,8 +34,8 @@ Template.graph.onRendered(function () {
       {
         selector: "node",
         style: {
-          label: "data(label)"
-        }
+          label: "data(label)",
+        },
       },
       {
         selector: "edge",
@@ -43,8 +43,8 @@ Template.graph.onRendered(function () {
           "curve-style": "bezier",
           "target-arrow-shape": "triangle",
           "target-arrow-color": "black",
-          "line-color": "black"
-        }
+          "line-color": "black",
+        },
       },
       {
         selector: "node > node",
@@ -55,8 +55,8 @@ Template.graph.onRendered(function () {
           padding: "0.5em",
           "font-size": "1em",
           "text-halign": "center",
-          "text-valign": "center"
-        }
+          "text-valign": "center",
+        },
       },
       {
         selector: "node.meta",
@@ -64,22 +64,22 @@ Template.graph.onRendered(function () {
           "border-width": "2px",
           "border-style": "solid",
           "border-color": "data(color)",
-          "font-size": "2em"
-        }
+          "font-size": "2em",
+        },
       },
       {
         selector: "node.stuck",
         style: {
-          "background-color": "yellow"
-        }
+          "background-color": "yellow",
+        },
       },
       {
         selector: "node.solved",
         style: {
-          "background-color": "lime"
-        }
-      }
-    ]
+          "background-color": "lime",
+        },
+      },
+    ],
   });
   this.cy
     .userPanningEnabled(false)
@@ -87,7 +87,7 @@ Template.graph.onRendered(function () {
     .autounselectify(true);
   this.setAspect = () => {
     this.cy.layoutUtilities({
-      desiredAspectRatio: $(window).width() / $(window).height()
+      desiredAspectRatio: $(window).width() / $(window).height(),
     });
   };
   this.setAspect();
@@ -110,14 +110,14 @@ Template.graph.onRendered(function () {
     while (true) {
       this.setAspect();
       console.log(
-        `laying out structure: ${this.structure} roundChange: ${this.roundChange}`
+        `laying out structure: ${this.structure} roundChange: ${this.roundChange}`,
       );
       const lay = this.cy.layout({
         name: "fcose",
         randomize: this.roundChange,
         edgeElasticity: 0.1,
         quality: "proof",
-        nodeDimensionsIncludeLabels: true
+        nodeDimensionsIncludeLabels: true,
       });
       const p = lay.promiseOn("layoutstop");
       lay.run();
@@ -155,8 +155,8 @@ Template.graph.onRendered(function () {
         group: "nodes",
         data: {
           id: puzz_cy_id,
-          parent: round_id
-        }
+          parent: round_id,
+        },
       });
     } else {
       puzz_node.move({ parent: round_id });
@@ -179,8 +179,8 @@ Template.graph.onRendered(function () {
         group: "nodes",
         data: {
           id,
-          label: doc.name
-        }
+          label: doc.name,
+        },
       });
       this.structure = true;
       this.roundChange = true;
@@ -217,7 +217,7 @@ Template.graph.onRendered(function () {
       this.cy.remove(`#${id}`);
       this.structure = true;
       this.roundChange = true;
-    }
+    },
   });
 
   const setPuzzleData = (node, doc) => {
@@ -252,7 +252,7 @@ Template.graph.onRendered(function () {
       this.structure = true;
       node = this.cy.add({
         group: "nodes",
-        data: { id }
+        data: { id },
       });
     }
     return node;
@@ -264,8 +264,8 @@ Template.graph.onRendered(function () {
       group: "edges",
       data: {
         source: node.data("id"),
-        target: mn.data("id")
-      }
+        target: mn.data("id"),
+      },
     });
   };
 
@@ -278,9 +278,9 @@ Template.graph.onRendered(function () {
         puzzles: 1,
         solved: 1,
         "tags.color": 1,
-        "tags.status": 1
-      }
-    }
+        "tags.status": 1,
+      },
+    },
   ).observe({
     added: (doc) => {
       startAdding();
@@ -316,6 +316,6 @@ Template.graph.onRendered(function () {
       startAdding();
       this.cy.remove(`#puzzles_${doc._id}`);
       this.structure = true;
-    }
+    },
   });
 });

@@ -6,7 +6,7 @@ import {
   promiseCallOn,
   afterFlushPromise,
   login,
-  logout
+  logout,
 } from "./imports/app_test_helpers.js";
 import { waitForDeletion } from "/lib/imports/testutils.js";
 import chai from "chai";
@@ -25,7 +25,7 @@ describe("onduty", function () {
     await afterFlushPromise();
     chai.assert.deepInclude(Roles.findOne("onduty"), { holder: "testy" });
     chai.assert.deepInclude(Meteor.users.findOne("testy"), {
-      roles: ["onduty"]
+      roles: ["onduty"],
     });
     $('[data-onduty="release"]').click();
     await waitForMethods();
@@ -38,7 +38,7 @@ describe("onduty", function () {
     await promiseCallOn(other_conn, "login", {
       nickname: "incognito",
       real_name: "Mister Snrub",
-      password: "failphrase"
+      password: "failphrase",
     });
     await promiseCallOn(other_conn, "claimOnduty", { from: null });
     await login("testy", "Teresa Tybalt", "", "failphrase");
@@ -46,13 +46,13 @@ describe("onduty", function () {
     await waitForSubscriptions();
     chai.assert.deepInclude(Roles.findOne("onduty"), { holder: "incognito" });
     chai.assert.deepInclude(Meteor.users.findOne("incognito"), {
-      roles: ["onduty"]
+      roles: ["onduty"],
     });
     const wait = waitForDeletion(Roles, "onduty");
     await promiseCallOn(other_conn, "releaseOnduty");
     await wait;
     chai.assert.doesNotHaveAnyKeys(Meteor.users.findOne("incognito"), [
-      "roles"
+      "roles",
     ]);
     other_conn.disconnect();
   });

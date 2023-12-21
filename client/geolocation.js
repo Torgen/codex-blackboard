@@ -46,7 +46,7 @@ Tracker.autorun(function () {
   }
   const geojson = {
     type: "Point",
-    coordinates: [pos.lng, pos.lat]
+    coordinates: [pos.lng, pos.lat],
   };
   Session.set("position", geojson); // always use most current location client-side
   updateLocation(geojson, nick);
@@ -92,7 +92,7 @@ const CODEXBOT_LOCATIONS = [
   "Your Plastic Pal Who's Fun to Be With.",
   "fond of memes",
   "waiting for you humans to find the coin already",
-  "muttering about his precious"
+  "muttering about his precious",
 ];
 
 Template.registerHelper("nickLocation", function (args) {

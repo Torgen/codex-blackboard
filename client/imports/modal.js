@@ -12,7 +12,7 @@ Template.confirmmodal.events({
   },
   "hidden *"(event, template) {
     template.result();
-  }
+  },
 });
 
 export const confirm = (data) =>
@@ -29,6 +29,6 @@ export const confirm = (data) =>
     view = Blaze.renderWithData(
       Template.confirmmodal,
       { ...data, onCancel, onConfirm },
-      document.body
+      document.body,
     );
   });

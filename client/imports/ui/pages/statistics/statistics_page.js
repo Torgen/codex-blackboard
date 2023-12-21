@@ -10,5 +10,5 @@ Template.statistics_page.onCreated(async function () {
 Template.statistics_page.helpers({
   loaded() {
     return Template.instance().loaded.get();
-  }
+  },
 });

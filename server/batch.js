@@ -52,32 +52,32 @@ if (DO_BATCH_PROCESSING) {
     Meteor.users
       .find(
         {
-          priv_located_order: { $exists: true, $ne: null }
+          priv_located_order: { $exists: true, $ne: null },
         },
         {
           sort: [["priv_located_order", "asc"]],
-          limit: LOCATION_BATCH_SIZE
-        }
+          limit: LOCATION_BATCH_SIZE,
+        },
       )
       .forEach(function (n, i) {
         console.log(`Updating location for ${n._id} (${i})`);
         Meteor.users.update(n._id, {
           $set: {
             located: n.priv_located,
-            located_at: n.priv_located_at
+            located_at: n.priv_located_at,
           },
-          $unset: { priv_located_order: "" }
+          $unset: { priv_located_order: "" },
         });
       });
   const maybeRunBatch = throttle(runBatch, LOCATION_THROTTLE);
   Meteor.users
     .find(
       {
-        priv_located_order: { $exists: true, $ne: null }
+        priv_located_order: { $exists: true, $ne: null },
       },
       {
-        fields: { priv_located_order: 1 }
-      }
+        fields: { priv_located_order: 1 },
+      },
     )
     .observeChanges({
       added(id, fields) {
@@ -86,7 +86,7 @@ if (DO_BATCH_PROCESSING) {
       // also run batch on removed: batch size might not have been big enough
       removed(id) {
         maybeRunBatch();
-      }
+      },
     });
 
   const presence = watchPresence();

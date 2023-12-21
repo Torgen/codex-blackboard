@@ -5,7 +5,7 @@ import {
   Messages,
   Polls,
   Puzzles,
-  Rounds
+  Rounds,
 } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
@@ -18,7 +18,7 @@ import {
   EmbedPuzzles,
   MaximumMemeLength,
   PuzzleUrlPrefix,
-  RoundUrlPrefix
+  RoundUrlPrefix,
 } from "/lib/imports/settings.js";
 import { impersonating } from "../imports/impersonate.js";
 
@@ -31,7 +31,7 @@ describe("codex hubot script", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 6,
-      toFake: ["Date"]
+      toFake: ["Date"],
     });
     // can't use plain hubot because this script uses priv, which isn't part of
     // the standard message class or adapter.
@@ -43,10 +43,10 @@ describe("codex hubot script", function () {
       createPuzzle: sinon.fake.returns({
         id: "fid", // f for folder
         spreadId: "sid",
-        docId: "did"
+        docId: "did",
       }),
       renamePuzzle: sinon.spy(),
-      deletePuzzle: sinon.spy()
+      deletePuzzle: sinon.spy(),
     };
   });
 
@@ -61,7 +61,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "puzzles/12345abcde",
         timestamp: Date.now(),
-        body: "bot the answer to latino alphabet is linear abeja"
+        body: "bot the answer to latino alphabet is linear abeja",
       });
       return waitForDocument(
         Messages,
@@ -70,8 +70,8 @@ describe("codex hubot script", function () {
           body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
           room_name: "puzzles/12345abcde",
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
 
@@ -81,13 +81,13 @@ describe("codex hubot script", function () {
         name: "Latino Alphabet",
         canon: "latino_alphabet",
         feedsInto: [],
-        tags: {}
+        tags: {},
       });
       Messages.insert({
         nick: "torgen",
         room_name: "puzzles/12345abcde",
         timestamp: Date.now(),
-        body: "bot the answer to latino alphabet is linear abeja"
+        body: "bot the answer to latino alphabet is linear abeja",
       });
       await waitForDocument(
         Puzzles,
@@ -102,10 +102,10 @@ describe("codex hubot script", function () {
               name: "Answer",
               value: "linear abeja",
               touched: 7,
-              touched_by: "torgen"
-            }
-          }
-        }
+              touched_by: "torgen",
+            },
+          },
+        },
       );
       return waitForDocument(
         Messages,
@@ -114,8 +114,8 @@ describe("codex hubot script", function () {
           timestamp: 7,
           useful: true,
           room_name: "puzzles/12345abcde",
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
 
@@ -135,15 +135,15 @@ describe("codex hubot script", function () {
             name: "Answer",
             value: "vasco de gamma",
             touched: 3,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       });
       Messages.insert({
         nick: "torgen",
         room_name: "puzzles/12345abcde",
         timestamp: Date.now(),
-        body: "bot the answer to latino alphabet is linear abeja"
+        body: "bot the answer to latino alphabet is linear abeja",
       });
       await waitForDocument(
         Puzzles,
@@ -157,10 +157,10 @@ describe("codex hubot script", function () {
               name: "Answer",
               value: "linear abeja",
               touched: 7,
-              touched_by: "torgen"
-            }
-          }
-        }
+              touched_by: "torgen",
+            },
+          },
+        },
       );
       return waitForDocument(
         Messages,
@@ -169,8 +169,8 @@ describe("codex hubot script", function () {
           timestamp: 7,
           useful: true,
           room_name: "puzzles/12345abcde",
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
 
@@ -190,15 +190,15 @@ describe("codex hubot script", function () {
             name: "Answer",
             value: "linear abeja",
             touched: 3,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       });
       Messages.insert({
         nick: "torgen",
         room_name: "puzzles/12345abcde",
         timestamp: Date.now(),
-        body: "bot the answer to latino alphabet is linear abeja"
+        body: "bot the answer to latino alphabet is linear abeja",
       });
       await waitForDocument(
         Messages,
@@ -207,8 +207,8 @@ describe("codex hubot script", function () {
           timestamp: 7,
           useful: true,
           room_name: "puzzles/12345abcde",
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
       chai.assert.deepInclude(Puzzles.findOne({ _id: "12345abcde" }), {
         touched: 3,
@@ -221,9 +221,9 @@ describe("codex hubot script", function () {
             name: "Answer",
             value: "linear abeja",
             touched: 3,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       });
     });
   });
@@ -244,23 +244,23 @@ describe("codex hubot script", function () {
             name: "Answer",
             value: "vasco de gamma",
             touched: 3,
-            touched_by: "cjb"
-          }
-        }
+            touched_by: "cjb",
+          },
+        },
       });
       Messages.insert({
         nick: "torgen",
         room_name: "puzzles/fghij67890",
         timestamp: Date.now(),
-        body: "bot delete answer for latino alphabet"
+        body: "bot delete answer for latino alphabet",
       });
       await waitForDocument(
         Puzzles,
         { _id: "12345abcde", "tags.answer": { $exists: false } },
         {
           touched: 7,
-          touched_by: "torgen"
-        }
+          touched_by: "torgen",
+        },
       );
       return waitForDocument(
         Messages,
@@ -269,8 +269,8 @@ describe("codex hubot script", function () {
           timestamp: 7,
           useful: true,
           room_name: "puzzles/fghij67890",
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
 
@@ -279,7 +279,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot delete answer for latino alphabet"
+        body: "bot delete answer for latino alphabet",
       });
       return waitForDocument(
         Messages,
@@ -288,8 +288,8 @@ describe("codex hubot script", function () {
           body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
           room_name: "general/0",
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
   });
@@ -303,13 +303,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
-            body: "bot call in linear abeja"
+            body: "bot call in linear abeja",
           });
           return waitForDocument(
             CallIns,
@@ -320,8 +320,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "answer"
-            }
+              callin_type: "answer",
+            },
           );
         });
 
@@ -331,13 +331,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/fghij67890",
             timestamp: Date.now(),
-            body: "bot call in linear abeja for latino alphabet"
+            body: "bot call in linear abeja for latino alphabet",
           });
           return waitForDocument(
             CallIns,
@@ -348,8 +348,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "answer"
-            }
+              callin_type: "answer",
+            },
           );
         });
 
@@ -359,13 +359,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
-            body: "bot call in backsolved linear abeja"
+            body: "bot call in backsolved linear abeja",
           });
           return waitForDocument(
             CallIns,
@@ -377,8 +377,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "answer"
-            }
+              callin_type: "answer",
+            },
           );
         });
 
@@ -388,13 +388,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
-            body: "bot call in provided linear abeja"
+            body: "bot call in provided linear abeja",
           });
           return waitForDocument(
             CallIns,
@@ -406,8 +406,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "answer"
-            }
+              callin_type: "answer",
+            },
           );
         });
       });
@@ -418,7 +418,7 @@ describe("codex hubot script", function () {
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot call in linear abeja"
+            body: "bot call in linear abeja",
           });
           await waitForDocument(
             Messages,
@@ -427,8 +427,8 @@ describe("codex hubot script", function () {
               body: "@torgen: You need to tell me which puzzle this is for.",
               room_name: "general/0",
               useful: true,
-              mention: ["torgen"]
-            }
+              mention: ["torgen"],
+            },
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -438,7 +438,7 @@ describe("codex hubot script", function () {
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot call in linear abeja for latino alphabet"
+            body: "bot call in linear abeja for latino alphabet",
           });
           await waitForDocument(
             Messages,
@@ -447,8 +447,8 @@ describe("codex hubot script", function () {
               body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
               room_name: "general/0",
               useful: true,
-              mention: ["torgen"]
-            }
+              mention: ["torgen"],
+            },
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -459,13 +459,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot call in linear abeja for latino alphabet"
+            body: "bot call in linear abeja for latino alphabet",
           });
           return waitForDocument(
             CallIns,
@@ -476,8 +476,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "answer"
-            }
+              callin_type: "answer",
+            },
           );
         });
       });
@@ -491,13 +491,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
-            body: "bot request interaction linear abeja"
+            body: "bot request interaction linear abeja",
           });
           return waitForDocument(
             CallIns,
@@ -508,8 +508,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "interaction request"
-            }
+              callin_type: "interaction request",
+            },
           );
         });
 
@@ -519,13 +519,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/fghij67890",
             timestamp: Date.now(),
-            body: "bot request interaction linear abeja for latino alphabet"
+            body: "bot request interaction linear abeja for latino alphabet",
           });
           return waitForDocument(
             CallIns,
@@ -536,8 +536,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "interaction request"
-            }
+              callin_type: "interaction request",
+            },
           );
         });
       });
@@ -548,7 +548,7 @@ describe("codex hubot script", function () {
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot request interaction linear abeja"
+            body: "bot request interaction linear abeja",
           });
           await waitForDocument(
             Messages,
@@ -557,8 +557,8 @@ describe("codex hubot script", function () {
               body: "@torgen: You need to tell me which puzzle this is for.",
               room_name: "general/0",
               useful: true,
-              mention: ["torgen"]
-            }
+              mention: ["torgen"],
+            },
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -568,7 +568,7 @@ describe("codex hubot script", function () {
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot request interaction linear abeja for latino alphabet"
+            body: "bot request interaction linear abeja for latino alphabet",
           });
           await waitForDocument(
             Messages,
@@ -577,8 +577,8 @@ describe("codex hubot script", function () {
               body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
               room_name: "general/0",
               useful: true,
-              mention: ["torgen"]
-            }
+              mention: ["torgen"],
+            },
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -589,13 +589,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot request interaction linear abeja for latino alphabet"
+            body: "bot request interaction linear abeja for latino alphabet",
           });
           return waitForDocument(
             CallIns,
@@ -606,8 +606,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "interaction request"
-            }
+              callin_type: "interaction request",
+            },
           );
         });
       });
@@ -621,13 +621,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
-            body: "bot tell HQ linear abeja"
+            body: "bot tell HQ linear abeja",
           });
           return waitForDocument(
             CallIns,
@@ -638,8 +638,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "message to hq"
-            }
+              callin_type: "message to hq",
+            },
           );
         });
 
@@ -649,13 +649,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/fghij67890",
             timestamp: Date.now(),
-            body: "bot tell HQ linear abeja for latino alphabet"
+            body: "bot tell HQ linear abeja for latino alphabet",
           });
           return waitForDocument(
             CallIns,
@@ -666,8 +666,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "message to hq"
-            }
+              callin_type: "message to hq",
+            },
           );
         });
       });
@@ -678,7 +678,7 @@ describe("codex hubot script", function () {
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot tell HQ linear abeja"
+            body: "bot tell HQ linear abeja",
           });
           await waitForDocument(
             Messages,
@@ -687,8 +687,8 @@ describe("codex hubot script", function () {
               body: "@torgen: You need to tell me which puzzle this is for.",
               room_name: "general/0",
               useful: true,
-              mention: ["torgen"]
-            }
+              mention: ["torgen"],
+            },
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -698,7 +698,7 @@ describe("codex hubot script", function () {
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot tell HQ linear abeja for latino alphabet"
+            body: "bot tell HQ linear abeja for latino alphabet",
           });
           await waitForDocument(
             Messages,
@@ -707,8 +707,8 @@ describe("codex hubot script", function () {
               body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
               room_name: "general/0",
               useful: true,
-              mention: ["torgen"]
-            }
+              mention: ["torgen"],
+            },
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -719,13 +719,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot tell HQ linear abeja for latino alphabet"
+            body: "bot tell HQ linear abeja for latino alphabet",
           });
           return waitForDocument(
             CallIns,
@@ -736,8 +736,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "message to hq"
-            }
+              callin_type: "message to hq",
+            },
           );
         });
       });
@@ -751,13 +751,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
-            body: "bot expect  callback linear abeja"
+            body: "bot expect  callback linear abeja",
           });
           return waitForDocument(
             CallIns,
@@ -768,8 +768,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "expected callback"
-            }
+              callin_type: "expected callback",
+            },
           );
         });
 
@@ -779,13 +779,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "puzzles/fghij67890",
             timestamp: Date.now(),
-            body: "bot expect callback linear abeja for latino alphabet"
+            body: "bot expect callback linear abeja for latino alphabet",
           });
           return waitForDocument(
             CallIns,
@@ -796,8 +796,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "expected callback"
-            }
+              callin_type: "expected callback",
+            },
           );
         });
       });
@@ -808,7 +808,7 @@ describe("codex hubot script", function () {
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot expect callback linear abeja"
+            body: "bot expect callback linear abeja",
           });
           await waitForDocument(
             Messages,
@@ -817,8 +817,8 @@ describe("codex hubot script", function () {
               body: "@torgen: You need to tell me which puzzle this is for.",
               room_name: "general/0",
               useful: true,
-              mention: ["torgen"]
-            }
+              mention: ["torgen"],
+            },
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -828,7 +828,7 @@ describe("codex hubot script", function () {
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot expect callback linear abeja for latino alphabet"
+            body: "bot expect callback linear abeja for latino alphabet",
           });
           await waitForDocument(
             Messages,
@@ -837,8 +837,8 @@ describe("codex hubot script", function () {
               body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
               room_name: "general/0",
               useful: true,
-              mention: ["torgen"]
-            }
+              mention: ["torgen"],
+            },
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -849,13 +849,13 @@ describe("codex hubot script", function () {
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
-            tags: {}
+            tags: {},
           });
           Messages.insert({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
-            body: "bot expect callback linear abeja for latino alphabet"
+            body: "bot expect callback linear abeja for latino alphabet",
           });
           return waitForDocument(
             CallIns,
@@ -866,8 +866,8 @@ describe("codex hubot script", function () {
               created_by: "torgen",
               touched: 7,
               touched_by: "torgen",
-              callin_type: "expected callback"
-            }
+              callin_type: "expected callback",
+            },
           );
         });
       });
@@ -882,51 +882,18 @@ describe("codex hubot script", function () {
         const mid = Puzzles.insert({
           name: "Even This Poem",
           canon: "even_this_poem",
-          feedsInto: []
+          feedsInto: [],
         });
         const rid = Rounds.insert({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          puzzles: [mid]
+          puzzles: [mid],
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new puzzle in even this poem"
-        });
-        const puzz = await waitForDocument(
-          Puzzles,
-          { name: "Latino Alphabet" },
-          {
-            canon: "latino_alphabet",
-            feedsInto: [mid]
-          }
-        );
-        await waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
-        return waitForDocument(
-          Rounds,
-          { _id: rid, puzzles: [mid, puzz._id] },
-          {}
-        );
-      });
-
-      it("created with specified link", async function () {
-        const mid = Puzzles.insert({
-          name: "Even This Poem",
-          canon: "even_this_poem",
-          feedsInto: []
-        });
-        const rid = Rounds.insert({
-          name: "Elliptic Curve",
-          canon: "elliptic_curve",
-          puzzles: [mid]
-        });
-        Messages.insert({
-          nick: "torgen",
-          room_name: "general/0",
-          timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new puzzle in even this poem with url https://bluedot.sg/puzz/la"
+          body: "bot Latino Alphabet is a new puzzle in even this poem",
         });
         const puzz = await waitForDocument(
           Puzzles,
@@ -934,14 +901,47 @@ describe("codex hubot script", function () {
           {
             canon: "latino_alphabet",
             feedsInto: [mid],
-            link: "https://bluedot.sg/puzz/la"
-          }
+          },
         );
         await waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
         return waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {}
+          {},
+        );
+      });
+
+      it("created with specified link", async function () {
+        const mid = Puzzles.insert({
+          name: "Even This Poem",
+          canon: "even_this_poem",
+          feedsInto: [],
+        });
+        const rid = Rounds.insert({
+          name: "Elliptic Curve",
+          canon: "elliptic_curve",
+          puzzles: [mid],
+        });
+        Messages.insert({
+          nick: "torgen",
+          room_name: "general/0",
+          timestamp: Date.now(),
+          body: "bot Latino Alphabet is a new puzzle in even this poem with url https://bluedot.sg/puzz/la",
+        });
+        const puzz = await waitForDocument(
+          Puzzles,
+          { name: "Latino Alphabet" },
+          {
+            canon: "latino_alphabet",
+            feedsInto: [mid],
+            link: "https://bluedot.sg/puzz/la",
+          },
+        );
+        await waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
+        return waitForDocument(
+          Rounds,
+          { _id: rid, puzzles: [mid, puzz._id] },
+          {},
         );
       });
 
@@ -949,26 +949,26 @@ describe("codex hubot script", function () {
         const mid = Puzzles.insert({
           name: "Even This Poem",
           canon: "even_this_poem",
-          feedsInto: []
+          feedsInto: [],
         });
         const rid = Rounds.insert({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          puzzles: [mid]
+          puzzles: [mid],
         });
         Messages.insert({
           nick: "torgen",
           room_name: `puzzles/${mid}`,
           timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new puzzle in this"
+          body: "bot Latino Alphabet is a new puzzle in this",
         });
         const puzz = await waitForDocument(
           Puzzles,
           { name: "Latino Alphabet" },
           {
             canon: "latino_alphabet",
-            feedsInto: [mid]
-          }
+            feedsInto: [mid],
+          },
         );
         return waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
       });
@@ -978,31 +978,31 @@ describe("codex hubot script", function () {
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
-          puzzles: []
+          puzzles: [],
         });
         const rid = Rounds.insert({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          puzzles: [mid]
+          puzzles: [mid],
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new puzzle in elliptic curve"
+          body: "bot Latino Alphabet is a new puzzle in elliptic curve",
         });
         const puzz = await waitForDocument(
           Puzzles,
           { name: "Latino Alphabet" },
           {
             canon: "latino_alphabet",
-            feedsInto: []
-          }
+            feedsInto: [],
+          },
         );
         await waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {}
+          {},
         );
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
       });
@@ -1012,33 +1012,33 @@ describe("codex hubot script", function () {
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
-          puzzles: []
+          puzzles: [],
         });
         const rid = Rounds.insert({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          puzzles: [mid]
+          puzzles: [mid],
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot Even this poem is a new puzzle in elliptic curve"
+          body: "bot Even this poem is a new puzzle in elliptic curve",
         });
         await waitForDocument(
           Messages,
           {
             body: {
-              $regex: /@torgen: There's already.*a puzzle named Even This Poem/
-            }
+              $regex: /@torgen: There's already.*a puzzle named Even This Poem/,
+            },
           },
           {
             nick: "testbot",
             timestamp: 7,
             room_name: "general/0",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
         chai.assert.deepInclude(Rounds.findOne(rid), { puzzles: [mid] });
       });
@@ -1048,31 +1048,31 @@ describe("codex hubot script", function () {
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
-          puzzles: []
+          puzzles: [],
         });
         const rid = Rounds.insert({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          puzzles: [mid]
+          puzzles: [mid],
         });
         Messages.insert({
           nick: "torgen",
           room_name: `rounds/${rid}`,
           timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new puzzle in this"
+          body: "bot Latino Alphabet is a new puzzle in this",
         });
         const puzz = await waitForDocument(
           Puzzles,
           { name: "Latino Alphabet", puzzles: null },
           {
             canon: "latino_alphabet",
-            feedsInto: []
-          }
+            feedsInto: [],
+          },
         );
         await waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {}
+          {},
         );
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
       });
@@ -1082,18 +1082,18 @@ describe("codex hubot script", function () {
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
-          puzzles: []
+          puzzles: [],
         });
         const rid = Rounds.insert({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          puzzles: [mid]
+          puzzles: [mid],
         });
         Messages.insert({
           nick: "torgen",
           room_name: `rounds/${rid}`,
           timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new meta in this"
+          body: "bot Latino Alphabet is a new meta in this",
         });
         const puzz = await waitForDocument(
           Puzzles,
@@ -1101,13 +1101,13 @@ describe("codex hubot script", function () {
           {
             canon: "latino_alphabet",
             feedsInto: [],
-            puzzles: []
-          }
+            puzzles: [],
+          },
         );
         await waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {}
+          {},
         );
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
       });
@@ -1117,18 +1117,18 @@ describe("codex hubot script", function () {
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
-          puzzles: []
+          puzzles: [],
         });
         const rid = Rounds.insert({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          puzzles: [mid]
+          puzzles: [mid],
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new puzzle in this"
+          body: "bot Latino Alphabet is a new puzzle in this",
         });
         await waitForDocument(
           Messages,
@@ -1138,8 +1138,8 @@ describe("codex hubot script", function () {
             timestamp: 7,
             room_name: "general/0",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
         chai.assert.deepInclude(Rounds.findOne(rid), { puzzles: [mid] });
@@ -1150,26 +1150,26 @@ describe("codex hubot script", function () {
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           feedsInto: [],
-          puzzles: []
+          puzzles: [],
         });
         const rid = Rounds.insert({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          puzzles: []
+          puzzles: [],
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new puzzle in round elliptic curve"
+          body: "bot Latino Alphabet is a new puzzle in round elliptic curve",
         });
         const puzz = await waitForDocument(
           Puzzles,
           { name: "Latino Alphabet" },
           {
             canon: "latino_alphabet",
-            feedsInto: []
-          }
+            feedsInto: [],
+          },
         );
         await waitForDocument(Rounds, { _id: rid, puzzles: [puzz._id] }, {});
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
@@ -1180,7 +1180,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot Latino Alphabet is a new puzzle in elliptic curve"
+          body: "bot Latino Alphabet is a new puzzle in elliptic curve",
         });
         return waitForDocument(
           Messages,
@@ -1190,8 +1190,8 @@ describe("codex hubot script", function () {
             timestamp: 7,
             room_name: "general/0",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
     }));
@@ -1202,13 +1202,13 @@ describe("codex hubot script", function () {
         const pid = Puzzles.insert({
           name: "Foo",
           canon: "foo",
-          feedsInto: []
+          feedsInto: [],
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot delete puzzle foo"
+          body: "bot delete puzzle foo",
         });
         await waitForDocument(
           Messages,
@@ -1218,8 +1218,8 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
         chai.assert.isUndefined(Puzzles.findOne({ _id: pid }));
       });
@@ -1229,7 +1229,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot delete puzzle foo"
+          body: "bot delete puzzle foo",
         });
         return waitForDocument(
           Messages,
@@ -1239,8 +1239,8 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
     }));
@@ -1249,13 +1249,13 @@ describe("codex hubot script", function () {
     it("creates round", function () {
       RoundUrlPrefix.ensure();
       impersonating("testbot", () =>
-        RoundUrlPrefix.set("https://moliday.holasses/round")
+        RoundUrlPrefix.set("https://moliday.holasses/round"),
       );
       Messages.insert({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot Elliptic Curve is a new round"
+        body: "bot Elliptic Curve is a new round",
       });
       return waitForDocument(
         Rounds,
@@ -1268,21 +1268,21 @@ describe("codex hubot script", function () {
           touched_by: "torgen",
           puzzles: [],
           sort_key: 7,
-          link: "https://moliday.holasses/round/elliptic_curve"
-        }
+          link: "https://moliday.holasses/round/elliptic_curve",
+        },
       );
     });
 
     it("creates round with specified link", function () {
       RoundUrlPrefix.ensure();
       impersonating("testbot", () =>
-        RoundUrlPrefix.set("https://moliday.holasses/round")
+        RoundUrlPrefix.set("https://moliday.holasses/round"),
       );
       Messages.insert({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot Elliptic Curve is a new round with link https://moliday.holasses/circular"
+        body: "bot Elliptic Curve is a new round with link https://moliday.holasses/circular",
       });
       return waitForDocument(
         Rounds,
@@ -1295,8 +1295,8 @@ describe("codex hubot script", function () {
           touched_by: "torgen",
           puzzles: [],
           sort_key: 7,
-          link: "https://moliday.holasses/circular"
-        }
+          link: "https://moliday.holasses/circular",
+        },
       );
     });
 
@@ -1304,28 +1304,28 @@ describe("codex hubot script", function () {
       const rid = Rounds.insert({
         name: "Elliptic Curve",
         canon: "elliptic_curve",
-        puzzles: []
+        puzzles: [],
       });
       Messages.insert({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot elliptic curve is a new round"
+        body: "bot elliptic curve is a new round",
       });
       return await waitForDocument(
         Messages,
         {
           body: {
-            $regex: /@torgen: There's already.*a round named Elliptic Curve/
-          }
+            $regex: /@torgen: There's already.*a round named Elliptic Curve/,
+          },
         },
         {
           nick: "testbot",
           timestamp: 7,
           room_name: "general/0",
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
   });
@@ -1335,13 +1335,13 @@ describe("codex hubot script", function () {
       const rid = Rounds.insert({
         name: "Elliptic Curve",
         canon: "elliptic_curve",
-        puzzles: []
+        puzzles: [],
       });
       Messages.insert({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot delete round elliptic curve"
+        body: "bot delete round elliptic curve",
       });
       await waitForDocument(
         Messages,
@@ -1351,8 +1351,8 @@ describe("codex hubot script", function () {
           timestamp: 7,
           room_name: "general/0",
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
       chai.assert.isUndefined(Rounds.findOne({ _id: rid }));
     });
@@ -1361,26 +1361,26 @@ describe("codex hubot script", function () {
       const rid = Rounds.insert({
         name: "Elliptic Curve",
         canon: "elliptic_curve",
-        puzzles: ["1"]
+        puzzles: ["1"],
       });
       Messages.insert({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot delete round elliptic curve"
+        body: "bot delete round elliptic curve",
       });
       await waitForDocument(
         Messages,
         {
-          body: "@torgen: Couldn't delete round. (Are there still puzzles in it?)"
+          body: "@torgen: Couldn't delete round. (Are there still puzzles in it?)",
         },
         {
           nick: "testbot",
           timestamp: 7,
           room_name: "general/0",
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
       chai.assert.isObject(Rounds.findOne({ _id: rid }));
     });
@@ -1390,7 +1390,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot delete round elliptic curve"
+        body: "bot delete round elliptic curve",
       });
       return waitForDocument(
         Messages,
@@ -1400,8 +1400,8 @@ describe("codex hubot script", function () {
           timestamp: 7,
           room_name: "general/0",
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
   });
@@ -1413,13 +1413,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot set Color to blue"
+          body: "bot set Color to blue",
         });
         return waitForDocument(
           Puzzles,
@@ -1430,10 +1430,10 @@ describe("codex hubot script", function () {
                 name: "Color",
                 touched_by: "torgen",
                 touched: 7,
-                value: "blue"
-              }
-            }
-          }
+                value: "blue",
+              },
+            },
+          },
         );
       });
 
@@ -1442,19 +1442,19 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Puzzles.insert({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/fghij67890",
           timestamp: Date.now(),
-          body: "bot set Color for latino alphabet to blue"
+          body: "bot set Color for latino alphabet to blue",
         });
         return waitForDocument(
           Puzzles,
@@ -1465,10 +1465,10 @@ describe("codex hubot script", function () {
                 name: "Color",
                 touched_by: "torgen",
                 touched: 7,
-                value: "blue"
-              }
-            }
-          }
+                value: "blue",
+              },
+            },
+          },
         );
       });
 
@@ -1477,19 +1477,19 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Rounds.insert({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot set Color for elliptic curve to blue"
+          body: "bot set Color for elliptic curve to blue",
         });
         return waitForDocument(
           Rounds,
@@ -1500,10 +1500,10 @@ describe("codex hubot script", function () {
                 name: "Color",
                 touched_by: "torgen",
                 touched: 7,
-                value: "blue"
-              }
-            }
-          }
+                value: "blue",
+              },
+            },
+          },
         );
       });
     });
@@ -1514,13 +1514,13 @@ describe("codex hubot script", function () {
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
-          body: "bot set Color to blue"
+          body: "bot set Color to blue",
         });
         return waitForDocument(
           Rounds,
@@ -1531,10 +1531,10 @@ describe("codex hubot script", function () {
                 name: "Color",
                 touched_by: "torgen",
                 touched: 7,
-                value: "blue"
-              }
-            }
-          }
+                value: "blue",
+              },
+            },
+          },
         );
       });
 
@@ -1543,19 +1543,19 @@ describe("codex hubot script", function () {
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          tags: {}
+          tags: {},
         });
         Puzzles.insert({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
-          body: "bot set Color for latino alphabet to blue"
+          body: "bot set Color for latino alphabet to blue",
         });
         return waitForDocument(
           Puzzles,
@@ -1566,10 +1566,10 @@ describe("codex hubot script", function () {
                 name: "Color",
                 touched_by: "torgen",
                 touched: 7,
-                value: "blue"
-              }
-            }
-          }
+                value: "blue",
+              },
+            },
+          },
         );
       });
 
@@ -1578,19 +1578,19 @@ describe("codex hubot script", function () {
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          tags: {}
+          tags: {},
         });
         Rounds.insert({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
-          body: "bot set Color of latino alphabet to blue"
+          body: "bot set Color of latino alphabet to blue",
         });
         return waitForDocument(
           Rounds,
@@ -1601,10 +1601,10 @@ describe("codex hubot script", function () {
                 name: "Color",
                 touched_by: "torgen",
                 touched: 7,
-                value: "blue"
-              }
-            }
-          }
+                value: "blue",
+              },
+            },
+          },
         );
       });
     });
@@ -1615,7 +1615,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot set Color to blue"
+          body: "bot set Color to blue",
         });
         return waitForDocument(
           Messages,
@@ -1624,8 +1624,8 @@ describe("codex hubot script", function () {
             nick: "testbot",
             room_name: "general/0",
             timestamp: 7,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
 
@@ -1634,7 +1634,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot set Color for latino alphabet to blue"
+          body: "bot set Color for latino alphabet to blue",
         });
         return waitForDocument(
           Messages,
@@ -1643,8 +1643,8 @@ describe("codex hubot script", function () {
             nick: "testbot",
             room_name: "general/0",
             timestamp: 7,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
 
@@ -1653,13 +1653,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot set Color for latino alphabet to blue"
+          body: "bot set Color for latino alphabet to blue",
         });
         return waitForDocument(
           Puzzles,
@@ -1670,10 +1670,10 @@ describe("codex hubot script", function () {
                 name: "Color",
                 touched_by: "torgen",
                 touched: 7,
-                value: "blue"
-              }
-            }
-          }
+                value: "blue",
+              },
+            },
+          },
         );
       });
 
@@ -1682,13 +1682,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot set Color for latino alphabet to blue"
+          body: "bot set Color for latino alphabet to blue",
         });
         return waitForDocument(
           Rounds,
@@ -1699,10 +1699,10 @@ describe("codex hubot script", function () {
                 name: "Color",
                 touched_by: "torgen",
                 touched: 7,
-                value: "blue"
-              }
-            }
-          }
+                value: "blue",
+              },
+            },
+          },
         );
       });
     });
@@ -1717,20 +1717,20 @@ describe("codex hubot script", function () {
           canon: "latino_alphabet",
           tags: {
             color: {
-              value: "blue"
-            }
-          }
+              value: "blue",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot unset Color"
+          body: "bot unset Color",
         });
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {}
+          {},
         );
       });
 
@@ -1741,26 +1741,26 @@ describe("codex hubot script", function () {
           canon: "latino_alphabet",
           tags: {
             color: {
-              value: "blue"
-            }
-          }
+              value: "blue",
+            },
+          },
         });
         Puzzles.insert({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/fghij67890",
           timestamp: Date.now(),
-          body: "bot unset Color for latino alphabet"
+          body: "bot unset Color for latino alphabet",
         });
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {}
+          {},
         );
       });
 
@@ -1769,7 +1769,7 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Rounds.insert({
           _id: "fghij67890",
@@ -1777,20 +1777,20 @@ describe("codex hubot script", function () {
           canon: "elliptic_curve",
           tags: {
             color: {
-              value: "blue"
-            }
-          }
+              value: "blue",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot unset Color for elliptic curve"
+          body: "bot unset Color for elliptic curve",
         });
         return waitForDocument(
           Rounds,
           { _id: "fghij67890", "tags.color": { $exists: false } },
-          {}
+          {},
         );
       });
 
@@ -1799,13 +1799,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot unset Color"
+          body: "bot unset Color",
         });
         return waitForDocument(
           Messages,
@@ -1814,8 +1814,8 @@ describe("codex hubot script", function () {
             nick: "testbot",
             room_name: "puzzles/12345abcde",
             timestamp: 7,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
     });
@@ -1828,20 +1828,20 @@ describe("codex hubot script", function () {
           canon: "elliptic_curve",
           tags: {
             color: {
-              value: "blue"
-            }
-          }
+              value: "blue",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
-          body: "bot unset Color"
+          body: "bot unset Color",
         });
         return waitForDocument(
           Rounds,
           { _id: "fghij67890", "tags.color": { $exists: false } },
-          {}
+          {},
         );
       });
 
@@ -1850,7 +1850,7 @@ describe("codex hubot script", function () {
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          tags: {}
+          tags: {},
         });
         Puzzles.insert({
           _id: "12345abcde",
@@ -1858,20 +1858,20 @@ describe("codex hubot script", function () {
           canon: "latino_alphabet",
           tags: {
             color: {
-              value: "blue"
-            }
-          }
+              value: "blue",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
-          body: "bot unset Color for latino alphabet"
+          body: "bot unset Color for latino alphabet",
         });
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {}
+          {},
         );
       });
 
@@ -1880,7 +1880,7 @@ describe("codex hubot script", function () {
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
-          tags: {}
+          tags: {},
         });
         Rounds.insert({
           _id: "12345abcde",
@@ -1888,20 +1888,20 @@ describe("codex hubot script", function () {
           canon: "latino_alphabet",
           tags: {
             color: {
-              value: "blue"
-            }
-          }
+              value: "blue",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
-          body: "bot unset Color of latino alphabet"
+          body: "bot unset Color of latino alphabet",
         });
         return waitForDocument(
           Rounds,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {}
+          {},
         );
       });
 
@@ -1910,13 +1910,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/12345abcde",
           timestamp: Date.now(),
-          body: "bot unset Color"
+          body: "bot unset Color",
         });
         return waitForDocument(
           Messages,
@@ -1925,8 +1925,8 @@ describe("codex hubot script", function () {
             nick: "testbot",
             room_name: "rounds/12345abcde",
             timestamp: 7,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
     });
@@ -1937,7 +1937,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot unset Color"
+          body: "bot unset Color",
         });
         return waitForDocument(
           Messages,
@@ -1946,8 +1946,8 @@ describe("codex hubot script", function () {
             nick: "testbot",
             room_name: "general/0",
             timestamp: 7,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
 
@@ -1956,7 +1956,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot unset Color for latino alphabet"
+          body: "bot unset Color for latino alphabet",
         });
         return waitForDocument(
           Messages,
@@ -1965,8 +1965,8 @@ describe("codex hubot script", function () {
             nick: "testbot",
             room_name: "general/0",
             timestamp: 7,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
 
@@ -1977,20 +1977,20 @@ describe("codex hubot script", function () {
           canon: "latino_alphabet",
           tags: {
             color: {
-              value: "blue"
-            }
-          }
+              value: "blue",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot unset Color for latino alphabet"
+          body: "bot unset Color for latino alphabet",
         });
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {}
+          {},
         );
       });
 
@@ -2001,20 +2001,20 @@ describe("codex hubot script", function () {
           canon: "latino_alphabet",
           tags: {
             color: {
-              value: "blue"
-            }
-          }
+              value: "blue",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot unset Color for latino alphabet"
+          body: "bot unset Color for latino alphabet",
         });
         return waitForDocument(
           Rounds,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {}
+          {},
         );
       });
     });
@@ -2027,13 +2027,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot stuck"
+          body: "bot stuck",
         });
         return waitForDocument(
           Puzzles,
@@ -2044,10 +2044,10 @@ describe("codex hubot script", function () {
                 name: "Status",
                 touched_by: "torgen",
                 touched: 7,
-                value: "Stuck"
-              }
-            }
-          }
+                value: "Stuck",
+              },
+            },
+          },
         );
       });
 
@@ -2056,19 +2056,19 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot stuck because maparium is closed"
+          body: "bot stuck because maparium is closed",
         });
         return waitForDocument(
           Puzzles,
           {
             _id: "12345abcde",
-            "tags.status.value": "Stuck: maparium is closed"
+            "tags.status.value": "Stuck: maparium is closed",
           },
           {
             tags: {
@@ -2076,10 +2076,10 @@ describe("codex hubot script", function () {
                 name: "Status",
                 touched_by: "torgen",
                 touched: 7,
-                value: "Stuck: maparium is closed"
-              }
-            }
-          }
+                value: "Stuck: maparium is closed",
+              },
+            },
+          },
         );
       });
 
@@ -2088,25 +2088,25 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Puzzles.insert({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot stuck on even this poem because maparium is closed"
+          body: "bot stuck on even this poem because maparium is closed",
         });
         return waitForDocument(
           Puzzles,
           {
             _id: "fghij67890",
-            "tags.status.value": "Stuck: maparium is closed"
+            "tags.status.value": "Stuck: maparium is closed",
           },
           {
             tags: {
@@ -2114,10 +2114,10 @@ describe("codex hubot script", function () {
                 name: "Status",
                 touched_by: "torgen",
                 touched: 7,
-                value: "Stuck: maparium is closed"
-              }
-            }
-          }
+                value: "Stuck: maparium is closed",
+              },
+            },
+          },
         );
       });
     });
@@ -2128,13 +2128,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot stuck on latino alphabet"
+          body: "bot stuck on latino alphabet",
         });
         return waitForDocument(
           Puzzles,
@@ -2145,10 +2145,10 @@ describe("codex hubot script", function () {
                 name: "Status",
                 touched_by: "torgen",
                 touched: 7,
-                value: "Stuck"
-              }
-            }
-          }
+                value: "Stuck",
+              },
+            },
+          },
         );
       });
 
@@ -2157,19 +2157,19 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot stuck on latino alphabet because maparium is closed"
+          body: "bot stuck on latino alphabet because maparium is closed",
         });
         return waitForDocument(
           Puzzles,
           {
             _id: "12345abcde",
-            "tags.status.value": "Stuck: maparium is closed"
+            "tags.status.value": "Stuck: maparium is closed",
           },
           {
             tags: {
@@ -2177,10 +2177,10 @@ describe("codex hubot script", function () {
                 name: "Status",
                 touched_by: "torgen",
                 touched: 7,
-                value: "Stuck: maparium is closed"
-              }
-            }
-          }
+                value: "Stuck: maparium is closed",
+              },
+            },
+          },
         );
       });
 
@@ -2189,7 +2189,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot stuck because maparium is closed"
+          body: "bot stuck because maparium is closed",
         });
         return waitForDocument(
           Messages,
@@ -2198,8 +2198,8 @@ describe("codex hubot script", function () {
             body: "@torgen: You need to tell me which puzzle this is for.",
             room_name: "general/0",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
 
@@ -2208,13 +2208,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot stuck on latino alphabet because maparium is closed"
+          body: "bot stuck on latino alphabet because maparium is closed",
         });
         await waitForDocument(
           Messages,
@@ -2223,11 +2223,11 @@ describe("codex hubot script", function () {
             body: '@torgen: I don\'t know what "latino alphabet" is.',
             room_name: "general/0",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
         chai.assert.deepInclude(Rounds.findOne("12345abcde"), {
-          tags: {}
+          tags: {},
         });
       });
     });
@@ -2238,13 +2238,13 @@ describe("codex hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/12345abcde",
           timestamp: Date.now(),
-          body: "bot stuck because maparium is closed"
+          body: "bot stuck because maparium is closed",
         });
         return waitForDocument(
           Messages,
@@ -2253,8 +2253,8 @@ describe("codex hubot script", function () {
             body: "@torgen: Only puzzles can be stuck.",
             room_name: "rounds/12345abcde",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       }));
   });
@@ -2271,26 +2271,26 @@ describe("codex hubot script", function () {
               name: "Status",
               value: "Stuck",
               touched: 6,
-              touched_by: "torgen"
-            }
-          }
+              touched_by: "torgen",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot unstuck"
+          body: "bot unstuck",
         });
         await waitForDocument(
           Messages,
           { nick: "torgen", room_name: "puzzles/12345abcde", action: true },
           {
             body: "no longer needs help getting unstuck",
-            timestamp: 7
-          }
+            timestamp: 7,
+          },
         );
         chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
-          tags: {}
+          tags: {},
         });
       });
 
@@ -2304,26 +2304,26 @@ describe("codex hubot script", function () {
               name: "Status",
               value: "Stuck",
               touched: 6,
-              touched_by: "cjb"
-            }
-          }
+              touched_by: "cjb",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
-          body: "bot unstuck"
+          body: "bot unstuck",
         });
         await waitForDocument(
           Messages,
           { nick: "torgen", room_name: "puzzles/12345abcde", action: true },
           {
             body: "has arrived to help",
-            timestamp: 7
-          }
+            timestamp: 7,
+          },
         );
         chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
-          tags: {}
+          tags: {},
         });
       });
 
@@ -2337,29 +2337,29 @@ describe("codex hubot script", function () {
               name: "Status",
               value: "Stuck",
               touched: 6,
-              touched_by: "cjb"
-            }
-          }
+              touched_by: "cjb",
+            },
+          },
         });
         Puzzles.insert({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          tags: {}
+          tags: {},
         });
         Messages.insert({
           nick: "torgen",
           room_name: "puzzles/fghij67890",
           timestamp: Date.now(),
-          body: "bot unstuck on latino alphabet"
+          body: "bot unstuck on latino alphabet",
         });
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", tags: {} },
           {
             touched: 7,
-            touched_by: "torgen"
-          }
+            touched_by: "torgen",
+          },
         );
       });
     });
@@ -2375,23 +2375,23 @@ describe("codex hubot script", function () {
               name: "Status",
               value: "Stuck",
               touched: 6,
-              touched_by: "cjb"
-            }
-          }
+              touched_by: "cjb",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot unstuck on latino alphabet"
+          body: "bot unstuck on latino alphabet",
         });
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", tags: {} },
           {
             touched: 7,
-            touched_by: "torgen"
-          }
+            touched_by: "torgen",
+          },
         );
       });
 
@@ -2400,7 +2400,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot unstuck"
+          body: "bot unstuck",
         });
         return waitForDocument(
           Messages,
@@ -2409,8 +2409,8 @@ describe("codex hubot script", function () {
             body: "@torgen: You need to tell me which puzzle this is for.",
             room_name: "general/0",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
 
@@ -2419,7 +2419,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot unstuck on latino alphabet"
+          body: "bot unstuck on latino alphabet",
         });
         return waitForDocument(
           Messages,
@@ -2428,8 +2428,8 @@ describe("codex hubot script", function () {
             body: '@torgen: I don\'t know what "latino alphabet" is.',
             room_name: "general/0",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       });
     });
@@ -2445,15 +2445,15 @@ describe("codex hubot script", function () {
               name: "Status",
               value: "Stuck",
               touched: 6,
-              touched_by: "cjb"
-            }
-          }
+              touched_by: "cjb",
+            },
+          },
         });
         Messages.insert({
           nick: "torgen",
           room_name: "rounds/12345abcde",
           timestamp: Date.now(),
-          body: "bot unstuck"
+          body: "bot unstuck",
         });
         return waitForDocument(
           Messages,
@@ -2462,8 +2462,8 @@ describe("codex hubot script", function () {
             body: "@torgen: Only puzzles can be stuck.",
             room_name: "rounds/12345abcde",
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
       }));
   });
@@ -2474,7 +2474,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: 'bot poll "Who you got?" us "the field"'
+        body: 'bot poll "Who you got?" us "the field"',
       });
       const poll = await waitForDocument(
         Polls,
@@ -2485,10 +2485,10 @@ describe("codex hubot script", function () {
           created_by: "torgen",
           options: [
             { canon: "us", option: "us" },
-            { canon: "the_field", option: "the field" }
+            { canon: "the_field", option: "the field" },
           ],
-          votes: {}
-        }
+          votes: {},
+        },
       );
       return await waitForDocument(
         Messages,
@@ -2496,8 +2496,8 @@ describe("codex hubot script", function () {
         {
           nick: "torgen",
           room_name: "general/0",
-          timestamp: 7
-        }
+          timestamp: 7,
+        },
       );
     });
 
@@ -2506,7 +2506,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: 'bot poll "Vote for me!" OK'
+        body: 'bot poll "Vote for me!" OK',
       });
       return waitForDocument(
         Messages,
@@ -2516,8 +2516,8 @@ describe("codex hubot script", function () {
           timestamp: 7,
           room_name: "general/0",
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
 
@@ -2526,7 +2526,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: 'bot poll "Best dwarf" Grumpy Happy Sleepy Sneezy Dopey Bashful Doc'
+        body: 'bot poll "Best dwarf" Grumpy Happy Sleepy Sneezy Dopey Bashful Doc',
       });
       return waitForDocument(
         Messages,
@@ -2536,8 +2536,8 @@ describe("codex hubot script", function () {
           timestamp: 7,
           room_name: "general/0",
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
   });
@@ -2553,7 +2553,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot global list"
+        body: "bot global list",
       });
       for (k in all_settings) {
         v = all_settings[k];
@@ -2562,13 +2562,13 @@ describe("codex hubot script", function () {
           {
             nick: "testbot",
             to: "torgen",
-            body: new RegExp(`^${v.name}:`)
+            body: new RegExp(`^${v.name}:`),
           },
           {
             room_name: "general/0",
             timestamp: 7,
-            useful: true
-          }
+            useful: true,
+          },
         );
       }
     }));
@@ -2585,7 +2585,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot global set maximum meme length to 97"
+        body: "bot global set maximum meme length to 97",
       });
       await waitForDocument(
         Messages,
@@ -2595,8 +2595,8 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           timestamp: 7,
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
       chai.assert.equal(97, MaximumMemeLength.get());
     });
@@ -2606,7 +2606,7 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot global set embed puzzles to false"
+        body: "bot global set embed puzzles to false",
       });
       await waitForDocument(
         Messages,
@@ -2616,8 +2616,8 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           timestamp: 7,
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
       chai.assert.isFalse(EmbedPuzzles.get());
     });
@@ -2627,20 +2627,20 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot global set round url prefix to https://moliday.holasses/round"
+        body: "bot global set round url prefix to https://moliday.holasses/round",
       });
       await waitForDocument(
         Messages,
         {
-          body: "@torgen: OK, set round url prefix to https://moliday.holasses/round"
+          body: "@torgen: OK, set round url prefix to https://moliday.holasses/round",
         },
         {
           nick: "testbot",
           room_name: "general/0",
           timestamp: 7,
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
       chai.assert.equal("https://moliday.holasses/round", RoundUrlPrefix.get());
     });
@@ -2650,20 +2650,20 @@ describe("codex hubot script", function () {
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
-        body: "bot global set background color to black"
+        body: "bot global set background color to black",
       });
       return waitForDocument(
         Messages,
         {
-          body: "@torgen: Sorry, I don't know the setting 'background color'."
+          body: "@torgen: Sorry, I don't know the setting 'background color'.",
         },
         {
           nick: "testbot",
           room_name: "general/0",
           timestamp: 7,
           useful: true,
-          mention: ["torgen"]
-        }
+          mention: ["torgen"],
+        },
       );
     });
 
@@ -2673,7 +2673,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot global set embed puzzles to maybe"
+          body: "bot global set embed puzzles to maybe",
         });
         await waitForDocument(
           Messages,
@@ -2683,8 +2683,8 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
         chai.assert.isTrue(EmbedPuzzles.get());
       });
@@ -2694,7 +2694,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot global set round url prefix to twelve"
+          body: "bot global set round url prefix to twelve",
         });
         await waitForDocument(
           Messages,
@@ -2704,8 +2704,8 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
         chai.assert.equal("", RoundUrlPrefix.get());
       });
@@ -2715,7 +2715,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
-          body: "bot global set maximum meme length to twelve"
+          body: "bot global set maximum meme length to twelve",
         });
         await waitForDocument(
           Messages,
@@ -2725,8 +2725,8 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             useful: true,
-            mention: ["torgen"]
-          }
+            mention: ["torgen"],
+          },
         );
         chai.assert.equal(140, MaximumMemeLength.get());
       });
