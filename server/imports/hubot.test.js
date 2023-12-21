@@ -31,17 +31,17 @@ describe("hubot", function () {
     robot.run();
     chai.assert.include(
       Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 7 },
+      { timestamp: 7 }
     );
     clock.tick(15000);
     chai.assert.include(
       Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 7 },
+      { timestamp: 7 }
     );
     clock.tick(15000);
     chai.assert.include(
       Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 30007 },
+      { timestamp: 30007 }
     );
   });
 
@@ -222,7 +222,7 @@ describe("hubot", function () {
         room_name: "general/0",
         bot_ignore: true,
         mention: ["torgen"],
-      },
+      }
     );
     chai.assert.include(Messages.findOne(id), { useless_cmd: true });
   });
@@ -249,7 +249,7 @@ describe("hubot", function () {
         nick: "testbot",
         room_name: "general/0",
         bot_ignore: true,
-      },
+      }
     );
     chai.assert.notDeepInclude(Messages.findOne(id), {
       useless_cmd: true,
@@ -277,7 +277,7 @@ describe("hubot", function () {
         room_name: "general/0",
         bot_ignore: true,
         action: true,
-      },
+      }
     );
     chai.assert.include(Messages.findOne(id), { useless_cmd: true });
   });
@@ -303,7 +303,7 @@ describe("hubot", function () {
         nick: "testbot",
         room_name: "general/0",
         bot_ignore: true,
-      },
+      }
     );
     chai.assert.notDeepInclude(Messages.findOne(id), {
       useless_cmd: true,
@@ -332,7 +332,7 @@ describe("hubot", function () {
         room_name: "general/0",
         bot_ignore: true,
         useful: true,
-      },
+      }
     );
     chai.assert.notDeepInclude(Messages.findOne(id), {
       useless_cmd: true,
@@ -360,7 +360,7 @@ describe("hubot", function () {
         nick: "testbot",
         room_name: "general/0",
         bot_ignore: true,
-      },
+      }
     );
     chai.assert.include(Messages.findOne(id), { useless_cmd: true });
   });

@@ -14,7 +14,7 @@ describe("updatelastRead", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -28,7 +28,7 @@ describe("updatelastRead", function () {
           room_name: "general/0",
           timestamp: 3,
         }),
-      Match.Error,
+      Match.Error
     ));
 
   it("creates", function () {
@@ -38,7 +38,7 @@ describe("updatelastRead", function () {
     });
     chai.assert.include(
       LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
-      { timestamp: 3 },
+      { timestamp: 3 }
     );
   });
 
@@ -54,7 +54,7 @@ describe("updatelastRead", function () {
     });
     chai.assert.include(
       LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
-      { timestamp: 3 },
+      { timestamp: 3 }
     );
   });
 
@@ -70,7 +70,7 @@ describe("updatelastRead", function () {
     });
     chai.assert.include(
       LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
-      { timestamp: 3 },
+      { timestamp: 3 }
     );
   });
 });

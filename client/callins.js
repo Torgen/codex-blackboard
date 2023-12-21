@@ -4,7 +4,7 @@ import * as callin_types from "/lib/imports/callin_types.js";
 
 Meteor.startup(function () {
   const newCallInSound = new Audio(
-    Meteor._relativeToSiteRootUrl("/sound/new_callin.wav"),
+    Meteor._relativeToSiteRootUrl("/sound/new_callin.wav")
   );
 
   // note that this observe 'leaks'; that's ok, the set of callins is small
@@ -43,7 +43,7 @@ Template.callin_copy_and_go.events({
     event.preventDefault();
     const url = event.currentTarget.href;
     await navigator.clipboard.writeText(
-      $(event.currentTarget.dataset.clipboardTarget).text(),
+      $(event.currentTarget.dataset.clipboardTarget).text()
     );
     Meteor.call("setField", {
       type: "callins",

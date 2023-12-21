@@ -84,7 +84,7 @@ describe("CalendarSync", function () {
               calendarId: "testCalendar",
               pageToken: null,
               syncToken: "syncToken1",
-            }),
+            })
           )
           .resolves({
             data: {
@@ -279,7 +279,7 @@ describe("CalendarSync", function () {
               summary: "Calendar Test",
               timeZone: "America/New_York",
             },
-          }),
+          })
         )
         .resolves({ data: { id: "testCalendar" } });
       events
@@ -290,7 +290,7 @@ describe("CalendarSync", function () {
             calendarId: "testCalendar",
             pageToken: null,
             syncToken: null,
-          }),
+          })
         )
         .resolves({
           data: {

@@ -29,6 +29,6 @@ export const confirm = (data) =>
     view = Blaze.renderWithData(
       Template.confirmmodal,
       { ...data, onCancel, onConfirm },
-      document.body,
+      document.body
     );
   });

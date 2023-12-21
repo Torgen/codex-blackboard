@@ -14,7 +14,7 @@ describe("addIncorrectAnswer", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -28,7 +28,7 @@ describe("addIncorrectAnswer", function () {
           target: "something",
           answer: "precipitate",
         }),
-      Meteor.Error,
+      Meteor.Error
     ));
 
   describe("which exists", function () {
@@ -71,7 +71,7 @@ describe("addIncorrectAnswer", function () {
             target: id,
             answer: "flimflam",
           }),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", function () {
@@ -79,7 +79,7 @@ describe("addIncorrectAnswer", function () {
         callAs("addIncorrectAnswer", "cjb", {
           target: id,
           answer: "flimflam",
-        }),
+        })
       );
 
       it("doesn't touch", function () {

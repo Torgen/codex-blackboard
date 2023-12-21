@@ -64,7 +64,7 @@ Template.blackboard.onCreated(function () {
           { real_name: { $regex: `.*${userSearch}.*` } },
         ],
       },
-      { fields: { _id: 1 } },
+      { fields: { _id: 1 } }
     );
     this.foundAccounts.set(new Set(c.map((v) => v._id)));
   });
@@ -112,7 +112,7 @@ Template.blackboard.helpers({
   },
   searchResults() {
     return (Template.instance().foundPuzzles.get() ?? []).map((id) =>
-      Puzzles.findOne({ _id: id }),
+      Puzzles.findOne({ _id: id })
     );
   },
 });
@@ -120,7 +120,7 @@ Template.blackboard.helpers({
 Template.blackboard.events({
   "click .puzzle-working .button-group:not(.open) .bb-show-filter-by-user"(
     event,
-    template,
+    template
   ) {
     Meteor.defer(() => template.find(".bb-filter-by-user").focus());
   },
@@ -178,11 +178,11 @@ Template.blackboard.events({
   },
   "change .bb-notification-controls [data-notification-stream]"(
     event,
-    template,
+    template
   ) {
     notification.set(
       event.target.dataset.notificationStream,
-      event.target.checked,
+      event.target.checked
     );
   },
 });
@@ -321,10 +321,10 @@ Template.blackboard.onRendered(function () {
     this.$(".bb-menu-drawer").modal("hide");
   };
   this.$(".bb-menu-drawer").on("show", () =>
-    document.addEventListener("keydown", this.escListener),
+    document.addEventListener("keydown", this.escListener)
   );
   this.$(".bb-menu-drawer").on("hide", () =>
-    document.removeEventListener("keydown", this.escListener),
+    document.removeEventListener("keydown", this.escListener)
   );
 });
 
@@ -473,7 +473,7 @@ function moveBeforePrevious(match, rel, event, template) {
     "moveWithinRound",
     row[0]?.dataset.puzzleId,
     Template.parentData()._id,
-    args,
+    args
   );
 }
 
@@ -489,7 +489,7 @@ function moveAfterNext(match, rel, event, template) {
     "moveWithinRound",
     row[0]?.dataset.puzzleId,
     Template.parentData()._id,
-    args,
+    args
   );
 }
 
@@ -533,12 +533,12 @@ Template.blackboard_round.events({
   "click tbody.unassigned tr.puzzle .bb-move-up": moveBeforePrevious.bind(
     null,
     "tr.puzzle",
-    "before",
+    "before"
   ),
   "click tbody.unassigned tr.puzzle .bb-move-down": moveAfterNext.bind(
     null,
     "tr.puzzle",
-    "after",
+    "after"
   ),
 });
 
@@ -576,13 +576,13 @@ Template.blackboard_meta.events({
   "click tr.meta.collapsed .collapse-toggle"(event, template) {
     reactiveLocalStorage.setItem(
       `collapsed_meta.${template.data.puzzle._id}`,
-      false,
+      false
     );
   },
   "click tr.meta:not(.collapsed) .collapse-toggle"(event, template) {
     reactiveLocalStorage.setItem(
       `collapsed_meta.${template.data.puzzle._id}`,
-      true,
+      true
     );
   },
 });
@@ -600,7 +600,7 @@ Template.blackboard_meta.helpers({
     let filter;
     const puzzle = Puzzles.findOne(
       { _id: this._id },
-      { fields: { order_by: 1, puzzles: 1 } },
+      { fields: { order_by: 1, puzzles: 1 } }
     );
     if (puzzle?.order_by) {
       filter = { feedsInto: this._id };
@@ -675,7 +675,7 @@ Template.blackboard_puzzle_cells.events({
     Meteor.call(
       "feedMeta",
       template.data.puzzle._id,
-      event.target.dataset.puzzleId,
+      event.target.dataset.puzzleId
     );
     event.preventDefault();
   },
@@ -784,7 +784,7 @@ Template.blackboard_column_body_working.helpers({
     return findByChannel(
       `puzzles/${this.puzzle._id}`,
       { jitsi },
-      { sort: { joined_timestamp: 1 } },
+      { sort: { joined_timestamp: 1 } }
     );
   },
 });
@@ -823,7 +823,7 @@ Template.blackboard_puzzle.events({
       Template.parentData(2),
       event.target,
       event.clientY,
-      event.dataTransfer,
+      event.dataTransfer
     );
   },
   "dragover tr.puzzle"(event, template) {
@@ -838,7 +838,7 @@ Template.blackboard_puzzle.events({
         Template.parentData(2),
         event.target,
         event.clientY,
-        event.dataTransfer,
+        event.dataTransfer
       )
     ) {
       event.preventDefault();

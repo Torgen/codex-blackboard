@@ -94,7 +94,7 @@ Template.puzzle_info.helpers({
         target_type: "puzzles",
         target: this.puzzle._id,
       },
-      { sort: { created: 1 } },
+      { sort: { created: 1 } }
     );
   },
   callin_status() {
@@ -178,7 +178,7 @@ Template.puzzle_info.helpers({
 Template.puzzle_info.events({
   "click button.grandfeeders"(event, template) {
     template.grandfeeders.set(
-      !event.currentTarget.classList.contains("active"),
+      !event.currentTarget.classList.contains("active")
     );
   },
   "click button.unattached"(event, template) {
@@ -285,7 +285,7 @@ Template.puzzle_summon_button.events({
       await confirm({
         message: "Are you sure you want to cancel this request for help?",
         ok_button: `Yes, this ${pretty_collection(
-          Session.get("type"),
+          Session.get("type")
         )} is no longer stuck`,
         no_button: "Nevermind, this is still STUCK",
       })
@@ -343,7 +343,7 @@ Template.puzzle_callin_modal.onCreated(function () {
 Template.puzzle_callin_modal.onRendered(function () {
   this.$(`input[name='callin_type'][value='${this.type.get()}']`).prop(
     "checked",
-    true,
+    true
   );
 });
 

@@ -31,7 +31,7 @@ Template.create_object.events(
       Meteor.call(`new${type}`, { name, ...this.params });
       template.name.set("");
     },
-  }),
+  })
 );
 
 Template.create_object.helpers({

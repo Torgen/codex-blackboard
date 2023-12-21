@@ -16,7 +16,7 @@ describe("removeEventAttendee", function () {
     });
     chai.assert.throws(
       () => Meteor.call("removeEventAttendee", "evt1", "cjb"),
-      Match.Error,
+      Match.Error
     );
   });
 
@@ -32,7 +32,7 @@ describe("removeEventAttendee", function () {
     });
     chai.assert.throws(
       () => callAs("removeEventAttendee", "cjb", "evt1", "cjb"),
-      Match.Error,
+      Match.Error
     );
   });
 

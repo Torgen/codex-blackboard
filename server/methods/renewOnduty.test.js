@@ -15,7 +15,7 @@ describe("renewOnduty", function () {
       (clock = sinon.useFakeTimers({
         now: 70000,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());

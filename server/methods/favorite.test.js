@@ -13,7 +13,7 @@ describe("favorite", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -50,7 +50,7 @@ describe("favorite", function () {
           spreadsheet: "sid",
           doc: "did",
           tags: {},
-        })),
+        }))
     );
 
     it("fails without login", () =>
@@ -95,7 +95,7 @@ describe("favorite", function () {
           spreadsheet: "sid",
           doc: "did",
           tags: {},
-        })),
+        }))
     );
 
     it("fails without login", () =>
@@ -144,7 +144,7 @@ describe("favorite", function () {
           spreadsheet: "sid",
           doc: "did",
           tags: {},
-        })),
+        }))
     );
 
     it("fails without login", () =>

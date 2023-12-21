@@ -15,7 +15,7 @@ describe("claimOnduty", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -28,7 +28,7 @@ describe("claimOnduty", function () {
   it("fails without login", () =>
     chai.assert.throws(
       () => Meteor.call("claimOnduty", { from: "cjb" }),
-      Match.Error,
+      Match.Error
     ));
 
   describe("when nobody is onduty", function () {
@@ -90,7 +90,7 @@ describe("claimOnduty", function () {
         claimed_at: 1,
         renewed_at: 1,
         expires_at: 3600001,
-      }),
+      })
     );
 
     it("claims onduty from them", function () {
@@ -116,7 +116,7 @@ describe("claimOnduty", function () {
       chai.assert.throws(
         () => callAs("claimOnduty", "torgen", { from: "cscott" }),
         Meteor.Error,
-        /412/,
+        /412/
       );
       chai.assert.deepInclude(Roles.findOne("onduty"), {
         holder: "cjb",
@@ -130,7 +130,7 @@ describe("claimOnduty", function () {
       chai.assert.throws(
         () => callAs("claimOnduty", "torgen", { from: null }),
         Meteor.Error,
-        /412/,
+        /412/
       );
       chai.assert.deepInclude(Roles.findOne("onduty"), {
         holder: "cjb",

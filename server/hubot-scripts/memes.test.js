@@ -46,7 +46,7 @@ describe("memes hubot script", function () {
       {
         room_name: "general/0",
         timestamp: 7,
-      },
+      }
     );
     const buzz = waitForDocument(
       Messages,
@@ -54,7 +54,7 @@ describe("memes hubot script", function () {
       {
         room_name: "general/0",
         timestamp: 7,
-      },
+      }
     );
     const xy = waitForDocument(
       Messages,
@@ -62,7 +62,7 @@ describe("memes hubot script", function () {
       {
         room_name: "general/0",
         timestamp: 7,
-      },
+      }
     );
     const success = waitForDocument(
       Messages,
@@ -70,7 +70,7 @@ describe("memes hubot script", function () {
       {
         room_name: "general/0",
         timestamp: 7,
-      },
+      }
     );
     return Promise.all([interesting, buzz, xy, success]);
   });
@@ -85,7 +85,7 @@ describe("memes hubot script", function () {
     });
     await delay(200);
     chai.assert.isUndefined(
-      Messages.findOne({ nick: "testbot", timestamp: 7 }),
+      Messages.findOne({ nick: "testbot", timestamp: 7 })
     );
   });
 });

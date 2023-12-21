@@ -20,13 +20,9 @@ function linkify(input) {
       case url == null:
         return `${sp}<a href='${url}' target='_blank'>${url}</a>`;
       case hashtag == null:
-        return `${sp}<a href='https://twitter.com/search?q=${encodeURIComponent(
-          hashtag,
-        )}' target='_blank'>${hashtag}</a>`;
+        return `${sp}<a href='https://twitter.com/search?q=${encodeURIComponent(hashtag)}' target='_blank'>${hashtag}</a>`;
       case username == null:
-        return `${sp}<a href='https://twitter.com/${encodeURIComponent(
-          username.slice(1),
-        )}' target='_blank'>${username}</a>`;
+        return `${sp}<a href='https://twitter.com/${encodeURIComponent(username.slice(1))}' target='_blank'>${username}</a>`;
       default:
         return text;
     }

@@ -31,7 +31,7 @@ function scrollAfter(x) {
     Tracker.afterFlush(() =>
       $(`#${nearTop.id}`).get(0).scrollIntoView({
         behavior: "smooth",
-      }),
+      })
     );
   }
 }
@@ -43,7 +43,7 @@ page("/map", MapPage);
 page("/rounds/:round", ({ params: { round } }) => RoundPage(round));
 page("/puzzles/:puzzle", ({ params: { puzzle } }) => PuzzlePage(puzzle));
 page("/puzzles/:puzzle/:view", ({ params: { puzzle, view } }) =>
-  PuzzlePage(puzzle, view),
+  PuzzlePage(puzzle, view)
 );
 page("/chat/:type/:id", ({ params: { type, id } }) => ChatPage(type, id));
 page("/oplogs", OpLogPage);

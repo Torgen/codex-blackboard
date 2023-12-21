@@ -66,7 +66,7 @@ describe("brain hubot script", function () {
           torgen: ["hi"],
           cjb: ["yo", "wazzup?"],
         },
-      },
+      }
     );
     const drinks = waitForDocument(brain, { _id: "drinks" }, { value: 3 });
     return Promise.all([ambushes, drinks]);

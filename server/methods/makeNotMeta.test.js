@@ -14,7 +14,7 @@ describe("makeNotMeta", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());

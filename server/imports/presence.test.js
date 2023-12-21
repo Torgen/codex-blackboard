@@ -36,7 +36,7 @@ describe("presence", function () {
       presence = watchPresence();
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" }),
+        Messages.findOne({ presence: "join", nick: "torgen" })
       );
     });
 
@@ -52,7 +52,7 @@ describe("presence", function () {
       });
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" }),
+        Messages.findOne({ presence: "join", nick: "torgen" })
       );
     });
 
@@ -68,7 +68,7 @@ describe("presence", function () {
       });
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" }),
+        Messages.findOne({ presence: "join", nick: "torgen" })
       );
     });
 
@@ -90,7 +90,7 @@ describe("presence", function () {
           room_name: "general/0",
           body: "torgen joined the room.",
           timestamp: 8,
-        },
+        }
       );
     });
 
@@ -117,7 +117,7 @@ describe("presence", function () {
           room_name: "general/0",
           body: "Dan Rosart joined the room.",
           timestamp: 8,
-        },
+        }
       );
     });
   });
@@ -136,7 +136,7 @@ describe("presence", function () {
       Presence.remove(id);
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "part", nick: "torgen" }),
+        Messages.findOne({ presence: "part", nick: "torgen" })
       );
     });
 
@@ -153,7 +153,7 @@ describe("presence", function () {
       Presence.remove(id);
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "part", nick: "torgen" }),
+        Messages.findOne({ presence: "part", nick: "torgen" })
       );
     });
 
@@ -208,7 +208,7 @@ describe("presence", function () {
           room_name: "general/0",
           body: "torgen left the room.",
           timestamp: 7,
-        },
+        }
       );
     });
 
@@ -236,7 +236,7 @@ describe("presence", function () {
           room_name: "general/0",
           body: "Dan Rosart left the room.",
           timestamp: 7,
-        },
+        }
       );
     });
   });
@@ -258,7 +258,7 @@ describe("presence", function () {
       presence = watchPresence();
       Presence.update(
         { nick: "torgen", room_name: "puzzles/foo" },
-        { $set: { timestamp: 15 } },
+        { $set: { timestamp: 15 } }
       );
       waitForDocument(Puzzles, { _id: "foo", solverTime: 54 }, {});
     });
@@ -280,7 +280,7 @@ describe("presence", function () {
       presence = watchPresence();
       Presence.update(
         { nick: "botto", room_name: "puzzles/foo" },
-        { $set: { timestamp: 15 } },
+        { $set: { timestamp: 15 } }
       );
       waitForDocument(Puzzles, { _id: "foo", solverTime: 45 }, {});
     });
@@ -302,7 +302,7 @@ describe("presence", function () {
       presence = watchPresence();
       Presence.update(
         { nick: "torgen", room_name: "puzzles/foo" },
-        { $set: { timestamp: 15 } },
+        { $set: { timestamp: 15 } }
       );
       await delay(200);
       chai.assert.deepInclude(Puzzles.findOne("foo"), {

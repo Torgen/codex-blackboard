@@ -17,7 +17,7 @@ describe("setPuzzleForEvent", function () {
     });
     chai.assert.throws(
       () => Meteor.call("setPuzzleForEvent", "evt", "puzz"),
-      Match.Error,
+      Match.Error
     );
   });
 
@@ -27,7 +27,7 @@ describe("setPuzzleForEvent", function () {
     });
     chai.assert.throws(
       () => callAs("setPuzzleForEvent", "cjb", "evt", "puzz"),
-      Match.Error,
+      Match.Error
     );
   });
 

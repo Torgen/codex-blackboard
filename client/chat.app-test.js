@@ -36,7 +36,7 @@ describe("chat", function () {
     chai.assert.isDefined($('a[href^="https://codexian.us"]').html(), "link");
     chai.assert.isDefined(
       $('img[src^="https://memegen.link/doge"]').html(),
-      "meme",
+      "meme"
     );
   });
 
@@ -83,7 +83,7 @@ describe("chat", function () {
     chai.assert.equal(
       input.val(),
       "/me tests actions",
-      "after down with selection at start",
+      "after down with selection at start"
     );
     input[0].setSelectionRange(input.val().length, input.val().length);
     input.trigger($.Event("keydown", { key: "Down" }));
@@ -291,7 +291,7 @@ describe("chat", function () {
       await afterFlushPromise();
       const msg = Messages.findOne(
         { nick: "testy", room_name: `puzzles/${id}` },
-        { sort: { timestamp: -1 } },
+        { sort: { timestamp: -1 } }
       );
       chai.assert.deepInclude(msg, { mention: ["kwal", "cscott"] });
     });
@@ -308,7 +308,7 @@ describe("chat", function () {
       await afterFlushPromise();
       const msg = Messages.findOne(
         { nick: "testy", room_name: `puzzles/${id}` },
-        { sort: { timestamp: -1 } },
+        { sort: { timestamp: -1 } }
       );
       chai.assert.deepEqual(msg.mention, ["kwal"]);
     });
@@ -325,7 +325,7 @@ describe("chat", function () {
       await afterFlushPromise();
       const msg = Messages.findOne(
         { nick: "testy", room_name: `puzzles/${id}` },
-        { sort: { timestamp: -1 } },
+        { sort: { timestamp: -1 } }
       );
       chai.assert.deepInclude(msg, {
         action: true,
@@ -346,7 +346,7 @@ describe("chat", function () {
       await afterFlushPromise();
       const msg = Messages.findOne(
         { nick: "testy", room_name: `puzzles/${id}` },
-        { sort: { timestamp: -1 } },
+        { sort: { timestamp: -1 } }
       );
       chai.assert.deepInclude(msg, { to: "kwal" });
       chai.assert.isNotOk(msg.mention);
@@ -376,7 +376,7 @@ describe("chat", function () {
         "newPoll",
         `puzzles/${id}`,
         "Flip a coin",
-        ["heads", "tails"],
+        ["heads", "tails"]
       );
       await afterFlushPromise();
       await waitForSubscriptions(); // when the message with the poll renders, the subscription to the poll also happens.

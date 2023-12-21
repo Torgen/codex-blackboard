@@ -1,6 +1,10 @@
 import "./map.html";
 import "./cluster.html";
-import { gravatarUrl, nickHash, nickAndName } from "/lib/imports/nickEmail.js";
+import {
+  gravatarUrl,
+  nickHash,
+  nickAndName,
+} from "/lib/imports/nickEmail.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { MarkerWithLabel } from "@googlemaps/markerwithlabel";
@@ -35,7 +39,7 @@ class BlackboardRenderer {
     const view = Blaze.renderWithData(
       Template.map_gravatar_cluster,
       pieces.reverse(),
-      element,
+      element
     );
     const marker = new MarkerWithLabel({
       position,
@@ -79,8 +83,8 @@ Template.map.onRendered(function () {
       oldMarkersAndViews.map((markerAndView) =>
         markerAndView.marker.getMap() != null
           ? renderer.markersAndViews.push(markerAndView)
-          : Blaze.remove(markerAndView.view),
-      ),
+          : Blaze.remove(markerAndView.view)
+      )
     );
     const users = new Map(); // the associative kind
     let nodraw = true;
@@ -95,7 +99,7 @@ Template.map.onRendered(function () {
             located_at: 1,
             online: 1,
           },
-        },
+        }
       )
       .observeChanges({
         added(_id, fields) {
@@ -123,10 +127,7 @@ Template.map.onRendered(function () {
             }
             if ("gravatar_md5" in fields) {
               user.setIcon(
-                gravatarUrl({
-                  gravatar_md5: nickHash(id),
-                  size: GRAVATAR_SIZE,
-                }),
+                gravatarUrl({ gravatar_md5: nickHash(id), size: GRAVATAR_SIZE })
               );
             }
             if ("real_name" in fields || "nickname" in fields) {

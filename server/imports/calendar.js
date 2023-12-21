@@ -53,7 +53,7 @@ export class CalendarSync {
           ).data;
           console.log(`Made calendar ${cal.id}`);
           return cal.id;
-        })(),
+        })()
       );
 
       Calendar.insert({ _id: this.id });
@@ -61,11 +61,11 @@ export class CalendarSync {
 
     const promises = [this._pollAndReschedule()];
     const acls = Promise.await(
-      this.api.acl.list({ calendarId: this.id, maxResults: 250 }),
+      this.api.acl.list({ calendarId: this.id, maxResults: 250 })
     );
     if (
       !acls.data.items.some(
-        (x) => x.role === "reader" && x.scope.type === "default",
+        (x) => x.role === "reader" && x.scope.type === "default"
       )
     ) {
       // Ensure public. (default can't be writer.)
@@ -78,7 +78,7 @@ export class CalendarSync {
               type: "default",
             },
           },
-        }),
+        })
       );
     }
     const writer = SHARE_GROUP();
@@ -88,7 +88,7 @@ export class CalendarSync {
           (x) =>
             x.role === "writer" &&
             x.scope.type === "group" &&
-            x.scope.value === writer,
+            x.scope.value === writer
         )
       ) {
         // Allow group to write.
@@ -103,7 +103,7 @@ export class CalendarSync {
                 value: writer,
               },
             },
-          }),
+          })
         );
       }
     }
@@ -114,7 +114,7 @@ export class CalendarSync {
           (x) =>
             x.role === "owner" &&
             x.scope.type === "user" &&
-            x.scope.value === owner,
+            x.scope.value === owner
         )
       ) {
         // Make codex account an owner
@@ -129,7 +129,7 @@ export class CalendarSync {
                 value: owner,
               },
             },
-          }),
+          })
         );
       }
     }
@@ -211,7 +211,7 @@ export class CalendarSync {
       : Promise.resolve();
     const updateSync = Calendar.rawCollection().update(
       { _id: this.id },
-      { $set: { syncToken: this.syncToken } },
+      { $set: { syncToken: this.syncToken } }
     );
     await Promise.all([bulkUpdates, updateSync]);
   }
@@ -229,7 +229,7 @@ export class CalendarSync {
     this.stop();
     this.timeoutHandle = Meteor.setTimeout(
       () => this._pollAndReschedule(),
-      interval,
+      interval
     );
   }
 

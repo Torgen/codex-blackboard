@@ -26,7 +26,7 @@ export default class DriveChangeWatcher {
     this.env = env;
     let lastToken = startPageTokens.findOne(
       {},
-      { limit: 1, sort: { timestamp: -1 } },
+      { limit: 1, sort: { timestamp: -1 } }
     );
     if (!lastToken) {
       ({
@@ -42,7 +42,7 @@ export default class DriveChangeWatcher {
     this.lastPoll = lastToken.timestamp;
     this.timeoutHandle = this.env.setTimeout(
       () => this.poll(),
-      Math.max(0, lastToken.timestamp + POLL_INTERVAL - Date.now()),
+      Math.max(0, lastToken.timestamp + POLL_INTERVAL - Date.now())
     );
   }
 
@@ -59,7 +59,7 @@ export default class DriveChangeWatcher {
             pageToken: token,
             pageSize: 1000,
             fields: CHANGES_FIELDS,
-          }),
+          })
         ));
         updates = new Map(); // key: puzzle id, value: max modifiedTime of file with it as parent
         created = new Map(); // key: file ID, value: {name, mimeType, webViewLink, channel}
@@ -138,7 +138,7 @@ export default class DriveChangeWatcher {
                 });
               }
             }
-          }),
+          })
         );
         if (data.nextPageToken != null) {
           token = data.nextPageToken;
@@ -146,7 +146,7 @@ export default class DriveChangeWatcher {
           break;
         } else {
           throw new Error(
-            "Response had neither nextPageToken nor newStartPageToken",
+            "Response had neither nextPageToken nor newStartPageToken"
           );
         }
       }
@@ -172,14 +172,14 @@ export default class DriveChangeWatcher {
         : Promise.resolve();
       created.forEach(function (
         { name, mimeType, webViewLink, channel },
-        fileId,
+        fileId
       ) {
         // Would be nice to use bulk write here, but since we're not forcing a particular ID
         // we could have mismatched meteor vs. mongo ID types.
         const now = Date.now();
         Messages.insert({
           body: `${fileType(
-            mimeType,
+            mimeType
           )} \"${name}\" added to drive folder: ${webViewLink}`,
           system: true,
           room_name: channel,
@@ -204,7 +204,7 @@ export default class DriveChangeWatcher {
         {
           multi: false,
           sort: { timestamp: 1 },
-        },
+        }
       );
     } catch (e) {
       console.error(e);

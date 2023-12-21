@@ -71,7 +71,7 @@ describe("codex hubot script", function () {
           room_name: "puzzles/12345abcde",
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
     });
 
@@ -105,7 +105,7 @@ describe("codex hubot script", function () {
               touched_by: "torgen",
             },
           },
-        },
+        }
       );
       return waitForDocument(
         Messages,
@@ -115,7 +115,7 @@ describe("codex hubot script", function () {
           useful: true,
           room_name: "puzzles/12345abcde",
           mention: ["torgen"],
-        },
+        }
       );
     });
 
@@ -160,7 +160,7 @@ describe("codex hubot script", function () {
               touched_by: "torgen",
             },
           },
-        },
+        }
       );
       return waitForDocument(
         Messages,
@@ -170,7 +170,7 @@ describe("codex hubot script", function () {
           useful: true,
           room_name: "puzzles/12345abcde",
           mention: ["torgen"],
-        },
+        }
       );
     });
 
@@ -208,7 +208,7 @@ describe("codex hubot script", function () {
           useful: true,
           room_name: "puzzles/12345abcde",
           mention: ["torgen"],
-        },
+        }
       );
       chai.assert.deepInclude(Puzzles.findOne({ _id: "12345abcde" }), {
         touched: 3,
@@ -260,7 +260,7 @@ describe("codex hubot script", function () {
         {
           touched: 7,
           touched_by: "torgen",
-        },
+        }
       );
       return waitForDocument(
         Messages,
@@ -270,7 +270,7 @@ describe("codex hubot script", function () {
           useful: true,
           room_name: "puzzles/fghij67890",
           mention: ["torgen"],
-        },
+        }
       );
     });
 
@@ -289,7 +289,7 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
     });
   });
@@ -321,7 +321,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "answer",
-            },
+            }
           );
         });
 
@@ -349,7 +349,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "answer",
-            },
+            }
           );
         });
 
@@ -378,7 +378,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "answer",
-            },
+            }
           );
         });
 
@@ -407,7 +407,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "answer",
-            },
+            }
           );
         });
       });
@@ -428,7 +428,7 @@ describe("codex hubot script", function () {
               room_name: "general/0",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -448,7 +448,7 @@ describe("codex hubot script", function () {
               room_name: "general/0",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -477,7 +477,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "answer",
-            },
+            }
           );
         });
       });
@@ -509,7 +509,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "interaction request",
-            },
+            }
           );
         });
 
@@ -537,7 +537,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "interaction request",
-            },
+            }
           );
         });
       });
@@ -558,7 +558,7 @@ describe("codex hubot script", function () {
               room_name: "general/0",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -578,7 +578,7 @@ describe("codex hubot script", function () {
               room_name: "general/0",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -607,7 +607,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "interaction request",
-            },
+            }
           );
         });
       });
@@ -639,7 +639,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "message to hq",
-            },
+            }
           );
         });
 
@@ -667,7 +667,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "message to hq",
-            },
+            }
           );
         });
       });
@@ -688,7 +688,7 @@ describe("codex hubot script", function () {
               room_name: "general/0",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -708,7 +708,7 @@ describe("codex hubot script", function () {
               room_name: "general/0",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -737,7 +737,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "message to hq",
-            },
+            }
           );
         });
       });
@@ -769,7 +769,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "expected callback",
-            },
+            }
           );
         });
 
@@ -797,7 +797,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "expected callback",
-            },
+            }
           );
         });
       });
@@ -818,7 +818,7 @@ describe("codex hubot script", function () {
               room_name: "general/0",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -838,7 +838,7 @@ describe("codex hubot script", function () {
               room_name: "general/0",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
           chai.assert.isUndefined(CallIns.findOne());
         });
@@ -867,7 +867,7 @@ describe("codex hubot script", function () {
               touched: 7,
               touched_by: "torgen",
               callin_type: "expected callback",
-            },
+            }
           );
         });
       });
@@ -901,13 +901,13 @@ describe("codex hubot script", function () {
           {
             canon: "latino_alphabet",
             feedsInto: [mid],
-          },
+          }
         );
         await waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
         return waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {},
+          {}
         );
       });
 
@@ -935,13 +935,13 @@ describe("codex hubot script", function () {
             canon: "latino_alphabet",
             feedsInto: [mid],
             link: "https://bluedot.sg/puzz/la",
-          },
+          }
         );
         await waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
         return waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {},
+          {}
         );
       });
 
@@ -968,7 +968,7 @@ describe("codex hubot script", function () {
           {
             canon: "latino_alphabet",
             feedsInto: [mid],
-          },
+          }
         );
         return waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
       });
@@ -997,12 +997,12 @@ describe("codex hubot script", function () {
           {
             canon: "latino_alphabet",
             feedsInto: [],
-          },
+          }
         );
         await waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {},
+          {}
         );
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
       });
@@ -1038,7 +1038,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.deepInclude(Rounds.findOne(rid), { puzzles: [mid] });
       });
@@ -1067,12 +1067,12 @@ describe("codex hubot script", function () {
           {
             canon: "latino_alphabet",
             feedsInto: [],
-          },
+          }
         );
         await waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {},
+          {}
         );
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
       });
@@ -1102,12 +1102,12 @@ describe("codex hubot script", function () {
             canon: "latino_alphabet",
             feedsInto: [],
             puzzles: [],
-          },
+          }
         );
         await waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
-          {},
+          {}
         );
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
       });
@@ -1139,7 +1139,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
         chai.assert.deepInclude(Rounds.findOne(rid), { puzzles: [mid] });
@@ -1169,7 +1169,7 @@ describe("codex hubot script", function () {
           {
             canon: "latino_alphabet",
             feedsInto: [],
-          },
+          }
         );
         await waitForDocument(Rounds, { _id: rid, puzzles: [puzz._id] }, {});
         chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
@@ -1191,7 +1191,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
       });
     }));
@@ -1219,7 +1219,7 @@ describe("codex hubot script", function () {
             timestamp: 7,
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.isUndefined(Puzzles.findOne({ _id: pid }));
       });
@@ -1240,7 +1240,7 @@ describe("codex hubot script", function () {
             timestamp: 7,
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
       });
     }));
@@ -1249,7 +1249,7 @@ describe("codex hubot script", function () {
     it("creates round", function () {
       RoundUrlPrefix.ensure();
       impersonating("testbot", () =>
-        RoundUrlPrefix.set("https://moliday.holasses/round"),
+        RoundUrlPrefix.set("https://moliday.holasses/round")
       );
       Messages.insert({
         nick: "torgen",
@@ -1269,14 +1269,14 @@ describe("codex hubot script", function () {
           puzzles: [],
           sort_key: 7,
           link: "https://moliday.holasses/round/elliptic_curve",
-        },
+        }
       );
     });
 
     it("creates round with specified link", function () {
       RoundUrlPrefix.ensure();
       impersonating("testbot", () =>
-        RoundUrlPrefix.set("https://moliday.holasses/round"),
+        RoundUrlPrefix.set("https://moliday.holasses/round")
       );
       Messages.insert({
         nick: "torgen",
@@ -1296,7 +1296,7 @@ describe("codex hubot script", function () {
           puzzles: [],
           sort_key: 7,
           link: "https://moliday.holasses/circular",
-        },
+        }
       );
     });
 
@@ -1325,7 +1325,7 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
     });
   });
@@ -1352,7 +1352,7 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
       chai.assert.isUndefined(Rounds.findOne({ _id: rid }));
     });
@@ -1380,7 +1380,7 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
       chai.assert.isObject(Rounds.findOne({ _id: rid }));
     });
@@ -1401,7 +1401,7 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
     });
   });
@@ -1433,7 +1433,7 @@ describe("codex hubot script", function () {
                 value: "blue",
               },
             },
-          },
+          }
         );
       });
 
@@ -1468,7 +1468,7 @@ describe("codex hubot script", function () {
                 value: "blue",
               },
             },
-          },
+          }
         );
       });
 
@@ -1503,7 +1503,7 @@ describe("codex hubot script", function () {
                 value: "blue",
               },
             },
-          },
+          }
         );
       });
     });
@@ -1534,7 +1534,7 @@ describe("codex hubot script", function () {
                 value: "blue",
               },
             },
-          },
+          }
         );
       });
 
@@ -1569,7 +1569,7 @@ describe("codex hubot script", function () {
                 value: "blue",
               },
             },
-          },
+          }
         );
       });
 
@@ -1604,7 +1604,7 @@ describe("codex hubot script", function () {
                 value: "blue",
               },
             },
-          },
+          }
         );
       });
     });
@@ -1625,7 +1625,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             mention: ["torgen"],
-          },
+          }
         );
       });
 
@@ -1644,7 +1644,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             mention: ["torgen"],
-          },
+          }
         );
       });
 
@@ -1673,7 +1673,7 @@ describe("codex hubot script", function () {
                 value: "blue",
               },
             },
-          },
+          }
         );
       });
 
@@ -1702,7 +1702,7 @@ describe("codex hubot script", function () {
                 value: "blue",
               },
             },
-          },
+          }
         );
       });
     });
@@ -1730,7 +1730,7 @@ describe("codex hubot script", function () {
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {},
+          {}
         );
       });
 
@@ -1760,7 +1760,7 @@ describe("codex hubot script", function () {
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {},
+          {}
         );
       });
 
@@ -1790,7 +1790,7 @@ describe("codex hubot script", function () {
         return waitForDocument(
           Rounds,
           { _id: "fghij67890", "tags.color": { $exists: false } },
-          {},
+          {}
         );
       });
 
@@ -1815,7 +1815,7 @@ describe("codex hubot script", function () {
             room_name: "puzzles/12345abcde",
             timestamp: 7,
             mention: ["torgen"],
-          },
+          }
         );
       });
     });
@@ -1841,7 +1841,7 @@ describe("codex hubot script", function () {
         return waitForDocument(
           Rounds,
           { _id: "fghij67890", "tags.color": { $exists: false } },
-          {},
+          {}
         );
       });
 
@@ -1871,7 +1871,7 @@ describe("codex hubot script", function () {
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {},
+          {}
         );
       });
 
@@ -1901,7 +1901,7 @@ describe("codex hubot script", function () {
         return waitForDocument(
           Rounds,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {},
+          {}
         );
       });
 
@@ -1926,7 +1926,7 @@ describe("codex hubot script", function () {
             room_name: "rounds/12345abcde",
             timestamp: 7,
             mention: ["torgen"],
-          },
+          }
         );
       });
     });
@@ -1947,7 +1947,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             mention: ["torgen"],
-          },
+          }
         );
       });
 
@@ -1966,7 +1966,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             mention: ["torgen"],
-          },
+          }
         );
       });
 
@@ -1990,7 +1990,7 @@ describe("codex hubot script", function () {
         return waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {},
+          {}
         );
       });
 
@@ -2014,7 +2014,7 @@ describe("codex hubot script", function () {
         return waitForDocument(
           Rounds,
           { _id: "12345abcde", "tags.color": { $exists: false } },
-          {},
+          {}
         );
       });
     });
@@ -2047,7 +2047,7 @@ describe("codex hubot script", function () {
                 value: "Stuck",
               },
             },
-          },
+          }
         );
       });
 
@@ -2079,7 +2079,7 @@ describe("codex hubot script", function () {
                 value: "Stuck: maparium is closed",
               },
             },
-          },
+          }
         );
       });
 
@@ -2117,7 +2117,7 @@ describe("codex hubot script", function () {
                 value: "Stuck: maparium is closed",
               },
             },
-          },
+          }
         );
       });
     });
@@ -2148,7 +2148,7 @@ describe("codex hubot script", function () {
                 value: "Stuck",
               },
             },
-          },
+          }
         );
       });
 
@@ -2180,7 +2180,7 @@ describe("codex hubot script", function () {
                 value: "Stuck: maparium is closed",
               },
             },
-          },
+          }
         );
       });
 
@@ -2199,7 +2199,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
       });
 
@@ -2224,7 +2224,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.deepInclude(Rounds.findOne("12345abcde"), {
           tags: {},
@@ -2254,7 +2254,7 @@ describe("codex hubot script", function () {
             room_name: "rounds/12345abcde",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
       }));
   });
@@ -2287,7 +2287,7 @@ describe("codex hubot script", function () {
           {
             body: "no longer needs help getting unstuck",
             timestamp: 7,
-          },
+          }
         );
         chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
           tags: {},
@@ -2320,7 +2320,7 @@ describe("codex hubot script", function () {
           {
             body: "has arrived to help",
             timestamp: 7,
-          },
+          }
         );
         chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
           tags: {},
@@ -2359,7 +2359,7 @@ describe("codex hubot script", function () {
           {
             touched: 7,
             touched_by: "torgen",
-          },
+          }
         );
       });
     });
@@ -2391,7 +2391,7 @@ describe("codex hubot script", function () {
           {
             touched: 7,
             touched_by: "torgen",
-          },
+          }
         );
       });
 
@@ -2410,7 +2410,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
       });
 
@@ -2429,7 +2429,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
       });
     });
@@ -2463,7 +2463,7 @@ describe("codex hubot script", function () {
             room_name: "rounds/12345abcde",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
       }));
   });
@@ -2488,7 +2488,7 @@ describe("codex hubot script", function () {
             { canon: "the_field", option: "the field" },
           ],
           votes: {},
-        },
+        }
       );
       return await waitForDocument(
         Messages,
@@ -2497,7 +2497,7 @@ describe("codex hubot script", function () {
           nick: "torgen",
           room_name: "general/0",
           timestamp: 7,
-        },
+        }
       );
     });
 
@@ -2517,7 +2517,7 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
     });
 
@@ -2537,7 +2537,7 @@ describe("codex hubot script", function () {
           room_name: "general/0",
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
     });
   });
@@ -2568,7 +2568,7 @@ describe("codex hubot script", function () {
             room_name: "general/0",
             timestamp: 7,
             useful: true,
-          },
+          }
         );
       }
     }));
@@ -2596,7 +2596,7 @@ describe("codex hubot script", function () {
           timestamp: 7,
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
       chai.assert.equal(97, MaximumMemeLength.get());
     });
@@ -2617,7 +2617,7 @@ describe("codex hubot script", function () {
           timestamp: 7,
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
       chai.assert.isFalse(EmbedPuzzles.get());
     });
@@ -2640,7 +2640,7 @@ describe("codex hubot script", function () {
           timestamp: 7,
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
       chai.assert.equal("https://moliday.holasses/round", RoundUrlPrefix.get());
     });
@@ -2663,7 +2663,7 @@ describe("codex hubot script", function () {
           timestamp: 7,
           useful: true,
           mention: ["torgen"],
-        },
+        }
       );
     });
 
@@ -2684,7 +2684,7 @@ describe("codex hubot script", function () {
             timestamp: 7,
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.isTrue(EmbedPuzzles.get());
       });
@@ -2705,7 +2705,7 @@ describe("codex hubot script", function () {
             timestamp: 7,
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.equal("", RoundUrlPrefix.get());
       });
@@ -2726,7 +2726,7 @@ describe("codex hubot script", function () {
             timestamp: 7,
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.equal(140, MaximumMemeLength.get());
       });

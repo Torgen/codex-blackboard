@@ -13,7 +13,7 @@ describe("renameRound", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(function () {
@@ -37,7 +37,7 @@ describe("renameRound", function () {
           puzzles: ["yoy"],
           link: "https://puzzlehunt.mit.edu/foo",
           tags: {},
-        })),
+        }))
     );
 
     it("fails without login", () =>
@@ -47,7 +47,7 @@ describe("renameRound", function () {
             id,
             name: "Bar",
           }),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", function () {
@@ -57,7 +57,7 @@ describe("renameRound", function () {
           (ret = callAs("renameRound", "cjb", {
             id,
             name: "Bar",
-          })),
+          }))
       );
 
       it("returns true", () => chai.assert.isTrue(ret));
@@ -76,7 +76,7 @@ describe("renameRound", function () {
         chai.assert.lengthOf(
           Messages.find({ id, type: "rounds" }).fetch(),
           1,
-          "oplogs",
+          "oplogs"
         ));
     });
   });
@@ -125,7 +125,7 @@ describe("renameRound", function () {
     it("doesn't oplog", () =>
       chai.assert.lengthOf(
         Messages.find({ id: { $in: [id1, id2] }, type: "rounds" }).fetch(),
-        0,
+        0
       ));
   });
 });

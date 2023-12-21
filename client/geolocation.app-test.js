@@ -29,7 +29,7 @@ describe("geolocation", function () {
     return waitForDocument(
       Meteor.users,
       { _id: "testy", located: { $ne: null } },
-      { located_at: KRESGE },
+      { located_at: KRESGE }
     );
   });
 });

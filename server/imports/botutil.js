@@ -16,7 +16,7 @@ export function rejoin(...regs) {
   })();
   return new RegExp(
     regs.reduce((acc, r) => acc + (r instanceof RegExp ? r.source : r), ""),
-    flags ?? "",
+    flags ?? ""
   );
 }
 
@@ -47,7 +47,7 @@ export function objectFromRoom(msg) {
   if (type === "general" || type === "callins") {
     msg.reply(
       { useful: true },
-      "You need to tell me which puzzle this is for.",
+      "You need to tell me which puzzle this is for."
     );
     msg.finish();
     return;
@@ -61,7 +61,7 @@ export function objectFromRoom(msg) {
   if (!object) {
     msg.reply(
       { useful: true },
-      `Something went wrong.  I can't look up ${room}.`,
+      `Something went wrong.  I can't look up ${room}.`
     );
     msg.finish();
     return;

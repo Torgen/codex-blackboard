@@ -19,7 +19,7 @@ describe("setAnswer", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -77,7 +77,7 @@ describe("setAnswer", function () {
             target: id,
             answer: "bar",
           }),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", function () {
@@ -87,7 +87,7 @@ describe("setAnswer", function () {
           (ret = callAs("setAnswer", "cjb", {
             target: id,
             answer: "bar",
-          })),
+          }))
       );
 
       it("returns true", () => chai.assert.isTrue(ret));
@@ -336,7 +336,7 @@ describe("setAnswer", function () {
         answer: "bar",
         backsolve: true,
         provided: true,
-      }),
+      })
     );
     chai.assert.deepInclude(Puzzles.findOne(id), {
       tags: {
@@ -420,13 +420,13 @@ describe("setAnswer", function () {
     it("doesn't oplog for callins", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: "oplog/0", type: "callins" }).fetch(),
-        0,
+        0
       ));
 
     it("oplogs for puzzle", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: "oplog/0", type: "puzzles", id }).fetch(),
-        1,
+        1
       ));
 
     it("sets solved_by correctly", () =>

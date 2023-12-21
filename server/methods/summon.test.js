@@ -14,7 +14,7 @@ describe("summon", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -67,7 +67,7 @@ describe("summon", function () {
     it("doesn't chat", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: { $ne: "oplog/0" } }).fetch(),
-        0,
+        0
       ));
 
     it("doesn't oplog", () =>
@@ -120,7 +120,7 @@ describe("summon", function () {
     it("doesn't chat", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: { $ne: "oplog/0" } }).fetch(),
-        0,
+        0
       ));
 
     it("doesn't oplog", () =>
@@ -200,7 +200,7 @@ describe("summon", function () {
           type: "puzzles",
           id,
         }).fetch(),
-        1,
+        1
       ));
   });
 
@@ -218,7 +218,7 @@ describe("summon", function () {
           solved: null,
           solved_by: null,
           tags: {},
-        })),
+        }))
     );
 
     it("fails without login", () =>
@@ -277,7 +277,7 @@ describe("summon", function () {
             type: "puzzles",
             id,
           }).fetch(),
-          1,
+          1
         ));
     });
 
@@ -288,7 +288,7 @@ describe("summon", function () {
           (ret = callAs("summon", "torgen", {
             object: id,
             how: "stucK like glue",
-          })),
+          }))
       );
 
       it("returns nothing", () => chai.assert.isUndefined(ret));
@@ -337,7 +337,7 @@ describe("summon", function () {
             type: "puzzles",
             id,
           }).fetch(),
-          1,
+          1
         ));
     });
 
@@ -348,7 +348,7 @@ describe("summon", function () {
           (ret = callAs("summon", "torgen", {
             object: id,
             how: "no idea",
-          })),
+          }))
       );
 
       it("returns nothing", () => chai.assert.isUndefined(ret));
@@ -399,7 +399,7 @@ describe("summon", function () {
             type: "puzzles",
             id,
           }).fetch(),
-          1,
+          1
         ));
     });
   });
@@ -478,7 +478,7 @@ describe("summon", function () {
           type: "puzzles",
           id,
         }).fetch(),
-        1,
+        1
       ));
   });
 });

@@ -19,7 +19,7 @@ describe("newCallIn", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -34,7 +34,7 @@ describe("newCallIn", function () {
             target: "something",
             answer: "precipitate",
           }),
-        Meteor.Error,
+        Meteor.Error
       ));
 
     it("fails when target is not a puzzle", function () {
@@ -57,7 +57,7 @@ describe("newCallIn", function () {
             target_type: "rounds",
             answer: "precipitate",
           }),
-        Match.Error,
+        Match.Error
       );
     });
 
@@ -76,7 +76,7 @@ describe("newCallIn", function () {
             solved_by: null,
             tags: {},
             feedsInto: [],
-          })),
+          }))
       );
 
       it("fails without login", () =>
@@ -86,13 +86,13 @@ describe("newCallIn", function () {
               target: id,
               answer: "precipitate",
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails without answer", () =>
         chai.assert.throws(
           () => callAs("newCallIn", "torgen", { target: id }),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with simple callin", function () {
@@ -100,7 +100,7 @@ describe("newCallIn", function () {
           callAs("newCallIn", "torgen", {
             target: id,
             answer: "precipitate",
-          }),
+          })
         );
 
         it("creates document", function () {
@@ -264,7 +264,7 @@ describe("newCallIn", function () {
             answer: "precipitate",
             callin_type: "interaction request",
           }),
-        Meteor.Error,
+        Meteor.Error
       ));
 
     it("fails when target is not a puzzle", function () {
@@ -288,7 +288,7 @@ describe("newCallIn", function () {
             answer: "precipitate",
             callin_type: "interaction request",
           }),
-        Match.Error,
+        Match.Error
       );
     });
 
@@ -307,7 +307,7 @@ describe("newCallIn", function () {
             solved_by: null,
             tags: {},
             feedsInto: [],
-          })),
+          }))
       );
 
       it("fails without login", () =>
@@ -318,7 +318,7 @@ describe("newCallIn", function () {
               answer: "precipitate",
               callin_type: "interaction request",
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails without answer", () =>
@@ -328,7 +328,7 @@ describe("newCallIn", function () {
               target: id,
               callin_type: "interaction request",
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with backsolve", () =>
@@ -340,7 +340,7 @@ describe("newCallIn", function () {
               callin_type: "interaction request",
               backsolve: true,
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with provided", () =>
@@ -352,7 +352,7 @@ describe("newCallIn", function () {
               callin_type: "interaction request",
               provided: true,
             }),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with valid parameters", function () {
@@ -361,7 +361,7 @@ describe("newCallIn", function () {
             target: id,
             answer: "pay the cat tax",
             callin_type: "interaction request",
-          }),
+          })
         );
 
         it("creates document", function () {
@@ -436,7 +436,7 @@ describe("newCallIn", function () {
             answer: "precipitate",
             callin_type: "message to hq",
           }),
-        Meteor.Error,
+        Meteor.Error
       ));
 
     it("fails when target is not a puzzle", function () {
@@ -460,7 +460,7 @@ describe("newCallIn", function () {
             answer: "precipitate",
             callin_type: "message to hq",
           }),
-        Match.Error,
+        Match.Error
       );
     });
 
@@ -479,7 +479,7 @@ describe("newCallIn", function () {
             solved_by: null,
             tags: {},
             feedsInto: [],
-          })),
+          }))
       );
 
       it("fails without login", () =>
@@ -490,7 +490,7 @@ describe("newCallIn", function () {
               answer: "precipitate",
               callin_type: "message to hq",
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails without answer", () =>
@@ -500,7 +500,7 @@ describe("newCallIn", function () {
               target: id,
               callin_type: "message to hq",
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with backsolve", () =>
@@ -512,7 +512,7 @@ describe("newCallIn", function () {
               callin_type: "message to hq",
               backsolve: true,
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with provided", () =>
@@ -524,7 +524,7 @@ describe("newCallIn", function () {
               callin_type: "message to hq",
               provided: true,
             }),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with valid parameters", function () {
@@ -533,7 +533,7 @@ describe("newCallIn", function () {
             target: id,
             answer: "pay the cat tax",
             callin_type: "message to hq",
-          }),
+          })
         );
 
         it("creates document", function () {
@@ -608,7 +608,7 @@ describe("newCallIn", function () {
             answer: "precipitate",
             callin_type: "expected callback",
           }),
-        Meteor.Error,
+        Meteor.Error
       ));
 
     it("fails when target is not a puzzle", function () {
@@ -632,7 +632,7 @@ describe("newCallIn", function () {
             answer: "precipitate",
             callin_type: "expected callback",
           }),
-        Match.Error,
+        Match.Error
       );
     });
 
@@ -651,7 +651,7 @@ describe("newCallIn", function () {
             solved_by: null,
             tags: {},
             feedsInto: [],
-          })),
+          }))
       );
 
       it("fails without login", () =>
@@ -662,7 +662,7 @@ describe("newCallIn", function () {
               answer: "precipitate",
               callin_type: "expected callback",
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails without answer", () =>
@@ -672,7 +672,7 @@ describe("newCallIn", function () {
               target: id,
               callin_type: "expected callback",
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with backsolve", () =>
@@ -684,7 +684,7 @@ describe("newCallIn", function () {
               callin_type: "expected callback",
               backsolve: true,
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with provided", () =>
@@ -696,7 +696,7 @@ describe("newCallIn", function () {
               callin_type: "expected callback",
               provided: true,
             }),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with valid parameters", function () {
@@ -705,7 +705,7 @@ describe("newCallIn", function () {
             target: id,
             answer: "pay the cat tax",
             callin_type: "expected callback",
-          }),
+          })
         );
 
         it("creates document", function () {

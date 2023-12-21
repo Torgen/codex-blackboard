@@ -96,7 +96,7 @@ Template.login.events({
   },
   "input #nickEmail": _.debounce(
     (event, template) => template.updateGravatar(),
-    500,
+    500
   ),
   "submit #nickPick"(event, template) {
     const nick = $("#nickInput")
@@ -123,7 +123,7 @@ Template.login.events({
               .addClass("error");
           }
         }
-      },
+      }
     );
     return false;
   },

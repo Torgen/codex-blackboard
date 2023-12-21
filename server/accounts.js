@@ -23,7 +23,7 @@ if (DO_BATCH_PROCESSING) {
           "services.codex.password_used": { $exists: false },
         },
         { $set: { "services.codex.password_used": sha_password } },
-        { multi: true },
+        { multi: true }
       );
       Meteor.users.update(
         {
@@ -31,7 +31,7 @@ if (DO_BATCH_PROCESSING) {
           "services.codex.password_used": { $ne: sha_password },
         },
         { $unset: { "services.resume": "" } },
-        { multi: true },
+        { multi: true }
       );
     });
   }
@@ -84,7 +84,7 @@ Accounts.registerLoginHandler("codex", function (options) {
         _id: canon,
         bot_wakeup: { $exists: false },
       },
-      { $set: profile },
+      { $set: profile }
     );
   } catch (error) {
     throw new Meteor.Error(401, "Can't impersonate the bot", {

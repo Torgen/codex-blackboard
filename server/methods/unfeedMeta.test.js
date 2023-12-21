@@ -13,7 +13,7 @@ describe("unfeedMeta", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -48,7 +48,7 @@ describe("unfeedMeta", function () {
     });
     chai.assert.throws(
       () => Meteor.call("feedMeta", "leaf", "meta"),
-      Match.Error,
+      Match.Error
     );
   });
 
@@ -145,7 +145,7 @@ describe("unfeedMeta", function () {
     });
     chai.assert.throws(
       () => callAs("unfeedMeta", "jeff", "leaf", "meta"),
-      Meteor.Error,
+      Meteor.Error
     );
     chai.assert.deepEqual(Puzzles.findOne("leaf").feedsInto, ["wew"]);
   });
@@ -165,7 +165,7 @@ describe("unfeedMeta", function () {
     });
     chai.assert.throws(
       () => callAs("feedMeta", "jeff", "leaf", "meta"),
-      Meteor.Error,
+      Meteor.Error
     );
     chai.assert.deepEqual(Puzzles.findOne("meta").puzzles, ["yoy"]);
   });

@@ -47,7 +47,7 @@ Template.tag_table_rows.events(
         Tracker.afterFlush(() =>
           template
             .$(`tr[data-tag-name='${cval}'] .bb-edit-tag-value`)
-            .trigger("bb-edit"),
+            .trigger("bb-edit")
         );
       }
     },
@@ -56,7 +56,7 @@ Template.tag_table_rows.events(
       this.adding.done();
       template.newTagName.set("");
     },
-  }),
+  })
 );
 
 Template.tag_table_rows.helpers({

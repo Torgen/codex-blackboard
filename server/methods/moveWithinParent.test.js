@@ -15,7 +15,7 @@ const testCase = (method, collection) =>
         (clock = sinon.useFakeTimers({
           now: 7,
           toFake: ["Date"],
-        })),
+        }))
     );
 
     afterEach(() => clock.restore());
@@ -36,12 +36,12 @@ const testCase = (method, collection) =>
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call(method, "parent", "c1", { pos: 1 }),
-        Match.Error,
+        Match.Error
       ));
 
     it("fails when parent doesn't exist", () =>
       chai.assert.isFalse(
-        callAs(method, "torgen", "nosuch", "child", { pos: 1 }),
+        callAs(method, "torgen", "nosuch", "child", { pos: 1 })
       ));
 
     it("fails when child doesn't exist", function () {
@@ -100,7 +100,7 @@ const testCase = (method, collection) =>
 
     it("fails to move past start", function () {
       chai.assert.isFalse(
-        callAs(method, "torgen", "c1", "parent", { pos: -1 }),
+        callAs(method, "torgen", "c1", "parent", { pos: -1 })
       );
       chai.assert.deepInclude(collection.findOne("parent"), {
         puzzles: ["c1", "c2", "c3", "c4"],
@@ -111,7 +111,7 @@ const testCase = (method, collection) =>
 
     it("moves before", function () {
       chai.assert.isTrue(
-        callAs(method, "torgen", "c2", "parent", { before: "c4" }),
+        callAs(method, "torgen", "c2", "parent", { before: "c4" })
       );
       chai.assert.deepInclude(collection.findOne("parent"), {
         puzzles: ["c1", "c3", "c2", "c4"],
@@ -122,7 +122,7 @@ const testCase = (method, collection) =>
 
     it("moves after", function () {
       chai.assert.isTrue(
-        callAs(method, "torgen", "c3", "parent", { after: "c1" }),
+        callAs(method, "torgen", "c3", "parent", { after: "c1" })
       );
       chai.assert.deepInclude(collection.findOne("parent"), {
         puzzles: ["c1", "c3", "c2", "c4"],
@@ -133,7 +133,7 @@ const testCase = (method, collection) =>
 
     it("fails to move before absent", function () {
       chai.assert.isFalse(
-        callAs(method, "torgen", "c2", "parent", { before: "c5" }),
+        callAs(method, "torgen", "c2", "parent", { before: "c5" })
       );
       chai.assert.deepInclude(collection.findOne("parent"), {
         puzzles: ["c1", "c2", "c3", "c4"],
@@ -144,7 +144,7 @@ const testCase = (method, collection) =>
 
     it("fails to move after absent", function () {
       chai.assert.isFalse(
-        callAs(method, "torgen", "c3", "parent", { after: "c5" }),
+        callAs(method, "torgen", "c3", "parent", { after: "c5" })
       );
       chai.assert.deepInclude(collection.findOne("parent"), {
         puzzles: ["c1", "c2", "c3", "c4"],

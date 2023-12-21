@@ -11,7 +11,7 @@ export function awaitBundleLoaded() {
       }
       resolve();
       computation.stop();
-    }),
+    })
   );
 }
 

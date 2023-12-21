@@ -19,7 +19,7 @@ describe("newRound", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      })),
+      }))
   );
 
   afterEach(function () {
@@ -42,7 +42,7 @@ describe("newRound", function () {
           link: "https://puzzlehunt.mit.edu/foo",
           puzzles: ["yoy"],
         }),
-      Match.Error,
+      Match.Error
     ));
 
   describe("when none exists with that name", function () {
@@ -80,7 +80,7 @@ describe("newRound", function () {
           tags: {},
         });
         ["solved", "solved_by", "drive", "spreadsheet", "doc"].forEach((prop) =>
-          chai.assert.notProperty(round, prop),
+          chai.assert.notProperty(round, prop)
         );
       });
 
@@ -123,7 +123,7 @@ describe("newRound", function () {
           (id = callAs("newRound", "torgen", {
             name: "Foo",
             link: "https://puzzlehunt.mit.edu/foo",
-          })._id),
+          })._id)
       );
 
       it("leaves onduty alone", () =>
@@ -133,7 +133,7 @@ describe("newRound", function () {
 
   it("derives link", function () {
     impersonating("cjb", () =>
-      RoundUrlPrefix.set("https://testhuntpleaseign.org/rounds"),
+      RoundUrlPrefix.set("https://testhuntpleaseign.org/rounds")
     );
     const id = callAs("newRound", "torgen", { name: "Foo Round" })._id;
     // Round is created, then drive et al are added
@@ -187,7 +187,7 @@ describe("newRound", function () {
     it("doesn't oplog", () =>
       chai.assert.lengthOf(
         Messages.find({ id: id1, type: "rounds" }).fetch(),
-        0,
+        0
       ));
   });
 });

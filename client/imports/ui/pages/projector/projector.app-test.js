@@ -34,17 +34,15 @@ describe("projector", function () {
     chai.assert.isTrue(
       page
         .find('[data-projector-view="chart"]')
-        .hasClass("projector-current-view"),
+        .hasClass("projector-current-view")
     );
     chai.assert.isTrue(
-      page
-        .find('[data-projector-view="map"]')
-        .hasClass("projector-hidden-view"),
+      page.find('[data-projector-view="map"]').hasClass("projector-hidden-view")
     );
     chai.assert.isTrue(
       page
         .find('[data-projector-view="graph"]')
-        .hasClass("projector-hidden-view"),
+        .hasClass("projector-hidden-view")
     );
     clock.tick(9000);
     await afterFlushPromise();
@@ -53,68 +51,64 @@ describe("projector", function () {
     chai.assert.isTrue(
       page
         .find('[data-projector-view="chart"]')
-        .hasClass("projector-current-view"),
+        .hasClass("projector-current-view")
     );
     chai.assert.isTrue(
-      page
-        .find('[data-projector-view="map"]')
-        .hasClass("projector-hidden-view"),
+      page.find('[data-projector-view="map"]').hasClass("projector-hidden-view")
     );
     chai.assert.isTrue(
       page
         .find('[data-projector-view="graph"]')
-        .hasClass("projector-hidden-view"),
+        .hasClass("projector-hidden-view")
     );
     clock.tick(1000);
     await afterFlushPromise();
     chai.assert.isTrue(
       page
         .find('[data-projector-view="chart"]')
-        .hasClass("projector-previous-view"),
+        .hasClass("projector-previous-view")
     );
     chai.assert.isTrue(
       page
         .find('[data-projector-view="map"]')
-        .hasClass("projector-current-view"),
+        .hasClass("projector-current-view")
     );
     chai.assert.isTrue(
       page
         .find('[data-projector-view="graph"]')
-        .hasClass("projector-hidden-view"),
+        .hasClass("projector-hidden-view")
     );
     clock.tick(10000);
     await afterFlushPromise();
     chai.assert.isTrue(
       page
         .find('[data-projector-view="chart"]')
-        .hasClass("projector-hidden-view"),
+        .hasClass("projector-hidden-view")
     );
     chai.assert.isTrue(
       page
         .find('[data-projector-view="map"]')
-        .hasClass("projector-previous-view"),
+        .hasClass("projector-previous-view")
     );
     chai.assert.isTrue(
       page
         .find('[data-projector-view="graph"]')
-        .hasClass("projector-current-view"),
+        .hasClass("projector-current-view")
     );
     clock.tick(10000);
     await afterFlushPromise();
     chai.assert.isTrue(
       page
         .find('[data-projector-view="chart"]')
-        .hasClass("projector-current-view"),
+        .hasClass("projector-current-view")
     );
     chai.assert.isTrue(
-      page
-        .find('[data-projector-view="map"]')
-        .hasClass("projector-hidden-view"),
+      page.find('[data-projector-view="map"]').hasClass("projector-hidden-view")
     );
     chai.assert.isTrue(
       page
         .find('[data-projector-view="graph"]')
-        .hasClass("projector-previous-view"),
+        .hasClass("projector-previous-view")
     );
   });
 });

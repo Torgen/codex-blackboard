@@ -49,7 +49,7 @@ describe("renamePuzzle", function () {
           drive: "fid",
           spreadsheet: "sid",
           tags: {},
-        })),
+        }))
     );
 
     it("fails without login", () =>
@@ -59,7 +59,7 @@ describe("renamePuzzle", function () {
             id,
             name: "Bar",
           }),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", function () {
@@ -71,8 +71,8 @@ describe("renamePuzzle", function () {
             (ret = callAs("renamePuzzle", "cjb", {
               id,
               name: "Bar",
-            })),
-        ),
+            }))
+        )
       );
 
       it("returns true", () => chai.assert.isTrue(ret));
@@ -97,7 +97,7 @@ describe("renamePuzzle", function () {
       it("oplogs", () =>
         chai.assert.lengthOf(
           Messages.find({ id, type: "puzzles" }).fetch(),
-          1,
+          1
         ));
     });
   });
@@ -141,7 +141,7 @@ describe("renamePuzzle", function () {
           (ret = callAs("renamePuzzle", "cjb", {
             id: id1,
             name: "Bar",
-          })),
+          }))
       );
     });
 
@@ -159,7 +159,7 @@ describe("renamePuzzle", function () {
       chai.assert.lengthOf(
         Messages.find({ id: { $in: [id1, id2] }, type: "puzzles" }).fetch(),
         0,
-        "oplogs",
+        "oplogs"
       ));
 
     it("doesn't rename drive", () =>

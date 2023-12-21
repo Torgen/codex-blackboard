@@ -56,7 +56,7 @@ describe("metas hubot script", function () {
               {
                 touched: 7,
                 touched_by: "torgen",
-              },
+              }
             );
             return waitForDocument(
               Messages,
@@ -66,7 +66,7 @@ describe("metas hubot script", function () {
                 useful: true,
                 mention: ["torgen"],
                 body: "@torgen: OK, this is now a meta.",
-              },
+              }
             );
           });
 
@@ -92,7 +92,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: this was already a meta.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
 
@@ -121,7 +121,7 @@ describe("metas hubot script", function () {
               {
                 touched: 7,
                 touched_by: "torgen",
-              },
+              }
             );
             chai.assert.isUndefined(Puzzles.findOne("12345abcde").puzzles);
             return waitForDocument(
@@ -132,7 +132,7 @@ describe("metas hubot script", function () {
                 useful: true,
                 mention: ["torgen"],
                 body: "@torgen: OK, even this poem is now a meta.",
-              },
+              }
             );
           });
 
@@ -157,7 +157,7 @@ describe("metas hubot script", function () {
                 body: '@torgen: I can\'t find a puzzle called "even this poem".',
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
             chai.assert.isUndefined(Puzzles.findOne("12345abcde").puzzles);
           });
@@ -179,7 +179,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: You need to tell me which puzzle this is for.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
 
@@ -202,7 +202,7 @@ describe("metas hubot script", function () {
               {
                 touched: 7,
                 touched_by: "torgen",
-              },
+              }
             );
             return waitForDocument(
               Messages,
@@ -212,11 +212,11 @@ describe("metas hubot script", function () {
                 useful: true,
                 mention: ["torgen"],
                 body: "@torgen: OK, even this poem is now a meta.",
-              },
+              }
             );
           });
         });
-      }),
+      })
     );
 
     ["isn't", "is not"].forEach((verb) =>
@@ -242,7 +242,7 @@ describe("metas hubot script", function () {
               {
                 touched: 7,
                 touched_by: "torgen",
-              },
+              }
             );
             return waitForDocument(
               Messages,
@@ -252,7 +252,7 @@ describe("metas hubot script", function () {
                 useful: true,
                 mention: ["torgen"],
                 body: "@torgen: OK, this is no longer a meta.",
-              },
+              }
             );
           });
 
@@ -278,7 +278,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: 1 puzzle feeds into Latino Alphabet. It must be a meta.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
             chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
               puzzles: ["a"],
@@ -307,7 +307,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: 3 puzzles feed into Latino Alphabet. It must be a meta.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
             chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
               puzzles: ["a", "b", "c"],
@@ -335,7 +335,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: this already wasn't a meta.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
 
@@ -366,7 +366,7 @@ describe("metas hubot script", function () {
               {
                 touched: 7,
                 touched_by: "torgen",
-              },
+              }
             );
             chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
               puzzles: [],
@@ -379,7 +379,7 @@ describe("metas hubot script", function () {
                 useful: true,
                 mention: ["torgen"],
                 body: "@torgen: OK, even this poem is no longer a meta.",
-              },
+              }
             );
           });
 
@@ -405,7 +405,7 @@ describe("metas hubot script", function () {
                 body: '@torgen: I can\'t find a puzzle called "even this poem".',
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
             chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
               puzzles: [],
@@ -429,7 +429,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: You need to tell me which puzzle this is for.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
 
@@ -453,7 +453,7 @@ describe("metas hubot script", function () {
               {
                 touched: 7,
                 touched_by: "torgen",
-              },
+              }
             );
             return waitForDocument(
               Messages,
@@ -463,11 +463,11 @@ describe("metas hubot script", function () {
                 useful: true,
                 mention: ["torgen"],
                 body: "@torgen: OK, even this poem is no longer a meta.",
-              },
+              }
             );
           });
         });
-      }),
+      })
     );
   });
 
@@ -498,7 +498,7 @@ describe("metas hubot script", function () {
           {
             touched_by: "torgen",
             touched: 7,
-          },
+          }
         );
         const e = waitForDocument(
           Puzzles,
@@ -506,7 +506,7 @@ describe("metas hubot script", function () {
           {
             touched_by: "torgen",
             touched: 7,
-          },
+          }
         );
         const m = waitForDocument(
           Messages,
@@ -515,7 +515,7 @@ describe("metas hubot script", function () {
             room_name: "puzzles/12345abcde",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         return Promise.all([l, e, m]);
       });
@@ -545,7 +545,7 @@ describe("metas hubot script", function () {
           {
             touched_by: "torgen",
             touched: 7,
-          },
+          }
         );
         const e = waitForDocument(
           Puzzles,
@@ -553,7 +553,7 @@ describe("metas hubot script", function () {
           {
             touched_by: "torgen",
             touched: 7,
-          },
+          }
         );
         const m = waitForDocument(
           Messages,
@@ -562,7 +562,7 @@ describe("metas hubot script", function () {
             room_name: "puzzles/fghij67890",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         return Promise.all([l, e, m]);
       });
@@ -598,7 +598,7 @@ describe("metas hubot script", function () {
           {
             touched_by: "torgen",
             touched: 7,
-          },
+          }
         );
         const e = waitForDocument(
           Puzzles,
@@ -606,7 +606,7 @@ describe("metas hubot script", function () {
           {
             touched_by: "torgen",
             touched: 7,
-          },
+          }
         );
         const m = waitForDocument(
           Messages,
@@ -615,7 +615,7 @@ describe("metas hubot script", function () {
             room_name: "puzzles/0000000000",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         await Promise.all([l, e, m]);
         chai.assert.deepInclude(Puzzles.findOne("0000000000"), {
@@ -647,7 +647,7 @@ describe("metas hubot script", function () {
             body: "@torgen: You need to tell me which puzzle this is for.",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.isUndefined(Puzzles.findOne("fghij67890").puzzles);
       });
@@ -675,7 +675,7 @@ describe("metas hubot script", function () {
             body: "@torgen: You need to tell me which puzzle this is for.",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
           feedsInto: [],
@@ -709,7 +709,7 @@ describe("metas hubot script", function () {
           {
             touched_by: "torgen",
             touched: 7,
-          },
+          }
         );
         const e = waitForDocument(
           Puzzles,
@@ -717,7 +717,7 @@ describe("metas hubot script", function () {
           {
             touched_by: "torgen",
             touched: 7,
-          },
+          }
         );
         const m = waitForDocument(
           Messages,
@@ -726,7 +726,7 @@ describe("metas hubot script", function () {
             room_name: "general/0",
             useful: true,
             mention: ["torgen"],
-          },
+          }
         );
         return Promise.all([l, e, m]);
       });
@@ -763,7 +763,7 @@ describe("metas hubot script", function () {
               {
                 touched_by: "torgen",
                 touched: 7,
-              },
+              }
             );
             const e = waitForDocument(
               Puzzles,
@@ -771,7 +771,7 @@ describe("metas hubot script", function () {
               {
                 touched_by: "torgen",
                 touched: 7,
-              },
+              }
             );
             const m = waitForDocument(
               Messages,
@@ -781,7 +781,7 @@ describe("metas hubot script", function () {
                 useful: true,
                 room_name: "puzzles/12345abcde",
                 mention: ["torgen"],
-              },
+              }
             );
             return Promise.all([l, e, m]);
           });
@@ -815,7 +815,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: this already didn't feed into even this poem.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
 
@@ -841,7 +841,7 @@ describe("metas hubot script", function () {
                 body: '@torgen: I can\'t find a puzzle called "even this poem".',
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
         });
@@ -873,7 +873,7 @@ describe("metas hubot script", function () {
               {
                 touched_by: "torgen",
                 touched: 7,
-              },
+              }
             );
             const e = waitForDocument(
               Puzzles,
@@ -881,7 +881,7 @@ describe("metas hubot script", function () {
               {
                 touched_by: "torgen",
                 touched: 7,
-              },
+              }
             );
             const m = waitForDocument(
               Messages,
@@ -891,7 +891,7 @@ describe("metas hubot script", function () {
                 useful: true,
                 room_name: "puzzles/fghij67890",
                 mention: ["torgen"],
-              },
+              }
             );
             return Promise.all([l, e, m]);
           });
@@ -925,7 +925,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: latino alphabet already didn't feed into this.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
 
@@ -952,7 +952,7 @@ describe("metas hubot script", function () {
                 body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
         });
@@ -992,7 +992,7 @@ describe("metas hubot script", function () {
               {
                 touched_by: "torgen",
                 touched: 7,
-              },
+              }
             );
             const e = waitForDocument(
               Puzzles,
@@ -1000,7 +1000,7 @@ describe("metas hubot script", function () {
               {
                 touched_by: "torgen",
                 touched: 7,
-              },
+              }
             );
             const m = waitForDocument(
               Messages,
@@ -1010,7 +1010,7 @@ describe("metas hubot script", function () {
                 useful: true,
                 room_name: "puzzles/0000000000",
                 mention: ["torgen"],
-              },
+              }
             );
             await Promise.all([l, e, m]);
             chai.assert.deepInclude(Puzzles.findOne("0000000000"), {
@@ -1057,7 +1057,7 @@ describe("metas hubot script", function () {
                 body: "@torgen: latino alphabet already didn't feed into even this poem.",
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
 
@@ -1092,7 +1092,7 @@ describe("metas hubot script", function () {
                 body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
 
@@ -1126,7 +1126,7 @@ describe("metas hubot script", function () {
                 body: '@torgen: I can\'t find a puzzle called "even this poem".',
                 useful: true,
                 mention: ["torgen"],
-              },
+              }
             );
           });
         });
@@ -1161,7 +1161,7 @@ describe("metas hubot script", function () {
               body: "@torgen: You need to tell me which puzzle this is for.",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
         });
 
@@ -1193,7 +1193,7 @@ describe("metas hubot script", function () {
               body: "@torgen: You need to tell me which puzzle this is for.",
               useful: true,
               mention: ["torgen"],
-            },
+            }
           );
         });
 
@@ -1223,7 +1223,7 @@ describe("metas hubot script", function () {
             {
               touched_by: "torgen",
               touched: 7,
-            },
+            }
           );
           const e = waitForDocument(
             Puzzles,
@@ -1231,7 +1231,7 @@ describe("metas hubot script", function () {
             {
               touched_by: "torgen",
               touched: 7,
-            },
+            }
           );
           const m = waitForDocument(
             Messages,
@@ -1241,11 +1241,11 @@ describe("metas hubot script", function () {
               useful: true,
               room_name: "general/0",
               mention: ["torgen"],
-            },
+            }
           );
           return Promise.all([l, e, m]);
         });
       });
-    }),
+    })
   );
 });

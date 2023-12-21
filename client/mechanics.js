@@ -32,7 +32,7 @@ Template.puzzle_mechanics.events({
     Meteor.call(
       method,
       template.data._id,
-      event.currentTarget.dataset.mechanic,
+      event.currentTarget.dataset.mechanic
     );
   },
 });

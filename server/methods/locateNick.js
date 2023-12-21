@@ -19,7 +19,7 @@ Meteor.methods({
           ]),
         },
         timestamp: Match.Optional(Number),
-      }),
+      })
     );
     // the server transfers updates from priv_located* to located* at
     // a throttled rate to prevent N^2 blow up.
