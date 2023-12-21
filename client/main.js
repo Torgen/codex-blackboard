@@ -22,14 +22,14 @@ import {
   gravatarUrl,
   nickAndName,
   nickHash,
-} from "/client/imports/nickEmail.js";
+} from "/lib/imports/nickEmail.js";
 import * as notification from "/client/imports/notification.js";
 import { chatUrlFor, navigate, urlFor } from "/client/imports/router.js";
 import {
   GENERAL_ROOM_NAME,
   NAME_PLACEHOLDER,
   TEAM_NAME,
-} from "/client/imports/server_settings.js";
+} from "/lib/imports/server_settings.js";
 import {
   DARK_MODE,
   MUTE_SOUND_EFFECTS,

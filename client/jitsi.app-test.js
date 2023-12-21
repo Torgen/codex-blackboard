@@ -14,7 +14,7 @@ import jitsiModule from "./imports/jitsi.js";
 import chai from "chai";
 import sinon from "sinon";
 import { reactiveLocalStorage } from "./imports/storage.js";
-import { CLIENT_UUID } from "/client/imports/server_settings.js";
+import { CLIENT_UUID } from "/lib/imports/server_settings.js";
 import { Puzzles } from "/lib/imports/collections.js";
 
 const GRAVATAR_200 =

@@ -1,4 +1,4 @@
-import { INITIAL_CHAT_LIMIT } from "/client/imports/server_settings.js";
+import { INITIAL_CHAT_LIMIT } from "/lib/imports/server_settings.js";
 import { awaitBundleLoaded } from "/client/imports/ui/pages/logistics/logistics_page.js";
 import page from "page";
 

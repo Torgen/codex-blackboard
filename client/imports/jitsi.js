@@ -1,7 +1,7 @@
 import canonical from "/lib/imports/canonical.js";
-import { collection } from "/lib/imports/collections.js";
+import { collection, JitsiJWTs } from "/lib/imports/collections.js";
 import { StaticJitsiMeeting } from "/lib/imports/settings.js";
-import { JITSI_SERVER, TEAM_NAME } from "/client/imports/server_settings.js";
+import { JITSI_SERVER, TEAM_NAME } from "/lib/imports/server_settings.js";
 import { START_AUDIO_MUTED, START_VIDEO_MUTED } from "./settings.js";
 
 export function jitsiRoom(roomType, roomId) {
@@ -45,9 +45,14 @@ export function createJitsiMeet(room, container) {
   if (!jitsiLoaded.get()) {
     return null;
   }
+  const jwtObj = JitsiJWTs.findOne(room);
+  if (!jwtObj) {
+    return null;
+  }
   return new JitsiMeetExternalAPI(JITSI_SERVER, {
     roomName: room,
     parentNode: container,
+    jwt: jwtObj.jwt,
     interfaceConfigOverwrite: {
       TOOLBAR_BUTTONS: [
         "microphone",

@@ -1,4 +1,4 @@
-import { CHAT_LIMIT_INCREMENT } from "/client/imports/server_settings.js";
+import { CHAT_LIMIT_INCREMENT } from "/lib/imports/server_settings.js";
 import { Messages, pretty_collection } from "/lib/imports/collections.js";
 
 const room_name = "oplog/0";
