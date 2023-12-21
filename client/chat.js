@@ -567,20 +567,24 @@ Template.embedded_chat.onRendered(function () {
         }
         this.jitsiRoom = newRoom;
         this.jitsi.set(jitsi);
-        jitsi.once("videoConferenceJoined", ({id}) => {
+        jitsi.once("videoConferenceJoined", ({ id }) => {
           const myId = id;
           if (this.jitsi.get() !== jitsi) {
             return;
           }
           this.jitsiReady.set(true);
-          jitsi.on("participantRoleChanged", ({id, role}) => {
-            if ( id === myId && role === "moderator") {
+          jitsi.on("participantRoleChanged", ({ id, role }) => {
+            if (id === myId && role === "moderator") {
               try {
                 jitsi.executeCommand(
                   "subject",
-                  Tracker.nonreactive(() => jitsiRoomSubject(this.jitsiType(), this.jitsiId()))
+                  Tracker.nonreactive(() =>
+                    jitsiRoomSubject(this.jitsiType(), this.jitsiId())
+                  )
                 );
-              } catch (error) { console.log(error);}
+              } catch (error) {
+                console.log(error);
+              }
             }
           });
         });
