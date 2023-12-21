@@ -2,7 +2,7 @@ import "./login.html";
 import md5 from "md5";
 import canonical from "/lib/imports/canonical.js";
 import loginWithCodex from "/client/imports/accounts.js";
-import { hashFromNickObject } from "/client/imports/nickEmail.js";
+import { hashFromNickObject } from "/lib/imports/nickEmail.js";
 
 Template.login.onCreated(function () {
   this.suppressRender = new ReactiveVar(Meteor.loggingIn());

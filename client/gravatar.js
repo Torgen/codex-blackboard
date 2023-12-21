@@ -1,4 +1,4 @@
-import { gravatarUrl, hashFromNickObject } from "./imports/nickEmail.js";
+import { gravatarUrl, hashFromNickObject } from "/lib/imports/nickEmail.js";
 
 Template.gravatar.helpers({
   gravatar_md5() {

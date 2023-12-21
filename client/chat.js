@@ -5,7 +5,7 @@ import {
   gravatarUrl,
   hashFromNickObject,
   nickAndName,
-} from "./imports/nickEmail.js";
+} from "/lib/imports/nickEmail.js";
 import { computeMessageFollowup } from "./imports/followup.js";
 import botuser from "./imports/botuser.js";
 import canonical from "/lib/imports/canonical.js";
@@ -24,7 +24,7 @@ import {
   FOLLOWUP_STYLE,
   GENERAL_ROOM_NAME,
   INITIAL_CHAT_LIMIT,
-} from "/client/imports/server_settings.js";
+} from "/lib/imports/server_settings.js";
 import {
   CAP_JITSI_HEIGHT,
   HIDE_OLD_PRESENCE,
@@ -556,6 +556,7 @@ Template.embedded_chat.onRendered(function () {
       this.jitsiReady.set(false);
     }
     if (newRoom != null) {
+      this.subscribe("jitsi-jwt", newRoom);
       if (jitsi == null) {
         jitsi = jitsiModule.createJitsiMeet(
           newRoom,
@@ -566,11 +567,26 @@ Template.embedded_chat.onRendered(function () {
         }
         this.jitsiRoom = newRoom;
         this.jitsi.set(jitsi);
-        jitsi.once("videoConferenceJoined", () => {
+        jitsi.once("videoConferenceJoined", ({ id }) => {
+          const myId = id;
           if (this.jitsi.get() !== jitsi) {
             return;
           }
           this.jitsiReady.set(true);
+          jitsi.on("participantRoleChanged", ({ id, role }) => {
+            if (id === myId && role === "moderator") {
+              try {
+                jitsi.executeCommand(
+                  "subject",
+                  Tracker.nonreactive(() =>
+                    jitsiRoomSubject(this.jitsiType(), this.jitsiId())
+                  )
+                );
+              } catch (error) {
+                console.log(error);
+              }
+            }
+          });
         });
         jitsi.once("videoConferenceLeft", () => {
           this.leaveJitsi();

@@ -1,16 +1,12 @@
 import "./map.html";
 import "./cluster.html";
-import {
-  gravatarUrl,
-  nickHash,
-  nickAndName,
-} from "/client/imports/nickEmail.js";
+import { gravatarUrl, nickHash, nickAndName } from "/lib/imports/nickEmail.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { MarkerWithLabel } from "@googlemaps/markerwithlabel";
 import { positionOrDefault, solarLongitude } from "./geography.js";
 import summarize_markers from "./summarize_markers.js";
-import { MAPS_API_KEY } from "/client/imports/server_settings.js";
+import { MAPS_API_KEY } from "/lib/imports/server_settings.js";
 
 const loaded = new ReactiveVar(false);
 (async function () {

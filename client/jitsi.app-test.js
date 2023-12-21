@@ -14,7 +14,7 @@ import jitsiModule from "./imports/jitsi.js";
 import chai from "chai";
 import sinon from "sinon";
 import { reactiveLocalStorage } from "./imports/storage.js";
-import { CLIENT_UUID } from "/client/imports/server_settings.js";
+import { CLIENT_UUID } from "/lib/imports/server_settings.js";
 import { Puzzles } from "/lib/imports/collections.js";
 
 const GRAVATAR_200 =
@@ -23,6 +23,7 @@ const GRAVATAR_200 =
 class FakeJitsiMeet {
   dispose() {}
   once(event, handler) {}
+  on(event, handler) {}
   executeCommand(cmd, param) {}
   executeCommands(cmds) {}
 }
@@ -70,7 +71,7 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
         if (call.calledWith("videoConferenceJoined", sinon.match.func)) {
-          call.args[1]();
+          call.args[1]({ id: "somebody" });
           return true;
         }
         return false;
@@ -128,7 +129,7 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
         if (call.calledWith("videoConferenceJoined", sinon.match.func)) {
-          call.args[1]();
+          call.args[1]({ id: "somebody" });
           return true;
         }
         return false;

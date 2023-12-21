@@ -1,4 +1,4 @@
-import { JITSI_SERVER } from "/client/imports/server_settings.js";
+import { JITSI_SERVER } from "/lib/imports/server_settings.js";
 import {
   DARK_MODE,
   HIDE_SOLVED,

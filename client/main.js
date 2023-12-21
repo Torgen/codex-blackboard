@@ -18,18 +18,14 @@ import { mechanics } from "/lib/imports/mechanics.js";
 import { fileType } from "/lib/imports/mime_type.js";
 import embeddable from "/client/imports/embeddable.js";
 import keyword_or_positional from "/client/imports/keyword_or_positional.js";
-import {
-  gravatarUrl,
-  nickAndName,
-  nickHash,
-} from "/client/imports/nickEmail.js";
+import { gravatarUrl, nickAndName, nickHash } from "/lib/imports/nickEmail.js";
 import * as notification from "/client/imports/notification.js";
 import { chatUrlFor, navigate, urlFor } from "/client/imports/router.js";
 import {
   GENERAL_ROOM_NAME,
   NAME_PLACEHOLDER,
   TEAM_NAME,
-} from "/client/imports/server_settings.js";
+} from "/lib/imports/server_settings.js";
 import {
   DARK_MODE,
   MUTE_SOUND_EFFECTS,

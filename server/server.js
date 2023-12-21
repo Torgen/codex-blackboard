@@ -1,9 +1,11 @@
+import { createHmac } from "crypto";
 import canonical from "/lib/imports/canonical.js";
 import { PRESENCE_KEEPALIVE_MINUTES } from "/lib/imports/constants.js";
 import {
   Calendar,
   CalendarEvents,
   CallIns,
+  JITSI_JWT_COLLECTION_NAME,
   LastRead,
   Messages,
   Polls,
@@ -14,7 +16,13 @@ import {
   PeriodicStats,
   collection,
 } from "/lib/imports/collections.js";
+import {
+  gravatarUrl,
+  hashFromNickObject,
+  nickAndName,
+} from "/lib/imports/nickEmail.js";
 import { Settings } from "/lib/imports/settings.js";
+import { JITSI_SERVER } from "/lib/imports/server_settings.js";
 import { NonEmptyString } from "/lib/imports/match.js";
 
 const DEBUG = !Meteor.isProduction;
@@ -658,6 +666,64 @@ Meteor.publish(
 Meteor.publish(
   "poll",
   loginRequired((id) => Polls.find({ _id: id }))
+);
+
+const JWT_HEADER = Buffer.from('{"alg":"HS256","typ":"JWT"}').toString(
+  "base64url"
+);
+const JITSI_APP_NAME =
+  Meteor.settings?.jitsi?.appName ?? process.env.JITSI_APP_NAME ?? null;
+const JITSI_SHARED_SECRET =
+  Meteor.settings?.jitsi?.sharedSecret ??
+  process.env.JITSI_SHARED_SECRET ??
+  null;
+
+Meteor.publish(
+  "jitsi-jwt",
+  loginRequired(function (roomName) {
+    check(roomName, String);
+    if (!JITSI_APP_NAME || !JITSI_SHARED_SECRET) {
+      this.added(JITSI_JWT_COLLECTION_NAME, roomName, {});
+      this.ready();
+      return;
+    }
+    const self = this;
+    function generateJwt() {
+      const now = Math.floor(Date.now() / 1000);
+      const expiry = now + 86400 * 5;
+      const user = Meteor.users.findOne(self.userId);
+      const body = {
+        context: {
+          user: {
+            name: nickAndName(user),
+            avatar: gravatarUrl({
+              gravatar_md5: hashFromNickObject(user),
+              size: 200,
+            }),
+          },
+        },
+        aud: "jitsi",
+        iss: JITSI_APP_NAME,
+        sub: JITSI_SERVER,
+        room: roomName,
+        exp: expiry,
+      };
+      const b64Body = Buffer.from(JSON.stringify(body)).toString("base64url");
+      const toSign = `${JWT_HEADER}.${b64Body}`;
+      const hmac = createHmac("sha256", JITSI_SHARED_SECRET);
+      hmac.update(toSign);
+      const hash = hmac.digest("base64url");
+      return `${toSign}.${hash}`;
+    }
+    this.added(JITSI_JWT_COLLECTION_NAME, roomName, { jwt: generateJwt() });
+    const intervalHandle = Meteor.setInterval(() => {
+      this.changed(JITSI_JWT_COLLECTION_NAME, roomName, {
+        jwt: generateJwt(),
+      });
+    }, 86400 * 100 * 3);
+    this.onStop(() => Meteor.clearInterval(intervalHandle));
+    this.ready();
+  })
 );
 
 //# Publish the 'facts' collection to all users

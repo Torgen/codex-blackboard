@@ -11,7 +11,7 @@ import {
   SORT_REVERSE,
   VISIBLE_COLUMNS,
 } from "./imports/settings.js";
-import { TEAM_NAME, WHOSE_GITHUB } from "/client/imports/server_settings.js";
+import { TEAM_NAME, WHOSE_GITHUB } from "/lib/imports/server_settings.js";
 import * as notification from "/client/imports/notification.js";
 import { reactiveLocalStorage } from "./imports/storage.js";
 import PuzzleDrag from "./imports/puzzle_drag.js";
