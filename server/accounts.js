@@ -8,7 +8,7 @@ const PASSWORD = Meteor.settings?.password ?? process.env.TEAM_PASSWORD;
 Meteor.users.deny({
   update() {
     return true;
-  },
+  }
 });
 
 const sha1 = (x) => createHash("sha1").update(x).digest("hex");
@@ -20,18 +20,18 @@ if (DO_BATCH_PROCESSING) {
       Meteor.users.update(
         {
           "services.resume": { $exists: true },
-          "services.codex.password_used": { $exists: false },
+          "services.codex.password_used": { $exists: false }
         },
         { $set: { "services.codex.password_used": sha_password } },
-        { multi: true },
+        { multi: true }
       );
       Meteor.users.update(
         {
           "services.resume": { $exists: true },
-          "services.codex.password_used": { $ne: sha_password },
+          "services.codex.password_used": { $ne: sha_password }
         },
         { $unset: { "services.resume": "" } },
-        { multi: true },
+        { multi: true }
       );
     });
   }
@@ -42,16 +42,16 @@ Accounts.registerLoginHandler("codex", function (options) {
     nickname: String,
     real_name: String,
     gravatar_md5: Match.Optional(String),
-    password: String,
+    password: String
   });
   if (!Match.test(options.nickname, StringWithLength({ min: 1, max: 20 }))) {
     throw new Meteor.Error(401, "Nickname must be 1-20 characters long", {
-      field: "nickname",
+      field: "nickname"
     });
   }
   if (!Match.test(options.real_name, StringWithLength({ max: 100 }))) {
     throw new Meteor.Error(401, "Real name must be at most 100 characters", {
-      field: "real_name",
+      field: "real_name"
     });
   }
   if (options.gravatar_md5 != null) {
@@ -82,13 +82,13 @@ Accounts.registerLoginHandler("codex", function (options) {
     Meteor.users.upsert(
       {
         _id: canon,
-        bot_wakeup: { $exists: false },
+        bot_wakeup: { $exists: false }
       },
-      { $set: profile },
+      { $set: profile }
     );
   } catch (error) {
     throw new Meteor.Error(401, "Can't impersonate the bot", {
-      field: "nickname",
+      field: "nickname"
     });
   }
 

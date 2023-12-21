@@ -13,8 +13,8 @@ describe("makeNotMeta", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -37,9 +37,9 @@ describe("makeNotMeta", function () {
           name: "Status",
           value: "stuck",
           touched: 2,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
     chai.assert.throws(() => Meteor.call("makeNotMeta", id), Match.Error);
   });
@@ -60,9 +60,9 @@ describe("makeNotMeta", function () {
           name: "Status",
           value: "stuck",
           touched: 2,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
     chai.assert.isTrue(callAs("makeNotMeta", "cjb", id));
     const doc = Puzzles.findOne(id);
@@ -81,9 +81,9 @@ describe("makeNotMeta", function () {
           name: "Status",
           value: "stuck",
           touched: 2,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
   });
 
@@ -103,15 +103,15 @@ describe("makeNotMeta", function () {
           name: "Answer",
           value: "foo",
           touched: 2,
-          touched_by: "torgen",
+          touched_by: "torgen"
         },
         temperature: {
           name: "Temperature",
           value: "12",
           touched: 2,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
     chai.assert.isFalse(callAs("makeNotMeta", "cjb", id));
     const doc = Puzzles.findOne(id);
@@ -131,15 +131,15 @@ describe("makeNotMeta", function () {
           name: "Answer",
           value: "foo",
           touched: 2,
-          touched_by: "torgen",
+          touched_by: "torgen"
         },
         temperature: {
           name: "Temperature",
           value: "12",
           touched: 2,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
   });
 });

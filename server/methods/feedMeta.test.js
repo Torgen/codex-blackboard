@@ -12,8 +12,8 @@ describe("feedMeta", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -31,7 +31,7 @@ describe("feedMeta", function () {
       puzzles: ["yoy"],
       feedsInto: [],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {},
+      tags: {}
     });
     const leaf = Puzzles.insert({
       name: "Bar",
@@ -42,7 +42,7 @@ describe("feedMeta", function () {
       touched_by: "torgen",
       feedsInto: [],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {},
+      tags: {}
     });
     chai.assert.throws(() => Meteor.call("feedMeta", leaf, meta), Match.Error);
   });
@@ -58,7 +58,7 @@ describe("feedMeta", function () {
       puzzles: ["yoy"],
       feedsInto: [],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {},
+      tags: {}
     });
     const leaf = Puzzles.insert({
       name: "Bar",
@@ -69,18 +69,18 @@ describe("feedMeta", function () {
       touched_by: "cjb",
       feedsInto: ["wew"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {},
+      tags: {}
     });
     callAs("feedMeta", "jeff", leaf, meta);
     chai.assert.deepInclude(Puzzles.findOne(meta), {
       puzzles: ["yoy", leaf],
       touched: 7,
-      touched_by: "jeff",
+      touched_by: "jeff"
     });
     chai.assert.deepInclude(Puzzles.findOne(leaf), {
       feedsInto: ["wew", meta],
       touched: 7,
-      touched_by: "jeff",
+      touched_by: "jeff"
     });
   });
 
@@ -94,7 +94,7 @@ describe("feedMeta", function () {
       touched_by: "cjb",
       feedsInto: ["wew"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {},
+      tags: {}
     });
     const meta = Puzzles.insert({
       name: "Foo",
@@ -105,19 +105,19 @@ describe("feedMeta", function () {
       touched_by: "torgen",
       puzzles: [leaf, "yoy"],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {},
+      tags: {}
     });
     Puzzles.update(leaf, { $addToSet: { feedsInto: meta } });
     callAs("feedMeta", "jeff", leaf, meta);
     chai.assert.deepInclude(Puzzles.findOne(meta), {
       puzzles: [leaf, "yoy"],
       touched: 1,
-      touched_by: "torgen",
+      touched_by: "torgen"
     });
     chai.assert.deepInclude(Puzzles.findOne(leaf), {
       feedsInto: ["wew", meta],
       touched: 2,
-      touched_by: "cjb",
+      touched_by: "cjb"
     });
   });
 
@@ -131,7 +131,7 @@ describe("feedMeta", function () {
       touched: 1,
       touched_by: "torgen",
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {},
+      tags: {}
     });
     const leaf = Puzzles.insert({
       name: "Bar",
@@ -142,18 +142,18 @@ describe("feedMeta", function () {
       touched_by: "cjb",
       feedsInto: ["wew"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {},
+      tags: {}
     });
     callAs("feedMeta", "jeff", leaf, meta);
     chai.assert.deepInclude(Puzzles.findOne(meta), {
       puzzles: [leaf],
       touched: 7,
-      touched_by: "jeff",
+      touched_by: "jeff"
     });
     chai.assert.deepInclude(Puzzles.findOne(leaf), {
       feedsInto: ["wew", meta],
       touched: 7,
-      touched_by: "jeff",
+      touched_by: "jeff"
     });
   });
 
@@ -167,11 +167,11 @@ describe("feedMeta", function () {
       touched_by: "cjb",
       feedsInto: ["wew"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {},
+      tags: {}
     });
     chai.assert.throws(
       () => callAs("feedMeta", "jeff", leaf, "nope"),
-      Meteor.Error,
+      Meteor.Error
     );
     chai.assert.deepEqual(Puzzles.findOne(leaf).feedsInto, ["wew"]);
   });
@@ -186,11 +186,11 @@ describe("feedMeta", function () {
       touched_by: "torgen",
       puzzles: ["yoy"],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {},
+      tags: {}
     });
     chai.assert.throws(
       () => callAs("feedMeta", "jeff", "nope", meta),
-      Meteor.Error,
+      Meteor.Error
     );
     chai.assert.deepEqual(Puzzles.findOne(meta).puzzles, ["yoy"]);
   });

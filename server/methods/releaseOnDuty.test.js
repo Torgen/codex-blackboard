@@ -13,7 +13,7 @@ describe("releaseOnduty", function () {
       holder: "torgen",
       claimed_at: 7,
       renewed_at: 7,
-      expires_at: 360007,
+      expires_at: 360007
     });
   });
 
@@ -26,7 +26,7 @@ describe("releaseOnduty", function () {
     chai.assert.deepInclude(Messages.findOne({ room_name: "oplog/0" }), {
       nick: "torgen",
       id: null,
-      type: "roles",
+      type: "roles"
     });
   });
 
@@ -36,7 +36,7 @@ describe("releaseOnduty", function () {
       holder: "torgen",
       claimed_at: 7,
       renewed_at: 7,
-      expires_at: 360007,
+      expires_at: 360007
     });
     chai.assert.isNotOk(Messages.findOne({ room_name: "oplog/0" }));
   });

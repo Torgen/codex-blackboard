@@ -10,7 +10,7 @@ export default function collectPeriodicStats() {
     PeriodicStats.insert({
       timestamp: lastCollection,
       stream: "solvers_online",
-      value: numOnline,
+      value: numOnline
     });
     timeout = Meteor.setTimeout(collect, lastInterval);
     console.log(`${numOnline} solvers online`);
@@ -30,7 +30,7 @@ export default function collectPeriodicStats() {
       } else {
         timeout = Meteor.setTimeout(
           collect,
-          lastCollection + valueMs - Date.now(),
+          lastCollection + valueMs - Date.now()
         );
       }
     }
@@ -40,6 +40,6 @@ export default function collectPeriodicStats() {
       handle.stop();
       Meteor.clearTimeout(timeout);
       timeout = null;
-    },
+    }
   };
 }

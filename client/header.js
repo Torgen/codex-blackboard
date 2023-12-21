@@ -2,13 +2,13 @@ import {
   LastRead,
   Messages,
   Puzzles,
-  Rounds,
+  Rounds
 } from "/lib/imports/collections.js";
 import { jitsiUrl } from "./imports/jitsi.js";
 import { hashFromNickObject } from "/lib/imports/nickEmail.js";
 import {
   BB_DISABLE_RINGHUNTERS_HEADER,
-  GENERAL_ROOM_NAME,
+  GENERAL_ROOM_NAME
 } from "/lib/imports/server_settings.js";
 import "./imports/timestamp.js";
 import "./imports/ui/components/connection_button/connection_button.js";
@@ -24,7 +24,7 @@ const privateMessageTransform = (msg) => ({
     );
   },
 
-  showRoom: true,
+  showRoom: true
 });
 
 Template.header_loginmute.onCreated(function () {
@@ -34,12 +34,11 @@ Template.header_loginmute.onCreated(function () {
 function unreadHelper(filter) {
   const count = Messages.find({
     timestamp: { $gt: LastRead.findOne("private")?.timestamp ?? 0 },
-    ...filter,
+    ...filter
   })
     .fetch()
     .filter(
-      (msg) =>
-        msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0),
+      (msg) => msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0)
     ).length;
   if (count !== 0) {
     return count;
@@ -55,7 +54,7 @@ Template.header_loginmute.helpers({
       name: user.nickname,
       canon: user._id,
       realname: user.real_name || user.nickname,
-      gravatar_md5: hashFromNickObject(user),
+      gravatar_md5: hashFromNickObject(user)
     };
   },
   unreadPrivateMessages() {
@@ -75,8 +74,8 @@ Template.header_loginmute.helpers({
       { to: Meteor.userId() },
       {
         sort: { timestamp: -1 },
-        transform: privateMessageTransform,
-      },
+        transform: privateMessageTransform
+      }
     );
   },
   mentions() {
@@ -84,13 +83,13 @@ Template.header_loginmute.helpers({
       { mention: Meteor.userId() },
       {
         sort: { timestamp: -1 },
-        transform: privateMessageTransform,
-      },
+        transform: privateMessageTransform
+      }
     );
   },
   isVisible(tabname) {
     return Template.instance().visibleTab.get() === tabname;
-  },
+  }
 });
 
 function clickOutsideAvatarDropdownHandler(event) {
@@ -113,11 +112,11 @@ Template.header_loginmute.events({
     event.preventDefault();
     const latest = Messages.findOne(
       { $or: [{ to: Meteor.userId() }, { mention: Meteor.userId() }] },
-      { sort: { timestamp: -1 } },
+      { sort: { timestamp: -1 } }
     ).timestamp;
     Meteor.call("updateLastRead", {
       room_name: "private",
-      timestamp: latest,
+      timestamp: latest
     });
   },
   "click #bb-avatar-dropdown > .dropdown-toggle"(event, template) {
@@ -129,7 +128,7 @@ Template.header_loginmute.events({
     } else {
       $("body").on("click", clickOutsideAvatarDropdownHandler);
     }
-  },
+  }
 });
 
 //############# breadcrumbs #######################
@@ -174,7 +173,7 @@ function crumbs_equal(x, y) {
 
 const breadcrumbs_var = new ReactiveVar(
   [{ page: "blackboard", type: "general", id: "0" }],
-  crumbs_equal,
+  crumbs_equal
 );
 
 function in_crumbs(crumbs, type, id) {
@@ -208,7 +207,7 @@ Tracker.autorun(function () {
   if (!in_crumbs(breadcrumbs, type, id)) {
     Session.set({
       breadcrumbs_leaf_type: type,
-      breadcrumbs_leaf_id: id,
+      breadcrumbs_leaf_id: id
     });
   }
 });
@@ -301,7 +300,7 @@ Template.header_breadcrumb_chat.helpers({
       return false;
     }
     return Session.equals("id", this.id);
-  },
+  }
 });
 
 function active() {
@@ -316,7 +315,7 @@ Template.header_breadcrumb_extra_links.helpers({
   },
   jitsiUrl() {
     return jitsiUrl(Template.parentData(1).type, Template.parentData(1).id);
-  },
+  }
 });
 
 Template.header_breadcrumb_round.helpers({
@@ -325,7 +324,7 @@ Template.header_breadcrumb_round.helpers({
       return Rounds.findOne(this.id);
     }
   },
-  active,
+  active
 });
 
 Template.header_breadcrumb_metas.helpers({
@@ -347,14 +346,14 @@ Template.header_breadcrumb_metas.helpers({
     if (keys.length === 1) {
       return {
         one: keys[0],
-        all: keys,
+        all: keys
       };
     } else if (keys.length === 0) {
       return {};
     } else {
       return { all: keys };
     }
-  },
+  }
 });
 
 Template.header_breadcrumb_one_meta.helpers({
@@ -363,7 +362,7 @@ Template.header_breadcrumb_one_meta.helpers({
       return Puzzles.findOne(this.id);
     }
   },
-  active,
+  active
 });
 
 Template.header_breadcrumb_puzzle.helpers({
@@ -372,7 +371,7 @@ Template.header_breadcrumb_puzzle.helpers({
       return Puzzles.findOne(this.id);
     }
   },
-  active,
+  active
 });
 
 Template.header_breadcrumbs.onCreated(function () {
@@ -381,7 +380,7 @@ Template.header_breadcrumbs.onCreated(function () {
       if (error == null) {
         Session.set("RINGHUNTERS_FOLDER", f || undefined);
       }
-    }),
+    })
   );
 });
 
@@ -391,7 +390,7 @@ Template.header_breadcrumbs.helpers({
   },
   crumb_template() {
     return `header_breadcrumb_${this.page}`;
-  },
+  }
 });
 
 Template.header_breadcrumbs.onRendered(function () {
@@ -413,9 +412,9 @@ Template.header_lastchats.helpers({
         $or: options,
         system: { $ne: true },
         bodyIsHtml: { $ne: true },
-        header_ignore: { $ne: true },
+        header_ignore: { $ne: true }
       },
-      { sort: [["timestamp", "desc"]], limit: RECENT_GENERAL_LIMIT },
+      { sort: [["timestamp", "desc"]], limit: RECENT_GENERAL_LIMIT }
     );
   },
   msgbody() {
@@ -473,7 +472,7 @@ Template.header_lastchats.helpers({
     } else {
       return ["exclamation-circle"];
     }
-  },
+  }
 });
 
 // subscribe when this template is in use/unsubscribe when it is destroyed

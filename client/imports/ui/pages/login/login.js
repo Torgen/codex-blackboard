@@ -54,7 +54,7 @@ Template.login.helpers({
   },
   hash() {
     return Template.instance().gravatarHash.get();
-  },
+  }
 });
 Template.login.onRendered(function () {
   $("#nickSuccess").val("false");
@@ -68,7 +68,7 @@ Template.login.onRendered(function () {
     updater: (item) => {
       this.update(item);
       return item;
-    },
+    }
   });
 });
 Template.login.events({
@@ -96,7 +96,7 @@ Template.login.events({
   },
   "input #nickEmail": _.debounce(
     (event, template) => template.updateGravatar(),
-    500,
+    500
   ),
   "submit #nickPick"(event, template) {
     const nick = $("#nickInput")
@@ -123,8 +123,8 @@ Template.login.events({
               .addClass("error");
           }
         }
-      },
+      }
     );
     return false;
-  },
+  }
 });

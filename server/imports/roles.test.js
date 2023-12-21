@@ -15,7 +15,7 @@ describe("RoleManager", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 7,
-      toFake: ["setTimeout", "clearTimeout", "Date"],
+      toFake: ["setTimeout", "clearTimeout", "Date"]
     });
   });
 
@@ -30,7 +30,7 @@ describe("RoleManager", function () {
       holder: "torgen",
       claimed_at: -3600000,
       renewed_at: -3600000,
-      expires_at: 0,
+      expires_at: 0
     });
     manager = new RoleManager();
     manager.start();
@@ -43,7 +43,7 @@ describe("RoleManager", function () {
       holder: "torgen",
       claimed_at: -3599000,
       renewed_at: -3599000,
-      expires_at: 1000,
+      expires_at: 1000
     });
     manager = new RoleManager();
     manager.start();
@@ -59,14 +59,14 @@ describe("RoleManager", function () {
       holder: "torgen",
       claimed_at: -3599000,
       renewed_at: -3599000,
-      expires_at: 1000,
+      expires_at: 1000
     });
     manager = new RoleManager();
     manager.start();
     chai.assert.isOk(Roles.findOne("onduty"));
     Roles.update("onduty", {
       holder: "cjb",
-      expires_at: 2000,
+      expires_at: 2000
     });
     clock.tick(1000);
     // check not deleted?
@@ -82,7 +82,7 @@ describe("RoleManager", function () {
       holder: "torgen",
       claimed_at: -3599000,
       renewed_at: -3599000,
-      expires_at: 1000,
+      expires_at: 1000
     });
     const p = waitForDeletion(Roles, "onduty");
     manager = new RoleManager();

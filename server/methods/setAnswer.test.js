@@ -4,7 +4,7 @@ import {
   CallIns,
   Messages,
   Presence,
-  Puzzles,
+  Puzzles
 } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
@@ -18,8 +18,8 @@ describe("setAnswer", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -46,28 +46,28 @@ describe("setAnswer", function () {
             name: "Technology",
             value: "Pottery",
             touched: 2,
-            touched_by: "torgen",
-          },
-        },
+            touched_by: "torgen"
+          }
+        }
       });
       Presence.insert({
         room_name: `puzzles/${id}`,
         nick: "torgen",
         timestamp: 2,
-        scope: "chat",
+        scope: "chat"
       });
       Presence.insert({
         room_name: `puzzles/${id}`,
         nick: "botto",
         timestamp: 0,
         bot: true,
-        scope: "chat",
+        scope: "chat"
       });
       Presence.insert({
         room_name: `puzzles/${id}`,
         nick: "idle",
         timestamp: -130001,
-        scope: "chat",
+        scope: "chat"
       });
     });
     it("fails without login", () =>
@@ -75,9 +75,9 @@ describe("setAnswer", function () {
         () =>
           Meteor.call("setAnswer", {
             target: id,
-            answer: "bar",
+            answer: "bar"
           }),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", function () {
@@ -86,8 +86,8 @@ describe("setAnswer", function () {
         () =>
           (ret = callAs("setAnswer", "cjb", {
             target: id,
-            answer: "bar",
-          })),
+            answer: "bar"
+          }))
       );
 
       it("returns true", () => chai.assert.isTrue(ret));
@@ -110,15 +110,15 @@ describe("setAnswer", function () {
               name: "Answer",
               value: "bar",
               touched: 7,
-              touched_by: "cjb",
+              touched_by: "cjb"
             },
             technology: {
               name: "Technology",
               value: "Pottery",
               touched: 2,
-              touched_by: "torgen",
-            },
-          },
+              touched_by: "torgen"
+            }
+          }
         }));
 
       it("oplogs", function () {
@@ -131,7 +131,7 @@ describe("setAnswer", function () {
           id,
           oplog: true,
           action: true,
-          stream: "answers",
+          stream: "answers"
         });
       });
     });
@@ -157,19 +157,19 @@ describe("setAnswer", function () {
             name: "Answer",
             value: "qux",
             touched: 2,
-            touched_by: "torgen",
+            touched_by: "torgen"
           },
           technology: {
             name: "Technology",
             value: "Pottery",
             touched: 2,
-            touched_by: "torgen",
-          },
-        },
+            touched_by: "torgen"
+          }
+        }
       });
       ret = callAs("setAnswer", "cjb", {
         target: id,
-        answer: "bar",
+        answer: "bar"
       });
     });
 
@@ -193,15 +193,15 @@ describe("setAnswer", function () {
             name: "Answer",
             value: "bar",
             touched: 7,
-            touched_by: "cjb",
+            touched_by: "cjb"
           },
           technology: {
             name: "Technology",
             value: "Pottery",
             touched: 2,
-            touched_by: "torgen",
-          },
-        },
+            touched_by: "torgen"
+          }
+        }
       }));
 
     it("oplogs", function () {
@@ -215,7 +215,7 @@ describe("setAnswer", function () {
         id,
         oplog: true,
         action: true,
-        stream: "answers",
+        stream: "answers"
       });
     });
   });
@@ -240,38 +240,38 @@ describe("setAnswer", function () {
             name: "Answer",
             value: "bar",
             touched: 2,
-            touched_by: "torgen",
+            touched_by: "torgen"
           },
           technology: {
             name: "Technology",
             value: "Pottery",
             touched: 2,
-            touched_by: "torgen",
-          },
-        },
+            touched_by: "torgen"
+          }
+        }
       });
       Presence.insert({
         room_name: `puzzles/${id}`,
         nick: "torgen",
         timestamp: 2,
-        present: true,
+        present: true
       });
       Presence.insert({
         room_name: `puzzles/${id}`,
         nick: "botto",
         timestamp: 0,
         bot: true,
-        scope: "chat",
+        scope: "chat"
       });
       Presence.insert({
         room_name: `puzzles/${id}`,
         nick: "idle",
         timestamp: -130001,
-        scope: "chat",
+        scope: "chat"
       });
       ret = callAs("setAnswer", "cjb", {
         target: id,
-        answer: "bar",
+        answer: "bar"
       });
     });
 
@@ -295,15 +295,15 @@ describe("setAnswer", function () {
             name: "Answer",
             value: "bar",
             touched: 2,
-            touched_by: "torgen",
+            touched_by: "torgen"
           },
           technology: {
             name: "Technology",
             value: "Pottery",
             touched: 2,
-            touched_by: "torgen",
-          },
-        },
+            touched_by: "torgen"
+          }
+        }
       }));
 
     it("doesn't oplog", () =>
@@ -326,17 +326,17 @@ describe("setAnswer", function () {
           name: "Status",
           value: "stuck",
           touched: 2,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
     chai.assert.isTrue(
       callAs("setAnswer", "cjb", {
         target: id,
         answer: "bar",
         backsolve: true,
-        provided: true,
-      }),
+        provided: true
+      })
     );
     chai.assert.deepInclude(Puzzles.findOne(id), {
       tags: {
@@ -345,15 +345,15 @@ describe("setAnswer", function () {
           name: "Backsolve",
           value: "yes",
           touched: 7,
-          touched_by: "cjb",
+          touched_by: "cjb"
         },
         provided: {
           name: "Provided",
           value: "yes",
           touched: 7,
-          touched_by: "cjb",
-        },
-      },
+          touched_by: "cjb"
+        }
+      }
     });
   });
 
@@ -372,7 +372,7 @@ describe("setAnswer", function () {
         solved: null,
         solved_by: null,
         confirmed_by: null,
-        tags: {},
+        tags: {}
       });
       cid1 = CallIns.insert({
         target_type: "puzzles",
@@ -385,7 +385,7 @@ describe("setAnswer", function () {
         submitted_to_hq: true,
         backsolve: false,
         provided: false,
-        status: "pending",
+        status: "pending"
       });
       cid2 = CallIns.insert({
         target_type: "puzzles",
@@ -398,42 +398,42 @@ describe("setAnswer", function () {
         submitted_to_hq: false,
         backsolve: false,
         provided: false,
-        status: "pending",
+        status: "pending"
       });
       callAs("setAnswer", "cjb", {
         target: id,
-        answer: "bar",
+        answer: "bar"
       });
     });
 
     it("updates callins", function () {
       chai.assert.include(CallIns.findOne(cid1), {
         status: "accepted",
-        resolved: 7,
+        resolved: 7
       });
       chai.assert.include(CallIns.findOne(cid2), {
         status: "cancelled",
-        resolved: 7,
+        resolved: 7
       });
     });
 
     it("doesn't oplog for callins", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: "oplog/0", type: "callins" }).fetch(),
-        0,
+        0
       ));
 
     it("oplogs for puzzle", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: "oplog/0", type: "puzzles", id }).fetch(),
-        1,
+        1
       ));
 
     it("sets solved_by correctly", () =>
       chai.assert.deepInclude(Puzzles.findOne(id), {
         solved: 7,
         solved_by: "codexbot",
-        confirmed_by: "cjb",
+        confirmed_by: "cjb"
       }));
   });
 });

@@ -14,7 +14,7 @@ Template.create_object.onRendered(function () {
 Template.create_object.events({
   "focus/input input"(event, template) {
     template.name.set(event.currentTarget.value);
-  },
+  }
 });
 
 Template.create_object.events(
@@ -30,8 +30,8 @@ Template.create_object.events(
       type = type[0].toUpperCase() + type.slice(1);
       Meteor.call(`new${type}`, { name, ...this.params });
       template.name.set("");
-    },
-  }),
+    }
+  })
 );
 
 Template.create_object.helpers({
@@ -62,5 +62,5 @@ Template.create_object.helpers({
     if (collection(this.type).findOne({ canon: cval }) != null) {
       return `Conflicts with another ${pretty_collection(this.type)}`;
     }
-  },
+  }
 });

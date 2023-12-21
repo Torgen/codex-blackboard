@@ -13,7 +13,7 @@ describe("puzzle feed", () =>
     assert.deepEqual(p.data, [
       { x: 1000, y: 1 },
       { x: 1500, y: 2 },
-      { x: 2000, y: 3 },
+      { x: 2000, y: 3 }
     ]);
     callback.resetHistory();
     Session.set("currentTime", 2500);
@@ -23,7 +23,7 @@ describe("puzzle feed", () =>
       { x: 1000, y: 1 },
       { x: 1500, y: 2 },
       { x: 2000, y: 3 },
-      { x: 2500, y: 3 },
+      { x: 2500, y: 3 }
     ]);
     callback.resetHistory();
     Session.set("currentTime", 3000);
@@ -33,7 +33,7 @@ describe("puzzle feed", () =>
       { x: 1000, y: 1 },
       { x: 1500, y: 2 },
       { x: 2000, y: 3 },
-      { x: 3000, y: 3 },
+      { x: 3000, y: 3 }
     ]);
     callback.resetHistory();
     p.addedAt({ timestamp: 2500 }, 3);
@@ -43,7 +43,7 @@ describe("puzzle feed", () =>
       { x: 1500, y: 2 },
       { x: 2000, y: 3 },
       { x: 2500, y: 4 },
-      { x: 3000, y: 4 },
+      { x: 3000, y: 4 }
     ]);
     callback.resetHistory();
     p.addedAt({ timestamp: 3500 }, 4);
@@ -53,7 +53,7 @@ describe("puzzle feed", () =>
       { x: 1500, y: 2 },
       { x: 2000, y: 3 },
       { x: 2500, y: 4 },
-      { x: 3500, y: 5 },
+      { x: 3500, y: 5 }
     ]);
     callback.resetHistory();
     Session.set("currentTime", 4000);
@@ -65,7 +65,7 @@ describe("puzzle feed", () =>
       { x: 1500, y: 2 },
       { x: 2000, y: 3 },
       { x: 2500, y: 4 },
-      { x: 4500, y: 5 },
+      { x: 4500, y: 5 }
     ]);
     callback.resetHistory();
     p.removedAt({ timestamp: 4500 }, 4);
@@ -75,6 +75,6 @@ describe("puzzle feed", () =>
       { x: 1500, y: 2 },
       { x: 2000, y: 3 },
       { x: 2500, y: 4 },
-      { x: 4000, y: 4 },
+      { x: 4000, y: 4 }
     ]);
   }));

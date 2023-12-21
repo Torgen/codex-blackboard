@@ -3,7 +3,7 @@ import {
   CallIns,
   Puzzles,
   Rounds,
-  pretty_collection,
+  pretty_collection
 } from "/lib/imports/collections.js";
 import { getTag, isStuck } from "/lib/imports/tags.js";
 import { confirm } from "/client/imports/modal.js";
@@ -82,7 +82,7 @@ Template.puzzle_info.helpers({
     const cared = getTag(this.puzzle, "Cares About");
     return (cared?.split(",") || []).map((tag) => ({
       name: tag,
-      canon: canonical(tag),
+      canon: canonical(tag)
     }));
   },
   callins() {
@@ -92,9 +92,9 @@ Template.puzzle_info.helpers({
     return CallIns.find(
       {
         target_type: "puzzles",
-        target: this.puzzle._id,
+        target: this.puzzle._id
       },
-      { sort: { created: 1 } },
+      { sort: { created: 1 } }
     );
   },
   callin_status() {
@@ -104,7 +104,7 @@ Template.puzzle_info.helpers({
     return (
       Puzzles.find({
         _id: { $in: this.puzzle.puzzles },
-        puzzles: { $exists: true },
+        puzzles: { $exists: true }
       }).count() > 0
     );
   },
@@ -133,7 +133,7 @@ Template.puzzle_info.helpers({
         result.push({
           name: tag,
           canon: canonical(tag),
-          meta: meta.name,
+          meta: meta.name
         });
       }
     }
@@ -156,7 +156,7 @@ Template.puzzle_info.helpers({
         r.push({
           name: tag.name,
           value: tag.value,
-          meta: meta.name,
+          meta: meta.name
         });
       }
     }
@@ -170,15 +170,15 @@ Template.puzzle_info.helpers({
       },
       done() {
         instance.addingTag.set(false);
-      },
+      }
     };
-  },
+  }
 });
 
 Template.puzzle_info.events({
   "click button.grandfeeders"(event, template) {
     template.grandfeeders.set(
-      !event.currentTarget.classList.contains("active"),
+      !event.currentTarget.classList.contains("active")
     );
   },
   "click button.unattached"(event, template) {
@@ -193,7 +193,7 @@ Template.puzzle_info.events({
   },
   "click .bb-add-tag-button"(event, template) {
     template.addingTag.set(true);
-  },
+  }
 });
 
 const dataHelper = function () {
@@ -207,7 +207,7 @@ const dataHelper = function () {
 };
 
 Template.puzzle_info_frame.helpers({
-  data: dataHelper,
+  data: dataHelper
 });
 
 Template.puzzle.helpers({
@@ -217,19 +217,19 @@ Template.puzzle.helpers({
   },
   docLoaded() {
     return Template.instance().docLoaded.get();
-  },
+  }
 });
 
 Template.puzzle.events({
   "click .bb-go-fullscreen"(e, t) {
     $(".bb-puzzleround").get(0)?.requestFullscreen({ navigationUI: "hide" });
-  },
+  }
 });
 
 Template.header_breadcrumb_extra_links.helpers({
   currentViewIs(view) {
     return currentViewIs(this, view);
-  },
+  }
 });
 
 Template.puzzle.onCreated(function () {
@@ -276,7 +276,7 @@ Template.puzzle.onCreated(function () {
 Template.puzzle_summon_button.helpers({
   stuck() {
     return isStuck(this);
-  },
+  }
 });
 
 Template.puzzle_summon_button.events({
@@ -285,14 +285,14 @@ Template.puzzle_summon_button.events({
       await confirm({
         message: "Are you sure you want to cancel this request for help?",
         ok_button: `Yes, this ${pretty_collection(
-          Session.get("type"),
+          Session.get("type")
         )} is no longer stuck`,
-        no_button: "Nevermind, this is still STUCK",
+        no_button: "Nevermind, this is still STUCK"
       })
     ) {
       Meteor.call("unsummon", {
         type: Session.get("type"),
-        object: Session.get("id"),
+        object: Session.get("id")
       });
     }
   },
@@ -302,7 +302,7 @@ Template.puzzle_summon_button.events({
     $("#summon_modal .stuck-other").val("");
     $("#summon_modal .bb-callin-submit").focus();
     $("#summon_modal").modal({ show: true });
-  },
+  }
 });
 
 Template.puzzle_summon_modal.events({
@@ -321,10 +321,10 @@ Template.puzzle_summon_modal.events({
     Meteor.call("summon", {
       type: Session.get("type"),
       object: Session.get("id"),
-      how,
+      how
     });
     template.$(".modal").modal("hide");
-  },
+  }
 });
 
 Template.puzzle_callin_button.events({
@@ -333,7 +333,7 @@ Template.puzzle_callin_button.events({
     $('#callin_modal input[type="checkbox"]:checked').val([]);
     $("#callin_modal").modal({ show: true });
     $("#callin_modal input:text").focus();
-  },
+  }
 });
 
 Template.puzzle_callin_modal.onCreated(function () {
@@ -343,7 +343,7 @@ Template.puzzle_callin_modal.onCreated(function () {
 Template.puzzle_callin_modal.onRendered(function () {
   this.$(`input[name='callin_type'][value='${this.type.get()}']`).prop(
     "checked",
-    true,
+    true
   );
 });
 
@@ -399,9 +399,9 @@ const callinTypesHelpers = (template) =>
         callin_types.ANSWER,
         callin_types.INTERACTION_REQUEST,
         callin_types.MESSAGE_TO_HQ,
-        callin_types.EXPECTED_CALLBACK,
+        callin_types.EXPECTED_CALLBACK
       ];
-    },
+    }
   });
 
 callinTypesHelpers(Template.puzzle_callin_modal);
@@ -411,7 +411,7 @@ Template.puzzle_callin_modal.helpers({
   },
   typeIs(type) {
     return Template.instance().type.get() === type;
-  },
+  }
 });
 callinTypesHelpers(Template.callin_type_dropdown);
 
@@ -428,7 +428,7 @@ Template.puzzle_callin_modal.events({
     const args = {
       target: Session.get("id"),
       answer,
-      callin_type: template.type.get(),
+      callin_type: template.type.get()
     };
     if (template.$('input:checked[value="provided"]').val() === "provided") {
       args.provided = true;
@@ -438,5 +438,5 @@ Template.puzzle_callin_modal.events({
     }
     Meteor.call("newCallIn", args);
     template.$(".modal").modal("hide");
-  },
+  }
 });

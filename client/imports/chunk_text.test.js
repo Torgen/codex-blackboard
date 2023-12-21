@@ -8,13 +8,13 @@ describe("chunk_text", function () {
       { type: "text", content: ": do x" },
       { type: "break", content: "" },
       { type: "mention", content: "bar" },
-      { type: "text", content: ": do y" },
+      { type: "text", content: ": do y" }
     ]));
 
   it("supports mention characters", () =>
     chai.assert.deepEqual(chunk_text("@test_1x: yo"), [
       { type: "mention", content: "test_1x" },
-      { type: "text", content: ": yo" },
+      { type: "text", content: ": yo" }
     ]));
 
   it("matches urls without protocol", () =>
@@ -22,9 +22,9 @@ describe("chunk_text", function () {
       { type: "text", content: "it's " },
       {
         type: "url",
-        content: { url: "http://www.foo.com/bar", original: "www.foo.com/bar" },
+        content: { url: "http://www.foo.com/bar", original: "www.foo.com/bar" }
       },
-      { type: "text", content: ", yo" },
+      { type: "text", content: ", yo" }
     ]));
 });
 
@@ -32,7 +32,7 @@ describe("chunk_html", () =>
   it("processes text outside tags", () =>
     chai.assert.deepEqual(
       chunk_html(
-        '@torgen: there\'s already <i class="fas fa-link"></i><a href="foo">a puzzle named bar</a>.',
+        '@torgen: there\'s already <i class="fas fa-link"></i><a href="foo">a puzzle named bar</a>.'
       ),
       [
         { type: "mention", content: "torgen" },
@@ -40,8 +40,8 @@ describe("chunk_html", () =>
         {
           type: "html",
           content:
-            '<i class="fas fa-link"></i><a href="foo">a puzzle named bar</a>',
+            '<i class="fas fa-link"></i><a href="foo">a puzzle named bar</a>'
         },
-        { type: "text", content: "." },
-      ],
+        { type: "text", content: "." }
+      ]
     )));

@@ -11,7 +11,7 @@ describe("settings", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 4,
-      toFake: ["Date"],
+      toFake: ["Date"]
     });
     for (let canon in settings.all_settings) {
       const setting = settings.all_settings[canon];
@@ -30,7 +30,7 @@ describe("settings", function () {
       chai.assert.deepEqual(settings.Settings.findOne("embed_puzzles"), {
         _id: "embed_puzzles",
         value: true,
-        touched: 4,
+        touched: 4
       }));
 
     describe("of boolean", function () {
@@ -41,7 +41,7 @@ describe("settings", function () {
             _id: "embed_puzzles",
             value: b,
             touched: 7,
-            touched_by: "torgen",
+            touched_by: "torgen"
           });
         });
 
@@ -51,7 +51,7 @@ describe("settings", function () {
             _id: "embed_puzzles",
             value: b,
             touched: 7,
-            touched_by: "torgen",
+            touched_by: "torgen"
           });
         });
       });
@@ -60,9 +60,9 @@ describe("settings", function () {
         chai.assert.throws(
           () =>
             impersonating("torgen", () =>
-              settings.EmbedPuzzles.set("something"),
+              settings.EmbedPuzzles.set("something")
             ),
-          Match.Error,
+          Match.Error
         ));
     });
 
@@ -77,19 +77,19 @@ describe("settings", function () {
               _id: "puzzle_url_prefix",
               value: url,
               touched: 7,
-              touched_by: "torgen",
-            },
+              touched_by: "torgen"
+            }
           );
-        }),
+        })
       );
 
       it("disallows ftp", () =>
         chai.assert.throws(
           () =>
             impersonating("torgen", () =>
-              settings.PuzzleUrlPrefix.set("ftp://log:pwd@molasses.holiday"),
+              settings.PuzzleUrlPrefix.set("ftp://log:pwd@molasses.holiday")
             ),
-          Match.Error,
+          Match.Error
         ));
     });
 
@@ -102,8 +102,8 @@ describe("settings", function () {
             _id: "maximum_meme_length",
             value: 925,
             touched: 7,
-            touched_by: "torgen",
-          },
+            touched_by: "torgen"
+          }
         );
       });
 
@@ -115,8 +115,8 @@ describe("settings", function () {
             _id: "maximum_meme_length",
             value: 633,
             touched: 7,
-            touched_by: "torgen",
-          },
+            touched_by: "torgen"
+          }
         );
       });
 
@@ -128,8 +128,8 @@ describe("settings", function () {
             _id: "maximum_meme_length",
             value: 286,
             touched: 7,
-            touched_by: "torgen",
-          },
+            touched_by: "torgen"
+          }
         );
       });
     });
@@ -144,14 +144,14 @@ describe("settings", function () {
             _id: "static_jitsi_meeting",
             value: uuid,
             touched: 7,
-            touched_by: "torgen",
-          },
+            touched_by: "torgen"
+          }
         );
       });
 
       it("canonicalizes", function () {
         impersonating("torgen", () =>
-          settings.StaticJitsiMeeting.set("it's ya boy Voynich"),
+          settings.StaticJitsiMeeting.set("it's ya boy Voynich")
         );
         chai.assert.deepEqual(
           settings.Settings.findOne("static_jitsi_meeting"),
@@ -159,8 +159,8 @@ describe("settings", function () {
             _id: "static_jitsi_meeting",
             value: "its_ya_boy_voynich",
             touched: 7,
-            touched_by: "torgen",
-          },
+            touched_by: "torgen"
+          }
         );
       });
     });
@@ -174,8 +174,8 @@ describe("settings", function () {
         $set: {
           value: "false",
           touched: 4,
-          touched_by: "cjb",
-        },
+          touched_by: "cjb"
+        }
       });
       chai.assert.isFalse(settings.EmbedPuzzles.get());
     }));
@@ -184,6 +184,6 @@ describe("settings", function () {
     it("doesn't create setting", () =>
       chai.assert.throws(
         () => callAs("changeSetting", "torgen", "foo", "qux"),
-        Match.Error,
+        Match.Error
       )));
 });

@@ -7,7 +7,7 @@ import {
   promiseCallOn,
   afterFlushPromise,
   login,
-  logout,
+  logout
 } from "./imports/app_test_helpers.js";
 import chai from "chai";
 import { HIDE_SOLVED, HIDE_SOLVED_METAS } from "/client/imports/settings.js";
@@ -28,19 +28,19 @@ describe("blackboard", function () {
     chai.assert.isDefined($(`#round${emo._id}`).html());
     chai.assert.isBelow(
       $(`#round${civ._id}`).offset().top,
-      $(`#round${emo._id}`).offset().top,
+      $(`#round${emo._id}`).offset().top
     );
     $('button[data-sortReverse="true"]').click();
     await afterFlushPromise();
     chai.assert.isAbove(
       $(`#round${civ._id}`).offset().top,
-      $(`#round${emo._id}`).offset().top,
+      $(`#round${emo._id}`).offset().top
     );
     $('button[data-sortReverse="false"]').click();
     await afterFlushPromise();
     chai.assert.isBelow(
       $(`#round${civ._id}`).offset().top,
-      $(`#round${emo._id}`).offset().top,
+      $(`#round${emo._id}`).offset().top
     );
   });
 
@@ -50,7 +50,7 @@ describe("blackboard", function () {
     const isss = Puzzles.findOne({ name: "Interstellar Spaceship" });
     chai.assert.isOk(isss);
     $(`#m${isss._id} tr.meta a[href^="/puzzles/"]`).trigger(
-      $.Event("click", { button: 0 }),
+      $.Event("click", { button: 0 })
     );
     await afterFlushPromise();
     chai.assert.equal(Session.get("currentPage"), "puzzle");
@@ -72,7 +72,7 @@ describe("blackboard", function () {
 
     await promiseCall("setAnswer", {
       target: warm._id,
-      answer: "fleece",
+      answer: "fleece"
     });
     await afterFlushPromise();
     chai.assert.isOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
@@ -84,7 +84,7 @@ describe("blackboard", function () {
     chai.assert.isOk($joy.find(".metafooter")[0]);
     chai.assert.equal(
       $joy.find(".metafooter .num-hidden").text(),
-      "(1 solved puzzle hidden)",
+      "(1 solved puzzle hidden)"
     );
 
     await promiseCall("deleteAnswer", { target: warm._id });
@@ -110,14 +110,14 @@ describe("blackboard", function () {
 
       const standalone = await promiseCall("newPuzzle", {
         name: "hide solved standalone",
-        round: round._id,
+        round: round._id
       });
       await afterFlushPromise();
       chai.assert.isOk(document.getElementById(`round${round._id}`));
 
       await promiseCall("setAnswer", {
         target: standalone._id,
-        answer: "hitoride",
+        answer: "hitoride"
       });
       await afterFlushPromise();
       chai.assert.isNotOk(document.getElementById(`round${round._id}`));
@@ -125,12 +125,12 @@ describe("blackboard", function () {
       const meta = await promiseCall("newPuzzle", {
         name: "hide solved meta",
         round: round._id,
-        puzzles: [],
+        puzzles: []
       });
       await promiseCall("newPuzzle", {
         name: "hide solved feeder",
         round: round._id,
-        feedsInto: [meta._id],
+        feedsInto: [meta._id]
       });
       await afterFlushPromise();
       chai.assert.isOk(document.getElementById(`round${round._id}`));
@@ -154,23 +154,23 @@ describe("blackboard", function () {
       await promiseCallOn(other_conn, "login", {
         nickname: "incognito",
         real_name: "Mister Snrub",
-        password: "failphrase",
+        password: "failphrase"
       });
       const p1 = new Promise((resolve) =>
         other_conn.subscribe(
           "register-presence",
           `puzzles/${puzz1._id}`,
           "chat",
-          { onReady: resolve },
-        ),
+          { onReady: resolve }
+        )
       );
       const p2 = new Promise((resolve) =>
         other_conn.subscribe(
           "register-presence",
           `puzzles/${puzz2._id}`,
           "jitsi",
-          { onReady: resolve },
-        ),
+          { onReady: resolve }
+        )
       );
       await Promise.all([p1, p2]);
       BlackboardPage();
@@ -192,16 +192,16 @@ describe("blackboard", function () {
       chai.assert.equal($puzz1.length, 1);
       chai.assert.equal(
         $puzz1.find('.nick.background[data-nick="incognito"]').length,
-        1,
+        1
       );
       const $puzz2 = $(`[data-puzzle-id=\"${puzz2._id}\"]`);
       chai.assert.equal($puzz2.length, 1);
       chai.assert.equal(
         $puzz2.find('.nick[data-nick="incognito"]:not(.background)').length,
-        1,
+        1
       );
       chai.assert.isNotOk(
-        $(`[data-puzzle-id=\"${Puzzles.findOne({ name: "AKA" })}\"]`)[0],
+        $(`[data-puzzle-id=\"${Puzzles.findOne({ name: "AKA" })}\"]`)[0]
       );
     }
 
@@ -240,15 +240,15 @@ describe("blackboard", function () {
       const maths = Puzzles.findOne({ name: "Advanced Maths" });
       const cheaters = Puzzles.findOne({ name: "Cheaters Never Prosper" });
       const mathsJQ = $(
-        `#m${wall_street._id} tr[data-puzzle-id=\"${maths._id}\"]`,
+        `#m${wall_street._id} tr[data-puzzle-id=\"${maths._id}\"]`
       );
       const cheatersJQ = $(
-        `#m${wall_street._id} tr[data-puzzle-id=\"${cheaters._id}\"]`,
+        `#m${wall_street._id} tr[data-puzzle-id=\"${cheaters._id}\"]`
       );
       chai.assert.isBelow(
         mathsJQ.offset().top,
         cheatersJQ.offset().top,
-        "before reorder",
+        "before reorder"
       );
       mathsJQ.find("button.bb-move-down").click();
       await waitForMethods();
@@ -256,7 +256,7 @@ describe("blackboard", function () {
       chai.assert.isAbove(
         mathsJQ.offset().top,
         cheatersJQ.offset().top,
-        "after down",
+        "after down"
       );
       mathsJQ.find("button.bb-move-up").click();
       await waitForMethods();
@@ -264,7 +264,7 @@ describe("blackboard", function () {
       chai.assert.isBelow(
         mathsJQ.offset().top,
         cheatersJQ.offset().top,
-        "after up",
+        "after up"
       );
     });
 
@@ -280,7 +280,7 @@ describe("blackboard", function () {
       chai.assert.isBelow(
         sadnessJQ.offset().top,
         fearJQ.offset().top,
-        "before reorder",
+        "before reorder"
       );
       sadnessJQ.find("button.bb-move-down").click();
       await waitForMethods();
@@ -288,7 +288,7 @@ describe("blackboard", function () {
       chai.assert.isAbove(
         sadnessJQ.offset().top,
         fearJQ.offset().top,
-        "after down",
+        "after down"
       );
       sadnessJQ.find("button.bb-move-up").click();
       await waitForMethods();
@@ -296,14 +296,14 @@ describe("blackboard", function () {
       chai.assert.isBelow(
         sadnessJQ.offset().top,
         fearJQ.offset().top,
-        "after up",
+        "after up"
       );
       $('button[data-sortreverse="true"]').click();
       await afterFlushPromise();
       chai.assert.isAbove(
         sadnessJQ.offset().top,
         fearJQ.offset().top,
-        "after reverse",
+        "after reverse"
       );
       sadnessJQ.find("button.bb-move-up").click();
       await waitForMethods();
@@ -311,7 +311,7 @@ describe("blackboard", function () {
       chai.assert.isBelow(
         sadnessJQ.offset().top,
         fearJQ.offset().top,
-        "after up reversed",
+        "after up reversed"
       );
       sadnessJQ.find("button.bb-move-down").click();
       await waitForMethods();
@@ -319,7 +319,7 @@ describe("blackboard", function () {
       chai.assert.isAbove(
         sadnessJQ.offset().top,
         fearJQ.offset().top,
-        "after down reversed",
+        "after down reversed"
       );
       $('button[data-sortreverse="false"]').click();
       await afterFlushPromise();
@@ -335,13 +335,13 @@ describe("blackboard", function () {
       const aka = Puzzles.findOne({ name: "AKA" });
       const disgustJQ = $(`#m${disgust._id}`);
       const cluelessJQ = disgustJQ.find(
-        `tr[data-puzzle-id=\"${clueless._id}\"]`,
+        `tr[data-puzzle-id=\"${clueless._id}\"]`
       );
       const akaJQ = disgustJQ.find(`tr[data-puzzle-id=\"${aka._id}\"]`);
       chai.assert.isBelow(
         cluelessJQ.offset().top,
         akaJQ.offset().top,
-        "before reorder",
+        "before reorder"
       );
       disgustJQ.find('button[data-sort-order="name"]').click();
       await waitForMethods();
@@ -349,7 +349,7 @@ describe("blackboard", function () {
       chai.assert.isAbove(
         cluelessJQ.offset().top,
         akaJQ.offset().top,
-        "after alpha",
+        "after alpha"
       );
       disgustJQ.find('button[data-sort-order=""]').click();
       await waitForMethods();
@@ -357,7 +357,7 @@ describe("blackboard", function () {
       chai.assert.isBelow(
         cluelessJQ.offset().top,
         akaJQ.offset().top,
-        "after manual",
+        "after manual"
       );
     });
 
@@ -417,14 +417,14 @@ describe("blackboard", function () {
       chai.assert.isOk(indirect, "indirect");
       chai.assert.notInclude(indirect.feedsInto, meta._id);
       $(
-        `#unassigned${round._id} tr.puzzle[data-puzzle-id=\"${indirect._id}\"] .bb-feed-meta [data-puzzle-id=\"${meta._id}\"]`,
+        `#unassigned${round._id} tr.puzzle[data-puzzle-id=\"${indirect._id}\"] .bb-feed-meta [data-puzzle-id=\"${meta._id}\"]`
       ).click();
       await waitForMethods();
       await afterFlushPromise();
       indirect = Puzzles.findOne({ name: "Indirectly Created" });
       chai.assert.include(indirect.feedsInto, meta._id);
       const indirectTitle = $(
-        `#m${meta._id} tr.puzzle[data-puzzle-id=\"${indirect._id}\"] .bb-puzzle-title`,
+        `#m${meta._id} tr.puzzle[data-puzzle-id=\"${indirect._id}\"] .bb-puzzle-title`
       );
       indirectTitle.click();
       await afterFlushPromise();
@@ -435,10 +435,10 @@ describe("blackboard", function () {
       indirectInput.focusout();
       await waitForMethods();
       chai.assert.include(Puzzles.findOne(indirect._id), {
-        name: "Creatively Undirected",
+        name: "Creatively Undirected"
       });
       $(
-        `#m${meta._id} tr.puzzle[data-puzzle-id=\"${indirect._id}\"] .bb-puzzle-title .bb-delete-icon`,
+        `#m${meta._id} tr.puzzle[data-puzzle-id=\"${indirect._id}\"] .bb-puzzle-title .bb-delete-icon`
       ).click();
       await afterFlushPromise();
       $("#confirmModal .bb-confirm-ok").click();
@@ -454,12 +454,12 @@ describe("blackboard", function () {
       const initial = bank();
       chai.assert.notOk(initial.tags.meme);
       const baseJq = $(
-        `tbody.meta[data-puzzle-id=\"${initial.feedsInto[1]}\"] [data-puzzle-id=\"${initial._id}\"]`,
+        `tbody.meta[data-puzzle-id=\"${initial.feedsInto[1]}\"] [data-puzzle-id=\"${initial._id}\"]`
       );
       baseJq.find("button.bb-add-tag").first().click();
       await afterFlushPromise();
       chai.assert.isTrue(
-        baseJq.find(".bb-tag-table .bb-add-tag input").is(":focus"),
+        baseJq.find(".bb-tag-table .bb-add-tag input").is(":focus")
       );
       const addTagInput = baseJq.find(".bb-tag-table .bb-add-tag input");
       addTagInput.val("Meme").trigger("input");
@@ -471,7 +471,7 @@ describe("blackboard", function () {
       chai.assert.include(creation.tags.meme, {
         name: "Meme",
         value: "",
-        touched_by: "testy",
+        touched_by: "testy"
       });
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
@@ -486,7 +486,7 @@ describe("blackboard", function () {
       chai.assert.include(edit.tags.meme, {
         name: "Meme",
         value: "yuno accept deposits?",
-        touched_by: "testy",
+        touched_by: "testy"
       });
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
@@ -502,7 +502,7 @@ describe("blackboard", function () {
       chai.assert.include(edit.tags.meme, {
         name: "Meme",
         value: "yuno accept deposits?",
-        touched_by: "testy",
+        touched_by: "testy"
       });
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
@@ -518,7 +518,7 @@ describe("blackboard", function () {
       chai.assert.include(edit.tags.meme, {
         name: "Meme",
         value: "yuno pay interest?",
-        touched_by: "testy",
+        touched_by: "testy"
       });
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
@@ -534,7 +534,7 @@ describe("blackboard", function () {
       chai.assert.include(edit.tags.meme, {
         name: "Meme",
         value: "yuno pay interest?",
-        touched_by: "testy",
+        touched_by: "testy"
       });
       await afterFlushPromise();
       baseJq
@@ -557,17 +557,17 @@ describe("blackboard", function () {
         type: "puzzles",
         object: disgust._id,
         name: "color5",
-        value: "plurple",
+        value: "plurple"
       });
       await afterFlushPromise();
       $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color5\"] .bb-edit-tag-name`,
+        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color5\"] .bb-edit-tag-name`
       )
         .first()
         .click();
       await afterFlushPromise();
       $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color5\"] .bb-edit-tag-name input`,
+        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color5\"] .bb-edit-tag-name input`
       )
         .first()
         .val("Color6")
@@ -576,7 +576,7 @@ describe("blackboard", function () {
       disgust = Puzzles.findOne(disgust._id);
       chai.assert.include(disgust.tags.color6, {
         name: "Color6",
-        value: "plurple",
+        value: "plurple"
       });
       await waitForMethods();
       chai.assert.isNotOk(disgust.tags.color5);
@@ -591,17 +591,17 @@ describe("blackboard", function () {
         type: "puzzles",
         object: disgust._id,
         name: "color3",
-        value: "plurple",
+        value: "plurple"
       });
       await afterFlushPromise();
       $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color3\"] .bb-edit-tag-name`,
+        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color3\"] .bb-edit-tag-name`
       )
         .first()
         .click();
       await afterFlushPromise();
       $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color3\"] .bb-edit-tag-name input`,
+        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color3\"] .bb-edit-tag-name input`
       )
         .first()
         .val("")
@@ -620,17 +620,17 @@ describe("blackboard", function () {
         type: "puzzles",
         object: disgust._id,
         name: "color2",
-        value: "plurple",
+        value: "plurple"
       });
       await afterFlushPromise();
       $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color2\"] .bb-edit-tag-name`,
+        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color2\"] .bb-edit-tag-name`
       )
         .first()
         .click();
       await afterFlushPromise();
       $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color2\"] .bb-edit-tag-name input`,
+        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color2\"] .bb-edit-tag-name input`
       )
         .first()
         .val("color")
@@ -651,18 +651,18 @@ describe("blackboard", function () {
     const bank = Puzzles.findOne({ name: "Letter Bank" });
     chai.assert.isDefined(
       $(
-        `#m${granary._id} tr[data-puzzle-id=\"${bank._id}\"] .bb-favorite-button`,
-      ).html(),
+        `#m${granary._id} tr[data-puzzle-id=\"${bank._id}\"] .bb-favorite-button`
+      ).html()
     );
     $(
-      `#m${granary._id} tr[data-puzzle-id=\"${bank._id}\"] .bb-favorite-button`,
+      `#m${granary._id} tr[data-puzzle-id=\"${bank._id}\"] .bb-favorite-button`
     ).click();
     await waitForMethods();
     await waitForSubscriptions();
     await afterFlushPromise();
     chai.assert.isDefined($("#favorites").html());
     chai.assert.isDefined(
-      $(`tr[data-puzzle-id=\"${bank._id}\"] .bb-recent-puzzle-chat`).html(),
+      $(`tr[data-puzzle-id=\"${bank._id}\"] .bb-recent-puzzle-chat`).html()
     );
   });
 });

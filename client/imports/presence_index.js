@@ -18,8 +18,8 @@ Meteor.startup(() =>
         $min: { joined_timestamp: doc.joined_timestamp },
         $max: {
           jitsi: +(doc.scope === "jitsi"),
-          chat: +(doc.scope === "chat"),
-        },
+          chat: +(doc.scope === "chat")
+        }
       });
     },
     removed(doc) {
@@ -30,12 +30,12 @@ Meteor.startup(() =>
       coll.update(doc.nick, {
         $min: {
           jitsi: +(doc.scope !== "jitsi"),
-          chat: +(doc.scope !== "chat"),
-        },
+          chat: +(doc.scope !== "chat")
+        }
       });
       coll.remove({ _id: doc.nick, jitsi: 0, chat: 0 });
-    },
-  }),
+    }
+  })
 );
 
 export var findByChannel = (channel, query, options) =>

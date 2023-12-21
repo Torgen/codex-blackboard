@@ -4,7 +4,7 @@ import jitsiModule, { jitsiUrl, jitsiRoom } from "./imports/jitsi.js";
 import {
   gravatarUrl,
   hashFromNickObject,
-  nickAndName,
+  nickAndName
 } from "/lib/imports/nickEmail.js";
 import { computeMessageFollowup } from "./imports/followup.js";
 import botuser from "./imports/botuser.js";
@@ -16,20 +16,20 @@ import {
   Polls,
   Presence,
   Puzzles,
-  collection,
+  collection
 } from "/lib/imports/collections.js";
 import {
   CHAT_LIMIT_INCREMENT,
   CLIENT_UUID,
   FOLLOWUP_STYLE,
   GENERAL_ROOM_NAME,
-  INITIAL_CHAT_LIMIT,
+  INITIAL_CHAT_LIMIT
 } from "/lib/imports/server_settings.js";
 import {
   CAP_JITSI_HEIGHT,
   HIDE_OLD_PRESENCE,
   HIDE_USELESS_BOT_MESSAGES,
-  MUTE_SOUND_EFFECTS,
+  MUTE_SOUND_EFFECTS
 } from "./imports/settings.js";
 import { reactiveLocalStorage } from "./imports/storage.js";
 import { chunk_text, chunk_html } from "./imports/chunk_text.js";
@@ -46,7 +46,7 @@ Session.setDefault({
   type: "general",
   id: "0",
   chatReady: false,
-  limit: INITIAL_CHAT_LIMIT,
+  limit: INITIAL_CHAT_LIMIT
 });
 
 // Chat helpers!
@@ -108,7 +108,7 @@ instachat["mutationObserver"] = new MutationObserver(function (recs, obs) {
     if (!Meteor.isProduction) {
       if (
         [...rec.addedNodes, ...rec.removedNodes].some(
-          (x) => x instanceof Element,
+          (x) => x instanceof Element
         )
       ) {
         console.log(rec);
@@ -124,7 +124,7 @@ instachat["mutationObserver"] = new MutationObserver(function (recs, obs) {
   }
 });
 instachat["readObserver"] = new MutationObserver((recs, obs) =>
-  recs.map((rec) => assignReadMarker(rec.target)),
+  recs.map((rec) => assignReadMarker(rec.target))
 );
 
 // Favicon instance, used for notifications
@@ -132,14 +132,14 @@ instachat["readObserver"] = new MutationObserver((recs, obs) =>
 const favicon = new Favico({
   animation: "slide",
   fontFamily: "Noto Sans",
-  fontStyle: "700",
+  fontStyle: "700"
 });
 
 Template.chat.helpers({
   object() {
     const type = Session.get("type");
     return type !== "general" && collection(type)?.findOne(Session.get("id"));
-  },
+  }
 });
 
 function starred_messages_room() {
@@ -158,10 +158,10 @@ Template.starred_messages.helpers({
       { room_name: starred_messages_room(), starred: true },
       {
         sort: [["timestamp", "asc"]],
-        transform: messageTransform,
-      },
+        transform: messageTransform
+      }
     );
-  },
+  }
 });
 
 Template.media_message.events({
@@ -176,7 +176,7 @@ Template.media_message.events({
       return;
     }
     Meteor.call("setStarred", this._id, true);
-  },
+  }
 });
 
 Template.message_delete_button.events({
@@ -185,12 +185,12 @@ Template.message_delete_button.events({
       await confirm({
         ok_button: "Yes, delete it",
         no_button: "No, cancel",
-        message: "Really delete this message?",
+        message: "Really delete this message?"
       })
     ) {
       Meteor.call("deleteMessage", this._id);
     }
-  },
+  }
 });
 
 Template.poll.onCreated(function () {
@@ -235,11 +235,11 @@ Template.poll.helpers({
         votes: votes[p.canon],
         width: (100 * votes[p.canon].length) / max,
         yours: myVote === p.canon,
-        leading: votes[p.canon].length >= max,
+        leading: votes[p.canon].length >= max
       });
     }
     return result;
-  },
+  }
 });
 
 Template.poll.events({
@@ -248,7 +248,7 @@ Template.poll.events({
   },
   "click button.toggle-votes"(event, template) {
     template.show_votes.set(!template.show_votes.get());
-  },
+  }
 });
 
 function messageTransform(m) {
@@ -261,13 +261,13 @@ function messageTransform(m) {
       // use a nonreactive read at first. If it's unread, then do a reactive read
       // to create the tracker dependency.
       const result = Tracker.nonreactive(
-        () => m.timestamp <= Session.get("lastread"),
+        () => m.timestamp <= Session.get("lastread")
       );
       if (!result) {
         Session.get("lastread");
       }
       return result;
-    },
+    }
   };
 }
 
@@ -284,7 +284,7 @@ Template.messages.helpers({
   startOfChannel() {
     return (
       Messages.findOne({
-        _id: Session.get("room_name", { from_chat_subscription: true }),
+        _id: Session.get("room_name", { from_chat_subscription: true })
       }) != null
     );
   },
@@ -334,10 +334,10 @@ Template.messages.helpers({
       { room_name, from_chat_subscription: true },
       {
         sort: [["timestamp", "asc"]],
-        transform: messageTransform,
-      },
+        transform: messageTransform
+      }
     );
-  },
+  }
 });
 
 let selfScroll = null;
@@ -353,7 +353,7 @@ Template.messages.helpers({
   scrollHack(m) {
     touchSelfScroll(); // ignore scroll events caused by DOM update
     return maybeScrollMessagesView();
-  },
+  }
 });
 
 function cleanupChat() {
@@ -405,7 +405,7 @@ Template.messages.onCreated(function () {
         let firstMessage, offset;
         [[firstMessage, offset], this.limitRaise] = [
           this.limitRaise,
-          undefined,
+          undefined
         ];
         Tracker.afterFlush(() => {
           // only scroll if the button is visible, since it means we were at the
@@ -433,13 +433,13 @@ Template.messages.onCreated(function () {
       } else {
         Tracker.afterFlush(() => {
           this.$(
-            `.bb-message[data-read=\"unread\"]:is(.bb-message-mention-me,[data-pm-to=\"${Meteor.userId}\"])`,
+            `.bb-message[data-read=\"unread\"]:is(.bb-message-mention-me,[data-pm-to=\"${Meteor.userId}\"])`
           )[0]?.scrollIntoView();
         });
       }
     };
     this.subscribe("recent-messages", room_name, Session.get("limit"), {
-      onReady,
+      onReady
     });
     Tracker.onInvalidate(invalidator);
   });
@@ -469,7 +469,7 @@ Template.messages.onRendered(function () {
     instachat.readObserver.observe(this, {
       attributes: true,
       attributeFilter: ["data-read"],
-      subtree: true,
+      subtree: true
     });
   });
 
@@ -482,14 +482,14 @@ Template.messages.events({
     const offset = firstMessage.offsetTop;
     template.limitRaise = [firstMessage, offset];
     Session.set("limit", Session.get("limit") + CHAT_LIMIT_INCREMENT);
-  },
+  }
 });
 
 function whos_here_helper() {
   const roomName = Session.get("room_name");
   return Presence.find(
     { room_name: roomName, scope: "chat" },
-    { sort: ["joined_timestamp"] },
+    { sort: ["joined_timestamp"] }
   );
 }
 
@@ -560,7 +560,7 @@ Template.embedded_chat.onRendered(function () {
       if (jitsi == null) {
         jitsi = jitsiModule.createJitsiMeet(
           newRoom,
-          this.find("#bb-jitsi-container"),
+          this.find("#bb-jitsi-container")
         );
         if (jitsi == null) {
           return;
@@ -579,8 +579,8 @@ Template.embedded_chat.onRendered(function () {
                 jitsi.executeCommand(
                   "subject",
                   Tracker.nonreactive(() =>
-                    jitsiRoomSubject(this.jitsiType(), this.jitsiId()),
-                  ),
+                    jitsiRoomSubject(this.jitsiType(), this.jitsiId())
+                  )
                 );
               } catch (error) {
                 console.log(error);
@@ -597,7 +597,7 @@ Template.embedded_chat.onRendered(function () {
       this.subscribe(
         "register-presence",
         `${this.jitsiType()}/${this.jitsiId()}`,
-        "jitsi",
+        "jitsi"
       );
     }
   });
@@ -618,8 +618,8 @@ Template.embedded_chat.onRendered(function () {
       displayName: nickAndName(user),
       avatarUrl: gravatarUrl({
         gravatar_md5: hashFromNickObject(user),
-        size: 200,
-      }),
+        size: 200
+      })
     });
   });
   // The moderator should set the conference subject.
@@ -634,7 +634,7 @@ Template.embedded_chat.onRendered(function () {
     try {
       jitsi.executeCommand(
         "subject",
-        jitsiRoomSubject(this.jitsiType(), this.jitsiId()),
+        jitsiRoomSubject(this.jitsiType(), this.jitsiId())
       );
     } catch (error) {}
   });
@@ -674,7 +674,7 @@ Template.embedded_chat.helpers({
     const roomName = Session.get("room_name");
     return Presence.find(
       { room_name: roomName, scope: "jitsi", nick: { $ne: Meteor.userId() } },
-      { sort: ["joined_timestamp"] },
+      { sort: ["joined_timestamp"] }
     );
   },
   jitsiPinSet() {
@@ -700,7 +700,7 @@ Template.embedded_chat.helpers({
       return Meteor._relativeToSiteRootUrl("/");
     }
     return urlFor(instance.jitsiType(), instance.jitsiId());
-  },
+  }
 });
 
 Template.embedded_chat.events({
@@ -724,7 +724,7 @@ Template.embedded_chat.events({
   },
   "click .bb-jitsi-cap-height.capped"(event, template) {
     CAP_JITSI_HEIGHT.set(false);
-  },
+  }
 });
 
 // Utility functions
@@ -808,7 +808,7 @@ window.imageScrollHack = imageScrollHack;
 Template.media_message.events({
   "mouseenter .bb-message-body .inline-image"(event, template) {
     imageScrollHack(event.currentTarget);
-  },
+  }
 });
 
 Template.chat_format_body.helpers({
@@ -825,7 +825,7 @@ Template.chat_format_body.helpers({
     } else {
       return `text_chunk_${type}`;
     }
-  },
+  }
 });
 
 Template.messages_input.helpers({
@@ -841,7 +841,7 @@ Template.messages_input.helpers({
   },
   error() {
     return Template.instance().error.get();
-  },
+  }
 });
 
 const MSG_PATTERN = /^\/m(sg)? ([A-Za-z_0-9]*)$/;
@@ -879,8 +879,8 @@ Template.messages_input.onCreated(function () {
       {
         limit: 8,
         fields: { _id: 1 },
-        sort: { roles: -1, _id: 1 },
-      },
+        sort: { roles: -1, _id: 1 }
+      }
     );
     this.queryCursor.set(c);
     const s = this.selected.get();
@@ -921,7 +921,7 @@ Template.messages_input.onCreated(function () {
         if (this.selected.get() === old._id) {
           return this.activateFirst();
         }
-      },
+      }
     });
   });
 
@@ -978,7 +978,7 @@ Template.messages_input.onCreated(function () {
         v.substring(0, match[0].length - match[2].length) +
           nick +
           " " +
-          v.substring(consider.length),
+          v.substring(consider.length)
       );
       newCaret = match[0].length - match[2].length + nick.length + 1;
       i.focus();
@@ -991,7 +991,7 @@ Template.messages_input.onCreated(function () {
         v.substring(0, consider.length - match[2].length) +
           nick +
           " " +
-          v.substring(consider.length),
+          v.substring(consider.length)
       );
       newCaret = consider.length - match[2].length + nick.length + 1;
       i.focus();
@@ -1007,7 +1007,7 @@ Template.messages_input.onCreated(function () {
     }
     const args = {
       room_name: Session.get("room_name"),
-      body: message,
+      body: message
     };
     let [word1, rest] = message.split(/\s+([^]*)/, 2);
     switch (word1) {
@@ -1018,7 +1018,7 @@ Template.messages_input.onCreated(function () {
       case "/join":
         var result = Names.findOne({
           canon: canonical(rest.trim()),
-          type: { $in: ["rounds", "puzzles"] },
+          type: { $in: ["rounds", "puzzles"] }
         });
         if (result == null && GENERAL_ROOM_REGEX.test(rest.trim())) {
           result = { type: "general", _id: "0" };
@@ -1065,7 +1065,7 @@ Template.messages_input.onCreated(function () {
       // Can't mention someone in a private message
       const mentions = [];
       for (let match of args.body.matchAll(
-        /(^|[\s])@([a-zA-Z_0-9]*)([\s.?!,]|$)/g,
+        /(^|[\s])@([a-zA-Z_0-9]*)([\s.?!,]|$)/g
       )) {
         const canon = canonical(match[2]);
         if (Meteor.users.findOne(canon) == null) {
@@ -1117,7 +1117,7 @@ Template.messages_input.events({
           system: { $ne: true },
           bodyIsHtml: { $ne: true },
           from_chat_subscription: true,
-          on_behalf: { $ne: true },
+          on_behalf: { $ne: true }
         };
         if (template.history_ts != null) {
           query.timestamp = { $lt: template.history_ts };
@@ -1148,7 +1148,7 @@ Template.messages_input.events({
           bodyIsHtml: { $ne: true },
           timestamp: { $gt: template.history_ts },
           from_chat_subscription: true,
-          on_behalf: { $ne: true },
+          on_behalf: { $ne: true }
         };
         msg = Messages.findOne(query, { sort: { timestamp: 1 } });
         if (msg != null) {
@@ -1213,23 +1213,23 @@ Template.messages_input.events({
   },
   "mouseleave #messageInputTypeahead"(event, template) {
     template.activateFirst();
-  },
+  }
 });
 
 var updateLastRead = function () {
   const lastMessage = Messages.findOne(
     {
       room_name: Session.get("room_name"),
-      from_chat_subscription: true,
+      from_chat_subscription: true
     },
-    { sort: [["timestamp", "desc"]] },
+    { sort: [["timestamp", "desc"]] }
   );
   if (!lastMessage) {
     return;
   }
   Meteor.call("updateLastRead", {
     room_name: Session.get("room_name"),
-    timestamp: lastMessage.timestamp,
+    timestamp: lastMessage.timestamp
   });
 };
 
@@ -1256,7 +1256,7 @@ Template.chat.onRendered(function () {
 // App startup
 Meteor.startup(function () {
   instachat.messageMentionSound = new Audio(
-    Meteor._relativeToSiteRootUrl("/sound/Electro_-S_Bainbr-7955.wav"),
+    Meteor._relativeToSiteRootUrl("/sound/Electro_-S_Bainbr-7955.wav")
   );
 });
 
@@ -1327,7 +1327,7 @@ Template.messages.onCreated(function () {
       room_name,
       nick: { $ne: nick },
       timestamp: { $gt: lastread.timestamp },
-      from_chat_subscription: true,
+      from_chat_subscription: true
     }).observe({
       added(item) {
         added(item);
@@ -1341,7 +1341,7 @@ Template.messages.onCreated(function () {
         removed(oldItem);
         added(newItem);
         update();
-      },
+      }
     });
     // after initial query is processed, handle updates
     update = () => updateNotice(total_unread, total_mentions);

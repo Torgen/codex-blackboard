@@ -13,8 +13,8 @@ describe("setTag", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -37,9 +37,9 @@ describe("setTag", function () {
           name: "Answer",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
-        },
-      },
+          touched: 3
+        }
+      }
     });
     chai.assert.throws(
       () =>
@@ -47,9 +47,9 @@ describe("setTag", function () {
           type: "puzzles",
           object: id,
           name: "Cares About",
-          value: "temperature",
+          value: "temperature"
         }),
-      Match.Error,
+      Match.Error
     );
   });
 
@@ -69,15 +69,15 @@ describe("setTag", function () {
           name: "Answer",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
-        },
-      },
+          touched: 3
+        }
+      }
     });
     callAs("setTag", "torgen", {
       type: "puzzles",
       object: id,
       name: "Cares About",
-      value: "temperature",
+      value: "temperature"
     });
     chai.assert.deepInclude(Puzzles.findOne(id), {
       created: 1,
@@ -91,15 +91,15 @@ describe("setTag", function () {
           name: "Answer",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
+          touched: 3
         },
         cares_about: {
           name: "Cares About",
           value: "temperature",
           touched: 7,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
   });
 
@@ -117,15 +117,15 @@ describe("setTag", function () {
           name: "Cares About",
           value: "temperature",
           touched: 3,
-          touched_by: "cscott",
-        },
-      },
+          touched_by: "cscott"
+        }
+      }
     });
     callAs("setTag", "torgen", {
       type: "puzzles",
       object: id,
       name: "Cares About",
-      value: "temperature,pressure",
+      value: "temperature,pressure"
     });
 
     chai.assert.deepInclude(Puzzles.findOne(id), {
@@ -138,9 +138,9 @@ describe("setTag", function () {
           name: "Cares About",
           value: "temperature,pressure",
           touched: 7,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
   });
 
@@ -158,15 +158,15 @@ describe("setTag", function () {
           name: "Cares About",
           value: "temperature",
           touched: 3,
-          touched_by: "cscott",
-        },
-      },
+          touched_by: "cscott"
+        }
+      }
     });
     callAs("setTag", "torgen", {
       type: "puzzles",
       object: id,
       name: "answEr",
-      value: "bar",
+      value: "bar"
     });
 
     chai.assert.deepInclude(Puzzles.findOne(id), {
@@ -181,28 +181,28 @@ describe("setTag", function () {
           name: "Answer",
           value: "bar",
           touched_by: "torgen",
-          touched: 7,
+          touched: 7
         },
         cares_about: {
           name: "Cares About",
           value: "temperature",
           touched: 3,
-          touched_by: "cscott",
-        },
-      },
+          touched_by: "cscott"
+        }
+      }
     });
     chai.assert.include(
       Messages.findOne({
         room_name: "oplog/0",
-        body: "Found an answer (BAR) to",
+        body: "Found an answer (BAR) to"
       }),
       {
         id,
         nick: "torgen",
         oplog: true,
         type: "puzzles",
-        stream: "answers",
-      },
+        stream: "answers"
+      }
     );
   });
 
@@ -220,15 +220,15 @@ describe("setTag", function () {
           name: "Cares About",
           value: "temperature",
           touched: 3,
-          touched_by: "cscott",
-        },
-      },
+          touched_by: "cscott"
+        }
+      }
     });
     callAs("setTag", "torgen", {
       type: "puzzles",
       object: id,
       name: "link",
-      value: "https://moliday.holasses/puzzles/foo",
+      value: "https://moliday.holasses/puzzles/foo"
     });
 
     chai.assert.deepInclude(Puzzles.findOne(id), {
@@ -242,9 +242,9 @@ describe("setTag", function () {
           name: "Cares About",
           value: "temperature",
           touched: 3,
-          touched_by: "cscott",
-        },
-      },
+          touched_by: "cscott"
+        }
+      }
     });
     chai.assert.doesNotHaveAnyKeys(Puzzles.findOne(id).tags, ["link"]);
   });

@@ -2,12 +2,12 @@ import keyword_or_positional from "./keyword_or_positional.js";
 
 const today_fmt = Intl.DateTimeFormat(navigator.language, {
   hour: "numeric",
-  minute: "numeric",
+  minute: "numeric"
 });
 const past_fmt = Intl.DateTimeFormat(navigator.language, {
   hour: "numeric",
   minute: "numeric",
-  weekday: "short",
+  weekday: "short"
 });
 
 function timediff(seconds, brief) {

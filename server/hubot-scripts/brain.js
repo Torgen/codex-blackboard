@@ -19,14 +19,14 @@ export default scripts.brain = function (robot) {
           console.warn("Couldn't save ", _id, value, err);
         }
       }
-    }),
+    })
   );
 
   const handle = Meteor.users.find({}).observe({
     added(user) {
       robot.brain.userForId(user._id, {
         name: user.real_name ?? user.nickname ?? user._id,
-        robot,
+        robot
       });
     },
     changed(newUser, oldUser) {
@@ -38,12 +38,12 @@ export default scripts.brain = function (robot) {
     },
     removed(user) {
       delete robot.brain.data.users[user._id];
-    },
+    }
   });
 
   robot.brain.on(
     "close",
-    Meteor.bindEnvironment(() => handle.stop()),
+    Meteor.bindEnvironment(() => handle.stop())
   );
 
   const data = { _private: {} };

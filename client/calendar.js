@@ -8,9 +8,9 @@ function calendar_container(template) {
     upcoming_events() {
       return CalendarEvents.find(
         { end: { $gt: Session.get("currentTime") } },
-        { sort: { start: 1 } },
+        { sort: { start: 1 } }
       );
-    },
+    }
   });
 }
 
@@ -22,7 +22,7 @@ Template.calendar_dropdown.helpers({
       CalendarEvents.findOne({ end: { $gt: now } }, { sort: { start: 1 } })
         ?.start - now
     );
-  },
+  }
 });
 
 calendar_container(Template.calendar_link);
@@ -41,7 +41,7 @@ Template.calendar_event.helpers({
     } catch (e) {
       return false;
     }
-  },
+  }
 });
 
 Template.calendar_event.events({
@@ -49,7 +49,7 @@ Template.calendar_event.events({
     Meteor.call(
       "removeEventAttendee",
       template.data.event._id,
-      Meteor.userId(),
+      Meteor.userId()
     );
   },
   "click .bb-event-attend"(event, template) {
@@ -57,22 +57,22 @@ Template.calendar_event.events({
   },
   "click .bb-detach-event"(event, template) {
     Meteor.call("setPuzzleForEvent", template.data.event._id, null);
-  },
+  }
 });
 
 function attachable_events() {
   CalendarEvents.find(
     {
       end: { $gt: Session.get("currentTime") },
-      puzzle: null,
+      puzzle: null
     },
     {
       sort: { start: 1 },
       fields: {
         puzzle: 0,
-        location: 0,
-      },
-    },
+        location: 0
+      }
+    }
   );
 }
 
@@ -83,9 +83,9 @@ Template.calendar_attachable_events.events({
     Meteor.call(
       "setPuzzleForEvent",
       event.currentTarget.dataset.eventId,
-      template.data.puzzle,
+      template.data.puzzle
     );
-  },
+  }
 });
 
 function calendar_puzzle_container(template) {
@@ -94,11 +94,11 @@ function calendar_puzzle_container(template) {
       return CalendarEvents.find(
         {
           end: { $gt: Session.get("currentTime") },
-          puzzle: this._id,
+          puzzle: this._id
         },
-        { sort: { start: 1 } },
+        { sort: { start: 1 } }
       );
-    },
+    }
   });
 }
 
@@ -110,5 +110,5 @@ Template.calendar_puzzle_cell.helpers({ attachable_events });
 Template.calendar_puzzle_cell_entry.events({
   "click .bb-detach-event"(event, template) {
     Meteor.call("setPuzzleForEvent", template.data.event._id, null);
-  },
+  }
 });

@@ -11,7 +11,7 @@ function maybe_real_name(nick) {
 const common_presence_fields = {
   system: true,
   to: null,
-  bodyIsHtml: false,
+  bodyIsHtml: false
 };
 
 class PresenceManager {
@@ -23,7 +23,7 @@ class PresenceManager {
         Date.now() - 2 * PRESENCE_KEEPALIVE_MINUTES * 60 * 1000;
       Presence.update(
         { "clients.timestamp": { $lt: removeBefore } },
-        { $pull: { clients: { timestamp: { $lt: removeBefore } } } },
+        { $pull: { clients: { timestamp: { $lt: removeBefore } } } }
       );
     }, 60 * 1000);
 
@@ -33,11 +33,11 @@ class PresenceManager {
     this.noclients = Presence.find({ clients: [] }).observe({
       added(presence) {
         Presence.remove(presence._id);
-      },
+      }
     });
     this.joinpart = Presence.find(
       { scope: "chat" },
-      { fields: { clients: 0 } },
+      { fields: { clients: 0 } }
     ).observe({
       added(presence) {
         if (initiallySuppressPresence) {
@@ -52,7 +52,7 @@ class PresenceManager {
           body: `${maybe_real_name(presence.nick)} joined the room.`,
           room_name: presence.room_name,
           timestamp: presence.joined_timestamp,
-          ...common_presence_fields,
+          ...common_presence_fields
         });
       },
       removed(presence) {
@@ -68,7 +68,7 @@ class PresenceManager {
           body: `${maybe_real_name(presence.nick)} left the room.`,
           room_name: presence.room_name,
           timestamp: Date.now(),
-          ...common_presence_fields,
+          ...common_presence_fields
         });
       },
       changed(newDoc, oldDoc) {
@@ -85,9 +85,9 @@ class PresenceManager {
         }
         Puzzles.update(
           { _id: match[1], solved: null },
-          { $inc: { solverTime: timeDiff } },
+          { $inc: { solverTime: timeDiff } }
         );
-      },
+      }
     });
     // turn on presence notifications once initial observation set has been
     // processed. (observe doesn't return on server until initial observation

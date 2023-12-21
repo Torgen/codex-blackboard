@@ -10,7 +10,7 @@ import { drive } from "/lib/imports/environment.js";
 import {
   PuzzleUrlPrefix,
   RoleRenewalTime,
-  UrlSeparator,
+  UrlSeparator
 } from "/lib/imports/settings.js";
 
 describe("newPuzzle", function () {
@@ -19,15 +19,15 @@ describe("newPuzzle", function () {
   beforeEach(function () {
     clock = sinon.useFakeTimers({
       now: 7,
-      toFake: ["Date"],
+      toFake: ["Date"]
     });
     driveMethods = {
       createPuzzle: sinon.fake.returns({
         id: "fid", // f for folder
-        spreadId: "sid",
+        spreadId: "sid"
       }),
       renamePuzzle: sinon.spy(),
-      deletePuzzle: sinon.spy(),
+      deletePuzzle: sinon.spy()
     };
   });
 
@@ -48,9 +48,9 @@ describe("newPuzzle", function () {
       () =>
         Meteor.call("newPuzzle", {
           name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo",
+          link: "https://puzzlehunt.mit.edu/foo"
         }),
-      Match.Error,
+      Match.Error
     ));
 
   describe("when none exists with that name", function () {
@@ -65,14 +65,14 @@ describe("newPuzzle", function () {
           created_by: "cjb",
           touched: 1,
           touched_by: "cjb",
-          puzzles: [],
+          puzzles: []
         });
         Roles.insert({
           _id: "onduty",
           holder: "torgen",
           claimed_at: 2,
           renewed_at: 2,
-          expires_at: 3600002,
+          expires_at: 3600002
         });
         drive.withValue(
           driveMethods,
@@ -80,8 +80,8 @@ describe("newPuzzle", function () {
             (id = callAs("newPuzzle", "torgen", {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
-              round,
-            })._id),
+              round
+            })._id)
         );
       });
 
@@ -98,20 +98,20 @@ describe("newPuzzle", function () {
           link: "https://puzzlehunt.mit.edu/foo",
           drive: "fid",
           spreadsheet: "sid",
-          tags: {},
+          tags: {}
         }));
 
       it("adds puzzle to round", () =>
         chai.assert.deepInclude(Rounds.findOne(round), {
           touched: 7,
           touched_by: "torgen",
-          puzzles: [id],
+          puzzles: [id]
         }));
 
       it("oplogs", () =>
         chai.assert.lengthOf(
           Messages.find({ id, type: "puzzles" }).fetch(),
-          1,
+          1
         ));
 
       it("renews onduty", () =>
@@ -119,7 +119,7 @@ describe("newPuzzle", function () {
           holder: "torgen",
           claimed_at: 2,
           renewed_at: 7,
-          expires_at: 3600007,
+          expires_at: 3600007
         }));
     });
 
@@ -132,14 +132,14 @@ describe("newPuzzle", function () {
           created_by: "cjb",
           touched: 1,
           touched_by: "cjb",
-          puzzles: [],
+          puzzles: []
         });
         Roles.insert({
           _id: "onduty",
           holder: "florgen",
           claimed_at: 2,
           renewed_at: 2,
-          expires_at: 3600002,
+          expires_at: 3600002
         });
         drive.withValue(
           driveMethods,
@@ -147,8 +147,8 @@ describe("newPuzzle", function () {
             (id = callAs("newPuzzle", "torgen", {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
-              round,
-            })._id),
+              round
+            })._id)
         );
       });
 
@@ -157,7 +157,7 @@ describe("newPuzzle", function () {
           holder: "florgen",
           claimed_at: 2,
           renewed_at: 2,
-          expires_at: 3600002,
+          expires_at: 3600002
         }));
     });
 
@@ -170,7 +170,7 @@ describe("newPuzzle", function () {
           created_by: "cjb",
           touched: 1,
           touched_by: "cjb",
-          puzzles: [],
+          puzzles: []
         });
         drive.withValue(
           driveMethods,
@@ -178,8 +178,8 @@ describe("newPuzzle", function () {
             (id = callAs("newPuzzle", "torgen", {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
-              round,
-            })._id),
+              round
+            })._id)
         );
       });
 
@@ -199,8 +199,8 @@ describe("newPuzzle", function () {
           created_by: "cjb",
           touched: 1,
           touched_by: "cjb",
-          puzzles: [],
-        })),
+          puzzles: []
+        }))
     );
 
     it("dedupes mechanics", () =>
@@ -209,11 +209,11 @@ describe("newPuzzle", function () {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
           round,
-          mechanics: ["crossword", "crossword", "cryptic_clues"],
+          mechanics: ["crossword", "crossword", "cryptic_clues"]
         })._id;
         chai.assert.deepEqual(Puzzles.findOne(id).mechanics, [
           "crossword",
-          "cryptic_clues",
+          "cryptic_clues"
         ]);
       }));
 
@@ -224,16 +224,16 @@ describe("newPuzzle", function () {
             name: "Foo",
             link: "https://puzzlehunt.mit.edu/foo",
             round,
-            mechanics: ["acrostic"],
+            mechanics: ["acrostic"]
           }),
-        Match.Error,
+        Match.Error
       ));
   });
 
   it("derives link", () =>
     drive.withValue(driveMethods, function () {
       impersonating("cjb", () =>
-        PuzzleUrlPrefix.set("https://testhuntpleaseign.org/puzzles"),
+        PuzzleUrlPrefix.set("https://testhuntpleaseign.org/puzzles")
       );
       const round = Rounds.insert({
         name: "Round",
@@ -242,11 +242,11 @@ describe("newPuzzle", function () {
         created_by: "cjb",
         touched: 1,
         touched_by: "cjb",
-        puzzles: [],
+        puzzles: []
       });
       const id = callAs("newPuzzle", "torgen", {
         name: "Foo Puzzle",
-        round,
+        round
       })._id;
       chai.assert.deepInclude(Puzzles.findOne(id), {
         name: "Foo Puzzle",
@@ -260,7 +260,7 @@ describe("newPuzzle", function () {
         link: "https://testhuntpleaseign.org/puzzles/foo-puzzle",
         drive: "fid",
         spreadsheet: "sid",
-        tags: {},
+        tags: {}
       });
     }));
 
@@ -281,7 +281,7 @@ describe("newPuzzle", function () {
         link: "https://puzzlehunt.mit.edu/foo",
         drive: "fid",
         spreadsheet: "sid",
-        tags: {},
+        tags: {}
       });
       round = Rounds.insert({
         name: "Round",
@@ -290,14 +290,14 @@ describe("newPuzzle", function () {
         created_by: "cjb",
         touched: 1,
         touched_by: "cjb",
-        puzzles: [id1],
+        puzzles: [id1]
       });
       try {
         drive.withValue(driveMethods, () =>
           callAs("newPuzzle", "cjb", {
             name: "Foo",
-            round,
-          }),
+            round
+          })
         );
       } catch (err) {
         error = err;
@@ -312,13 +312,13 @@ describe("newPuzzle", function () {
         created: 1,
         created_by: "torgen",
         touched: 1,
-        touched_by: "torgen",
+        touched_by: "torgen"
       }));
 
     it("doesn't oplog", () =>
       chai.assert.lengthOf(
         Messages.find({ id: id1, type: "puzzles" }).fetch(),
-        0,
+        0
       ));
   });
 
@@ -332,7 +332,7 @@ describe("newPuzzle", function () {
         created_by: "cjb",
         touched: 1,
         touched_by: "cjb",
-        puzzles: [],
+        puzzles: []
       });
       driveMethods.createPuzzle = sinon.fake.throws("user limits");
     });
@@ -342,11 +342,11 @@ describe("newPuzzle", function () {
         const id = callAs("newPuzzle", "torgen", {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
-          round,
+          round
         })._id;
         chai.assert.include(Puzzles.findOne(id), {
           drive_status: "failed",
-          drive_error_message: "Error: user limits",
+          drive_error_message: "Error: user limits"
         });
       }));
   });
@@ -358,7 +358,7 @@ describe("newPuzzle", function () {
         callAs("newPuzzle", "torgen", {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
-          round: "nonsuch",
+          round: "nonsuch"
         });
       } catch (e) {
         err = e;
@@ -391,7 +391,7 @@ describe("newPuzzle", function () {
         spreadsheet: "sid",
         tags: {},
         puzzles: [],
-        feedsInto: [],
+        feedsInto: []
       });
       round = Rounds.insert({
         name: "Round",
@@ -400,14 +400,14 @@ describe("newPuzzle", function () {
         created_by: "cjb",
         touched: 1,
         touched_by: "cjb",
-        puzzles: [meta],
+        puzzles: [meta]
       });
       try {
         callAs("newPuzzle", "torgen", {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
           round,
-          feedsInto: [meta, "nonsuch"],
+          feedsInto: [meta, "nonsuch"]
         });
       } catch (e) {
         err = e;
@@ -446,7 +446,7 @@ describe("newPuzzle", function () {
         spreadsheet: "sid",
         tags: {},
         puzzles: [],
-        feedsInto: [],
+        feedsInto: []
       });
       round = Rounds.insert({
         name: "Round",
@@ -455,13 +455,13 @@ describe("newPuzzle", function () {
         created_by: "cjb",
         touched: 1,
         touched_by: "cjb",
-        puzzles: [meta],
+        puzzles: [meta]
       });
       puzzle = callAs("newPuzzle", "torgen", {
         name: "Foo",
         link: "https://puzzlehunt.mit.edu/foo",
         round,
-        feedsInto: [meta, meta],
+        feedsInto: [meta, meta]
       });
     });
     it("adds to round", function () {
@@ -493,7 +493,7 @@ describe("newPuzzle", function () {
         drive: "fid",
         spreadsheet: "sid",
         tags: {},
-        feedsInto: [],
+        feedsInto: []
       });
       round = Rounds.insert({
         name: "Round",
@@ -502,14 +502,14 @@ describe("newPuzzle", function () {
         created_by: "cjb",
         touched: 1,
         touched_by: "cjb",
-        puzzles: [feeder],
+        puzzles: [feeder]
       });
       try {
         callAs("newPuzzle", "torgen", {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
           round,
-          puzzles: [feeder, "nonsuch"],
+          puzzles: [feeder, "nonsuch"]
         });
       } catch (e) {
         err = e;
@@ -547,7 +547,7 @@ describe("newPuzzle", function () {
         drive: "fid",
         spreadsheet: "sid",
         tags: {},
-        feedsInto: [],
+        feedsInto: []
       });
       round = Rounds.insert({
         name: "Round",
@@ -556,19 +556,19 @@ describe("newPuzzle", function () {
         created_by: "cjb",
         touched: 1,
         touched_by: "cjb",
-        puzzles: [feeder],
+        puzzles: [feeder]
       });
       puzzle = callAs("newPuzzle", "torgen", {
         name: "Foo",
         link: "https://puzzlehunt.mit.edu/foo",
         round,
-        puzzles: [feeder, feeder],
+        puzzles: [feeder, feeder]
       });
     });
     it("adds to round", function () {
       chai.assert.deepEqual(Rounds.findOne(round).puzzles, [
         feeder,
-        puzzle._id,
+        puzzle._id
       ]);
     });
     it("is fed once", function () {

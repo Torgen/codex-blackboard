@@ -17,23 +17,23 @@ describe("CalendarSync", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 60007,
-      toFake: ["setTimeout", "clearTimeout", "Date"],
+      toFake: ["setTimeout", "clearTimeout", "Date"]
     });
 
     api = {
       events: {
-        list() {},
+        list() {}
       },
       acl: {
         list() {},
-        insert() {},
+        insert() {}
       },
       calendars: {
-        insert() {},
+        insert() {}
       },
       calendarList: {
-        list() {},
-      },
+        list() {}
+      }
     };
     acl = sinon.mock(api.acl);
     events = sinon.mock(api.events);
@@ -63,13 +63,13 @@ describe("CalendarSync", function () {
           summary: "Event 1",
           location: "Planet Nowhere",
           start: 1640814960000,
-          end: 1640818560000,
+          end: 1640818560000
         });
         CalendarEvents.insert({
           _id: "evt3",
           summary: "Will be deleted",
           start: 1640814960000,
-          end: 1640818560000,
+          end: 1640818560000
         });
         calendarList.expects("list").never();
         calendars.expects("insert").never();
@@ -83,8 +83,8 @@ describe("CalendarSync", function () {
             sinon.match({
               calendarId: "testCalendar",
               pageToken: null,
-              syncToken: "syncToken1",
-            }),
+              syncToken: "syncToken1"
+            })
           )
           .resolves({
             data: {
@@ -95,35 +95,35 @@ describe("CalendarSync", function () {
                   summary: "Event One",
                   htmlLink: "https://calendar.google.com/event/evt1",
                   start: { dateTime: "2021-12-29T22:00:00+00:00" },
-                  end: { dateTime: "2021-12-29T23:00:00+00:00" },
+                  end: { dateTime: "2021-12-29T23:00:00+00:00" }
                 },
                 {
                   id: "evt2",
                   summary: "Event Two",
                   location: "Kresge Auditorium",
                   start: { dateTime: "2021-12-30T22:00:00+00:00" },
-                  end: { dateTime: "2021-12-30T23:00:00+00:00" },
+                  end: { dateTime: "2021-12-30T23:00:00+00:00" }
                 },
-                { id: "evt3", status: "cancelled" },
-              ],
-            },
+                { id: "evt3", status: "cancelled" }
+              ]
+            }
           });
         sync = new CalendarSync(api);
         chai.assert.include(Calendar.findOne(), {
           _id: "testCalendar",
-          syncToken: "syncToken2",
+          syncToken: "syncToken2"
         });
         chai.assert.include(CalendarEvents.findOne({ _id: "evt1" }), {
           summary: "Event One",
           start: 1640815200000,
           end: 1640818800000,
-          link: "https://calendar.google.com/event/evt1",
+          link: "https://calendar.google.com/event/evt1"
         });
         chai.assert.include(CalendarEvents.findOne({ _id: "evt2" }), {
           summary: "Event Two",
           location: "Kresge Auditorium",
           start: 1640901600000,
-          end: 1640905200000,
+          end: 1640905200000
         });
         chai.assert.isNotOk(CalendarEvents.findOne({ _id: "evt3" }));
       });
@@ -146,44 +146,44 @@ describe("CalendarSync", function () {
                   summary: "Event One",
                   htmlLink: "https://calendar.google.com/event/evt1",
                   start: { dateTime: "2021-12-29T22:00:00+00:00" },
-                  end: { dateTime: "2021-12-29T23:00:00+00:00" },
+                  end: { dateTime: "2021-12-29T23:00:00+00:00" }
                 },
                 {
                   id: "evt2",
                   summary: "Event Two",
                   location: "Kresge Auditorium",
                   start: { dateTime: "2021-12-30T22:00:00+00:00" },
-                  end: { dateTime: "2021-12-30T23:00:00+00:00" },
-                },
-              ],
-            },
+                  end: { dateTime: "2021-12-30T23:00:00+00:00" }
+                }
+              ]
+            }
           });
         sync = new CalendarSync(api);
         chai.assert.include(Calendar.findOne(), {
           _id: "testCalendar",
-          syncToken: "syncToken2",
+          syncToken: "syncToken2"
         });
         chai.assert.include(CalendarEvents.findOne({ _id: "evt1" }), {
           summary: "Event One",
           start: 1640815200000,
           end: 1640818800000,
-          link: "https://calendar.google.com/event/evt1",
+          link: "https://calendar.google.com/event/evt1"
         });
         chai.assert.include(CalendarEvents.findOne({ _id: "evt2" }), {
           summary: "Event Two",
           location: "Kresge Auditorium",
           start: 1640901600000,
-          end: 1640905200000,
+          end: 1640905200000
         });
         chai.assert.deepEqual(list.getCall(0).args[0], {
           calendarId: "testCalendar",
           pageToken: null,
-          syncToken: "syncToken1",
+          syncToken: "syncToken1"
         });
         chai.assert.deepEqual(list.getCall(1).args[0], {
           calendarId: "testCalendar",
           pageToken: null,
-          syncToken: null,
+          syncToken: null
         });
       });
     });
@@ -196,9 +196,9 @@ describe("CalendarSync", function () {
           data: {
             items: [
               { id: "someOtherCalendar", summary: "Who cares?" },
-              { id: "testCalendar", summary: "Calendar Test" },
-            ],
-          },
+              { id: "testCalendar", summary: "Calendar Test" }
+            ]
+          }
         });
       calendars.expects("insert").never();
       const list = events
@@ -214,10 +214,10 @@ describe("CalendarSync", function () {
                 summary: "Event One",
                 htmlLink: "https://calendar.google.com/event/evt1",
                 start: { dateTime: "2021-12-29T22:00:00+00:00" },
-                end: { dateTime: "2021-12-29T23:00:00+00:00" },
-              },
-            ],
-          },
+                end: { dateTime: "2021-12-29T23:00:00+00:00" }
+              }
+            ]
+          }
         })
         .onSecondCall()
         .resolves({
@@ -229,37 +229,37 @@ describe("CalendarSync", function () {
                 summary: "Event Two",
                 location: "Kresge Auditorium",
                 start: { dateTime: "2021-12-30T22:00:00+00:00" },
-                end: { dateTime: "2021-12-30T23:00:00+00:00" },
-              },
-            ],
-          },
+                end: { dateTime: "2021-12-30T23:00:00+00:00" }
+              }
+            ]
+          }
         });
       sync = new CalendarSync(api);
       chai.assert.include(Calendar.findOne(), {
         _id: "testCalendar",
-        syncToken: "syncToken1",
+        syncToken: "syncToken1"
       });
       chai.assert.include(CalendarEvents.findOne({ _id: "evt1" }), {
         summary: "Event One",
         start: 1640815200000,
         end: 1640818800000,
-        link: "https://calendar.google.com/event/evt1",
+        link: "https://calendar.google.com/event/evt1"
       });
       chai.assert.include(CalendarEvents.findOne({ _id: "evt2" }), {
         summary: "Event Two",
         location: "Kresge Auditorium",
         start: 1640901600000,
-        end: 1640905200000,
+        end: 1640905200000
       });
       chai.assert.deepEqual(list.getCall(0).args[0], {
         calendarId: "testCalendar",
         pageToken: null,
-        syncToken: null,
+        syncToken: null
       });
       chai.assert.deepEqual(list.getCall(1).args[0], {
         calendarId: "testCalendar",
         pageToken: "page1",
-        syncToken: null,
+        syncToken: null
       });
     });
 
@@ -268,7 +268,7 @@ describe("CalendarSync", function () {
         .expects("list")
         .once()
         .resolves({
-          data: { items: [] },
+          data: { items: [] }
         });
       calendars
         .expects("insert")
@@ -277,9 +277,9 @@ describe("CalendarSync", function () {
           sinon.match({
             requestBody: {
               summary: "Calendar Test",
-              timeZone: "America/New_York",
-            },
-          }),
+              timeZone: "America/New_York"
+            }
+          })
         )
         .resolves({ data: { id: "testCalendar" } });
       events
@@ -289,19 +289,19 @@ describe("CalendarSync", function () {
           sinon.match({
             calendarId: "testCalendar",
             pageToken: null,
-            syncToken: null,
-          }),
+            syncToken: null
+          })
         )
         .resolves({
           data: {
             nextSyncToken: "syncToken1",
-            items: [],
-          },
+            items: []
+          }
         });
       sync = new CalendarSync(api);
       chai.assert.include(Calendar.findOne(), {
         _id: "testCalendar",
-        syncToken: "syncToken1",
+        syncToken: "syncToken1"
       });
       chai.assert.isNotOk(CalendarEvents.findOne());
     });
@@ -323,18 +323,18 @@ describe("CalendarSync", function () {
                 role: "writer",
                 scope: {
                   type: "group",
-                  value: "group@bar.baz",
-                },
+                  value: "group@bar.baz"
+                }
               },
               {
                 role: "owner",
                 scope: {
                   type: "user",
-                  value: "foo@bar.baz",
-                },
-              },
-            ],
-          },
+                  value: "foo@bar.baz"
+                }
+              }
+            ]
+          }
         });
       acl.expects("insert").never();
     });
@@ -352,7 +352,7 @@ describe("CalendarSync", function () {
         .once()
         .withArgs(sinon.match({ calendarId: "testCalendar", maxResults: 250 }))
         .resolves({
-          data: { items: [{ role: "none", scope: { type: "default" } }] },
+          data: { items: [{ role: "none", scope: { type: "default" } }] }
         });
       insert = acl.expects("insert").thrice().resolves();
     });
@@ -362,8 +362,8 @@ describe("CalendarSync", function () {
         calendarId: "testCalendar",
         requestBody: {
           role: "reader",
-          scope: { type: "default" },
-        },
+          scope: { type: "default" }
+        }
       });
       chai.assert.deepInclude(insert.getCall(1).args[0], {
         calendarId: "testCalendar",
@@ -371,9 +371,9 @@ describe("CalendarSync", function () {
           role: "writer",
           scope: {
             type: "group",
-            value: "group@bar.baz",
-          },
-        },
+            value: "group@bar.baz"
+          }
+        }
       });
       chai.assert.deepInclude(insert.getCall(2).args[0], {
         calendarId: "testCalendar",
@@ -381,9 +381,9 @@ describe("CalendarSync", function () {
           role: "owner",
           scope: {
             type: "user",
-            value: "foo@bar.baz",
-          },
-        },
+            value: "foo@bar.baz"
+          }
+        }
       });
     });
 

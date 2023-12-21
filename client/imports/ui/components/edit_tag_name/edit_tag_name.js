@@ -17,10 +17,10 @@ editableTemplate(Template.edit_tag_name, {
         type: tem.data.type,
         object: tem.data.id,
         old_name: tem.data.name,
-        new_name: val,
+        new_name: val
       });
     }
-  },
+  }
 });
 
 Template.edit_tag_name.onCreated(function () {
@@ -30,7 +30,7 @@ Template.edit_tag_name.onCreated(function () {
 Template.edit_tag_name.events({
   "input/focus input"(event, template) {
     template.newTagName.set(event.currentTarget.value);
-  },
+  }
 });
 
 Template.edit_tag_name.helpers({
@@ -69,5 +69,5 @@ Template.edit_tag_name.helpers({
   },
   canon() {
     return canonical(this.name);
-  },
+  }
 });

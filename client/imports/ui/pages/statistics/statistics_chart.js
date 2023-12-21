@@ -7,7 +7,7 @@ import { PeriodicStats } from "/lib/imports/collections.js";
 function allSolversOnline() {
   return PeriodicStats.find(
     { stream: "solvers_online" },
-    { sort: { timestamp: 1 }, fields: { timestamp: 1, value: 1 } },
+    { sort: { timestamp: 1 }, fields: { timestamp: 1, value: 1 } }
   ).map(function ({ timestamp, value }) {
     return { x: timestamp, y: value };
   });
@@ -18,7 +18,7 @@ Template.statistics_chart.onCreated(function () {
   this.puzzleFeed = new PuzzleFeed("created", update);
   this.solvedFeed = new PuzzleFeed("solved", update);
   this.providedFeed = new PuzzleFeed("solved", update, {
-    "tags.provided.value": "yes",
+    "tags.provided.value": "yes"
   });
   this.autorun(() => (this.statsSub = this.subscribe("periodic-stats")));
 });
@@ -38,7 +38,7 @@ Template.statistics_chart.onRendered(function () {
   this.autorun(() => {
     PeriodicStats.find(
       { stream: "solvers_online" },
-      { sort: { timestamp: 1 }, fields: { timestamp: 1, value: 1 } },
+      { sort: { timestamp: 1 }, fields: { timestamp: 1, value: 1 } }
     ).observeChanges({
       added: (_id, { timestamp, value }) => {
         if (initial) {
@@ -48,11 +48,11 @@ Template.statistics_chart.onRendered(function () {
           solvers.push({ x: timestamp, y: value });
         } else {
           Tracker.nonreactive(() =>
-            solvers.splice(0, solvers.length, ...allSolversOnline()),
+            solvers.splice(0, solvers.length, ...allSolversOnline())
           );
         }
         this.update();
-      },
+      }
     });
   });
   this.autorun(() => {
@@ -65,18 +65,18 @@ Template.statistics_chart.onRendered(function () {
       if (value % 1 === 0) {
         return value;
       }
-    },
+    }
   };
   this.chart = new Chart(this.$("#bb-chart-target > canvas")[0], {
     type: "line",
     options: {
       animation: {
-        duration: 200,
+        duration: 200
       },
       animations: {
         y: {
-          from: undefined,
-        },
+          from: undefined
+        }
       },
       scales: {
         yPuzzles: {
@@ -84,14 +84,14 @@ Template.statistics_chart.onRendered(function () {
           beginAtZero: true,
           position: "left",
           title: { text: "Puzzles", display: true },
-          ticks,
+          ticks
         },
         yPeople: {
           type: "linear",
           beginAtZero: true,
           position: "right",
           title: { text: "People", display: true },
-          ticks,
+          ticks
         },
         xAxis: {
           type: "time",
@@ -100,23 +100,23 @@ Template.statistics_chart.onRendered(function () {
           },
           max() {
             return Session.get("end_time");
-          },
-        },
+          }
+        }
       },
       maintainAspectRatio: false,
       plugins: {
         title: {
           display: true,
-          text: "Statistics",
+          text: "Statistics"
         },
         legend: {
           labels: {
             sort: function (a, b) {
               return b.datasetIndex - a.datasetIndex;
-            },
-          },
-        },
-      },
+            }
+          }
+        }
+      }
     },
     data: {
       datasets: [
@@ -126,7 +126,7 @@ Template.statistics_chart.onRendered(function () {
           spanGaps: true,
           borderColor: "black",
           yAxisID: "yPeople",
-          pointStyle: false,
+          pointStyle: false
         },
         {
           label: "Provided",
@@ -136,7 +136,7 @@ Template.statistics_chart.onRendered(function () {
           backgroundColor: "yellow",
           fill: true,
           stepped: true,
-          yAxisID: "yPuzzles",
+          yAxisID: "yPuzzles"
         },
         {
           label: "Solved",
@@ -146,7 +146,7 @@ Template.statistics_chart.onRendered(function () {
           backgroundColor: "palegreen",
           fill: true,
           stepped: true,
-          yAxisID: "yPuzzles",
+          yAxisID: "yPuzzles"
         },
         {
           label: "Unlocked",
@@ -156,10 +156,10 @@ Template.statistics_chart.onRendered(function () {
           backgroundColor: "lightblue",
           fill: true,
           stepped: true,
-          yAxisID: "yPuzzles",
-        },
-      ],
-    },
+          yAxisID: "yPuzzles"
+        }
+      ]
+    }
   });
   this.autorun(() => {
     this.puzzleFeed.updateNow();

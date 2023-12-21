@@ -74,11 +74,11 @@ export default class PuzzleFeed {
   observe() {
     return Puzzles.find(
       { [this.field]: { $ne: null }, ...this.query },
-      { fields: { [this.field]: 1 }, sort: { [this.field]: 1 } },
+      { fields: { [this.field]: 1 }, sort: { [this.field]: 1 } }
     ).observe({
       addedAt: this.addedAt.bind(this),
       changedAt: this.changedAt.bind(this),
-      removedAt: this.removedAt.bind(this),
+      removedAt: this.removedAt.bind(this)
     });
   }
 }

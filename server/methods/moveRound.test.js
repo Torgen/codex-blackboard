@@ -14,8 +14,8 @@ describe("moveRound", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -32,7 +32,7 @@ describe("moveRound", function () {
       sort_key: 1,
       puzzles: ["yoy"],
       link: "https://puzzlehunt.mit.edu/foo",
-      tags: {},
+      tags: {}
     });
     id2 = Rounds.insert({
       name: "Bar",
@@ -44,7 +44,7 @@ describe("moveRound", function () {
       sort_key: 2,
       puzzles: ["harumph"],
       link: "https://puzzlehunt.mit.edu/bar",
-      tags: {},
+      tags: {}
     });
   });
 
@@ -57,12 +57,12 @@ describe("moveRound", function () {
       chai.assert.include(Rounds.findOne(id1), {
         created: 1,
         touched: 1,
-        sort_key: 2,
+        sort_key: 2
       });
       chai.assert.include(Rounds.findOne(id2), {
         created: 2,
         touched: 2,
-        sort_key: 1,
+        sort_key: 1
       });
     });
 
@@ -71,12 +71,12 @@ describe("moveRound", function () {
       chai.assert.include(Rounds.findOne(id1), {
         created: 1,
         touched: 1,
-        sort_key: 2,
+        sort_key: 2
       });
       chai.assert.include(Rounds.findOne(id2), {
         created: 2,
         touched: 2,
-        sort_key: 1,
+        sort_key: 1
       });
     });
 
@@ -85,12 +85,12 @@ describe("moveRound", function () {
       chai.assert.include(Rounds.findOne(id1), {
         created: 1,
         touched: 1,
-        sort_key: 1,
+        sort_key: 1
       });
       chai.assert.include(Rounds.findOne(id2), {
         created: 2,
         touched: 2,
-        sort_key: 2,
+        sort_key: 2
       });
     });
 
@@ -99,12 +99,12 @@ describe("moveRound", function () {
       chai.assert.include(Rounds.findOne(id1), {
         created: 1,
         touched: 1,
-        sort_key: 1,
+        sort_key: 1
       });
       chai.assert.include(Rounds.findOne(id2), {
         created: 2,
         touched: 2,
-        sort_key: 2,
+        sort_key: 2
       });
     });
   });

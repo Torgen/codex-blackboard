@@ -13,8 +13,8 @@ describe("vote", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -26,11 +26,11 @@ describe("vote", function () {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
-        { canon: "bar", option: "Bar" },
+        { canon: "bar", option: "Bar" }
       ],
       created: 2,
       created_by: "cscott",
-      votes: {},
+      votes: {}
     });
     chai.assert.throws(() => Meteor.call("vote", "foo", "foo"), Match.Error);
   });
@@ -51,22 +51,22 @@ describe("vote", function () {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
-        { canon: "bar", option: "Bar" },
+        { canon: "bar", option: "Bar" }
       ],
       created: 2,
       created_by: "cscott",
-      votes: { metasj: { canon: "foo", timestamp: 4 } },
+      votes: { metasj: { canon: "foo", timestamp: 4 } }
     });
     callAs("vote", "torgen", "foo", "qux");
     chai.assert.deepEqual(Polls.findOne(), {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
-        { canon: "bar", option: "Bar" },
+        { canon: "bar", option: "Bar" }
       ],
       created: 2,
       created_by: "cscott",
-      votes: { metasj: { canon: "foo", timestamp: 4 } },
+      votes: { metasj: { canon: "foo", timestamp: 4 } }
     });
   });
 
@@ -75,25 +75,25 @@ describe("vote", function () {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
-        { canon: "bar", option: "Bar" },
+        { canon: "bar", option: "Bar" }
       ],
       created: 2,
       created_by: "cscott",
-      votes: { metasj: { canon: "foo", timestamp: 4 } },
+      votes: { metasj: { canon: "foo", timestamp: 4 } }
     });
     callAs("vote", "torgen", "foo", "bar");
     chai.assert.deepEqual(Polls.findOne(), {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
-        { canon: "bar", option: "Bar" },
+        { canon: "bar", option: "Bar" }
       ],
       created: 2,
       created_by: "cscott",
       votes: {
         metasj: { canon: "foo", timestamp: 4 },
-        torgen: { canon: "bar", timestamp: 7 },
-      },
+        torgen: { canon: "bar", timestamp: 7 }
+      }
     });
   });
 
@@ -102,24 +102,24 @@ describe("vote", function () {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
-        { canon: "bar", option: "Bar" },
+        { canon: "bar", option: "Bar" }
       ],
       created: 2,
       created_by: "cscott",
-      votes: { metasj: { canon: "foo", timestamp: 4 } },
+      votes: { metasj: { canon: "foo", timestamp: 4 } }
     });
     callAs("vote", "metasj", "foo", "bar");
     chai.assert.deepEqual(Polls.findOne(), {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
-        { canon: "bar", option: "Bar" },
+        { canon: "bar", option: "Bar" }
       ],
       created: 2,
       created_by: "cscott",
       votes: {
-        metasj: { canon: "bar", timestamp: 7 },
-      },
+        metasj: { canon: "bar", timestamp: 7 }
+      }
     });
   });
 });

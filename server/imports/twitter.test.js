@@ -10,7 +10,7 @@ describe("tweetToMessage", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 7,
-      toFake: ["Date"],
+      toFake: ["Date"]
     });
   });
 
@@ -28,8 +28,8 @@ describe("tweetToMessage", function () {
       tweet: {
         id_str: "758796817370800129",
         avatar:
-          "https://pbs.twimg.com/profile_images/735370259566329856/3mxqMJEq_normal.jpg",
-      },
+          "https://pbs.twimg.com/profile_images/735370259566329856/3mxqMJEq_normal.jpg"
+      }
     });
   });
 
@@ -56,8 +56,8 @@ target="_blank">https://t.co/lJq7Fzt1Re</a>`,
       tweet: {
         id_str: "760211303956832257",
         avatar:
-          "https://pbs.twimg.com/profile_images/125375665/profile_pic_normal.jpg",
-      },
+          "https://pbs.twimg.com/profile_images/125375665/profile_pic_normal.jpg"
+      }
     });
   });
 
@@ -77,8 +77,8 @@ target="_blank">https://t.co/ws1QmqeYo6</a>`,
       tweet: {
         id_str: "755822121331281920",
         avatar:
-          "https://pbs.twimg.com/profile_images/735370259566329856/3mxqMJEq_normal.jpg",
-      },
+          "https://pbs.twimg.com/profile_images/735370259566329856/3mxqMJEq_normal.jpg"
+      }
     });
   });
 
@@ -102,8 +102,8 @@ means that with an image attachment the full tweet text has \
 <a href="https://t.co/ws1QmqeYo6" \
 target="_blank">https://t.co/ws1QmqeYo6</a>`,
         quote_id_str: "755822121331281920",
-        quote_nick: "ygritteygritte",
-      },
+        quote_nick: "ygritteygritte"
+      }
     });
   });
 });

@@ -13,11 +13,11 @@ describe("addEventAttendee", function () {
     Meteor.users.insert({ _id: "cjb" });
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cscott"],
+      attendees: ["cscott"]
     });
     chai.assert.throws(
       () => Meteor.call("addEventAttendee", "evt1", "cjb"),
-      Match.Error,
+      Match.Error
     );
   });
 
@@ -29,11 +29,11 @@ describe("addEventAttendee", function () {
   it("fails when no such user", function () {
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cscott"],
+      attendees: ["cscott"]
     });
     chai.assert.throws(
       () => callAs("addEventAttendee", "cjb", "evt1", "cjb"),
-      Match.Error,
+      Match.Error
     );
   });
 
@@ -41,11 +41,11 @@ describe("addEventAttendee", function () {
     Meteor.users.insert({ _id: "cjb" });
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cscott"],
+      attendees: ["cscott"]
     });
     chai.assert.isTrue(callAs("addEventAttendee", "cjb", "evt1", "cjb"));
     chai.assert.deepInclude(CalendarEvents.findOne({ _id: "evt1" }), {
-      attendees: ["cscott", "cjb"],
+      attendees: ["cscott", "cjb"]
     });
   });
 
@@ -53,11 +53,11 @@ describe("addEventAttendee", function () {
     Meteor.users.insert({ _id: "bjc" });
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cscott"],
+      attendees: ["cscott"]
     });
     chai.assert.isTrue(callAs("addEventAttendee", "cjb", "evt1", "bjc"));
     chai.assert.deepInclude(CalendarEvents.findOne({ _id: "evt1" }), {
-      attendees: ["cscott", "bjc"],
+      attendees: ["cscott", "bjc"]
     });
   });
 
@@ -65,11 +65,11 @@ describe("addEventAttendee", function () {
     Meteor.users.insert({ _id: "cjb" });
     CalendarEvents.insert({
       _id: "evt1",
-      attendees: ["cjb", "cscott"],
+      attendees: ["cjb", "cscott"]
     });
     chai.assert.isTrue(callAs("addEventAttendee", "cjb", "evt1", "cjb"));
     chai.assert.deepInclude(CalendarEvents.findOne({ _id: "evt1" }), {
-      attendees: ["cjb", "cscott"],
+      attendees: ["cjb", "cscott"]
     });
   });
 });

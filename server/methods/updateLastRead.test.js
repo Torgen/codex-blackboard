@@ -13,8 +13,8 @@ describe("updatelastRead", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -26,19 +26,19 @@ describe("updatelastRead", function () {
       () =>
         Meteor.call("updateLastRead", {
           room_name: "general/0",
-          timestamp: 3,
+          timestamp: 3
         }),
-      Match.Error,
+      Match.Error
     ));
 
   it("creates", function () {
     callAs("updateLastRead", "torgen", {
       room_name: "general/0",
-      timestamp: 3,
+      timestamp: 3
     });
     chai.assert.include(
       LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
-      { timestamp: 3 },
+      { timestamp: 3 }
     );
   });
 
@@ -46,15 +46,15 @@ describe("updatelastRead", function () {
     LastRead.insert({
       nick: "torgen",
       room_name: "general/0",
-      timestamp: 2,
+      timestamp: 2
     });
     callAs("updateLastRead", "torgen", {
       room_name: "general/0",
-      timestamp: 3,
+      timestamp: 3
     });
     chai.assert.include(
       LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
-      { timestamp: 3 },
+      { timestamp: 3 }
     );
   });
 
@@ -62,15 +62,15 @@ describe("updatelastRead", function () {
     LastRead.insert({
       nick: "torgen",
       room_name: "general/0",
-      timestamp: 3,
+      timestamp: 3
     });
     callAs("updateLastRead", "torgen", {
       room_name: "general/0",
-      timestamp: 2,
+      timestamp: 2
     });
     chai.assert.include(
       LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
-      { timestamp: 3 },
+      { timestamp: 3 }
     );
   });
 });

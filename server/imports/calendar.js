@@ -1,7 +1,7 @@
 import {
   ROOT_FOLDER_NAME,
   CODEX_ACCOUNT,
-  SHARE_GROUP,
+  SHARE_GROUP
 } from "./googlecommon.js";
 import { Calendar, CalendarEvents } from "/lib/imports/collections.js";
 
@@ -47,13 +47,13 @@ export class CalendarSync {
             await this.api.calendars.insert({
               requestBody: {
                 summary: ROOT_FOLDER_NAME(),
-                timeZone: CALENDAR_TIME_ZONE,
-              },
+                timeZone: CALENDAR_TIME_ZONE
+              }
             })
           ).data;
           console.log(`Made calendar ${cal.id}`);
           return cal.id;
-        })(),
+        })()
       );
 
       Calendar.insert({ _id: this.id });
@@ -61,11 +61,11 @@ export class CalendarSync {
 
     const promises = [this._pollAndReschedule()];
     const acls = Promise.await(
-      this.api.acl.list({ calendarId: this.id, maxResults: 250 }),
+      this.api.acl.list({ calendarId: this.id, maxResults: 250 })
     );
     if (
       !acls.data.items.some(
-        (x) => x.role === "reader" && x.scope.type === "default",
+        (x) => x.role === "reader" && x.scope.type === "default"
       )
     ) {
       // Ensure public. (default can't be writer.)
@@ -75,10 +75,10 @@ export class CalendarSync {
           requestBody: {
             role: "reader",
             scope: {
-              type: "default",
-            },
-          },
-        }),
+              type: "default"
+            }
+          }
+        })
       );
     }
     const writer = SHARE_GROUP();
@@ -88,7 +88,7 @@ export class CalendarSync {
           (x) =>
             x.role === "writer" &&
             x.scope.type === "group" &&
-            x.scope.value === writer,
+            x.scope.value === writer
         )
       ) {
         // Allow group to write.
@@ -100,10 +100,10 @@ export class CalendarSync {
               role: "writer",
               scope: {
                 type: "group",
-                value: writer,
-              },
-            },
-          }),
+                value: writer
+              }
+            }
+          })
         );
       }
     }
@@ -114,7 +114,7 @@ export class CalendarSync {
           (x) =>
             x.role === "owner" &&
             x.scope.type === "user" &&
-            x.scope.value === owner,
+            x.scope.value === owner
         )
       ) {
         // Make codex account an owner
@@ -126,10 +126,10 @@ export class CalendarSync {
               role: "owner",
               scope: {
                 type: "user",
-                value: owner,
-              },
-            },
-          }),
+                value: owner
+              }
+            }
+          })
         );
       }
     }
@@ -147,7 +147,7 @@ export class CalendarSync {
           await this.api.events.list({
             calendarId: this.id,
             pageToken,
-            syncToken: pageToken != null ? null : this.syncToken,
+            syncToken: pageToken != null ? null : this.syncToken
           })
         ).data;
       } catch (e) {
@@ -160,7 +160,7 @@ export class CalendarSync {
       for (var event of events.items) {
         if (event.status === "cancelled") {
           bulkEventUpdates.push({
-            deleteOne: { filter: { _id: event.id } },
+            deleteOne: { filter: { _id: event.id } }
           });
         } else {
           update = {};
@@ -191,8 +191,8 @@ export class CalendarSync {
             updateOne: {
               filter: { _id: event.id },
               upsert: true,
-              update,
-            },
+              update
+            }
           });
         }
       }
@@ -206,12 +206,12 @@ export class CalendarSync {
     }
     const bulkUpdates = bulkEventUpdates.length
       ? CalendarEvents.rawCollection().bulkWrite(bulkEventUpdates, {
-          ordered: false,
+          ordered: false
         })
       : Promise.resolve();
     const updateSync = Calendar.rawCollection().update(
       { _id: this.id },
-      { $set: { syncToken: this.syncToken } },
+      { $set: { syncToken: this.syncToken } }
     );
     await Promise.all([bulkUpdates, updateSync]);
   }
@@ -229,7 +229,7 @@ export class CalendarSync {
     this.stop();
     this.timeoutHandle = Meteor.setTimeout(
       () => this._pollAndReschedule(),
-      interval,
+      interval
     );
   }
 

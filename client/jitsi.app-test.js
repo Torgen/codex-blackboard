@@ -2,13 +2,13 @@ import {
   waitForSubscriptions,
   afterFlushPromise,
   login,
-  logout,
+  logout
 } from "./imports/app_test_helpers.js";
 import {
   BlackboardPage,
   EditPage,
   PuzzlePage,
-  LogisticsPage,
+  LogisticsPage
 } from "/client/imports/router.js";
 import jitsiModule from "./imports/jitsi.js";
 import chai from "chai";
@@ -65,22 +65,22 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       factory.calledWithMatch(
         "codex_whiteNoiseFoyer",
-        sinon.match.instanceOf(HTMLDivElement),
-      ),
+        sinon.match.instanceOf(HTMLDivElement)
+      )
     );
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
         if (call.calledWith("videoConferenceJoined", sinon.match.func)) {
-          call.args[1]({id: "somebody"});
+          call.args[1]({ id: "somebody" });
           return true;
         }
         return false;
-      }),
+      })
     );
     mock.expects("executeCommand").once().withArgs("subject", "Ringhunters");
     mock.expects("executeCommands").once().withArgs({
       displayName: "Teresa Tybalt (testy)",
-      avatarUrl: GRAVATAR_200,
+      avatarUrl: GRAVATAR_200
     });
     await afterFlushPromise();
   });
@@ -129,11 +129,11 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
         if (call.calledWith("videoConferenceJoined", sinon.match.func)) {
-          call.args[1]({id: "somebody"});
+          call.args[1]({ id: "somebody" });
           return true;
         }
         return false;
-      }),
+      })
     );
     mock2.expects("executeCommand").once().withArgs("subject", "In Memoriam");
     await afterFlushPromise();
@@ -179,7 +179,7 @@ describe("jitsi", function () {
           return true;
         }
         return false;
-      }),
+      })
     );
     await afterFlushPromise();
     dispose1.verify();
@@ -225,7 +225,7 @@ describe("jitsi", function () {
     await afterFlushPromise();
     chai.assert.equal(
       reactiveLocalStorage.getItem("jitsiTabUUID"),
-      CLIENT_UUID,
+      CLIENT_UUID
     );
   });
 

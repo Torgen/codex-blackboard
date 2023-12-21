@@ -5,7 +5,7 @@ import {
   afterFlushPromise,
   promiseCall,
   login,
-  logout,
+  logout
 } from "./imports/app_test_helpers.js";
 import { waitForDocument } from "/lib/imports/testutils.js";
 import { Messages, Puzzles, Rounds } from "/lib/imports/collections.js";
@@ -36,7 +36,7 @@ describe("chat", function () {
     chai.assert.isDefined($('a[href^="https://codexian.us"]').html(), "link");
     chai.assert.isDefined(
       $('img[src^="https://memegen.link/doge"]').html(),
-      "meme",
+      "meme"
     );
   });
 
@@ -46,7 +46,7 @@ describe("chat", function () {
       presence: "join",
       nick: "testy",
       room_name: `puzzles/${id}`,
-      timestamp: { $gte: Date.now() },
+      timestamp: { $gte: Date.now() }
     });
     ChatPage("puzzles", id);
     await afterFlushPromise();
@@ -83,7 +83,7 @@ describe("chat", function () {
     chai.assert.equal(
       input.val(),
       "/me tests actions",
-      "after down with selection at start",
+      "after down with selection at start"
     );
     input[0].setSelectionRange(input.val().length, input.val().length);
     input.trigger($.Event("keydown", { key: "Down" }));
@@ -104,12 +104,12 @@ describe("chat", function () {
     for (let _ = 1; _ <= 125; _++) {
       await promiseCall("newMessage", {
         body: "spam",
-        room_name: room,
+        room_name: room
       });
       await promiseCall("newMessage", {
         body: "spams chat",
         action: true,
-        room_name: room,
+        room_name: room
       });
     }
     let allMessages = $("#messages > *");
@@ -130,7 +130,7 @@ describe("chat", function () {
     await afterFlushPromise();
     const msg = await promiseCall("newMessage", {
       body: "my social security number is XXX-YY-ZZZZ",
-      room_name: room,
+      room_name: room
     });
     await afterFlushPromise();
     let $badmsg = $(`#messages [data-message-id=\"${msg._id}\"]`);
@@ -153,7 +153,7 @@ describe("chat", function () {
     await afterFlushPromise();
     const msg = await promiseCall("newMessage", {
       body: "my social security number is XXX-YY-ZZZZ",
-      room_name: room,
+      room_name: room
     });
     await afterFlushPromise();
     let $badmsg = $(`#messages [data-message-id=\"${msg._id}\"]`);
@@ -291,7 +291,7 @@ describe("chat", function () {
       await afterFlushPromise();
       const msg = Messages.findOne(
         { nick: "testy", room_name: `puzzles/${id}` },
-        { sort: { timestamp: -1 } },
+        { sort: { timestamp: -1 } }
       );
       chai.assert.deepInclude(msg, { mention: ["kwal", "cscott"] });
     });
@@ -308,7 +308,7 @@ describe("chat", function () {
       await afterFlushPromise();
       const msg = Messages.findOne(
         { nick: "testy", room_name: `puzzles/${id}` },
-        { sort: { timestamp: -1 } },
+        { sort: { timestamp: -1 } }
       );
       chai.assert.deepEqual(msg.mention, ["kwal"]);
     });
@@ -325,12 +325,12 @@ describe("chat", function () {
       await afterFlushPromise();
       const msg = Messages.findOne(
         { nick: "testy", room_name: `puzzles/${id}` },
-        { sort: { timestamp: -1 } },
+        { sort: { timestamp: -1 } }
       );
       chai.assert.deepInclude(msg, {
         action: true,
         mention: ["cscott"],
-        body: "heard about @Cscott",
+        body: "heard about @Cscott"
       });
     });
 
@@ -346,7 +346,7 @@ describe("chat", function () {
       await afterFlushPromise();
       const msg = Messages.findOne(
         { nick: "testy", room_name: `puzzles/${id}` },
-        { sort: { timestamp: -1 } },
+        { sort: { timestamp: -1 } }
       );
       chai.assert.deepInclude(msg, { to: "kwal" });
       chai.assert.isNotOk(msg.mention);
@@ -376,7 +376,7 @@ describe("chat", function () {
         "newPoll",
         `puzzles/${id}`,
         "Flip a coin",
-        ["heads", "tails"],
+        ["heads", "tails"]
       );
       await afterFlushPromise();
       await waitForSubscriptions(); // when the message with the poll renders, the subscription to the poll also happens.
@@ -392,18 +392,18 @@ describe("chat", function () {
           votes: {
             cscott: {
               canon: "heads",
-              timestamp: 1,
+              timestamp: 1
             },
             kwal: {
               canon: "tails",
-              timestamp: 2,
+              timestamp: 2
             },
             zachary: {
               canon: "heads",
-              timestamp: 3,
-            },
-          },
-        },
+              timestamp: 3
+            }
+          }
+        }
       });
       await afterFlushPromise();
       chai.assert.equal(results[0].style.width, "100%");
@@ -426,7 +426,7 @@ describe("chat", function () {
       before(async function () {
         const msg = await promiseCall("newMessage", {
           body: "Let's find the coin!",
-          room_name: "general/0",
+          room_name: "general/0"
         });
         id = msg._id;
       });
@@ -448,7 +448,7 @@ describe("chat", function () {
       before(async function () {
         const msg = await promiseCall("newMessage", {
           body: "Let's find the coin!",
-          room_name: "general/0",
+          room_name: "general/0"
         });
         id = msg._id;
         await promiseCall("setStarred", id, true);
@@ -471,7 +471,7 @@ describe("chat", function () {
       before(async function () {
         const msg = await promiseCall("newMessage", {
           body: "Let's find the coin!",
-          room_name: "general/0",
+          room_name: "general/0"
         });
         id = msg._id;
         await promiseCall("setStarred", id, true);

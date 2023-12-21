@@ -12,8 +12,8 @@ describe("deleteRound", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(function () {
@@ -37,8 +37,8 @@ describe("deleteRound", function () {
           solved: null,
           solved_by: null,
           puzzles: [],
-          tags: {},
-        })),
+          tags: {}
+        }))
     );
 
     it("fails without login", () =>
@@ -69,7 +69,7 @@ describe("deleteRound", function () {
         solved: null,
         solved_by: null,
         puzzles: ["foo1", "foo2"],
-        tags: {},
+        tags: {}
       });
       ret = callAs("deleteRound", "cjb", id);
     });
@@ -82,7 +82,7 @@ describe("deleteRound", function () {
       chai.assert.lengthOf(
         Messages.find({ room_name: "oplog/0" }).fetch(),
         0,
-        "oplogs",
+        "oplogs"
       ));
   });
 });

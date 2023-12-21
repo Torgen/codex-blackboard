@@ -13,8 +13,8 @@ describe("addMechanic", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -24,7 +24,7 @@ describe("addMechanic", function () {
   it("fails when it doesn't exist", () =>
     chai.assert.throws(
       () => callAs("addMechanic", "torgen", "id", "cryptic_clues"),
-      Meteor.Error,
+      Meteor.Error
     ));
 
   describe("to puzzle with empty mechanics", function () {
@@ -45,16 +45,16 @@ describe("addMechanic", function () {
               name: "Status",
               value: "stuck",
               touched: 2,
-              touched_by: "torgen",
-            },
-          },
-        })),
+              touched_by: "torgen"
+            }
+          }
+        }))
     );
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("addMechanic", id, "cryptic_clues"),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", function () {
@@ -69,7 +69,7 @@ describe("addMechanic", function () {
         const doc = Puzzles.findOne(id);
         chai.assert.include(doc, {
           touched: 7,
-          touched_by: "cjb",
+          touched_by: "cjb"
         });
       });
     });
@@ -93,24 +93,24 @@ describe("addMechanic", function () {
               name: "Status",
               value: "stuck",
               touched: 2,
-              touched_by: "torgen",
-            },
+              touched_by: "torgen"
+            }
           },
-          mechanics: ["nikoli_variants"],
-        })),
+          mechanics: ["nikoli_variants"]
+        }))
     );
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("addMechanic", id, "cryptic_clues"),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", function () {
       it("fails with invalid mechanic", () =>
         chai.assert.throws(
           () => callAs("addMechanic", "torgen", id, "eating_contest"),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with new mechanic", function () {
@@ -119,7 +119,7 @@ describe("addMechanic", function () {
         it("appends mechanic", function () {
           const doc = Puzzles.findOne(id);
           chai.assert.deepInclude(doc, {
-            mechanics: ["nikoli_variants", "cryptic_clues"],
+            mechanics: ["nikoli_variants", "cryptic_clues"]
           });
         });
 
@@ -127,7 +127,7 @@ describe("addMechanic", function () {
           const doc = Puzzles.findOne(id);
           chai.assert.include(doc, {
             touched: 7,
-            touched_by: "cjb",
+            touched_by: "cjb"
           });
         });
       });
@@ -138,7 +138,7 @@ describe("addMechanic", function () {
         it("leaves mechanics unchanged", function () {
           const doc = Puzzles.findOne(id);
           chai.assert.deepInclude(doc, {
-            mechanics: ["nikoli_variants"],
+            mechanics: ["nikoli_variants"]
           });
         });
 
@@ -146,7 +146,7 @@ describe("addMechanic", function () {
           const doc = Puzzles.findOne(id);
           chai.assert.include(doc, {
             touched: 7,
-            touched_by: "cjb",
+            touched_by: "cjb"
           });
         });
       });

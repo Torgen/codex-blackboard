@@ -6,7 +6,7 @@ import {
   afterFlushPromise,
   promiseCall,
   login,
-  logout,
+  logout
 } from "./imports/app_test_helpers.js";
 import chai from "chai";
 
@@ -96,7 +96,7 @@ describe("puzzle", function () {
               return this.dataset.feederId;
             })
             .get(),
-          Puzzles.findOne(id).puzzles,
+          Puzzles.findOne(id).puzzles
         );
       });
 
@@ -163,7 +163,7 @@ describe("puzzle", function () {
         callin_type: "answer",
         created_by: "testy",
         backsolve: false,
-        provided: false,
+        provided: false
       });
     });
 
@@ -181,7 +181,7 @@ describe("puzzle", function () {
         callin_type: "answer",
         created_by: "testy",
         backsolve: true,
-        provided: false,
+        provided: false
       });
     });
 
@@ -199,7 +199,7 @@ describe("puzzle", function () {
         callin_type: "answer",
         created_by: "testy",
         backsolve: false,
-        provided: true,
+        provided: true
       });
     });
 
@@ -218,7 +218,7 @@ describe("puzzle", function () {
         callin_type: "expected callback",
         created_by: "testy",
         backsolve: false,
-        provided: false,
+        provided: false
       });
     });
 
@@ -237,7 +237,7 @@ describe("puzzle", function () {
         callin_type: "message to hq",
         created_by: "testy",
         backsolve: false,
-        provided: false,
+        provided: false
       });
     });
 
@@ -256,7 +256,7 @@ describe("puzzle", function () {
         callin_type: "interaction request",
         created_by: "testy",
         backsolve: false,
-        provided: false,
+        provided: false
       });
     });
   });

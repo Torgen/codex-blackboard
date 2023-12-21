@@ -7,9 +7,9 @@ describe("objectColor", function () {
       _id: "foo",
       tags: {
         color: {
-          value: "aliceblue",
-        },
-      },
+          value: "aliceblue"
+        }
+      }
     };
     chai.assert.equal(objectColor(obj), "aliceblue");
   });
@@ -18,7 +18,7 @@ describe("objectColor", function () {
     const obj = { _id: "u8JniQ2zqueSykCTm" };
     chai.assert.equal(
       objectColor(obj),
-      "hsl(48, 82.60465732490333%, 20.291986247835695%)",
+      "hsl(48, 82.60465732490333%, 20.291986247835695%)"
     );
   });
 });

@@ -5,13 +5,13 @@ describe("positionOrDefault", function () {
   it("returns explicit position", () =>
     chai.assert.deepEqual(
       positionOrDefault({ type: "Point", coordinates: [75.5, -20] }, "sklanch"),
-      { lat: -20, lng: 75.5 },
+      { lat: -20, lng: 75.5 }
     ));
 
   it("randomizes unset position", () =>
     chai.assert.deepEqual(positionOrDefault(undefined, "sklanch"), {
       lat: -20.7275390625,
-      lng: -19.9964096744658,
+      lng: -19.9964096744658
     }));
 });
 

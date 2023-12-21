@@ -25,13 +25,13 @@ export default function summarize_markers(markers) {
     [fullOnline, fullOffline, summaryOffline] = [
       1,
       MAX_CIRCLES - 2,
-      numOffline - 3,
+      numOffline - 3
     ];
   } else if (numOffline === 1) {
     [fullOnline, summaryOnline, fullOffline] = [
       MAX_CIRCLES - 2,
       numOnline - MAX_CIRCLES + 2,
-      1,
+      1
     ];
   } else if (numOnline === MAX_CIRCLES - 1) {
     [fullOnline, summaryOffline] = [MAX_CIRCLES - 1, numOffline];
@@ -39,7 +39,7 @@ export default function summarize_markers(markers) {
     [fullOnline, summaryOnline, summaryOffline] = [
       3,
       numOnline - 3,
-      numOffline,
+      numOffline
     ];
   }
   const pieces = [];
@@ -52,20 +52,20 @@ export default function summarize_markers(markers) {
       piece = {
         gravatar: marker.getIcon(),
         title: marker.getTitle(),
-        onlineness: marker.getOpacity() === 1.0 ? "online" : "offline",
+        onlineness: marker.getOpacity() === 1.0 ? "online" : "offline"
       };
     } else if (marker.getOpacity() === 1.0 && summaryOnline > 0) {
       piece = {
         summary: summaryOnline,
         title: `${summaryOnline} more online`,
-        onlineness: "online",
+        onlineness: "online"
       };
       summaryOnline = 0;
     } else if (marker.getOpacity() < 1.0 && summaryOffline > 0) {
       piece = {
         summary: summaryOffline,
         title: `${summaryOffline} more offline`,
-        onlineness: "offline",
+        onlineness: "offline"
       };
       summaryOffline = 0;
     } else {

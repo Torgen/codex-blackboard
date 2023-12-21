@@ -13,8 +13,8 @@ describe("unsummon", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -39,9 +39,9 @@ describe("unsummon", function () {
             name: "Status",
             value: "precipitate",
             touched: 2,
-            touched_by: "cjb",
-          },
-        },
+            touched_by: "cjb"
+          }
+        }
       });
       ret = callAs("unsummon", "torgen", { object: id });
     });
@@ -57,15 +57,15 @@ describe("unsummon", function () {
             name: "Status",
             value: "precipitate",
             touched: 2,
-            touched_by: "cjb",
-          },
-        },
+            touched_by: "cjb"
+          }
+        }
       }));
 
     it("doesn't chat", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: { $ne: "oplog/0" } }).fetch(),
-        0,
+        0
       ));
 
     it("doesn't oplog", () =>
@@ -90,16 +90,16 @@ describe("unsummon", function () {
               name: "Status",
               value: "stuck",
               touched: 2,
-              touched_by: "cjb",
-            },
-          },
-        })),
+              touched_by: "cjb"
+            }
+          }
+        }))
     );
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("unsummon", { object: id }),
-        Match.Error,
+        Match.Error
       ));
 
     return describe("when logged in", function () {
@@ -112,19 +112,19 @@ describe("unsummon", function () {
         chai.assert.deepInclude(Puzzles.findOne(id), {
           touched: 7,
           touched_by: "torgen",
-          tags: {},
+          tags: {}
         }));
 
       it("oplogs", () =>
         chai.assert.lengthOf(
           Messages.find({ room_name: "oplog/0", type: "puzzles", id }).fetch(),
-          1,
+          1
         ));
 
       it("notifies main chat", function () {
         const msgs = Messages.find({
           room_name: "general/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, "has arrived");
@@ -134,7 +134,7 @@ describe("unsummon", function () {
       return it("notifies puzzle chat", function () {
         const msgs = Messages.find({
           room_name: `puzzles/${id}`,
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, "has arrived");
@@ -161,9 +161,9 @@ describe("unsummon", function () {
             name: "Status",
             value: "stuck",
             touched: 2,
-            touched_by: "cjb",
-          },
-        },
+            touched_by: "cjb"
+          }
+        }
       });
       return (ret = callAs("unsummon", "cjb", { object: id }));
     });
@@ -174,19 +174,19 @@ describe("unsummon", function () {
       chai.assert.deepInclude(Puzzles.findOne(id), {
         touched: 7,
         touched_by: "cjb",
-        tags: {},
+        tags: {}
       }));
 
     it("oplogs", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: "oplog/0", type: "puzzles", id }).fetch(),
-        1,
+        1
       ));
 
     it("notifies main chat", function () {
       const msgs = Messages.find({
         room_name: "general/0",
-        dawn_of_time: { $ne: true },
+        dawn_of_time: { $ne: true }
       }).fetch();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, "no longer");
@@ -196,7 +196,7 @@ describe("unsummon", function () {
     return it("notifies puzzle chat", function () {
       const msgs = Messages.find({
         room_name: `puzzles/${id}`,
-        dawn_of_time: { $ne: true },
+        dawn_of_time: { $ne: true }
       }).fetch();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, "no longer");

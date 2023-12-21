@@ -15,7 +15,7 @@ describe("metas hubot script", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 6,
-      toFake: ["Date"],
+      toFake: ["Date"]
     });
     // can't use plain hubot because this script uses priv, which isn't part of
     // the standard message class or adapter.
@@ -33,7 +33,7 @@ describe("metas hubot script", function () {
   ["meta", "metapuzzle"].forEach(function (descriptor) {
     [
       ["make ", "a"],
-      ["", "is a"],
+      ["", "is a"]
     ].forEach(([before, after]) =>
       describe(`${before}it ${after} ${descriptor}`, function () {
         describe("in puzzle room", function () {
@@ -42,21 +42,21 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot ${before}this ${after} ${descriptor}`,
+              body: `bot ${before}this ${after} ${descriptor}`
             });
             await waitForDocument(
               Puzzles,
               { _id: "12345abcde", puzzles: [] },
               {
                 touched: 7,
-                touched_by: "torgen",
-              },
+                touched_by: "torgen"
+              }
             );
             return waitForDocument(
               Messages,
@@ -65,8 +65,8 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, this is now a meta.",
-              },
+                body: "@torgen: OK, this is now a meta."
+              }
             );
           });
 
@@ -76,13 +76,13 @@ describe("metas hubot script", function () {
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
-              puzzles: [],
+              puzzles: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot ${before}this ${after} ${descriptor}`,
+              body: `bot ${before}this ${after} ${descriptor}`
             });
             return waitForDocument(
               Messages,
@@ -91,8 +91,8 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 body: "@torgen: this was already a meta.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
 
@@ -101,27 +101,27 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Puzzles.insert({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
-              feedsInto: [],
+              feedsInto: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot ${before}even this poem ${after} ${descriptor}`,
+              body: `bot ${before}even this poem ${after} ${descriptor}`
             });
             await waitForDocument(
               Puzzles,
               { _id: "fghij67890", puzzles: [] },
               {
                 touched: 7,
-                touched_by: "torgen",
-              },
+                touched_by: "torgen"
+              }
             );
             chai.assert.isUndefined(Puzzles.findOne("12345abcde").puzzles);
             return waitForDocument(
@@ -131,8 +131,8 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, even this poem is now a meta.",
-              },
+                body: "@torgen: OK, even this poem is now a meta."
+              }
             );
           });
 
@@ -141,13 +141,13 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot ${before}even this poem ${after} ${descriptor}`,
+              body: `bot ${before}even this poem ${after} ${descriptor}`
             });
             await waitForDocument(
               Messages,
@@ -156,8 +156,8 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 body: '@torgen: I can\'t find a puzzle called "even this poem".',
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
             chai.assert.isUndefined(Puzzles.findOne("12345abcde").puzzles);
           });
@@ -169,7 +169,7 @@ describe("metas hubot script", function () {
               nick: "torgen",
               room_name: "general/0",
               timestamp: 7,
-              body: `bot ${before}this ${after} ${descriptor}`,
+              body: `bot ${before}this ${after} ${descriptor}`
             });
             return waitForDocument(
               Messages,
@@ -178,8 +178,8 @@ describe("metas hubot script", function () {
                 room_name: "general/0",
                 body: "@torgen: You need to tell me which puzzle this is for.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
 
@@ -188,21 +188,21 @@ describe("metas hubot script", function () {
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
-              feedsInto: [],
+              feedsInto: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "general/0",
               timestamp: 7,
-              body: `bot ${before}even this poem ${after} ${descriptor}`,
+              body: `bot ${before}even this poem ${after} ${descriptor}`
             });
             await waitForDocument(
               Puzzles,
               { _id: "fghij67890", puzzles: [] },
               {
                 touched: 7,
-                touched_by: "torgen",
-              },
+                touched_by: "torgen"
+              }
             );
             return waitForDocument(
               Messages,
@@ -211,12 +211,12 @@ describe("metas hubot script", function () {
                 room_name: "general/0",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, even this poem is now a meta.",
-              },
+                body: "@torgen: OK, even this poem is now a meta."
+              }
             );
           });
         });
-      }),
+      })
     );
 
     ["isn't", "is not"].forEach((verb) =>
@@ -228,21 +228,21 @@ describe("metas hubot script", function () {
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
-              puzzles: [],
+              puzzles: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot this ${verb} a ${descriptor}`,
+              body: `bot this ${verb} a ${descriptor}`
             });
             await waitForDocument(
               Puzzles,
               { _id: "12345abcde", puzzles: null },
               {
                 touched: 7,
-                touched_by: "torgen",
-              },
+                touched_by: "torgen"
+              }
             );
             return waitForDocument(
               Messages,
@@ -251,8 +251,8 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, this is no longer a meta.",
-              },
+                body: "@torgen: OK, this is no longer a meta."
+              }
             );
           });
 
@@ -262,13 +262,13 @@ describe("metas hubot script", function () {
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
-              puzzles: ["a"],
+              puzzles: ["a"]
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot this ${verb} a ${descriptor}`,
+              body: `bot this ${verb} a ${descriptor}`
             });
             await waitForDocument(
               Messages,
@@ -277,11 +277,11 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 body: "@torgen: 1 puzzle feeds into Latino Alphabet. It must be a meta.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
             chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
-              puzzles: ["a"],
+              puzzles: ["a"]
             });
           });
 
@@ -291,13 +291,13 @@ describe("metas hubot script", function () {
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
-              puzzles: ["a", "b", "c"],
+              puzzles: ["a", "b", "c"]
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot this ${verb} a ${descriptor}`,
+              body: `bot this ${verb} a ${descriptor}`
             });
             await waitForDocument(
               Messages,
@@ -306,11 +306,11 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 body: "@torgen: 3 puzzles feed into Latino Alphabet. It must be a meta.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
             chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
-              puzzles: ["a", "b", "c"],
+              puzzles: ["a", "b", "c"]
             });
           });
 
@@ -319,13 +319,13 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot this ${verb} a ${descriptor}`,
+              body: `bot this ${verb} a ${descriptor}`
             });
             return waitForDocument(
               Messages,
@@ -334,8 +334,8 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 body: "@torgen: this already wasn't a meta.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
 
@@ -345,31 +345,31 @@ describe("metas hubot script", function () {
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
-              puzzles: [],
+              puzzles: []
             });
             Puzzles.insert({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: [],
+              puzzles: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot even this poem ${verb} a ${descriptor}`,
+              body: `bot even this poem ${verb} a ${descriptor}`
             });
             await waitForDocument(
               Puzzles,
               { _id: "fghij67890", puzzles: null },
               {
                 touched: 7,
-                touched_by: "torgen",
-              },
+                touched_by: "torgen"
+              }
             );
             chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
-              puzzles: [],
+              puzzles: []
             });
             return waitForDocument(
               Messages,
@@ -378,8 +378,8 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, even this poem is no longer a meta.",
-              },
+                body: "@torgen: OK, even this poem is no longer a meta."
+              }
             );
           });
 
@@ -389,13 +389,13 @@ describe("metas hubot script", function () {
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
-              puzzles: [],
+              puzzles: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
-              body: `bot even this poem ${verb} a ${descriptor}`,
+              body: `bot even this poem ${verb} a ${descriptor}`
             });
             await waitForDocument(
               Messages,
@@ -404,11 +404,11 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 body: '@torgen: I can\'t find a puzzle called "even this poem".',
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
             chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
-              puzzles: [],
+              puzzles: []
             });
           });
         });
@@ -419,7 +419,7 @@ describe("metas hubot script", function () {
               nick: "torgen",
               room_name: "general/0",
               timestamp: 7,
-              body: `bot this ${verb} a ${descriptor}`,
+              body: `bot this ${verb} a ${descriptor}`
             });
             return waitForDocument(
               Messages,
@@ -428,8 +428,8 @@ describe("metas hubot script", function () {
                 room_name: "general/0",
                 body: "@torgen: You need to tell me which puzzle this is for.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
 
@@ -439,21 +439,21 @@ describe("metas hubot script", function () {
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: [],
+              puzzles: []
             });
             Messages.insert({
               nick: "torgen",
               room_name: "general/0",
               timestamp: 7,
-              body: `bot even this poem ${verb} a ${descriptor}`,
+              body: `bot even this poem ${verb} a ${descriptor}`
             });
             await waitForDocument(
               Puzzles,
               { _id: "fghij67890", puzzles: null },
               {
                 touched: 7,
-                touched_by: "torgen",
-              },
+                touched_by: "torgen"
+              }
             );
             return waitForDocument(
               Messages,
@@ -462,12 +462,12 @@ describe("metas hubot script", function () {
                 room_name: "general/0",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, even this poem is no longer a meta.",
-              },
+                body: "@torgen: OK, even this poem is no longer a meta."
+              }
             );
           });
         });
-      }),
+      })
     );
   });
 
@@ -478,35 +478,35 @@ describe("metas hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          feedsInto: [],
+          feedsInto: []
         });
         Puzzles.insert({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          feedsInto: [],
+          feedsInto: []
         });
         Messages.insert({
           room_name: "puzzles/12345abcde",
           timestamp: 7,
           nick: "torgen",
-          body: "bot this feeds into even this poem",
+          body: "bot this feeds into even this poem"
         });
         const l = waitForDocument(
           Puzzles,
           { _id: "12345abcde", feedsInto: "fghij67890" },
           {
             touched_by: "torgen",
-            touched: 7,
-          },
+            touched: 7
+          }
         );
         const e = waitForDocument(
           Puzzles,
           { _id: "fghij67890", puzzles: "12345abcde" },
           {
             touched_by: "torgen",
-            touched: 7,
-          },
+            touched: 7
+          }
         );
         const m = waitForDocument(
           Messages,
@@ -514,8 +514,8 @@ describe("metas hubot script", function () {
           {
             room_name: "puzzles/12345abcde",
             useful: true,
-            mention: ["torgen"],
-          },
+            mention: ["torgen"]
+          }
         );
         return Promise.all([l, e, m]);
       });
@@ -525,35 +525,35 @@ describe("metas hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          feedsInto: [],
+          feedsInto: []
         });
         Puzzles.insert({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          feedsInto: [],
+          feedsInto: []
         });
         Messages.insert({
           room_name: "puzzles/fghij67890",
           timestamp: 7,
           nick: "torgen",
-          body: "bot latino alphabet feeds into this",
+          body: "bot latino alphabet feeds into this"
         });
         const l = waitForDocument(
           Puzzles,
           { _id: "12345abcde", feedsInto: "fghij67890" },
           {
             touched_by: "torgen",
-            touched: 7,
-          },
+            touched: 7
+          }
         );
         const e = waitForDocument(
           Puzzles,
           { _id: "fghij67890", puzzles: "12345abcde" },
           {
             touched_by: "torgen",
-            touched: 7,
-          },
+            touched: 7
+          }
         );
         const m = waitForDocument(
           Messages,
@@ -561,8 +561,8 @@ describe("metas hubot script", function () {
           {
             room_name: "puzzles/fghij67890",
             useful: true,
-            mention: ["torgen"],
-          },
+            mention: ["torgen"]
+          }
         );
         return Promise.all([l, e, m]);
       });
@@ -572,41 +572,41 @@ describe("metas hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          feedsInto: [],
+          feedsInto: []
         });
         Puzzles.insert({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          feedsInto: [],
+          feedsInto: []
         });
         Puzzles.insert({
           _id: "0000000000",
           name: "A Third Thing",
           canon: "a_third_thing",
-          feedsInto: [],
+          feedsInto: []
         });
         Messages.insert({
           room_name: "puzzles/0000000000",
           timestamp: 7,
           nick: "torgen",
-          body: "bot latino alphabet feeds into even this poem",
+          body: "bot latino alphabet feeds into even this poem"
         });
         const l = waitForDocument(
           Puzzles,
           { _id: "12345abcde", feedsInto: "fghij67890" },
           {
             touched_by: "torgen",
-            touched: 7,
-          },
+            touched: 7
+          }
         );
         const e = waitForDocument(
           Puzzles,
           { _id: "fghij67890", puzzles: "12345abcde" },
           {
             touched_by: "torgen",
-            touched: 7,
-          },
+            touched: 7
+          }
         );
         const m = waitForDocument(
           Messages,
@@ -614,12 +614,12 @@ describe("metas hubot script", function () {
           {
             room_name: "puzzles/0000000000",
             useful: true,
-            mention: ["torgen"],
-          },
+            mention: ["torgen"]
+          }
         );
         await Promise.all([l, e, m]);
         chai.assert.deepInclude(Puzzles.findOne("0000000000"), {
-          feedsInto: [],
+          feedsInto: []
         });
         chai.assert.isUndefined(Puzzles.findOne("0000000000").puzzles);
       });
@@ -631,13 +631,13 @@ describe("metas hubot script", function () {
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          feedsInto: [],
+          feedsInto: []
         });
         Messages.insert({
           room_name: "general/0",
           timestamp: 7,
           nick: "torgen",
-          body: "bot this feeds into even this poem",
+          body: "bot this feeds into even this poem"
         });
         await waitForDocument(
           Messages,
@@ -646,8 +646,8 @@ describe("metas hubot script", function () {
             room_name: "general/0",
             body: "@torgen: You need to tell me which puzzle this is for.",
             useful: true,
-            mention: ["torgen"],
-          },
+            mention: ["torgen"]
+          }
         );
         chai.assert.isUndefined(Puzzles.findOne("fghij67890").puzzles);
       });
@@ -659,13 +659,13 @@ describe("metas hubot script", function () {
           canon: "latino_alphabet",
           feedsInto: [],
           touched: 2,
-          touched_by: "cjb",
+          touched_by: "cjb"
         });
         Messages.insert({
           room_name: "general/0",
           timestamp: 7,
           nick: "torgen",
-          body: "bot latino alphabet feeds into this",
+          body: "bot latino alphabet feeds into this"
         });
         await waitForDocument(
           Messages,
@@ -674,13 +674,13 @@ describe("metas hubot script", function () {
             room_name: "general/0",
             body: "@torgen: You need to tell me which puzzle this is for.",
             useful: true,
-            mention: ["torgen"],
-          },
+            mention: ["torgen"]
+          }
         );
         chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
           feedsInto: [],
           touched: 2,
-          touched_by: "cjb",
+          touched_by: "cjb"
         });
       });
 
@@ -689,35 +689,35 @@ describe("metas hubot script", function () {
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
-          feedsInto: [],
+          feedsInto: []
         });
         Puzzles.insert({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
-          feedsInto: [],
+          feedsInto: []
         });
         Messages.insert({
           room_name: "general/0",
           timestamp: 7,
           nick: "torgen",
-          body: "bot latino alphabet feeds into even this poem",
+          body: "bot latino alphabet feeds into even this poem"
         });
         const l = waitForDocument(
           Puzzles,
           { _id: "12345abcde", feedsInto: "fghij67890" },
           {
             touched_by: "torgen",
-            touched: 7,
-          },
+            touched: 7
+          }
         );
         const e = waitForDocument(
           Puzzles,
           { _id: "fghij67890", puzzles: "12345abcde" },
           {
             touched_by: "torgen",
-            touched: 7,
-          },
+            touched: 7
+          }
         );
         const m = waitForDocument(
           Messages,
@@ -725,8 +725,8 @@ describe("metas hubot script", function () {
           {
             room_name: "general/0",
             useful: true,
-            mention: ["torgen"],
-          },
+            mention: ["torgen"]
+          }
         );
         return Promise.all([l, e, m]);
       });
@@ -742,36 +742,36 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: ["fghij67890"],
+              feedsInto: ["fghij67890"]
             });
             Puzzles.insert({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: ["12345abcde", "0000000000"],
+              puzzles: ["12345abcde", "0000000000"]
             });
             Messages.insert({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
-              body: `bot this ${verb} feed into even this poem`,
+              body: `bot this ${verb} feed into even this poem`
             });
             const l = waitForDocument(
               Puzzles,
               { _id: "12345abcde", feedsInto: [] },
               {
                 touched_by: "torgen",
-                touched: 7,
-              },
+                touched: 7
+              }
             );
             const e = waitForDocument(
               Puzzles,
               { _id: "fghij67890", puzzles: ["0000000000"] },
               {
                 touched_by: "torgen",
-                touched: 7,
-              },
+                touched: 7
+              }
             );
             const m = waitForDocument(
               Messages,
@@ -780,8 +780,8 @@ describe("metas hubot script", function () {
                 body: "@torgen: OK, this no longer feeds into even this poem.",
                 useful: true,
                 room_name: "puzzles/12345abcde",
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
             return Promise.all([l, e, m]);
           });
@@ -791,20 +791,20 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Puzzles.insert({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: ["0000000000"],
+              puzzles: ["0000000000"]
             });
             Messages.insert({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
-              body: `bot this ${verb} feed into even this poem`,
+              body: `bot this ${verb} feed into even this poem`
             });
             return waitForDocument(
               Messages,
@@ -814,8 +814,8 @@ describe("metas hubot script", function () {
                 timestamp: 7,
                 body: "@torgen: this already didn't feed into even this poem.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
 
@@ -824,13 +824,13 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Messages.insert({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
-              body: `bot this ${verb} feed into even this poem`,
+              body: `bot this ${verb} feed into even this poem`
             });
             return waitForDocument(
               Messages,
@@ -840,8 +840,8 @@ describe("metas hubot script", function () {
                 timestamp: 7,
                 body: '@torgen: I can\'t find a puzzle called "even this poem".',
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
         });
@@ -852,36 +852,36 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: ["fghij67890"],
+              feedsInto: ["fghij67890"]
             });
             Puzzles.insert({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: ["12345abcde", "0000000000"],
+              puzzles: ["12345abcde", "0000000000"]
             });
             Messages.insert({
               room_name: "puzzles/fghij67890",
               timestamp: 7,
               nick: "torgen",
-              body: `bot latino alphabet ${verb} feed into this`,
+              body: `bot latino alphabet ${verb} feed into this`
             });
             const l = waitForDocument(
               Puzzles,
               { _id: "12345abcde", feedsInto: [] },
               {
                 touched_by: "torgen",
-                touched: 7,
-              },
+                touched: 7
+              }
             );
             const e = waitForDocument(
               Puzzles,
               { _id: "fghij67890", puzzles: ["0000000000"] },
               {
                 touched_by: "torgen",
-                touched: 7,
-              },
+                touched: 7
+              }
             );
             const m = waitForDocument(
               Messages,
@@ -890,8 +890,8 @@ describe("metas hubot script", function () {
                 body: "@torgen: OK, latino alphabet no longer feeds into this.",
                 useful: true,
                 room_name: "puzzles/fghij67890",
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
             return Promise.all([l, e, m]);
           });
@@ -901,20 +901,20 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Puzzles.insert({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: ["0000000000"],
+              puzzles: ["0000000000"]
             });
             Messages.insert({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
-              body: `bot latino alphabet ${verb} feed into this`,
+              body: `bot latino alphabet ${verb} feed into this`
             });
             return waitForDocument(
               Messages,
@@ -924,8 +924,8 @@ describe("metas hubot script", function () {
                 timestamp: 7,
                 body: "@torgen: latino alphabet already didn't feed into this.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
 
@@ -935,13 +935,13 @@ describe("metas hubot script", function () {
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: ["0000000000"],
+              puzzles: ["0000000000"]
             });
             Messages.insert({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
-              body: `bot latino alphabet ${verb} feed into this`,
+              body: `bot latino alphabet ${verb} feed into this`
             });
             return waitForDocument(
               Messages,
@@ -951,8 +951,8 @@ describe("metas hubot script", function () {
                 timestamp: 7,
                 body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
         });
@@ -963,14 +963,14 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: ["fghij67890"],
+              feedsInto: ["fghij67890"]
             });
             Puzzles.insert({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: ["12345abcde", "0000000000"],
+              puzzles: ["12345abcde", "0000000000"]
             });
             Puzzles.insert({
               _id: "0000000000",
@@ -978,29 +978,29 @@ describe("metas hubot script", function () {
               canon: "a_third_thing",
               feedsInto: ["fghij67890"],
               touched: 2,
-              touched_by: "cjb",
+              touched_by: "cjb"
             });
             Messages.insert({
               room_name: "puzzles/0000000000",
               timestamp: 7,
               nick: "torgen",
-              body: `bot latino alphabet ${verb} feed into even this poem`,
+              body: `bot latino alphabet ${verb} feed into even this poem`
             });
             const l = waitForDocument(
               Puzzles,
               { _id: "12345abcde", feedsInto: [] },
               {
                 touched_by: "torgen",
-                touched: 7,
-              },
+                touched: 7
+              }
             );
             const e = waitForDocument(
               Puzzles,
               { _id: "fghij67890", puzzles: ["0000000000"] },
               {
                 touched_by: "torgen",
-                touched: 7,
-              },
+                touched: 7
+              }
             );
             const m = waitForDocument(
               Messages,
@@ -1009,14 +1009,14 @@ describe("metas hubot script", function () {
                 body: "@torgen: OK, latino alphabet no longer feeds into even this poem.",
                 useful: true,
                 room_name: "puzzles/0000000000",
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
             await Promise.all([l, e, m]);
             chai.assert.deepInclude(Puzzles.findOne("0000000000"), {
               feedsInto: ["fghij67890"],
               touched: 2,
-              touched_by: "cjb",
+              touched_by: "cjb"
             });
           });
 
@@ -1025,14 +1025,14 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Puzzles.insert({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: ["0000000000"],
+              puzzles: ["0000000000"]
             });
             Puzzles.insert({
               _id: "0000000000",
@@ -1040,13 +1040,13 @@ describe("metas hubot script", function () {
               canon: "a_third_thing",
               feedsInto: ["fghij67890"],
               touched: 2,
-              touched_by: "cjb",
+              touched_by: "cjb"
             });
             Messages.insert({
               room_name: "puzzles/0000000000",
               timestamp: 7,
               nick: "torgen",
-              body: `bot latino alphabet ${verb} feed into even this poem`,
+              body: `bot latino alphabet ${verb} feed into even this poem`
             });
             return waitForDocument(
               Messages,
@@ -1056,8 +1056,8 @@ describe("metas hubot script", function () {
                 timestamp: 7,
                 body: "@torgen: latino alphabet already didn't feed into even this poem.",
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
 
@@ -1067,7 +1067,7 @@ describe("metas hubot script", function () {
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
-              puzzles: ["0000000000"],
+              puzzles: ["0000000000"]
             });
             Puzzles.insert({
               _id: "0000000000",
@@ -1075,13 +1075,13 @@ describe("metas hubot script", function () {
               canon: "a_third_thing",
               feedsInto: ["fghij67890"],
               touched: 2,
-              touched_by: "cjb",
+              touched_by: "cjb"
             });
             Messages.insert({
               room_name: "puzzles/0000000000",
               timestamp: 7,
               nick: "torgen",
-              body: `bot latino alphabet ${verb} feed into even this poem`,
+              body: `bot latino alphabet ${verb} feed into even this poem`
             });
             return waitForDocument(
               Messages,
@@ -1091,8 +1091,8 @@ describe("metas hubot script", function () {
                 timestamp: 7,
                 body: '@torgen: I can\'t find a puzzle called "latino alphabet".',
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
 
@@ -1101,7 +1101,7 @@ describe("metas hubot script", function () {
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
-              feedsInto: [],
+              feedsInto: []
             });
             Puzzles.insert({
               _id: "0000000000",
@@ -1109,13 +1109,13 @@ describe("metas hubot script", function () {
               canon: "a_third_thing",
               feedsInto: [],
               touched: 2,
-              touched_by: "cjb",
+              touched_by: "cjb"
             });
             Messages.insert({
               room_name: "puzzles/0000000000",
               timestamp: 7,
               nick: "torgen",
-              body: `bot latino alphabet ${verb} feed into even this poem`,
+              body: `bot latino alphabet ${verb} feed into even this poem`
             });
             return waitForDocument(
               Messages,
@@ -1125,8 +1125,8 @@ describe("metas hubot script", function () {
                 timestamp: 7,
                 body: '@torgen: I can\'t find a puzzle called "even this poem".',
                 useful: true,
-                mention: ["torgen"],
-              },
+                mention: ["torgen"]
+              }
             );
           });
         });
@@ -1138,20 +1138,20 @@ describe("metas hubot script", function () {
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
-            feedsInto: ["fghij67890"],
+            feedsInto: ["fghij67890"]
           });
           Puzzles.insert({
             _id: "fghij67890",
             name: "Even This Poem",
             canon: "even_this_poem",
             feedsInto: [],
-            puzzles: ["12345abcde", "0000000000"],
+            puzzles: ["12345abcde", "0000000000"]
           });
           Messages.insert({
             room_name: "general/0",
             timestamp: 7,
             nick: "torgen",
-            body: `bot this ${verb} feed into even this poem`,
+            body: `bot this ${verb} feed into even this poem`
           });
           return waitForDocument(
             Messages,
@@ -1160,8 +1160,8 @@ describe("metas hubot script", function () {
               room_name: "general/0",
               body: "@torgen: You need to tell me which puzzle this is for.",
               useful: true,
-              mention: ["torgen"],
-            },
+              mention: ["torgen"]
+            }
           );
         });
 
@@ -1170,20 +1170,20 @@ describe("metas hubot script", function () {
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
-            feedsInto: ["fghij67890"],
+            feedsInto: ["fghij67890"]
           });
           Puzzles.insert({
             _id: "fghij67890",
             name: "Even This Poem",
             canon: "even_this_poem",
             feedsInto: [],
-            puzzles: ["12345abcde", "0000000000"],
+            puzzles: ["12345abcde", "0000000000"]
           });
           Messages.insert({
             room_name: "general/0",
             timestamp: 7,
             nick: "torgen",
-            body: `bot latino alphabet ${verb} feed into this`,
+            body: `bot latino alphabet ${verb} feed into this`
           });
           return waitForDocument(
             Messages,
@@ -1192,8 +1192,8 @@ describe("metas hubot script", function () {
               room_name: "general/0",
               body: "@torgen: You need to tell me which puzzle this is for.",
               useful: true,
-              mention: ["torgen"],
-            },
+              mention: ["torgen"]
+            }
           );
         });
 
@@ -1202,36 +1202,36 @@ describe("metas hubot script", function () {
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
-            feedsInto: ["fghij67890"],
+            feedsInto: ["fghij67890"]
           });
           Puzzles.insert({
             _id: "fghij67890",
             name: "Even This Poem",
             canon: "even_this_poem",
             feedsInto: [],
-            puzzles: ["12345abcde", "0000000000"],
+            puzzles: ["12345abcde", "0000000000"]
           });
           Messages.insert({
             room_name: "general/0",
             timestamp: 7,
             nick: "torgen",
-            body: `bot latino alphabet ${verb} feed into even this poem`,
+            body: `bot latino alphabet ${verb} feed into even this poem`
           });
           const l = waitForDocument(
             Puzzles,
             { _id: "12345abcde", feedsInto: [] },
             {
               touched_by: "torgen",
-              touched: 7,
-            },
+              touched: 7
+            }
           );
           const e = waitForDocument(
             Puzzles,
             { _id: "fghij67890", puzzles: ["0000000000"] },
             {
               touched_by: "torgen",
-              touched: 7,
-            },
+              touched: 7
+            }
           );
           const m = waitForDocument(
             Messages,
@@ -1240,12 +1240,12 @@ describe("metas hubot script", function () {
               body: "@torgen: OK, latino alphabet no longer feeds into even this poem.",
               useful: true,
               room_name: "general/0",
-              mention: ["torgen"],
-            },
+              mention: ["torgen"]
+            }
           );
           return Promise.all([l, e, m]);
         });
       });
-    }),
+    })
   );
 });

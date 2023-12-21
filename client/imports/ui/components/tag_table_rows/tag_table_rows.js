@@ -21,7 +21,7 @@ Template.tag_table_rows.onCreated(function () {
 Template.tag_table_rows.events({
   "input/focus .bb-add-tag input"(event, template) {
     template.newTagName.set(event.currentTarget.value);
-  },
+  }
 });
 
 Template.tag_table_rows.events(
@@ -40,14 +40,14 @@ Template.tag_table_rows.events(
         type: this.type,
         object: this.id,
         name: value,
-        value: "",
+        value: ""
       });
       // simulation is enough for us to start editing the value if the event was enter or tab
       if ([9, 13].includes(event.which)) {
         Tracker.afterFlush(() =>
           template
             .$(`tr[data-tag-name='${cval}'] .bb-edit-tag-value`)
-            .trigger("bb-edit"),
+            .trigger("bb-edit")
         );
       }
     },
@@ -55,8 +55,8 @@ Template.tag_table_rows.events(
     cancel(event, template) {
       this.adding.done();
       template.newTagName.set("");
-    },
-  }),
+    }
+  })
 );
 
 Template.tag_table_rows.helpers({
@@ -82,7 +82,7 @@ Template.tag_table_rows.helpers({
           name: t.name,
           canon,
           value: t.value,
-          touched_by: t.touched_by,
+          touched_by: t.touched_by
         });
       }
     }
@@ -108,5 +108,5 @@ Template.tag_table_rows.helpers({
     if (collection(this.type).findOne({ _id: this.id }).tags[cval] != null) {
       return "Tag already exists";
     }
-  },
+  }
 });

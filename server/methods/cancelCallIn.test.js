@@ -13,8 +13,8 @@ describe("cancelCallIn", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -33,7 +33,7 @@ describe("cancelCallIn", function () {
       touched_by: "cscott",
       solved: null,
       solved_by: null,
-      tags: {},
+      tags: {}
     });
     callin = CallIns.insert({
       name: "Foo:precipitate",
@@ -44,14 +44,14 @@ describe("cancelCallIn", function () {
       submitted_to_hq: true,
       backsolve: false,
       provided: false,
-      status: "pending",
+      status: "pending"
     });
   });
 
   it("fails without login", () =>
     chai.assert.throws(
       () => Meteor.call("cancelCallIn", { id: callin }),
-      Match.Error,
+      Match.Error
     ));
 
   describe("when logged in", function () {
@@ -61,14 +61,14 @@ describe("cancelCallIn", function () {
       const c = CallIns.findOne();
       chai.assert.include(c, {
         status: "cancelled",
-        resolved: 7,
+        resolved: 7
       });
     });
 
     it("oplogs", () =>
       chai.assert.lengthOf(
         Messages.find({ type: "puzzles", id: puzzle }).fetch(),
-        1,
+        1
       ));
   });
 });

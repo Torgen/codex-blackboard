@@ -9,7 +9,7 @@ import {
   HIDE_SOLVED_FAVES,
   HIDE_SOLVED_METAS,
   SORT_REVERSE,
-  VISIBLE_COLUMNS,
+  VISIBLE_COLUMNS
 } from "./imports/settings.js";
 import { TEAM_NAME, WHOSE_GITHUB } from "/lib/imports/server_settings.js";
 import * as notification from "/client/imports/notification.js";
@@ -61,10 +61,10 @@ Template.blackboard.onCreated(function () {
       {
         $or: [
           { nickname: { $regex: `.*${userSearch}.*` } },
-          { real_name: { $regex: `.*${userSearch}.*` } },
-        ],
+          { real_name: { $regex: `.*${userSearch}.*` } }
+        ]
       },
-      { fields: { _id: 1 } },
+      { fields: { _id: 1 } }
     );
     this.foundAccounts.set(new Set(c.map((v) => v._id)));
   });
@@ -76,7 +76,7 @@ Template.blackboard.onCreated(function () {
     }
     const p = Presence.find({
       nick: { $in: [...foundAccounts] },
-      scope: { $in: ["chat", "jitsi"] },
+      scope: { $in: ["chat", "jitsi"] }
     });
     const res = new Set();
     p.forEach(function (pres) {
@@ -99,7 +99,7 @@ Template.blackboard.onRendered(function () {
     updater: (item) => {
       this.userSearch.set(item);
       return item;
-    },
+    }
   });
 });
 
@@ -112,15 +112,15 @@ Template.blackboard.helpers({
   },
   searchResults() {
     return (Template.instance().foundPuzzles.get() ?? []).map((id) =>
-      Puzzles.findOne({ _id: id }),
+      Puzzles.findOne({ _id: id })
     );
-  },
+  }
 });
 
 Template.blackboard.events({
   "click .puzzle-working .button-group:not(.open) .bb-show-filter-by-user"(
     event,
-    template,
+    template
   ) {
     Meteor.defer(() => template.find(".bb-filter-by-user").focus());
   },
@@ -135,7 +135,7 @@ Template.blackboard.events({
   },
   "click .bb-clear-filter-by-user"(event, template) {
     template.userSearch.set(null);
-  },
+  }
 });
 
 // Notifications
@@ -151,7 +151,7 @@ Template.blackboard.helpers({
   },
   notificationStreamEnabled(stream) {
     return notification.get(stream);
-  },
+  }
 });
 Template.blackboard.events({
   "click .bb-notification-ask"(event, template) {
@@ -178,13 +178,13 @@ Template.blackboard.events({
   },
   "change .bb-notification-controls [data-notification-stream]"(
     event,
-    template,
+    template
   ) {
     notification.set(
       event.target.dataset.notificationStream,
-      event.target.checked,
+      event.target.checked
     );
-  },
+  }
 });
 
 function round_helper() {
@@ -210,7 +210,7 @@ function meta_helper() {
       _id,
       parent: this._id,
       puzzle,
-      num_puzzles: puzzle.puzzles.length,
+      num_puzzles: puzzle.puzzles.length
     });
   }
   return r;
@@ -220,7 +220,7 @@ function forEachUnassigned(puzzles, fn) {
     const puzzle = Puzzles.findOne({
       _id,
       feedsInto: { $size: 0 },
-      puzzles: { $exists: false },
+      puzzles: { $exists: false }
     });
     if (puzzle == null) {
       continue;
@@ -248,8 +248,8 @@ Template.blackboard.helpers({
     const query = {
       $or: [
         { [`favorites.${Meteor.userId()}`]: true },
-        { mechanics: { $in: Meteor.user().favorite_mechanics || [] } },
-      ],
+        { mechanics: { $in: Meteor.user().favorite_mechanics || [] } }
+      ]
     };
     if (
       !Session.get("canEdit") &&
@@ -261,7 +261,7 @@ Template.blackboard.helpers({
   },
   stuckPuzzles() {
     return Puzzles.find({
-      "tags.status.value": /^stuck/i,
+      "tags.status.value": /^stuck/i
     });
   },
   hasJitsiLocalStorage() {
@@ -277,9 +277,9 @@ Template.blackboard.helpers({
         const wasAdding = instance.addRound.get();
         instance.addRound.set(false);
         return wasAdding;
-      },
+      }
     };
-  },
+  }
 });
 
 Template.blackboard_status_grid.helpers({
@@ -303,14 +303,14 @@ Template.blackboard_status_grid.helpers({
     const p = ps.map((id, index) => ({
       _id: id,
       puzzle_num: 1 + index,
-      puzzle: Puzzles.findOne(id) || { _id: id },
+      puzzle: Puzzles.findOne(id) || { _id: id }
     }));
     return p;
   },
   numSolved(l) {
     return l.filter((p) => p.puzzle.solved).length;
   },
-  stuck: isStuck,
+  stuck: isStuck
 });
 
 Template.blackboard.onRendered(function () {
@@ -321,10 +321,10 @@ Template.blackboard.onRendered(function () {
     this.$(".bb-menu-drawer").modal("hide");
   };
   this.$(".bb-menu-drawer").on("show", () =>
-    document.addEventListener("keydown", this.escListener),
+    document.addEventListener("keydown", this.escListener)
   );
   this.$(".bb-menu-drawer").on("hide", () =>
-    document.removeEventListener("keydown", this.escListener),
+    document.removeEventListener("keydown", this.escListener)
   );
 });
 
@@ -348,7 +348,7 @@ Template.blackboard.events({
       event.preventDefault();
       $(href).get(0)?.scrollIntoView({ block: "center", behavior: "smooth" });
     }
-  },
+  }
 });
 
 Template.blackboard.onRendered(function () {
@@ -364,7 +364,7 @@ Template.blackboard.events({
   },
   "click .bb-add-round"(event, template) {
     return template.addRound.set(true);
-  },
+  }
 });
 
 Template.blackboard_favorite_puzzle.onCreated(function () {
@@ -417,7 +417,7 @@ Template.blackboard_round.helpers({
       const puzzle = Puzzles.findOne({
         _id: id,
         solved: { $eq: null },
-        $or: [{ feedsInto: { $size: 0 } }, { puzzles: { $ne: null } }],
+        $or: [{ feedsInto: { $size: 0 } }, { puzzles: { $ne: null } }]
       });
       if (puzzle != null) {
         return true;
@@ -438,8 +438,8 @@ Template.blackboard_round.helpers({
         return wasAdding;
       },
       params: {
-        round: this._id,
-      },
+        round: this._id
+      }
     };
   },
   addingMeta() {
@@ -455,10 +455,10 @@ Template.blackboard_round.helpers({
       },
       params: {
         round: this._id,
-        puzzles: [],
-      },
+        puzzles: []
+      }
     };
-  },
+  }
 });
 
 function moveBeforePrevious(match, rel, event, template) {
@@ -473,7 +473,7 @@ function moveBeforePrevious(match, rel, event, template) {
     "moveWithinRound",
     row[0]?.dataset.puzzleId,
     Template.parentData()._id,
-    args,
+    args
   );
 }
 
@@ -489,7 +489,7 @@ function moveAfterNext(match, rel, event, template) {
     "moveWithinRound",
     row[0]?.dataset.puzzleId,
     Template.parentData()._id,
-    args,
+    args
   );
 }
 
@@ -517,7 +517,7 @@ Template.blackboard_round.events({
       await confirm({
         ok_button: "Yes, delete it",
         no_button: "No, cancel",
-        message: `Are you sure you want to delete the round \"${template.data.name}\"?`,
+        message: `Are you sure you want to delete the round \"${template.data.name}\"?`
       })
     ) {
       Meteor.call("deleteRound", template.data._id);
@@ -533,13 +533,13 @@ Template.blackboard_round.events({
   "click tbody.unassigned tr.puzzle .bb-move-up": moveBeforePrevious.bind(
     null,
     "tr.puzzle",
-    "before",
+    "before"
   ),
   "click tbody.unassigned tr.puzzle .bb-move-down": moveAfterNext.bind(
     null,
     "tr.puzzle",
-    "after",
-  ),
+    "after"
+  )
 });
 
 Template.blackboard_meta.onCreated(function () {
@@ -576,15 +576,15 @@ Template.blackboard_meta.events({
   "click tr.meta.collapsed .collapse-toggle"(event, template) {
     reactiveLocalStorage.setItem(
       `collapsed_meta.${template.data.puzzle._id}`,
-      false,
+      false
     );
   },
   "click tr.meta:not(.collapsed) .collapse-toggle"(event, template) {
     reactiveLocalStorage.setItem(
       `collapsed_meta.${template.data.puzzle._id}`,
-      true,
+      true
     );
-  },
+  }
 });
 
 Template.blackboard_meta.helpers({
@@ -600,7 +600,7 @@ Template.blackboard_meta.helpers({
     let filter;
     const puzzle = Puzzles.findOne(
       { _id: this._id },
-      { fields: { order_by: 1, puzzles: 1 } },
+      { fields: { order_by: 1, puzzles: 1 } }
     );
     if (puzzle?.order_by) {
       filter = { feedsInto: this._id };
@@ -611,12 +611,12 @@ Template.blackboard_meta.helpers({
         sort: { [puzzle.order_by]: 1 },
         transform(p) {
           return { _id: p._id, puzzle: p };
-        },
+        }
       });
     }
     const p = (puzzle?.puzzles || []).map((id, index) => ({
       _id: id,
-      puzzle: Puzzles.findOne(id) || { _id: id },
+      puzzle: Puzzles.findOne(id) || { _id: id }
     }));
     return maybeFilterSolved(p);
   },
@@ -654,10 +654,10 @@ Template.blackboard_meta.helpers({
       },
       params: {
         round: parentData._id,
-        feedsInto: [this.puzzle._id],
-      },
+        feedsInto: [this.puzzle._id]
+      }
     };
-  },
+  }
 });
 
 Template.blackboard_puzzle_cells.events({
@@ -675,7 +675,7 @@ Template.blackboard_puzzle_cells.events({
     Meteor.call(
       "feedMeta",
       template.data.puzzle._id,
-      event.target.dataset.puzzleId,
+      event.target.dataset.puzzleId
     );
     event.preventDefault();
   },
@@ -683,7 +683,7 @@ Template.blackboard_puzzle_cells.events({
     Meteor.call("setField", {
       type: "puzzles",
       object: template.data.puzzle._id,
-      fields: { order_by: event.currentTarget.dataset.sortOrder },
+      fields: { order_by: event.currentTarget.dataset.sortOrder }
     });
   },
   async "click .bb-puzzle-title .bb-delete-icon"(event, template) {
@@ -692,12 +692,12 @@ Template.blackboard_puzzle_cells.events({
       await confirm({
         ok_button: "Yes, delete it",
         no_button: "No, cancel",
-        message: `Are you sure you want to delete the puzzle \"${template.data.puzzle.name}\"?`,
+        message: `Are you sure you want to delete the puzzle \"${template.data.puzzle.name}\"?`
       })
     ) {
       Meteor.call("deletePuzzle", template.data.puzzle._id);
     }
-  },
+  }
 });
 
 Template.blackboard_puzzle_cells.onCreated(function () {
@@ -711,7 +711,7 @@ function addingTagHelper() {
     },
     done() {
       instance.addingTag.set(false);
-    },
+    }
   };
 }
 Template.blackboard_puzzle_cells.helpers({
@@ -733,7 +733,7 @@ Template.blackboard_puzzle_cells.helpers({
       return;
     }
     return Puzzles.find({
-      _id: { $in: this.feedsInto, $ne: parent.puzzle._id },
+      _id: { $in: this.feedsInto, $ne: parent.puzzle._id }
     });
   },
   isMeta() {
@@ -748,7 +748,7 @@ Template.blackboard_puzzle_cells.helpers({
   jitsiLink() {
     return jitsiUrl("puzzles", this.puzzle?._id);
   },
-  addingTag: addingTagHelper,
+  addingTag: addingTagHelper
 });
 
 Template.blackboard_column_body_status.helpers({
@@ -757,7 +757,7 @@ Template.blackboard_column_body_status.helpers({
   },
   set_by() {
     return this.puzzle?.tags?.status?.touched_by;
-  },
+  }
 });
 
 Template.blackboard_column_body_update.helpers({
@@ -773,7 +773,7 @@ Template.blackboard_column_body_update.helpers({
       this.puzzle.last_read_timestamp == null ||
       this.puzzle.last_read_timestamp < this.puzzle.last_message_timestamp
     );
-  },
+  }
 });
 
 Template.blackboard_column_body_working.helpers({
@@ -784,9 +784,9 @@ Template.blackboard_column_body_working.helpers({
     return findByChannel(
       `puzzles/${this.puzzle._id}`,
       { jitsi },
-      { sort: { joined_timestamp: 1 } },
+      { sort: { joined_timestamp: 1 } }
     );
-  },
+  }
 });
 
 function colorHelper() {
@@ -799,13 +799,13 @@ Template.blackboard_addmeta_entry.helpers({ color: colorHelper });
 Template.blackboard_unfeed_meta.events({
   "click .bb-unfeed-icon"(event, template) {
     Meteor.call("unfeedMeta", template.data.puzzle._id, template.data.meta._id);
-  },
+  }
 });
 
 let dragdata = null;
 
 Template.blackboard_puzzle.helpers({
-  stuck: isStuck,
+  stuck: isStuck
 });
 
 Template.blackboard_puzzle.events({
@@ -823,7 +823,7 @@ Template.blackboard_puzzle.events({
       Template.parentData(2),
       event.target,
       event.clientY,
-      event.dataTransfer,
+      event.dataTransfer
     );
   },
   "dragover tr.puzzle"(event, template) {
@@ -838,12 +838,12 @@ Template.blackboard_puzzle.events({
         Template.parentData(2),
         event.target,
         event.clientY,
-        event.dataTransfer,
+        event.dataTransfer
       )
     ) {
       event.preventDefault();
     }
-  },
+  }
 });
 
 Template.blackboard_column_header_working.onCreated(function () {

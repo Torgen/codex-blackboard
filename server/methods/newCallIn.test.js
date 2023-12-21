@@ -4,7 +4,7 @@ import {
   CallIns,
   Messages,
   Puzzles,
-  Rounds,
+  Rounds
 } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
@@ -18,8 +18,8 @@ describe("newCallIn", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -32,9 +32,9 @@ describe("newCallIn", function () {
         () =>
           callAs("newCallIn", "torgen", {
             target: "something",
-            answer: "precipitate",
+            answer: "precipitate"
           }),
-        Meteor.Error,
+        Meteor.Error
       ));
 
     it("fails when target is not a puzzle", function () {
@@ -48,16 +48,16 @@ describe("newCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        puzzles: [],
+        puzzles: []
       });
       chai.assert.throws(
         () =>
           callAs("newCallIn", "torgen", {
             target: id,
             target_type: "rounds",
-            answer: "precipitate",
+            answer: "precipitate"
           }),
-        Match.Error,
+        Match.Error
       );
     });
 
@@ -75,8 +75,8 @@ describe("newCallIn", function () {
             solved: null,
             solved_by: null,
             tags: {},
-            feedsInto: [],
-          })),
+            feedsInto: []
+          }))
       );
 
       it("fails without login", () =>
@@ -84,23 +84,23 @@ describe("newCallIn", function () {
           () =>
             Meteor.call("newCallIn", {
               target: id,
-              answer: "precipitate",
+              answer: "precipitate"
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails without answer", () =>
         chai.assert.throws(
           () => callAs("newCallIn", "torgen", { target: id }),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with simple callin", function () {
         beforeEach(() =>
           callAs("newCallIn", "torgen", {
             target: id,
-            answer: "precipitate",
-          }),
+            answer: "precipitate"
+          })
         );
 
         it("creates document", function () {
@@ -115,21 +115,21 @@ describe("newCallIn", function () {
             submitted_to_hq: false,
             backsolve: false,
             provided: false,
-            status: "pending",
+            status: "pending"
           });
         });
 
         it("oplogs", function () {
           const o = Messages.find({
             room_name: "oplog/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
             id,
             stream: "callins",
-            nick: "torgen",
+            nick: "torgen"
           });
           // oplog is lowercase
           chai.assert.include(o[0].body, "precipitate", "message");
@@ -138,12 +138,12 @@ describe("newCallIn", function () {
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${id}`,
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
           chai.assert.notInclude(o[0].body, "(Foo)", "message");
@@ -152,12 +152,12 @@ describe("newCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
           chai.assert.include(o[0].body, "(Foo)", "message");
@@ -168,7 +168,7 @@ describe("newCallIn", function () {
         callAs("newCallIn", "torgen", {
           target: id,
           answer: "precipitate",
-          backsolve: true,
+          backsolve: true
         });
         const c = CallIns.findOne();
         chai.assert.include(c, {
@@ -178,7 +178,7 @@ describe("newCallIn", function () {
           submitted_to_hq: false,
           backsolve: true,
           provided: false,
-          status: "pending",
+          status: "pending"
         });
       });
 
@@ -186,7 +186,7 @@ describe("newCallIn", function () {
         callAs("newCallIn", "torgen", {
           target: id,
           answer: "precipitate",
-          provided: true,
+          provided: true
         });
         const c = CallIns.findOne();
         chai.assert.include(c, {
@@ -196,7 +196,7 @@ describe("newCallIn", function () {
           submitted_to_hq: false,
           backsolve: false,
           provided: true,
-          status: "pending",
+          status: "pending"
         });
       });
     });
@@ -212,7 +212,7 @@ describe("newCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        feedsInto: [],
+        feedsInto: []
       });
       const p = Puzzles.insert({
         name: "Foo",
@@ -224,7 +224,7 @@ describe("newCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        feedsInto: [meta],
+        feedsInto: [meta]
       });
       Puzzles.update(meta, { $push: { puzzles: p } });
       const r = Rounds.insert({
@@ -235,20 +235,20 @@ describe("newCallIn", function () {
         touched: 2,
         touched_by: "cscott",
         puzzles: [meta, p],
-        tags: {},
+        tags: {}
       });
       callAs("newCallIn", "torgen", {
         target: p,
-        answer: "precipitate",
+        answer: "precipitate"
       });
       const m = Messages.find({
         room_name: `puzzles/${meta}`,
-        dawn_of_time: { $ne: true },
+        dawn_of_time: { $ne: true }
       }).fetch();
       chai.assert.lengthOf(m, 1);
       chai.assert.include(m[0], {
         nick: "torgen",
-        action: true,
+        action: true
       });
       chai.assert.include(m[0].body, "PRECIPITATE");
       chai.assert.include(m[0].body, "(Foo)");
@@ -262,9 +262,9 @@ describe("newCallIn", function () {
           callAs("newCallIn", "torgen", {
             target: "something",
             answer: "precipitate",
-            callin_type: "interaction request",
+            callin_type: "interaction request"
           }),
-        Meteor.Error,
+        Meteor.Error
       ));
 
     it("fails when target is not a puzzle", function () {
@@ -278,7 +278,7 @@ describe("newCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        puzzles: [],
+        puzzles: []
       });
       chai.assert.throws(
         () =>
@@ -286,9 +286,9 @@ describe("newCallIn", function () {
             target: id,
             target_type: "rounds",
             answer: "precipitate",
-            callin_type: "interaction request",
+            callin_type: "interaction request"
           }),
-        Match.Error,
+        Match.Error
       );
     });
 
@@ -306,8 +306,8 @@ describe("newCallIn", function () {
             solved: null,
             solved_by: null,
             tags: {},
-            feedsInto: [],
-          })),
+            feedsInto: []
+          }))
       );
 
       it("fails without login", () =>
@@ -316,9 +316,9 @@ describe("newCallIn", function () {
             Meteor.call("newCallIn", {
               target: id,
               answer: "precipitate",
-              callin_type: "interaction request",
+              callin_type: "interaction request"
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails without answer", () =>
@@ -326,9 +326,9 @@ describe("newCallIn", function () {
           () =>
             callAs("newCallIn", "torgen", {
               target: id,
-              callin_type: "interaction request",
+              callin_type: "interaction request"
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with backsolve", () =>
@@ -338,9 +338,9 @@ describe("newCallIn", function () {
               target: id,
               answer: "precipitate",
               callin_type: "interaction request",
-              backsolve: true,
+              backsolve: true
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with provided", () =>
@@ -350,9 +350,9 @@ describe("newCallIn", function () {
               target: id,
               answer: "precipitate",
               callin_type: "interaction request",
-              provided: true,
+              provided: true
             }),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with valid parameters", function () {
@@ -360,8 +360,8 @@ describe("newCallIn", function () {
           callAs("newCallIn", "torgen", {
             target: id,
             answer: "pay the cat tax",
-            callin_type: "interaction request",
-          }),
+            callin_type: "interaction request"
+          })
         );
 
         it("creates document", function () {
@@ -374,21 +374,21 @@ describe("newCallIn", function () {
             callin_type: "interaction request",
             who: "torgen",
             submitted_to_hq: false,
-            status: "pending",
+            status: "pending"
           });
         });
 
         it("oplogs", function () {
           const o = Messages.find({
             room_name: "oplog/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
             id,
             stream: "callins",
-            nick: "torgen",
+            nick: "torgen"
           });
           // oplog is lowercase
           chai.assert.include(o[0].body, "pay the cat tax", "message");
@@ -397,12 +397,12 @@ describe("newCallIn", function () {
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${id}`,
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, "PAY THE CAT TAX", "message");
           chai.assert.include(o[0].body, "interaction", "message");
@@ -412,12 +412,12 @@ describe("newCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, "PAY THE CAT TAX", "message");
           chai.assert.include(o[0].body, "interaction", "message");
@@ -434,9 +434,9 @@ describe("newCallIn", function () {
           callAs("newCallIn", "torgen", {
             target: "something",
             answer: "precipitate",
-            callin_type: "message to hq",
+            callin_type: "message to hq"
           }),
-        Meteor.Error,
+        Meteor.Error
       ));
 
     it("fails when target is not a puzzle", function () {
@@ -450,7 +450,7 @@ describe("newCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        puzzles: [],
+        puzzles: []
       });
       chai.assert.throws(
         () =>
@@ -458,9 +458,9 @@ describe("newCallIn", function () {
             target: id,
             target_type: "rounds",
             answer: "precipitate",
-            callin_type: "message to hq",
+            callin_type: "message to hq"
           }),
-        Match.Error,
+        Match.Error
       );
     });
 
@@ -478,8 +478,8 @@ describe("newCallIn", function () {
             solved: null,
             solved_by: null,
             tags: {},
-            feedsInto: [],
-          })),
+            feedsInto: []
+          }))
       );
 
       it("fails without login", () =>
@@ -488,9 +488,9 @@ describe("newCallIn", function () {
             Meteor.call("newCallIn", {
               target: id,
               answer: "precipitate",
-              callin_type: "message to hq",
+              callin_type: "message to hq"
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails without answer", () =>
@@ -498,9 +498,9 @@ describe("newCallIn", function () {
           () =>
             callAs("newCallIn", "torgen", {
               target: id,
-              callin_type: "message to hq",
+              callin_type: "message to hq"
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with backsolve", () =>
@@ -510,9 +510,9 @@ describe("newCallIn", function () {
               target: id,
               answer: "precipitate",
               callin_type: "message to hq",
-              backsolve: true,
+              backsolve: true
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with provided", () =>
@@ -522,9 +522,9 @@ describe("newCallIn", function () {
               target: id,
               answer: "precipitate",
               callin_type: "message to hq",
-              provided: true,
+              provided: true
             }),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with valid parameters", function () {
@@ -532,8 +532,8 @@ describe("newCallIn", function () {
           callAs("newCallIn", "torgen", {
             target: id,
             answer: "pay the cat tax",
-            callin_type: "message to hq",
-          }),
+            callin_type: "message to hq"
+          })
         );
 
         it("creates document", function () {
@@ -546,21 +546,21 @@ describe("newCallIn", function () {
             callin_type: "message to hq",
             who: "torgen",
             submitted_to_hq: false,
-            status: "pending",
+            status: "pending"
           });
         });
 
         it("oplogs", function () {
           const o = Messages.find({
             room_name: "oplog/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
             id,
             stream: "callins",
-            nick: "torgen",
+            nick: "torgen"
           });
           // oplog is lowercase
           chai.assert.include(o[0].body, "pay the cat tax", "message");
@@ -569,12 +569,12 @@ describe("newCallIn", function () {
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${id}`,
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, '"PAY THE CAT TAX"', "message");
           chai.assert.include(o[0].body, "tell HQ", "message");
@@ -584,12 +584,12 @@ describe("newCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, '"PAY THE CAT TAX"', "message");
           chai.assert.include(o[0].body, "tell HQ", "message");
@@ -606,9 +606,9 @@ describe("newCallIn", function () {
           callAs("newCallIn", "torgen", {
             target: "something",
             answer: "precipitate",
-            callin_type: "expected callback",
+            callin_type: "expected callback"
           }),
-        Meteor.Error,
+        Meteor.Error
       ));
 
     it("fails when target is not a puzzle", function () {
@@ -622,7 +622,7 @@ describe("newCallIn", function () {
         solved: null,
         solved_by: null,
         tags: {},
-        puzzles: [],
+        puzzles: []
       });
       chai.assert.throws(
         () =>
@@ -630,9 +630,9 @@ describe("newCallIn", function () {
             target: id,
             target_type: "rounds",
             answer: "precipitate",
-            callin_type: "expected callback",
+            callin_type: "expected callback"
           }),
-        Match.Error,
+        Match.Error
       );
     });
 
@@ -650,8 +650,8 @@ describe("newCallIn", function () {
             solved: null,
             solved_by: null,
             tags: {},
-            feedsInto: [],
-          })),
+            feedsInto: []
+          }))
       );
 
       it("fails without login", () =>
@@ -660,9 +660,9 @@ describe("newCallIn", function () {
             Meteor.call("newCallIn", {
               target: id,
               answer: "precipitate",
-              callin_type: "expected callback",
+              callin_type: "expected callback"
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails without answer", () =>
@@ -670,9 +670,9 @@ describe("newCallIn", function () {
           () =>
             callAs("newCallIn", "torgen", {
               target: id,
-              callin_type: "expected callback",
+              callin_type: "expected callback"
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with backsolve", () =>
@@ -682,9 +682,9 @@ describe("newCallIn", function () {
               target: id,
               answer: "precipitate",
               callin_type: "expected callback",
-              backsolve: true,
+              backsolve: true
             }),
-          Match.Error,
+          Match.Error
         ));
 
       it("fails with provided", () =>
@@ -694,9 +694,9 @@ describe("newCallIn", function () {
               target: id,
               answer: "precipitate",
               callin_type: "expected callback",
-              provided: true,
+              provided: true
             }),
-          Match.Error,
+          Match.Error
         ));
 
       describe("with valid parameters", function () {
@@ -704,8 +704,8 @@ describe("newCallIn", function () {
           callAs("newCallIn", "torgen", {
             target: id,
             answer: "pay the cat tax",
-            callin_type: "expected callback",
-          }),
+            callin_type: "expected callback"
+          })
         );
 
         it("creates document", function () {
@@ -718,21 +718,21 @@ describe("newCallIn", function () {
             callin_type: "expected callback",
             who: "torgen",
             submitted_to_hq: false,
-            status: "pending",
+            status: "pending"
           });
         });
 
         it("oplogs", function () {
           const o = Messages.find({
             room_name: "oplog/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
             id,
             stream: "callins",
-            nick: "torgen",
+            nick: "torgen"
           });
           // oplog is lowercase
           chai.assert.include(o[0].body, "pay the cat tax", "message");
@@ -741,12 +741,12 @@ describe("newCallIn", function () {
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${id}`,
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, '"PAY THE CAT TAX"', "message");
           chai.assert.include(o[0].body, "expects HQ to call back", "message");
@@ -756,12 +756,12 @@ describe("newCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, '"PAY THE CAT TAX"', "message");
           chai.assert.include(o[0].body, "expects HQ to call back", "message");

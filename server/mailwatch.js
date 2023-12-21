@@ -58,11 +58,11 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
     mailbox: watch.mailbox,
     markSeen: watch.markSeen,
     fetchUnreadOnStart: false,
-    attachments: false,
+    attachments: false
   });
 
   mailListener.on("server:connected", () =>
-    console.log("Watching for mail to", watch.username),
+    console.log("Watching for mail to", watch.username)
   );
   mailListener.on("error", (err) => console.error("IMAP error", err));
 
@@ -73,7 +73,7 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
       console.log(sender);
       const mail_field = {
         from_address: sender.address,
-        subject: mail.subject,
+        subject: mail.subject
       };
       if (sender.name != null) {
         mail_field.from_name = sender.name;
@@ -88,10 +88,10 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
         bot_ignore: true,
         mail: {
           sender_name: sender.name ?? "",
-          subject: mail.subject,
-        },
+          subject: mail.subject
+        }
       });
-    }),
+    })
   );
 
   Meteor.startup(() => mailListener.start());

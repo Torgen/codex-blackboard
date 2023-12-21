@@ -3,7 +3,7 @@ import {
   rejoin,
   strip,
   thingRE,
-  objectFromRoom,
+  objectFromRoom
 } from "../imports/botutil.js";
 import { callAs, impersonating } from "../imports/impersonate.js";
 import { all_settings } from "/lib/imports/settings.js";
@@ -17,7 +17,7 @@ export default scripts.codex = function (robot) {
   function targetByName(msg, name, who) {
     const target = callAs("getByName", who, {
       name,
-      optional_type: "puzzles",
+      optional_type: "puzzles"
     });
     if (!target) {
       msg.reply({ useful: true }, `I can't find a puzzle called "${name}".`);
@@ -29,7 +29,7 @@ export default scripts.codex = function (robot) {
 
   // setAnswer
   robot.commands.push(
-    "bot the answer to <puzzle> is <answer> - Updates codex blackboard",
+    "bot the answer to <puzzle> is <answer> - Updates codex blackboard"
   );
   robot.respond(
     rejoin(/The answer to /, thingRE, /\ is /, thingRE, /$/i),
@@ -44,7 +44,7 @@ export default scripts.codex = function (robot) {
       const res = callAs("setAnswer", who, {
         type: target.type,
         target: target.object._id,
-        answer,
+        answer
       });
       if (!res) {
         msg.reply(
@@ -54,8 +54,8 @@ export default scripts.codex = function (robot) {
             "Not news to me.",
             "Already known.",
             "It is known.",
-            "So say we all.",
-          ]),
+            "So say we all."
+          ])
         );
         return;
       }
@@ -68,11 +68,11 @@ export default scripts.codex = function (robot) {
         `${answer}?  Really?  Whoa.`,
         "Rock on!",
         `${target.object.name} bites the dust!`,
-        `${target.object.name}, meet ${answer}.  We rock!`,
+        `${target.object.name}, meet ${answer}.  We rock!`
       ];
       msg.reply({ useful: true }, msg.random(solution_banter));
       msg.finish();
-    },
+    }
   );
 
   function newCallIn(msg, name, prefix, params) {
@@ -92,20 +92,20 @@ export default scripts.codex = function (robot) {
     callAs("newCallIn", who, {
       target_type: target.type,
       target: target.object._id,
-      ...params,
+      ...params
     });
     // I don't mind a little redundancy, but if it bothers you uncomment this:
     //suppressRoom: msg.envelope.room
     msg.reply(
       { useful: true },
-      `Okay, ${prefix}"${params.answer}" for ${target.object.name} added to call-in list!`,
+      `Okay, ${prefix}"${params.answer}" for ${target.object.name} added to call-in list!`
     );
     msg.finish();
   }
 
   // newCallIn
   robot.commands.push(
-    "bot call in <answer> [for <puzzle>] - Updates codex blackboard",
+    "bot call in <answer> [for <puzzle>] - Updates codex blackboard"
   );
   robot.respond(
     rejoin(
@@ -115,7 +115,7 @@ export default scripts.codex = function (robot) {
       /\ for /,
       thingRE,
       ")?",
-      /$/i,
+      /$/i
     ),
     function (msg) {
       const backsolve = /backsolve/.test(msg.match[1]);
@@ -125,19 +125,19 @@ export default scripts.codex = function (robot) {
       newCallIn(msg, name, "", {
         answer,
         backsolve,
-        provided,
+        provided
       });
-    },
+    }
   );
 
   robot.commands.push(
-    "bot request interaction <answer> [for <puzzle>] - Updates codex blackboard",
+    "bot request interaction <answer> [for <puzzle>] - Updates codex blackboard"
   );
   robot.commands.push(
-    "bot tell hq <message> [for <puzzle>] - Updates codex blackboard",
+    "bot tell hq <message> [for <puzzle>] - Updates codex blackboard"
   );
   robot.commands.push(
-    "bot expect callback <message> [for <puzzle>] - Updates codex blackboard",
+    "bot expect callback <message> [for <puzzle>] - Updates codex blackboard"
   );
   robot.respond(
     rejoin(
@@ -147,26 +147,26 @@ export default scripts.codex = function (robot) {
       /\ for /,
       thingRE,
       ")?",
-      /$/i,
+      /$/i
     ),
     function (msg) {
       const callin_type = {
         request_interaction: callin_types.INTERACTION_REQUEST,
         tell_hq: callin_types.MESSAGE_TO_HQ,
-        expect_callback: callin_types.EXPECTED_CALLBACK,
+        expect_callback: callin_types.EXPECTED_CALLBACK
       }[canonical(msg.match[1])];
       const answer = strip(msg.match[2]);
       const name = msg.match[3] != null ? strip(msg.match[3]) : undefined;
       newCallIn(msg, name, `${callin_type} `, {
         answer,
-        callin_type,
+        callin_type
       });
-    },
+    }
   );
 
   // deleteAnswer
   robot.commands.push(
-    "bot delete the answer to <puzzle> - Updates codex blackboard",
+    "bot delete the answer to <puzzle> - Updates codex blackboard"
   );
   robot.respond(
     rejoin(/Delete( the)? answer (to|for)( puzzle)? /, thingRE, /$/i),
@@ -179,21 +179,21 @@ export default scripts.codex = function (robot) {
       }
       callAs("deleteAnswer", who, {
         type: target.type,
-        target: target.object._id,
+        target: target.object._id
       });
       msg.reply(
         { useful: true },
-        `Okay, I deleted the answer to "${target.object.name}".`,
+        `Okay, I deleted the answer to "${target.object.name}".`
       );
       msg.finish();
-    },
+    }
   );
 
   //# PUZZLES
 
   // newPuzzle
   robot.commands.push(
-    "bot <puzzle> is a new [meta]puzzle in <round/meta> [with link <url>]- Updates codex blackboard",
+    "bot <puzzle> is a new [meta]puzzle in <round/meta> [with link <url>]- Updates codex blackboard"
   );
   robot.respond(
     rejoin(
@@ -204,7 +204,7 @@ export default scripts.codex = function (robot) {
       / with (?:url|link) /,
       thingRE,
       ")?",
-      /$/i,
+      /$/i
     ),
     function (msg) {
       let puzz_url, puzzle;
@@ -228,7 +228,7 @@ export default scripts.codex = function (robot) {
         }
         round = callAs("getByName", who, {
           name: rname,
-          optional_type: tname,
+          optional_type: tname
         });
         if (!round) {
           const descriptor = tname
@@ -236,7 +236,7 @@ export default scripts.codex = function (robot) {
             : "anything";
           msg.reply(
             { useful: true },
-            `I can't find ${descriptor} called "${rname}".`,
+            `I can't find ${descriptor} called "${rname}".`
           );
           msg.finish();
           return;
@@ -256,8 +256,8 @@ export default scripts.codex = function (robot) {
         msg.reply(
           { useful: true },
           `A new puzzle can't be created in "${rname}" because it's a ${pretty_collection(
-            round.type,
-          )}.`,
+            round.type
+          )}.`
         );
         msg.finish();
         return;
@@ -271,22 +271,22 @@ export default scripts.codex = function (robot) {
         if (isDuplicateError(error)) {
           const existing = callAs("getByName", who, {
             name: pname,
-            type: "puzzles",
+            type: "puzzles"
           });
           puzz_url = Meteor._relativeToSiteRootUrl(
-            `/puzzles/${existing.object._id}`,
+            `/puzzles/${existing.object._id}`
           );
           msg.reply(
             { useful: true, bodyIsHtml: true },
             `There's already <a href='${UI._escape(
-              puzz_url,
-            )}'>a puzzle named ${UI._escape(existing.object.name)}</a>.`,
+              puzz_url
+            )}'>a puzzle named ${UI._escape(existing.object.name)}</a>.`
           );
         } else {
           console.log(error);
           msg.reply(
             { useful: true },
-            "There was an error creating that puzzle.",
+            "There was an error creating that puzzle."
           );
         }
         msg.finish();
@@ -294,18 +294,18 @@ export default scripts.codex = function (robot) {
       }
       puzz_url = Meteor._relativeToSiteRootUrl(`/puzzles/${puzzle._id}`);
       const parent_url = Meteor._relativeToSiteRootUrl(
-        `/${round.type}/${round.object._id}`,
+        `/${round.type}/${round.object._id}`
       );
       msg.reply(
         { useful: true, bodyIsHtml: true },
         `Okay, I added <a href='${UI._escape(puzz_url)}'>${UI._escape(
-          puzzle.name,
+          puzzle.name
         )}</a> to <a class='${round.type}-link' href='${UI._escape(
-          parent_url,
-        )}'>${UI._escape(round.object.name)}</a>.`,
+          parent_url
+        )}'>${UI._escape(round.object.name)}</a>.`
       );
       msg.finish();
-    },
+    }
   );
 
   // deletePuzzle
@@ -330,7 +330,7 @@ export default scripts.codex = function (robot) {
 
   // newRound
   robot.commands.push(
-    "bot <round> is a new round [with link <url>] - Updates codex blackboard",
+    "bot <round> is a new round [with link <url>] - Updates codex blackboard"
   );
   robot.respond(
     rejoin(
@@ -340,7 +340,7 @@ export default scripts.codex = function (robot) {
       / with (?:url|link) /,
       thingRE,
       ")?",
-      /$/i,
+      /$/i
     ),
     function (msg) {
       let round, round_url;
@@ -357,22 +357,22 @@ export default scripts.codex = function (robot) {
         if (isDuplicateError(error)) {
           const existing = callAs("getByName", who, {
             name: rname,
-            type: "rounds",
+            type: "rounds"
           });
           round_url = Meteor._relativeToSiteRootUrl(
-            `/rounds/${existing.object._id}`,
+            `/rounds/${existing.object._id}`
           );
           msg.reply(
             { useful: true, bodyIsHtml: true },
             `There's already <a href='${UI._escape(
-              round_url,
-            )}'>a round named ${UI._escape(existing.object.name)}</a>.`,
+              round_url
+            )}'>a round named ${UI._escape(existing.object.name)}</a>.`
           );
         } else {
           console.log(error);
           msg.reply(
             { useful: true },
-            "There was an error creating that puzzle.",
+            "There was an error creating that puzzle."
           );
         }
         msg.finish();
@@ -382,11 +382,11 @@ export default scripts.codex = function (robot) {
       msg.reply(
         { useful: true, bodyIsHtml: true },
         `Okay, I created round <a href='${UI._escape(round_url)}'>${UI._escape(
-          rname,
-        )}</a>.`,
+          rname
+        )}</a>.`
       );
       msg.finish();
-    },
+    }
   );
 
   // deleteRound
@@ -396,7 +396,7 @@ export default scripts.codex = function (robot) {
     const who = msg.envelope.user.id;
     const round = callAs("getByName", who, {
       name: rname,
-      optional_type: "rounds",
+      optional_type: "rounds"
     });
     if (!round) {
       msg.reply({ useful: true }, `I can't find a round called "${rname}".`);
@@ -406,13 +406,13 @@ export default scripts.codex = function (robot) {
     if (!res) {
       msg.reply(
         { useful: true },
-        "Couldn't delete round. (Are there still puzzles in it?)",
+        "Couldn't delete round. (Are there still puzzles in it?)"
       );
       return;
     }
     msg.reply(
       { useful: true },
-      `Okay, I deleted round "${round.object.name}".`,
+      `Okay, I deleted round "${round.object.name}".`
     );
     msg.finish();
   });
@@ -430,12 +430,12 @@ export default scripts.codex = function (robot) {
           : undefined;
       target = callAs("getByName", msg.envelope.user.id, {
         name: strip(msg.match[4]),
-        optional_type: type,
+        optional_type: type
       });
       if (target == null) {
         msg.reply(
           { useful: true },
-          `I can't find ${descriptor} called "${strip(msg.match[4])}".`,
+          `I can't find ${descriptor} called "${strip(msg.match[4])}".`
         );
         msg.finish();
         return;
@@ -448,7 +448,7 @@ export default scripts.codex = function (robot) {
 
   // Tags
   robot.commands.push(
-    "bot set <tag> [of <puzzle|round>] to <value> - Adds additional information to blackboard",
+    "bot set <tag> [of <puzzle|round>] to <value> - Adds additional information to blackboard"
   );
   robot.respond(
     rejoin(
@@ -459,7 +459,7 @@ export default scripts.codex = function (robot) {
       thingRE,
       ")? to ",
       thingRE,
-      /$/i,
+      /$/i
     ),
     function (msg) {
       const tag_name = strip(msg.match[1]);
@@ -472,18 +472,18 @@ export default scripts.codex = function (robot) {
         type: target.type,
         object: target.object._id,
         name: tag_name,
-        value: tag_value,
+        value: tag_value
       });
       msg.reply(
         { useful: true },
-        `The ${tag_name} for ${target.object.name} is now "${tag_value}".`,
+        `The ${tag_name} for ${target.object.name} is now "${tag_value}".`
       );
       msg.finish();
-    },
+    }
   );
 
   robot.commands.push(
-    "bot unset <tag> [of <puzzle|round>] - Removes information from blackboard",
+    "bot unset <tag> [of <puzzle|round>] - Removes information from blackboard"
   );
   robot.respond(
     rejoin(
@@ -493,7 +493,7 @@ export default scripts.codex = function (robot) {
       /\ (?:of|for) (?:(puzzle|round) )?/,
       thingRE,
       ")?",
-      /$/i,
+      /$/i
     ),
     function (msg) {
       const tag_name = strip(msg.match[1]);
@@ -504,21 +504,21 @@ export default scripts.codex = function (robot) {
       const res = callAs("deleteTag", msg.envelope.user.id, {
         type: target.type,
         object: target.object._id,
-        name: tag_name,
+        name: tag_name
       });
       if (res) {
         msg.reply(
           { useful: true },
-          `The ${tag_name} for ${target.object.name} is now unset.`,
+          `The ${tag_name} for ${target.object.name} is now unset.`
         );
       } else {
         msg.reply(
           { useful: true },
-          `${target.object.name} didn't have ${tag_name} set!`,
+          `${target.object.name} didn't have ${tag_name} set!`
         );
       }
       msg.finish();
-    },
+    }
   );
 
   function modifyStuckStatus(messageForOtherRoom, fn) {
@@ -528,12 +528,12 @@ export default scripts.codex = function (robot) {
       if (msg.match[1] != null) {
         target = callAs("getByName", who, {
           name: msg.match[1],
-          optional_type: "puzzles",
+          optional_type: "puzzles"
         });
         if (target == null) {
           msg.reply(
             { useful: true },
-            `I don't know what "${msg.match[1]}" is.`,
+            `I don't know what "${msg.match[1]}" is.`
           );
           msg.finish();
           return;
@@ -567,23 +567,23 @@ export default scripts.codex = function (robot) {
 
   // Stuck
   robot.commands.push(
-    "bot stuck[ on <puzzle>][ because <reason>] - summons help and marks puzzle as stuck on the blackboard",
+    "bot stuck[ on <puzzle>][ because <reason>] - summons help and marks puzzle as stuck on the blackboard"
   );
   robot.respond(
     rejoin("stuck(?: on ", thingRE, ")?(?: because ", thingRE, ")?", /$/i),
     modifyStuckStatus("Help is on the way.", (who, object, how) =>
-      callAs("summon", who, { object, how }),
-    ),
+      callAs("summon", who, { object, how })
+    )
   );
 
   robot.commands.push(
-    "but unstuck[ on <puzzle>] - marks puzzle no longer stuck on the blackboard",
+    "but unstuck[ on <puzzle>] - marks puzzle no longer stuck on the blackboard"
   );
   robot.respond(
     rejoin("unstuck(?: on ", thingRE, ")?", /$/i),
     modifyStuckStatus("Call for help cancelled", (who, object) =>
-      callAs("unsummon", who, { object }),
-    ),
+      callAs("unsummon", who, { object })
+    )
   );
 
   const wordOrQuote = /([^\"\'\s]+|\"[^\"]+\"|\'[^\']+\')/;
@@ -608,10 +608,10 @@ export default scripts.codex = function (robot) {
         msg.envelope.user.id,
         msg.envelope.room,
         strip(msg.match[1]),
-        opts,
+        opts
       );
       msg.finish();
-    },
+    }
   );
 
   robot.commands.push("bot global list - lists dynamic settings");
@@ -622,14 +622,14 @@ export default scripts.codex = function (robot) {
         { useful: true },
         `${setting.name}: ${
           setting.description
-        }\nCurrent: '${setting.get()}' Default: '${setting.default}'`,
+        }\nCurrent: '${setting.get()}' Default: '${setting.default}'`
       );
     }
     msg.finish();
   });
 
   robot.commands.push(
-    "bot global set <setting> to <value> - changes a dynamic setting",
+    "bot global set <setting> to <value> - changes a dynamic setting"
   );
   return robot.respond(
     rejoin(/global set /, thingRE, / to /, thingRE, /$/i),
@@ -640,7 +640,7 @@ export default scripts.codex = function (robot) {
       if (setting == null) {
         msg.reply(
           { useful: true },
-          `Sorry, I don't know the setting '${setting_name}'.`,
+          `Sorry, I don't know the setting '${setting_name}'.`
         );
         return;
       }
@@ -650,6 +650,6 @@ export default scripts.codex = function (robot) {
       } catch (error) {
         msg.reply({ useful: true }, `Sorry, there was an error: ${error}`);
       }
-    },
+    }
   );
 };

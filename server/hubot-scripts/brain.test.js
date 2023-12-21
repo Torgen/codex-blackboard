@@ -14,7 +14,7 @@ describe("brain hubot script", function () {
     resetDatabase();
     clock = sinon.useFakeTimers({
       now: 7,
-      toFake: ["Date", "setInterval", "clearInterval"],
+      toFake: ["Date", "setInterval", "clearInterval"]
     });
     // can't use plain hubot because this script uses priv, which isn't part of
     // the standard message class or adapter.
@@ -31,21 +31,21 @@ describe("brain hubot script", function () {
       _id: "ambushes",
       value: {
         torgen: ["hi"],
-        cjb: ["yo", "wazzup?"],
-      },
+        cjb: ["yo", "wazzup?"]
+      }
     });
     brain.insert({
       _id: "drinks",
-      value: 3,
+      value: 3
     });
     script(robot);
     robot.run();
     chai.assert.deepInclude(robot.brain.data, {
       ambushes: {
         torgen: ["hi"],
-        cjb: ["yo", "wazzup?"],
+        cjb: ["yo", "wazzup?"]
       },
-      drinks: 3,
+      drinks: 3
     });
   });
 
@@ -54,7 +54,7 @@ describe("brain hubot script", function () {
     robot.run();
     robot.brain.data.ambushes = {
       torgen: ["hi"],
-      cjb: ["yo", "wazzup?"],
+      cjb: ["yo", "wazzup?"]
     };
     robot.brain.data.drinks = 3;
     clock.tick(5000);
@@ -64,9 +64,9 @@ describe("brain hubot script", function () {
       {
         value: {
           torgen: ["hi"],
-          cjb: ["yo", "wazzup?"],
-        },
-      },
+          cjb: ["yo", "wazzup?"]
+        }
+      }
     );
     const drinks = waitForDocument(brain, { _id: "drinks" }, { value: 3 });
     return Promise.all([ambushes, drinks]);
@@ -74,7 +74,7 @@ describe("brain hubot script", function () {
 
   it("syncs users", async function () {
     Meteor.users.insert({
-      _id: "torgen",
+      _id: "torgen"
     });
     script(robot);
     robot.run();
@@ -85,7 +85,7 @@ describe("brain hubot script", function () {
     Meteor.users.update("torgen", { $set: { real_name: "Dan Rosart" } });
     await delay(200);
     chai.assert.deepInclude(robot.brain.data.users.torgen, {
-      name: "Dan Rosart",
+      name: "Dan Rosart"
     });
   });
 });

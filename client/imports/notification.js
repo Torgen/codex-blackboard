@@ -18,7 +18,7 @@ const notificationDefaults = {
   "new-puzzles": false,
   stuck: false,
   "favorite-mechanics": true,
-  "private-messages": true,
+  "private-messages": true
 };
 
 export var streams = [
@@ -28,7 +28,7 @@ export var streams = [
   { name: "answers", label: "Answers" },
   { name: "stuck", label: "Stuck Puzzles" },
   { name: "favorite-mechanics", label: "Favorite Mechanics" },
-  { name: "private-messages", label: "Private Messages/Mentions" },
+  { name: "private-messages", label: "Private Messages/Mentions" }
 ];
 
 const countDependency = new Tracker.Dependency();

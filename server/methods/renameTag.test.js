@@ -13,8 +13,8 @@ describe("renameTag", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -37,9 +37,9 @@ describe("renameTag", function () {
           name: "Warmth",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
-        },
-      },
+          touched: 3
+        }
+      }
     });
     chai.assert.throws(
       () =>
@@ -47,9 +47,9 @@ describe("renameTag", function () {
           type: "puzzles",
           object: id,
           old_name: "warmth",
-          new_name: "temperature",
+          new_name: "temperature"
         }),
-      Match.Error,
+      Match.Error
     );
   });
 
@@ -69,15 +69,15 @@ describe("renameTag", function () {
           name: "Warmth",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
-        },
-      },
+          touched: 3
+        }
+      }
     });
     callAs("renameTag", "torgen", {
       type: "puzzles",
       object: id,
       old_name: "warMth",
-      new_name: "Temperature",
+      new_name: "Temperature"
     });
 
     const post = Puzzles.findOne(id);
@@ -92,9 +92,9 @@ describe("renameTag", function () {
           name: "Temperature",
           value: "bar",
           touched: 7,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
   });
 
@@ -114,15 +114,15 @@ describe("renameTag", function () {
           name: "Warmth",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
-        },
-      },
+          touched: 3
+        }
+      }
     });
     callAs("renameTag", "torgen", {
       type: "puzzles",
       object: id,
       old_name: "warmth",
-      new_name: "warMth",
+      new_name: "warMth"
     });
 
     const post = Puzzles.findOne(id);
@@ -137,9 +137,9 @@ describe("renameTag", function () {
           name: "warMth",
           value: "bar",
           touched: 7,
-          touched_by: "torgen",
-        },
-      },
+          touched_by: "torgen"
+        }
+      }
     });
   });
 
@@ -159,9 +159,9 @@ describe("renameTag", function () {
           name: "Warmth",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
-        },
-      },
+          touched: 3
+        }
+      }
     });
     chai.assert.throws(
       () =>
@@ -169,9 +169,9 @@ describe("renameTag", function () {
           type: "puzzles",
           object: id,
           old_name: "heat",
-          new_name: "Temperature",
+          new_name: "Temperature"
         }),
-      Meteor.Error,
+      Meteor.Error
     );
   });
 
@@ -191,15 +191,15 @@ describe("renameTag", function () {
           name: "Warmth",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
+          touched: 3
         },
         temperature: {
           name: "Temperature",
           value: "4degC",
           touched_by: "cscott",
-          touched: 3,
-        },
-      },
+          touched: 3
+        }
+      }
     });
     chai.assert.throws(
       () =>
@@ -207,9 +207,9 @@ describe("renameTag", function () {
           type: "puzzles",
           object: id,
           old_name: "warmth",
-          new_name: "Temperature",
+          new_name: "Temperature"
         }),
-      Meteor.Error,
+      Meteor.Error
     );
   });
 
@@ -229,9 +229,9 @@ describe("renameTag", function () {
           name: "Warmth",
           value: "bar",
           touched_by: "cscott",
-          touched: 3,
-        },
-      },
+          touched: 3
+        }
+      }
     });
     chai.assert.throws(
       () =>
@@ -239,9 +239,9 @@ describe("renameTag", function () {
           type: "puzzles",
           object: id,
           old_name: "warmth",
-          new_name: "Link",
+          new_name: "Link"
         }),
-      Match.Error,
+      Match.Error
     );
   });
 });

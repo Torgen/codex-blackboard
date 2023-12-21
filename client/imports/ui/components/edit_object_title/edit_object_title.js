@@ -10,10 +10,10 @@ editableTemplate(Template.edit_object_title, {
     if (val !== collection(tem.data.type).findOne(tem.data.id).name) {
       Meteor.call(`rename${type}`, {
         id: tem.data.id,
-        name: val,
+        name: val
       });
     }
-  },
+  }
 });
 
 Template.edit_object_title.onCreated(function () {
@@ -23,7 +23,7 @@ Template.edit_object_title.onCreated(function () {
 Template.edit_object_title.events({
   "input/focus input"(event, template) {
     template.value.set(event.currentTarget.value);
-  },
+  }
 });
 
 Template.edit_object_title.helpers({
@@ -62,5 +62,5 @@ Template.edit_object_title.helpers({
     if (collection(this.type).findOne({ canon: cval }) != null) {
       return `Conflicts with another ${pretty_collection(this.type)}`;
     }
-  },
+  }
 });

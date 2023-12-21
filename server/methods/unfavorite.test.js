@@ -12,8 +12,8 @@ describe("unfavorite", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -49,8 +49,8 @@ describe("unfavorite", function () {
           drive: "fid",
           spreadsheet: "sid",
           doc: "did",
-          tags: {},
-        })),
+          tags: {}
+        }))
     );
 
     it("fails without login", () =>
@@ -88,14 +88,14 @@ describe("unfavorite", function () {
           solved_by: null,
           favorites: {
             torgen: true,
-            cscott: true,
+            cscott: true
           },
           link: "https://puzzlehunt.mit.edu/foo",
           drive: "fid",
           spreadsheet: "sid",
           doc: "did",
-          tags: {},
-        })),
+          tags: {}
+        }))
     );
 
     it("fails without login", () =>
@@ -110,7 +110,7 @@ describe("unfavorite", function () {
       it("leaves favorites unchanged", () =>
         chai.assert.deepEqual(Puzzles.findOne(id).favorites, {
           torgen: true,
-          cscott: true,
+          cscott: true
         }));
 
       it("does not touch", function () {
@@ -136,14 +136,14 @@ describe("unfavorite", function () {
           solved_by: null,
           favorites: {
             torgen: true,
-            cjb: true,
+            cjb: true
           },
           link: "https://puzzlehunt.mit.edu/foo",
           drive: "fid",
           spreadsheet: "sid",
           doc: "did",
-          tags: {},
-        })),
+          tags: {}
+        }))
     );
 
     it("fails without login", () =>

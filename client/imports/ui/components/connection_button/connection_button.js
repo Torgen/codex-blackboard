@@ -1,7 +1,7 @@
 import "./connection_button.html";
 
 Template.connection_button.helpers({
-  connectStatus: Meteor.status,
+  connectStatus: Meteor.status
 });
 
 Template.connection_button.events({
@@ -10,5 +10,5 @@ Template.connection_button.events({
   },
   "click .failed, click .offline"(event, template) {
     Meteor.reconnect();
-  },
+  }
 });

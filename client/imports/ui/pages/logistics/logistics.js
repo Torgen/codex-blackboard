@@ -6,7 +6,7 @@ import {
   CalendarEvents,
   CallIns,
   Puzzles,
-  Rounds,
+  Rounds
 } from "/lib/imports/collections.js";
 import { confirm } from "/client/imports/modal.js";
 import { findByChannel } from "/client/imports/presence_index.js";
@@ -21,7 +21,7 @@ function nameAndUrlFromDroppedLink(dataTransfer) {
   if (dataTransfer.types.includes("text/html")) {
     const doc = new DOMParser().parseFromString(
       dataTransfer.getData("text/html"),
-      "text/html",
+      "text/html"
     );
     name = doc.body.innerText.trim();
   } else {
@@ -70,7 +70,7 @@ Template.logistics.onRendered(function () {
 Template.logistics_round_menu.helpers({
   rounds() {
     return Rounds.find({}, { sort: { sort_key: 1 } });
-  },
+  }
 });
 
 Template.logistics.helpers({
@@ -115,7 +115,7 @@ Template.logistics.helpers({
         const wasStillCreating = instance.creatingRound.get();
         instance.creatingRound.set(0);
         return wasStillCreating === 2;
-      },
+      }
     };
   },
   creatingMeta() {
@@ -128,7 +128,7 @@ Template.logistics.helpers({
         const wasStillCreating = instance.creatingMeta.get();
         instance.creatingMeta.set(null);
         return wasStillCreating != null;
-      },
+      }
     };
   },
   creatingStandalone() {
@@ -141,7 +141,7 @@ Template.logistics.helpers({
         const wasStillCreating = instance.creatingPuzzle.get();
         instance.creatingPuzzle.set(null);
         return wasStillCreating != null;
-      },
+      }
     };
   },
   unfeeding() {
@@ -167,7 +167,7 @@ Template.logistics.helpers({
     if (p != null) {
       return colorFromThingWithTags(p);
     }
-  },
+  }
 });
 
 function allowDropUriList(event, template) {
@@ -213,7 +213,7 @@ function droppingLink(event, fn) {
   if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
     event.preventDefault();
     const { name, url } = nameAndUrlFromDroppedLink(
-      event.originalEvent.dataTransfer,
+      event.originalEvent.dataTransfer
     );
     fn(name, url);
   }
@@ -229,10 +229,10 @@ function makePuzzleOnDrop(targetId, puzzleParams) {
           name,
           link,
           round: this._id,
-          ...puzzleParams,
+          ...puzzleParams
         });
       });
-    },
+    }
   });
 }
 makePuzzleOnDrop("bb-logistics-new-standalone", {});
@@ -262,14 +262,14 @@ Template.logistics.events({
     draggedPuzzle.set(data);
     event.originalEvent.dataTransfer.setData(
       PUZZLE_MIME_TYPE,
-      JSON.stringify(data),
+      JSON.stringify(data)
     );
     event.originalEvent.dataTransfer.effectAllowed = "all";
   },
   "dragstart .bb-calendar-event"(event, template) {
     event.originalEvent.dataTransfer.setData(
       CALENDAR_EVENT_MIME_TYPE,
-      this.event._id,
+      this.event._id
     );
     event.originalEvent.dataTransfer.effectAllowed = "link";
   },
@@ -339,7 +339,7 @@ Template.logistics.events({
     event.preventDefault();
     event.stopPropagation();
     const data = JSON.parse(
-      event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE),
+      event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE)
     );
     if (data.meta != null) {
       Meteor.call("unfeedMeta", data.id, data.meta);
@@ -354,7 +354,7 @@ Template.logistics.events({
   },
   "drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone"(
     event,
-    template,
+    template
   ) {
     lastEnter = null;
     event.currentTarget.classList.remove("dragover");
@@ -366,7 +366,7 @@ Template.logistics.events({
       event.preventDefault();
       event.stopPropagation();
       const data = JSON.parse(
-        event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE),
+        event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE)
       );
       const puzzle = Puzzles.findOne({ _id: data.id });
       if (puzzle != null) {
@@ -374,7 +374,7 @@ Template.logistics.events({
           await confirm({
             ok_button: "Yes, delete it",
             no_button: "No, cancel",
-            message: `Are you sure you want to delete the puzzle \"${puzzle.name}\"?`,
+            message: `Are you sure you want to delete the puzzle \"${puzzle.name}\"?`
           })
         ) {
           Meteor.call("deletePuzzle", puzzle._id);
@@ -385,7 +385,7 @@ Template.logistics.events({
   "hidden #bb-logistics-edit-dialog"(event, template) {
     editingPuzzle.set(null);
     $(document).off("keydown.dismiss-edit-dialog");
-  },
+  }
 });
 
 Template.logistics_puzzle.helpers({
@@ -414,7 +414,7 @@ Template.logistics_puzzle.helpers({
       draggedPuzzle.equals("targetMeta", localMeta._id) &&
       !this.feedsInto.includes(draggedPuzzle.get("targetMeta"))
     );
-  },
+  }
 });
 
 function editButton(event, puzzleId) {
@@ -447,13 +447,13 @@ Template.logistics_puzzle.events({
       event.originalEvent.dataTransfer.types.includes(CALENDAR_EVENT_MIME_TYPE)
     ) {
       const id = event.originalEvent.dataTransfer.getData(
-        CALENDAR_EVENT_MIME_TYPE,
+        CALENDAR_EVENT_MIME_TYPE
       );
       Meteor.call("setPuzzleForEvent", id, this._id);
       event.preventDefault();
       event.stopPropagation();
     }
-  },
+  }
 });
 
 Template.logistics_puzzle_events.helpers({
@@ -461,19 +461,19 @@ Template.logistics_puzzle_events.helpers({
     const now = Session.get("currentTime");
     return CalendarEvents.findOne(
       { puzzle: this._id, start: { $lt: now }, end: { $gt: now } },
-      { sort: { end: -1 } },
+      { sort: { end: -1 } }
     );
   },
   next_future_event() {
     const now = Session.get("currentTime");
     return CalendarEvents.findOne(
       { puzzle: this._id, start: { $gt: now } },
-      { sort: { start: 1 } },
+      { sort: { start: 1 } }
     );
   },
   no_events() {
     return CalendarEvents.find({ puzzle: this._id }).count() === 0;
-  },
+  }
 });
 
 Template.logistics_meta.onCreated(function () {
@@ -492,12 +492,12 @@ Template.logistics_meta.events({
     const data = {
       id: this._id,
       meta: template.data.meta._id,
-      targetMeta: template.data.meta._id,
+      targetMeta: template.data.meta._id
     };
     draggedPuzzle.set(data);
     event.originalEvent.dataTransfer.setData(
       PUZZLE_MIME_TYPE,
-      JSON.stringify(data),
+      JSON.stringify(data)
     );
     event.originalEvent.dataTransfer.effectAllowed = "all";
   },
@@ -506,7 +506,7 @@ Template.logistics_meta.events({
     draggedPuzzle.set(data);
     event.originalEvent.dataTransfer.setData(
       PUZZLE_MIME_TYPE,
-      JSON.stringify(data),
+      JSON.stringify(data)
     );
     event.originalEvent.dataTransfer.effectAllowed = "all";
   },
@@ -561,7 +561,7 @@ Template.logistics_meta.events({
       event.originalEvent.dataTransfer.types.includes(CALENDAR_EVENT_MIME_TYPE)
     ) {
       const id = event.originalEvent.dataTransfer.getData(
-        CALENDAR_EVENT_MIME_TYPE,
+        CALENDAR_EVENT_MIME_TYPE
       );
       Meteor.call("setPuzzleForEvent", id, this.meta._id);
       event.preventDefault();
@@ -574,7 +574,7 @@ Template.logistics_meta.events({
       event.preventDefault();
       event.stopPropagation();
       const data = JSON.parse(
-        event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE),
+        event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE)
       );
       if (data.meta === template.data.meta._id) {
         return;
@@ -586,11 +586,11 @@ Template.logistics_meta.events({
           name,
           link,
           feedsInto: [this.meta._id],
-          round: this.round._id,
+          round: this.round._id
         });
       });
     }
-  },
+  }
 });
 
 Template.logistics_meta.helpers({
@@ -604,7 +604,7 @@ Template.logistics_meta.helpers({
   feederParams() {
     return {
       round: this.round._id,
-      feedsInto: [this.meta._id],
+      feedsInto: [this.meta._id]
     };
   },
   creatingFeeder() {
@@ -620,7 +620,7 @@ Template.logistics_meta.helpers({
         const wasStillCreating = instance.creatingFeeder.get();
         instance.creatingFeeder.set(false);
         return wasStillCreating;
-      },
+      }
     };
   },
   willDelete() {
@@ -637,7 +637,7 @@ Template.logistics_meta.helpers({
   },
   draggedPuzzle() {
     return Puzzles.findOne({ _id: draggedPuzzle.get("id") });
-  },
+  }
 });
 
 Template.logistics_puzzle_presence.helpers({
@@ -645,9 +645,9 @@ Template.logistics_puzzle_presence.helpers({
     return findByChannel(
       `puzzles/${this._id}`,
       { [scope]: 1 },
-      { fields: { [scope]: 1 } },
+      { fields: { [scope]: 1 } }
     ).count();
-  },
+  }
 });
 
 Template.logistics_callins_table.helpers({
@@ -659,10 +659,10 @@ Template.logistics_callins_table.helpers({
         transform(c) {
           c.puzzle = c.target ? Puzzles.findOne({ _id: c.target }) : undefined;
           return c;
-        },
-      },
+        }
+      }
     );
-  },
+  }
 });
 
 Template.logistics_callin_row.onCreated(function () {
@@ -685,8 +685,8 @@ Template.logistics_callin_row.helpers({
       {
         sort: { resolved: -1 },
         limit: 1,
-        fields: { resolved: 1 },
-      },
+        fields: { resolved: 1 }
+      }
     )?.resolved;
   },
 
@@ -706,15 +706,15 @@ Template.logistics_callin_row.helpers({
           target_type: "puzzles",
           target: this.puzzle._id,
           status: "rejected",
-          answer: this.answer,
+          answer: this.answer
         },
-        { fields: {} },
+        { fields: {} }
       ) != null
     );
   },
   callinTypeIs(type) {
     return this.callin_type === type;
-  },
+  }
 });
 
 Template.logistics_callin_row.events({
@@ -725,10 +725,10 @@ Template.logistics_callin_row.events({
       object: this._id,
       fields: {
         submitted_to_hq: checked,
-        submitted_by: checked ? Meteor.userId() : null,
-      },
+        submitted_by: checked ? Meteor.userId() : null
+      }
     });
-  },
+  }
 });
 
 Template.logistics_topright_panel.onCreated(function () {
@@ -741,13 +741,13 @@ Template.logistics_topright_panel.helpers({
   },
   settings() {
     return Object.values(all_settings);
-  },
+  }
 });
 
 Template.logistics_topright_panel.events({
   "click .bb-logistics-dynamic-settings-header"(event, template) {
     template.settings_expanded.set(!template.settings_expanded.get());
-  },
+  }
 });
 
 Template.logistics_dynamic_setting.onCreated(function () {
@@ -785,8 +785,8 @@ Template.logistics_dynamic_setting.helpers({
   },
   settingEditClass: currentValueHelper("info", "success", () => "error"),
   settingEditStatus: currentValueHelper("unchanged", null, (error) =>
-    error.message.replaceAll("Match error: ", ""),
-  ),
+    error.message.replaceAll("Match error: ", "")
+  )
 });
 
 Template.logistics_dynamic_setting.events({
@@ -812,6 +812,6 @@ Template.logistics_dynamic_setting.events({
     cancel(event, template) {
       event.currentTarget.value = this.get();
       event.currentTarget.blur();
-    },
-  }),
+    }
+  })
 });

@@ -14,7 +14,7 @@ Meteor.methods({
       bot_ignore: Match.Optional(Boolean),
       on_behalf: Match.Optional(Boolean),
       header_ignore: Match.Optional(Boolean),
-      mention: Match.Optional([String]),
+      mention: Match.Optional([String])
     });
     let newMsg = { ...args, nick: this.userId };
     if (newMsg.body == null) {
@@ -29,9 +29,9 @@ Meteor.methods({
     if (!args.on_behalf) {
       Meteor.call("updateLastRead", {
         room_name: newMsg.room_name,
-        timestamp: newMsg.timestamp,
+        timestamp: newMsg.timestamp
       });
     }
     return newMsg;
-  },
+  }
 });

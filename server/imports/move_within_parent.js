@@ -9,12 +9,12 @@ export default function (id, parentType, parentId, args) {
       } else if (args.before != null) {
         return [
           { $all: [id, args.before] },
-          { $indexOfArray: ["$$npuzzles", args.before] },
+          { $indexOfArray: ["$$npuzzles", args.before] }
         ];
       } else if (args.after != null) {
         return [
           { $all: [id, args.after] },
-          { $add: [1, { $indexOfArray: ["$$npuzzles", args.after] }] },
+          { $add: [1, { $indexOfArray: ["$$npuzzles", args.after] }] }
         ];
       }
     })();
@@ -32,9 +32,9 @@ export default function (id, parentType, parentId, args) {
                     npuzzles: {
                       $filter: {
                         input: "$puzzles",
-                        cond: { $ne: ["$$this", id] },
-                      },
-                    },
+                        cond: { $ne: ["$$this", id] }
+                      }
+                    }
                   },
                   in: {
                     $let: {
@@ -45,8 +45,8 @@ export default function (id, parentType, parentId, args) {
                             $cond: [
                               { $eq: ["$$targetPosition", 0] },
                               [],
-                              { $slice: ["$$npuzzles", 0, "$$targetPosition"] },
-                            ],
+                              { $slice: ["$$npuzzles", 0, "$$targetPosition"] }
+                            ]
                           },
                           [id],
                           {
@@ -54,8 +54,8 @@ export default function (id, parentType, parentId, args) {
                               {
                                 $eq: [
                                   "$$targetPosition",
-                                  { $size: "$$npuzzles" },
-                                ],
+                                  { $size: "$$npuzzles" }
+                                ]
                               },
                               [],
                               {
@@ -65,22 +65,22 @@ export default function (id, parentType, parentId, args) {
                                   {
                                     $subtract: [
                                       { $size: "$$npuzzles" },
-                                      "$$targetPosition",
-                                    ],
-                                  },
-                                ],
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        ]),
+                                      "$$targetPosition"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ])
     );
     if (res.modifiedCount === 1) {
       // Because we're not using Meteor's wrapper, we have to do this manually so the updated document is delivered by the subscription before the method returns.

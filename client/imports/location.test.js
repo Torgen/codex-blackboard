@@ -3,17 +3,17 @@ import chai from "chai";
 
 const KRESGE = {
   type: "Point",
-  coordinates: [-71.0972017, 42.3581396],
+  coordinates: [-71.0972017, 42.3581396]
 };
 
 const NANO = {
   type: "Point",
-  coordinates: [-71.0925722, 42.3600819],
+  coordinates: [-71.0925722, 42.3600819]
 };
 
 const WATERLOO_MC = {
   type: "Point",
-  coordinates: [-80.5461258, 43.4721556],
+  coordinates: [-80.5461258, 43.4721556]
 };
 
 describe("distance", () =>

@@ -18,13 +18,13 @@ Template.onduty_control.helpers({
     const now = Session.get("currentTime");
     const onduty = Roles.findOne(
       { _id: "onduty" },
-      { fields: { renewed_at: 1, expires_at: 1 } },
+      { fields: { renewed_at: 1, expires_at: 1 } }
     );
     if (onduty == null) {
       return false;
     }
     return now > (onduty.renewed_at + onduty.expires_at) / 2;
-  },
+  }
 });
 
 Template.onduty_control.events({
@@ -38,5 +38,5 @@ Template.onduty_control.events({
   },
   'click [data-onduty="renew"]'(event, template) {
     Meteor.call("renewOnduty");
-  },
+  }
 });

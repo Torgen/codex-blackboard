@@ -15,8 +15,8 @@ describe("correctCallIn", function () {
     () =>
       (clock = sinon.useFakeTimers({
         now: 7,
-        toFake: ["Date"],
-      })),
+        toFake: ["Date"]
+      }))
   );
 
   afterEach(() => clock.restore());
@@ -41,7 +41,7 @@ describe("correctCallIn", function () {
         solved_by: null,
         confirmed_by: null,
         tags: {},
-        feedsInto: [],
+        feedsInto: []
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -54,27 +54,27 @@ describe("correctCallIn", function () {
         submitted_to_hq: true,
         backsolve: false,
         provided: false,
-        status: "pending",
+        status: "pending"
       });
       Roles.insert({
         _id: "onduty",
         holder: "cjb",
         claimed_at: 2,
         renewed_at: 2,
-        expires_at: 3600002,
+        expires_at: 3600002
       });
     });
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("correctCallIn", callin),
-        Match.Error,
+        Match.Error
       ));
 
     it("fails with response", () =>
       chai.assert.throws(
         () => callAs("correctCallIn", "cjb", callin, "close enough"),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", function () {
@@ -93,9 +93,9 @@ describe("correctCallIn", function () {
               name: "Answer",
               value: "precipitate",
               touched: 7,
-              touched_by: "cjb",
-            },
-          },
+              touched_by: "cjb"
+            }
+          }
         });
       });
 
@@ -103,21 +103,21 @@ describe("correctCallIn", function () {
         const c = CallIns.findOne(callin);
         chai.assert.include(c, {
           status: "accepted",
-          resolved: 7,
+          resolved: 7
         });
       });
 
       it("oplogs", function () {
         const o = Messages.find({
           room_name: "oplog/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           type: "puzzles",
           id: puzzle,
           stream: "answers",
-          nick: "cjb",
+          nick: "cjb"
         });
         chai.assert.include(o[0].body, "(PRECIPITATE)", "message");
       });
@@ -125,12 +125,12 @@ describe("correctCallIn", function () {
       it("notifies puzzle chat", function () {
         const o = Messages.find({
           room_name: `puzzles/${puzzle}`,
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           nick: "cjb",
-          action: true,
+          action: true
         });
         chai.assert.include(o[0].body, "PRECIPITATE", "message");
         chai.assert.notInclude(o[0].body, "(Foo)", "message");
@@ -139,12 +139,12 @@ describe("correctCallIn", function () {
       it("notifies general chat", function () {
         const o = Messages.find({
           room_name: "general/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           nick: "cjb",
-          action: true,
+          action: true
         });
         chai.assert.include(o[0].body, "PRECIPITATE", "message");
         chai.assert.include(o[0].body, "(Foo)", "message");
@@ -155,7 +155,7 @@ describe("correctCallIn", function () {
           holder: "cjb",
           claimed_at: 2,
           renewed_at: 7,
-          expires_at: 3600007,
+          expires_at: 3600007
         }));
     });
 
@@ -167,7 +167,7 @@ describe("correctCallIn", function () {
           holder: "cjb",
           claimed_at: 2,
           renewed_at: 2,
-          expires_at: 3600002,
+          expires_at: 3600002
         }));
     });
 
@@ -184,18 +184,18 @@ describe("correctCallIn", function () {
         confirmed_by: null,
         tags: {},
         feedsInto: [],
-        puzzles: [puzzle],
+        puzzles: [puzzle]
       });
       Puzzles.update(puzzle, { $push: { feedsInto: meta } });
       callAs("correctCallIn", "cjb", callin);
       const m = Messages.find({
         room_name: `puzzles/${meta}`,
-        dawn_of_time: { $ne: true },
+        dawn_of_time: { $ne: true }
       }).fetch();
       chai.assert.lengthOf(m, 1);
       chai.assert.include(m[0], {
         nick: "cjb",
-        action: true,
+        action: true
       });
       chai.assert.include(m[0].body, "PRECIPITATE");
       chai.assert.include(m[0].body, "(Foo)");
@@ -215,7 +215,7 @@ describe("correctCallIn", function () {
         solved_by: null,
         confirmed_by: null,
         tags: {},
-        feedsInto: [],
+        feedsInto: []
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -228,14 +228,14 @@ describe("correctCallIn", function () {
         submitted_to_hq: true,
         backsolve: false,
         provided: false,
-        status: "pending",
+        status: "pending"
       });
     });
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("correctCallIn", callin),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", () =>
@@ -250,7 +250,7 @@ describe("correctCallIn", function () {
             solved: null,
             solved_by: null,
             confirmed_by: null,
-            tags: {},
+            tags: {}
           });
         });
 
@@ -258,14 +258,14 @@ describe("correctCallIn", function () {
           const c = CallIns.findOne(callin);
           chai.assert.include(c, {
             status: "accepted",
-            resolved: 7,
+            resolved: 7
           });
         });
 
         it("does not oplog", function () {
           const o = Messages.find({
             room_name: "oplog/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 0);
         });
@@ -273,12 +273,12 @@ describe("correctCallIn", function () {
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${puzzle}`,
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, "ACCEPTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -288,12 +288,12 @@ describe("correctCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, '"precipitate"', "message");
           chai.assert.include(o[0].body, "(Foo)", "message");
@@ -306,8 +306,8 @@ describe("correctCallIn", function () {
           "correctCallIn",
           "cjb",
           callin,
-          "Make us some supersaturated Kool-Aid",
-        ),
+          "Make us some supersaturated Kool-Aid"
+        )
       );
 
       it("does not update puzzle", function () {
@@ -318,7 +318,7 @@ describe("correctCallIn", function () {
           solved: null,
           solved_by: null,
           confirmed_by: null,
-          tags: {},
+          tags: {}
         });
       });
 
@@ -327,14 +327,14 @@ describe("correctCallIn", function () {
         chai.assert.include(c, {
           status: "accepted",
           response: "Make us some supersaturated Kool-Aid",
-          resolved: 7,
+          resolved: 7
         });
       });
 
       it("does not oplog", function () {
         const o = Messages.find({
           room_name: "oplog/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 0);
       });
@@ -342,19 +342,19 @@ describe("correctCallIn", function () {
       it("notifies puzzle chat", function () {
         const o = Messages.find({
           room_name: `puzzles/${puzzle}`,
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           nick: "cjb",
-          action: true,
+          action: true
         });
         chai.assert.include(o[0].body, "ACCEPTED", "message");
         chai.assert.include(o[0].body, '"precipitate"', "message");
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message",
+          "message"
         );
         chai.assert.notInclude(o[0].body, "(Foo)", "message");
       });
@@ -362,18 +362,18 @@ describe("correctCallIn", function () {
       it("notifies general chat", function () {
         const o = Messages.find({
           room_name: "general/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           nick: "cjb",
-          action: true,
+          action: true
         });
         chai.assert.include(o[0].body, '"precipitate"', "message");
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message",
+          "message"
         );
         chai.assert.include(o[0].body, "(Foo)", "message");
       });
@@ -392,13 +392,13 @@ describe("correctCallIn", function () {
         confirmed_by: null,
         tags: {},
         feedsInto: [],
-        puzzles: [puzzle],
+        puzzles: [puzzle]
       });
       Puzzles.update(puzzle, { $push: { feedsInto: meta } });
       callAs("correctCallIn", "cjb", callin);
       const m = Messages.find({
         room_name: `puzzles/${meta}`,
-        dawn_of_time: { $ne: true },
+        dawn_of_time: { $ne: true }
       }).fetch();
       chai.assert.lengthOf(m, 0);
     });
@@ -417,7 +417,7 @@ describe("correctCallIn", function () {
         solved_by: null,
         confirmed_by: null,
         tags: {},
-        feedsInto: [],
+        feedsInto: []
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -429,14 +429,14 @@ describe("correctCallIn", function () {
         created_by: "torgen",
         submitted_to_hq: true,
         backsolve: false,
-        provided: false,
+        provided: false
       });
     });
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("correctCallIn", callin),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", () =>
@@ -451,7 +451,7 @@ describe("correctCallIn", function () {
             solved: null,
             solved_by: null,
             confirmed_by: null,
-            tags: {},
+            tags: {}
           });
         });
 
@@ -459,14 +459,14 @@ describe("correctCallIn", function () {
           const c = CallIns.findOne(callin);
           chai.assert.include(c, {
             status: "accepted",
-            resolved: 7,
+            resolved: 7
           });
         });
 
         it("does not oplog", function () {
           const o = Messages.find({
             room_name: "oplog/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 0);
         });
@@ -474,12 +474,12 @@ describe("correctCallIn", function () {
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${puzzle}`,
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, "ACCEPTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -489,12 +489,12 @@ describe("correctCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, '"precipitate"', "message");
           chai.assert.include(o[0].body, "(Foo)", "message");
@@ -507,8 +507,8 @@ describe("correctCallIn", function () {
           "correctCallIn",
           "cjb",
           callin,
-          "Make us some supersaturated Kool-Aid",
-        ),
+          "Make us some supersaturated Kool-Aid"
+        )
       );
 
       it("does not update puzzle", function () {
@@ -519,7 +519,7 @@ describe("correctCallIn", function () {
           solved: null,
           solved_by: null,
           confirmed_by: null,
-          tags: {},
+          tags: {}
         });
       });
 
@@ -528,14 +528,14 @@ describe("correctCallIn", function () {
         chai.assert.include(c, {
           status: "accepted",
           response: "Make us some supersaturated Kool-Aid",
-          resolved: 7,
+          resolved: 7
         });
       });
 
       it("does not oplog", function () {
         const o = Messages.find({
           room_name: "oplog/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 0);
       });
@@ -543,19 +543,19 @@ describe("correctCallIn", function () {
       it("notifies puzzle chat", function () {
         const o = Messages.find({
           room_name: `puzzles/${puzzle}`,
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           nick: "cjb",
-          action: true,
+          action: true
         });
         chai.assert.include(o[0].body, "ACCEPTED", "message");
         chai.assert.include(o[0].body, '"precipitate"', "message");
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message",
+          "message"
         );
         chai.assert.notInclude(o[0].body, "(Foo)", "message");
       });
@@ -563,18 +563,18 @@ describe("correctCallIn", function () {
       it("notifies general chat", function () {
         const o = Messages.find({
           room_name: "general/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           nick: "cjb",
-          action: true,
+          action: true
         });
         chai.assert.include(o[0].body, '"precipitate"', "message");
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message",
+          "message"
         );
         chai.assert.include(o[0].body, "(Foo)", "message");
       });
@@ -593,13 +593,13 @@ describe("correctCallIn", function () {
         confirmed_by: null,
         tags: {},
         feedsInto: [],
-        puzzles: [puzzle],
+        puzzles: [puzzle]
       });
       Puzzles.update(puzzle, { $push: { feedsInto: meta } });
       callAs("correctCallIn", "cjb", callin);
       const m = Messages.find({
         room_name: `puzzles/${meta}`,
-        dawn_of_time: { $ne: true },
+        dawn_of_time: { $ne: true }
       }).fetch();
       chai.assert.lengthOf(m, 0);
     });
@@ -618,7 +618,7 @@ describe("correctCallIn", function () {
         solved_by: null,
         confirmed_by: null,
         tags: {},
-        feedsInto: [],
+        feedsInto: []
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -630,14 +630,14 @@ describe("correctCallIn", function () {
         created_by: "torgen",
         submitted_to_hq: true,
         backsolve: false,
-        provided: false,
+        provided: false
       });
     });
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("correctCallIn", callin),
-        Match.Error,
+        Match.Error
       ));
 
     describe("when logged in", () =>
@@ -652,7 +652,7 @@ describe("correctCallIn", function () {
             solved: null,
             solved_by: null,
             confirmed_by: null,
-            tags: {},
+            tags: {}
           });
         });
 
@@ -660,14 +660,14 @@ describe("correctCallIn", function () {
           const c = CallIns.findOne(callin);
           chai.assert.include(c, {
             status: "accepted",
-            resolved: 7,
+            resolved: 7
           });
         });
 
         it("does not oplog", function () {
           const o = Messages.find({
             room_name: "oplog/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 0);
         });
@@ -675,12 +675,12 @@ describe("correctCallIn", function () {
         it("notifies puzzle chat", function () {
           const o = Messages.find({
             room_name: `puzzles/${puzzle}`,
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, "RECEIVED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -690,12 +690,12 @@ describe("correctCallIn", function () {
         it("notifies general chat", function () {
           const o = Messages.find({
             room_name: "general/0",
-            dawn_of_time: { $ne: true },
+            dawn_of_time: { $ne: true }
           }).fetch();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
-            action: true,
+            action: true
           });
           chai.assert.include(o[0].body, "RECEIVED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
@@ -709,8 +709,8 @@ describe("correctCallIn", function () {
           "correctCallIn",
           "cjb",
           callin,
-          "Make us some supersaturated Kool-Aid",
-        ),
+          "Make us some supersaturated Kool-Aid"
+        )
       );
 
       it("does not update puzzle", function () {
@@ -721,7 +721,7 @@ describe("correctCallIn", function () {
           solved: null,
           solved_by: null,
           confirmed_by: null,
-          tags: {},
+          tags: {}
         });
       });
 
@@ -730,14 +730,14 @@ describe("correctCallIn", function () {
         chai.assert.include(c, {
           status: "accepted",
           response: "Make us some supersaturated Kool-Aid",
-          resolved: 7,
+          resolved: 7
         });
       });
 
       it("does not oplog", function () {
         const o = Messages.find({
           room_name: "oplog/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 0);
       });
@@ -745,19 +745,19 @@ describe("correctCallIn", function () {
       it("notifies puzzle chat", function () {
         const o = Messages.find({
           room_name: `puzzles/${puzzle}`,
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           nick: "cjb",
-          action: true,
+          action: true
         });
         chai.assert.include(o[0].body, "RECEIVED", "message");
         chai.assert.include(o[0].body, '"precipitate"', "message");
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message",
+          "message"
         );
         chai.assert.notInclude(o[0].body, "(Foo)", "message");
       });
@@ -765,19 +765,19 @@ describe("correctCallIn", function () {
       it("notifies general chat", function () {
         const o = Messages.find({
           room_name: "general/0",
-          dawn_of_time: { $ne: true },
+          dawn_of_time: { $ne: true }
         }).fetch();
         chai.assert.lengthOf(o, 1);
         chai.assert.include(o[0], {
           nick: "cjb",
-          action: true,
+          action: true
         });
         chai.assert.include(o[0].body, "RECEIVED", "message");
         chai.assert.include(o[0].body, '"precipitate"', "message");
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message",
+          "message"
         );
         chai.assert.include(o[0].body, "(Foo)", "message");
       });
@@ -796,13 +796,13 @@ describe("correctCallIn", function () {
         confirmed_by: null,
         tags: {},
         feedsInto: [],
-        puzzles: [puzzle],
+        puzzles: [puzzle]
       });
       Puzzles.update(puzzle, { $push: { feedsInto: meta } });
       callAs("correctCallIn", "cjb", callin);
       const m = Messages.find({
         room_name: `puzzles/${meta}`,
-        dawn_of_time: { $ne: true },
+        dawn_of_time: { $ne: true }
       }).fetch();
       chai.assert.lengthOf(m, 0);
     });

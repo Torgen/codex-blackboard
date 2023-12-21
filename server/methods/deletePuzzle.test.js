@@ -4,7 +4,7 @@ import {
   CalendarEvents,
   Messages,
   Puzzles,
-  Rounds,
+  Rounds
 } from "/lib/imports/collections.js";
 import { drive } from "/lib/imports/environment.js";
 import { callAs } from "../../server/imports/impersonate.js";
@@ -18,16 +18,16 @@ describe("deletePuzzle", function () {
   beforeEach(function () {
     clock = sinon.useFakeTimers({
       now: 7,
-      toFake: ["Date"],
+      toFake: ["Date"]
     });
     driveMethods = {
       createPuzzle: sinon.fake.returns({
         id: "fid", // f for folder
         spreadId: "sid",
-        docId: "did",
+        docId: "did"
       }),
       renamePuzzle: sinon.spy(),
-      deletePuzzle: sinon.spy(),
+      deletePuzzle: sinon.spy()
     };
   });
 
@@ -54,7 +54,7 @@ describe("deletePuzzle", function () {
       tags: {},
       drive: "ffoo",
       spreadsheet: "sfoo",
-      doc: "dfoo",
+      doc: "dfoo"
     });
     meta = Puzzles.insert({
       name: "Meta",
@@ -69,7 +69,7 @@ describe("deletePuzzle", function () {
       puzzles: [id],
       drive: "fmeta",
       spreadsheet: "smeta",
-      doc: "dmeta",
+      doc: "dmeta"
     });
     rid = Rounds.insert({
       name: "Bar",
@@ -81,11 +81,11 @@ describe("deletePuzzle", function () {
       solved: null,
       solved_by: null,
       puzzles: [id, meta],
-      tags: {},
+      tags: {}
     });
     ev = CalendarEvents.insert({
       puzzle: id,
-      summary: "An event!",
+      summary: "An event!"
     });
   });
 
@@ -97,8 +97,8 @@ describe("deletePuzzle", function () {
     beforeEach(() =>
       drive.withValue(
         driveMethods,
-        () => (ret = callAs("deletePuzzle", "cjb", id)),
-      ),
+        () => (ret = callAs("deletePuzzle", "cjb", id))
+      )
     );
 
     it("oplogs", () =>
@@ -106,9 +106,9 @@ describe("deletePuzzle", function () {
         Messages.find({
           nick: "cjb",
           type: "puzzles",
-          room_name: "oplog/0",
+          room_name: "oplog/0"
         }).fetch(),
-        1,
+        1
       ));
 
     it("removes puzzle from round", () =>
@@ -123,7 +123,7 @@ describe("deletePuzzle", function () {
         solved: null,
         solved_by: null,
         puzzles: [meta],
-        tags: {},
+        tags: {}
       }));
 
     it("removes puzzle from meta", () =>
@@ -141,18 +141,18 @@ describe("deletePuzzle", function () {
         tags: {},
         drive: "fmeta",
         spreadsheet: "smeta",
-        doc: "dmeta",
+        doc: "dmeta"
       }));
 
     it("removes puzzle from event", () =>
       chai.assert.deepEqual(CalendarEvents.findOne(ev), {
         _id: ev,
-        summary: "An event!",
+        summary: "An event!"
       }));
 
     it("deletes drive", () =>
       chai.assert.deepEqual(driveMethods.deletePuzzle.getCall(0).args, [
-        "ffoo",
+        "ffoo"
       ]));
   });
 });

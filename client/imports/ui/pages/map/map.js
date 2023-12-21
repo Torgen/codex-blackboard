@@ -12,7 +12,7 @@ const loaded = new ReactiveVar(false);
 (async function () {
   const loader = new Loader({
     apiKey: MAPS_API_KEY,
-    version: "weekly",
+    version: "weekly"
   });
   await loader.load();
   loaded.set(true);
@@ -35,16 +35,16 @@ class BlackboardRenderer {
     const view = Blaze.renderWithData(
       Template.map_gravatar_cluster,
       pieces.reverse(),
-      element,
+      element
     );
     const marker = new MarkerWithLabel({
       position,
       icon: {
         url: "https://maps.gstatic.com/mapfiles/transparent.png",
-        size: new google.maps.Size(0, 0),
+        size: new google.maps.Size(0, 0)
       },
       labelContent: element,
-      labelAnchor: new google.maps.Point(-32, -32),
+      labelAnchor: new google.maps.Point(-32, -32)
     });
     this.markersAndViews.push({ marker, view }); // So we can clean up the views after rendering.
     return marker;
@@ -59,13 +59,13 @@ Template.map.onRendered(function () {
     const map = new google.maps.Map(this.$(".bb-solver-map")[0], {
       center: {
         lat: 15,
-        lng: -71.1,
+        lng: -71.1
       },
       zoom: 3,
       mapTypeControlOptions: {
         style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-        position: google.maps.ControlPosition.TOP_CENTER,
-      },
+        position: google.maps.ControlPosition.TOP_CENTER
+      }
     });
     this.map.set(map);
     const renderer = new BlackboardRenderer();
@@ -79,8 +79,8 @@ Template.map.onRendered(function () {
       oldMarkersAndViews.map((markerAndView) =>
         markerAndView.marker.getMap() != null
           ? renderer.markersAndViews.push(markerAndView)
-          : Blaze.remove(markerAndView.view),
-      ),
+          : Blaze.remove(markerAndView.view)
+      )
     );
     const users = new Map(); // the associative kind
     let nodraw = true;
@@ -93,9 +93,9 @@ Template.map.onRendered(function () {
             real_name: 1,
             gravatar_md5: 1,
             located_at: 1,
-            online: 1,
-          },
-        },
+            online: 1
+          }
+        }
       )
       .observeChanges({
         added(_id, fields) {
@@ -104,10 +104,10 @@ Template.map.onRendered(function () {
               position: positionOrDefault(fields.located_at, _id),
               icon: gravatarUrl({
                 gravatar_md5: nickHash(_id),
-                size: GRAVATAR_SIZE,
+                size: GRAVATAR_SIZE
               }),
               title: nickAndName(fields),
-              opacity: fields.online ? 1.0 : 0.5,
+              opacity: fields.online ? 1.0 : 0.5
             });
             users.set(_id, user);
             clusterer.addMarker(user, nodraw);
@@ -125,8 +125,8 @@ Template.map.onRendered(function () {
               user.setIcon(
                 gravatarUrl({
                   gravatar_md5: nickHash(id),
-                  size: GRAVATAR_SIZE,
-                }),
+                  size: GRAVATAR_SIZE
+                })
               );
             }
             if ("real_name" in fields || "nickname" in fields) {
@@ -143,7 +143,7 @@ Template.map.onRendered(function () {
         removed(id) {
           clusterer.removeMarker(users.get(id));
           users.delete(id);
-        },
+        }
       });
     nodraw = false;
     clusterer.render();
@@ -158,7 +158,7 @@ Template.map.onRendered(function () {
     }
     map.setCenter({
       lat: 15,
-      lng: solarLongitude(Session.get("currentTime")),
+      lng: solarLongitude(Session.get("currentTime"))
     });
     map.setZoom(3);
   });
