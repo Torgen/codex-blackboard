@@ -8,7 +8,7 @@ function calendar_container(template) {
     upcoming_events() {
       return CalendarEvents.find(
         { end: { $gt: Session.get("currentTime") } },
-        { sort: { start: 1 } }
+        { sort: { start: 1 } },
       );
     },
   });
@@ -49,7 +49,7 @@ Template.calendar_event.events({
     Meteor.call(
       "removeEventAttendee",
       template.data.event._id,
-      Meteor.userId()
+      Meteor.userId(),
     );
   },
   "click .bb-event-attend"(event, template) {
@@ -72,7 +72,7 @@ function attachable_events() {
         puzzle: 0,
         location: 0,
       },
-    }
+    },
   );
 }
 
@@ -83,7 +83,7 @@ Template.calendar_attachable_events.events({
     Meteor.call(
       "setPuzzleForEvent",
       event.currentTarget.dataset.eventId,
-      template.data.puzzle
+      template.data.puzzle,
     );
   },
 });
@@ -96,7 +96,7 @@ function calendar_puzzle_container(template) {
           end: { $gt: Session.get("currentTime") },
           puzzle: this._id,
         },
-        { sort: { start: 1 } }
+        { sort: { start: 1 } },
       );
     },
   });

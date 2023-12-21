@@ -96,7 +96,7 @@ describe("puzzle", function () {
               return this.dataset.feederId;
             })
             .get(),
-          Puzzles.findOne(id).puzzles
+          Puzzles.findOne(id).puzzles,
         );
       });
 

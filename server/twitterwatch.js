@@ -55,6 +55,6 @@ import { DO_BATCH_PROCESSING } from "/server/imports/batch.js";
 
   stream.on(
     ETwitterStreamEvent.ConnectError,
-    Meteor.bindEnvironment((error) => console.warn("Twitter error:", error))
+    Meteor.bindEnvironment((error) => console.warn("Twitter error:", error)),
   );
 })(DO_BATCH_PROCESSING);

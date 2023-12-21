@@ -37,7 +37,7 @@ Meteor.startup(function () {
   }
   $("body").addClass("using-jitsi");
   $.getScript(`https://${JITSI_SERVER}/external_api.js`, () =>
-    jitsiLoaded.set(true)
+    jitsiLoaded.set(true),
   );
 });
 

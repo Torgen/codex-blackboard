@@ -62,7 +62,7 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
   });
 
   mailListener.on("server:connected", () =>
-    console.log("Watching for mail to", watch.username)
+    console.log("Watching for mail to", watch.username),
   );
   mailListener.on("error", (err) => console.error("IMAP error", err));
 
@@ -91,7 +91,7 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
           subject: mail.subject,
         },
       });
-    })
+    }),
   );
 
   Meteor.startup(() => mailListener.start());

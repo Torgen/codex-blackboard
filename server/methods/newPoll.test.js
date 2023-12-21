@@ -14,7 +14,7 @@ describe("newPoll", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -29,20 +29,20 @@ describe("newPoll", function () {
           "Ceiling",
           "Aliens",
         ]),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with no options", () =>
     chai.assert.throws(
       () => callAs("newPoll", "torgen", "general/0", "What up?", []),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with one option", () =>
     chai.assert.throws(
       () =>
         callAs("newPoll", "torgen", "general/0", "What up?", ["everything"]),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with six options", () =>
@@ -56,7 +56,7 @@ describe("newPoll", function () {
           "Blue",
           "Purple",
         ]),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with no room", () =>
@@ -67,7 +67,7 @@ describe("newPoll", function () {
           "Ceiling",
           "Aliens",
         ]),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with no question", () =>
@@ -78,7 +78,7 @@ describe("newPoll", function () {
           "Ceiling",
           "Aliens",
         ]),
-      Match.Error
+      Match.Error,
     ));
 
   it("canonicalizes options", function () {

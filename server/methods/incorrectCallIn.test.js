@@ -15,7 +15,7 @@ describe("incorrectCallIn", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -67,7 +67,7 @@ describe("incorrectCallIn", function () {
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("incorrectCallIn", callin),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", function () {
@@ -85,7 +85,7 @@ describe("incorrectCallIn", function () {
             id: puzzle,
             stream: "callins",
           }).fetch(),
-          1
+          1,
         ));
 
       it("notifies puzzle chat", () =>
@@ -94,7 +94,7 @@ describe("incorrectCallIn", function () {
             room_name: `puzzles/${puzzle}`,
             dawn_of_time: { $ne: true },
           }).fetch(),
-          1
+          1,
         ));
 
       it("notifies general chat", () =>
@@ -103,7 +103,7 @@ describe("incorrectCallIn", function () {
             room_name: "general/0",
             dawn_of_time: { $ne: true },
           }).fetch(),
-          1
+          1,
         ));
 
       it("renews onduty", () =>
@@ -161,7 +161,7 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin),
-          Match.Error
+          Match.Error,
         ));
 
       describe("when logged in", function () {
@@ -182,7 +182,7 @@ describe("incorrectCallIn", function () {
               id: puzzle,
               stream: "callins",
             }).fetch(),
-            0
+            0,
           ));
 
         it("notifies puzzle chat", function () {
@@ -221,7 +221,7 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin, "sediment"),
-          Match.Error
+          Match.Error,
         ));
 
       describe("when logged in", function () {
@@ -243,7 +243,7 @@ describe("incorrectCallIn", function () {
               id: puzzle,
               stream: "callins",
             }).fetch(),
-            0
+            0,
           ));
 
         it("notifies puzzle chat", function () {
@@ -314,7 +314,7 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin),
-          Match.Error
+          Match.Error,
         ));
 
       describe("when logged in", function () {
@@ -335,7 +335,7 @@ describe("incorrectCallIn", function () {
               id: puzzle,
               stream: "callins",
             }).fetch(),
-            0
+            0,
           ));
 
         it("notifies puzzle chat", function () {
@@ -374,7 +374,7 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin, "sediment"),
-          Match.Error
+          Match.Error,
         ));
 
       describe("when logged in", function () {
@@ -396,7 +396,7 @@ describe("incorrectCallIn", function () {
               id: puzzle,
               stream: "callins",
             }).fetch(),
-            0
+            0,
           ));
 
         it("notifies puzzle chat", function () {
@@ -467,13 +467,13 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin),
-          Match.Error
+          Match.Error,
         ));
 
       it("fails when logged in", () =>
         chai.assert.throws(
           () => callAs("incorrectCallIn", "cjb", callin),
-          Meteor.Error
+          Meteor.Error,
         ));
     });
 
@@ -481,13 +481,13 @@ describe("incorrectCallIn", function () {
       it("fails without login", () =>
         chai.assert.throws(
           () => Meteor.call("incorrectCallIn", callin, "sediment"),
-          Match.Error
+          Match.Error,
         ));
 
       it("fails when logged in", () =>
         chai.assert.throws(
           () => callAs("incorrectCallIn", "cjb", callin, "sediment"),
-          Meteor.Error
+          Meteor.Error,
         ));
     });
   });

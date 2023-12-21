@@ -26,7 +26,7 @@ Template.options_dropdown.events({
   },
   'click a[name="bb-dark-mode"] [data-darkmode]:not(.disabled)'(
     event,
-    template
+    template,
   ) {
     DARK_MODE.set(event.currentTarget.dataset.darkmode);
   },
@@ -70,7 +70,7 @@ Template.options_dropdown.events({
         .map(function () {
           return this.dataset.columnVisibility;
         })
-        .get()
+        .get(),
     );
   },
 });

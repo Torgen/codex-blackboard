@@ -16,7 +16,7 @@ describe("correctCallIn", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -68,13 +68,13 @@ describe("correctCallIn", function () {
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("correctCallIn", callin),
-        Match.Error
+        Match.Error,
       ));
 
     it("fails with response", () =>
       chai.assert.throws(
         () => callAs("correctCallIn", "cjb", callin, "close enough"),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", function () {
@@ -235,7 +235,7 @@ describe("correctCallIn", function () {
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("correctCallIn", callin),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", () =>
@@ -306,8 +306,8 @@ describe("correctCallIn", function () {
           "correctCallIn",
           "cjb",
           callin,
-          "Make us some supersaturated Kool-Aid"
-        )
+          "Make us some supersaturated Kool-Aid",
+        ),
       );
 
       it("does not update puzzle", function () {
@@ -354,7 +354,7 @@ describe("correctCallIn", function () {
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message"
+          "message",
         );
         chai.assert.notInclude(o[0].body, "(Foo)", "message");
       });
@@ -373,7 +373,7 @@ describe("correctCallIn", function () {
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message"
+          "message",
         );
         chai.assert.include(o[0].body, "(Foo)", "message");
       });
@@ -436,7 +436,7 @@ describe("correctCallIn", function () {
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("correctCallIn", callin),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", () =>
@@ -507,8 +507,8 @@ describe("correctCallIn", function () {
           "correctCallIn",
           "cjb",
           callin,
-          "Make us some supersaturated Kool-Aid"
-        )
+          "Make us some supersaturated Kool-Aid",
+        ),
       );
 
       it("does not update puzzle", function () {
@@ -555,7 +555,7 @@ describe("correctCallIn", function () {
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message"
+          "message",
         );
         chai.assert.notInclude(o[0].body, "(Foo)", "message");
       });
@@ -574,7 +574,7 @@ describe("correctCallIn", function () {
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message"
+          "message",
         );
         chai.assert.include(o[0].body, "(Foo)", "message");
       });
@@ -637,7 +637,7 @@ describe("correctCallIn", function () {
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("correctCallIn", callin),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", () =>
@@ -709,8 +709,8 @@ describe("correctCallIn", function () {
           "correctCallIn",
           "cjb",
           callin,
-          "Make us some supersaturated Kool-Aid"
-        )
+          "Make us some supersaturated Kool-Aid",
+        ),
       );
 
       it("does not update puzzle", function () {
@@ -757,7 +757,7 @@ describe("correctCallIn", function () {
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message"
+          "message",
         );
         chai.assert.notInclude(o[0].body, "(Foo)", "message");
       });
@@ -777,7 +777,7 @@ describe("correctCallIn", function () {
         chai.assert.include(
           o[0].body,
           "Make us some supersaturated Kool-Aid",
-          "message"
+          "message",
         );
         chai.assert.include(o[0].body, "(Foo)", "message");
       });

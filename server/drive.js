@@ -35,6 +35,6 @@ if (Meteor.isAppTest) {
         console.warn("Google Drive integration disabled.");
         driveEnv.bindSingleton(new FailDrive());
       }
-    })()
+    })(),
   );
 }

@@ -15,7 +15,7 @@ describe("deleteAnswer", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -43,7 +43,7 @@ describe("deleteAnswer", function () {
     });
     chai.assert.throws(
       () => Meteor.call("deleteAnswer", { target: id }),
-      Match.Error
+      Match.Error,
     );
   });
 

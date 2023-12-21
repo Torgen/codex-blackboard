@@ -8,6 +8,6 @@ describe("emojify", function () {
   it("ignores non-emoji", () =>
     chai.assert.equal(
       emojify(":fox_face: :capybara: :rabbit:"),
-      "🦊 :capybara: 🐰"
+      "🦊 :capybara: 🐰",
     ));
 });

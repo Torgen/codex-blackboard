@@ -57,7 +57,7 @@ if (DO_BATCH_PROCESSING) {
         {
           sort: [["priv_located_order", "asc"]],
           limit: LOCATION_BATCH_SIZE,
-        }
+        },
       )
       .forEach(function (n, i) {
         console.log(`Updating location for ${n._id} (${i})`);
@@ -77,7 +77,7 @@ if (DO_BATCH_PROCESSING) {
       },
       {
         fields: { priv_located_order: 1 },
-      }
+      },
     )
     .observeChanges({
       added(id, fields) {

@@ -14,7 +14,7 @@ describe("unsummon", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -65,7 +65,7 @@ describe("unsummon", function () {
     it("doesn't chat", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: { $ne: "oplog/0" } }).fetch(),
-        0
+        0,
       ));
 
     it("doesn't oplog", () =>
@@ -93,13 +93,13 @@ describe("unsummon", function () {
               touched_by: "cjb",
             },
           },
-        }))
+        })),
     );
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("unsummon", { object: id }),
-        Match.Error
+        Match.Error,
       ));
 
     return describe("when logged in", function () {
@@ -118,7 +118,7 @@ describe("unsummon", function () {
       it("oplogs", () =>
         chai.assert.lengthOf(
           Messages.find({ room_name: "oplog/0", type: "puzzles", id }).fetch(),
-          1
+          1,
         ));
 
       it("notifies main chat", function () {
@@ -180,7 +180,7 @@ describe("unsummon", function () {
     it("oplogs", () =>
       chai.assert.lengthOf(
         Messages.find({ room_name: "oplog/0", type: "puzzles", id }).fetch(),
-        1
+        1,
       ));
 
     it("notifies main chat", function () {

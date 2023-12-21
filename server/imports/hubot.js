@@ -23,44 +23,42 @@ const tweakStrings = (strings, f) =>
 
 class BlackboardAdapter extends Hubot.Adapter {
   static initClass() {
-    this.prototype.sendHelper = Meteor.bindEnvironment(function (
-      envelope,
-      strings,
-      map
-    ) {
-      // be present in the room
-      try {
-        this.present(envelope.room);
-      } catch (error) {}
-      const props = Object.create(null);
-      const lines = [];
-      while (strings.length > 0) {
-        if (typeof strings[0] === "function") {
-          strings[0] = strings[0]();
-          continue;
-        }
-        const string = strings.shift();
-        if (typeof string === "object") {
-          Object.assign(props, string);
-          continue;
-        }
-        if (string != null) {
-          lines.push(string);
-        }
-      }
-      if (lines.length && envelope.message.direct && !props.useful) {
-        Messages.update(envelope.message.id, { $set: { useless_cmd: true } });
-      }
-      for (const line of lines) {
+    this.prototype.sendHelper = Meteor.bindEnvironment(
+      function (envelope, strings, map) {
+        // be present in the room
         try {
-          map(line, props);
-        } catch (err) {
-          if (DEBUG) {
-            console.error(`Hubot error: ${err}`);
+          this.present(envelope.room);
+        } catch (error) {}
+        const props = Object.create(null);
+        const lines = [];
+        while (strings.length > 0) {
+          if (typeof strings[0] === "function") {
+            strings[0] = strings[0]();
+            continue;
+          }
+          const string = strings.shift();
+          if (typeof string === "object") {
+            Object.assign(props, string);
+            continue;
+          }
+          if (string != null) {
+            lines.push(string);
           }
         }
-      }
-    });
+        if (lines.length && envelope.message.direct && !props.useful) {
+          Messages.update(envelope.message.id, { $set: { useless_cmd: true } });
+        }
+        for (const line of lines) {
+          try {
+            map(line, props);
+          } catch (err) {
+            if (DEBUG) {
+              console.error(`Hubot error: ${err}`);
+            }
+          }
+        }
+      },
+    );
   }
   constructor(robot, botname, gravatar) {
     super(robot);
@@ -99,7 +97,7 @@ class BlackboardAdapter extends Hubot.Adapter {
           body: string,
           room_name: envelope.room,
           bot_ignore: true,
-        })
+        }),
       );
     });
   }
@@ -127,7 +125,7 @@ class BlackboardAdapter extends Hubot.Adapter {
           room_name: envelope.room,
           action: true,
           bot_ignore: true,
-        })
+        }),
       );
     });
   }
@@ -146,7 +144,7 @@ class BlackboardAdapter extends Hubot.Adapter {
           body: string,
           room_name: envelope.room,
           bot_ignore: true,
-        })
+        }),
       );
     });
   }
@@ -168,7 +166,7 @@ class BlackboardAdapter extends Hubot.Adapter {
         ...[
           { mention: [envelope.user.id] },
           ...tweakStrings(strings, (str) => `@${envelope.user.id}: ${str}`),
-        ]
+        ],
       );
     }
   }
@@ -207,7 +205,7 @@ class BlackboardAdapter extends Hubot.Adapter {
             timestamp: now,
           },
         },
-      }
+      },
     );
     Presence.update(
       { scope: "chat", room_name, nick: this.botname },
@@ -218,7 +216,7 @@ class BlackboardAdapter extends Hubot.Adapter {
             timestamp: { $lt: now },
           },
         },
-      }
+      },
     );
   }
 
@@ -284,7 +282,7 @@ class BlackboardAdapter extends Hubot.Adapter {
         }
         if (DEBUG) {
           console.log(
-            `Received from ${msg.nick} in ${msg.room_name}: ${msg.body}`
+            `Received from ${msg.nick} in ${msg.room_name}: ${msg.body}`,
           );
         }
         const tm = new Hubot.TextMessage(user, msg.body, id);
@@ -342,7 +340,7 @@ export default class Robot extends Hubot.Robot {
     this.adapter = new BlackboardAdapter(
       this,
       canonical(this.name),
-      this.gravatar
+      this.gravatar,
     );
   }
 
@@ -384,7 +382,7 @@ export default class Robot extends Hubot.Robot {
             resp.message.private = true;
             return callback(resp);
           }
-        : callback
+        : callback,
     );
   }
 }

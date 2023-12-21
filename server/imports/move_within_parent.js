@@ -80,7 +80,7 @@ export default function (id, parentType, parentId, args) {
               },
             },
           },
-        ])
+        ]),
     );
     if (res.modifiedCount === 1) {
       // Because we're not using Meteor's wrapper, we have to do this manually so the updated document is delivered by the subscription before the method returns.

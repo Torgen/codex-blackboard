@@ -30,7 +30,7 @@ export default function collectPeriodicStats() {
       } else {
         timeout = Meteor.setTimeout(
           collect,
-          lastCollection + valueMs - Date.now()
+          lastCollection + valueMs - Date.now(),
         );
       }
     }

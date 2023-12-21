@@ -14,7 +14,7 @@ describe("renameTag", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -49,7 +49,7 @@ describe("renameTag", function () {
           old_name: "warmth",
           new_name: "temperature",
         }),
-      Match.Error
+      Match.Error,
     );
   });
 
@@ -171,7 +171,7 @@ describe("renameTag", function () {
           old_name: "heat",
           new_name: "Temperature",
         }),
-      Meteor.Error
+      Meteor.Error,
     );
   });
 
@@ -209,7 +209,7 @@ describe("renameTag", function () {
           old_name: "warmth",
           new_name: "Temperature",
         }),
-      Meteor.Error
+      Meteor.Error,
     );
   });
 
@@ -241,7 +241,7 @@ describe("renameTag", function () {
           old_name: "warmth",
           new_name: "Link",
         }),
-      Match.Error
+      Match.Error,
     );
   });
 });

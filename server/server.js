@@ -16,7 +16,11 @@ import {
   PeriodicStats,
   collection,
 } from "/lib/imports/collections.js";
-import { gravatarUrl, hashFromNickObject, nickAndName } from "/lib/imports/nickEmail.js";
+import {
+  gravatarUrl,
+  hashFromNickObject,
+  nickAndName,
+} from "/lib/imports/nickEmail.js";
 import { Settings } from "/lib/imports/settings.js";
 import { JITSI_SERVER } from "/lib/imports/server_settings.js";
 import { NonEmptyString } from "/lib/imports/match.js";
@@ -76,14 +80,14 @@ Meteor.publish(
   "all-roundsandpuzzles",
   loginRequired(function () {
     return [Rounds.find(), this.puzzleQuery({})];
-  })
+  }),
 );
 
 Meteor.publish(
   "solved-puzzle-time",
   loginRequired(() =>
-    Puzzles.find({ solved: { $exists: true } }, { fields: { solverTime: 1 } })
-  )
+    Puzzles.find({ solved: { $exists: true } }, { fields: { solverTime: 1 } }),
+  ),
 );
 
 // Login not required for this because it's needed for nick autocomplete.
@@ -100,8 +104,8 @@ Meteor.publish(null, () =>
         services: 0,
         favorite_mechanics: 0,
       },
-    }
-  )
+    },
+  ),
 );
 
 // Login required for this since it returns you.
@@ -114,7 +118,7 @@ Meteor.publish(
         priv_located_order: 0,
       },
     });
-  })
+  }),
 );
 
 // Login required for this since it includes location
@@ -128,9 +132,9 @@ Meteor.publish(
           located: 1,
           located_at: 1,
         },
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
 
 Meteor.publish(
@@ -138,7 +142,7 @@ Meteor.publish(
   loginRequired(function () {
     const handle = Presence.find(
       { room_name: null, scope: "online" },
-      { nick: 1 }
+      { nick: 1 },
     ).observe({
       added: ({ nick }) => {
         this.added("users", nick, { online: true });
@@ -149,7 +153,7 @@ Meteor.publish(
     });
     this.onStop(() => handle.stop());
     this.ready();
-  })
+  }),
 );
 
 // Private messages to you
@@ -157,14 +161,14 @@ Meteor.publish(
   null,
   loginRequired(function () {
     return Messages.find({ to: this.userId, deleted: { $ne: true } });
-  })
+  }),
 );
 // Messages that mention you
 Meteor.publish(
   null,
   loginRequired(function () {
     return Messages.find({ mention: this.userId, deleted: { $ne: true } });
-  })
+  }),
 );
 
 // Calendar events
@@ -173,7 +177,7 @@ Meteor.publish(
   loginRequired(() => [
     Calendar.find({}, { fields: { _id: 1 } }),
     CalendarEvents.find(),
-  ])
+  ]),
 );
 
 Meteor.publish(
@@ -182,14 +186,14 @@ Meteor.publish(
     Messages.find({
       announced_at: { $gt: since },
       deleted: { $ne: true },
-    })
-  )
+    }),
+  ),
 );
 
 // Roles
 Meteor.publish(
   null,
-  loginRequired(() => Roles.find({}, { fields: { holder: 1, claimed_at: 1 } }))
+  loginRequired(() => Roles.find({}, { fields: { holder: 1, claimed_at: 1 } })),
 );
 
 Meteor.publish(
@@ -197,9 +201,9 @@ Meteor.publish(
   loginRequired(function () {
     return Roles.find(
       { holder: this.userId },
-      { fields: { renewed_at: 1, expires_at: 1 } }
+      { fields: { renewed_at: 1, expires_at: 1 } },
     );
-  })
+  }),
 );
 
 // Share one map among all listeners
@@ -268,7 +272,7 @@ Meteor.publish(
         handles.delete(this);
       });
       this.ready();
-    })
+    }),
   );
 })();
 
@@ -292,7 +296,7 @@ Meteor.publish(
     });
     this.onStop(() => handle.stop());
     this.ready();
-  })
+  }),
 );
 
 Meteor.publish(
@@ -306,9 +310,9 @@ Meteor.publish(
           timestamp: 0,
           clients: 0,
         },
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
 Meteor.publish(
   "presence-for-room",
@@ -320,9 +324,9 @@ Meteor.publish(
           timestamp: 0,
           clients: 0,
         },
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
 
 function registerPresence(room_name, scope) {
@@ -333,7 +337,7 @@ function registerPresence(room_name, scope) {
         this.userId
       } subscribing to ${scope}:${room_name} at ${Date.now()}, id ${
         this.connection.id
-      }:${subscription_id}`
+      }:${subscription_id}`,
     );
   }
   const keepalive = () => {
@@ -352,7 +356,7 @@ function registerPresence(room_name, scope) {
             timestamp: now,
           },
         },
-      }
+      },
     );
     Presence.update(
       { nick: this.userId, room_name, scope },
@@ -364,18 +368,18 @@ function registerPresence(room_name, scope) {
             timestamp: { $lt: now },
           },
         },
-      }
+      },
     );
   };
   keepalive();
   const interval = Meteor.setInterval(
     keepalive,
-    PRESENCE_KEEPALIVE_MINUTES * 60 * 1000
+    PRESENCE_KEEPALIVE_MINUTES * 60 * 1000,
   );
   this.onStop(() => {
     if (DEBUG) {
       console.log(
-        `${this.userId} unsubscribing from ${scope}:${room_name}, id ${this.connection.id}:${subscription_id}`
+        `${this.userId} unsubscribing from ${scope}:${room_name}, id ${this.connection.id}:${subscription_id}`,
       );
     }
     Meteor.clearInterval(interval);
@@ -391,7 +395,7 @@ function registerPresence(room_name, scope) {
               subscription_id,
             },
           },
-        }
+        },
       );
     }, 2000);
   });
@@ -404,18 +408,18 @@ Meteor.publish(
     check(room_name, NonEmptyString);
     check(scope, NonEmptyString);
     registerPresence.call(this, room_name, scope);
-  })
+  }),
 );
 Meteor.publish(
   null,
   loginRequired(function () {
     registerPresence.call(this, null, "online");
-  })
+  }),
 );
 
 Meteor.publish(
   null,
-  loginRequired(() => Settings.find())
+  loginRequired(() => Settings.find()),
 );
 
 Meteor.publish(
@@ -434,7 +438,7 @@ Meteor.publish(
         fields: { timestamp: 1 },
         sort: { timestamp: -1 },
         limit: 1,
-      }
+      },
     ).observe({
       added: (doc) =>
         this.changed("puzzles", puzzle_id, {
@@ -457,7 +461,7 @@ Meteor.publish(
       lastRead.stop();
     });
     this.ready();
-  })
+  }),
 );
 
 // this is for the "that was easy" sound effect
@@ -523,14 +527,14 @@ Meteor.publish(
     // Stopping a subscription automatically takes care of sending the
     // client any 'removed' messages
     self.onStop(() => handle.stop());
-  })
+  }),
 );
 
 // limit site traffic by only pushing out changes relevant to a certain
 // round or puzzle
 Meteor.publish(
   "callins-by-puzzle",
-  loginRequired((id) => CallIns.find({ target_type: "puzzles", target: id }))
+  loginRequired((id) => CallIns.find({ target_type: "puzzles", target: id })),
 );
 
 // get recent messages
@@ -546,7 +550,7 @@ Meteor.publish(
       {
         sort: [["timestamp", "desc"]],
         limit,
-      }
+      },
     ).observeChanges({
       added: (id, fields) => {
         this.added("messages", id, {
@@ -563,7 +567,7 @@ Meteor.publish(
     });
     this.onStop(() => handle.stop());
     this.ready();
-  })
+  }),
 );
 
 // Special subscription for the recent chats header because it ignores system
@@ -583,9 +587,9 @@ Meteor.publish(
       {
         sort: [["timestamp", "desc"]],
         limit: 2,
-      }
+      },
     );
-  })
+  }),
 );
 
 // Special subscription for desktop notifications
@@ -595,8 +599,8 @@ Meteor.publish(
     Messages.find({
       room_name: "oplog/0",
       timestamp: { $gt: since },
-    })
-  )
+    }),
+  ),
 );
 
 Meteor.publish(
@@ -604,21 +608,21 @@ Meteor.publish(
   loginRequired((room_name) =>
     Messages.find(
       { room_name, starred: true, deleted: { $ne: true } },
-      { sort: [["timestamp", "asc"]] }
-    )
-  )
+      { sort: [["timestamp", "asc"]] },
+    ),
+  ),
 );
 
 Meteor.publish(
   "pending-callins",
   loginRequired(() =>
-    CallIns.find({ status: "pending" }, { sort: [["created", "asc"]] })
-  )
+    CallIns.find({ status: "pending" }, { sort: [["created", "asc"]] }),
+  ),
 );
 
 Meteor.publish(
   "periodic-stats",
-  loginRequired(() => PeriodicStats.find())
+  loginRequired(() => PeriodicStats.find()),
 );
 
 // synthetic 'all-names' collection which maps ids to type/name/canon
@@ -649,67 +653,81 @@ Meteor.publish(
               canon: canonical(doc.name),
             });
           },
-        })
+        }),
     );
     // observe only returns after initial added callbacks have run.  So now
     // mark the subscription as ready
     self.ready();
     // stop observing the various cursors when client unsubs
     self.onStop(() => handles.map((h) => h.stop()));
-  })
+  }),
 );
 
 Meteor.publish(
   "poll",
-  loginRequired((id) => Polls.find({ _id: id }))
+  loginRequired((id) => Polls.find({ _id: id })),
 );
 
-const JWT_HEADER = Buffer.from('{"alg":"HS256","typ":"JWT"}').toString("base64url");
-const JITSI_APP_NAME = Meteor.settings?.jitsi?.appName ?? process.env.JITSI_APP_NAME ?? null;
-const JITSI_SHARED_SECRET = Meteor.settings?.jitsi?.sharedSecret ?? process.env.JITSI_SHARED_SECRET ?? null;
+const JWT_HEADER = Buffer.from('{"alg":"HS256","typ":"JWT"}').toString(
+  "base64url",
+);
+const JITSI_APP_NAME =
+  Meteor.settings?.jitsi?.appName ?? process.env.JITSI_APP_NAME ?? null;
+const JITSI_SHARED_SECRET =
+  Meteor.settings?.jitsi?.sharedSecret ??
+  process.env.JITSI_SHARED_SECRET ??
+  null;
 
-Meteor.publish("jitsi-jwt", loginRequired(function(roomName) {
-  check(roomName, String);
-  if (!JITSI_APP_NAME || !JITSI_SHARED_SECRET) {
-    this.added(JITSI_JWT_COLLECTION_NAME, roomName, {});
-    this.ready();
-    return;
-  }
-  const self = this;
-  function generateJwt() {
-    const now = Math.floor(Date.now() / 1000);
-    const expiry = now + 86400 * 5;
-    const user = Meteor.users.findOne(self.userId);
-    const body = {
-      context: {
-        user: {
-          name: nickAndName(user),
-          avatar: gravatarUrl({
-            gravatar_md5: hashFromNickObject(user),
-            size: 200,
-          }),
-        }
+Meteor.publish(
+  "jitsi-jwt",
+  loginRequired(function (roomName) {
+    check(roomName, String);
+    if (!JITSI_APP_NAME || !JITSI_SHARED_SECRET) {
+      this.added(JITSI_JWT_COLLECTION_NAME, roomName, {});
+      this.ready();
+      return;
+    }
+    const self = this;
+    function generateJwt() {
+      const now = Math.floor(Date.now() / 1000);
+      const expiry = now + 86400 * 5;
+      const user = Meteor.users.findOne(self.userId);
+      const body = {
+        context: {
+          user: {
+            name: nickAndName(user),
+            avatar: gravatarUrl({
+              gravatar_md5: hashFromNickObject(user),
+              size: 200,
+            }),
+          },
+        },
+        aud: "jitsi",
+        iss: JITSI_APP_NAME,
+        sub: JITSI_SERVER,
+        room: roomName,
+        exp: expiry,
+      };
+      const b64Body = Buffer.from(JSON.stringify(body)).toString("base64url");
+      const toSign = `${JWT_HEADER}.${b64Body}`;
+      const hmac = createHmac("sha256", JITSI_SHARED_SECRET);
+      hmac.update(toSign);
+      const hash = hmac.digest("base64url");
+      return `${toSign}.${hash}`;
+    }
+    this.added(JITSI_JWT_COLLECTION_NAME, roomName, { jwt: generateJwt() });
+    const intervalHandle = Meteor.setInterval(
+      () => {
+        this.changed(JITSI_JWT_COLLECTION_NAME, roomName, {
+          jwt: generateJwt(),
+        });
       },
-      aud: "jitsi",
-      iss: JITSI_APP_NAME,
-      sub: JITSI_SERVER,
-      room: roomName,
-      exp: expiry,
-    };
-    const b64Body = Buffer.from(JSON.stringify(body)).toString("base64url");
-    const toSign = `${JWT_HEADER}.${b64Body}`;
-    const hmac = createHmac("sha256", JITSI_SHARED_SECRET);
-    hmac.update(toSign);
-    const hash = hmac.digest("base64url");
-    return `${toSign}.${hash}`;
-  }
-  this.added(JITSI_JWT_COLLECTION_NAME, roomName, {jwt: generateJwt()});
-  const intervalHandle = Meteor.setInterval(() => {
-    this.changed(JITSI_JWT_COLLECTION_NAME, roomName, {jwt: generateJwt()});
-  }, 86400 * 100 * 3);
-  this.onStop(() => Meteor.clearInterval(intervalHandle));
-  this.ready();
-}));
+      86400 * 100 * 3,
+    );
+    this.onStop(() => Meteor.clearInterval(intervalHandle));
+    this.ready();
+  }),
+);
 
 //# Publish the 'facts' collection to all users
 Facts.setUserIdFilter(() => true);

@@ -6,7 +6,7 @@ Template.fix_puzzle_drive.helpers({
   puzzle() {
     return Puzzles.findOne(
       { _id: this.puzzle },
-      { fields: { drive: 1, drive_status: 1 } }
+      { fields: { drive: 1, drive_status: 1 } },
     );
   },
 });

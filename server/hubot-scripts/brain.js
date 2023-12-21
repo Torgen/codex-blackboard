@@ -19,7 +19,7 @@ export default scripts.brain = function (robot) {
           console.warn("Couldn't save ", _id, value, err);
         }
       }
-    })
+    }),
   );
 
   const handle = Meteor.users.find({}).observe({
@@ -43,7 +43,7 @@ export default scripts.brain = function (robot) {
 
   robot.brain.on(
     "close",
-    Meteor.bindEnvironment(() => handle.stop())
+    Meteor.bindEnvironment(() => handle.stop()),
   );
 
   const data = { _private: {} };

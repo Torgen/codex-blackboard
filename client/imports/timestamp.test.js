@@ -9,7 +9,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 70000, style: "duration" },
         }),
-        "in the future"
+        "in the future",
       ));
 
     it("returns just now for the near future", () =>
@@ -17,7 +17,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 50000, style: "duration" },
         }),
-        "just now"
+        "just now",
       ));
 
     it("returns just now for the recent past", () =>
@@ -25,7 +25,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -10000, style: "duration" },
         }),
-        "just now"
+        "just now",
       ));
 
     it("returns minute ago", () =>
@@ -33,7 +33,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -60001, style: "duration" },
         }),
-        "1 minute ago"
+        "1 minute ago",
       ));
 
     it("returns minutes ago", () =>
@@ -41,7 +41,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -300001, style: "duration" },
         }),
-        "5 minutes ago"
+        "5 minutes ago",
       ));
 
     it("returns hour ago", () =>
@@ -49,7 +49,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -3600001, style: "duration" },
         }),
-        "1 hour ago"
+        "1 hour ago",
       ));
 
     it("returns hours ago", () =>
@@ -57,7 +57,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -18000001, style: "duration" },
         }),
-        "5 hours ago"
+        "5 hours ago",
       ));
 
     it("returns hours and minutes ago", () =>
@@ -65,7 +65,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -18120001, style: "duration" },
         }),
-        "5 hours 2 minutes ago"
+        "5 hours 2 minutes ago",
       ));
 
     it("returns day ago", () =>
@@ -73,7 +73,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -86400001, style: "duration" },
         }),
-        "1 day ago"
+        "1 day ago",
       ));
 
     it("returns days ago", () =>
@@ -81,7 +81,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -259200001, style: "duration" },
         }),
-        "3 days ago"
+        "3 days ago",
       ));
 
     it("returns days hours and minutes ago", () =>
@@ -89,7 +89,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -277320001, style: "duration" },
         }),
-        "3 days 5 hours 2 minutes ago"
+        "3 days 5 hours 2 minutes ago",
       ));
 
     it("returns week ago", () =>
@@ -97,7 +97,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -7 * 86400001, style: "duration" },
         }),
-        "1 week ago"
+        "1 week ago",
       ));
 
     it("returns weeks ago", () =>
@@ -105,7 +105,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -21 * 86400001, style: "duration" },
         }),
-        "3 weeks ago"
+        "3 weeks ago",
       ));
 
     it("returns weeks days hours and minutes ago", () =>
@@ -113,7 +113,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -25 * 86400001 - 18120001, style: "duration" },
         }),
-        "3 weeks 4 days 5 hours 2 minutes ago"
+        "3 weeks 4 days 5 hours 2 minutes ago",
       ));
   });
 
@@ -123,7 +123,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 70000, style: "brief_duration" },
         }),
-        "in the future"
+        "in the future",
       ));
 
     it("returns just now for the near future", () =>
@@ -131,7 +131,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 50000, style: "brief_duration" },
         }),
-        "just now"
+        "just now",
       ));
 
     it("returns just now for the recent past", () =>
@@ -139,7 +139,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -10000, style: "brief_duration" },
         }),
-        "just now"
+        "just now",
       ));
 
     it("returns minute ago", () =>
@@ -147,7 +147,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -70001, style: "brief_duration" },
         }),
-        "1 minute ago"
+        "1 minute ago",
       ));
 
     it("returns minutes ago", () =>
@@ -155,7 +155,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -330001, style: "brief_duration" },
         }),
-        "5 minutes ago"
+        "5 minutes ago",
       ));
 
     it("returns hour ago", () =>
@@ -163,7 +163,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -3720001, style: "brief_duration" },
         }),
-        "1 hour ago"
+        "1 hour ago",
       ));
 
     it("returns hours ago", () =>
@@ -171,7 +171,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -18120001, style: "brief_duration" },
         }),
-        "5 hours ago"
+        "5 hours ago",
       ));
 
     it("returns day ago", () =>
@@ -179,7 +179,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -86700001, style: "brief_duration" },
         }),
-        "1 day ago"
+        "1 day ago",
       ));
 
     it("returns days ago", () =>
@@ -187,7 +187,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -261120001, style: "brief_duration" },
         }),
-        "3 days ago"
+        "3 days ago",
       ));
 
     it("returns week ago", () =>
@@ -195,7 +195,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -10 * 86400001, style: "brief_duration" },
         }),
-        "1 week ago"
+        "1 week ago",
       ));
 
     it("returns weeks ago", () =>
@@ -206,7 +206,7 @@ describe("pretty_ts", function () {
             style: "brief_duration",
           },
         }),
-        "3 weeks ago"
+        "3 weeks ago",
       ));
   });
 
@@ -216,7 +216,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -70000, style: "future" },
         }),
-        "now"
+        "now",
       ));
 
     it("returns in minute ", () =>
@@ -224,7 +224,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 60001, style: "future" },
         }),
-        "in 1 minute"
+        "in 1 minute",
       ));
 
     it("returns in minutes", () =>
@@ -232,7 +232,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 300001, style: "future" },
         }),
-        "in 5 minutes"
+        "in 5 minutes",
       ));
 
     it("returns in hour", () =>
@@ -240,7 +240,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 3600001, style: "future" },
         }),
-        "in 1 hour"
+        "in 1 hour",
       ));
 
     it("returns in hours", () =>
@@ -248,7 +248,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 18000001, style: "future" },
         }),
-        "in 5 hours"
+        "in 5 hours",
       ));
 
     it("returns in hours and minutes", () =>
@@ -256,7 +256,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 18120001, style: "future" },
         }),
-        "in 5 hours 2 minutes"
+        "in 5 hours 2 minutes",
       ));
 
     it("returns in day", () =>
@@ -264,7 +264,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 86400001, style: "future" },
         }),
-        "in 1 day"
+        "in 1 day",
       ));
 
     it("returns in days", () =>
@@ -272,7 +272,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 259200001, style: "future" },
         }),
-        "in 3 days"
+        "in 3 days",
       ));
 
     it("returns in days hours and minutes", () =>
@@ -280,7 +280,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 277320001, style: "future" },
         }),
-        "in 3 days 5 hours 2 minutes"
+        "in 3 days 5 hours 2 minutes",
       ));
 
     it("returns in week", () =>
@@ -288,7 +288,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 7 * 86400001, style: "future" },
         }),
-        "in 1 week"
+        "in 1 week",
       ));
 
     it("returns in weeks", () =>
@@ -296,7 +296,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 21 * 86400001, style: "future" },
         }),
-        "in 3 weeks"
+        "in 3 weeks",
       ));
 
     it("returns in weeks days hours and minutes", () =>
@@ -304,7 +304,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: +25 * 86400001 + 18120001, style: "future" },
         }),
-        "in 3 weeks 4 days 5 hours 2 minutes"
+        "in 3 weeks 4 days 5 hours 2 minutes",
       ));
   });
 
@@ -314,7 +314,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: -70000, style: "brief_future" },
         }),
-        "now"
+        "now",
       ));
 
     it("returns in minute", () =>
@@ -322,7 +322,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 70001, style: "brief_future" },
         }),
-        "in 1 minute"
+        "in 1 minute",
       ));
 
     it("returns in minutes", () =>
@@ -330,7 +330,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 330001, style: "brief_future" },
         }),
-        "in 5 minutes"
+        "in 5 minutes",
       ));
 
     it("returns in hour", () =>
@@ -338,7 +338,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 3720001, style: "brief_future" },
         }),
-        "in 1 hour"
+        "in 1 hour",
       ));
 
     it("returns in hours", () =>
@@ -346,7 +346,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 18120001, style: "brief_future" },
         }),
-        "in 5 hours"
+        "in 5 hours",
       ));
 
     it("returns in day", () =>
@@ -354,7 +354,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 86700001, style: "brief_future" },
         }),
-        "in 1 day"
+        "in 1 day",
       ));
 
     it("returns in days", () =>
@@ -362,7 +362,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 261120001, style: "brief_future" },
         }),
-        "in 3 days"
+        "in 3 days",
       ));
 
     it("returns in week", () =>
@@ -370,7 +370,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 10 * 86400001, style: "brief_future" },
         }),
-        "in 1 week"
+        "in 1 week",
       ));
 
     it("returns in weeks", () =>
@@ -378,7 +378,7 @@ describe("pretty_ts", function () {
         Blaze._globalHelpers.pretty_ts({
           hash: { timestamp: 25 * 86400001 + 18120001, style: "brief_future" },
         }),
-        "in 3 weeks"
+        "in 3 weeks",
       ));
   });
 });

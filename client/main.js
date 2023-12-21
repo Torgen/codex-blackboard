@@ -18,11 +18,7 @@ import { mechanics } from "/lib/imports/mechanics.js";
 import { fileType } from "/lib/imports/mime_type.js";
 import embeddable from "/client/imports/embeddable.js";
 import keyword_or_positional from "/client/imports/keyword_or_positional.js";
-import {
-  gravatarUrl,
-  nickAndName,
-  nickHash,
-} from "/lib/imports/nickEmail.js";
+import { gravatarUrl, nickAndName, nickHash } from "/lib/imports/nickEmail.js";
 import * as notification from "/client/imports/notification.js";
 import { chatUrlFor, navigate, urlFor } from "/client/imports/router.js";
 import {
@@ -60,7 +56,7 @@ Template.page.events({
         target.href,
         "Pop out",
         "height=480,width=480,menubar=no,toolbar=no,personalbar=no," +
-          "status=yes,resizeable=yes,scrollbars=yes"
+          "status=yes,resizeable=yes,scrollbars=yes",
       );
     } else {
       navigate(target.getAttribute("href"));
@@ -139,7 +135,7 @@ Template.registerHelper("any", function (...args) {
   return a.some((x) => x);
 });
 Template.registerHelper("includes", (haystack, needle) =>
-  haystack?.includes(needle)
+  haystack?.includes(needle),
 );
 Template.registerHelper("all", function (...args) {
   const adjustedLength = Math.max(args.length, 1),
@@ -171,7 +167,7 @@ Template.registerHelper(
   () =>
     Meteor.userId() &&
     Session.get("canEdit") &&
-    Session.equals("currentPage", "blackboard")
+    Session.equals("currentPage", "blackboard"),
 );
 
 Template.registerHelper("md5", md5);
@@ -192,7 +188,7 @@ Template.registerHelper("nullToZero", (x) => x ?? 0);
 
 Template.registerHelper(
   "canGoFullScreen",
-  () => $("body").get(0)?.requestFullscreen != null
+  () => $("body").get(0)?.requestFullscreen != null,
 );
 Template.registerHelper("drive_link", function (args) {
   args = keyword_or_positional("id", args);
@@ -220,11 +216,11 @@ Template.registerHelper("nickAndName", function (args) {
 });
 Template.registerHelper(
   "nickExists",
-  (nick) => Meteor.users.findOne({ _id: nick }) != null
+  (nick) => Meteor.users.findOne({ _id: nick }) != null,
 );
 Template.registerHelper(
   "isonduty",
-  (nick) => Roles.findOne("onduty")?.holder === nick
+  (nick) => Roles.findOne("onduty")?.holder === nick,
 );
 
 Tracker.autorun(function () {
@@ -363,10 +359,10 @@ Meteor.startup(() =>
             silent: MUTE_SOUND_EFFECTS.get(),
           });
         },
-      })
+      }),
     );
     faveSuppress = false;
-  })
+  }),
 );
 
 Meteor.startup(() =>
@@ -400,7 +396,7 @@ Meteor.startup(() =>
             if (target.type === type) {
               const pretty_type = pretty_collection(type).replace(
                 /^[a-z]/,
-                (x) => x.toUpperCase()
+                (x) => x.toUpperCase(),
               );
               return [`${pretty_type} \"${target.name}\"`, urlFor(type, id)];
             } else {
@@ -429,7 +425,7 @@ Meteor.startup(() =>
         });
       },
     });
-  })
+  }),
 );
 
 Meteor.startup(function () {

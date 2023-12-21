@@ -14,7 +14,7 @@ describe("addMechanic", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -24,7 +24,7 @@ describe("addMechanic", function () {
   it("fails when it doesn't exist", () =>
     chai.assert.throws(
       () => callAs("addMechanic", "torgen", "id", "cryptic_clues"),
-      Meteor.Error
+      Meteor.Error,
     ));
 
   describe("to puzzle with empty mechanics", function () {
@@ -48,13 +48,13 @@ describe("addMechanic", function () {
               touched_by: "torgen",
             },
           },
-        }))
+        })),
     );
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("addMechanic", id, "cryptic_clues"),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", function () {
@@ -97,20 +97,20 @@ describe("addMechanic", function () {
             },
           },
           mechanics: ["nikoli_variants"],
-        }))
+        })),
     );
 
     it("fails without login", () =>
       chai.assert.throws(
         () => Meteor.call("addMechanic", id, "cryptic_clues"),
-        Match.Error
+        Match.Error,
       ));
 
     describe("when logged in", function () {
       it("fails with invalid mechanic", () =>
         chai.assert.throws(
           () => callAs("addMechanic", "torgen", id, "eating_contest"),
-          Match.Error
+          Match.Error,
         ));
 
       describe("with new mechanic", function () {

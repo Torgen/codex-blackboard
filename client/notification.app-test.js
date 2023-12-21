@@ -33,31 +33,31 @@ describe("notifications dropdown", function () {
       $(".bb-notification-enabled + .dropdown-toggle").click();
       chai.assert.equal($(".bb-notification-controls").css("display"), "block");
       chai.assert.isFalse(
-        $('input[data-notification-stream="new-puzzles"').prop("checked")
+        $('input[data-notification-stream="new-puzzles"').prop("checked"),
       );
       chai.assert.notEqual(
         localStorage.getItem("notification.stream.new-puzzles"),
-        "true"
+        "true",
       );
       $('input[data-notification-stream="new-puzzles"').click();
       await afterFlushPromise();
       chai.assert.equal($(".bb-notification-controls").css("display"), "block");
       chai.assert.isTrue(
-        $('input[data-notification-stream="new-puzzles"').prop("checked")
+        $('input[data-notification-stream="new-puzzles"').prop("checked"),
       );
       chai.assert.equal(
         localStorage.getItem("notification.stream.new-puzzles"),
-        "true"
+        "true",
       );
       $('input[data-notification-stream="new-puzzles"').click();
       await afterFlushPromise();
       chai.assert.equal($(".bb-notification-controls").css("display"), "block");
       chai.assert.isFalse(
-        $('input[data-notification-stream="new-puzzles"').prop("checked")
+        $('input[data-notification-stream="new-puzzles"').prop("checked"),
       );
       chai.assert.notEqual(
         localStorage.getItem("notification.stream.new-puzzles"),
-        "true"
+        "true",
       );
       $("body").click();
       chai.assert.equal($(".bb-notification-controls").css("display"), "none");
@@ -136,7 +136,7 @@ describe("notifications", function () {
           notification.set(stream, true);
           const notify = mock.expects("notify");
           const p = new Promise((resolve) =>
-            notify.once().callsFake(() => resolve())
+            notify.once().callsFake(() => resolve()),
           );
           await afterFlushPromise();
           await waitForSubscriptions();
@@ -164,7 +164,7 @@ describe("notifications", function () {
       });
       return promiseCallOn(other_conn, "setStarred", msg._id, true);
     },
-    function () {}
+    function () {},
   );
 
   testcase(
@@ -185,7 +185,7 @@ describe("notifications", function () {
       });
       return obj._id;
     },
-    (id) => promiseCallOn(other_conn, "deletePuzzle", id)
+    (id) => promiseCallOn(other_conn, "deletePuzzle", id),
   );
 
   testcase(
@@ -204,7 +204,7 @@ describe("notifications", function () {
       });
       return obj._id;
     },
-    (id) => promiseCallOn(other_conn, "deleteRound", id)
+    (id) => promiseCallOn(other_conn, "deleteRound", id),
   );
 
   testcase(
@@ -225,7 +225,7 @@ describe("notifications", function () {
       });
       return obj._id;
     },
-    (id) => promiseCallOn(other_conn, "cancelCallIn", { id })
+    (id) => promiseCallOn(other_conn, "cancelCallIn", { id }),
   );
 
   testcase(
@@ -246,7 +246,7 @@ describe("notifications", function () {
       });
       return doors._id;
     },
-    (id) => promiseCallOn(other_conn, "deleteAnswer", { target: id })
+    (id) => promiseCallOn(other_conn, "deleteAnswer", { target: id }),
   );
 
   testcase(
@@ -266,14 +266,14 @@ describe("notifications", function () {
         other_conn,
         "addMechanic",
         doors._id,
-        "nikoli_variants"
+        "nikoli_variants",
       );
       return doors._id;
     },
     async function (id) {
       await promiseCall("unfavoriteMechanic", "nikoli_variants");
       return promiseCall("removeMechanic", id, "nikoli_variants");
-    }
+    },
   );
 
   testcase(
@@ -296,7 +296,7 @@ describe("notifications", function () {
       });
       return { id: doors._id, rand };
     },
-    function () {}
+    function () {},
   );
 
   return testcase(
@@ -319,6 +319,6 @@ describe("notifications", function () {
       });
       return { id: doors._id, rand };
     },
-    function () {}
+    function () {},
   );
 });

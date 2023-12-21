@@ -39,7 +39,7 @@ export default function (id, parentType, parentId, args) {
         touched: Date.now(),
         touched_by: canonical(args.who),
       },
-    }
+    },
   );
   return true;
 }

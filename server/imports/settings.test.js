@@ -60,9 +60,9 @@ describe("settings", function () {
         chai.assert.throws(
           () =>
             impersonating("torgen", () =>
-              settings.EmbedPuzzles.set("something")
+              settings.EmbedPuzzles.set("something"),
             ),
-          Match.Error
+          Match.Error,
         ));
     });
 
@@ -78,18 +78,18 @@ describe("settings", function () {
               value: url,
               touched: 7,
               touched_by: "torgen",
-            }
+            },
           );
-        })
+        }),
       );
 
       it("disallows ftp", () =>
         chai.assert.throws(
           () =>
             impersonating("torgen", () =>
-              settings.PuzzleUrlPrefix.set("ftp://log:pwd@molasses.holiday")
+              settings.PuzzleUrlPrefix.set("ftp://log:pwd@molasses.holiday"),
             ),
-          Match.Error
+          Match.Error,
         ));
     });
 
@@ -103,7 +103,7 @@ describe("settings", function () {
             value: 925,
             touched: 7,
             touched_by: "torgen",
-          }
+          },
         );
       });
 
@@ -116,7 +116,7 @@ describe("settings", function () {
             value: 633,
             touched: 7,
             touched_by: "torgen",
-          }
+          },
         );
       });
 
@@ -129,7 +129,7 @@ describe("settings", function () {
             value: 286,
             touched: 7,
             touched_by: "torgen",
-          }
+          },
         );
       });
     });
@@ -145,13 +145,13 @@ describe("settings", function () {
             value: uuid,
             touched: 7,
             touched_by: "torgen",
-          }
+          },
         );
       });
 
       it("canonicalizes", function () {
         impersonating("torgen", () =>
-          settings.StaticJitsiMeeting.set("it's ya boy Voynich")
+          settings.StaticJitsiMeeting.set("it's ya boy Voynich"),
         );
         chai.assert.deepEqual(
           settings.Settings.findOne("static_jitsi_meeting"),
@@ -160,7 +160,7 @@ describe("settings", function () {
             value: "its_ya_boy_voynich",
             touched: 7,
             touched_by: "torgen",
-          }
+          },
         );
       });
     });
@@ -184,6 +184,6 @@ describe("settings", function () {
     it("doesn't create setting", () =>
       chai.assert.throws(
         () => callAs("changeSetting", "torgen", "foo", "qux"),
-        Match.Error
+        Match.Error,
       )));
 });

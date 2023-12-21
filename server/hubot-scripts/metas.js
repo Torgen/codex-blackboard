@@ -35,7 +35,7 @@ function makeNotMeta(msg) {
         { useful: true },
         `${l} puzzle${l !== 1 ? "s" : ""} feed${l === 1 ? "s" : ""} into ${
           p.object.name
-        }. It must be a meta.`
+        }. It must be a meta.`,
       );
       msg.finish();
       return;
@@ -52,21 +52,21 @@ function makeNotMeta(msg) {
 
 export default scripts.metas = function (robot) {
   robot.commands.push(
-    "bot <puzzle|this> is a meta[puzzle] - Updates codex blackboard"
+    "bot <puzzle|this> is a meta[puzzle] - Updates codex blackboard",
   );
   robot.respond(rejoin(thingRE, / is a meta(puzzle)?$/i), makeMeta);
 
   robot.commands.push(
-    "bot make <puzzle|this> a meta[puzzle] - Updates codex blackboard"
+    "bot make <puzzle|this> a meta[puzzle] - Updates codex blackboard",
   );
   robot.respond(rejoin(/make /, thingRE, / a meta(puzzle)?$/i), makeMeta);
 
   robot.commands.push(
-    "bot <puzzle|this> isn't a meta[puzzle] - Updates codex blackboard"
+    "bot <puzzle|this> isn't a meta[puzzle] - Updates codex blackboard",
   );
   robot.respond(
     rejoin(thingRE, / is(n't| not) a meta(puzzle)?$/i),
-    makeNotMeta
+    makeNotMeta,
   );
 
   function leafIntoMeta(msg, fn) {
@@ -85,19 +85,19 @@ export default scripts.metas = function (robot) {
   }
 
   robot.commands.push(
-    "bot <puzzle|this> feeds into <puzzle|this> - Update codex blackboard"
+    "bot <puzzle|this> feeds into <puzzle|this> - Update codex blackboard",
   );
   robot.respond(rejoin(thingRE, / feeds into /, thingRE, /$/i), function (msg) {
     leafIntoMeta(msg, function (p, m, who) {
       if (callAs("feedMeta", who, p._id, m._id)) {
         msg.reply(
           { useful: true },
-          `OK, ${msg.match[1]} now feeds into ${msg.match[2]}.`
+          `OK, ${msg.match[1]} now feeds into ${msg.match[2]}.`,
         );
       } else {
         msg.reply(
           { useful: true },
-          `${msg.match[1]} already fed into ${msg.match[2]}.`
+          `${msg.match[1]} already fed into ${msg.match[2]}.`,
         );
       }
       msg.finish();
@@ -105,7 +105,7 @@ export default scripts.metas = function (robot) {
   });
 
   robot.commands.push(
-    "bot <puzzle|this> doesn't feed into <puzzle|this> - Update codex blackboard"
+    "bot <puzzle|this> doesn't feed into <puzzle|this> - Update codex blackboard",
   );
   robot.respond(
     rejoin(thingRE, / does(?:n't| not) feed into /, thingRE, /$/i),
@@ -114,16 +114,16 @@ export default scripts.metas = function (robot) {
         if (callAs("unfeedMeta", who, p._id, m._id)) {
           msg.reply(
             { useful: true },
-            `OK, ${msg.match[1]} no longer feeds into ${msg.match[2]}.`
+            `OK, ${msg.match[1]} no longer feeds into ${msg.match[2]}.`,
           );
         } else {
           msg.reply(
             { useful: true },
-            `${msg.match[1]} already didn't feed into ${msg.match[2]}.`
+            `${msg.match[1]} already didn't feed into ${msg.match[2]}.`,
           );
         }
         msg.finish();
       });
-    }
+    },
   );
 };

@@ -100,7 +100,7 @@ async function ensure(drive, name, folder, settings) {
   let doc = (
     await drive.files.list({
       q: `name=${quote(settings.titleFunc(name))} and mimeType=${quote(
-        settings.driveMimeType
+        settings.driveMimeType,
       )} and ${quote(folder.id)} in parents`,
       pageSize: 1,
     })
@@ -204,7 +204,7 @@ async function rmrfFolder(drive, id) {
     resp = (
       await drive.files.list({
         q: `mimeType=${quote(GDRIVE_FOLDER_MIME_TYPE)} and ${quote(
-          id
+          id,
         )} in parents`,
         pageSize: MAX_RESULTS,
         pageToken: resp.nextPageToken,
@@ -220,14 +220,14 @@ async function rmrfFolder(drive, id) {
     resp = (
       await drive.files.list({
         q: `mimeType!=${quote(GDRIVE_FOLDER_MIME_TYPE)} and ${quote(
-          id
+          id,
         )} in parents`,
         pageSize: MAX_RESULTS,
         pageToken: resp.nextPageToken,
       })
     ).data;
     resp.files.forEach((item) =>
-      ps.push(drive.files.delete({ fileId: item.id }))
+      ps.push(drive.files.delete({ fileId: item.id })),
     );
     if (resp.nextPageToken == null) {
       break;
@@ -243,25 +243,25 @@ export class Drive {
   constructor(drive) {
     this.drive = drive;
     this.rootFolder = Promise.await(
-      awaitOrEnsureFolder(this.drive, ROOT_FOLDER_NAME())
+      awaitOrEnsureFolder(this.drive, ROOT_FOLDER_NAME()),
     ).id;
     this.ringhuntersFolder = Promise.await(
       awaitOrEnsureFolder(
         this.drive,
         `${Meteor.settings?.public?.chatName ?? "Ringhunters"} Uploads`,
-        this.rootFolder
-      )
+        this.rootFolder,
+      ),
     ).id;
   }
 
   createPuzzle(name) {
     const { folder, permissionsPromise } = Promise.await(
-      ensureFolder(this.drive, name, this.rootFolder)
+      ensureFolder(this.drive, name, this.rootFolder),
     );
     // is the spreadsheet already there?
     const spreadsheetP = ensure(this.drive, name, folder, spreadsheetSettings);
     const [spreadsheet, p] = Promise.await(
-      Promise.all([spreadsheetP, permissionsPromise])
+      Promise.all([spreadsheetP, permissionsPromise]),
     );
     return {
       id: folder.id,
@@ -273,10 +273,10 @@ export class Drive {
     const resp = Promise.await(
       this.drive.files.list({
         q: `name=${quote(name)} and mimeType=${quote(
-          GDRIVE_FOLDER_MIME_TYPE
+          GDRIVE_FOLDER_MIME_TYPE,
         )} and ${quote(this.rootFolder)} in parents`,
         pageSize: 1,
-      })
+      }),
     ).data;
     const folder = resp.files[0];
     if (folder == null) {
@@ -286,10 +286,10 @@ export class Drive {
     const spread = Promise.await(
       this.drive.files.list({
         q: `name=${quote(WORKSHEET_NAME(name))} and ${quote(
-          folder.id
+          folder.id,
         )} in parents`,
         pageSize: 1,
-      })
+      }),
     );
     return {
       id: folder.id,
@@ -304,11 +304,11 @@ export class Drive {
       resp = Promise.await(
         this.drive.files.list({
           q: `mimeType=${quote(GDRIVE_FOLDER_MIME_TYPE)} and ${quote(
-            this.rootFolder
+            this.rootFolder,
           )} in parents`,
           pageSize: MAX_RESULTS,
           pageToken: resp.nextPageToken,
-        })
+        }),
       ).data;
       results.push(...resp.files);
       if (resp.nextPageToken == null) {
@@ -334,7 +334,7 @@ export class Drive {
           resource: {
             name: WORKSHEET_NAME(name),
           },
-        })
+        }),
       );
     }
     Promise.await(Promise.all(ps));

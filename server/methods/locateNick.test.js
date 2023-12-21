@@ -13,7 +13,7 @@ describe("locateNick", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -30,7 +30,7 @@ describe("locateNick", function () {
           },
           timestamp: 5,
         }),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with old params", () =>
@@ -41,7 +41,7 @@ describe("locateNick", function () {
           lng: -122.036346,
           timestamp: 5,
         }),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails with non-point", () =>
@@ -57,7 +57,7 @@ describe("locateNick", function () {
           },
           timestamp: 5,
         }),
-      Match.Error
+      Match.Error,
     ));
 
   describe("without queue position", function () {

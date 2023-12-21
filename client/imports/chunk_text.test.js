@@ -32,7 +32,7 @@ describe("chunk_html", () =>
   it("processes text outside tags", () =>
     chai.assert.deepEqual(
       chunk_html(
-        '@torgen: there\'s already <i class="fas fa-link"></i><a href="foo">a puzzle named bar</a>.'
+        '@torgen: there\'s already <i class="fas fa-link"></i><a href="foo">a puzzle named bar</a>.',
       ),
       [
         { type: "mention", content: "torgen" },
@@ -43,5 +43,5 @@ describe("chunk_html", () =>
             '<i class="fas fa-link"></i><a href="foo">a puzzle named bar</a>',
         },
         { type: "text", content: "." },
-      ]
+      ],
     )));

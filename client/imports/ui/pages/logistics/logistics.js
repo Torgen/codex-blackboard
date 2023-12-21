@@ -21,7 +21,7 @@ function nameAndUrlFromDroppedLink(dataTransfer) {
   if (dataTransfer.types.includes("text/html")) {
     const doc = new DOMParser().parseFromString(
       dataTransfer.getData("text/html"),
-      "text/html"
+      "text/html",
     );
     name = doc.body.innerText.trim();
   } else {
@@ -213,7 +213,7 @@ function droppingLink(event, fn) {
   if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
     event.preventDefault();
     const { name, url } = nameAndUrlFromDroppedLink(
-      event.originalEvent.dataTransfer
+      event.originalEvent.dataTransfer,
     );
     fn(name, url);
   }
@@ -262,14 +262,14 @@ Template.logistics.events({
     draggedPuzzle.set(data);
     event.originalEvent.dataTransfer.setData(
       PUZZLE_MIME_TYPE,
-      JSON.stringify(data)
+      JSON.stringify(data),
     );
     event.originalEvent.dataTransfer.effectAllowed = "all";
   },
   "dragstart .bb-calendar-event"(event, template) {
     event.originalEvent.dataTransfer.setData(
       CALENDAR_EVENT_MIME_TYPE,
-      this.event._id
+      this.event._id,
     );
     event.originalEvent.dataTransfer.effectAllowed = "link";
   },
@@ -339,7 +339,7 @@ Template.logistics.events({
     event.preventDefault();
     event.stopPropagation();
     const data = JSON.parse(
-      event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE)
+      event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE),
     );
     if (data.meta != null) {
       Meteor.call("unfeedMeta", data.id, data.meta);
@@ -354,7 +354,7 @@ Template.logistics.events({
   },
   "drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone"(
     event,
-    template
+    template,
   ) {
     lastEnter = null;
     event.currentTarget.classList.remove("dragover");
@@ -366,7 +366,7 @@ Template.logistics.events({
       event.preventDefault();
       event.stopPropagation();
       const data = JSON.parse(
-        event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE)
+        event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE),
       );
       const puzzle = Puzzles.findOne({ _id: data.id });
       if (puzzle != null) {
@@ -447,7 +447,7 @@ Template.logistics_puzzle.events({
       event.originalEvent.dataTransfer.types.includes(CALENDAR_EVENT_MIME_TYPE)
     ) {
       const id = event.originalEvent.dataTransfer.getData(
-        CALENDAR_EVENT_MIME_TYPE
+        CALENDAR_EVENT_MIME_TYPE,
       );
       Meteor.call("setPuzzleForEvent", id, this._id);
       event.preventDefault();
@@ -461,14 +461,14 @@ Template.logistics_puzzle_events.helpers({
     const now = Session.get("currentTime");
     return CalendarEvents.findOne(
       { puzzle: this._id, start: { $lt: now }, end: { $gt: now } },
-      { sort: { end: -1 } }
+      { sort: { end: -1 } },
     );
   },
   next_future_event() {
     const now = Session.get("currentTime");
     return CalendarEvents.findOne(
       { puzzle: this._id, start: { $gt: now } },
-      { sort: { start: 1 } }
+      { sort: { start: 1 } },
     );
   },
   no_events() {
@@ -497,7 +497,7 @@ Template.logistics_meta.events({
     draggedPuzzle.set(data);
     event.originalEvent.dataTransfer.setData(
       PUZZLE_MIME_TYPE,
-      JSON.stringify(data)
+      JSON.stringify(data),
     );
     event.originalEvent.dataTransfer.effectAllowed = "all";
   },
@@ -506,7 +506,7 @@ Template.logistics_meta.events({
     draggedPuzzle.set(data);
     event.originalEvent.dataTransfer.setData(
       PUZZLE_MIME_TYPE,
-      JSON.stringify(data)
+      JSON.stringify(data),
     );
     event.originalEvent.dataTransfer.effectAllowed = "all";
   },
@@ -561,7 +561,7 @@ Template.logistics_meta.events({
       event.originalEvent.dataTransfer.types.includes(CALENDAR_EVENT_MIME_TYPE)
     ) {
       const id = event.originalEvent.dataTransfer.getData(
-        CALENDAR_EVENT_MIME_TYPE
+        CALENDAR_EVENT_MIME_TYPE,
       );
       Meteor.call("setPuzzleForEvent", id, this.meta._id);
       event.preventDefault();
@@ -574,7 +574,7 @@ Template.logistics_meta.events({
       event.preventDefault();
       event.stopPropagation();
       const data = JSON.parse(
-        event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE)
+        event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE),
       );
       if (data.meta === template.data.meta._id) {
         return;
@@ -645,7 +645,7 @@ Template.logistics_puzzle_presence.helpers({
     return findByChannel(
       `puzzles/${this._id}`,
       { [scope]: 1 },
-      { fields: { [scope]: 1 } }
+      { fields: { [scope]: 1 } },
     ).count();
   },
 });
@@ -660,7 +660,7 @@ Template.logistics_callins_table.helpers({
           c.puzzle = c.target ? Puzzles.findOne({ _id: c.target }) : undefined;
           return c;
         },
-      }
+      },
     );
   },
 });
@@ -686,7 +686,7 @@ Template.logistics_callin_row.helpers({
         sort: { resolved: -1 },
         limit: 1,
         fields: { resolved: 1 },
-      }
+      },
     )?.resolved;
   },
 
@@ -708,7 +708,7 @@ Template.logistics_callin_row.helpers({
           status: "rejected",
           answer: this.answer,
         },
-        { fields: {} }
+        { fields: {} },
       ) != null
     );
   },
@@ -785,7 +785,7 @@ Template.logistics_dynamic_setting.helpers({
   },
   settingEditClass: currentValueHelper("info", "success", () => "error"),
   settingEditStatus: currentValueHelper("unchanged", null, (error) =>
-    error.message.replaceAll("Match error: ", "")
+    error.message.replaceAll("Match error: ", ""),
   ),
 });
 

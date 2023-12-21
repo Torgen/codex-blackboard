@@ -50,7 +50,7 @@ describe("newPuzzle", function () {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
         }),
-      Match.Error
+      Match.Error,
     ));
 
   describe("when none exists with that name", function () {
@@ -81,7 +81,7 @@ describe("newPuzzle", function () {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
               round,
-            })._id)
+            })._id),
         );
       });
 
@@ -111,7 +111,7 @@ describe("newPuzzle", function () {
       it("oplogs", () =>
         chai.assert.lengthOf(
           Messages.find({ id, type: "puzzles" }).fetch(),
-          1
+          1,
         ));
 
       it("renews onduty", () =>
@@ -148,7 +148,7 @@ describe("newPuzzle", function () {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
               round,
-            })._id)
+            })._id),
         );
       });
 
@@ -179,7 +179,7 @@ describe("newPuzzle", function () {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
               round,
-            })._id)
+            })._id),
         );
       });
 
@@ -200,7 +200,7 @@ describe("newPuzzle", function () {
           touched: 1,
           touched_by: "cjb",
           puzzles: [],
-        }))
+        })),
     );
 
     it("dedupes mechanics", () =>
@@ -226,14 +226,14 @@ describe("newPuzzle", function () {
             round,
             mechanics: ["acrostic"],
           }),
-        Match.Error
+        Match.Error,
       ));
   });
 
   it("derives link", () =>
     drive.withValue(driveMethods, function () {
       impersonating("cjb", () =>
-        PuzzleUrlPrefix.set("https://testhuntpleaseign.org/puzzles")
+        PuzzleUrlPrefix.set("https://testhuntpleaseign.org/puzzles"),
       );
       const round = Rounds.insert({
         name: "Round",
@@ -297,7 +297,7 @@ describe("newPuzzle", function () {
           callAs("newPuzzle", "cjb", {
             name: "Foo",
             round,
-          })
+          }),
         );
       } catch (err) {
         error = err;
@@ -318,7 +318,7 @@ describe("newPuzzle", function () {
     it("doesn't oplog", () =>
       chai.assert.lengthOf(
         Messages.find({ id: id1, type: "puzzles" }).fetch(),
-        0
+        0,
       ));
   });
 

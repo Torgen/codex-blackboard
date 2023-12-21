@@ -13,7 +13,7 @@ Meteor.methods({
         type: NonEmptyString,
         object: NonEmptyString,
         fields: Object,
-      })
+      }),
     );
     const now = Date.now();
     args.fields.touched = now;

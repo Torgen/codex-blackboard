@@ -38,7 +38,8 @@ function unreadHelper(filter) {
   })
     .fetch()
     .filter(
-      (msg) => msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0)
+      (msg) =>
+        msg.timestamp > (LastRead.findOne(msg.room_name)?.timestamp ?? 0),
     ).length;
   if (count !== 0) {
     return count;
@@ -75,7 +76,7 @@ Template.header_loginmute.helpers({
       {
         sort: { timestamp: -1 },
         transform: privateMessageTransform,
-      }
+      },
     );
   },
   mentions() {
@@ -84,7 +85,7 @@ Template.header_loginmute.helpers({
       {
         sort: { timestamp: -1 },
         transform: privateMessageTransform,
-      }
+      },
     );
   },
   isVisible(tabname) {
@@ -112,7 +113,7 @@ Template.header_loginmute.events({
     event.preventDefault();
     const latest = Messages.findOne(
       { $or: [{ to: Meteor.userId() }, { mention: Meteor.userId() }] },
-      { sort: { timestamp: -1 } }
+      { sort: { timestamp: -1 } },
     ).timestamp;
     Meteor.call("updateLastRead", {
       room_name: "private",
@@ -173,7 +174,7 @@ function crumbs_equal(x, y) {
 
 const breadcrumbs_var = new ReactiveVar(
   [{ page: "blackboard", type: "general", id: "0" }],
-  crumbs_equal
+  crumbs_equal,
 );
 
 function in_crumbs(crumbs, type, id) {
@@ -380,7 +381,7 @@ Template.header_breadcrumbs.onCreated(function () {
       if (error == null) {
         Session.set("RINGHUNTERS_FOLDER", f || undefined);
       }
-    })
+    }),
   );
 });
 
@@ -414,7 +415,7 @@ Template.header_lastchats.helpers({
         bodyIsHtml: { $ne: true },
         header_ignore: { $ne: true },
       },
-      { sort: [["timestamp", "desc"]], limit: RECENT_GENERAL_LIMIT }
+      { sort: [["timestamp", "desc"]], limit: RECENT_GENERAL_LIMIT },
     );
   },
   msgbody() {

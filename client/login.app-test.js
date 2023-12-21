@@ -16,7 +16,7 @@ describe("login", function () {
     chai.assert.isUndefined(Meteor.users.findOne("testy").gravatar);
     chai.assert.equal(
       Meteor.users.findOne("testy").gravatar_md5,
-      "a24f643d34150c3b4053989db38251c9"
+      "a24f643d34150c3b4053989db38251c9",
     );
   });
 
@@ -26,7 +26,7 @@ describe("login", function () {
         "testy",
         "Teresa Tybalt",
         "fake@artifici.al",
-        "succeedphoneme"
+        "succeedphoneme",
       );
     } catch (e) {
       chai.assert.deepEqual(e.details, { field: "password" });
@@ -45,7 +45,7 @@ describe("login", function () {
       await afterFlushPromise();
       chai.assert.equal(
         $('[for="nickEmail"] .gravatar img').attr("src"),
-        "https://secure.gravatar.com/avatar/2c05cf2e37d5526ed477ac2d8d5ddcba.jpg?d=wavatar&s=80"
+        "https://secure.gravatar.com/avatar/2c05cf2e37d5526ed477ac2d8d5ddcba.jpg?d=wavatar&s=80",
       );
       $('#nickInput + .typeahead li[data-value="testy"]').click();
       await afterFlushPromise();
@@ -53,26 +53,26 @@ describe("login", function () {
       chai.assert.equal($("#nickEmail").val(), "");
       chai.assert.equal(
         $('[for="nickEmail"] .gravatar img').attr("src"),
-        "https://secure.gravatar.com/avatar/05c1de2f5c5e7933bee97a499e818c5e.jpg?d=wavatar&s=80"
+        "https://secure.gravatar.com/avatar/05c1de2f5c5e7933bee97a499e818c5e.jpg?d=wavatar&s=80",
       );
       $("#nickEmail").val("fake@artifici.al").trigger("input");
       // debounce -- won't change yet.
       chai.assert.equal(
         $('[for="nickEmail"] .gravatar img').attr("src"),
-        "https://secure.gravatar.com/avatar/05c1de2f5c5e7933bee97a499e818c5e.jpg?d=wavatar&s=80"
+        "https://secure.gravatar.com/avatar/05c1de2f5c5e7933bee97a499e818c5e.jpg?d=wavatar&s=80",
       );
       await delay(500);
       await afterFlushPromise();
       chai.assert.equal(
         $('[for="nickEmail"] .gravatar img').attr("src"),
-        "https://secure.gravatar.com/avatar/a24f643d34150c3b4053989db38251c9.jpg?d=wavatar&s=80"
+        "https://secure.gravatar.com/avatar/a24f643d34150c3b4053989db38251c9.jpg?d=wavatar&s=80",
       );
       $(".bb-submit").click();
       await waitForMethods();
       await afterFlushPromise();
       chai.assert.equal(
         Meteor.user().gravatar_md5,
-        "a24f643d34150c3b4053989db38251c9"
+        "a24f643d34150c3b4053989db38251c9",
       );
     });
 
@@ -86,7 +86,7 @@ describe("login", function () {
       await afterFlushPromise();
       chai.assert.isNotOk(Meteor.userId());
       chai.assert.isTrue(
-        $("#passwordInputGroup")[0].classList.contains("error")
+        $("#passwordInputGroup")[0].classList.contains("error"),
       );
       chai.assert.equal($("#loginError")[0].innerText, "Wrong password");
     });
@@ -103,7 +103,7 @@ describe("login", function () {
       chai.assert.isTrue($("#nickInputGroup")[0].classList.contains("error"));
       chai.assert.equal(
         $("#loginError")[0].innerText,
-        "Nickname must be 1-20 characters long"
+        "Nickname must be 1-20 characters long",
       );
     });
 
@@ -119,7 +119,7 @@ describe("login", function () {
       chai.assert.isTrue($("#nickInputGroup")[0].classList.contains("error"));
       chai.assert.equal(
         $("#loginError")[0].innerText,
-        "Can't impersonate the bot"
+        "Can't impersonate the bot",
       );
     });
 

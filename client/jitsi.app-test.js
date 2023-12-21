@@ -64,8 +64,8 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       factory.calledWithMatch(
         "codex_whiteNoiseFoyer",
-        sinon.match.instanceOf(HTMLDivElement)
-      )
+        sinon.match.instanceOf(HTMLDivElement),
+      ),
     );
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
@@ -74,7 +74,7 @@ describe("jitsi", function () {
           return true;
         }
         return false;
-      })
+      }),
     );
     mock.expects("executeCommand").once().withArgs("subject", "Ringhunters");
     mock.expects("executeCommands").once().withArgs({
@@ -132,7 +132,7 @@ describe("jitsi", function () {
           return true;
         }
         return false;
-      })
+      }),
     );
     mock2.expects("executeCommand").once().withArgs("subject", "In Memoriam");
     await afterFlushPromise();
@@ -178,7 +178,7 @@ describe("jitsi", function () {
           return true;
         }
         return false;
-      })
+      }),
     );
     await afterFlushPromise();
     dispose1.verify();
@@ -224,7 +224,7 @@ describe("jitsi", function () {
     await afterFlushPromise();
     chai.assert.equal(
       reactiveLocalStorage.getItem("jitsiTabUUID"),
-      CLIENT_UUID
+      CLIENT_UUID,
     );
   });
 

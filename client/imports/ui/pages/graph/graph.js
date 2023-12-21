@@ -110,7 +110,7 @@ Template.graph.onRendered(function () {
     while (true) {
       this.setAspect();
       console.log(
-        `laying out structure: ${this.structure} roundChange: ${this.roundChange}`
+        `laying out structure: ${this.structure} roundChange: ${this.roundChange}`,
       );
       const lay = this.cy.layout({
         name: "fcose",
@@ -280,7 +280,7 @@ Template.graph.onRendered(function () {
         "tags.color": 1,
         "tags.status": 1,
       },
-    }
+    },
   ).observe({
     added: (doc) => {
       startAdding();

@@ -24,7 +24,7 @@ export function editableTemplate(template, callbacks) {
         t.editable.set(false);
         callbacks.cancel?.(e, t);
       },
-    })
+    }),
   );
 
   template.helpers({
@@ -42,7 +42,7 @@ function okCancelEvents(selector, callbacks) {
   const ok = callbacks.ok || function () {};
   const cancel = callbacks.cancel || function () {};
   const evspec = ["keyup", "keydown", "focusout"].map(
-    (ev) => `${ev} ${selector}`
+    (ev) => `${ev} ${selector}`,
   );
   const events = {};
   events[evspec.join(", ")] = function (evt, template) {

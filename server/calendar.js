@@ -20,6 +20,6 @@ if (DO_BATCH_PROCESSING && !Meteor.isAppTest) {
       } catch (e) {
         console.error(e);
       }
-    })()
+    })(),
   );
 }

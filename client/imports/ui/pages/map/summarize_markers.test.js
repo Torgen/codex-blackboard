@@ -41,7 +41,7 @@ describe("summarize_markers", function () {
         { gravatar: "c.jpg", title: "c", onlineness: "online" },
         { gravatar: "j.jpg", title: "j", onlineness: "offline" },
         { gravatar: "h.jpg", title: "h", onlineness: "offline" },
-      ]
+      ],
     );
   });
 
@@ -61,7 +61,7 @@ describe("summarize_markers", function () {
         { gravatar: "e.jpg", title: "e", onlineness: "online" },
         { gravatar: "b.jpg", title: "b", onlineness: "online" },
         { summary: 2, title: "2 more online", onlineness: "online" },
-      ]
+      ],
     );
   });
 
@@ -81,7 +81,7 @@ describe("summarize_markers", function () {
         { gravatar: "k.jpg", title: "k", onlineness: "offline" },
         { gravatar: "h.jpg", title: "h", onlineness: "offline" },
         { summary: 2, title: "2 more offline", onlineness: "offline" },
-      ]
+      ],
     );
   });
 
@@ -101,7 +101,7 @@ describe("summarize_markers", function () {
         { gravatar: "e.jpg", title: "e", onlineness: "online" },
         { gravatar: "b.jpg", title: "b", onlineness: "online" },
         { summary: 2, title: "2 more offline", onlineness: "offline" },
-      ]
+      ],
     );
   });
 
@@ -123,7 +123,7 @@ describe("summarize_markers", function () {
         { gravatar: "e.jpg", title: "e", onlineness: "online" },
         { summary: 2, title: "2 more online", onlineness: "online" },
         { summary: 3, title: "3 more offline", onlineness: "offline" },
-      ]
+      ],
     );
   });
 
@@ -143,7 +143,7 @@ describe("summarize_markers", function () {
         { gravatar: "i.jpg", title: "i", onlineness: "offline" },
         { gravatar: "k.jpg", title: "k", onlineness: "offline" },
         { summary: 2, title: "2 more offline", onlineness: "offline" },
-      ]
+      ],
     );
   });
 
@@ -163,7 +163,7 @@ describe("summarize_markers", function () {
         { gravatar: "e.jpg", title: "e", onlineness: "online" },
         { summary: 2, title: "2 more online", onlineness: "online" },
         { gravatar: "j.jpg", title: "j", onlineness: "offline" },
-      ]
+      ],
     );
   });
 });

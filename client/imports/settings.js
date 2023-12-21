@@ -22,7 +22,7 @@ class DefaultFalseSetting extends Setting {
 
 export const CAP_JITSI_HEIGHT = new DefaultFalseSetting(
   "capJitsiHeight",
-  "jitsiHeightCapped"
+  "jitsiHeightCapped",
 );
 export const HIDE_SOLVED = new DefaultFalseSetting("hideSolved");
 export const HIDE_SOLVED_FAVES = new DefaultFalseSetting("hideSolvedFaves");
@@ -30,7 +30,7 @@ export const HIDE_SOLVED_METAS = new DefaultFalseSetting("hideSolvedMeta");
 export const STUCK_TO_TOP = new DefaultFalseSetting("stuckToTop");
 export const HIDE_USELESS_BOT_MESSAGES = new DefaultFalseSetting(
   "nobot",
-  "noBot"
+  "noBot",
 );
 export const MUTE_SOUND_EFFECTS = new DefaultFalseSetting("mute", "sfxMute");
 export const HIDE_OLD_PRESENCE = new DefaultFalseSetting("hideOldPresence");
@@ -103,8 +103,8 @@ Tracker.autorun(function () {
   const visible_array = COMPACT_MODE.get()
     ? Object.freeze(["answer"])
     : Meteor.userId() && Session.get("canEdit")
-    ? currentColumns.get().filter((x) => visibleColumnsWhenEditing.has(x))
-    : currentColumns.get();
+      ? currentColumns.get().filter((x) => visibleColumnsWhenEditing.has(x))
+      : currentColumns.get();
   return visibleColumns.set(Object.freeze(visible_array));
 });
 
@@ -119,9 +119,9 @@ Tracker.autorun(() =>
     Object.freeze(
       visibleColumns.get().map((x) => ({
         _id: x,
-      }))
-    )
-  )
+      })),
+    ),
+  ),
 );
 
 Template.registerHelper("nCols", () => 1 + visibleColumns.get().length);

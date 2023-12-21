@@ -13,7 +13,7 @@ describe("feedMeta", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -171,7 +171,7 @@ describe("feedMeta", function () {
     });
     chai.assert.throws(
       () => callAs("feedMeta", "jeff", leaf, "nope"),
-      Meteor.Error
+      Meteor.Error,
     );
     chai.assert.deepEqual(Puzzles.findOne(leaf).feedsInto, ["wew"]);
   });
@@ -190,7 +190,7 @@ describe("feedMeta", function () {
     });
     chai.assert.throws(
       () => callAs("feedMeta", "jeff", "nope", meta),
-      Meteor.Error
+      Meteor.Error,
     );
     chai.assert.deepEqual(Puzzles.findOne(meta).puzzles, ["yoy"]);
   });

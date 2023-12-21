@@ -14,7 +14,7 @@ describe("cancelCallIn", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -51,7 +51,7 @@ describe("cancelCallIn", function () {
   it("fails without login", () =>
     chai.assert.throws(
       () => Meteor.call("cancelCallIn", { id: callin }),
-      Match.Error
+      Match.Error,
     ));
 
   describe("when logged in", function () {
@@ -68,7 +68,7 @@ describe("cancelCallIn", function () {
     it("oplogs", () =>
       chai.assert.lengthOf(
         Messages.find({ type: "puzzles", id: puzzle }).fetch(),
-        1
+        1,
       ));
   });
 });

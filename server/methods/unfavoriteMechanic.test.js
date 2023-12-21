@@ -10,13 +10,13 @@ describe("unfavoriteMechanic", function () {
   it("fails without login", () =>
     chai.assert.throws(
       () => Meteor.call("unfavoriteMechanic", "cryptic_clues"),
-      Match.Error
+      Match.Error,
     ));
 
   it("fails when no such user", () =>
     chai.assert.throws(
       () => callAs("unfavoriteMechanic", "cjb", "cryptic_clues"),
-      Meteor.Error
+      Meteor.Error,
     ));
 
   describe("when user has favorite mechanics", function () {
@@ -24,7 +24,7 @@ describe("unfavoriteMechanic", function () {
       Meteor.users.insert({
         _id: "torgen",
         favorite_mechanics: ["nikoli_variants", "cryptic_clues"],
-      })
+      }),
     );
 
     it("removes mechanic", function () {
@@ -45,7 +45,7 @@ describe("unfavoriteMechanic", function () {
     it("rejects bad mechanic", () =>
       chai.assert.throws(
         () => callAs("unfavoriteMechanic", "torgen", "minesweeper"),
-        Match.Error
+        Match.Error,
       ));
   });
 
@@ -53,13 +53,13 @@ describe("unfavoriteMechanic", function () {
     beforeEach(() =>
       Meteor.users.insert({
         _id: "torgen",
-      })
+      }),
     );
 
     it("leaves favorite mechanics absent", function () {
       callAs("unfavoriteMechanic", "torgen", "cryptic_clues");
       chai.assert.isUndefined(
-        Meteor.users.findOne("torgen").favorite_mechanics
+        Meteor.users.findOne("torgen").favorite_mechanics,
       );
     });
   });

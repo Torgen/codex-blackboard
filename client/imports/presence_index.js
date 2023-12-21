@@ -35,7 +35,7 @@ Meteor.startup(() =>
       });
       coll.remove({ _id: doc.nick, jitsi: 0, chat: 0 });
     },
-  })
+  }),
 );
 
 export var findByChannel = (channel, query, options) =>

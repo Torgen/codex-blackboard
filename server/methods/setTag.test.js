@@ -14,7 +14,7 @@ describe("setTag", function () {
       (clock = sinon.useFakeTimers({
         now: 7,
         toFake: ["Date"],
-      }))
+      })),
   );
 
   afterEach(() => clock.restore());
@@ -49,7 +49,7 @@ describe("setTag", function () {
           name: "Cares About",
           value: "temperature",
         }),
-      Match.Error
+      Match.Error,
     );
   });
 
@@ -202,7 +202,7 @@ describe("setTag", function () {
         oplog: true,
         type: "puzzles",
         stream: "answers",
-      }
+      },
     );
   });
 

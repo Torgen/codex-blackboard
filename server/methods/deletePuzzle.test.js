@@ -97,8 +97,8 @@ describe("deletePuzzle", function () {
     beforeEach(() =>
       drive.withValue(
         driveMethods,
-        () => (ret = callAs("deletePuzzle", "cjb", id))
-      )
+        () => (ret = callAs("deletePuzzle", "cjb", id)),
+      ),
     );
 
     it("oplogs", () =>
@@ -108,7 +108,7 @@ describe("deletePuzzle", function () {
           type: "puzzles",
           room_name: "oplog/0",
         }).fetch(),
-        1
+        1,
       ));
 
     it("removes puzzle from round", () =>

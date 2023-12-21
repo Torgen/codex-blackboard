@@ -108,7 +108,7 @@ instachat["mutationObserver"] = new MutationObserver(function (recs, obs) {
     if (!Meteor.isProduction) {
       if (
         [...rec.addedNodes, ...rec.removedNodes].some(
-          (x) => x instanceof Element
+          (x) => x instanceof Element,
         )
       ) {
         console.log(rec);
@@ -124,7 +124,7 @@ instachat["mutationObserver"] = new MutationObserver(function (recs, obs) {
   }
 });
 instachat["readObserver"] = new MutationObserver((recs, obs) =>
-  recs.map((rec) => assignReadMarker(rec.target))
+  recs.map((rec) => assignReadMarker(rec.target)),
 );
 
 // Favicon instance, used for notifications
@@ -159,7 +159,7 @@ Template.starred_messages.helpers({
       {
         sort: [["timestamp", "asc"]],
         transform: messageTransform,
-      }
+      },
     );
   },
 });
@@ -261,7 +261,7 @@ function messageTransform(m) {
       // use a nonreactive read at first. If it's unread, then do a reactive read
       // to create the tracker dependency.
       const result = Tracker.nonreactive(
-        () => m.timestamp <= Session.get("lastread")
+        () => m.timestamp <= Session.get("lastread"),
       );
       if (!result) {
         Session.get("lastread");
@@ -335,7 +335,7 @@ Template.messages.helpers({
       {
         sort: [["timestamp", "asc"]],
         transform: messageTransform,
-      }
+      },
     );
   },
 });
@@ -433,7 +433,7 @@ Template.messages.onCreated(function () {
       } else {
         Tracker.afterFlush(() => {
           this.$(
-            `.bb-message[data-read=\"unread\"]:is(.bb-message-mention-me,[data-pm-to=\"${Meteor.userId}\"])`
+            `.bb-message[data-read=\"unread\"]:is(.bb-message-mention-me,[data-pm-to=\"${Meteor.userId}\"])`,
           )[0]?.scrollIntoView();
         });
       }
@@ -489,7 +489,7 @@ function whos_here_helper() {
   const roomName = Session.get("room_name");
   return Presence.find(
     { room_name: roomName, scope: "chat" },
-    { sort: ["joined_timestamp"] }
+    { sort: ["joined_timestamp"] },
   );
 }
 
@@ -560,27 +560,31 @@ Template.embedded_chat.onRendered(function () {
       if (jitsi == null) {
         jitsi = jitsiModule.createJitsiMeet(
           newRoom,
-          this.find("#bb-jitsi-container")
+          this.find("#bb-jitsi-container"),
         );
         if (jitsi == null) {
           return;
         }
         this.jitsiRoom = newRoom;
         this.jitsi.set(jitsi);
-        jitsi.once("videoConferenceJoined", ({id}) => {
+        jitsi.once("videoConferenceJoined", ({ id }) => {
           const myId = id;
           if (this.jitsi.get() !== jitsi) {
             return;
           }
           this.jitsiReady.set(true);
-          jitsi.on("participantRoleChanged", ({id, role}) => {
-            if ( id === myId && role === "moderator") {
+          jitsi.on("participantRoleChanged", ({ id, role }) => {
+            if (id === myId && role === "moderator") {
               try {
                 jitsi.executeCommand(
                   "subject",
-                  Tracker.nonreactive(() => jitsiRoomSubject(this.jitsiType(), this.jitsiId()))
+                  Tracker.nonreactive(() =>
+                    jitsiRoomSubject(this.jitsiType(), this.jitsiId()),
+                  ),
                 );
-              } catch (error) { console.log(error);}
+              } catch (error) {
+                console.log(error);
+              }
             }
           });
         });
@@ -593,7 +597,7 @@ Template.embedded_chat.onRendered(function () {
       this.subscribe(
         "register-presence",
         `${this.jitsiType()}/${this.jitsiId()}`,
-        "jitsi"
+        "jitsi",
       );
     }
   });
@@ -630,7 +634,7 @@ Template.embedded_chat.onRendered(function () {
     try {
       jitsi.executeCommand(
         "subject",
-        jitsiRoomSubject(this.jitsiType(), this.jitsiId())
+        jitsiRoomSubject(this.jitsiType(), this.jitsiId()),
       );
     } catch (error) {}
   });
@@ -670,7 +674,7 @@ Template.embedded_chat.helpers({
     const roomName = Session.get("room_name");
     return Presence.find(
       { room_name: roomName, scope: "jitsi", nick: { $ne: Meteor.userId() } },
-      { sort: ["joined_timestamp"] }
+      { sort: ["joined_timestamp"] },
     );
   },
   jitsiPinSet() {
@@ -876,7 +880,7 @@ Template.messages_input.onCreated(function () {
         limit: 8,
         fields: { _id: 1 },
         sort: { roles: -1, _id: 1 },
-      }
+      },
     );
     this.queryCursor.set(c);
     const s = this.selected.get();
@@ -974,7 +978,7 @@ Template.messages_input.onCreated(function () {
         v.substring(0, match[0].length - match[2].length) +
           nick +
           " " +
-          v.substring(consider.length)
+          v.substring(consider.length),
       );
       newCaret = match[0].length - match[2].length + nick.length + 1;
       i.focus();
@@ -987,7 +991,7 @@ Template.messages_input.onCreated(function () {
         v.substring(0, consider.length - match[2].length) +
           nick +
           " " +
-          v.substring(consider.length)
+          v.substring(consider.length),
       );
       newCaret = consider.length - match[2].length + nick.length + 1;
       i.focus();
@@ -1061,7 +1065,7 @@ Template.messages_input.onCreated(function () {
       // Can't mention someone in a private message
       const mentions = [];
       for (let match of args.body.matchAll(
-        /(^|[\s])@([a-zA-Z_0-9]*)([\s.?!,]|$)/g
+        /(^|[\s])@([a-zA-Z_0-9]*)([\s.?!,]|$)/g,
       )) {
         const canon = canonical(match[2]);
         if (Meteor.users.findOne(canon) == null) {
@@ -1218,7 +1222,7 @@ var updateLastRead = function () {
       room_name: Session.get("room_name"),
       from_chat_subscription: true,
     },
-    { sort: [["timestamp", "desc"]] }
+    { sort: [["timestamp", "desc"]] },
   );
   if (!lastMessage) {
     return;
@@ -1252,7 +1256,7 @@ Template.chat.onRendered(function () {
 // App startup
 Meteor.startup(function () {
   instachat.messageMentionSound = new Audio(
-    Meteor._relativeToSiteRootUrl("/sound/Electro_-S_Bainbr-7955.wav")
+    Meteor._relativeToSiteRootUrl("/sound/Electro_-S_Bainbr-7955.wav"),
   );
 });
 
