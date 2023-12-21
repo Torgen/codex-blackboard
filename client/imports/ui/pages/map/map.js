@@ -1,10 +1,6 @@
 import "./map.html";
 import "./cluster.html";
-import {
-  gravatarUrl,
-  nickHash,
-  nickAndName,
-} from "/lib/imports/nickEmail.js";
+import { gravatarUrl, nickHash, nickAndName } from "/lib/imports/nickEmail.js";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { MarkerWithLabel } from "@googlemaps/markerwithlabel";

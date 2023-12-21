@@ -71,7 +71,7 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
         if (call.calledWith("videoConferenceJoined", sinon.match.func)) {
-          call.args[1]({id: "somebody"});
+          call.args[1]({ id: "somebody" });
           return true;
         }
         return false;
@@ -129,7 +129,7 @@ describe("jitsi", function () {
     chai.assert.isTrue(
       onceExp.getCalls().some(function (call) {
         if (call.calledWith("videoConferenceJoined", sinon.match.func)) {
-          call.args[1]({id: "somebody"});
+          call.args[1]({ id: "somebody" });
           return true;
         }
         return false;
