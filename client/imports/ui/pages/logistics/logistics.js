@@ -24,9 +24,10 @@ function nameAndUrlFromDroppedLink(dataTransfer) {
       "text/html"
     );
     name = doc.body.innerText.trim();
-  } else {
-    const parsedUrl = new URL(link);
-    name = parsedUrl.pathname().split("/").at(-1);
+  }
+  if (!name) {
+    const parsedUrl = new URL(url);
+    name = parsedUrl.pathname.split("/").at(-1);
   }
   return { name, url };
 }

@@ -394,6 +394,58 @@ describe("logistics", function () {
           await promiseCall("deleteRound", round._id);
         }
       });
+
+      it("creates standalone from last url component", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const round = await promiseCall("newRound", {
+          name: "round for drag and drop",
+        });
+        try {
+          const $newStandalone = document.querySelector(
+            "#bb-logistics-new-standalone"
+          );
+          const fakeLink = document.createElement("div");
+          fakeLink.ondragstart = function (event) {
+            event.dataTransfer.setData(
+              "text/uri-list",
+              "https://molasses.holiday/puzzles/foo-with-only-image"
+            );
+            event.dataTransfer.setData(
+              "url",
+              "https://molasses.holiday/puzzles/foo-with-only-image"
+            );
+            event.dataTransfer.setData(
+              "text/html",
+              '<a href="https://molasses.holiday/puzzles/foo-with-only-image">\n<img src="https://molasses.holiday/foo.jpg">\n</a>'
+            );
+            event.dataTransfer.effectAllowed = "all";
+          };
+          let drag = dragMock.dragStart(fakeLink).dragEnter($newStandalone);
+          await afterFlushPromise();
+          const $round = $(
+            `#bb-logistics-new-standalone [data-round-id="${round._id}"]`
+          ).get(0);
+          drag.dragEnter($round).drop($round);
+          const newStandalone = await waitForDocument(Puzzles, {
+            name: "foo-with-only-image",
+          });
+          try {
+            chai.assert.deepInclude(newStandalone, {
+              link: "https://molasses.holiday/puzzles/foo-with-only-image",
+            });
+            chai.assert.doesNotHaveAnyKeys(newStandalone, ["puzzles"]);
+            chai.assert.include(
+              Rounds.findOne(round._id).puzzles,
+              newStandalone._id
+            );
+          } finally {
+            await promiseCall("deletePuzzle", newStandalone._id);
+          }
+        } finally {
+          await promiseCall("deleteRound", round._id);
+        }
+      });
     });
   });
 
