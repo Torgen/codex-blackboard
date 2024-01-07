@@ -413,7 +413,8 @@ describe("logistics", function () {
             );
             event.dataTransfer.setData(
               "url",
-              "https://molasses.holiday/puzzles/foo-with-only-image");
+              "https://molasses.holiday/puzzles/foo-with-only-image"
+            );
             event.dataTransfer.setData(
               "text/html",
               '<a href="https://molasses.holiday/puzzles/foo-with-only-image">\n<img src="https://molasses.holiday/foo.jpg">\n</a>'
