@@ -391,7 +391,6 @@ describe("logistics", function () {
             await promiseCall("deletePuzzle", newStandalone._id);
           }
         } finally {
-          console.log("in deleteRound finally")
           await promiseCall("deleteRound", round._id);
         }
       });
@@ -412,7 +411,9 @@ describe("logistics", function () {
               "text/uri-list",
               "https://molasses.holiday/puzzles/foo-with-only-image"
             );
-            event.dataTransfer.setData("url", "https://molasses.holiday/puzzles/foo-with-only-image");
+            event.dataTransfer.setData(
+              "url",
+              "https://molasses.holiday/puzzles/foo-with-only-image");
             event.dataTransfer.setData(
               "text/html",
               '<a href="https://molasses.holiday/puzzles/foo-with-only-image">\n<img src="https://molasses.holiday/foo.jpg">\n</a>'
