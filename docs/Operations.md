@@ -97,9 +97,9 @@ resources.
         * `namePlaceholder`: On the login screen, the example name in the Real Name box.
         * `teamName`: The name of the team as it will appear at the top of the blackboard. This is also used in Jitsi meeting names, if configured.
         * `whoseGitHub`: The hamburger menu has a link to the issues page on GitHub. This controls which fork of the repository the link points at.
-        * `jitsiServer`: The DNS name (no protocol or path) of a Jitsi server. This will be set to `meet.jit.si` by default.
-          You can set it to a public Jitsi server near you (<https://jitsi.github.io/handbook/docs/community-instances> has a list) if you prefer.
-          It's also possible to run your own Jitsi server if you can spare the bandwidth, but that is beyond the scope of this guide.
+        * `jitsiServer`: The DNS name (no protocol or path) of a Jitsi server. This is no longer set by default, because the server at `meet.jit.si` is no longer free.
+          You can set it to a public Jitsi server near you (<https://jitsi.github.io/handbook/docs/community-instances> has a list), but some servers on that list aren't actually open to the public. .
+          It's also possible to run your own Jitsi server if you can spare the bandwidth. See below for instructions.
           If this is unset, no meetings will be created or embedded.
       * `STATIC_JITSI_ROOM`: Puzzle rooms use the random puzzle ID in their room URL, so they are not guessable.
         The blackboard and callins page don't have a random ID--internally they use the `general/0` chat room--so their Jitsi URLs would be guessable.
@@ -107,6 +107,10 @@ resources.
         You can also set it to a "Correct Horse Battery Staple"-style phrase if you prefer, but you will usually never see the URL.
         If you unset this, the blackboard and callins page will have no Jitsi room, but puzzles still will.
         This is used as the initial value of a global dynamic setting named `Static Jitsi Room`, so once you've started the server, changing this won't have an effect.
+      * `JITSI_APP_NAME`: If you're running a private Jitsi server and you want to use JWT authentication based on a shared secret, set this to the app name you gave
+        when installing `jitsi-meet-tokens`. Otherwise don't set it.
+      * `JITSI_SHARED_SECRET`: If you're running a private Jitsi server and you want to use JWT authentication based on a shared secret, set this to the shared secret you gave
+        when installing `jitsi-meet-tokens`. Otherwise don't set it. This doesn't need to be the same as the server password, and users don't need to know this to connect toJitsi.
     * Certbot will ask for an email address, and for permission to contact you. Note that Let's Encrypt certificates last
       90 days, and the hunt lasts ~3, so to simplify the dependency cycle, I generate a certificate in direct mode. It
       will not renew automatically because nginx will be using that port later. If you want automatic renewals, you can
@@ -160,3 +164,19 @@ sudo mv /opt/codex /opt/codex-bad
 sudo mv /opt/codex-old /opt/codex
 sudo systemctl start codex.target
 ```
+
+## Setting up a private Jitsi Server
+If you want to set up your own Jitsi server to avoid depending on the largesse of a public server operator:
+
+1. Set up a machine/VM. If using Google Cloud:
+    * I used the Ubuntu 20.04LTS image.
+    * I have no idea how large a machine is necessary for any given team size.
+    * You will need to set up firewall rules that allow access to TCP port 5349 and UDP ports 3478 and 10000. Associate it with a firewall tag and give your new VM the tag.
+      Follow the [setup instructions based on the distribution you chose](https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-quickstart/),
+      including setting up DNS records.
+
+2. (Optional) Install `jitsi-meet-tokens` on your new machine. If you don't do this, your server will be open to the world, and anyone will be able to use your bandwidth.
+
+3. If your blackboard machines is already set up, make the following changes to `/etc/codex.common.env`
+    * In the JSON object which is the value of `METEOR_SETTINGS`, set `jitsiServer` to the DNS name of your jitsi server.
+    * (if you followed step 2) Set `JITSI_APP_NAME` and `JITSI_SHARED_SECRET` to the app name and shared secret you entered when you installed `jitsi-meet-tokens`.
