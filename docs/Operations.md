@@ -169,7 +169,7 @@ sudo systemctl start codex.target
 If you want to set up your own Jitsi server to avoid depending on the largesse of a public server operator:
 
 1. Set up a machine/VM. If using Google Cloud:
-    * I used the Ubuntu 20.04LTS image.
+    * I used the Ubuntu 22.04LTS image.
     * I have no idea how large a machine is necessary for any given team size.
     * You will need to set up firewall rules that allow access to TCP port 5349 and UDP ports 3478 and 10000. Associate it with a firewall tag and give your new VM the tag.
       Follow the [setup instructions based on the distribution you chose](https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-quickstart/),
