@@ -645,7 +645,7 @@ Template.logistics_puzzle_presence.helpers({
   presenceForScope(scope) {
     return findByChannel(
       `puzzles/${this._id}`,
-      { [scope]: 1 },
+      { [scope]: {$ne: 0} },
       { fields: { [scope]: 1 } }
     ).count();
   },
