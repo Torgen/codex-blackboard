@@ -16,10 +16,7 @@ Meteor.startup(() =>
     added(doc) {
       ensure(doc.room_name).upsert(doc.nick, {
         $min: { joined_timestamp: doc.joined_timestamp },
-        $max: {
-          jitsi: +(doc.scope === "jitsi"),
-          chat: +(doc.scope === "chat"),
-        },
+        $inc: { [doc.scope]: 1 },
       });
     },
     removed(doc) {
@@ -27,12 +24,7 @@ Meteor.startup(() =>
       if (coll == null) {
         return;
       }
-      coll.update(doc.nick, {
-        $min: {
-          jitsi: +(doc.scope !== "jitsi"),
-          chat: +(doc.scope !== "chat"),
-        },
-      });
+      coll.update(doc.nick, { $inc: { [doc.scope]: -1 } });
       coll.remove({ _id: doc.nick, jitsi: 0, chat: 0 });
     },
   })

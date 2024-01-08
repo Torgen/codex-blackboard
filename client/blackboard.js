@@ -783,7 +783,7 @@ Template.blackboard_column_body_working.helpers({
     }
     return findByChannel(
       `puzzles/${this.puzzle._id}`,
-      { jitsi },
+      { jitsi: { [jitsi ? "$ne" : "$eq"]: 0 } },
       { sort: { joined_timestamp: 1 } }
     );
   },
