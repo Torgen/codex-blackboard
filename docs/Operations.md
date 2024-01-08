@@ -107,10 +107,10 @@ resources.
         You can also set it to a "Correct Horse Battery Staple"-style phrase if you prefer, but you will usually never see the URL.
         If you unset this, the blackboard and callins page will have no Jitsi room, but puzzles still will.
         This is used as the initial value of a global dynamic setting named `Static Jitsi Room`, so once you've started the server, changing this won't have an effect.
-      * `JITSI_APP_NAME`: If you're running a private Jitsi server and you want to use JWT authentication based on a shared secret, set this to the app name you gave 
+      * `JITSI_APP_NAME`: If you're running a private Jitsi server and you want to use JWT authentication based on a shared secret, set this to the app name you gave
         when installing `jitsi-meet-tokens`. Otherwise don't set it.
-      * `JITSI_SHARED_SECRET`: If you're running a private Jitsi server and you want to use JWT authentication based on a shared secret, set this to the shared secret you gave 
-        when installing `jitsi-meet-tokens`. Otherwise don't set it. This doesn't need to be the same as the server password, and users don't need to know this to connect to Jitsi.
+      * `JITSI_SHARED_SECRET`: If you're running a private Jitsi server and you want to use JWT authentication based on a shared secret, set this to the shared secret you gave
+        when installing `jitsi-meet-tokens`. Otherwise don't set it. This doesn't need to be the same as the server password, and users don't need to know this to connect toJitsi.
     * Certbot will ask for an email address, and for permission to contact you. Note that Let's Encrypt certificates last
       90 days, and the hunt lasts ~3, so to simplify the dependency cycle, I generate a certificate in direct mode. It
       will not renew automatically because nginx will be using that port later. If you want automatic renewals, you can
@@ -169,14 +169,14 @@ sudo systemctl start codex.target
 If you want to set up your own Jitsi server to avoid depending on the largesse of a public server operator:
 
 1. Set up a machine/VM. If using Google Cloud:
-  * I used the Ubuntu 20.04LTS image.
-  * I have no idea how large a machine is necessary for any given team size.
-  * You will need to set up firewall rules that allow access to TCP port 5349 and UDP ports 3478 and 10000. Associate it with a firewall tag and give your new VM the tag.
-  Follow the setup instructions based on the distribution you chose, e.g. https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-quickstart/,
-  including setting up DNS records.
+    * I used the Ubuntu 20.04LTS image.
+    * I have no idea how large a machine is necessary for any given team size.
+    * You will need to set up firewall rules that allow access to TCP port 5349 and UDP ports 3478 and 10000. Associate it with a firewall tag and give your new VM the tag.
+      Follow the [setup instructions based on the distribution you chose](https://jitsi.github.io/handbook/docs/devops-guide/devops-guide-quickstart/),
+      including setting up DNS records.
 
 2. (Optional) Install `jitsi-meet-tokens` on your new machine. If you don't do this, your server will be open to the world, and anyone will be able to use your bandwidth.
 
 3. If your blackboard machines is already set up, make the following changes to `/etc/codex.common.env`
-  * In the JSON object which is the value of `METEOR_SETTINGS`, set `jitsiServer` to the DNS name of your jitsi server.
-  * (if you followed step 2) Set `JITSI_APP_NAME` and `JITSI_SHARED_SECRET` to the app name and shared secret you entered when you installed `jitsi-meet-tokens`.
+    * In the JSON object which is the value of `METEOR_SETTINGS`, set `jitsiServer` to the DNS name of your jitsi server.
+    * (if you followed step 2) Set `JITSI_APP_NAME` and `JITSI_SHARED_SECRET` to the app name and shared secret you entered when you installed `jitsi-meet-tokens`.
