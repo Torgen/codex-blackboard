@@ -16,7 +16,10 @@ Meteor.startup(() =>
     added(doc) {
       ensure(doc.room_name).upsert(doc.nick, {
         $min: { joined_timestamp: doc.joined_timestamp },
-        $inc: { [doc.scope]: 1 },
+        $inc: {
+          chat: +(doc.scope === "chat"),
+          jitsi: +(doc.scope === "jitsi"),
+        },
       });
     },
     removed(doc) {
