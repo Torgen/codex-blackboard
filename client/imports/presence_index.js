@@ -1,6 +1,6 @@
 import { Presence } from "/lib/imports/collections.js";
 
-const presenceIndex = window.presenceIndex = new Map();
+const presenceIndex = new Map();
 
 function ensure(channel) {
   let coll = presenceIndex.get(channel);
