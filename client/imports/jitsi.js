@@ -85,7 +85,7 @@ export function createJitsiMeet(room, container) {
       enableTalkWhileMuted: false,
       disableDeepLinking: true,
       disableModeratorIndicator: true,
-      disabledSounds: [ "PARTICIPANT_JOINED_SOUND", "PARTICIPANT_LEFT_SOUND" ],
+      disabledSounds: ["PARTICIPANT_JOINED_SOUND", "PARTICIPANT_LEFT_SOUND"],
       "analytics.disabled": true,
     },
   });
