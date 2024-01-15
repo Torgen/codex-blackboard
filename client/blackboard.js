@@ -37,6 +37,8 @@ function setCompare(was, will) {
 }
 
 Template.blackboard.onCreated(function () {
+  this.subscribe("jitsi-jwt", "*");
+  this.subscribe("solved-puzzle-time");
   this.typeahead = function (query, process) {
     const result = new Set();
     for (let n of Meteor.users.find({ bot_wakeup: { $exists: false } })) {
@@ -87,9 +89,6 @@ Template.blackboard.onCreated(function () {
       return res.add(match[1]);
     });
     this.foundPuzzles.set([...res]);
-  });
-  this.autorun(() => {
-    this.subscribe("solved-puzzle-time");
   });
 });
 

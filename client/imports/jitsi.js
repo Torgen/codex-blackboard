@@ -96,5 +96,13 @@ export function jitsiUrl(roomType, roomId) {
   if (room == null) {
     return;
   }
-  return `https://${JITSI_SERVER}/${room}`;
+  let url = `https://${JITSI_SERVER}/${room}`;
+  let jwtObj = JitsiJWTs.findOne(room);
+  if (!jwtObj) {
+    jwtObj = JitsiJWTs.findOne("*");
+  }
+  if (jwtObj?.jwt) {
+    url = url + `?jwt=${jwtObj.jwt}`;
+  }
+  return url;
 }
