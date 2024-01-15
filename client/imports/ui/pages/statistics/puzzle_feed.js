@@ -40,7 +40,7 @@ export default class PuzzleFeed {
   }
 
   addedAt(doc, ix) {
-    this.data.splice(ix, 0, { x: doc[this.field], y: ix + 1 });
+    this.data.splice(ix, 0, { x: doc[this.field], y: ix + 1, isMeta: !!doc.puzzles });
     while (++ix < this.data.length) {
       this.data[ix].y++;
     }
@@ -54,6 +54,7 @@ export default class PuzzleFeed {
 
   changedAt(newDoc, oldDoc, ix) {
     this.data[ix].x = newDoc[this.field];
+    this.data[ix].isMeta = !!newDoc.puzzles;
     Tracker.nonreactive(() => {
       if (ix === this.data.length - 2) {
         this.maybePopNow();
@@ -74,7 +75,7 @@ export default class PuzzleFeed {
   observe() {
     return Puzzles.find(
       { [this.field]: { $ne: null }, ...this.query },
-      { fields: { [this.field]: 1 }, sort: { [this.field]: 1 } }
+      { fields: { [this.field]: 1, puzzles: 1 }, sort: { [this.field]: 1 } }
     ).observe({
       addedAt: this.addedAt.bind(this),
       changedAt: this.changedAt.bind(this),

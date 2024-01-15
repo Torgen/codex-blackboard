@@ -145,6 +145,12 @@ Template.statistics_chart.onRendered(function () {
           borderColor: "green",
           backgroundColor: "palegreen",
           fill: true,
+          pointStyle(ctx) {
+            return ctx.raw.isMeta ? "triangle" : "circle";
+          },
+          radius(ctx) {
+            return ctx.raw.isMeta ? 10 : 3;
+          },
           stepped: true,
           yAxisID: "yPuzzles",
         },
