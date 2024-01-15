@@ -40,7 +40,11 @@ export default class PuzzleFeed {
   }
 
   addedAt(doc, ix) {
-    this.data.splice(ix, 0, { x: doc[this.field], y: ix + 1, isMeta: !!doc.puzzles });
+    this.data.splice(ix, 0, {
+      x: doc[this.field],
+      y: ix + 1,
+      isMeta: !!doc.puzzles,
+    });
     while (++ix < this.data.length) {
       this.data[ix].y++;
     }
