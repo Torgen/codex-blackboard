@@ -54,6 +54,7 @@ export function createJitsiMeet(room, container) {
     parentNode: container,
     jwt: jwtObj.jwt,
     interfaceConfigOverwrite: {
+      DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
       TOOLBAR_BUTTONS: [
         "microphone",
         "camera",
@@ -83,6 +84,7 @@ export function createJitsiMeet(room, container) {
       prejoinPageEnabled: false,
       enableTalkWhileMuted: false,
       disableDeepLinking: true,
+      disableModeratorIndicator: true,
       "analytics.disabled": true,
     },
   });
