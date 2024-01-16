@@ -156,9 +156,7 @@ Template.statistics_chart.onRendered(function () {
               : "circle";
           },
           radius(ctx) {
-            return ctx.type === "data" && ctx.raw.isMeta
-              ? 10
-              : 3;
+            return ctx.type === "data" && ctx.raw.isMeta ? 10 : 3;
           },
           stepped: true,
           yAxisID: "yPuzzles",
