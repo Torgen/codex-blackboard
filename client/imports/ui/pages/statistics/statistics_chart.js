@@ -145,14 +145,20 @@ Template.statistics_chart.onRendered(function () {
           spanGaps: true,
           borderColor: "green",
           backgroundColor(ctx) {
-            return (ctx.type === "data" && ctx.raw.isMeta) ? "limegreen" : "palegreen";
+            return ctx.type === "data" && ctx.raw.isMeta
+              ? "limegreen"
+              : "palegreen";
           },
           fill: true,
           pointStyle(ctx) {
-            return (ctx.type === "data" && ctx.raw.isMeta) ? "triangle" : "circle";
+            return ctx.type === "data" && ctx.raw.isMeta
+              ? "triangle"
+              : "circle";
           },
           radius(ctx) {
-            return (ctx.type === "data" && ctx.raw.isMeta) ? 10 : 3;
+            return ctx.type === "data" && ctx.raw.isMeta
+              ? 10
+              : 3;
           },
           stepped: true,
           yAxisID: "yPuzzles",
