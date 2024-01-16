@@ -122,9 +122,10 @@ Template.statistics_chart.onRendered(function () {
       datasets: [
         {
           label: "Online",
+          borderWidth: 2,
           data: solvers,
           spanGaps: true,
-          borderColor: "black",
+          borderColor: "#0008",
           yAxisID: "yPeople",
           pointStyle: false,
         },
@@ -143,13 +144,15 @@ Template.statistics_chart.onRendered(function () {
           data: this.solvedFeed.data,
           spanGaps: true,
           borderColor: "green",
-          backgroundColor: "palegreen",
+          backgroundColor(ctx) {
+            return (ctx.type === "data" && ctx.raw.isMeta) ? "limegreen" : "palegreen";
+          },
           fill: true,
           pointStyle(ctx) {
-            return ctx.raw.isMeta ? "triangle" : "circle";
+            return (ctx.type === "data" && ctx.raw.isMeta) ? "triangle" : "circle";
           },
           radius(ctx) {
-            return ctx.raw.isMeta ? 10 : 3;
+            return (ctx.type === "data" && ctx.raw.isMeta) ? 10 : 3;
           },
           stepped: true,
           yAxisID: "yPuzzles",
