@@ -24,9 +24,19 @@
   <tr data-tag-name="{{cares.canon}}">
     <td>{{cares.name}}:</td>
     {{# edit_tag_value type="puzzles" id=puzzle._id name=cares.name editable=true}}
-      (wanted by <span title="{{cares.meta}}">{{abbrev cares.meta}}</span>)
+      <i>(wanted by <span title="{{cares.meta}}">{{abbrev cares.meta}}</span>)</i>
     {{/edit_tag_value}}</tr>
 {{/each}}
+{{#with puzzle}}
+  {{#unless tag "theme"}}
+    <tr data-tag-name="theme">
+      <td>Theme:</td>
+      {{# edit_tag_value type="puzzles" id=_id name="theme" editable=true}}
+        <i>What's the puzzle about?</i>
+      {{/edit_tag_value}}
+    </tr>
+  {{/unless}}
+{{/with}}
 {{#each mtag in metatags}}
   <tr><td>{{mtag.name}}:<br><i>(from <span title="{{mtag.meta}}">{{abbrev mtag.meta}}</span>)</i></td><td>{{>text_chunks mtag.value}}</td></tr>
 {{/each}}
