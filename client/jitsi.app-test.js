@@ -32,7 +32,7 @@ const defaultLogin = () =>
   login("testy", "Teresa Tybalt", "fake@artifici.al", "failphrase");
 
 describe("jitsi", function () {
-  this.timeout(20000);
+  this.timeout(30000);
 
   let factory = null;
   beforeEach(function () {

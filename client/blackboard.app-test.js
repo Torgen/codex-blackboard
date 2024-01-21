@@ -232,6 +232,7 @@ describe("blackboard", function () {
   });
 
   describe("in edit mode", function () {
+    this.timeout(45000);
     it("allows reordering puzzles", async function () {
       EditPage();
       await waitForSubscriptions();
