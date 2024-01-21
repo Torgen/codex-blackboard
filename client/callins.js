@@ -1,3 +1,4 @@
+import { autoPlacement, autoUpdate, computePosition } from "@floating-ui/dom";
 import { MUTE_SOUND_EFFECTS, EXPERT_MODE } from "./imports/settings.js";
 import { CallIns } from "/lib/imports/collections.js";
 import * as callin_types from "/lib/imports/callin_types.js";
@@ -55,6 +56,56 @@ Template.callin_copy_and_go.events({
     });
     window.open(url, "_blank");
   },
+});
+
+Template.callin_type_dropdown.onRendered(function () {
+  const buttonGroup = this.$(".btn-group").get(0);
+  const dropdown = this.$(".bb-callin-type-dropdown").get(0);
+  const menu = this.$(".callin-type-menu").get(0);
+  const update = function () {
+    computePosition(dropdown, menu, {
+      strategy: "fixed",
+      middleware: [
+        autoPlacement({
+          allowedPlacements: [
+            "top-start",
+            "top-end",
+            "bottom-start",
+            "bottom-end",
+          ],
+        }),
+      ],
+    }).then(({ x, y }) => {
+      Object.assign(menu.style, {
+        left: `${x}px`,
+        top: `${y}px`,
+      });
+    });
+  };
+  const changed = (mutationList) => {
+    for (const mutation of mutationList) {
+      if (mutation.attributeName !== "class") {
+        return;
+      }
+      if (buttonGroup.classList.contains("open")) {
+        if (!this.popper) {
+          this.popper = autoUpdate(dropdown, menu, update);
+        }
+      } else {
+        if (this.popper) {
+          this.popper();
+          this.popper = null;
+        }
+      }
+    }
+  };
+  this.observer = new MutationObserver(changed);
+  this.observer.observe(buttonGroup, { attributes: true });
+});
+
+Template.callin_type_dropdown.onDestroyed(function () {
+  this.observer.disconnect();
+  this.popper?.();
 });
 
 Template.callin_type_dropdown.events({

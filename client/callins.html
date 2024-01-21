@@ -20,10 +20,11 @@
       {{callinTypeAbbrev callin_type}}
       {{#if equal status "pending"}}<span class="caret"></span>{{/if}}
     </button>
-    <ul class="dropdown-menu text-left">
+    <ul class="callin-type-menu dropdown-menu text-left">
     {{#each ct in callinTypes}}
       <li title="{{tooltip ct}}"><a data-callin-type="{{ct}}" href="#">
-        {{typeName ct}}
+        <span class="callin-type-name">{{typeName ct}}</span>
+        <span class="callin-type-description">{{tooltip ct}}</span>
       </a></li>
     {{/each}}
     </ul>
