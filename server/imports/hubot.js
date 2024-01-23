@@ -330,7 +330,7 @@ Hubot.Robot.prototype.loadAdapter = function () {};
 
 export default class Robot extends Hubot.Robot {
   constructor(botname, gravatar) {
-    super(null, "shell", false, botname, "bot");
+    super(null, false, botname, "bot");
     this.gravatar = gravatar;
     this.hear = bind(this.hear);
     this.respond = bind(this.respond);
