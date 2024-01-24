@@ -100,7 +100,7 @@ describe("puzzle", function () {
         );
       });
 
-      return it("allows modifying feeders", async function () {
+      it("allows modifying feeders", async function () {
         $(".unattached").click();
         await afterFlushPromise();
         const storm = Puzzles.findOne({ name: "The Brainstorm" });
@@ -110,6 +110,29 @@ describe("puzzle", function () {
         $(`[data-feeder-id=\"${storm._id}\"] input`).click();
         await waitForMethods();
         chai.assert.notInclude(Puzzles.findOne(id).puzzles, storm._id);
+      });
+
+      it("renders multiple answers", async function () {
+        const asteroids = Puzzles.findOne({ name: "Asteroids" });
+        await promiseCall("setAnyField", {
+          type: "puzzles",
+          object: asteroids._id,
+          fields: { answers: ["ceres", "hathor", "pallas"] },
+        });
+        try {
+          await afterFlushPromise();
+          const $answer = $(
+            `[data-feeder-id="${asteroids._id}"] .answer`
+          );
+          console.log($answer.length);
+          chai.assert.include($answer.text(), "ceres; hathor; pallas; ...");
+        } finally {
+          await promiseCall("setAnyField", {
+            type: "puzzles",
+            object: asteroids._id,
+            fields: { answer: null },
+          });
+        }
       });
     });
   });
@@ -146,6 +169,7 @@ describe("puzzle", function () {
     });
 
     afterEach(async function () {
+      if (!callin) { return; }
       await promiseCall("cancelCallIn", { id: callin._id });
       callin = null;
     });
@@ -167,10 +191,30 @@ describe("puzzle", function () {
       });
     });
 
+    it("creates partial answer callin", async function () {
+      $(".bb-callin-btn").click();
+      $(".bb-callin-answer").val("grrr");
+      $('input[value="partial answer"]').prop("checked", true).change();
+      await afterFlushPromise();
+      const p = modalHiddenPromise();
+      $(".bb-callin-submit").click();
+      await p;
+      await waitForMethods();
+      callin = CallIns.findOne({ target: id, status: "pending" });
+      chai.assert.deepInclude(callin, {
+        answer: "grrr",
+        callin_type: "partial answer",
+        created_by: "testy",
+        backsolve: false,
+        provided: false,
+      });
+    });
+
     it("creates backsolve callin", async function () {
       $(".bb-callin-btn").click();
+      await afterFlushPromise();
       $(".bb-callin-answer").val("grrrr");
-      $('input[value="backsolve"]').prop("checked", true);
+      $('input[value="backsolve"]').prop("checked", true)
       const p = modalHiddenPromise();
       $(".bb-callin-submit").click();
       await p;
@@ -187,6 +231,7 @@ describe("puzzle", function () {
 
     it("creates provided callin", async function () {
       $(".bb-callin-btn").click();
+      await afterFlushPromise();
       $(".bb-callin-answer").val("grrrrr");
       $('input[value="provided"]').prop("checked", true);
       const p = modalHiddenPromise();
@@ -241,7 +286,7 @@ describe("puzzle", function () {
       });
     });
 
-    return it("creates interaction request callin", async function () {
+    it("creates interaction request callin", async function () {
       $(".bb-callin-btn").click();
       $(".bb-callin-answer").val("grrrrrrrr");
       $('input[value="interaction request"]').prop("checked", true).change();
@@ -258,6 +303,29 @@ describe("puzzle", function () {
         backsolve: false,
         provided: false,
       });
+    });
+
+    it("defaults to partial answer when there are already multiple answers", async function () {
+      await promiseCall("setAnyField", {
+        type: "puzzles",
+        object: id,
+        fields: { answers: ["argh", "booga"] },
+      });
+      await afterFlushPromise();
+      try {
+        $(".bb-callin-btn").click();
+        await afterFlushPromise();
+        chai.assert.isTrue($('input[value="partial answer"]').prop("checked"));
+      } finally {
+        const p = modalHiddenPromise();
+        $('[data-dismiss="modal"]').click();
+        await p;
+        await promiseCall("setAnyField", {
+          type: "puzzles",
+          object: id,
+          fields: { answers: null },
+        });
+      }
     });
   });
 });

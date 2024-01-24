@@ -325,6 +325,35 @@ describe("codex hubot script", function () {
           );
         });
 
+        it("creates partial answer for puzzle with multiple answers", function () {
+          Puzzles.insert({
+            _id: "12345abcde",
+            name: "Latino Alphabet",
+            canon: "latino_alphabet",
+            feedsInto: [],
+            tags: {},
+            answers: ["buzz"],
+          });
+          Messages.insert({
+            nick: "torgen",
+            room_name: "puzzles/12345abcde",
+            timestamp: Date.now(),
+            body: "bot call in linear abeja",
+          });
+          return waitForDocument(
+            CallIns,
+            { answer: "linear abeja" },
+            {
+              target: "12345abcde",
+              created: 7,
+              created_by: "torgen",
+              touched: 7,
+              touched_by: "torgen",
+              callin_type: "partial answer",
+            }
+          );
+        });
+
         it("allows specifying puzzle", function () {
           Puzzles.insert({
             _id: "12345abcde",

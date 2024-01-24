@@ -329,6 +329,7 @@ Template.puzzle_summon_modal.events({
 
 Template.puzzle_callin_button.events({
   "click .bb-callin-btn"(event, template) {
+    console.log("click event");
     $("#callin_modal input:text").val("");
     $('#callin_modal input[type="checkbox"]:checked').val([]);
     $("#callin_modal").modal({ show: true });
@@ -340,34 +341,17 @@ Template.puzzle_callin_modal.onCreated(function () {
   this.type = new ReactiveVar(callin_types.ANSWER);
 });
 
-Template.puzzle_callin_modal.onRendered(function () {
-  this.$(`input[name='callin_type'][value='${this.type.get()}']`).prop(
-    "checked",
-    true
-  );
-});
-
 const callinTypesHelpers = (template) =>
   template.helpers({
     typeName(type) {
-      switch (type ?? Template.instance().type.get()) {
-        case callin_types.ANSWER:
-          return "Answer";
-        case callin_types.INTERACTION_REQUEST:
-          return "Interaction Request";
-        case callin_types.MESSAGE_TO_HQ:
-          return "Message to HQ";
-        case callin_types.EXPECTED_CALLBACK:
-          return "Expected Callback";
-        //istanbul ignore next
-        default:
-          return "";
-      }
+      return callin_types.human_readable(type ?? Template.instance().type.get());
     },
     typeNameVerb(type) {
       switch (type ?? Template.instance().type.get()) {
         case callin_types.ANSWER:
           return "Answer to call in";
+        case callin_types.PARTIAL_ANSWER:
+          return "Partial answer to call in";
         case callin_types.INTERACTION_REQUEST:
           return "Interaction to request";
         case callin_types.MESSAGE_TO_HQ:
@@ -383,6 +367,8 @@ const callinTypesHelpers = (template) =>
       switch (type) {
         case callin_types.ANSWER:
           return "The solution to the puzzle. Fingers crossed!";
+        case callin_types.PARTIAL_ANSWER:
+          return "One of multiple solutions to the puzzle. (We hope.)";
         case callin_types.INTERACTION_REQUEST:
           return "An intermediate string that may trigger a skit, physical puzzle, or creative challenge.";
         case callin_types.MESSAGE_TO_HQ:
@@ -397,6 +383,7 @@ const callinTypesHelpers = (template) =>
     callinTypes() {
       return [
         callin_types.ANSWER,
+        callin_types.PARTIAL_ANSWER,
         callin_types.INTERACTION_REQUEST,
         callin_types.MESSAGE_TO_HQ,
         callin_types.EXPECTED_CALLBACK,
@@ -413,6 +400,15 @@ Template.puzzle_callin_modal.helpers({
 callinTypesHelpers(Template.callin_type_dropdown);
 
 Template.puzzle_callin_modal.events({
+  'show #callin_modal'(event, template) {
+    const puzzle = Puzzles.findOne({_id: Session.get("id")});
+    let initial = callin_types.ANSWER;
+    if (puzzle.answers) {
+      initial = callin_types.PARTIAL_ANSWER;
+    }
+    template.type.set(initial);
+    template.$(`input[name="callin_type"][value="${initial}"]`).prop("checked", true);
+  },
   'change input[name="callin_type"]'(event, template) {
     template.type.set(event.currentTarget.value);
   },

@@ -76,7 +76,10 @@ Template.callin_type_dropdown.events({
 
 Template.callin_resolution_buttons.helpers({
   allowsResponse() {
-    return this.callin.callin_type !== callin_types.ANSWER;
+    return (
+      this.callin.callin_type !== callin_types.ANSWER &&
+      this.callin.callin_type !== callin_types.PARTIAL_ANSWER
+    );
   },
   allowsIncorrect() {
     return this.callin.callin_type !== callin_types.EXPECTED_CALLBACK;

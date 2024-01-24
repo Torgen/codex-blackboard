@@ -147,6 +147,30 @@ describe("blackboard", function () {
     }
   });
 
+  it("renders multiple answers", async function () {
+    BlackboardPage();
+    await waitForSubscriptions();
+    const memoriam = Puzzles.findOne({ name: "In Memoriam" });
+    await promiseCall("setAnyField", {
+      type: "puzzles",
+      object: memoriam._id,
+      fields: { answers: ["Bob Hope", "Johnny Cash", "Steve Jobs"] },
+    });
+    await afterFlushPromise();
+    try {
+      const answerText = $(
+        `[data-puzzle-id="${memoriam._id}"] .puzzle-answer`
+      ).text();
+      chai.assert.include(answerText, "Bob Hope; Johnny Cash; Steve Jobs; ...");
+    } finally {
+      await promiseCall("setAnyField", {
+        type: "puzzles",
+        object: memoriam._id,
+        fields: { answers: null },
+      });
+    }
+  });
+
   describe("presence filter", function () {
     let other_conn = null;
     let puzz1 = null;

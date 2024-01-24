@@ -88,6 +88,9 @@ export default scripts.codex = function (robot) {
       if (target == null) {
         return;
       }
+      if (target.object.answers && !params.callin_type) {
+        params.callin_type = callin_types.PARTIAL_ANSWER;
+      }
     }
     callAs("newCallIn", who, {
       target_type: target.type,

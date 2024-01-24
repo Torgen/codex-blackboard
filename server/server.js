@@ -51,6 +51,7 @@ function puzzleQuery(query) {
       puzzles: 1,
       order_by: 1,
       feedsInto: 1,
+      answers: 1,
     },
   });
 }
