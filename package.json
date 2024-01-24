@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "codex-blackboard ================",
   "main": "index.js",
+  "engines": { "node": ">=14.0.0 <15.0.0"},
+  "engineStrict": true,
   "dependencies": {
     "@babel/runtime": "^7.23.8",
     "@floating-ui/dom": "^1.5.4",
