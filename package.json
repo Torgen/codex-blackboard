@@ -27,7 +27,7 @@
     "favico.js": "^0.3.10",
     "gemoji": "^8.1.0",
     "googleapis": "^131.0.0",
-    "hubot": "^8.0.0",
+    "hubot": "^11.1.0",
     "hubot-help": "^2.1.2",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
