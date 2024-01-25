@@ -525,7 +525,7 @@ describe("correctCallIn", function () {
             answers: ["sedimentary", "igneous", "precipitate"],
             solved: null,
             solved_by: null,
-            confirmed_by: null
+            confirmed_by: null,
           });
           chai.assert.doesNotHaveAnyKeys(doc.tags, ["answer"]);
         });

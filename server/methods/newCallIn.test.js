@@ -316,14 +316,18 @@ describe("newCallIn", function () {
             Meteor.call("newCallIn", {
               target: id,
               answer: "precipitate",
-              callin_type: "partial answer"
+              callin_type: "partial answer",
             }),
           Match.Error
         ));
 
       it("fails without answer", () =>
         chai.assert.throws(
-          () => callAs("newCallIn", "torgen", { target: id, callin_type: "partial answer" }),
+          () =>
+            callAs("newCallIn", "torgen", {
+              target: id,
+              callin_type: "partial answer",
+            }),
           Match.Error
         ));
 

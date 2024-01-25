@@ -121,11 +121,10 @@ describe("puzzle", function () {
         });
         try {
           await afterFlushPromise();
-          const $answer = $(
+          const answerText = $(
             `[data-feeder-id="${asteroids._id}"] .answer`
-          );
-          console.log($answer.length);
-          chai.assert.include($answer.text(), "ceres; hathor; pallas; ...");
+          ).text();
+          chai.assert.include(answerText, "ceres; hathor; pallas; ...");
         } finally {
           await promiseCall("setAnyField", {
             type: "puzzles",
@@ -169,7 +168,9 @@ describe("puzzle", function () {
     });
 
     afterEach(async function () {
-      if (!callin) { return; }
+      if (!callin) {
+        return;
+      }
       await promiseCall("cancelCallIn", { id: callin._id });
       callin = null;
     });
@@ -214,7 +215,7 @@ describe("puzzle", function () {
       $(".bb-callin-btn").click();
       await afterFlushPromise();
       $(".bb-callin-answer").val("grrrr");
-      $('input[value="backsolve"]').prop("checked", true)
+      $('input[value="backsolve"]').prop("checked", true);
       const p = modalHiddenPromise();
       $(".bb-callin-submit").click();
       await p;

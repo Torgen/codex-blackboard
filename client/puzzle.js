@@ -344,7 +344,9 @@ Template.puzzle_callin_modal.onCreated(function () {
 const callinTypesHelpers = (template) =>
   template.helpers({
     typeName(type) {
-      return callin_types.human_readable(type ?? Template.instance().type.get());
+      return callin_types.human_readable(
+        type ?? Template.instance().type.get()
+      );
     },
     typeNameVerb(type) {
       switch (type ?? Template.instance().type.get()) {
@@ -400,14 +402,16 @@ Template.puzzle_callin_modal.helpers({
 callinTypesHelpers(Template.callin_type_dropdown);
 
 Template.puzzle_callin_modal.events({
-  'show #callin_modal'(event, template) {
-    const puzzle = Puzzles.findOne({_id: Session.get("id")});
+  "show #callin_modal"(event, template) {
+    const puzzle = Puzzles.findOne({ _id: Session.get("id") });
     let initial = callin_types.ANSWER;
     if (puzzle.answers) {
       initial = callin_types.PARTIAL_ANSWER;
     }
     template.type.set(initial);
-    template.$(`input[name="callin_type"][value="${initial}"]`).prop("checked", true);
+    template
+      .$(`input[name="callin_type"][value="${initial}"]`)
+      .prop("checked", true);
   },
   'change input[name="callin_type"]'(event, template) {
     template.type.set(event.currentTarget.value);
