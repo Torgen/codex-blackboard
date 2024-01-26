@@ -100,9 +100,15 @@ Template.callin_resolution_buttons.events({
     const response = template.find("input.response")?.value;
     if (response != null && response !== "") {
       Meteor.call("correctCallIn", this.callin._id, response);
+    } else if (this.callin.callin_type === callin_types.PARTIAL_ANSWER) {
+      Meteor.call("correctCallIn", this.callin._id, false);
     } else {
       Meteor.call("correctCallIn", this.callin._id);
     }
+  },
+
+  "click .bb-callin-final-correct"(event, template) {
+    Meteor.call("correctCallIn", this.callin._id, true);
   },
 
   "click .bb-callin-incorrect"(event, template) {
