@@ -15,7 +15,12 @@
 {{#with puzzle}}
   {{#if solved}}
     <tr><td class="rightanswer">Answer:</td><td class="answer">{{tag "answer"}}</td></tr>
-    <tr><td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts solved}}</td></tr>
+    <tr>
+      <td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}{{#if tag "provided"}}(provided){{/if}}</td>
+      <td class="timestamp">{{pretty_ts solved}}</td>
+    </tr>
+  {{else if answers}}
+    <tr><td class="rightanswer">Answers so far:</td><td class="answer">{{#each pa in answers}}{{pa}}; {{/each}}...</td></tr>
   {{/if}}
   <tr><td>Mechanics:</td><td>{{> puzzle_mechanics}}{{#each mechanics}}<span class="label">{{mechanicName}}</span>{{/each}}</td></tr>
   <tr><td>Hunt site URL:</td>{{>edit_field type="puzzles" id=_id field="link"}}</tr>
