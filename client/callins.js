@@ -1,5 +1,5 @@
 import floatingDropdown from "/client/imports/ui/mixins/floating_dropdown.js";
-import { MUTE_SOUND_EFFECTS, EXPERT_MODE } from "./imports/settings.js";
+import { MUTE_SOUND_EFFECTS } from "./imports/settings.js";
 import { CallIns } from "/lib/imports/collections.js";
 import * as callin_types from "/lib/imports/callin_types.js";
 
@@ -17,7 +17,9 @@ Meteor.startup(function () {
     let initial = true;
     const query = { status: "pending" };
     if (!Session.equals("currentPage", "logistics")) {
-      query.callin_type = "answer";
+      query.callin_type = {
+        $in: [callin_types.ANSWER, callin_types.PARTIAL_ANSWER],
+      };
     }
     CallIns.find(query).observe({
       async added(doc) {

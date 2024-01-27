@@ -451,7 +451,9 @@ Template.header_lastchats.helpers({
       return ["ambulance", "warning"];
     } else if (/Help request cancelled/.test(this.body)) {
       return ["lightbulb", "success"];
-    } else if (/Found an answer/.test(this.body)) {
+    } else if (/Found one of several answers/.test(this.body)) {
+      return ["award", "success"];
+    } else if (/Found (an|the final) answer/.test(this.body)) {
       return ["trophy", "success"];
     } else if (/reports incorrect answer/.test(this.body)) {
       return ["heart-broken", "important"];
