@@ -271,6 +271,7 @@ describe("correctCallIn", function () {
             solved: null,
             solved_by: null,
             confirmed_by: null,
+            last_partial_answer: 7,
           });
           chai.assert.doesNotHaveAnyKeys(doc.tags, ["answer"]);
         });
@@ -478,6 +479,7 @@ describe("correctCallIn", function () {
         tags: {},
         feedsInto: [],
         answers: ["sedimentary", "igneous"],
+        last_partial_answer: 6,
       });
       callin = CallIns.insert({
         name: "Foo:precipitate",
@@ -526,6 +528,7 @@ describe("correctCallIn", function () {
             solved: null,
             solved_by: null,
             confirmed_by: null,
+            last_partial_answer: 7,
           });
           chai.assert.doesNotHaveAnyKeys(doc.tags, ["answer"]);
         });
@@ -601,6 +604,7 @@ describe("correctCallIn", function () {
             solved: 7,
             solved_by: "torgen",
             confirmed_by: "cjb",
+            last_partial_answer: 7,
             tags: {
               answer: {
                 name: "Answer",

@@ -459,6 +459,7 @@
       {{#with solverMinutes}}<br><i class="fas fa-user-clock"></i> {{this}} solver-minutes{{/with}}
     {{else}}
       {{#if stuck puzzle}}stuck since {{pretty_ts timestamp=puzzle.tags.status.touched style="brief duration"}}
+      {{else if puzzle.last_partial_answer}}partially solved {{pretty_ts timestamp=puzzle.last_partial_answer style="brief duration"}}
       {{else}}added {{pretty_ts timestamp=puzzle.created style="brief duration"}}
       {{/if}}
       {{#if puzzle.drive_touched}}<div class="bb-drive-activity">{{>time_since timestamp=puzzle.drive_touched verb="Active"}} active {{pretty_ts timestamp=puzzle.drive_touched style="brief duration"}}</div>{{/if}}
