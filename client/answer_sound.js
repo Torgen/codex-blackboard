@@ -1,5 +1,5 @@
 import AnswerSoundHandler from "/client/imports/answer_sound.js";
-import { Puzzles } from "/lib/import/collections.js";
+import { Puzzles } from "/lib/imports/collections.js";
 import { registrationPromise } from "/client/imports/serviceworker.js";
 import { MUTE_SOUND_EFFECTS } from "/client/imports/settings.js";
 
