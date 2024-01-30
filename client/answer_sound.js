@@ -19,7 +19,7 @@ Meteor.startup(function () {
       }
     }
     actionMap.set(rcvMessage, tryPlay);
-    return function(key) {
+    return function (key) {
       if (useServiceWorker) {
         navigator.serviceWorker.controller.postMessage({
           type: postMessage,
@@ -28,10 +28,18 @@ Meteor.startup(function () {
       } else {
         tryPlay();
       }
-    }
+    };
   }
-  const playNewAnswer = makePlayFunction("/sound/that_was_easy.wav", "puzzlesolved", "playnewanswersound");
-  const playPartialAnswer = makePlayFunction("/sound/but_wait_theres_more.mp3", "partialsolved", "playpartialanswersound");
+  const playNewAnswer = makePlayFunction(
+    "/sound/that_was_easy.wav",
+    "puzzlesolved",
+    "playnewanswersound"
+  );
+  const playPartialAnswer = makePlayFunction(
+    "/sound/but_wait_theres_more.mp3",
+    "partialsolved",
+    "playpartialanswersound"
+  );
   registrationPromise
     .then(function (reg) {
       useServiceWorker = true;
