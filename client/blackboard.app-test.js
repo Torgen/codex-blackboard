@@ -158,15 +158,43 @@ describe("blackboard", function () {
     });
     await afterFlushPromise();
     try {
-      const answerText = $(
-        `[data-puzzle-id="${memoriam._id}"] .puzzle-answer`
-      ).text();
-      chai.assert.include(answerText, "Bob Hope; Johnny Cash; Steve Jobs; ⋯");
+      const answerText = $(`[data-puzzle-id="${memoriam._id}"] .puzzle-answer`)
+        .text()
+        .trim();
+      chai.assert.equal(answerText, "Bob Hope; Johnny Cash; Steve Jobs; ⋯");
     } finally {
       await promiseCall("setAnyField", {
         type: "puzzles",
         object: memoriam._id,
         fields: { answers: null },
+      });
+    }
+  });
+
+  it("renders final answer only", async function () {
+    BlackboardPage();
+    await waitForSubscriptions();
+    const memoriam = Puzzles.findOne({ name: "In Memoriam" });
+    await promiseCall("setAnyField", {
+      type: "puzzles",
+      object: memoriam._id,
+      fields: {
+        answers: ["Bob Hope", "Johnny Cash", "Steve Jobs"],
+        tags: { answer: { value: "Bob Hope; Johnny Cash; Steve Jobs" } },
+        solved: 7,
+      },
+    });
+    await afterFlushPromise();
+    try {
+      const answerText = $(`[data-puzzle-id="${memoriam._id}"] .puzzle-answer`)
+        .text()
+        .trim();
+      chai.assert.equal(answerText, "Bob Hope; Johnny Cash; Steve Jobs");
+    } finally {
+      await promiseCall("setAnyField", {
+        type: "puzzles",
+        object: memoriam._id,
+        fields: { answers: null, solved: null, tags: null },
       });
     }
   });
