@@ -124,7 +124,7 @@ describe("puzzle", function () {
           const answerText = $(
             `[data-feeder-id="${asteroids._id}"] .answer`
           ).text();
-          chai.assert.include(answerText, "ceres; hathor; pallas; ...");
+          chai.assert.include(answerText, "ceres; hathor; pallas; ⋯");
         } finally {
           await promiseCall("setAnyField", {
             type: "puzzles",

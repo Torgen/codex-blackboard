@@ -440,7 +440,7 @@
 <template name="blackboard_column_body_answer">
   {{#edit_tag_value type="puzzles" id=puzzle._id name="Answer" editable=canEdit class="puzzle-answer answer"}}
     {{#if puzzle.answers}}
-      {{#each pa in puzzle.answers}}{{pa}}; {{/each}}...
+      {{#each pa in puzzle.answers}}{{pa}}; {{/each}}⋯
     {{/if}}
   {{/edit_tag_value}}
 </template>

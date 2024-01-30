@@ -161,7 +161,7 @@ describe("blackboard", function () {
       const answerText = $(
         `[data-puzzle-id="${memoriam._id}"] .puzzle-answer`
       ).text();
-      chai.assert.include(answerText, "Bob Hope; Johnny Cash; Steve Jobs; ...");
+      chai.assert.include(answerText, "Bob Hope; Johnny Cash; Steve Jobs; ⋯");
     } finally {
       await promiseCall("setAnyField", {
         type: "puzzles",
