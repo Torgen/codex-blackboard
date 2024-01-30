@@ -59,7 +59,7 @@ export default class AnswerSoundHandler {
             limit: 1,
           }
         )
-        .observe({ addedAt: partial, changedAt: partial});
+        .observe({ addedAt: partial, changedAt: partial });
     });
   }
 
