@@ -20,6 +20,7 @@ export default class AnswerSoundHandler {
   }
 
   start() {
+    // istanbul ignore if
     if (this.#computation) {
       throw new Error("Autorun was already running");
     }
@@ -64,6 +65,7 @@ export default class AnswerSoundHandler {
   }
 
   stop() {
+    // istanbul ignore if
     if (!this.#computation) {
       throw new Error("Autorun wasn't running");
     }
