@@ -16,10 +16,15 @@ self.addEventListener("notificationclick", function (event) {
   });
 });
 let lastSolved = null;
+let lastPartial = null;
 self.addEventListener("message", function (event) {
-  if (event.data.type === "puzzlesolved" && event.data.id !== lastSolved) {
-    lastSolved = event.data.id;
+  if (event.data.type === "puzzlesolved" && event.data.key !== lastSolved) {
+    lastSolved = event.data.key;
     event.source.postMessage({ action: "playnewanswersound" });
+  }
+  if (event.data.type === "partialsolved" && event.data.key !== lastPartial) {
+    lastPartial = event.data.key;
+    event.source.postMessage({ action: "playpartialanswersound" });
   }
 });
 self.addEventListener("activate", (event) => {

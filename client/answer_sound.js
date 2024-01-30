@@ -4,40 +4,44 @@ import { registrationPromise } from "/client/imports/serviceworker.js";
 import { MUTE_SOUND_EFFECTS } from "/client/imports/settings.js";
 
 Meteor.startup(function () {
-  const newAnswerSound = new Audio(
-    Meteor._relativeToSiteRootUrl("/sound/that_was_easy.wav")
-  );
-  async function tryPlay() {
-    if (MUTE_SOUND_EFFECTS.get()) {
-      return;
+  let useServiceWorker = false;
+  const actionMap = new Map();
+  function makePlayFunction(path, postMessage, rcvMessage) {
+    const sound = new Audio(Meteor._relativeToSiteRootUrl(path));
+    async function tryPlay() {
+      if (MUTE_SOUND_EFFECTS.get()) {
+        return;
+      }
+      try {
+        await sound.play();
+      } catch (err) /* istanbul ignore next */ {
+        console.error(err.message, err);
+      }
     }
-    try {
-      await newAnswerSound.play();
-    } catch (err) /* istanbul ignore next */ {
-      console.error(err.message, err);
+    actionMap.set(rcvMessage, tryPlay);
+    return function(key) {
+      if (useServiceWorker) {
+        navigator.serviceWorker.controller.postMessage({
+          type: postMessage,
+          key,
+        });
+      } else {
+        tryPlay();
+      }
     }
   }
-  let useServiceWorker = false;
+  const playNewAnswer = makePlayFunction("/sound/that_was_easy.wav", "puzzlesolved", "playnewanswersound");
+  const playPartialAnswer = makePlayFunction("/sound/but_wait_theres_more.mp3", "partialsolved", "playpartialanswersound");
   registrationPromise
     .then(function (reg) {
       useServiceWorker = true;
-      navigator.serviceWorker.addEventListener("message", async function (msg) {
-        if (msg.data.action !== "playnewanswersound") {
-          return;
+      navigator.serviceWorker.addEventListener("message", function (msg) {
+        const fn = actionMap.get(msg.data.action);
+        if (fn) {
+          fn();
         }
-        tryPlay();
       });
     })
     .catch(console.log);
-  async function play() {
-    if (useServiceWorker) {
-      navigator.serviceWorker.controller.postMessage({
-        type: "puzzlesolved",
-        id: doc.target,
-      });
-    } else {
-      tryPlay();
-    }
-  }
-  new AnswerSoundHandler(Puzzles, play).start();
+  new AnswerSoundHandler(Puzzles, playNewAnswer, playPartialAnswer).start();
 });
