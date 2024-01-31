@@ -406,9 +406,6 @@ const callinTypesHelpers = (template) =>
 
 callinTypesHelpers(Template.puzzle_callin_modal);
 Template.puzzle_callin_modal.helpers({
-  type() {
-    return Template.instance().type.get();
-  },
   typeIs(type) {
     return Template.instance().type.get() === type;
   },

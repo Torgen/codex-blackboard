@@ -266,7 +266,7 @@ class BlackboardAdapter extends Hubot.Adapter {
             pm = new Hubot.EnterMessage(user, null, id);
           } else if (msg.presence === "part") {
             pm = new Hubot.LeaveMessage(user, null, id);
-          } else {
+          } /* istanbul ignore next */ else {
             console.warn("Weird presence message:", msg);
             return;
           }

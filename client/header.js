@@ -4,12 +4,8 @@ import {
   Puzzles,
   Rounds,
 } from "/lib/imports/collections.js";
-import { jitsiUrl } from "./imports/jitsi.js";
 import { hashFromNickObject } from "/lib/imports/nickEmail.js";
-import {
-  BB_DISABLE_RINGHUNTERS_HEADER,
-  GENERAL_ROOM_NAME,
-} from "/lib/imports/server_settings.js";
+import { GENERAL_ROOM_NAME } from "/lib/imports/server_settings.js";
 import "./imports/timestamp.js";
 import "./imports/ui/components/connection_button/connection_button.js";
 
@@ -313,9 +309,6 @@ Template.header_breadcrumb_extra_links.helpers({
   active() {
     return active.call(Template.parentData(1));
   },
-  jitsiUrl() {
-    return jitsiUrl(Template.parentData(1).type, Template.parentData(1).id);
-  },
 });
 
 Template.header_breadcrumb_round.helpers({
@@ -417,13 +410,6 @@ Template.header_lastchats.helpers({
       { sort: [["timestamp", "desc"]], limit: RECENT_GENERAL_LIMIT }
     );
   },
-  msgbody() {
-    if (this.bodyIsHtml) {
-      return new Spacebars.SafeString(this.body);
-    } else {
-      return this.body;
-    }
-  },
   roomname() {
     if (Session.equals("room_name", "general/0")) {
       return "Updates";
@@ -477,9 +463,6 @@ Template.header_lastchats.helpers({
 
 // subscribe when this template is in use/unsubscribe when it is destroyed
 Template.header_lastchats.onCreated(function () {
-  if (BB_DISABLE_RINGHUNTERS_HEADER) {
-    return;
-  }
   this.autorun(() => {
     this.subscribe("recent-messages", "oplog/0", 2);
     this.subscribe("recent-header-messages");
