@@ -561,18 +561,14 @@ describe("blackboard", function () {
         value: "plurple",
       });
       await afterFlushPromise();
-      $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color5\"] .bb-edit-tag-name`
-      )
-        .first()
-        .click();
+      const tagedit = `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color5\"] .bb-edit-tag-name`;
+      $(tagedit).first().click();
       await afterFlushPromise();
-      $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color5\"] .bb-edit-tag-name input`
-      )
-        .first()
-        .val("Color6")
-        .trigger(new $.Event("keyup", { which: 13 }));
+      const colortag = tagedit + " input";
+      $(colortag).first().val("Color6").trigger("input");
+      await afterFlushPromise();
+      chai.assert.equal($(tagedit).attr("class").split(" ").at(-1), "success");
+      $(colortag).trigger(new $.Event("keyup", { which: 13 }));
       await waitForMethods();
       disgust = Puzzles.findOne(disgust._id);
       chai.assert.include(disgust.tags.color6, {
@@ -595,18 +591,14 @@ describe("blackboard", function () {
         value: "plurple",
       });
       await afterFlushPromise();
-      $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color3\"] .bb-edit-tag-name`
-      )
-        .first()
-        .click();
+      const tagedit = `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color3\"] .bb-edit-tag-name`;
+      $(tagedit).first().click();
       await afterFlushPromise();
-      $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color3\"] .bb-edit-tag-name input`
-      )
-        .first()
-        .val("")
-        .trigger(new $.Event("keyup", { which: 13 }));
+      const colortag = tagedit + " input";
+      $(colortag).first().val("").trigger("input");
+      await afterFlushPromise();
+      chai.assert.equal($(tagedit).attr("class").split(" ").at(-1), "error");
+      $(colortag).trigger(new $.Event("keyup", { which: 13 }));
       await waitForMethods();
       disgust = Puzzles.findOne(disgust._id);
       chai.assert.isOk(disgust.tags.color3);
@@ -624,18 +616,14 @@ describe("blackboard", function () {
         value: "plurple",
       });
       await afterFlushPromise();
-      $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color2\"] .bb-edit-tag-name`
-      )
-        .first()
-        .click();
+      const tagedit = `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color2\"] .bb-edit-tag-name`;
+      $(tagedit).first().click();
       await afterFlushPromise();
-      $(
-        `[data-puzzle-id=\"${disgust._id}\"] [data-tag-name=\"color2\"] .bb-edit-tag-name input`
-      )
-        .first()
-        .val("color")
-        .trigger(new $.Event("keyup", { which: 13 }));
+      const colortag = tagedit + " input";
+      $(colortag).first().val("color").trigger("input");
+      await afterFlushPromise();
+      chai.assert.equal($(tagedit).attr("class").split(" ").at(-1), "error");
+      $(colortag).trigger(new $.Event("keyup", { which: 13 }));
       await waitForMethods();
       disgust = Puzzles.findOne(disgust._id);
       chai.assert.isOk(disgust.tags.color2);
