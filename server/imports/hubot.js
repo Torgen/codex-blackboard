@@ -23,42 +23,44 @@ const tweakStrings = (strings, f) =>
 
 class BlackboardAdapter extends Hubot.Adapter {
   static initClass() {
-    this.prototype.sendHelper = Meteor.bindEnvironment(
-      function (envelope, strings, map) {
-        // be present in the room
+    this.prototype.sendHelper = Meteor.bindEnvironment(function (
+      envelope,
+      strings,
+      map
+    ) {
+      // be present in the room
+      try {
+        this.present(envelope.room);
+      } catch (error) {}
+      const props = Object.create(null);
+      const lines = [];
+      while (strings.length > 0) {
+        if (typeof strings[0] === "function") {
+          strings[0] = strings[0]();
+          continue;
+        }
+        const string = strings.shift();
+        if (typeof string === "object") {
+          Object.assign(props, string);
+          continue;
+        }
+        if (string != null) {
+          lines.push(string);
+        }
+      }
+      if (lines.length && envelope.message.direct && !props.useful) {
+        Messages.update(envelope.message.id, { $set: { useless_cmd: true } });
+      }
+      for (const line of lines) {
         try {
-          this.present(envelope.room);
-        } catch (error) {}
-        const props = Object.create(null);
-        const lines = [];
-        while (strings.length > 0) {
-          if (typeof strings[0] === "function") {
-            strings[0] = strings[0]();
-            continue;
-          }
-          const string = strings.shift();
-          if (typeof string === "object") {
-            Object.assign(props, string);
-            continue;
-          }
-          if (string != null) {
-            lines.push(string);
-          }
-        }
-        if (lines.length && envelope.message.direct && !props.useful) {
-          Messages.update(envelope.message.id, { $set: { useless_cmd: true } });
-        }
-        for (const line of lines) {
-          try {
-            map(line, props);
-          } catch (err) {
-            if (DEBUG) {
-              console.error(`Hubot error: ${err}`);
-            }
+          map(line, props);
+        } catch (err) {
+          if (DEBUG) {
+            console.error(`Hubot error: ${err}`);
           }
         }
       }
-    );
+    });
   }
   constructor(robot, botname, gravatar) {
     super(robot);
