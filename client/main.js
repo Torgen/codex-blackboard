@@ -50,6 +50,7 @@ Template.page.events({
     const target = event.currentTarget;
     // href on the element directly is absolute. We want the relative path if it exists for routing.
     event.preventDefault();
+    // istanbul ignore if
     if (target.classList.contains("bb-pop-out")) {
       // here we want the absolute path since it's for a new window.
       window.open(

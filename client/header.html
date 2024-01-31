@@ -244,7 +244,7 @@
       {{/if}}
       <strong title="{{nickOrName nick}}">{{>gravatar nick=nick size=16}}{{nick}}:</strong>
       {{#if to}}{{#unless equal to currentUser._id}}/msg {{to}}{{/unless}}{{/if}}
-      {{msgbody}}
+      {{body}}
     {{/if}}
     </p>
     {{/each}}

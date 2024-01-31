@@ -40,6 +40,8 @@ Meteor.startup(function () {
 });
 
 Template.callin_copy_and_go.events({
+  // Browser security model won't let us test this from inside the browser.
+  // istanbul ignore next
   async "click .copy-and-go"(event, template) {
     event.preventDefault();
     const url = event.currentTarget.href;

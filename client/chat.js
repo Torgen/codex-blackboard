@@ -21,7 +21,6 @@ import {
 import {
   CHAT_LIMIT_INCREMENT,
   CLIENT_UUID,
-  FOLLOWUP_STYLE,
   GENERAL_ROOM_NAME,
   INITIAL_CHAT_LIMIT,
 } from "/lib/imports/server_settings.js";
@@ -454,16 +453,14 @@ Template.messages.onRendered(function () {
     instachat.scrolledToBottom = entries[0].isIntersecting;
   });
   instachat.bottomObserver.observe(chatBottom);
-  if (FOLLOWUP_STYLE === "js") {
-    // observe future changes
-    this.$("#messages").each(function () {
-      /* istanbul ignore else */
-      if (!Meteor.isProduction) {
-        console.log(`Observing ${this}`);
-      }
-      instachat.mutationObserver.observe(this, { childList: true });
-    });
-  }
+  // observe future changes
+  this.$("#messages").each(function () {
+    /* istanbul ignore else */
+    if (!Meteor.isProduction) {
+      console.log(`Observing ${this}`);
+    }
+    instachat.mutationObserver.observe(this, { childList: true });
+  });
 
   this.$("#messages").each(function () {
     instachat.readObserver.observe(this, {
