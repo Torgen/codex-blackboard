@@ -5,9 +5,7 @@ import {
   Rounds,
 } from "/lib/imports/collections.js";
 import { hashFromNickObject } from "/lib/imports/nickEmail.js";
-import {
-  GENERAL_ROOM_NAME,
-} from "/lib/imports/server_settings.js";
+import { GENERAL_ROOM_NAME } from "/lib/imports/server_settings.js";
 import "./imports/timestamp.js";
 import "./imports/ui/components/connection_button/connection_button.js";
 
