@@ -21,7 +21,7 @@ editableTemplate(Template.edit_field, {
 Template.edit_field.events({
   "click a"(event, template) {
     event.stopPropagation();
-  }
+  },
 });
 
 Template.edit_field.helpers({
