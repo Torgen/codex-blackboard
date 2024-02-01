@@ -48,6 +48,9 @@ Template.edit_tag_value.helpers({
 });
 
 Template.edit_tag_value.events({
+  "click a"(event, template) {
+    event.stopPropagation();
+  },
   'click input[type="color"]'(event, template) {
     event.stopPropagation();
   },
