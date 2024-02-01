@@ -18,6 +18,12 @@ editableTemplate(Template.edit_field, {
   },
 });
 
+Template.edit_field.events({
+  "click a"(event, template) {
+    event.stopPropagation();
+  }
+});
+
 Template.edit_field.helpers({
   value() {
     return collection(this.type).findOne({ _id: this.id })?.[this.field] ?? "";
