@@ -1,4 +1,5 @@
 import { mechanics } from "/lib/imports/mechanics.js";
+import floatingDropdown from "/client/imports/ui/mixins/floating_dropdown";
 
 Template.registerHelper("yourFavoriteMechanic", function () {
   return Meteor.user().favorite_mechanics?.includes(this);
@@ -16,6 +17,8 @@ Template.mechanics.helpers({
     return Template.instance().data?.includes(this.canon);
   },
 });
+
+floatingDropdown(Template.mechanics);
 
 Template.mechanics.events({
   "click li a"(event, template) {
