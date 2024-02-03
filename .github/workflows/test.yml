@@ -18,8 +18,10 @@ jobs:
           - chromium
           - firefox
         test_script:
-          - coverage.lcov
+          - coverage.client.lcov
           - coverage.full.lcov
+        include:
+          - test_script: coverage.server.lcov
     steps:
       - uses: actions/checkout@master
         with:
