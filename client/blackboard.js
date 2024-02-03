@@ -763,7 +763,7 @@ Template.blackboard_puzzle_cells.helpers({
 });
 
 Template.blackboard_column_body_answer.events({
-  async "click .bb-delete-icon"(event, template){
+  async "click .bb-delete-icon"(event, template) {
     const answer = this.toString();
     if (
       await confirm({
@@ -773,6 +773,17 @@ Template.blackboard_column_body_answer.events({
       })
     ) {
       Meteor.call("deletePartialAnswer", template.data.puzzle._id, answer);
+    }
+  },
+  async "click .bb-finalize-answers"(event, template) {
+    if (
+      await confirm({
+        ok_button: "Yes, that's all of them",
+        no_button: "No, there may be more",
+        message: `Are those all the answers for ${template.data.puzzle.name}?`,
+      })
+    ) {
+      Meteor.call("finalizeAnswers", template.data.puzzle._id);
     }
   },
 });
