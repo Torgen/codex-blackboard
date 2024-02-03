@@ -77,17 +77,19 @@ h2, .bb-round-title {
     text-align: right;
     border-left: none;
   }
+  .answer {
+    & > span:first-child {
+      /* Vertically align answer timestamps */
+      display: inline-block; min-width: 120px;
+    }
+    & > .backsolve {
+      font-family: "Noto Sans", sans-serif, "Noto Color Emoji", "Open Sans Emoji";
+      font-size: .65em;
+      text-transform: none;
+    }
+  }
 }
 td.wanted { font-style: italic; }
-.answer > span:first-child {
-  /* Vertically align answer timestamps */
-  display: inline-block; min-width: 120px;
-}
-.answer > .backsolve {
-  font-family: "Noto Sans", sans-serif, "Noto Color Emoji", "Open Sans Emoji";
-  font-size: .65em;
-  text-transform: none;
-}
 
 #callin_modal {
   .controls {
