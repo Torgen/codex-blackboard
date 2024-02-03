@@ -30,10 +30,7 @@ describe("finalizeAnswers", function () {
       touched_by: "bob",
       answers: ["barney", "sheila"],
     });
-    chai.assert.throws(
-      () => Meteor.call("finalizeAnswers", id),
-      Match.Error
-    );
+    chai.assert.throws(() => Meteor.call("finalizeAnswers", id), Match.Error);
   });
 
   describe("when puzzle is solved", function () {
