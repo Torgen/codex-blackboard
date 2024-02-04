@@ -353,6 +353,13 @@ Template.messages.helpers({
     touchSelfScroll(); // ignore scroll events caused by DOM update
     return maybeScrollMessagesView();
   },
+  whos_typing() {
+    return Presence.find({
+      room_name: Session.get("room_name"),
+      scope: "typing",
+      nick: { $ne: Meteor.userId() },
+    });
+  },
 });
 
 function cleanupChat() {
@@ -859,6 +866,17 @@ Template.messages_input.onCreated(function () {
   this.queryCursor = new ReactiveVar(null);
   this.selected = new ReactiveVar(null);
   this.error = new ReactiveVar(null);
+  this.typing = new ReactiveVar(false);
+
+  this.autorun(() => {
+    const room_name = Session.get("room_name");
+    if (!room_name) {
+      return;
+    }
+    if (this.typing.get()) {
+      this.subscribe("register-presence", room_name, "typing");
+    }
+  });
 
   this.setQuery = function (query) {
     if (this.query.get() === query) {
@@ -997,6 +1015,7 @@ Template.messages_input.onCreated(function () {
   };
 
   this.submit = function (message) {
+    this.typing.set(false);
     let to;
     let n;
     if (!message) {
@@ -1154,6 +1173,7 @@ Template.messages_input.events({
           event.target.value = body;
           event.target.setSelectionRange(body.length, body.length);
         } else {
+          template.typing.set(false);
           event.target.value = "";
           template.history_ts = null;
         }
@@ -1197,6 +1217,10 @@ Template.messages_input.events({
     } // skip during initial load
     instachat.alertWhenUnreadMessages = false;
     hideMessageAlert();
+  },
+  "input #messageInput"(event, template) {
+    const value = event.currentTarget.value;
+    template.typing.set(value !== "" && !value.startsWith("/msg "));
   },
   "keyup/click/touchend/mouseup #messageInput"(event, template) {
     template.updateTypeahead();

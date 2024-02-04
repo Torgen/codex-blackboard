@@ -304,7 +304,7 @@ Meteor.publish(
   loginRequired(() =>
     // strip out unnecessary fields from presence to avoid wasted updates to clients
     Presence.find(
-      { room_name: { $ne: null } },
+      { room_name: { $ne: null }, scope: { $in: ["jitsi", "chat"] } },
       {
         fields: {
           timestamp: 0,
@@ -318,7 +318,7 @@ Meteor.publish(
   "presence-for-room",
   loginRequired((room_name) =>
     Presence.find(
-      { room_name, scope: "chat" },
+      { room_name, scope: { $in: ["chat", "typing"] } },
       {
         fields: {
           timestamp: 0,
@@ -716,11 +716,14 @@ Meteor.publish(
       return `${toSign}.${hash}`;
     }
     this.added(JITSI_JWT_COLLECTION_NAME, roomName, { jwt: generateJwt() });
-    const intervalHandle = Meteor.setInterval(() => {
-      this.changed(JITSI_JWT_COLLECTION_NAME, roomName, {
-        jwt: generateJwt(),
-      });
-    }, 86400 * 100 * 3);
+    const intervalHandle = Meteor.setInterval(
+      () => {
+        this.changed(JITSI_JWT_COLLECTION_NAME, roomName, {
+          jwt: generateJwt(),
+        });
+      },
+      86400 * 100 * 3
+    );
     this.onStop(() => Meteor.clearInterval(intervalHandle));
     this.ready();
   })

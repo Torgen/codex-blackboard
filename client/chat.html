@@ -220,5 +220,11 @@ Click here to stay in this meeting instead.{{/if}}">
     {{/each}}
     {{! Ensure there's always a small "last-child" here to scroll to.}}
     <p id="chat-bottom" data-read="unread"></p>
+    {{#let typing=whos_typing}}
+      {{#if typing.count}}
+        <i class="fas fa-keyboard">
+        </i>{{#each t in typing}}{{>gravatar nick=t.nick size=16 title=(concat (nickOrName t.nick) " is typing")}}{{/each}}
+      {{/if}}
+    {{/let}}
   </div>
 </template>
