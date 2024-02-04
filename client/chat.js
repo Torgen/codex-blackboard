@@ -866,14 +866,14 @@ Template.messages_input.onCreated(function () {
   this.queryCursor = new ReactiveVar(null);
   this.selected = new ReactiveVar(null);
   this.error = new ReactiveVar(null);
-  this.typing = new ReactiveVar(false);
+  this.typing = new ReactiveVar(null);
 
   this.autorun(() => {
     const room_name = Session.get("room_name");
     if (!room_name) {
       return;
     }
-    if (this.typing.get()) {
+    if (this.typing.get() > Session.get("currentTime") - 60000) {
       this.subscribe("register-presence", room_name, "typing");
     }
   });
@@ -1015,7 +1015,7 @@ Template.messages_input.onCreated(function () {
   };
 
   this.submit = function (message) {
-    this.typing.set(false);
+    this.typing.set(null);
     let to;
     let n;
     if (!message) {
@@ -1173,7 +1173,7 @@ Template.messages_input.events({
           event.target.value = body;
           event.target.setSelectionRange(body.length, body.length);
         } else {
-          template.typing.set(false);
+          template.typing.set(null);
           event.target.value = "";
           template.history_ts = null;
         }
@@ -1220,7 +1220,11 @@ Template.messages_input.events({
   },
   "input #messageInput"(event, template) {
     const value = event.currentTarget.value;
-    template.typing.set(value !== "" && !value.startsWith("/msg "));
+    let time = null;
+    if (value !== "" && !value.startsWith("/msg ")) {
+      time = Date.now();
+    }
+    template.typing.set(time);
   },
   "keyup/click/touchend/mouseup #messageInput"(event, template) {
     template.updateTypeahead();
