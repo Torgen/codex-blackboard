@@ -24,6 +24,7 @@ import {
   GENERAL_ROOM_NAME,
   INITIAL_CHAT_LIMIT,
 } from "/lib/imports/server_settings.js";
+import { TypingIndicatorCharacters } from "/lib/imports/settings.js";
 import {
   CAP_JITSI_HEIGHT,
   HIDE_OLD_PRESENCE,
@@ -1219,9 +1220,11 @@ Template.messages_input.events({
     hideMessageAlert();
   },
   "input #messageInput"(event, template) {
+    const minChars = TypingIndicatorCharacters.get();
     const value = event.currentTarget.value;
+    console.log(minChars, value);
     let time = null;
-    if (value !== "" && !value.startsWith("/msg ")) {
+    if (minChars > 0 && value.length >= minChars && !value.startsWith("/msg ")) {
       time = Date.now();
     }
     template.typing.set(time);
