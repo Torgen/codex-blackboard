@@ -1224,7 +1224,11 @@ Template.messages_input.events({
     const value = event.currentTarget.value;
     console.log(minChars, value);
     let time = null;
-    if (minChars > 0 && value.length >= minChars && !value.startsWith("/msg ")) {
+    if (
+      minChars > 0 &&
+      value.length >= minChars &&
+      !value.startsWith("/msg ")
+    ) {
       time = Date.now();
     }
     template.typing.set(time);
