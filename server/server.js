@@ -384,7 +384,7 @@ function registerPresence(room_name, scope) {
     }
     Meteor.clearInterval(interval);
     const now = Date.now();
-    Meteor.setTimeout(() => {
+    clear = () => {
       Presence.update(
         { nick: this.userId, room_name, scope },
         {
@@ -397,7 +397,12 @@ function registerPresence(room_name, scope) {
           },
         }
       );
-    }, 2000);
+    };
+    if (scope === "typing") {
+      clear();
+    } else {
+      Meteor.setTimeout(clear, 2000);
+    }
   });
   this.ready();
 }
