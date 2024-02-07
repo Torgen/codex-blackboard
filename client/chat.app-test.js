@@ -223,6 +223,23 @@ describe("chat", function () {
     });
   });
 
+  describe("typing indicator", function () {
+    if (
+      ("appears when you have text in the box",
+      async function () {
+        ChatPage("puzzles", id);
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const input = $("#messageInput");
+        input.val("ten characters").trigger("input");
+        const presence = waitForDocument(Presence, {
+          scope: "typing",
+          nick: "testy",
+        });
+      })
+    );
+  });
+
   describe("typeahead", function () {
     it("accepts keyboard commands", async function () {
       const id = Puzzles.findOne({ name: "Disgust" })._id;
