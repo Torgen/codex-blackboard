@@ -8,7 +8,12 @@ import {
   logout,
 } from "./imports/app_test_helpers.js";
 import { waitForDocument } from "/lib/imports/testutils.js";
-import { Messages, Presence, Puzzles, Rounds } from "/lib/imports/collections.js";
+import {
+  Messages,
+  Presence,
+  Puzzles,
+  Rounds,
+} from "/lib/imports/collections.js";
 import chai from "chai";
 
 describe("chat", function () {
