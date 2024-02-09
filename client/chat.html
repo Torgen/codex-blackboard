@@ -221,9 +221,13 @@ Click here to stay in this meeting instead.{{/if}}">
     {{! Ensure there's always a small "last-child" here to scroll to.}}
     <p id="chat-bottom" data-read="unread">
     {{#let typing=whos_typing}}
-      {{#if typing.count}}
+      {{#if less 3 typing.count}}
         <i class="fas fa-keyboard">
-        </i>{{#each t in typing}}{{scrollHack}}{{>gravatar nick=t.nick size=16 title=(concat (nickOrName t.nick) " is typing")}}{{/each}}
+        </i> <span class="whos-typing">{{#each t in typing}}{{scrollHack}}{{>gravatar nick=t.nick size=16 title=(nickAndName t.nick)}}{{/each}} Many people are typing.</span>
+      {{else if less 0 typing.count}}
+        <i class="fas fa-keyboard">
+        </i><span class="whos-typing">{{#each t in typing}}{{scrollHack}}{{#if all (plural typing.count) (equal @index (minus typing.count 1))}} and{{/if}} {{>gravatar nick=t.nick size=16}}{{nickAndName t.nick}}{{#if all (equal 3 typing.count) (less @index 2)}},{{/if}}{{/each}}</span>
+        {{#if plural typing.count}}are{{else}}is{{/if}} typing.
       {{/if}}
     {{/let}}
     </p>
