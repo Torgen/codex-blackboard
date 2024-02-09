@@ -8,7 +8,12 @@ import {
   logout,
 } from "./imports/app_test_helpers.js";
 import { waitForDocument } from "/lib/imports/testutils.js";
-import { Messages, Puzzles, Rounds } from "/lib/imports/collections.js";
+import {
+  Messages,
+  Presence,
+  Puzzles,
+  Rounds,
+} from "/lib/imports/collections.js";
 import chai from "chai";
 
 describe("chat", function () {
@@ -220,6 +225,20 @@ describe("chat", function () {
       chai.assert.equal(Session.get("id"), 0);
       await afterFlushPromise();
       chai.assert.isTrue(input.hasClass("error"));
+    });
+  });
+
+  describe("typing indicator", function () {
+    it("appears when you have text in the box", async function () {
+      ChatPage("general", "0");
+      await waitForSubscriptions();
+      await afterFlushPromise();
+      const input = $("#messageInput");
+      input.val("ten characters").trigger("input");
+      const presence = waitForDocument(Presence, {
+        scope: "typing",
+        nick: "testy",
+      });
     });
   });
 

@@ -129,6 +129,7 @@ Meteor.startup(function () {
 //   "facts"      -- server performance information
 Template.registerHelper("equal", (a, b) => a === b);
 Template.registerHelper("less", (a, b) => a < b);
+Template.registerHelper("minus", (a, b) => a - b);
 Template.registerHelper("any", function (...args) {
   const adjustedLength = Math.max(args.length, 1),
     a = args.slice(0, adjustedLength - 1),

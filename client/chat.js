@@ -24,6 +24,7 @@ import {
   GENERAL_ROOM_NAME,
   INITIAL_CHAT_LIMIT,
 } from "/lib/imports/server_settings.js";
+import { TypingIndicatorCharacters } from "/lib/imports/settings.js";
 import {
   CAP_JITSI_HEIGHT,
   HIDE_OLD_PRESENCE,
@@ -352,6 +353,13 @@ Template.messages.helpers({
   scrollHack(m) {
     touchSelfScroll(); // ignore scroll events caused by DOM update
     return maybeScrollMessagesView();
+  },
+  whos_typing() {
+    return Presence.find({
+      room_name: Session.get("room_name"),
+      scope: "typing",
+      nick: { $ne: Meteor.userId() },
+    });
   },
 });
 
@@ -859,6 +867,17 @@ Template.messages_input.onCreated(function () {
   this.queryCursor = new ReactiveVar(null);
   this.selected = new ReactiveVar(null);
   this.error = new ReactiveVar(null);
+  this.typing = new ReactiveVar(null);
+
+  this.autorun(() => {
+    const room_name = Session.get("room_name");
+    if (!room_name) {
+      return;
+    }
+    if (this.typing.get() > Session.get("currentTime") - 60000) {
+      this.subscribe("register-presence", room_name, "typing");
+    }
+  });
 
   this.setQuery = function (query) {
     if (this.query.get() === query) {
@@ -997,6 +1016,7 @@ Template.messages_input.onCreated(function () {
   };
 
   this.submit = function (message) {
+    this.typing.set(null);
     let to;
     let n;
     if (!message) {
@@ -1154,6 +1174,7 @@ Template.messages_input.events({
           event.target.value = body;
           event.target.setSelectionRange(body.length, body.length);
         } else {
+          template.typing.set(null);
           event.target.value = "";
           template.history_ts = null;
         }
@@ -1197,6 +1218,20 @@ Template.messages_input.events({
     } // skip during initial load
     instachat.alertWhenUnreadMessages = false;
     hideMessageAlert();
+  },
+  "input #messageInput"(event, template) {
+    const minChars = TypingIndicatorCharacters.get();
+    const value = event.currentTarget.value;
+    console.log(minChars, value);
+    let time = null;
+    if (
+      minChars > 0 &&
+      value.length >= minChars &&
+      !value.startsWith("/msg ")
+    ) {
+      time = Date.now();
+    }
+    template.typing.set(time);
   },
   "keyup/click/touchend/mouseup #messageInput"(event, template) {
     template.updateTypeahead();
