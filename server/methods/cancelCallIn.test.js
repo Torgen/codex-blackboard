@@ -48,6 +48,13 @@ describe("cancelCallIn", function () {
     });
   });
 
+  it("fails when callin doesn't exist", function () {
+    chai.assert.throws(
+      () => callAs("cancelCallIn", "cjb", { id: "never heard of it" }),
+      Meteor.Error
+    );
+  });
+
   it("fails without login", () =>
     chai.assert.throws(
       () => Meteor.call("cancelCallIn", { id: callin }),

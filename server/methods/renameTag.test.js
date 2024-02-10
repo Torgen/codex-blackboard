@@ -53,6 +53,19 @@ describe("renameTag", function () {
     );
   });
 
+  it("fails when object doesn't exist", function () {
+    chai.assert.throws(
+      () =>
+        callAs("renameTag", "torgen", {
+          type: "puzzles",
+          object: "never heard of it",
+          old_name: "warMth",
+          new_name: "Temperature",
+        }),
+      Meteor.Error
+    );
+  });
+
   it("renames tag", function () {
     const id = Puzzles.insert({
       name: "Foo",
