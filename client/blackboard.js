@@ -261,7 +261,20 @@ Template.blackboard.helpers({
   stuckPuzzles() {
     return Puzzles.find({
       "tags.status.value": /^stuck/i,
-    });
+    })
+      .fetch()
+      .filter((puzzle) => {
+        console.log(puzzle);
+        if (!puzzle.feedsInto.length) {
+          return true;
+        }
+        for (let _id of puzzle.feedsInto) {
+          if (Puzzles.findOne({ _id, solved: null })) {
+            return true;
+          }
+        }
+        return false;
+      });
   },
   hasJitsiLocalStorage() {
     return reactiveLocalStorage.getItem("jitsiLocalStorage");
