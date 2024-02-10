@@ -248,4 +248,110 @@ describe("setTag", function () {
     });
     chai.assert.doesNotHaveAnyKeys(Puzzles.findOne(id).tags, ["link"]);
   });
+
+  describe("on metapuzzle", function () {
+    let meta;
+    let feeder;
+    beforeEach(function () {
+      meta = Puzzles.insert({
+        name: "Meta",
+        canon: "meta",
+        feedsInto: [],
+        puzzles: [],
+        created: 1,
+        created_by: "cjb",
+        touched: 3,
+        touched_by: "cscott",
+        tags: {},
+      });
+      feeder = Puzzles.insert({
+        name: "Feeder",
+        canon: "feeder",
+        feedsInto: [meta],
+        created: 1,
+        created_by: "cjb",
+        touched: 3,
+        touched_by: "cscott",
+        tags: {
+          baz: {
+            name: "Baz",
+            value: "bob",
+            touched: 3,
+            touched_by: "cscott",
+          },
+        },
+      });
+      Puzzles.update(meta, { $push: { puzzles: feeder } });
+    });
+
+    it("notifies feeder on meta tags", function () {
+      callAs("setTag", "torgen", {
+        type: "puzzles",
+        object: meta,
+        name: "meta pattern",
+        value: "crystalline",
+      });
+      const message = Messages.findOne({ room_name: `puzzles/${feeder}` });
+      chai.assert.deepInclude(message, {
+        nick: "torgen",
+        action: true,
+        on_behalf: true,
+        body: 'has set the meta pattern of Meta to "crystalline".',
+      });
+    });
+    it("notifies feeder on many unset cares abouts", function () {
+      callAs("setTag", "torgen", {
+        type: "puzzles",
+        object: meta,
+        name: "cares about",
+        value: "foo,bar,baz,qux,sheila",
+      });
+      const message = Messages.findOne({ room_name: `puzzles/${feeder}` });
+      chai.assert.deepInclude(message, {
+        nick: "torgen",
+        action: true,
+        on_behalf: true,
+        body: 'would like the "foo", "bar", "qux", and "sheila" tags set for Meta.',
+      });
+    });
+    it("notifies feeder on two unset cares abouts", function () {
+      callAs("setTag", "torgen", {
+        type: "puzzles",
+        object: meta,
+        name: "cares about",
+        value: "foo,baz,sheila",
+      });
+      const message = Messages.findOne({ room_name: `puzzles/${feeder}` });
+      chai.assert.deepInclude(message, {
+        nick: "torgen",
+        action: true,
+        on_behalf: true,
+        body: 'would like the "foo" and "sheila" tags set for Meta.',
+      });
+    });
+    it("notifies feeder on one unset cares about", function () {
+      callAs("setTag", "torgen", {
+        type: "puzzles",
+        object: meta,
+        name: "cares about",
+        value: "foo,baz",
+      });
+      const message = Messages.findOne({ room_name: `puzzles/${feeder}` });
+      chai.assert.deepInclude(message, {
+        nick: "torgen",
+        action: true,
+        on_behalf: true,
+        body: 'would like the "foo" tag set for Meta.',
+      });
+    });
+    it("does not notify feeder on set cares about", function () {
+      callAs("setTag", "torgen", {
+        type: "puzzles",
+        object: meta,
+        name: "cares about",
+        value: "baz",
+      });
+      chai.assert.notOk(Messages.findOne({ room_name: `puzzles/${feeder}` }));
+    });
+  });
 });
