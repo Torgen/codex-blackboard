@@ -269,7 +269,7 @@ Template.blackboard.helpers({
           return true;
         }
         for (let _id of puzzle.feedsInto) {
-          if (Puzzles.findOne({_id, solved: null})) {
+          if (Puzzles.findOne({ _id, solved: null })) {
             return true;
           }
         }
