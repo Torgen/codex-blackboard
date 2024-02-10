@@ -21,6 +21,12 @@ describe("summon", function () {
 
   beforeEach(() => resetDatabase());
 
+  it("fails when puzzle doesn't exist", function () {
+    chai.assert.isString(
+      callAs("summon", "torgen", { object: "never heard of it" })
+    );
+  });
+
   describe("when already answered", function () {
     let id = null;
     let ret = null;

@@ -27,6 +27,12 @@ describe("incorrectCallIn", function () {
 
   let puzzle = null;
   let callin = null;
+  it("fails when callin doesn't exist", function () {
+    chai.assert.throws(
+      () => callAs("incorrectCallIn", "cjb", "never heard of it"),
+      Meteor.Error
+    );
+  });
 
   describe("on answer", function () {
     beforeEach(function () {

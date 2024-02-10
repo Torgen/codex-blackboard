@@ -164,7 +164,7 @@ describe("unfeedMeta", function () {
       tags: {},
     });
     chai.assert.throws(
-      () => callAs("feedMeta", "jeff", "leaf", "meta"),
+      () => callAs("unfeedMeta", "jeff", "leaf", "meta"),
       Meteor.Error
     );
     chai.assert.deepEqual(Puzzles.findOne("meta").puzzles, ["yoy"]);

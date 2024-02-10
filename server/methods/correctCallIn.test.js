@@ -28,6 +28,13 @@ describe("correctCallIn", function () {
 
   let puzzle = null;
   let callin = null;
+  it("fails when callin doesn't exist", function () {
+    chai.assert.throws(
+      () => callAs("correctCallIn", "cjb", "never heard of it"),
+      Meteor.Error
+    );
+  });
+
   describe("for answer", function () {
     beforeEach(function () {
       puzzle = Puzzles.insert({

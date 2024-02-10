@@ -21,6 +21,12 @@ describe("unsummon", function () {
 
   beforeEach(() => resetDatabase());
 
+  it("fails when puzzle doesn't exist", function () {
+    chai.assert.isString(
+      callAs("unsummon", "torgen", { object: "never heard of it" })
+    );
+  });
+
   describe("which is not stuck", function () {
     let id = null;
     let ret = null;
