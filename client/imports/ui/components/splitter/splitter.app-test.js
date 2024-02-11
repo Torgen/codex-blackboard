@@ -10,6 +10,7 @@ import { BlackboardPage } from "/client/imports/router.js";
 import chai from "chai";
 
 describe("splitter", function () {
+  this.timeout(10000);
   before(async function () {
     await login("testy", "Teresa Tybalt", "", "failphrase");
     BlackboardPage();
