@@ -1,9 +1,16 @@
+import {  } from "../../../app_test_helpers.js";
 import { hsize } from "./splitter.js";
-import { login, logout } from "/client/imports/app_test_helpers.js";
+import { afterFlushPromise, login, logout, waitForSubscriptions } from "/client/imports/app_test_helpers.js";
+import { BlackboardPage } from "/client/imports/router.js";
 import chai from "chai";
 
 describe("splitter", function () {
-  before(() => login("testy", "Teresa Tybalt", "", "failphrase"));
+  before(async function () {
+    await login("testy", "Teresa Tybalt", "", "failphrase");
+    BlackboardPage();
+    await waitForSubscriptions();
+    await afterFlushPromise
+  });
 
   after(() => logout());
 
