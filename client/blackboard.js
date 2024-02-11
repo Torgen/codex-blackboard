@@ -264,7 +264,6 @@ Template.blackboard.helpers({
     })
       .fetch()
       .filter((puzzle) => {
-        console.log(puzzle);
         if (!puzzle.feedsInto.length) {
           return true;
         }
