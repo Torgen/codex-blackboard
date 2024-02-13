@@ -2,7 +2,7 @@ codex-blackboard
 ================
 
 ![Build Status](https://github.com/Torgen/codex-blackboard/actions/workflows/test.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/Torgen/codex-blackboard/badge.svg?branch=master)](https://coveralls.io/github/Torgen/codex-blackboard?branch=master)
+[![codecov](https://codecov.io/gh/Torgen/codex-blackboard/graph/badge.svg?token=FLDXAUZQ9M)](https://codecov.io/gh/Torgen/codex-blackboard)
 [![GitHub Super-Linter](https://github.com/Torgen/codex-blackboard/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
 Meteor app for coordinating solving for our MIT Mystery Hunt team. See the wiki for instructions on:
