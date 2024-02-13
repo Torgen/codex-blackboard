@@ -131,7 +131,7 @@
         {{#if stuckToTop}}
           {{#let stucks=stuckPuzzles}}
             {{#if stucks.length}}
-              <tbody>
+              <tbody id="bb-stuck-puzzles">
                 <tr><th colspan="{{nCols}}" id="stucks"><h2>Stuck Puzzles</h2></th></tr>
                 {{#each stucks}}
                   {{>blackboard_puzzle _id=_id parent="stuck" puzzle=this}}
