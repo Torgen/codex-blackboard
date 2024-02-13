@@ -254,11 +254,14 @@ describe("blackboard", function () {
       BlackboardPage();
       await waitForSubscriptions();
       await afterFlushPromise();
-      puzzle = await promiseCall("newPuzzle", { name: "stuck standalone", round: round._id });
+      puzzle = await promiseCall("newPuzzle", {
+        name: "stuck standalone",
+        round: round._id,
+      });
       await promiseCall("summon", { object: puzzle, how: "stuck: test" });
       await afterFlushPromise();
       const $stuck = $("#bb-stuck-puzzles");
-      chai.assert.equal( $stuck.length, 1, "stuck tbody");
+      chai.assert.equal($stuck.length, 1, "stuck tbody");
       const $puzzle = $stuck.find(`[data-puzzle-id="${puzzle._id}"]`);
       chai.assert.equal($puzzle.length, 1, "puzzle in tbody");
     });
@@ -291,7 +294,7 @@ describe("blackboard", function () {
         });
       });
       after(async function () {
-        await promiseCall("deleteAnswer", {target: wall_street._id});
+        await promiseCall("deleteAnswer", { target: wall_street._id });
       });
       it("does not show", async function () {
         BlackboardPage();
