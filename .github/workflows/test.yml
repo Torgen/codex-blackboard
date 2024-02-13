@@ -64,6 +64,11 @@ jobs:
           flag-name: run-${{ matrix.test_script }}-${{ matrix.browser }}
           path-to-lcov: .coverage/lcov.info
           parallel: true
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        env:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: Torgen/codex-blackboard
 
   finish:
     needs: test
