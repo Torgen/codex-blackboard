@@ -1,0 +1,10 @@
+codecov:
+  require_ci_to_pass: yes
+  notify:
+    wait_for_ci: yes
+coverage:
+  status:
+    project:
+      default:
+        threshold: 0.1%
+        removed_code_behavior: adjust_base

@@ -10,7 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      COVERALLS_PARALLEL: true
       TEST_BROWSER_DRIVER: playwright
     strategy:
       matrix:
@@ -57,29 +56,8 @@ jobs:
         run: ~/.meteor/meteor npm run-script ${{ matrix.test_script }}
         env:
           PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
-      - name: Coveralls Parallel
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.github_token }}
-          flag-name: run-${{ matrix.test_script }}-${{ matrix.browser }}
-          path-to-lcov: .coverage/lcov.info
-          parallel: true
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: run-${{ matrix.test_script }}-${{ matrix.browser }}
-
-  finish:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Coveralls Finished
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.github_token }}
-          parallel-finished: true
-      - name: Rerun Coverage
-        run: "curl --location --request GET 'https://coveralls.io/rerun_build?\
-          repo_token=${{ secrets.COVERALLS_REPO_TOKEN }}&\
-          build_num=${{ github.run_id }}'"
