@@ -10,7 +10,11 @@ import {
   logout,
 } from "./imports/app_test_helpers.js";
 import chai from "chai";
-import { HIDE_SOLVED, HIDE_SOLVED_METAS } from "/client/imports/settings.js";
+import {
+  HIDE_SOLVED,
+  HIDE_SOLVED_METAS,
+  STUCK_TO_TOP,
+} from "/client/imports/settings.js";
 
 describe("blackboard", function () {
   this.timeout(30000);
@@ -229,6 +233,81 @@ describe("blackboard", function () {
     });
 
     after(() => other_conn.disconnect());
+  });
+
+  describe("prioritize stuck", function () {
+    let puzzle;
+    let round;
+    before(function () {
+      STUCK_TO_TOP.set(true);
+      round = Rounds.findOne();
+    });
+    after(function () {
+      STUCK_TO_TOP.set(false);
+    });
+    afterEach(async function () {
+      await promiseCall("deletePuzzle", puzzle._id);
+    });
+
+    it("shows stuck standalone", async function () {
+      STUCK_TO_TOP.set(true);
+      BlackboardPage();
+      await waitForSubscriptions();
+      await afterFlushPromise();
+      puzzle = await promiseCall("newPuzzle", { name: "stuck standalone", round: round._id });
+      await promiseCall("summon", { object: puzzle, how: "stuck: test" });
+      await afterFlushPromise();
+      const $stuck = $("#bb-stuck-puzzles");
+      chai.assert.equal( $stuck.length, 1, "stuck tbody");
+      const $puzzle = $stuck.find(`[data-puzzle-id="${puzzle._id}"]`);
+      chai.assert.equal($puzzle.length, 1, "puzzle in tbody");
+    });
+
+    it("shows stuck feeding unsolved", async function () {
+      const wall_street = Puzzles.findOne({ name: "Wall Street" });
+      BlackboardPage();
+      await waitForSubscriptions();
+      await afterFlushPromise();
+      puzzle = await promiseCall("newPuzzle", {
+        name: "stuck feeder",
+        round: round._id,
+        feedsInto: [wall_street._id],
+      });
+      await promiseCall("summon", { object: puzzle, how: "stuck: test" });
+      await afterFlushPromise();
+      const $stuck = $("#bb-stuck-puzzles");
+      chai.assert.equal(1, $stuck.length, "stuck tbody");
+      const $puzzle = $stuck.find(`[data-puzzle-id="${puzzle._id}"]`);
+      chai.assert.equal(1, $puzzle.length, "puzzle in tbody");
+    });
+
+    describe("feeding solved", function () {
+      let wall_street;
+      before(async function () {
+        wall_street = Puzzles.findOne({ name: "Wall Street" });
+        await promiseCall("setAnswer", {
+          target: wall_street._id,
+          answer: "ceiling",
+        });
+      });
+      after(async function () {
+        await promiseCall("deleteAnswer", {target: wall_street._id});
+      });
+      it("does not show", async function () {
+        BlackboardPage();
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        puzzle = await promiseCall("newPuzzle", {
+          name: "stuck feeder",
+          feedsInto: [wall_street._id],
+          round: round._id,
+        });
+        await promiseCall("summon", { object: puzzle, how: "stuck: test" });
+        await afterFlushPromise();
+        const $stuck = $("#bb-stuck-puzzles");
+        chai.assert.equal($stuck.length, 0, "stcuk tbody");
+      });
+    });
   });
 
   describe("in edit mode", function () {
