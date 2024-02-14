@@ -10,7 +10,7 @@ editableTemplate(Template.edit_tag_value, {
   ok(value, evt, tem) {
     if (
       value !==
-      collection(tem.data.type).findOne(tem.data.id)?.tags[
+      collection(tem.data.type).findOne(tem.data.id)?.tags?.[
         canonical(tem.data.name)
       ]?.value
     ) {
@@ -30,14 +30,14 @@ Template.edit_tag_value.helpers({
   },
   value() {
     return (
-      collection(this.type).findOne({ _id: this.id })?.tags[
+      collection(this.type).findOne({ _id: this.id })?.tags?.[
         canonical(this.name)
       ]?.value ?? ""
     );
   },
   exists() {
     return (
-      collection(this.type).findOne({ _id: this.id })?.tags[
+      collection(this.type).findOne({ _id: this.id })?.tags?.[
         canonical(this.name)
       ] != null
     );
