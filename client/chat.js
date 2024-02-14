@@ -104,16 +104,6 @@ instachat["scrolledToBottom"] = true;
 instachat["readMarker"] = $('<div class="bb-message-last-read">read</div>');
 instachat["mutationObserver"] = new MutationObserver(function (recs, obs) {
   for (let rec of recs) {
-    /* istanbul ignore else */
-    if (!Meteor.isProduction) {
-      if (
-        [...rec.addedNodes, ...rec.removedNodes].some(
-          (x) => x instanceof Element
-        )
-      ) {
-        console.log(rec);
-      }
-    }
     // previous element's followup status can't be affected by changes after it;
     assignMessageFollowupList(rec.addedNodes);
     let nextEl = rec.nextSibling;
@@ -463,10 +453,6 @@ Template.messages.onRendered(function () {
   instachat.bottomObserver.observe(chatBottom);
   // observe future changes
   this.$("#messages").each(function () {
-    /* istanbul ignore else */
-    if (!Meteor.isProduction) {
-      console.log(`Observing ${this}`);
-    }
     instachat.mutationObserver.observe(this, { childList: true });
   });
 
