@@ -38,8 +38,12 @@ Template.edit_object_title.helpers({
     if (!val) {
       return "error";
     }
+    const obj = collection(this.type).findOne(this.id);
+    if (!obj) {
+      return;
+    }
     const cval = canonical(val);
-    if (cval === collection(this.type).findOne(this.id).canon) {
+    if (cval === obj.canon) {
       return "info";
     }
     if (collection(this.type).findOne({ canon: cval }) != null) {
@@ -52,11 +56,15 @@ Template.edit_object_title.helpers({
     if (!val) {
       return "Cannot be empty";
     }
-    if (val === collection(this.type).findOne(this.id).name) {
+    const obj = collection(this.type).findOne(this.id);
+    if (!obj) {
+      return;
+    }
+    if (val === obj.name) {
       return "Unchanged";
     }
     const cval = canonical(val);
-    if (cval === collection(this.type).findOne(this.id).canon) {
+    if (cval === obj.canon) {
       return;
     }
     if (collection(this.type).findOne({ canon: cval }) != null) {
