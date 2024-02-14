@@ -22,4 +22,9 @@ self.addEventListener("message", function (event) {
     event.source.postMessage({ action: "playnewanswersound" });
   }
 });
-clients.claim();
+self.addEventListener("activate", (event) => {
+  event.waitUntil(clients.claim());
+});
+self.addEventListener("install", (event) => {
+  event.waitUntil(self.skipWaiting());
+});
