@@ -21,10 +21,10 @@ jobs:
           - chromium
           - firefox
         test_script:
-          - coverage.client.lcov
-          - coverage.full.lcov
+          - coverage.client.json
+          - coverage.full.json
         include:
-          - test_script: coverage.server.lcov
+          - test_script: coverage.server.json
     steps:
       - uses: actions/checkout@master
         with:
