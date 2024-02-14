@@ -8,3 +8,6 @@ coverage:
       default:
         threshold: 0.1%
         removed_code_behavior: adjust_base
+parsers:
+  javascript:
+    enable_partials: yes
