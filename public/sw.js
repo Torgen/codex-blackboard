@@ -22,3 +22,4 @@ self.addEventListener("message", function (event) {
     event.source.postMessage({ action: "playnewanswersound" });
   }
 });
+clients.claim();
