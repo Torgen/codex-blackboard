@@ -56,10 +56,10 @@
     "test": "meteor test --once --driver-package meteortesting:mocha",
     "test.full": "meteor test --once --driver-package meteortesting:mocha --full-app --settings tests/integration_test_settings.json",
     "coverage": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_HTML=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
-    "coverage.lcov": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_LCOVONLY=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
-    "coverage.client.lcov": "TEST_SERVER=0 meteor npm run-script coverage.lcov",
-    "coverage.server.lcov": "TEST_CLIENT=0 meteor npm run-script coverage.lcov",
-    "coverage.full.lcov": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_LCOVONLY=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm run-script test.full"
+    "coverage.json": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_JSON=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
+    "coverage.client.json": "TEST_SERVER=0 meteor npm run-script coverage.json",
+    "coverage.server.json": "TEST_CLIENT=0 meteor npm run-script coverage.json",
+    "coverage.full.json": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_JSON=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm run-script test.full"
   },
   "repository": {
     "type": "git",
