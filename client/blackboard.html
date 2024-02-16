@@ -441,7 +441,7 @@
   {{#if all (not puzzle.solved) puzzle.answers canEdit}}
     <td class="puzzle-answer answer">
       <i class="fas fa-check-double pull-right bb-finalize-answers bb-editable" title="Finalize answers"></i>
-      {{#each puzzle.answers}}<span class="label label-inverse partial-answer">{{this}} <i class="bb-delete-icon fas fa-times" title="Delete this partial answer"></i></span> {{/each}}⋯
+      {{#each puzzle.answers}}<span data-partial-answer="{{this}}" class="label label-inverse partial-answer">{{this}} <i class="bb-delete-icon fas fa-times" title="Delete this partial answer"></i></span> {{/each}}⋯
     </td>
   {{else}}
     {{#edit_tag_value type="puzzles" id=puzzle._id name="Answer" editable=canEdit class="puzzle-answer answer"}}
