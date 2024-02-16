@@ -1,5 +1,5 @@
 import floatingDropdown from "/client/imports/ui/mixins/floating_dropdown.js";
-import { MUTE_SOUND_EFFECTS, EXPERT_MODE } from "./imports/settings.js";
+import { MUTE_SOUND_EFFECTS } from "./imports/settings.js";
 import { CallIns } from "/lib/imports/collections.js";
 import * as callin_types from "/lib/imports/callin_types.js";
 
@@ -17,7 +17,9 @@ Meteor.startup(function () {
     let initial = true;
     const query = { status: "pending" };
     if (!Session.equals("currentPage", "logistics")) {
-      query.callin_type = "answer";
+      query.callin_type = {
+        $in: [callin_types.ANSWER, callin_types.PARTIAL_ANSWER],
+      };
     }
     CallIns.find(query).observe({
       async added(doc) {
@@ -76,7 +78,10 @@ Template.callin_type_dropdown.events({
 
 Template.callin_resolution_buttons.helpers({
   allowsResponse() {
-    return this.callin.callin_type !== callin_types.ANSWER;
+    return (
+      this.callin.callin_type !== callin_types.ANSWER &&
+      this.callin.callin_type !== callin_types.PARTIAL_ANSWER
+    );
   },
   allowsIncorrect() {
     return this.callin.callin_type !== callin_types.EXPECTED_CALLBACK;
@@ -97,9 +102,15 @@ Template.callin_resolution_buttons.events({
     const response = template.find("input.response")?.value;
     if (response != null && response !== "") {
       Meteor.call("correctCallIn", this.callin._id, response);
+    } else if (this.callin.callin_type === callin_types.PARTIAL_ANSWER) {
+      Meteor.call("correctCallIn", this.callin._id, false);
     } else {
       Meteor.call("correctCallIn", this.callin._id);
     }
+  },
+
+  "click .bb-callin-final-correct"(event, template) {
+    Meteor.call("correctCallIn", this.callin._id, true);
   },
 
   "click .bb-callin-incorrect"(event, template) {

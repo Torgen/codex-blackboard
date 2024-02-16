@@ -48,6 +48,59 @@ describe("logistics", function () {
       chai.assert.equal(pb.tags.answer.value, "teferi");
     });
 
+    it("adds partial answer to list", async function () {
+      await LogisticsPage();
+      await waitForSubscriptions();
+      let pb = Puzzles.findOne({ name: "Puzzle Box" });
+      await promiseCall("deleteAnswer", { target: pb._id });
+      pb = Puzzles.findOne({ _id: pb._id });
+      chai.assert.isNotOk(pb.solved, "before");
+      chai.assert.isNotOk(pb.tags.answer);
+      await promiseCall("newCallIn", {
+        callin_type: "partial answer",
+        target_type: "puzzles",
+        target: pb._id,
+        answer: "teferi",
+      });
+      await afterFlushPromise();
+      const correctButtons = $(".bb-callin-correct");
+      chai.assert.equal(correctButtons.length, 1);
+      correctButtons.click();
+      await waitForMethods();
+      pb = Puzzles.findOne({ _id: pb._id });
+      chai.assert.isNotOk(pb.solved, "after");
+      chai.assert.deepEqual(pb.answers, ["teferi"]);
+    });
+
+    it("concatenates partial answers after final answer", async function () {
+      await LogisticsPage();
+      await waitForSubscriptions();
+      let pb = Puzzles.findOne({ name: "Puzzle Box" });
+      await promiseCall("setAnyField", {
+        type: "puzzles",
+        object: pb._id,
+        fields: { answers: ["hellraiser"] },
+      });
+      pb = Puzzles.findOne({ _id: pb._id });
+      chai.assert.isNotOk(pb.solved);
+      chai.assert.isNotOk(pb.tags.answer);
+      await promiseCall("newCallIn", {
+        callin_type: "partial answer",
+        target_type: "puzzles",
+        target: pb._id,
+        answer: "teferi",
+      });
+      await afterFlushPromise();
+      const correctButtons = $(".bb-callin-final-correct");
+      chai.assert.equal(correctButtons.length, 1);
+      correctButtons.click();
+      await waitForMethods();
+      pb = Puzzles.findOne({ _id: pb._id });
+      chai.assert.isOk(pb.solved);
+      chai.assert.deepEqual(pb.answers, ["hellraiser", "teferi"]);
+      chai.assert.equal(pb.tags.answer.value, "hellraiser; teferi");
+    });
+
     it("gets disappointed", async function () {
       await LogisticsPage();
       await waitForSubscriptions();

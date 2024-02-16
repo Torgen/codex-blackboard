@@ -255,6 +255,246 @@ describe("newCallIn", function () {
     });
   });
 
+  describe("of partial answer", function () {
+    it("fails when target doesn't exist", () =>
+      chai.assert.throws(
+        () =>
+          callAs("newCallIn", "torgen", {
+            target: "something",
+            answer: "precipitate",
+            callin_type: "partial answer",
+          }),
+        Meteor.Error
+      ));
+
+    it("fails when target is not a puzzle", function () {
+      const id = Rounds.insert({
+        name: "Foo",
+        canon: "foo",
+        created: 1,
+        created_by: "cscott",
+        touched: 1,
+        touched_by: "cscott",
+        solved: null,
+        solved_by: null,
+        tags: {},
+        puzzles: [],
+      });
+      chai.assert.throws(
+        () =>
+          callAs("newCallIn", "torgen", {
+            target: id,
+            target_type: "rounds",
+            answer: "precipitate",
+            callin_type: "partial answer",
+          }),
+        Match.Error
+      );
+    });
+
+    describe("on puzzle which exists", function () {
+      let id = null;
+      beforeEach(
+        () =>
+          (id = Puzzles.insert({
+            name: "Foo",
+            canon: "foo",
+            created: 1,
+            created_by: "cscott",
+            touched: 1,
+            touched_by: "cscott",
+            solved: null,
+            solved_by: null,
+            tags: {},
+            feedsInto: [],
+          }))
+      );
+
+      it("fails without login", () =>
+        chai.assert.throws(
+          () =>
+            Meteor.call("newCallIn", {
+              target: id,
+              answer: "precipitate",
+              callin_type: "partial answer",
+            }),
+          Match.Error
+        ));
+
+      it("fails without answer", () =>
+        chai.assert.throws(
+          () =>
+            callAs("newCallIn", "torgen", {
+              target: id,
+              callin_type: "partial answer",
+            }),
+          Match.Error
+        ));
+
+      describe("with simple callin", function () {
+        beforeEach(() =>
+          callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "partial answer",
+          })
+        );
+
+        it("creates document", function () {
+          const c = CallIns.findOne();
+          chai.assert.include(c, {
+            name: "partial answer:Foo:precipitate",
+            target: id,
+            target_type: "puzzles",
+            answer: "precipitate",
+            callin_type: "partial answer",
+            who: "torgen",
+            submitted_to_hq: false,
+            backsolve: false,
+            provided: false,
+            status: "pending",
+          });
+        });
+
+        it("oplogs", function () {
+          const o = Messages.find({
+            room_name: "oplog/0",
+            dawn_of_time: { $ne: true },
+          }).fetch();
+          chai.assert.lengthOf(o, 1);
+          chai.assert.include(o[0], {
+            type: "puzzles",
+            id,
+            stream: "callins",
+            nick: "torgen",
+          });
+          // oplog is lowercase
+          chai.assert.include(o[0].body, "precipitate", "message");
+        });
+
+        it("notifies puzzle chat", function () {
+          const o = Messages.find({
+            room_name: `puzzles/${id}`,
+            dawn_of_time: { $ne: true },
+          }).fetch();
+          chai.assert.lengthOf(o, 1);
+          chai.assert.include(o[0], {
+            nick: "torgen",
+            action: true,
+          });
+          chai.assert.include(o[0].body, "PRECIPITATE", "message");
+          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+        });
+
+        it("notifies general chat", function () {
+          const o = Messages.find({
+            room_name: "general/0",
+            dawn_of_time: { $ne: true },
+          }).fetch();
+          chai.assert.lengthOf(o, 1);
+          chai.assert.include(o[0], {
+            nick: "torgen",
+            action: true,
+          });
+          chai.assert.include(o[0].body, "PRECIPITATE", "message");
+          chai.assert.include(o[0].body, "(Foo)", "message");
+        });
+      });
+
+      it("sets backsolve", function () {
+        callAs("newCallIn", "torgen", {
+          target: id,
+          answer: "precipitate",
+          callin_type: "partial answer",
+          backsolve: true,
+        });
+        const c = CallIns.findOne();
+        chai.assert.include(c, {
+          target: id,
+          answer: "precipitate",
+          who: "torgen",
+          submitted_to_hq: false,
+          backsolve: true,
+          provided: false,
+          status: "pending",
+        });
+      });
+
+      it("sets provided", function () {
+        callAs("newCallIn", "torgen", {
+          target: id,
+          answer: "precipitate",
+          callin_type: "partial answer",
+          provided: true,
+        });
+        const c = CallIns.findOne();
+        chai.assert.include(c, {
+          target: id,
+          answer: "precipitate",
+          who: "torgen",
+          submitted_to_hq: false,
+          backsolve: false,
+          provided: true,
+          status: "pending",
+        });
+      });
+    });
+
+    it("notifies meta chat for puzzle", function () {
+      const meta = Puzzles.insert({
+        name: "Meta",
+        canon: "meta",
+        created: 2,
+        created_by: "cscott",
+        touched: 2,
+        touched_by: "cscott",
+        solved: null,
+        solved_by: null,
+        tags: {},
+        feedsInto: [],
+      });
+      const p = Puzzles.insert({
+        name: "Foo",
+        canon: "foo",
+        created: 2,
+        created_by: "cscott",
+        touched: 2,
+        touched_by: "cscott",
+        solved: null,
+        solved_by: null,
+        tags: {},
+        feedsInto: [meta],
+      });
+      Puzzles.update(meta, { $push: { puzzles: p } });
+      const r = Rounds.insert({
+        name: "Bar",
+        canon: "bar",
+        created: 1,
+        created_by: "cjb",
+        touched: 2,
+        touched_by: "cscott",
+        puzzles: [meta, p],
+        tags: {},
+      });
+      callAs("newCallIn", "torgen", {
+        target: p,
+        answer: "precipitate",
+        callin_type: "partial answer",
+      });
+      const m = Messages.find({
+        room_name: `puzzles/${meta}`,
+        dawn_of_time: { $ne: true },
+      }).fetch();
+      chai.assert.lengthOf(m, 1);
+      chai.assert.include(m[0], {
+        nick: "torgen",
+        action: true,
+      });
+      chai.assert.include(m[0].body, "PRECIPITATE");
+      chai.assert.include(m[0].body, "(Foo)");
+    });
+  });
+
   describe("of interaction request", function () {
     it("fails when target doesn't exist", () =>
       chai.assert.throws(

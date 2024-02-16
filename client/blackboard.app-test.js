@@ -147,6 +147,58 @@ describe("blackboard", function () {
     }
   });
 
+  it("renders multiple answers", async function () {
+    BlackboardPage();
+    await waitForSubscriptions();
+    const memoriam = Puzzles.findOne({ name: "In Memoriam" });
+    await promiseCall("setAnyField", {
+      type: "puzzles",
+      object: memoriam._id,
+      fields: { answers: ["Bob Hope", "Johnny Cash", "Steve Jobs"] },
+    });
+    await afterFlushPromise();
+    try {
+      const answerText = $(`[data-puzzle-id="${memoriam._id}"] .puzzle-answer`)
+        .text()
+        .trim();
+      chai.assert.equal(answerText, "Bob Hope; Johnny Cash; Steve Jobs; ⋯");
+    } finally {
+      await promiseCall("setAnyField", {
+        type: "puzzles",
+        object: memoriam._id,
+        fields: { answers: null },
+      });
+    }
+  });
+
+  it("renders final answer only", async function () {
+    BlackboardPage();
+    await waitForSubscriptions();
+    const memoriam = Puzzles.findOne({ name: "In Memoriam" });
+    await promiseCall("setAnyField", {
+      type: "puzzles",
+      object: memoriam._id,
+      fields: {
+        answers: ["Bob Hope", "Johnny Cash", "Steve Jobs"],
+        tags: { answer: { value: "Bob Hope; Johnny Cash; Steve Jobs" } },
+        solved: 7,
+      },
+    });
+    await afterFlushPromise();
+    try {
+      const answerText = $(`[data-puzzle-id="${memoriam._id}"] .puzzle-answer`)
+        .text()
+        .trim();
+      chai.assert.equal(answerText, "Bob Hope; Johnny Cash; Steve Jobs");
+    } finally {
+      await promiseCall("setAnyField", {
+        type: "puzzles",
+        object: memoriam._id,
+        fields: { answers: null, solved: null, tags: null },
+      });
+    }
+  });
+
   describe("presence filter", function () {
     let other_conn = null;
     let puzz1 = null;
@@ -709,6 +761,83 @@ describe("blackboard", function () {
       await waitForMethods();
       disgust = Puzzles.findOne(disgust._id);
       chai.assert.isOk(disgust.tags.color2);
+    });
+
+    describe("partial answers", function () {
+      let id;
+      beforeEach(async function () {
+        const civ = Rounds.findOne({ name: "Civilization" });
+        id = (
+          await promiseCall("newPuzzle", {
+            name: "Multiple Answers",
+            round: civ._id,
+          })
+        )._id;
+        await promiseCall("setAnyField", {
+          type: "puzzles",
+          object: id,
+          fields: { answers: ["foo", "bar", "baz", "qux"] },
+        });
+      });
+      afterEach(async function () {
+        await promiseCall("deletePuzzle", id);
+      });
+
+      it("removes one", async function () {
+        EditPage();
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        $(
+          `[data-puzzle-id="${id}"] [data-partial-answer="bar"] .bb-delete-icon`
+        ).click();
+        await afterFlushPromise();
+        $("#confirmModal .bb-confirm-ok").click();
+        await waitForMethods();
+
+        const puzzle = Puzzles.findOne(id);
+        chai.assert.deepEqual(puzzle.answers, ["foo", "baz", "qux"]);
+      });
+
+      it("aborts removing one", async function () {
+        EditPage();
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        $(
+          `[data-puzzle-id="${id}"] [data-partial-answer="bar"] .bb-delete-icon`
+        ).click();
+        await afterFlushPromise();
+        $("#confirmModal .bb-confirm-cancel").click();
+        await waitForMethods();
+
+        const puzzle = Puzzles.findOne(id);
+        chai.assert.deepEqual(puzzle.answers, ["foo", "bar", "baz", "qux"]);
+      });
+
+      it("finalizes", async function () {
+        EditPage();
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        $(`[data-puzzle-id="${id}"] .bb-finalize-answers`).click();
+        await afterFlushPromise();
+        $("#confirmModal .bb-confirm-ok").click();
+        await waitForMethods();
+
+        const puzzle = Puzzles.findOne(id);
+        chai.assert.equal(puzzle.tags.answer.value, "bar; baz; foo; qux");
+      });
+
+      it("aborts finalizing", async function () {
+        EditPage();
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        $(`[data-puzzle-id="${id}"] .bb-finalize-answers`).click();
+        await afterFlushPromise();
+        $("#confirmModal .bb-confirm-cancel").click();
+        await waitForMethods();
+
+        const puzzle = Puzzles.findOne(id);
+        chai.assert.notOk(puzzle.tags.answer);
+      });
     });
   });
 

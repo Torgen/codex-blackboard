@@ -15,7 +15,12 @@
 {{#with puzzle}}
   {{#if solved}}
     <tr><td class="rightanswer">Answer:</td><td class="answer">{{tag "answer"}}</td></tr>
-    <tr><td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}</td><td class="timestamp">{{pretty_ts solved}}</td></tr>
+    <tr>
+      <td class="backsolve">{{#if tag "backsolved"}}(backsolved){{/if}}{{#if tag "provided"}}(provided){{/if}}</td>
+      <td class="timestamp">{{pretty_ts solved}}</td>
+    </tr>
+  {{else if answers}}
+    <tr><td class="rightanswer">Answers so far:</td><td class="answer">{{#each pa in answers}}{{pa}}; {{/each}}⋯</td></tr>
   {{/if}}
   <tr><td>Mechanics:</td><td>{{> puzzle_mechanics}}{{#each mechanics}}<span class="label">{{mechanicName}}</span>{{/each}}</td></tr>
   <tr><td>Hunt site URL:</td>{{>edit_field type="puzzles" id=_id field="link"}}</tr>
@@ -100,7 +105,7 @@
   {{#each feeder in puzzle.puzzles}}{{#with getPuzzle feeder}}
     <tr data-feeder-id="{{_id}}">
       <td>{{#if any grandfeeders unattached}}<input type="checkbox" class="feed" checked="checked">{{/if}}{{>link id=_id}}</td>
-      <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+      <td class="answer">{{#if solved}}{{tag "answer"}}{{else if answers}}{{#each pa in answers}}{{pa}}; {{/each}}⋯{{/if}}</td>
       {{#each t in cares}}
         <td>{{tag t.name}}</td>
       {{/each}}
@@ -110,7 +115,7 @@
         {{#with getPuzzle gf}}
           <tr class="descendant" data-feeder-id="{{_id}}">
             <td><input type="checkbox" class="feed" checked="{{#if includes ../../../../puzzle.puzzles _id}}checked{{/if}}">{{>link id=_id}}</td> 
-            <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+            <td class="answer">{{#if solved}}{{tag "answer"}}{{else if answers}}{{#each pa in answers}}{{pa}}; {{/each}}⋯{{/if}}</td>
             {{#each t in cares}}
               <td>{{tag t.name}}</td>
             {{/each}}
@@ -124,7 +129,7 @@
       {{#with getPuzzle nf}}
         <tr data-feeder-id="{{_id}}">
           <td><input type="checkbox" class="feed">{{>link id=_id}}</td> 
-          <td class="answer">{{#if solved}}{{tag "answer"}}{{/if}}</td>
+          <td class="answer">{{#if solved}}{{tag "answer"}}{{else if answers}}{{#each pa in answers}}{{pa}}; {{/each}}⋯{{/if}}</td>
           {{#each t in cares}}
             <td>{{tag t.name}}</td>
           {{/each}}
@@ -296,7 +301,7 @@ Request Call-In
           {{/each}}
         </div>
       </div>
-      {{#if typeIs "answer"}}
+      {{#if any (typeIs "answer") (typeIs "partial answer")}}
         <div class="control-group">
           <label class="control-label">Provenance</label>
           <div class="controls">

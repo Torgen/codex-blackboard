@@ -48,6 +48,11 @@
       <button class="btn btn-success bb-callin-correct{{#if compact}} btn-mini{{/if}}" title="{{#if compact}}{{accept_message}}{{/if}}">
         {{#if compact}}<i class="fas fa-check"></i>{{else}}{{accept_message}}{{/if}}
       </button>
+      {{#if equal callin.callin_type "partial answer"}}
+        <button class="btn btn-success bb-callin-final-correct{{#if compact}} btn-mini{{/if}}" title="{{#if compact}}Final Correct{{/if}}">
+          {{#if compact}}<i class="fas fa-check-double"></i>{{else}}Final Correct{{/if}}
+        </button>
+      {{/if}}
       {{#if allowsIncorrect}}
         <button class="btn btn-danger bb-callin-incorrect{{#if compact}} btn-mini{{/if}}" title="{{#if compact}}{{reject_message}}{{/if}}">
           {{#if compact}}<i class="fas fa-times"></i>{{else}}{{reject_message}}{{/if}}

@@ -134,6 +134,106 @@ describe("incorrectCallIn", function () {
     });
   });
 
+  describe("on partial answer", function () {
+    beforeEach(function () {
+      puzzle = Puzzles.insert({
+        name: "Foo",
+        canon: "foo",
+        created: 1,
+        created_by: "cscott",
+        touched: 1,
+        touched_by: "cscott",
+        solved: null,
+        solved_by: null,
+        tags: {},
+        feedsInto: [],
+      });
+      callin = CallIns.insert({
+        name: "Foo:precipitate",
+        target: puzzle,
+        target_type: "puzzles",
+        answer: "precipitate",
+        callin_type: "partial answer",
+        created: 2,
+        created_by: "torgen",
+        submitted_to_hq: true,
+        backsolve: false,
+        provided: false,
+        status: "pending",
+      });
+      Roles.insert({
+        _id: "onduty",
+        holder: "cjb",
+        claimed_at: 2,
+        renewed_at: 2,
+        expires_at: 3600002,
+      });
+    });
+
+    it("fails without login", () =>
+      chai.assert.throws(
+        () => Meteor.call("incorrectCallIn", callin),
+        Match.Error
+      ));
+
+    describe("when logged in", function () {
+      beforeEach(() => callAs("incorrectCallIn", "cjb", callin));
+
+      it("updates callin", function () {
+        const c = CallIns.findOne(callin);
+        chai.assert.include(c, { status: "rejected" }, { resolved: 7 });
+      });
+
+      it("oplogs", () =>
+        chai.assert.lengthOf(
+          Messages.find({
+            type: "puzzles",
+            id: puzzle,
+            stream: "callins",
+          }).fetch(),
+          1
+        ));
+
+      it("notifies puzzle chat", () =>
+        chai.assert.lengthOf(
+          Messages.find({
+            room_name: `puzzles/${puzzle}`,
+            dawn_of_time: { $ne: true },
+          }).fetch(),
+          1
+        ));
+
+      it("notifies general chat", () =>
+        chai.assert.lengthOf(
+          Messages.find({
+            room_name: "general/0",
+            dawn_of_time: { $ne: true },
+          }).fetch(),
+          1
+        ));
+
+      it("renews onduty", () =>
+        chai.assert.deepInclude(Roles.findOne("onduty"), {
+          holder: "cjb",
+          claimed_at: 2,
+          renewed_at: 7,
+          expires_at: 3600007,
+        }));
+    });
+
+    describe("when not onduty", function () {
+      beforeEach(() => callAs("incorrectCallIn", "cscott", callin));
+
+      it("leaves onduty alone", () =>
+        chai.assert.deepInclude(Roles.findOne("onduty"), {
+          holder: "cjb",
+          claimed_at: 2,
+          renewed_at: 2,
+          expires_at: 3600002,
+        }));
+    });
+  });
+
   describe("on interaction request", function () {
     beforeEach(function () {
       puzzle = Puzzles.insert({
