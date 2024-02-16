@@ -27,20 +27,83 @@ describe("chunk_text", function () {
       { type: "text", content: ", yo" },
     ]));
 
-    it("matches two url", () =>
-      chai.assert.deepEqual(chunk_text("First, http://www.foo.com/bar, and then also, http://www.baz.com/qux."), [
+  it("matches two url", () =>
+    chai.assert.deepEqual(
+      chunk_text(
+        "First, http://www.foo.com/bar, and then also, http://www.baz.com/qux."
+      ),
+      [
         { type: "text", content: "First, " },
         {
           type: "url",
-          content: { url: "http://www.foo.com/bar", original: "http://www.foo.com/bar" },
+          content: {
+            url: "http://www.foo.com/bar",
+            original: "http://www.foo.com/bar",
+          },
         },
         { type: "text", content: ", and then also, " },
         {
           type: "url",
-          content: { url: "http://www.baz.com/qux", original: "http://www.baz.com/qux" },
+          content: {
+            url: "http://www.baz.com/qux",
+            original: "http://www.baz.com/qux",
+          },
         },
         { type: "text", content: "." },
-      ]));
+      ]
+    ));
+
+  describe("room mentions", function () {
+    it("matches puzzles", function () {
+      chai.assert.deepEqual(chunk_text("join #puzzles/aB3dE6gH9jK12mN15, yo"), [
+        { type: "text", content: "join " },
+        { type: "room", content: { type: "puzzles", id: "aB3dE6gH9jK12mN15" } },
+        { type: "text", content: ", yo" },
+      ]);
+    });
+    it("matches rounds", function () {
+      chai.assert.deepEqual(chunk_text("join #rounds/aB3dE6gH9jK12mN15, yo"), [
+        { type: "text", content: "join " },
+        { type: "room", content: { type: "rounds", id: "aB3dE6gH9jK12mN15" } },
+        { type: "text", content: ", yo" },
+      ]);
+    });
+    it("matches general", function () {
+      chai.assert.deepEqual(chunk_text("join #general/0, yo"), [
+        { type: "text", content: "join " },
+        { type: "room", content: { type: "general", id: "0" } },
+        { type: "text", content: ", yo" },
+      ]);
+    });
+    it("ignores other", function () {
+      chai.assert.deepEqual(chunk_text("join #other/aB3dE6gH9jK12mN15, yo"), [
+        { type: "text", content: "join #other/aB3dE6gH9jK12mN15, yo" },
+      ]);
+    });
+    it("separates from parenths", function () {
+      chai.assert.deepEqual(chunk_text("(#puzzles/aB3dE6gH9jK12mN15)"), [
+        { type: "text", content: "(" },
+        { type: "room", content: { type: "puzzles", id: "aB3dE6gH9jK12mN15" } },
+        { type: "text", content: ")" },
+      ]);
+    });
+    it("leaves fragments with urls", function () {
+      chai.assert.deepEqual(
+        chunk_text("it's www.foo.com/bar#puzzles/aB3dE6gH9jK12mN15, yo"),
+        [
+          { type: "text", content: "it's " },
+          {
+            type: "url",
+            content: {
+              url: "http://www.foo.com/bar#puzzles/aB3dE6gH9jK12mN15",
+              original: "www.foo.com/bar#puzzles/aB3dE6gH9jK12mN15",
+            },
+          },
+          { type: "text", content: ", yo" },
+        ]
+      );
+    });
+  });
 });
 
 describe("chunk_html", () =>
