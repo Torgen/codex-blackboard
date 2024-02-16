@@ -18,28 +18,29 @@ function extractAll(re, ppMatch, ppText) {
       result.push(...ppText(text.slice(tail_start)));
     }
     return result;
-  }
+  };
 }
 
 const roomify = extractAll(
   roomRE,
-  function(match) {
-    return [{type: "room", content: { type: match[1], id: match[2]}}];
+  function (match) {
+    return [{ type: "room", content: { type: match[1], id: match[2] } }];
   },
-  (content) => [{type: "text", content}],
+  (content) => [{ type: "text", content }]
 );
 
 const linkify = extractAll(
   urlRE,
-  function(match) {
+  function (match) {
     const original = match[0];
     let url = match[0];
     if (!/^[a-z][\w\-]+:/.test(url)) {
       url = `http://${url}`;
     }
-    return [{type: "url", content: {url, original }}];
+    return [{ type: "url", content: { url, original } }];
   },
-  roomify);
+  roomify
+);
 
 export function chunk_text(text) {
   if (!text) {
