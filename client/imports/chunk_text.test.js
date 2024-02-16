@@ -26,6 +26,21 @@ describe("chunk_text", function () {
       },
       { type: "text", content: ", yo" },
     ]));
+
+    it("matches two url", () =>
+      chai.assert.deepEqual(chunk_text("First, http://www.foo.com/bar, and then also, http://www.baz.com/qux."), [
+        { type: "text", content: "First, " },
+        {
+          type: "url",
+          content: { url: "http://www.foo.com/bar", original: "http://www.foo.com/bar" },
+        },
+        { type: "text", content: ", and then also, " },
+        {
+          type: "url",
+          content: { url: "http://www.baz.com/qux", original: "http://www.baz.com/qux" },
+        },
+        { type: "text", content: "." },
+      ]));
 });
 
 describe("chunk_html", () =>
