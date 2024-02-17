@@ -11,20 +11,20 @@ Template.text_chunks.helpers({
 Template.text_chunk_room.onCreated(function () {
   this.autorun(() => {
     const data = Template.currentData();
-    console.log(data);
     this.subscribe("presence-for-room", `${data.type}/${data.id}`);
   });
 });
 
 Template.text_chunk_room.helpers({
   object() {
+    if (this.type === "general") {
+      return;
+    }
     return collection(this.type).findOne({ _id: this.id });
   },
   pretty_collection,
   jitsi() {
-    const c = findByChannel(`${this.type}/${this.id}`, { jitsi: { $gt: 0 } });
-    console.log(c.fetch());
-    return c;
+    return findByChannel(`${this.type}/${this.id}`, { jitsi: { $gt: 0 } });
   },
   chat_only() {
     return findByChannel(`${this.type}/${this.id}`, { jitsi: 0 });

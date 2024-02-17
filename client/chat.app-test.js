@@ -406,7 +406,10 @@ describe("chat", function () {
         );
         chai.assert.isTrue($mention.hasClass("solved"));
         chai.assert.isNotEmpty($mention.find(".fa-puzzle-piece").get());
-        chai.assert.equal($mention.text(), "Charm School");
+        chai.assert.equal(
+          $mention.contents().not($mention.children()).text().trim(),
+          "Charm School"
+        );
       });
       after(async function () {
         await promiseCall("deleteAnswer", { target: cs });
@@ -432,7 +435,10 @@ describe("chat", function () {
         );
         chai.assert.isTrue($mention.hasClass("stuck"));
         chai.assert.isNotEmpty($mention.find(".fa-puzzle-piece").get());
-        chai.assert.equal($mention.text(), "Charm School");
+        chai.assert.equal(
+          $mention.contents().not($mention.children()).text().trim(),
+          "Charm School"
+        );
       });
       after(async function () {
         await promiseCall("unsummon", { object: cs });
@@ -451,7 +457,10 @@ describe("chat", function () {
       );
       chai.assert.isTrue($mention.hasClass("nonexistent"));
       chai.assert.isNotEmpty($mention.find(".fa-puzzle-piece").get());
-      chai.assert.equal($mention.text(), "puzzle does not exist");
+      chai.assert.equal(
+        $mention.contents().not($mention.children()).text().trim(),
+        "puzzle does not exist"
+      );
     });
     it("shows round that exists", async function () {
       const civ = Rounds.findOne({ name: "Civilization" })._id;
@@ -466,7 +475,10 @@ describe("chat", function () {
         `#messages [data-message-id="${msg._id}"] .bb-room-mention`
       );
       chai.assert.isNotEmpty($mention.find(".fa-globe").get());
-      chai.assert.equal($mention.text(), "Civilization");
+      chai.assert.equal(
+        $mention.contents().not($mention.children()).text().trim(),
+        "Civilization"
+      );
     });
     it("shows that round does not exist", async function () {
       const msg = await promiseCall("newMessage", {
@@ -481,7 +493,10 @@ describe("chat", function () {
       );
       chai.assert.isTrue($mention.hasClass("nonexistent"));
       chai.assert.isNotEmpty($mention.find(".fa-globe").get());
-      chai.assert.equal($mention.text(), "round does not exist");
+      chai.assert.equal(
+        $mention.contents().not($mention.children()).text().trim(),
+        "round does not exist"
+      );
     });
     it("links to top for general", async function () {
       const msg = await promiseCall("newMessage", {
@@ -494,7 +509,10 @@ describe("chat", function () {
       const $mention = $(
         `#messages [data-message-id="${msg._id}"] .bb-room-mention`
       );
-      chai.assert.equal($mention.text(), "Ringhunters");
+      chai.assert.equal(
+        $mention.contents().not($mention.children()).text().trim(),
+        "Ringhunters"
+      );
     });
   });
 
