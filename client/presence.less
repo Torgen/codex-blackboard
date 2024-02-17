@@ -1,0 +1,25 @@
+i.presence.fas {
+  margin-right: 0.2em;
+  position: relative;
+  .count {
+    position: absolute;
+    font-size: 60%;
+    color: var(--bg-color);
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  &.fa-video .count {
+    vertical-align: middle;
+    left: 10%;
+    right: 40%;
+    top: 15%;
+  }
+  &.fa-comment-alt {
+    top: 10%;
+    .count {
+      left: 10%;
+      right: 10%;
+    }
+  }
+}

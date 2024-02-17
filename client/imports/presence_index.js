@@ -12,7 +12,7 @@ function ensure(channel) {
 }
 
 Meteor.startup(() =>
-  Presence.find({ scope: { $in: ["chat", "jitsi"] } }).observe({
+  Presence.find({ bot: null, scope: { $in: ["chat", "jitsi"] } }).observe({
     added(doc) {
       ensure(doc.room_name).upsert(doc.nick, {
         $min: { joined_timestamp: doc.joined_timestamp },
