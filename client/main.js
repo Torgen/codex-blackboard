@@ -16,6 +16,7 @@ import {
 } from "/lib/imports/collections.js";
 import { mechanics } from "/lib/imports/mechanics.js";
 import { fileType } from "/lib/imports/mime_type.js";
+import { isStuck } from "/lib/imports/tags.js";
 import embeddable from "/client/imports/embeddable.js";
 import keyword_or_positional from "/client/imports/keyword_or_positional.js";
 import { gravatarUrl, nickAndName, nickHash } from "/lib/imports/nickEmail.js";
@@ -224,6 +225,8 @@ Template.registerHelper(
   "isonduty",
   (nick) => Roles.findOne("onduty")?.holder === nick
 );
+
+Template.registerHelper("stuck", isStuck);
 
 Tracker.autorun(function () {
   if (DARK_MODE.get()) {

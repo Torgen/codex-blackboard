@@ -18,6 +18,18 @@
 
 <template name="text_chunk_text">{{this}}</template>
 
+<template name="text_chunk_room">{{
+  #if equal type "general"}}<a class="bb-room-mention" href="/">{{generalRoomName}}</a>{{
+  else}}{{
+    #let obj=object}}<a
+      class="bb-room-mention {{#unless obj}}nonexistent{{else if obj.solved}}solved{{else if stuck obj}}stuck{{/unless}}"
+      href="/{{type}}/{{id}}"><i class="fas {{#if equal type "puzzles"}}fa-puzzle-piece{{else if equal type "rounds"}}fa-globe{{/if}}"></i>{{
+        #if obj}}{{obj.name}}{{else}}{{pretty_collection type}} does not exist{{/if
+    }}</a>{{
+    /let}}{{
+  /if
+}}</template>
+
 <template name="text_chunk_url"><a href="{{url}}" target="_blank" rel="noopener noreferrer">{{original}}</a></template>
 
 <template name="text_chunk_url_image"><a href="{{url}}" target="_blank" rel="noopener noreferrer">{{#if image original}}<img src="{{url}}" class="inline-image image-loading" onload="window.imageScrollHack(this)" >{{else}}{{original}}{{/if}}</a></template>

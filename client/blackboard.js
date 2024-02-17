@@ -1,4 +1,4 @@
-import { getTag, isStuck } from "/lib/imports/tags.js";
+import { getTag } from "/lib/imports/tags.js";
 import { Presence, Puzzles, Rounds } from "/lib/imports/collections.js";
 import { confirm } from "/client/imports/modal.js";
 import { findByChannel } from "/client/imports/presence_index.js";
@@ -321,7 +321,6 @@ Template.blackboard_status_grid.helpers({
   numSolved(l) {
     return l.filter((p) => p.puzzle.solved).length;
   },
-  stuck: isStuck,
 });
 
 Template.blackboard.onRendered(function () {
@@ -631,7 +630,6 @@ Template.blackboard_meta.helpers({
     }));
     return maybeFilterSolved(p);
   },
-  stuck: isStuck,
   numHidden() {
     if (!HIDE_SOLVED.get()) {
       return 0;
@@ -798,7 +796,6 @@ Template.blackboard_column_body_status.helpers({
 });
 
 Template.blackboard_column_body_update.helpers({
-  stuck: isStuck,
   solverMinutes() {
     if (this.puzzle.solverTime == null) {
       return;
@@ -841,9 +838,7 @@ Template.blackboard_unfeed_meta.events({
 
 let dragdata = null;
 
-Template.blackboard_puzzle.helpers({
-  stuck: isStuck,
-});
+Template.blackboard_puzzle.helpers({});
 
 Template.blackboard_puzzle.events({
   "dragend tr.puzzle"(event, template) {

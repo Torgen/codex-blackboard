@@ -13,7 +13,6 @@ import { findByChannel } from "/client/imports/presence_index.js";
 import colorFromThingWithTags from "/client/imports/objectColor.js";
 import okCancelEvents from "/client/imports/ok_cancel_events.js";
 import { all_settings } from "/lib/imports/settings.js";
-import { isStuck } from "/lib/imports/tags.js";
 
 function nameAndUrlFromDroppedLink(dataTransfer) {
   const url = dataTransfer.getData("url");
@@ -390,7 +389,6 @@ Template.logistics.events({
 });
 
 Template.logistics_puzzle.helpers({
-  stuck: isStuck,
   willDelete() {
     if (!draggedPuzzle.equals("id", this._id)) {
       return false;
@@ -601,7 +599,6 @@ Template.logistics_meta.helpers({
   puzzles() {
     return this.meta.puzzles.map((_id) => Puzzles.findOne({ _id }));
   },
-  stuck: isStuck,
   feederParams() {
     return {
       round: this.round._id,
