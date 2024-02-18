@@ -893,7 +893,7 @@ Template.messages_input.onCreated(function () {
         }
       );
       l = c.map((x) => x._id);
-    } else if (type === "rooms") {
+    } /* istanbul ignore else */ else if (type === "rooms") {
       const orList = [{ name: qdoc }];
       const [type, id] = query.split("/", 2);
       if (!id) {
@@ -909,11 +909,10 @@ Template.messages_input.onCreated(function () {
         }
       );
       l = c.map((x) => `${x.type}/${x._id}`);
-    }
-    this.queryCursor.set(c);
-    if (!c) {
+    } else {
       return;
     }
+    this.queryCursor.set(c);
     const s = this.selected.get();
     if (l.includes(s)) {
       return;
@@ -934,9 +933,9 @@ Template.messages_input.onCreated(function () {
     const queryType = this.queryType.get();
     if (queryType === "users") {
       l = c.map((x) => x._id);
-    } else if (queryType === "rooms") {
+    } /* istanbul ignore else */ else if (queryType === "rooms") {
       l = c.map((x) => `${x.type}/${x._id}`);
-    } /* istanbul ignore next */ else {
+    } else {
       return;
     }
     let i = offset + l.indexOf(s);

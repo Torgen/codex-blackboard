@@ -243,6 +243,23 @@ describe("chat", function () {
   });
 
   describe("typeahead", function () {
+    it("doesn't complete in an empty text area", async function () {
+      const id = Puzzles.findOne({ name: "Disgust" })._id;
+      ChatPage("puzzles", id);
+      await waitForSubscriptions();
+      await afterFlushPromise();
+      const input = $("#messageInput");
+      input.val("some innocuous text");
+      input.click();
+      await afterFlushPromise();
+      let typeahead = $("#messageInputTypeahead");
+      chai.assert.equal(0, typeahead.length);
+      input.trigger($.Event("keydown", { key: "Tab" }));
+      await afterFlushPromise();
+      typeahead = $("#messageInputTypeahead");
+      chai.assert.equal(0, typeahead.length);
+    });
+
     describe("nicks", function () {
       it("accepts keyboard commands", async function () {
         const id = Puzzles.findOne({ name: "Disgust" })._id;
@@ -271,6 +288,9 @@ describe("chat", function () {
         await afterFlushPromise();
         a = $("#messageInputTypeahead li.active a");
         chai.assert.equal("kwal", a.data("value"), "wraparound down");
+        input.click();
+        await afterFlushPromise();
+        chai.assert.equal("kwal", a.data("value"), "no change");
         input.trigger($.Event("keydown", { key: "Tab" }));
         await afterFlushPromise();
         chai.assert.equal(input.val(), "/m kwal ");
@@ -293,6 +313,20 @@ describe("chat", function () {
         await afterFlushPromise();
         chai.assert.equal(input.val(), "Yo @testy  hmu");
         chai.assert.equal(input[0].selectionStart, 10);
+        const typeahead = $("#messageInputTypeahead");
+        chai.assert.equal(0, typeahead.length);
+      });
+
+      it("doesn't complete in a private message", async function () {
+        const id = Puzzles.findOne({ name: "Disgust" })._id;
+        ChatPage("puzzles", id);
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const input = $("#messageInput");
+        input.val("/m kwal you hear about @cs");
+        input[0].setSelectionRange(26, 26);
+        input.click();
+        await afterFlushPromise();
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -331,6 +365,10 @@ describe("chat", function () {
         await afterFlushPromise();
         a = $("#messageInputTypeahead li.active a");
         chai.assert.equal(`rounds/${civ}`, a.data("value"), "wraparound down");
+        input.click();
+        await afterFlushPromise();
+        a = $("#messageInputTypeahead li.active a");
+        chai.assert.equal(`rounds/${civ}`, a.data("value"), "no change");
         input.trigger($.Event("keydown", { key: "Tab" }));
         await afterFlushPromise();
         chai.assert.equal(input.val(), `prefix #rounds/${civ} `);
