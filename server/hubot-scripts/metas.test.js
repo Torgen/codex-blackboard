@@ -131,7 +131,7 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, even this poem is now a meta.",
+                body: "@torgen: OK, #puzzles/fghij67890 is now a meta.",
               }
             );
           });
@@ -211,7 +211,7 @@ describe("metas hubot script", function () {
                 room_name: "general/0",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, even this poem is now a meta.",
+                body: "@torgen: OK, #puzzles/fghij67890 is now a meta.",
               }
             );
           });
@@ -275,7 +275,7 @@ describe("metas hubot script", function () {
               { nick: "testbot", timestamp: 7 },
               {
                 room_name: "puzzles/12345abcde",
-                body: "@torgen: 1 puzzle feeds into Latino Alphabet. It must be a meta.",
+                body: "@torgen: 1 puzzle feeds into this. It must be a meta.",
                 useful: true,
                 mention: ["torgen"],
               }
@@ -304,7 +304,7 @@ describe("metas hubot script", function () {
               { nick: "testbot", timestamp: 7 },
               {
                 room_name: "puzzles/12345abcde",
-                body: "@torgen: 3 puzzles feed into Latino Alphabet. It must be a meta.",
+                body: "@torgen: 3 puzzles feed into this. It must be a meta.",
                 useful: true,
                 mention: ["torgen"],
               }
@@ -378,7 +378,7 @@ describe("metas hubot script", function () {
                 room_name: "puzzles/12345abcde",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, even this poem is no longer a meta.",
+                body: "@torgen: OK, #puzzles/fghij67890 is no longer a meta.",
               }
             );
           });
@@ -462,7 +462,7 @@ describe("metas hubot script", function () {
                 room_name: "general/0",
                 useful: true,
                 mention: ["torgen"],
-                body: "@torgen: OK, even this poem is no longer a meta.",
+                body: "@torgen: OK, #puzzles/fghij67890 is no longer a meta.",
               }
             );
           });
@@ -777,7 +777,7 @@ describe("metas hubot script", function () {
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
-                body: "@torgen: OK, this no longer feeds into even this poem.",
+                body: "@torgen: OK, this no longer feeds into #puzzles/fghij67890.",
                 useful: true,
                 room_name: "puzzles/12345abcde",
                 mention: ["torgen"],
@@ -812,7 +812,7 @@ describe("metas hubot script", function () {
               {
                 room_name: "puzzles/12345abcde",
                 timestamp: 7,
-                body: "@torgen: this already didn't feed into even this poem.",
+                body: "@torgen: this already didn't feed into #puzzles/fghij67890.",
                 useful: true,
                 mention: ["torgen"],
               }
@@ -887,7 +887,7 @@ describe("metas hubot script", function () {
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
-                body: "@torgen: OK, latino alphabet no longer feeds into this.",
+                body: "@torgen: OK, #puzzles/12345abcde no longer feeds into this.",
                 useful: true,
                 room_name: "puzzles/fghij67890",
                 mention: ["torgen"],
@@ -922,7 +922,7 @@ describe("metas hubot script", function () {
               {
                 room_name: "puzzles/12345abcde",
                 timestamp: 7,
-                body: "@torgen: latino alphabet already didn't feed into this.",
+                body: "@torgen: #puzzles/12345abcde already didn't feed into this.",
                 useful: true,
                 mention: ["torgen"],
               }
@@ -1006,7 +1006,7 @@ describe("metas hubot script", function () {
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
-                body: "@torgen: OK, latino alphabet no longer feeds into even this poem.",
+                body: "@torgen: OK, #puzzles/12345abcde no longer feeds into #puzzles/fghij67890.",
                 useful: true,
                 room_name: "puzzles/0000000000",
                 mention: ["torgen"],
@@ -1054,7 +1054,7 @@ describe("metas hubot script", function () {
               {
                 room_name: "puzzles/0000000000",
                 timestamp: 7,
-                body: "@torgen: latino alphabet already didn't feed into even this poem.",
+                body: "@torgen: #puzzles/12345abcde already didn't feed into #puzzles/fghij67890.",
                 useful: true,
                 mention: ["torgen"],
               }
@@ -1237,7 +1237,7 @@ describe("metas hubot script", function () {
             Messages,
             { nick: "testbot", timestamp: 7 },
             {
-              body: "@torgen: OK, latino alphabet no longer feeds into even this poem.",
+              body: "@torgen: OK, #puzzles/12345abcde no longer feeds into #puzzles/fghij67890.",
               useful: true,
               room_name: "general/0",
               mention: ["torgen"],
