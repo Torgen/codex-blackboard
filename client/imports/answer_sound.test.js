@@ -15,7 +15,7 @@ describe("AnswerSoundHandler", function () {
   beforeEach(function () {
     userVar = new ReactiveVar(null);
     userStub = sinon.stub(Meteor, "user").callsFake(() => userVar.get());
-    puzzles = new Mongo.Collection();
+    puzzles = new Mongo.Collection(null);
     playAnswer = sinon.stub();
     playPartialAnswer = sinon.stub();
     clock = sinon.useFakeTimers({ now: 1000000, toFake: ["Date"] });
