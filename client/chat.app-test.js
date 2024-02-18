@@ -417,7 +417,7 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val(`#puzzles/${recipe.substr(0,12)}`);
+        input.val(`#puzzles/${recipe.substr(0, 12)}`);
         input.click();
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();

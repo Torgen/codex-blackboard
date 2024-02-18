@@ -984,7 +984,7 @@ Template.messages_input.onCreated(function () {
         this.selected.set(id ? `${id.type}/${id._id}` : null);
         break;
       /* istanbul ignore next */
-      default:;
+      default:
     }
   };
 
