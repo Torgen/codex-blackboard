@@ -106,9 +106,6 @@ function setupNotifications() {
     registrationPromise
       .then(function (reg) {
         navigator.serviceWorker.addEventListener("message", function (msg) {
-          if (!Meteor.isProduction) {
-            console.log(msg.data);
-          }
           if (msg.data.action !== "navigate") {
             return;
           }

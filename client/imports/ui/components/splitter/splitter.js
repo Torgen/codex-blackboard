@@ -129,9 +129,6 @@ const Splitter = {
     "hsize"
   ),
   handleEvent(event, template) {
-    if (!Meteor.isProduction) {
-      console.log(event.currentTarget);
-    }
     if ($(event.currentTarget).closest(".bb-right-content").length) {
       this.vsize.handleEvent(event, template);
     } else {

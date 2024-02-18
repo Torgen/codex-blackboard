@@ -333,6 +333,7 @@ Meteor.publish(
 
 function registerPresence(room_name, scope) {
   const subscription_id = Random.id();
+  /* istanbul ignore else */
   if (DEBUG) {
     console.log(
       `${
@@ -379,6 +380,7 @@ function registerPresence(room_name, scope) {
     PRESENCE_KEEPALIVE_MINUTES * 60 * 1000
   );
   this.onStop(() => {
+    /* istanbul ignore else */
     if (DEBUG) {
       console.log(
         `${this.userId} unsubscribing from ${scope}:${room_name}, id ${this.connection.id}:${subscription_id}`

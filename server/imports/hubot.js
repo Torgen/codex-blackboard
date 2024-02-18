@@ -55,6 +55,7 @@ class BlackboardAdapter extends Hubot.Adapter {
         try {
           map(line, props);
         } catch (err) {
+          /* istanbul ignore else */
           if (DEBUG) {
             console.error(`Hubot error: ${err}`);
           }
@@ -84,6 +85,7 @@ class BlackboardAdapter extends Hubot.Adapter {
       return;
     }
     this.sendHelper(envelope, strings, (string, props) => {
+      /* istanbul ignore else */
       if (DEBUG) {
         console.log(`send ${envelope.room}: ${string} (${envelope.user.id})`);
       }
@@ -116,6 +118,7 @@ class BlackboardAdapter extends Hubot.Adapter {
       return;
     }
     this.sendHelper(envelope, strings, (string, props) => {
+      /* istanbul ignore else */
       if (DEBUG) {
         console.log(`emote ${envelope.room}: ${string} (${envelope.user.id})`);
       }
@@ -135,6 +138,7 @@ class BlackboardAdapter extends Hubot.Adapter {
   // Priv: our extension -- send a PM to user
   priv(envelope, ...strings) {
     this.sendHelper(envelope, strings, (string, props) => {
+      /* istanbul ignore else */
       if (DEBUG) {
         console.log(`priv ${envelope.room}: ${string} (${envelope.user.id})`);
       }
@@ -172,22 +176,6 @@ class BlackboardAdapter extends Hubot.Adapter {
       );
     }
   }
-
-  // Public: Raw method for setting a topic on the chat source. Extend this.
-  //
-  // envelope - A Object with message, room and user details.
-  // strings  - One more more Strings to set as the topic.
-  //
-  // Returns nothing.
-  topic(envelope, ...strings) {}
-
-  // Public: Raw method for playing a sound in the chat source. Extend this.
-  //
-  // envelope - A Object with message, room and user details.
-  // strings  - One or more strings for each play message to send.
-  //
-  // Returns nothing
-  play(envelope, ...strings) {}
 
   present(room_name) {
     const now = Date.now();
@@ -262,13 +250,17 @@ class BlackboardAdapter extends Hubot.Adapter {
         Object.assign(user, { room: msg.room_name });
         if (msg.presence != null) {
           let pm;
-          if (msg.presence === "join") {
-            pm = new Hubot.EnterMessage(user, null, id);
-          } else if (msg.presence === "part") {
-            pm = new Hubot.LeaveMessage(user, null, id);
-          } /* istanbul ignore next */ else {
-            console.warn("Weird presence message:", msg);
-            return;
+          switch (msg.presence) {
+            case "join":
+              pm = new Hubot.EnterMessage(user, null, id);
+              break;
+            case "part":
+              pm = new Hubot.LeaveMessage(user, null, id);
+              break;
+            /* istanbul ignore next */
+            default:
+              console.warn("Weird presence message:", msg);
+              return;
           }
           this.receive(pm);
           return;
@@ -282,6 +274,7 @@ class BlackboardAdapter extends Hubot.Adapter {
         ) {
           return;
         }
+        /* istanbul ignore else */
         if (DEBUG) {
           console.log(
             `Received from ${msg.nick} in ${msg.room_name}: ${msg.body}`
