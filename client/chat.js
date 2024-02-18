@@ -882,7 +882,7 @@ Template.messages_input.onCreated(function () {
       return;
     }
     const qdoc = { $regex: query, $options: "i" };
-    let c, L;
+    let c, l;
     if (type === "users") {
       c = Meteor.users.find(
         { $or: [{ _id: qdoc }, { real_name: qdoc }] },
@@ -892,6 +892,7 @@ Template.messages_input.onCreated(function () {
           sort: { roles: -1, _id: 1 },
         }
       );
+      l = c.map((x) => x._id);
     } else if (type === "rooms") {
       const orList = [{ name: qdoc }];
       const [type, id] = query.split("/", 2);
@@ -914,7 +915,6 @@ Template.messages_input.onCreated(function () {
       return;
     }
     const s = this.selected.get();
-    console.log(l, s);
     if (l.includes(s)) {
       return;
     }
