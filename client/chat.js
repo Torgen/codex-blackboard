@@ -830,6 +830,9 @@ Template.messages_input.helpers({
   selected(id) {
     return Template.instance().selected.get() === id;
   },
+  queryType() {
+    return Template.instance().queryType.get();
+  },
   error() {
     return Template.instance().error.get();
   },
@@ -838,6 +841,7 @@ Template.messages_input.helpers({
 const MSG_PATTERN = /^\/m(sg)? ([A-Za-z_0-9]*)$/;
 const MSG_AT_START_PATTERN = /^\/m(sg)? /;
 const AT_MENTION_PATTERN = /(^|[\s])@([A-Za-z_0-9]*)$/;
+const ROOM_MENTION_PATTERN = /(^|[\s])#([A-Za-z_0-9/]*)$/;
 
 Template.messages_input.onCreated(function () {
   this.autorun(() => {
@@ -850,6 +854,7 @@ Template.messages_input.onCreated(function () {
 
   this.show_presence = new ReactiveVar(false);
   this.query = new ReactiveVar(null);
+  this.queryType = new ReactiveVar(null);
   this.queryCursor = new ReactiveVar(null);
   this.selected = new ReactiveVar(null);
   this.error = new ReactiveVar(null);
@@ -865,28 +870,51 @@ Template.messages_input.onCreated(function () {
     }
   });
 
-  this.setQuery = function (query) {
-    if (this.query.get() === query) {
+  this.setQuery = function (query, type) {
+    if (this.query.get() === query && this.queryType.get() === type) {
       return;
     }
     this.query.set(query);
+    this.queryType.set(type);
     if (query == null) {
       this.queryCursor.set(null);
       this.selected.set(null);
       return;
     }
     const qdoc = { $regex: query, $options: "i" };
-    const c = Meteor.users.find(
-      { $or: [{ _id: qdoc }, { real_name: qdoc }] },
-      {
-        limit: 8,
-        fields: { _id: 1 },
-        sort: { roles: -1, _id: 1 },
+    let c, L;
+    if (type === "users") {
+      c = Meteor.users.find(
+        { $or: [{ _id: qdoc }, { real_name: qdoc }] },
+        {
+          limit: 8,
+          fields: { _id: 1 },
+          sort: { roles: -1, _id: 1 },
+        }
+      );
+    } else if (type === "rooms") {
+      const orList = [{ name: qdoc }];
+      const [type, id] = query.split("/", 2);
+      if (!id) {
+        orList.push({ type: { $regex: type, $options: "i" } });
+      } else {
+        orList.push({ type, _id: { $regex: id, $options: "i" } });
       }
-    );
+      c = Names.find(
+        { $or: orList },
+        {
+          limit: 8,
+          sort: { name: 1, _id: 1 },
+        }
+      );
+      l = c.map((x) => `${x.type}/${x._id}`);
+    }
     this.queryCursor.set(c);
+    if (!c) {
+      return;
+    }
     const s = this.selected.get();
-    const l = c.map((x) => x._id);
+    console.log(l, s);
     if (l.includes(s)) {
       return;
     }
@@ -902,7 +930,15 @@ Template.messages_input.onCreated(function () {
     if (c == null) {
       return;
     }
-    const l = c.map((x) => x._id);
+    let l;
+    const queryType = this.queryType.get();
+    if (queryType === "users") {
+      l = c.map((x) => x._id);
+    } else if (queryType === "rooms") {
+      l = c.map((x) => `${x.type}/${x._id}`);
+    } /* istanbul ignore next */ else {
+      return;
+    }
     let i = offset + l.indexOf(s);
     if (i < 0) {
       i = l.length - 1;
@@ -934,7 +970,12 @@ Template.messages_input.onCreated(function () {
       return;
     }
     const id = c.fetch()[0];
-    this.selected.set(id?._id);
+    const queryType = this.queryType.get();
+    if (queryType === "users") {
+      this.selected.set(id?._id);
+    } /* istanbul ignore else */ else if (queryType === "rooms") {
+      this.selected.set(id ? `${id.type}/${id._id}` : null);
+    }
   };
 
   this.updateTypeahead = function () {
@@ -943,7 +984,7 @@ Template.messages_input.onCreated(function () {
     const ss = i.prop("selectionStart");
     const se = i.prop("selectionEnd");
     if (ss !== se) {
-      this.setQuery(null);
+      this.setQuery(null, null);
       return;
     }
     const tv = v.substring(ss);
@@ -951,23 +992,31 @@ Template.messages_input.onCreated(function () {
     const consider = nextSpace === -1 ? v : v.substring(0, ss + nextSpace);
     let match = consider.match(MSG_PATTERN);
     if (match) {
-      this.setQuery(match[2]);
-    } else if (MSG_AT_START_PATTERN.test(v)) {
-      // no mentions in private messages.
-      this.setQuery(null);
-    } else {
-      match = consider.match(AT_MENTION_PATTERN);
-      if (match) {
-        this.setQuery(match[2]);
-      } else {
-        this.setQuery(null);
-      }
+      this.setQuery(match[2], "users");
+      return;
     }
+    match = consider.match(ROOM_MENTION_PATTERN);
+    if (match) {
+      this.setQuery(match[2], "rooms");
+      return;
+    }
+    if (MSG_AT_START_PATTERN.test(v)) {
+      // no mentions in private messages.
+      this.setQuery(null, null);
+      return;
+    }
+    match = consider.match(AT_MENTION_PATTERN);
+    if (match) {
+      this.setQuery(match[2], "users");
+      return;
+    }
+    this.setQuery(null, null);
   };
 
   this.confirmTypeahead = function (nick) {
+    console.log(nick);
     let newCaret;
-    this.setQuery(null);
+    this.setQuery(null, null);
     const i = this.$("#messageInput");
     const v = i.val();
     const ss = i.prop("selectionStart");
@@ -983,21 +1032,25 @@ Template.messages_input.onCreated(function () {
           v.substring(consider.length)
       );
       newCaret = match[0].length - match[2].length + nick.length + 1;
-      i.focus();
       i[0].setSelectionRange(newCaret, newCaret);
+      i.focus();
       return;
     }
-    match = consider.match(AT_MENTION_PATTERN);
-    if (match) {
-      i.val(
-        v.substring(0, consider.length - match[2].length) +
-          nick +
-          " " +
-          v.substring(consider.length)
-      );
-      newCaret = consider.length - match[2].length + nick.length + 1;
-      i.focus();
-      i[0].setSelectionRange(newCaret, newCaret);
+    for (const pattern of [AT_MENTION_PATTERN, ROOM_MENTION_PATTERN]) {
+      match = consider.match(pattern);
+      if (match) {
+        i.val(
+          v.substring(0, consider.length - match[2].length) +
+            nick +
+            " " +
+            v.substring(consider.length)
+        );
+        newCaret = consider.length - match[2].length + nick.length + 1;
+        i[0].setSelectionRange(newCaret, newCaret);
+        i.blur();
+        i.focus();
+        return;
+      }
     }
   };
 
@@ -1188,6 +1241,7 @@ Template.messages_input.events({
     if (event.key === "Tab") {
       s = template.selected.get();
       if (s != null) {
+        console.log(s);
         event.preventDefault();
         template.confirmTypeahead(s);
       }
@@ -1208,7 +1262,6 @@ Template.messages_input.events({
   "input #messageInput"(event, template) {
     const minChars = TypingIndicatorCharacters.get();
     const value = event.currentTarget.value;
-    console.log(minChars, value);
     let time = null;
     if (
       minChars > 0 &&
