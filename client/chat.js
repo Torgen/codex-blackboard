@@ -883,34 +883,38 @@ Template.messages_input.onCreated(function () {
     }
     const qdoc = { $regex: query, $options: "i" };
     let c, l;
-    if (type === "users") {
-      c = Meteor.users.find(
-        { $or: [{ _id: qdoc }, { real_name: qdoc }] },
-        {
-          limit: 8,
-          fields: { _id: 1 },
-          sort: { roles: -1, _id: 1 },
+    switch (type) {
+      case "users":
+        c = Meteor.users.find(
+          { $or: [{ _id: qdoc }, { real_name: qdoc }] },
+          {
+            limit: 8,
+            fields: { _id: 1 },
+            sort: { roles: -1, _id: 1 },
+          }
+        );
+        l = c.map((x) => x._id);
+        break;
+      case "rooms":
+        const orList = [{ name: qdoc }];
+        const [type, id] = query.split("/", 2);
+        if (!id) {
+          orList.push({ type: { $regex: type, $options: "i" } });
+        } else {
+          orList.push({ type, _id: { $regex: id, $options: "i" } });
         }
-      );
-      l = c.map((x) => x._id);
-    } /* istanbul ignore else */ else if (type === "rooms") {
-      const orList = [{ name: qdoc }];
-      const [type, id] = query.split("/", 2);
-      if (!id) {
-        orList.push({ type: { $regex: type, $options: "i" } });
-      } else {
-        orList.push({ type, _id: { $regex: id, $options: "i" } });
-      }
-      c = Names.find(
-        { $or: orList },
-        {
-          limit: 8,
-          sort: { name: 1, _id: 1 },
-        }
-      );
-      l = c.map((x) => `${x.type}/${x._id}`);
-    } else {
-      return;
+        c = Names.find(
+          { $or: orList },
+          {
+            limit: 8,
+            sort: { name: 1, _id: 1 },
+          }
+        );
+        l = c.map((x) => `${x.type}/${x._id}`);
+        break;
+      /* istanbul ignore next */
+      default:
+        return;
     }
     this.queryCursor.set(c);
     const s = this.selected.get();
@@ -930,13 +934,16 @@ Template.messages_input.onCreated(function () {
       return;
     }
     let l;
-    const queryType = this.queryType.get();
-    if (queryType === "users") {
-      l = c.map((x) => x._id);
-    } /* istanbul ignore else */ else if (queryType === "rooms") {
-      l = c.map((x) => `${x.type}/${x._id}`);
-    } else {
-      return;
+    switch (this.queryType.get()) {
+      case "users":
+        l = c.map((x) => x._id);
+        break;
+      case "rooms":
+        l = c.map((x) => `${x.type}/${x._id}`);
+        break;
+      /* istanbul ignore next*/
+      default:
+        return;
     }
     let i = offset + l.indexOf(s);
     if (i < 0) {
@@ -969,11 +976,15 @@ Template.messages_input.onCreated(function () {
       return;
     }
     const id = c.fetch()[0];
-    const queryType = this.queryType.get();
-    if (queryType === "users") {
-      this.selected.set(id?._id);
-    } /* istanbul ignore else */ else if (queryType === "rooms") {
-      this.selected.set(id ? `${id.type}/${id._id}` : null);
+    switch (this.queryType.get()) {
+      case "users":
+        this.selected.set(id?._id);
+        break;
+      case "rooms":
+        this.selected.set(id ? `${id.type}/${id._id}` : null);
+        break;
+      /* istanbul ignore next */
+      default:;
     }
   };
 
