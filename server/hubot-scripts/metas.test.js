@@ -623,6 +623,37 @@ describe("metas hubot script", function () {
         });
         chai.assert.isUndefined(Puzzles.findOne("0000000000").puzzles);
       });
+      it("already feeds", function () {
+        Puzzles.insert({
+          _id: "12345abcde",
+          name: "Latino Alphabet",
+          canon: "latino_alphabet",
+          feedsInto: ["fghij67890"],
+        });
+        Puzzles.insert({
+          _id: "fghij67890",
+          name: "Even This Poem",
+          canon: "even_this_poem",
+          feedsInto: [],
+          puzzles: ["12345abcde"],
+        });
+        Messages.insert({
+          room_name: "puzzles/12345abcde",
+          timestamp: 7,
+          nick: "torgen",
+          body: "bot this feeds into even this poem",
+        });
+        return waitForDocument(
+          Messages,
+          { nick: "testbot", timestamp: 7 },
+          {
+            room_name: "puzzles/12345abcde",
+            useful: true,
+            mention: ["torgen"],
+            body: "@torgen: this already fed into #puzzles/fghij67890.",
+          }
+        );
+      });
     });
 
     describe("in general room", function () {
