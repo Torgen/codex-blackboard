@@ -101,7 +101,7 @@ export default scripts.codex = function (robot) {
     //suppressRoom: msg.envelope.room
     msg.reply(
       { useful: true },
-      `Okay, ${prefix}"${params.answer}" for ${target.object.name} added to call-in list!`
+      `Okay, ${prefix}"${params.answer}" for #${target.type}/${target.object._id} added to call-in list!`
     );
     msg.finish();
   }
@@ -186,7 +186,7 @@ export default scripts.codex = function (robot) {
       });
       msg.reply(
         { useful: true },
-        `Okay, I deleted the answer to "${target.object.name}".`
+        `Okay, I deleted the answer to #${target.type}/${target.object._id}.`
       );
       msg.finish();
     }
@@ -210,16 +210,18 @@ export default scripts.codex = function (robot) {
       /$/i
     ),
     function (msg) {
-      let puzz_url, puzzle;
+      let puzzle;
       const pname = strip(msg.match[1]);
       const ptype = msg.match[2];
       const rname = strip(msg.match[4]);
       let tname = undefined;
-      let round = undefined;
+      let round = undefined,
+        rText = undefined;
       const url = strip(msg.match[5]);
       const who = msg.envelope.user.id;
       if (rname === "this" && !msg.match[3]) {
         round = objectFromRoom(msg);
+        rText = "this";
         if (round == null) {
           return;
         }
@@ -244,6 +246,7 @@ export default scripts.codex = function (robot) {
           msg.finish();
           return;
         }
+        rText = `#${tname}/${round.object._id}`;
       }
       const extra = { name: pname };
       if (url != null) {
@@ -276,14 +279,9 @@ export default scripts.codex = function (robot) {
             name: pname,
             type: "puzzles",
           });
-          puzz_url = Meteor._relativeToSiteRootUrl(
-            `/puzzles/${existing.object._id}`
-          );
           msg.reply(
-            { useful: true, bodyIsHtml: true },
-            `There's already <a href='${UI._escape(
-              puzz_url
-            )}'>a puzzle named ${UI._escape(existing.object.name)}</a>.`
+            { useful: true },
+            `There's already a puzzle named #puzzles/${existing.object._id}.`
           );
         } else {
           console.log(error);
@@ -295,17 +293,9 @@ export default scripts.codex = function (robot) {
         msg.finish();
         return;
       }
-      puzz_url = Meteor._relativeToSiteRootUrl(`/puzzles/${puzzle._id}`);
-      const parent_url = Meteor._relativeToSiteRootUrl(
-        `/${round.type}/${round.object._id}`
-      );
       msg.reply(
-        { useful: true, bodyIsHtml: true },
-        `Okay, I added <a href='${UI._escape(puzz_url)}'>${UI._escape(
-          puzzle.name
-        )}</a> to <a class='${round.type}-link' href='${UI._escape(
-          parent_url
-        )}'>${UI._escape(round.object.name)}</a>.`
+        { useful: true },
+        `Okay, I added #puzzles/${puzzle._id} to #${rText}.`
       );
       msg.finish();
     }
@@ -322,6 +312,7 @@ export default scripts.codex = function (robot) {
     }
     const res = callAs("deletePuzzle", who, puzzle.object._id);
     if (res) {
+      // Can't use a mention because it's about to not exist.
       msg.reply({ useful: true }, `Okay, I deleted "${puzzle.object.name}".`);
     } else {
       msg.reply({ useful: true }, "Something went wrong.");
@@ -362,14 +353,9 @@ export default scripts.codex = function (robot) {
             name: rname,
             type: "rounds",
           });
-          round_url = Meteor._relativeToSiteRootUrl(
-            `/rounds/${existing.object._id}`
-          );
           msg.reply(
-            { useful: true, bodyIsHtml: true },
-            `There's already <a href='${UI._escape(
-              round_url
-            )}'>a round named ${UI._escape(existing.object.name)}</a>.`
+            { useful: true },
+            `There's already a round named #rounds/${existing.object._id}.`
           );
         } else {
           console.log(error);
@@ -381,12 +367,10 @@ export default scripts.codex = function (robot) {
         msg.finish();
         return;
       }
-      round_url = Meteor._relativeToSiteRootUrl(`/rounds/${round._id}`);
+      round_url = Meteor._relativeToSiteRootUrl(`/rounds/`);
       msg.reply(
-        { useful: true, bodyIsHtml: true },
-        `Okay, I created round <a href='${UI._escape(round_url)}'>${UI._escape(
-          rname
-        )}</a>.`
+        { useful: true },
+        `Okay, I created round #rounds/${round._id}.`
       );
       msg.finish();
     }
@@ -415,6 +399,7 @@ export default scripts.codex = function (robot) {
     }
     msg.reply(
       { useful: true },
+      // Can't use a mention because it no longer exists.
       `Okay, I deleted round "${round.object.name}".`
     );
     msg.finish();
@@ -441,11 +426,11 @@ export default scripts.codex = function (robot) {
           `I can't find ${descriptor} called "${strip(msg.match[4])}".`
         );
         msg.finish();
-        return;
+        return [null, null];
       }
-      return target;
+      return [target, `#${target.type}/${target.object._id}`];
     } else {
-      return objectFromRoom(msg);
+      return [objectFromRoom(msg), "this"];
     }
   }
 
@@ -467,7 +452,7 @@ export default scripts.codex = function (robot) {
     function (msg) {
       const tag_name = strip(msg.match[1]);
       const tag_value = strip(msg.match[5]);
-      const target = tagChangeTarget(msg);
+      const [target, tText] = tagChangeTarget(msg);
       if (target == null) {
         return;
       }
@@ -479,7 +464,7 @@ export default scripts.codex = function (robot) {
       });
       msg.reply(
         { useful: true },
-        `The ${tag_name} for ${target.object.name} is now "${tag_value}".`
+        `The ${tag_name} for ${tText} is now "${tag_value}".`
       );
       msg.finish();
     }
@@ -500,7 +485,7 @@ export default scripts.codex = function (robot) {
     ),
     function (msg) {
       const tag_name = strip(msg.match[1]);
-      const target = tagChangeTarget(msg);
+      const [target, tText] = tagChangeTarget(msg);
       if (target == null) {
         return;
       }
@@ -512,13 +497,10 @@ export default scripts.codex = function (robot) {
       if (res) {
         msg.reply(
           { useful: true },
-          `The ${tag_name} for ${target.object.name} is now unset.`
+          `The ${tag_name} for ${tText} is now unset.`
         );
       } else {
-        msg.reply(
-          { useful: true },
-          `${target.object.name} didn't have ${tag_name} set!`
-        );
+        msg.reply({ useful: true }, `${tText} didn't have ${tag_name} set!`);
       }
       msg.finish();
     }

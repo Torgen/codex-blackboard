@@ -71,7 +71,7 @@ export function objectFromRoom(msg) {
 
 export function puzzleOrThis(s, msg) {
   if (s === "this") {
-    return objectFromRoom(msg);
+    return [objectFromRoom(msg), "this"];
   }
   const who = msg.envelope.user.id;
   const p = callAs("getByName", who, {
@@ -79,9 +79,9 @@ export function puzzleOrThis(s, msg) {
     optional_type: "puzzles",
   });
   if (p != null) {
-    return p;
+    return [p, `#puzzles/${p.object._id}`];
   }
   msg.reply({ useful: true }, `I can't find a puzzle called \"${s}\".`);
   msg.finish();
-  return null;
+  return [null, null];
 }

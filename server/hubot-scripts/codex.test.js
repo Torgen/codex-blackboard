@@ -1057,9 +1057,7 @@ describe("codex hubot script", function () {
         await waitForDocument(
           Messages,
           {
-            body: {
-              $regex: /@torgen: There's already.*a puzzle named Even This Poem/,
-            },
+            body: `@torgen: There's already a puzzle named #puzzles/${mid}.`,
           },
           {
             nick: "testbot",
@@ -1344,9 +1342,7 @@ describe("codex hubot script", function () {
       return await waitForDocument(
         Messages,
         {
-          body: {
-            $regex: /@torgen: There's already.*a round named Elliptic Curve/,
-          },
+          body: `@torgen: There's already a round named #rounds/${rid}.`,
         },
         {
           nick: "testbot",
@@ -1823,7 +1819,7 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("complains if not set ", function () {
+      it("complains if not set", function () {
         Puzzles.insert({
           _id: "12345abcde",
           name: "Latino Alphabet",
@@ -1838,7 +1834,7 @@ describe("codex hubot script", function () {
         });
         return waitForDocument(
           Messages,
-          { body: "@torgen: Latino Alphabet didn't have Color set!" },
+          { body: "@torgen: this didn't have Color set!" },
           {
             nick: "testbot",
             room_name: "puzzles/12345abcde",
@@ -1949,7 +1945,7 @@ describe("codex hubot script", function () {
         });
         return waitForDocument(
           Messages,
-          { body: "@torgen: Latino Alphabet didn't have Color set!" },
+          { body: `@torgen: this didn't have Color set!` },
           {
             nick: "testbot",
             room_name: "rounds/12345abcde",

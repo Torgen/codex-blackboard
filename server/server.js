@@ -320,7 +320,7 @@ Meteor.publish(
   "presence-for-room",
   loginRequired((room_name) =>
     Presence.find(
-      { room_name, scope: { $in: ["chat", "typing"] } },
+      { room_name, scope: { $in: ["chat", "jitsi", "typing"] } },
       {
         fields: {
           timestamp: 0,

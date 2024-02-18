@@ -3,7 +3,7 @@ import { callAs } from "../imports/impersonate.js";
 
 function ifPuzzleExists(msg, fn) {
   const name = msg.match[1];
-  const p = puzzleOrThis(name, msg);
+  const [p, pText] = puzzleOrThis(name, msg);
   if (!p) {
     if (msg.message.done) {
       return;
@@ -12,7 +12,7 @@ function ifPuzzleExists(msg, fn) {
     msg.finish();
     return;
   }
-  fn(name, p);
+  fn(pText, p);
 }
 
 function makeMeta(msg) {
@@ -33,9 +33,9 @@ function makeNotMeta(msg) {
     if (l) {
       msg.reply(
         { useful: true },
-        `${l} puzzle${l !== 1 ? "s" : ""} feed${l === 1 ? "s" : ""} into ${
-          p.object.name
-        }. It must be a meta.`
+        `${l} puzzle${l !== 1 ? "s" : ""} feed${
+          l === 1 ? "s" : ""
+        } into ${name}. It must be a meta.`
       );
       msg.finish();
       return;
@@ -72,33 +72,27 @@ export default scripts.metas = function (robot) {
   function leafIntoMeta(msg, fn) {
     const puzzName = msg.match[1];
     const metaName = msg.match[2];
-    const p = puzzleOrThis(puzzName, msg);
+    const [p, pText] = puzzleOrThis(puzzName, msg);
     if (p == null) {
       return;
     }
-    const m = puzzleOrThis(metaName, msg);
+    const [m, mText] = puzzleOrThis(metaName, msg);
     if (m == null) {
       return;
     }
     const who = msg.envelope.user.id;
-    fn(p.object, m.object, who);
+    fn(p.object, pText, m.object, mText, who);
   }
 
   robot.commands.push(
     "bot <puzzle|this> feeds into <puzzle|this> - Update codex blackboard"
   );
   robot.respond(rejoin(thingRE, / feeds into /, thingRE, /$/i), function (msg) {
-    leafIntoMeta(msg, function (p, m, who) {
+    leafIntoMeta(msg, function (p, pText, m, mText, who) {
       if (callAs("feedMeta", who, p._id, m._id)) {
-        msg.reply(
-          { useful: true },
-          `OK, ${msg.match[1]} now feeds into ${msg.match[2]}.`
-        );
+        msg.reply({ useful: true }, `OK, ${pText} now feeds into ${mText}.`);
       } else {
-        msg.reply(
-          { useful: true },
-          `${msg.match[1]} already fed into ${msg.match[2]}.`
-        );
+        msg.reply({ useful: true }, `${pText} already fed into ${mText}.`);
       }
       msg.finish();
     });
@@ -110,16 +104,16 @@ export default scripts.metas = function (robot) {
   robot.respond(
     rejoin(thingRE, / does(?:n't| not) feed into /, thingRE, /$/i),
     function (msg) {
-      leafIntoMeta(msg, function (p, m, who) {
+      leafIntoMeta(msg, function (p, pText, m, mText, who) {
         if (callAs("unfeedMeta", who, p._id, m._id)) {
           msg.reply(
             { useful: true },
-            `OK, ${msg.match[1]} no longer feeds into ${msg.match[2]}.`
+            `OK, ${pText} no longer feeds into ${mText}.`
           );
         } else {
           msg.reply(
             { useful: true },
-            `${msg.match[1]} already didn't feed into ${msg.match[2]}.`
+            `${pText} already didn't feed into ${mText}.`
           );
         }
         msg.finish();

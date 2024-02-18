@@ -273,12 +273,6 @@ Template.puzzle.onCreated(function () {
   });
 });
 
-Template.puzzle_summon_button.helpers({
-  stuck() {
-    return isStuck(this);
-  },
-});
-
 Template.puzzle_summon_button.events({
   async "click .bb-summon-btn.stuck"(event, template) {
     if (

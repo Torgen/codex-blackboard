@@ -1,29 +1,46 @@
 const urlRE =
   /\b(?:[a-z][\w\-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\((?:[^\s()<>]|(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'\".,<>?«»“”‘’])/gi;
 
-function linkify(text) {
-  const result = [];
-  let tail_start = 0;
-  for (let match of text.matchAll(urlRE)) {
-    if (tail_start < match.index) {
-      result.push({
-        type: "text",
-        content: text.slice(tail_start, match.index),
-      });
+const roomRE = /#(general|puzzles|rounds)\/([a-zA-Z0-9]+)/g;
+
+function extractAll(re, ppMatch, ppText) {
+  return function (text) {
+    const result = [];
+    let tail_start = 0;
+    for (let match of text.matchAll(re)) {
+      if (tail_start < match.index) {
+        result.push(...ppText(text.slice(tail_start, match.index)));
+      }
+      tail_start = match.index + match[0].length;
+      result.push(...ppMatch(match));
     }
-    tail_start = match.index + match[0].length;
+    if (tail_start < text.length) {
+      result.push(...ppText(text.slice(tail_start)));
+    }
+    return result;
+  };
+}
+
+const roomify = extractAll(
+  roomRE,
+  function (match) {
+    return [{ type: "room", content: { type: match[1], id: match[2] } }];
+  },
+  (content) => [{ type: "text", content }]
+);
+
+const linkify = extractAll(
+  urlRE,
+  function (match) {
     const original = match[0];
     let url = match[0];
     if (!/^[a-z][\w\-]+:/.test(url)) {
       url = `http://${url}`;
     }
-    result.push({ type: "url", content: { url, original } });
-  }
-  if (tail_start < text.length) {
-    result.push({ type: "text", content: text.slice(tail_start) });
-  }
-  return result;
-}
+    return [{ type: "url", content: { url, original } }];
+  },
+  roomify
+);
 
 export function chunk_text(text) {
   if (!text) {

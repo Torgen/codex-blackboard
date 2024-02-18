@@ -1,7 +1,31 @@
-.bb-mention {
+.bb-mention, .bb-room-mention {
   background: var(--barely-darker);
   border-radius: 3px;
   font-weight: bold;
+}
+.bb-room-mention .fas{
+  color: var(--text-color);
+}
+.bb-room-mention .room-type {
+  display: inline;
+}
+.bb-room-mention.solved .room-type {
+  color: forestgreen;
+  body.darkMode & {
+    color: lime;
+  }
+}
+.bb-room-mention.stuck .room-type {
+  color: #cc0;
+  body.darkMode & {
+    color: yellow;
+  }
+}
+.bb-room-mention.nonexistent .room-type {
+  color: red;
+  body.darkMode & {
+    color: tomato;
+  }
 }
 .bb-mention-nonexistent {
   text-decoration: line-through;

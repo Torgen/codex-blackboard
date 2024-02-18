@@ -200,11 +200,12 @@
 </template>
 
 <template name="puzzle_summon_button">
-<button class="btn btn-small bb-summon-btn {{#if stuck}}stuck{{else}}unstuck{{/if}} btn-inverse">
-{{#unless currentPageEquals "chat"}}<i class="fas fa-{{#if stuck}}lightbulb{{else}}ambulance{{/if}}"></i>{{/unless}}
-{{#if stuck}}Clear STUCK status{{else}}Flag as STUCK{{/if}}
+<button class="btn btn-small bb-summon-btn {{#if stuck this}}stuck{{else}}unstuck{{/if}} btn-inverse">
+{{#unless currentPageEquals "chat"}}<i class="fas fa-{{#if stuck this}}lightbulb{{else}}ambulance{{/if}}"></i>{{/unless}}
+{{#if stuck this}}Clear STUCK status{{else}}Flag as STUCK{{/if}}
 </button>
 </template>
+
 <template name="puzzle_summon_modal">
 <div class="modal hide fade" id="summon_modal">
   <div class="modal-header">

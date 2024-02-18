@@ -18,6 +18,28 @@
 
 <template name="text_chunk_text">{{this}}</template>
 
+<template name="_text_chunk_room_presence">{{#if any (j.count) (co.count)}}
+  {{#with j.count}}<i class="presence fas fa-video"><span class="count">{{this}}</span></i>{{
+  /with}}{{
+  #with co.count}}<i class="presence fas fa-comment-alt"><span class="count">{{this}}</span></i>{{
+  /with
+}}{{/if}}</template>
+
+<template name="text_chunk_room">{{
+  #let obj=object j=jitsi co=chat_only}}{{
+    #if all (equal type "general") (equal id "0")
+      }}<a class="bb-room-mention" href="/">{{generalRoomName}}{{>_text_chunk_room_presence j=j co=co}}</a>{{
+    else}}<a
+      class="bb-room-mention {{#unless obj}}nonexistent{{else if obj.solved}}solved{{else if stuck obj}}stuck{{/unless}}"
+      href="/{{type}}/{{id}}"><i class="room-type fas {{#if equal type "puzzles"}}fa-puzzle-piece{{else if equal type "rounds"}}fa-globe{{/if}}"></i>{{
+        #if obj}}{{obj.name}}{{#if any (j.count) (co.count)}}
+          {{>_text_chunk_room_presence j=j co=co}}{{/if}}{{
+        else}}{{pretty_collection type}} does not exist{{/if
+      }}</a>{{
+    /if}}{{
+  /let
+}}</template>
+
 <template name="text_chunk_url"><a href="{{url}}" target="_blank" rel="noopener noreferrer">{{original}}</a></template>
 
 <template name="text_chunk_url_image"><a href="{{url}}" target="_blank" rel="noopener noreferrer">{{#if image original}}<img src="{{url}}" class="inline-image image-loading" onload="window.imageScrollHack(this)" >{{else}}{{original}}{{/if}}</a></template>
