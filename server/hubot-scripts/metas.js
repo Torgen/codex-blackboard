@@ -33,7 +33,9 @@ function makeNotMeta(msg) {
     if (l) {
       msg.reply(
         { useful: true },
-        `${l} puzzle${l !== 1 ? "s" : ""} feed${l === 1 ? "s" : ""} into ${name}. It must be a meta.`
+        `${l} puzzle${l !== 1 ? "s" : ""} feed${
+          l === 1 ? "s" : ""
+        } into ${name}. It must be a meta.`
       );
       msg.finish();
       return;
