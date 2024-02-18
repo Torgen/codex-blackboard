@@ -7,7 +7,6 @@ import hubot_help from "hubot-help";
 import "coffeescript/register";
 
 if (DO_BATCH_PROCESSING) {
-
   const BOTNAME = Meteor.settings?.botname || process.env.BOTNAME || "Codexbot";
   const BOT_GRAVATAR =
     Meteor.settings?.botgravatar ||
