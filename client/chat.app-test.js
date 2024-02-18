@@ -330,6 +330,20 @@ describe("chat", function () {
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
+
+      it("doesn't complete with a selection", async function () {
+        const id = Puzzles.findOne({ name: "Disgust" })._id;
+        ChatPage("puzzles", id);
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const input = $("#messageInput");
+        input.val("/m a");
+        input[0].setSelectionRange(1, 2);
+        input.click();
+        await afterFlushPromise();
+        const typeahead = $("#messageInputTypeahead");
+        chai.assert.equal(0, typeahead.length);
+      });
     });
 
     describe("rooms", function () {
@@ -392,6 +406,23 @@ describe("chat", function () {
         await afterFlushPromise();
         chai.assert.equal(input.val(), `Yo #puzzles/${recipe}  hmu`);
         chai.assert.equal(input[0].selectionStart, 30);
+        const typeahead = $("#messageInputTypeahead");
+        chai.assert.equal(0, typeahead.length);
+      });
+
+      it("completes room name", async function () {
+        const id = Puzzles.findOne({ name: "Space Elevator" })._id;
+        const recipe = Puzzles.findOne({ name: "Cooking a Recipe" })._id;
+        ChatPage("puzzles", id);
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const input = $("#messageInput");
+        input.val(`#puzzles/${recipe.substr(0,12)}`);
+        input.click();
+        await afterFlushPromise();
+        $(`a[data-value="puzzles/${recipe}"]`).click();
+        await afterFlushPromise();
+        chai.assert.equal(input.val(), `#puzzles/${recipe} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
