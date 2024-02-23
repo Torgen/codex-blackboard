@@ -1,34 +1,43 @@
 class StorageWrapper {
+  #storage;
+  #dependencies;
+
   constructor(storage) {
-    this.storage = storage;
-    this.dependencies = {};
+    this.#storage = storage;
+    this.#dependencies = Object.create(null);
   }
 
   invalidate(key) {
-    this.dependencies[key]?.changed();
+    this.#dependencies[key]?.changed();
+  }
+
+  invalidateAll() {
+    for (let k in this.#dependencies) {
+      this.#dependencies[k].changed();
+    }
   }
 
   depend(key) {
-    let dep = this.dependencies[key];
+    let dep = this.#dependencies[key];
     if (dep == null) {
-      dep = this.dependencies[key] = new Tracker.Dependency();
+      dep = this.#dependencies[key] = new Tracker.Dependency();
     }
     dep.depend();
   }
 
   setItem(key, value) {
-    this.storage.setItem(key, value);
+    this.#storage.setItem(key, value);
     this.invalidate(key);
   }
 
   removeItem(key) {
-    this.storage.removeItem(key);
+    this.#storage.removeItem(key);
     this.invalidate(key);
   }
 
   getItem(key) {
     this.depend(key);
-    return this.storage.getItem(key);
+    return this.#storage.getItem(key);
   }
 }
 
@@ -45,5 +54,9 @@ addEventListener("storage", function (event) {
   } else {
     throw new Error("unknown storage area");
   }
-  wrapper.invalidate(event.key);
+  if (event.key === null) {
+    wrapper.invalidateAll();
+  } else {
+    wrapper.invalidate(event.key);
+  }
 });
