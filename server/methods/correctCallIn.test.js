@@ -211,6 +211,35 @@ describe("correctCallIn", function () {
       chai.assert.include(m[0].body, "PRECIPITATE");
       chai.assert.include(m[0].body, `(#puzzles/${puzzle})`);
     });
+
+    it("notifies feeder chat for puzzle", function () {
+      const feeder = Puzzles.insert({
+        name: "Feeder",
+        canon: "feeder",
+        created: 2,
+        created_by: "cscott",
+        touched: 2,
+        touched_by: "cscott",
+        solved: null,
+        solved_by: null,
+        confirmed_by: null,
+        tags: {},
+        feedsInto: [puzzle],
+      });
+      Puzzles.update(puzzle, { $push: { puzzles: feeder } });
+      callAs("correctCallIn", "cjb", callin);
+      const m = Messages.find({
+        room_name: `puzzles/${feeder}`,
+        dawn_of_time: { $ne: true },
+      }).fetch();
+      chai.assert.lengthOf(m, 1);
+      chai.assert.include(m[0], {
+        nick: "cjb",
+        action: true,
+      });
+      chai.assert.include(m[0].body, "PRECIPITATE");
+      chai.assert.include(m[0].body, `(#puzzles/${puzzle})`);
+    });
   });
 
   describe("for first partial answer", function () {
@@ -732,6 +761,35 @@ describe("correctCallIn", function () {
       callAs("correctCallIn", "cjb", callin, false);
       const m = Messages.find({
         room_name: `puzzles/${meta}`,
+        dawn_of_time: { $ne: true },
+      }).fetch();
+      chai.assert.lengthOf(m, 1);
+      chai.assert.include(m[0], {
+        nick: "cjb",
+        action: true,
+      });
+      chai.assert.include(m[0].body, "PRECIPITATE");
+      chai.assert.include(m[0].body, `(#puzzles/${puzzle})`);
+    });
+    
+    it("notifies feeder chat for final answer", function () {
+      const feeder = Puzzles.insert({
+        name: "Feeder",
+        canon: "feeder",
+        created: 2,
+        created_by: "cscott",
+        touched: 2,
+        touched_by: "cscott",
+        solved: null,
+        solved_by: null,
+        confirmed_by: null,
+        tags: {},
+        feedsInto: [puzzle],
+      });
+      Puzzles.update(puzzle, { $push: { puzzles: feeder } });
+      callAs("correctCallIn", "cjb", callin, true);
+      const m = Messages.find({
+        room_name: `puzzles/${feeder}`,
         dawn_of_time: { $ne: true },
       }).fetch();
       chai.assert.lengthOf(m, 1);
