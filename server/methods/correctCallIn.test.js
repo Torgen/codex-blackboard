@@ -140,7 +140,11 @@ describe("correctCallIn", function () {
           action: true,
         });
         chai.assert.include(o[0].body, "PRECIPITATE", "message");
-        chai.assert.notInclude(o[0].body, "(Foo)", "message");
+        chai.assert.notInclude(
+          o[0].body,
+          `(#puzzles/${puzzle})`,
+          "message"
+        );
       });
 
       it("notifies general chat", function () {
@@ -154,7 +158,7 @@ describe("correctCallIn", function () {
           action: true,
         });
         chai.assert.include(o[0].body, "PRECIPITATE", "message");
-        chai.assert.include(o[0].body, "(Foo)", "message");
+        chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
       });
 
       it("renews onduty", () =>
@@ -205,7 +209,7 @@ describe("correctCallIn", function () {
         action: true,
       });
       chai.assert.include(m[0].body, "PRECIPITATE");
-      chai.assert.include(m[0].body, "(Foo)");
+      chai.assert.include(m[0].body, `(#puzzles/${puzzle})`);
     });
   });
 
@@ -310,7 +314,11 @@ describe("correctCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(
+            o[0].body,
+            `(#puzzles/${puzzle})`,
+            "message"
+          );
         });
 
         it("notifies general chat", function () {
@@ -324,7 +332,7 @@ describe("correctCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
 
         it("renews onduty", () =>
@@ -394,7 +402,11 @@ describe("correctCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(
+            o[0].body,
+            `(#puzzles/${puzzle})`,
+            "message"
+          );
         });
 
         it("notifies general chat", function () {
@@ -408,7 +420,7 @@ describe("correctCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
 
         it("renews onduty", () =>
@@ -460,7 +472,7 @@ describe("correctCallIn", function () {
         action: true,
       });
       chai.assert.include(m[0].body, "PRECIPITATE");
-      chai.assert.include(m[0].body, "(Foo)");
+      chai.assert.include(m[0].body, `(#puzzles/${puzzle})`);
     });
   });
 
@@ -567,7 +579,11 @@ describe("correctCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(
+            o[0].body,
+            `(#puzzles/${puzzle})`,
+            "message"
+          );
         });
 
         it("notifies general chat", function () {
@@ -581,7 +597,7 @@ describe("correctCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
 
         it("renews onduty", () =>
@@ -653,7 +669,11 @@ describe("correctCallIn", function () {
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
           chai.assert.notInclude(o[0].body, "SEDIMENTARY", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(
+            o[0].body,
+            `(#puzzles/${puzzle})`,
+            "message"
+          );
         });
 
         it("notifies general chat", function () {
@@ -668,7 +688,7 @@ describe("correctCallIn", function () {
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
           chai.assert.notInclude(o[0].body, "SEDIMENTARY", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
 
         it("renews onduty", () =>
@@ -720,7 +740,7 @@ describe("correctCallIn", function () {
         action: true,
       });
       chai.assert.include(m[0].body, "PRECIPITATE");
-      chai.assert.include(m[0].body, "(Foo)");
+      chai.assert.include(m[0].body, `(#puzzles/${puzzle})`);
     });
   });
 
@@ -804,7 +824,11 @@ describe("correctCallIn", function () {
           });
           chai.assert.include(o[0].body, "ACCEPTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(
+            o[0].body,
+            `(#puzzles/${puzzle})`,
+            "message"
+          );
         });
 
         it("notifies general chat", function () {
@@ -818,7 +842,7 @@ describe("correctCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, '"precipitate"', "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
       }));
 
@@ -878,7 +902,11 @@ describe("correctCallIn", function () {
           "Make us some supersaturated Kool-Aid",
           "message"
         );
-        chai.assert.notInclude(o[0].body, "(Foo)", "message");
+        chai.assert.notInclude(
+          o[0].body,
+          `(#puzzles/${puzzle})`,
+          "message"
+        );
       });
 
       it("notifies general chat", function () {
@@ -897,7 +925,7 @@ describe("correctCallIn", function () {
           "Make us some supersaturated Kool-Aid",
           "message"
         );
-        chai.assert.include(o[0].body, "(Foo)", "message");
+        chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
       });
     });
 
@@ -1005,7 +1033,11 @@ describe("correctCallIn", function () {
           });
           chai.assert.include(o[0].body, "ACCEPTED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(
+            o[0].body,
+            `(#puzzles/${puzzle})`,
+            "message"
+          );
         });
 
         it("notifies general chat", function () {
@@ -1019,7 +1051,7 @@ describe("correctCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, '"precipitate"', "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
       }));
 
@@ -1079,7 +1111,11 @@ describe("correctCallIn", function () {
           "Make us some supersaturated Kool-Aid",
           "message"
         );
-        chai.assert.notInclude(o[0].body, "(Foo)", "message");
+        chai.assert.notInclude(
+          o[0].body,
+          `(#puzzles/${puzzle})`,
+          "message"
+        );
       });
 
       it("notifies general chat", function () {
@@ -1098,7 +1134,7 @@ describe("correctCallIn", function () {
           "Make us some supersaturated Kool-Aid",
           "message"
         );
-        chai.assert.include(o[0].body, "(Foo)", "message");
+        chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
       });
     });
 
@@ -1206,7 +1242,11 @@ describe("correctCallIn", function () {
           });
           chai.assert.include(o[0].body, "RECEIVED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(
+            o[0].body,
+            `(#puzzles/${puzzle})`,
+            "message"
+          );
         });
 
         it("notifies general chat", function () {
@@ -1221,7 +1261,7 @@ describe("correctCallIn", function () {
           });
           chai.assert.include(o[0].body, "RECEIVED", "message");
           chai.assert.include(o[0].body, '"precipitate"', "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
       }));
 
@@ -1281,7 +1321,11 @@ describe("correctCallIn", function () {
           "Make us some supersaturated Kool-Aid",
           "message"
         );
-        chai.assert.notInclude(o[0].body, "(Foo)", "message");
+        chai.assert.notInclude(
+          o[0].body,
+          `(#puzzles/${puzzle})`,
+          "message"
+        );
       });
 
       it("notifies general chat", function () {
@@ -1301,7 +1345,7 @@ describe("correctCallIn", function () {
           "Make us some supersaturated Kool-Aid",
           "message"
         );
-        chai.assert.include(o[0].body, "(Foo)", "message");
+        chai.assert.include(o[0].body, `(#puzzles/${puzzle})`, "message");
       });
     });
 
