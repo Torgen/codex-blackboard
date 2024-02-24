@@ -188,7 +188,7 @@ describe("logistics", function () {
         room_name: "general/0",
         nick: "testy",
         action: true,
-        body: 'sadly relays that the interaction request "teferi" was REJECTED with response "phasing". (Puzzle Box)',
+        body: `sadly relays that the interaction request "teferi" was REJECTED with response "phasing". (#puzzles/${pb._id})`,
       });
       chai.assert.isOk(msg);
     });
