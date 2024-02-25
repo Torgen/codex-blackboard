@@ -23,7 +23,7 @@ In general, a cryptic clue has two parts: a definition, and a wordplay section, 
 Part of the trick is to figure out which part is the definition and which is the wordplay. In some cases the clue
 contains only wordplay, because the definitions belong to a common category where determining the category is part of
 the puzzle. (For example, [Deep Blue](https://www.mit.edu/~puzzle/2019/puzzle/deep_blue.html), which clues this in the
-flavor text with "Colors you can't define". There are also 'variety' variants where some transformation must be applied
+flavor text with "Colors you can't define".) There are also 'variety' variants where some transformation must be applied
 to the clue before solving, or the solution before use. Puzzazz has a thorough
 [guide](http://www.puzzazz.com/how-to/cryptic-crosswords) to solving them.
 
@@ -34,6 +34,11 @@ following the steps is non-trivial. Strictly speaking a puzzle is only a Duck Ko
 other step-following puzzles like
 [Tax... In... Space...](http://web.mit.edu/puzzle/www/2012/puzzles/into_the_woodstock/tax_in_space/) should be
 classified as such because they fill the same niche.
+
+## High Level Math
+
+Difficult integrations, factoring the products of large primes, Rings and Fields, or any other math that you only do
+when your degree is specifically in math.
 
 ## Knitting/Crocheting
 
