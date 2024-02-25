@@ -151,7 +151,7 @@ puzzle. They are also useful to convey state to others working on the puzzle. (E
 There are several controls in the puzzle info panel for modifying tags.
 This panel is located above the chat on the puzzle page in the default spreadsheet view.
 
-[[tag_editing_examples.png]]
+![Controls for editing tags](tag_editing_examples.png)
 
 1. For tags that need to be set, like a tag that is used by one of this puzzle's metapuzzles, or (new for 2025) the theme tag,
    click the pencil in the right column.
