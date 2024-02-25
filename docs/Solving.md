@@ -148,7 +148,17 @@ puzzle. They are also useful to convey state to others working on the puzzle. (E
 <details>
   <summary>Details about how to set tags.</summary>
 <br>
-To set a tag on a puzzle, go to the chat for that puzzle and type:
+There are several controls in the puzzle info panel for modifying tags.
+This panel is located above the chat on the puzzle page in the default spreadsheet view.
+[[tag_editing_examples.png]]
+1. For tags that need to be set, like a tag that is used by one of this puzzle's metapuzzles, or (new for 2025) the theme tag,
+   click the pencil in the right column.
+2. Click the pencil next to the name of an existing tag to change its name.
+3. Click the X next to the value of a tag to unset the tag.
+4. Click the pencil, or anywhere but the X on the value of a tag, to change the value.
+5. Click the Tag+ button to add a new tag.
+
+You can also set a tag on a puzzle using the chatbot. Go to the chat for that puzzle and type:
 `bot set <tag> to <value>` e.g. `bot set theme to baseball`.
 You can use any string as a tag name.
 
