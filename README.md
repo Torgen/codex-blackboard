@@ -5,7 +5,13 @@ codex-blackboard
 [![codecov](https://codecov.io/gh/Torgen/codex-blackboard/graph/badge.svg?token=FLDXAUZQ9M)](https://codecov.io/gh/Torgen/codex-blackboard)
 [![GitHub Super-Linter](https://github.com/Torgen/codex-blackboard/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
-Meteor app for coordinating solving for our MIT Mystery Hunt team. See the wiki for instructions on:
+Meteor app for coordinating solving for our MIT Mystery Hunt team.
+Codex-blackboard was developed for use by medium to large teams (50+ solvers).
+It is particularly suited to teams that have many drop-ins, accept unattached
+solvers, and/or have privacy-conscious members, since access is given by a
+shared password, and not membership in a Google Group or Discord server.
+
+See the wiki for instructions on:
 * [Building and managing a server](./docs/Operations.md)
 * [Using the server as a solver](./docs/Solving.md)
 * [Updating data on the server as an on-call](./docs/Oncall.md)
