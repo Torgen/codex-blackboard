@@ -2,7 +2,7 @@
 
 scriptroot=$(readlink -f "$(dirname "$0")")
 
-if [ "$(findmnt -T /var/lib/mongodb -n -o fstype)" != "xfs" ] ; then
+if [ "$(findmnt -T /var/lib/mongodb -n -o fstype)" != "xfs" ]; then
   echo >&2 "MongoDB will complain if /var/lib/mongodb is a file system other than xfs."
   echo >&2 "If you have unallocated disk, consider making a partition now."
   echo >&2 "Stop to do this now, or continue?"
@@ -16,7 +16,7 @@ if [ "$(findmnt -T /var/lib/mongodb -n -o fstype)" != "xfs" ] ; then
 fi
 
 domainname=$1
-while [ -z "$domainname" ] ; do
+while [ -z "$domainname" ]; do
   read -r -p "Need a domain name for the site: " domainname
 done
 
