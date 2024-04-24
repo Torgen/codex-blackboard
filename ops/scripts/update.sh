@@ -24,4 +24,3 @@ sudo systemctl stop codex.target
 sudo mv /opt/codex /opt/codex-old
 sudo mv /opt/codex2 /opt/codex
 sudo systemctl start codex.target
-
