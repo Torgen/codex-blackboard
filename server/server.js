@@ -659,11 +659,14 @@ Meteor.publish(
       return `${toSign}.${hash}`;
     }
     this.added(JITSI_JWT_COLLECTION_NAME, roomName, { jwt: generateJwt() });
-    const intervalHandle = Meteor.setInterval(() => {
-      this.changed(JITSI_JWT_COLLECTION_NAME, roomName, {
-        jwt: generateJwt(),
-      });
-    }, 86400 * 100 * 3);
+    const intervalHandle = Meteor.setInterval(
+      () => {
+        this.changed(JITSI_JWT_COLLECTION_NAME, roomName, {
+          jwt: generateJwt(),
+        });
+      },
+      86400 * 100 * 3
+    );
     this.onStop(() => Meteor.clearInterval(intervalHandle));
     this.ready();
   })

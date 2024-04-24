@@ -103,8 +103,8 @@ Tracker.autorun(function () {
   const visible_array = COMPACT_MODE.get()
     ? Object.freeze(["answer"])
     : Meteor.userId() && Session.get("canEdit")
-    ? currentColumns.get().filter((x) => visibleColumnsWhenEditing.has(x))
-    : currentColumns.get();
+      ? currentColumns.get().filter((x) => visibleColumnsWhenEditing.has(x))
+      : currentColumns.get();
   return visibleColumns.set(Object.freeze(visible_array));
 });
 
