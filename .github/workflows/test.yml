@@ -41,7 +41,7 @@ jobs:
           path: ~/.meteor
           key: "${{ runner.os }}-meteor-install-\
             ${{ hashFiles('.meteor/versions') }}"
-      - uses: meteorengineer/setup-meteor@v1
+      - uses: meteorengineer/setup-meteor@v2
         if: steps.cache-meteor.outputs.cache-hit != 'true'
         with:
           meteor-release: ${{ env.METEOR_VERSION }}
