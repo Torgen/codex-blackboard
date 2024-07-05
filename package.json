@@ -42,7 +42,7 @@
     "@playwright/browser-firefox": "^1.45.1",
     "@types/chai": "^4.3.11",
     "@types/sinon": "^17.0.3",
-    "babel-plugin-istanbul": "^6.1.1",
+    "babel-plugin-istanbul": "^7.0.0",
     "chai": "^5.0.0",
     "drag-mock": "^1.4.0",
     "eslint": "^8.57.0",
