@@ -34,7 +34,7 @@ function htmlify(data) {
   return linkify(text);
 }
 
-function tweetToMessage(data) {
+async function tweetToMessage(data) {
   if (data.retweeted_status != null) {
     return;
   } // don't report retweets
@@ -55,7 +55,7 @@ function tweetToMessage(data) {
     tweet.quote_nick = data.quoted_status.user.screen_name;
   }
 
-  return newMessage({
+  return await newMessage({
     nick: data.user.screen_name,
     room_name: "general/0",
     body,

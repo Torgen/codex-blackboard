@@ -10,7 +10,7 @@ import { drive } from "/lib/imports/environment.js";
 import { callAs } from "../../server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("deletePuzzle", function () {
   let driveMethods = null;
@@ -40,9 +40,9 @@ describe("deletePuzzle", function () {
   let meta = null;
   let rid = null;
   let ev = null;
-  beforeEach(function () {
-    resetDatabase();
-    id = Puzzles.insert({
+  beforeEach(async function () {
+    await clearCollections(CalendarEvents, Messages, Puzzles, Rounds);
+    id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -56,7 +56,7 @@ describe("deletePuzzle", function () {
       spreadsheet: "sfoo",
       doc: "dfoo",
     });
-    meta = Puzzles.insert({
+    meta = await Puzzles.insertAsync({
       name: "Meta",
       canon: "meta",
       created: 1,
@@ -71,7 +71,7 @@ describe("deletePuzzle", function () {
       spreadsheet: "smeta",
       doc: "dmeta",
     });
-    rid = Rounds.insert({
+    rid = await Rounds.insertAsync({
       name: "Bar",
       canon: "bar",
       created: 1,
@@ -83,36 +83,37 @@ describe("deletePuzzle", function () {
       puzzles: [id, meta],
       tags: {},
     });
-    ev = CalendarEvents.insert({
+    ev = await CalendarEvents.insertAsync({
       puzzle: id,
       summary: "An event!",
     });
   });
 
-  it("fails without login", () =>
-    chai.assert.throws(() => Meteor.call("deletePuzzle", id), Match.Error));
+  it("fails without login", async function () {
+    await assertRejects(Meteor.callAsync("deletePuzzle", id), Match.Error);
+  });
 
   describe("when logged in", function () {
     let ret = null;
-    beforeEach(() =>
-      drive.withValue(
-        driveMethods,
-        () => (ret = callAs("deletePuzzle", "cjb", id))
-      )
-    );
+    beforeEach(async function () {
+      await drive.withValue(driveMethods, async function () {
+        ret = await callAs("deletePuzzle", "cjb", id);
+      });
+    });
 
-    it("oplogs", () =>
+    it("oplogs", async function () {
       chai.assert.lengthOf(
-        Messages.find({
+        await Messages.find({
           nick: "cjb",
           type: "puzzles",
           room_name: "oplog/0",
-        }).fetch(),
+        }).fetchAsync(),
         1
-      ));
+      );
+    });
 
-    it("removes puzzle from round", () =>
-      chai.assert.deepEqual(Rounds.findOne(rid), {
+    it("removes puzzle from round", async function () {
+      chai.assert.deepEqual(await Rounds.findOneAsync(rid), {
         _id: rid,
         name: "Bar",
         canon: "bar",
@@ -124,10 +125,11 @@ describe("deletePuzzle", function () {
         solved_by: null,
         puzzles: [meta],
         tags: {},
-      }));
+      });
+    });
 
-    it("removes puzzle from meta", () =>
-      chai.assert.deepEqual(Puzzles.findOne(meta), {
+    it("removes puzzle from meta", async function () {
+      chai.assert.deepEqual(await Puzzles.findOneAsync(meta), {
         _id: meta,
         name: "Meta",
         canon: "meta",
@@ -142,17 +144,20 @@ describe("deletePuzzle", function () {
         drive: "fmeta",
         spreadsheet: "smeta",
         doc: "dmeta",
-      }));
+      });
+    });
 
-    it("removes puzzle from event", () =>
-      chai.assert.deepEqual(CalendarEvents.findOne(ev), {
+    it("removes puzzle from event", async function () {
+      chai.assert.deepEqual(await CalendarEvents.findOneAsync(ev), {
         _id: ev,
         summary: "An event!",
-      }));
+      });
+    });
 
-    it("deletes drive", () =>
+    it("deletes drive", function () {
       chai.assert.deepEqual(driveMethods.deletePuzzle.getCall(0).args, [
         "ffoo",
-      ]));
+      ]);
+    });
   });
 });

@@ -1,17 +1,16 @@
 import { Messages, Presence, Puzzles } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import delay from "delay";
-import { waitForDocument } from "/lib/imports/testutils.js";
+import { clearCollections, waitForDocument } from "/lib/imports/testutils.js";
 import watchPresence from "./presence.js";
 
 describe("presence", function () {
   let clock = null;
   let presence = null;
 
-  beforeEach(function () {
-    resetDatabase();
+  beforeEach(async function () {
+    await clearCollections(Messages, Presence, Puzzles, Meteor.users);
     clock = sinon.useFakeTimers({
       now: 7,
       toFake: ["setInterval", "clearInterval", "Date"],
@@ -25,7 +24,7 @@ describe("presence", function () {
 
   describe("join", function () {
     it("ignores existing presence", async function () {
-      Presence.insert({
+      await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "chat",
@@ -33,16 +32,16 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      presence = watchPresence();
+      presence = await watchPresence();
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" })
+        await Messages.findOneAsync({ presence: "join", nick: "torgen" })
       );
     });
 
     it("ignores oplog room", async function () {
-      presence = watchPresence();
-      Presence.insert({
+      presence = await watchPresence();
+      await Presence.insertAsync({
         nick: "torgen",
         room_name: "oplog/0",
         scope: "chat",
@@ -52,13 +51,13 @@ describe("presence", function () {
       });
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" })
+        await Messages.findOneAsync({ presence: "join", nick: "torgen" })
       );
     });
 
     it("ignores non-chat scope", async function () {
-      presence = watchPresence();
-      Presence.insert({
+      presence = await watchPresence();
+      await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "jitsi",
@@ -68,13 +67,13 @@ describe("presence", function () {
       });
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "join", nick: "torgen" })
+        await Messages.findOneAsync({ presence: "join", nick: "torgen" })
       );
     });
 
-    it("uses nickname when no users entry", function () {
-      presence = watchPresence();
-      Presence.insert({
+    it("uses nickname when no users entry", async function () {
+      presence = await watchPresence();
+      await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "chat",
@@ -82,7 +81,7 @@ describe("presence", function () {
         joined_timestamp: 8,
         clients: [{ connection_id: "test", timestamp: 9 }],
       });
-      waitForDocument(
+      await waitForDocument(
         Messages,
         { nick: "torgen", presence: "join" },
         {
@@ -94,14 +93,14 @@ describe("presence", function () {
       );
     });
 
-    it("uses real name from users entry", function () {
-      presence = watchPresence();
-      Meteor.users.insert({
+    it("uses real name from users entry", async function () {
+      presence = await watchPresence();
+      await Meteor.users.insertAsync({
         _id: "torgen",
         nickname: "Torgen",
         real_name: "Dan Rosart",
       });
-      Presence.insert({
+      await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "chat",
@@ -109,7 +108,7 @@ describe("presence", function () {
         joined_timestamp: 8,
         clients: [{ connection_id: "test", timestamp: 9 }],
       });
-      waitForDocument(
+      await waitForDocument(
         Messages,
         { nick: "torgen", presence: "join" },
         {
@@ -124,7 +123,7 @@ describe("presence", function () {
 
   describe("part", function () {
     it("ignores oplog room", async function () {
-      const id = Presence.insert({
+      const id = await Presence.insertAsync({
         nick: "torgen",
         room_name: "oplog/0",
         scope: "chat",
@@ -132,16 +131,16 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      presence = watchPresence();
-      Presence.remove(id);
+      presence = await watchPresence();
+      await Presence.removeAsync(id);
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "part", nick: "torgen" })
+        await Messages.findOneAsync({ presence: "part", nick: "torgen" })
       );
     });
 
     it("ignores non-chat scope", async function () {
-      const id = Presence.insert({
+      const id = await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "jitsi",
@@ -149,17 +148,17 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      presence = watchPresence();
-      Presence.remove(id);
+      presence = await watchPresence();
+      await Presence.removeAsync(id);
       await delay(200);
       chai.assert.isUndefined(
-        Messages.findOne({ presence: "part", nick: "torgen" })
+        await Messages.findOneAsync({ presence: "part", nick: "torgen" })
       );
     });
 
     it("removes stale presence", async function () {
       // This would happen in the server restarted.
-      const id = Presence.insert({
+      const id = await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "jitsi",
@@ -167,15 +166,15 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      presence = watchPresence();
+      presence = await watchPresence();
       clock.tick(240000);
       await delay(200);
-      chai.assert.isUndefined(Presence.findOne(id));
+      chai.assert.isUndefined(await Presence.findOneAsync(id));
     });
 
     it("removes presence without connections", async function () {
       // This would happen if you closed the tab or changed rooms.
-      const id = Presence.insert({
+      const id = await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "chat",
@@ -183,14 +182,14 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      presence = watchPresence();
-      Presence.update(id, { $set: { clients: [] } });
+      presence = await watchPresence();
+      await Presence.updateAsync(id, { $set: { clients: [] } });
       await delay(200);
-      chai.assert.isUndefined(Presence.findOne(id));
+      chai.assert.isUndefined(await Presence.findOneAsync(id));
     });
 
-    it("uses nickname when no users entry", function () {
-      const id = Presence.insert({
+    it("uses nickname when no users entry", async function () {
+      const id = await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "chat",
@@ -198,9 +197,9 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      presence = watchPresence();
-      Presence.remove(id);
-      waitForDocument(
+      presence = await watchPresence();
+      await Presence.removeAsync(id);
+      await waitForDocument(
         Messages,
         { nick: "torgen", presence: "part" },
         {
@@ -212,8 +211,8 @@ describe("presence", function () {
       );
     });
 
-    it("uses real name from users entry", function () {
-      const id = Presence.insert({
+    it("uses real name from users entry", async function () {
+      const id = await Presence.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         scope: "chat",
@@ -221,14 +220,14 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      Meteor.users.insert({
+      await Meteor.users.insertAsync({
         _id: "torgen",
         nickname: "Torgen",
         real_name: "Dan Rosart",
       });
-      presence = watchPresence();
-      Presence.remove(id);
-      waitForDocument(
+      presence = await watchPresence();
+      await Presence.removeAsync(id);
+      await waitForDocument(
         Messages,
         { nick: "torgen", presence: "part" },
         {
@@ -242,8 +241,8 @@ describe("presence", function () {
   });
 
   describe("update", function () {
-    it("updates unsolved puzzle", function () {
-      Presence.insert({
+    it("updates unsolved puzzle", async function () {
+      await Presence.insertAsync({
         nick: "torgen",
         room_name: "puzzles/foo",
         scope: "chat",
@@ -251,20 +250,20 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      Puzzles.insert({
+      await Puzzles.insertAsync({
         _id: "foo",
         solverTime: 45,
       });
-      presence = watchPresence();
-      Presence.update(
+      presence = await watchPresence();
+      await Presence.updateAsync(
         { nick: "torgen", room_name: "puzzles/foo" },
         { $set: { timestamp: 15 } }
       );
-      waitForDocument(Puzzles, { _id: "foo", solverTime: 54 }, {});
+      await waitForDocument(Puzzles, { _id: "foo", solverTime: 54 }, {});
     });
 
-    it("ignores bot user", function () {
-      Presence.insert({
+    it("ignores bot user", async function () {
+      await Presence.insertAsync({
         nick: "botto",
         room_name: "puzzles/foo",
         scope: "chat",
@@ -273,20 +272,20 @@ describe("presence", function () {
         clients: [{ connection_id: "test", timestamp: 6 }],
         bot: true,
       });
-      Puzzles.insert({
+      await Puzzles.insertAsync({
         _id: "foo",
         solverTime: 45,
       });
-      presence = watchPresence();
-      Presence.update(
+      presence = await watchPresence();
+      await Presence.updateAsync(
         { nick: "botto", room_name: "puzzles/foo" },
         { $set: { timestamp: 15 } }
       );
-      waitForDocument(Puzzles, { _id: "foo", solverTime: 45 }, {});
+      await waitForDocument(Puzzles, { _id: "foo", solverTime: 45 }, {});
     });
 
     it("ignores solved puzzle", async function () {
-      Presence.insert({
+      await Presence.insertAsync({
         nick: "torgen",
         room_name: "puzzles/foo",
         scope: "chat",
@@ -294,18 +293,18 @@ describe("presence", function () {
         joined_timestamp: 6,
         clients: [{ connection_id: "test", timestamp: 6 }],
       });
-      Puzzles.insert({
+      await Puzzles.insertAsync({
         _id: "foo",
         solverTime: 45,
         solved: 80,
       });
-      presence = watchPresence();
-      Presence.update(
+      presence = await watchPresence();
+      await Presence.updateAsync(
         { nick: "torgen", room_name: "puzzles/foo" },
         { $set: { timestamp: 15 } }
       );
       await delay(200);
-      chai.assert.deepInclude(Puzzles.findOne("foo"), {
+      chai.assert.deepInclude(await Puzzles.findOneAsync("foo"), {
         solverTime: 45,
       });
     });

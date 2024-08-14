@@ -50,7 +50,7 @@ Template.callin_copy_and_go.events({
     await navigator.clipboard.writeText(
       $(event.currentTarget.dataset.clipboardTarget).text()
     );
-    Meteor.call("setField", {
+    Meteor.serializeCall("setField", {
       type: "callins",
       object: this.callin._id,
       fields: {
@@ -66,7 +66,7 @@ floatingDropdown(Template.callin_type_dropdown);
 
 Template.callin_type_dropdown.events({
   "click a[data-callin-type]"(event, template) {
-    Meteor.call("setField", {
+    Meteor.serializeCall("setField", {
       type: "callins",
       object: this._id,
       fields: {
@@ -101,28 +101,28 @@ Template.callin_resolution_buttons.events({
   "click .bb-callin-correct"(event, template) {
     const response = template.find("input.response")?.value;
     if (response != null && response !== "") {
-      Meteor.call("correctCallIn", this.callin._id, response);
+      Meteor.serializeCall("correctCallIn", this.callin._id, response);
     } else if (this.callin.callin_type === callin_types.PARTIAL_ANSWER) {
-      Meteor.call("correctCallIn", this.callin._id, false);
+      Meteor.serializeCall("correctCallIn", this.callin._id, false);
     } else {
-      Meteor.call("correctCallIn", this.callin._id);
+      Meteor.serializeCall("correctCallIn", this.callin._id);
     }
   },
 
   "click .bb-callin-final-correct"(event, template) {
-    Meteor.call("correctCallIn", this.callin._id, true);
+    Meteor.serializeCall("correctCallIn", this.callin._id, true);
   },
 
   "click .bb-callin-incorrect"(event, template) {
     const response = template.find("input.response")?.value;
     if (response != null && response !== "") {
-      Meteor.call("incorrectCallIn", this.callin._id, response);
+      Meteor.serializeCall("incorrectCallIn", this.callin._id, response);
     } else {
-      Meteor.call("incorrectCallIn", this.callin._id);
+      Meteor.serializeCall("incorrectCallIn", this.callin._id);
     }
   },
 
   "click .bb-callin-cancel"(event, template) {
-    Meteor.call("cancelCallIn", { id: this.callin._id });
+    Meteor.serializeCall("cancelCallIn", { id: this.callin._id });
   },
 });

@@ -36,7 +36,7 @@ Template.tag_table_rows.events(
       if (collection(this.type).findOne({ _id: this.id }).tags[cval] != null) {
         return;
       }
-      Meteor.call("setTag", {
+      Meteor.serializeCall("setTag", {
         type: this.type,
         object: this.id,
         name: value,

@@ -3,10 +3,9 @@ import "/lib/model.js";
 import { Messages, Presence } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import Robot from "./hubot.js";
 import delay from "delay";
-import { waitForDocument } from "/lib/imports//testutils.js";
+import { clearCollections, waitForDocument } from "/lib/imports/testutils.js";
 
 describe("hubot", function () {
   let clock = null;
@@ -25,59 +24,65 @@ describe("hubot", function () {
     clock.restore();
   });
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Messages, Presence));
 
-  it("is present in main room", function () {
-    robot.run();
-    chai.assert.include(
-      Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 7 }
+  it("is present in main room", async function () {
+    await robot.run();
+    await waitForDocument(
+      Presence,
+      { nick: "testbot", room_name: "general/0", timestamp: 7 },
+      {}
     );
     clock.tick(15000);
-    chai.assert.include(
-      Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 7 }
+    await waitForDocument(
+      Presence,
+      { nick: "testbot", room_name: "general/0", timestamp: 7 },
+      {}
     );
     clock.tick(15000);
-    chai.assert.include(
-      Presence.findOne({ nick: "testbot", room_name: "general/0" }),
-      { timestamp: 30007 }
+    await waitForDocument(
+      Presence,
+      { nick: "testbot", room_name: "general/0", timestamp: 30007 },
+      {}
     );
   });
 
-  it("announces presence", function () {
-    robot.run();
-    chai.assert.include(Messages.findOne({ dawn_of_time: { $ne: true } }), {
-      nick: "testbot",
-      body: "wakes up",
-      action: true,
-      room_name: "general/0",
-    });
+  it("announces presence", async function () {
+    await robot.run();
+    chai.assert.include(
+      await Messages.findOneAsync({ dawn_of_time: { $ne: true } }),
+      {
+        nick: "testbot",
+        body: "wakes up",
+        action: true,
+        room_name: "general/0",
+      }
+    );
   });
 
-  it("ignores old messages", function () {
+  it("ignores old messages", async function () {
     const spy = sinon.spy();
     robot.hear(/.*/, spy);
-    Messages.insert({
+    await Messages.insertAsync({
       timestamp: Date.now() - 2,
       nick: "torgen",
       room_name: "general/0",
       body: "sample",
     });
-    robot.run();
+    await robot.run();
     chai.assert.isFalse(spy.called);
   });
 
-  it("ignores old future messages", function () {
+  it("ignores old future messages", async function () {
     const spy = sinon.spy();
     robot.hear(/.*/, spy);
-    Messages.insert({
+    await Messages.insertAsync({
       timestamp: Date.now() + 1000,
       nick: "torgen",
       room_name: "general/0",
       body: "sample",
     });
-    robot.run();
+    await robot.run();
     chai.assert.isFalse(spy.called);
   });
 
@@ -85,16 +90,20 @@ describe("hubot", function () {
     const spy = sinon.spy();
     robot.enter(spy);
     robot.leave(spy);
-    await new Promise(function (resolve) {
-      robot.hear(/.*/, resolve);
-      robot.run();
-      Messages.insert({
-        timestamp: Date.now() + 1,
-        nick: "torgen",
-        room_name: "general/0",
-        body: "sample",
-      });
+    let resolve;
+    // TODO: use Promise.withResolvers when it's available
+    const p = new Promise(function (r) {
+      resolve = r;
     });
+    robot.hear(/.*/, resolve);
+    await robot.run();
+    await Messages.insertAsync({
+      timestamp: Date.now() + 1,
+      nick: "torgen",
+      room_name: "general/0",
+      body: "sample",
+    });
+    await p;
     chai.assert.isFalse(spy.called);
   });
 
@@ -103,8 +112,8 @@ describe("hubot", function () {
     robot.enter(spy);
     robot.leave(spy);
     robot.hear(/.*/, spy);
-    robot.run();
-    Messages.insert({
+    await robot.run();
+    await Messages.insertAsync({
       timestamp: Date.now() + 1,
       nick: "testbot",
       room_name: "general/0",
@@ -119,8 +128,8 @@ describe("hubot", function () {
     robot.enter(spy);
     robot.leave(spy);
     robot.hear(/.*/, spy);
-    robot.run();
-    Messages.insert({
+    await robot.run();
+    await Messages.insertAsync({
       timestamp: Date.now() + 1,
       nick: "torgen",
       room_name: "general/0",
@@ -136,8 +145,8 @@ describe("hubot", function () {
     robot.enter(spy);
     robot.leave(spy);
     robot.hear(/.*/, spy);
-    robot.run();
-    Messages.insert({
+    await robot.run();
+    await Messages.insertAsync({
       timestamp: Date.now() + 1,
       nick: "torgen",
       room_name: "general/0",
@@ -153,8 +162,8 @@ describe("hubot", function () {
     robot.enter(spy);
     robot.leave(spy);
     robot.hear(/.*/, spy);
-    robot.run();
-    Messages.insert({
+    await robot.run();
+    await Messages.insertAsync({
       timestamp: Date.now() + 1,
       nick: "torgen",
       room_name: "general/0",
@@ -169,17 +178,21 @@ describe("hubot", function () {
     const spy = sinon.spy();
     robot.hear(/.*/, spy);
     robot.leave(spy);
-    await new Promise(function (resolve) {
-      robot.enter(resolve);
-      robot.run();
-      Messages.insert({
-        timestamp: Date.now() + 1,
-        nick: "torgen",
-        room_name: "general/0",
-        presence: "join",
-        system: true,
-      });
+    let resolve;
+    // TODO: use Promise.withResolvers when it's available
+    const p = new Promise(function (r) {
+      resolve = r;
     });
+    robot.enter(resolve);
+    await robot.run();
+    await Messages.insertAsync({
+      timestamp: Date.now() + 1,
+      nick: "torgen",
+      room_name: "general/0",
+      presence: "join",
+      system: true,
+    });
+    await p;
     chai.assert.isFalse(spy.called);
   });
 
@@ -187,17 +200,21 @@ describe("hubot", function () {
     const spy = sinon.spy();
     robot.hear(/.*/, spy);
     robot.enter(spy);
-    await new Promise(function (resolve) {
-      robot.leave(resolve);
-      robot.run();
-      Messages.insert({
-        timestamp: Date.now() + 1,
-        nick: "torgen",
-        room_name: "general/0",
-        presence: "part",
-        system: true,
-      });
+    let resolve;
+    // TODO: use Promise.withResolvers when it's available
+    const p = new Promise(function (r) {
+      resolve = r;
     });
+    robot.leave(resolve);
+    await robot.run();
+    await Messages.insertAsync({
+      timestamp: Date.now() + 1,
+      nick: "torgen",
+      room_name: "general/0",
+      presence: "part",
+      system: true,
+    });
+    await p;
     chai.assert.isFalse(spy.called);
   });
 
@@ -206,8 +223,8 @@ describe("hubot", function () {
       clock.tick(2);
       msg.reply("hello yourself");
     });
-    robot.run();
-    const id = Messages.insert({
+    await robot.run();
+    const id = await Messages.insertAsync({
       timestamp: Date.now() + 1,
       nick: "torgen",
       room_name: "general/0",
@@ -224,7 +241,7 @@ describe("hubot", function () {
         mention: ["torgen"],
       }
     );
-    chai.assert.include(Messages.findOne(id), { useless_cmd: true });
+    chai.assert.include(await Messages.findOneAsync(id), { useless_cmd: true });
   });
 
   it("replies to private messages privately", async function () {
@@ -232,9 +249,9 @@ describe("hubot", function () {
       clock.tick(1);
       msg.reply("hello yourself");
     });
-    robot.run();
+    await robot.run();
     clock.tick(1);
-    const id = Messages.insert({
+    const id = await Messages.insertAsync({
       timestamp: Date.now(),
       nick: "torgen",
       room_name: "general/0",
@@ -251,7 +268,7 @@ describe("hubot", function () {
         bot_ignore: true,
       }
     );
-    chai.assert.notDeepInclude(Messages.findOne(id), {
+    chai.assert.notDeepInclude(await Messages.findOneAsync(id), {
       useless_cmd: true,
     });
   });
@@ -261,8 +278,8 @@ describe("hubot", function () {
       clock.tick(2);
       msg.emote("waves");
     });
-    robot.run();
-    const id = Messages.insert({
+    await robot.run();
+    const id = await Messages.insertAsync({
       timestamp: Date.now() + 1,
       nick: "torgen",
       room_name: "general/0",
@@ -279,7 +296,7 @@ describe("hubot", function () {
         action: true,
       }
     );
-    chai.assert.include(Messages.findOne(id), { useless_cmd: true });
+    chai.assert.include(await Messages.findOneAsync(id), { useless_cmd: true });
   });
 
   it("emotes to private messages privately", async function () {
@@ -287,8 +304,8 @@ describe("hubot", function () {
       clock.tick(2);
       msg.emote("waves");
     });
-    robot.run();
-    const id = Messages.insert({
+    await robot.run();
+    const id = await Messages.insertAsync({
       timestamp: Date.now() + 1,
       nick: "torgen",
       to: "testbot",
@@ -305,19 +322,19 @@ describe("hubot", function () {
         bot_ignore: true,
       }
     );
-    chai.assert.notDeepInclude(Messages.findOne(id), {
+    chai.assert.notDeepInclude(await Messages.findOneAsync(id), {
       useless_cmd: true,
     });
   });
 
   it("sends publicly", async function () {
-    robot.respond(/hello/, function (msg) {
+    robot.respond(/hello/, async function (msg) {
       clock.tick(1);
-      msg.send({ useful: true }, "hello was said");
+      await msg.send({ useful: true }, "hello was said");
     });
-    robot.run();
+    await robot.run();
     clock.tick(1);
-    const id = Messages.insert({
+    const id = await Messages.insertAsync({
       timestamp: Date.now(),
       nick: "torgen",
       room_name: "general/0",
@@ -334,19 +351,19 @@ describe("hubot", function () {
         useful: true,
       }
     );
-    chai.assert.notDeepInclude(Messages.findOne(id), {
+    chai.assert.notDeepInclude(await Messages.findOneAsync(id), {
       useless_cmd: true,
     });
   });
 
   it("privs privately", async function () {
-    robot.respond(/hello/, function (msg) {
+    robot.respond(/hello/, async function (msg) {
       clock.tick(1);
-      msg.priv("psst. hello");
+      await msg.priv("psst. hello");
     });
-    robot.run();
+    await robot.run();
     clock.tick(1);
-    const id = Messages.insert({
+    const id = await Messages.insertAsync({
       timestamp: Date.now(),
       nick: "torgen",
       room_name: "general/0",
@@ -362,6 +379,6 @@ describe("hubot", function () {
         bot_ignore: true,
       }
     );
-    chai.assert.include(Messages.findOne(id), { useless_cmd: true });
+    chai.assert.include(await Messages.findOneAsync(id), { useless_cmd: true });
   });
 });

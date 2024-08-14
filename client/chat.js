@@ -159,13 +159,13 @@ Template.media_message.events({
     if ($(event.target).closest(".can-modify-star").size() <= 0) {
       return;
     }
-    Meteor.call("setStarred", this._id, false);
+    Meteor.serializeCall("setStarred", this._id, false);
   },
   "click .bb-message:not(.starred) .bb-message-star"(event, template) {
     if ($(event.target).closest(".can-modify-star").size() <= 0) {
       return;
     }
-    Meteor.call("setStarred", this._id, true);
+    Meteor.serializeCall("setStarred", this._id, true);
   },
 });
 
@@ -178,7 +178,7 @@ Template.message_delete_button.events({
         message: "Really delete this message?",
       })
     ) {
-      Meteor.call("deleteMessage", this._id);
+      Meteor.serializeCall("deleteMessage", this._id);
     }
   },
 });
@@ -234,7 +234,7 @@ Template.poll.helpers({
 
 Template.poll.events({
   "click button[data-option]"(event, template) {
-    Meteor.call("vote", template.data, event.target.dataset.option);
+    Meteor.serializeCall("vote", template.data, event.target.dataset.option);
   },
   "click button.toggle-votes"(event, template) {
     template.show_votes.set(!template.show_votes.get());
@@ -1143,7 +1143,7 @@ Template.messages_input.onCreated(function () {
         args.mention = mentions;
       }
     }
-    Meteor.call("newMessage", args); // updates LastRead as a side-effect
+    Meteor.serializeCall("newMessage", args); // updates LastRead as a side-effect
     // for flicker prevention, we are currently not doing latency-compensation
     // on the newMessage call, which makes the below ineffective.  But leave
     // it here in case we turn latency compensation back on.
@@ -1308,7 +1308,7 @@ var updateLastRead = function () {
   if (!lastMessage) {
     return;
   }
-  Meteor.call("updateLastRead", {
+  Meteor.serializeCall("updateLastRead", {
     room_name: Session.get("room_name"),
     timestamp: lastMessage.timestamp,
   });

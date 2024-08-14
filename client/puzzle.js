@@ -186,9 +186,9 @@ Template.puzzle_info.events({
   },
   "change input.feed"(event, template) {
     if (event.currentTarget.checked) {
-      Meteor.call("feedMeta", this._id, Template.currentData().puzzle._id);
+      Meteor.serializeCall("feedMeta", this._id, Template.currentData().puzzle._id);
     } else {
-      Meteor.call("unfeedMeta", this._id, Template.currentData().puzzle._id);
+      Meteor.serializeCall("unfeedMeta", this._id, Template.currentData().puzzle._id);
     }
   },
   "click .bb-add-tag-button"(event, template) {
@@ -284,7 +284,7 @@ Template.puzzle_summon_button.events({
         no_button: "Nevermind, this is still STUCK",
       })
     ) {
-      Meteor.call("unsummon", {
+      Meteor.serializeCall("unsummon", {
         type: Session.get("type"),
         object: Session.get("id"),
       });
@@ -312,7 +312,7 @@ Template.puzzle_summon_modal.events({
     if (other !== "") {
       how += `: ${other}`;
     }
-    Meteor.call("summon", {
+    Meteor.serializeCall("summon", {
       type: Session.get("type"),
       object: Session.get("id"),
       how,
@@ -427,7 +427,7 @@ Template.puzzle_callin_modal.events({
     if (template.$('input:checked[value="backsolve"]').val() === "backsolve") {
       args.backsolve = true;
     }
-    Meteor.call("newCallIn", args);
+    Meteor.serializeCall("newCallIn", args);
     template.$(".modal").modal("hide");
   },
 });

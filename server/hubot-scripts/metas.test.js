@@ -3,16 +3,15 @@ import "/lib/model.js";
 import { Messages, Puzzles } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import Robot from "../imports/hubot.js";
-import { waitForDocument } from "/lib/imports/testutils.js";
+import { clearCollections, waitForDocument } from "/lib/imports/testutils.js";
 
 describe("metas hubot script", function () {
   let robot = null;
   let clock = null;
 
-  beforeEach(function () {
-    resetDatabase();
+  beforeEach(async function () {
+    await clearCollections(Messages, Puzzles);
     clock = sinon.useFakeTimers({
       now: 6,
       toFake: ["Date"],
@@ -21,7 +20,7 @@ describe("metas hubot script", function () {
     // the standard message class or adapter.
     robot = new Robot("testbot", "testbot@testbot.test");
     metas(robot);
-    robot.run();
+    await robot.run();
     clock.tick(1);
   });
 
@@ -38,13 +37,13 @@ describe("metas hubot script", function () {
       describe(`${before}it ${after} ${descriptor}`, function () {
         describe("in puzzle room", function () {
           it("infers puzzle from this", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
@@ -58,7 +57,7 @@ describe("metas hubot script", function () {
                 touched_by: "torgen",
               }
             );
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -70,21 +69,21 @@ describe("metas hubot script", function () {
             );
           });
 
-          it("Fails when already meta", function () {
-            Puzzles.insert({
+          it("Fails when already meta", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
               puzzles: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               body: `bot ${before}this ${after} ${descriptor}`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -97,19 +96,19 @@ describe("metas hubot script", function () {
           });
 
           it("can specify puzzle", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
@@ -123,8 +122,10 @@ describe("metas hubot script", function () {
                 touched_by: "torgen",
               }
             );
-            chai.assert.isUndefined(Puzzles.findOne("12345abcde").puzzles);
-            return waitForDocument(
+            chai.assert.isUndefined(
+              (await Puzzles.findOneAsync("12345abcde")).puzzles
+            );
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -137,13 +138,13 @@ describe("metas hubot script", function () {
           });
 
           it("fails when no such puzzle", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
@@ -159,19 +160,21 @@ describe("metas hubot script", function () {
                 mention: ["torgen"],
               }
             );
-            chai.assert.isUndefined(Puzzles.findOne("12345abcde").puzzles);
+            chai.assert.isUndefined(
+              (await Puzzles.findOneAsync("12345abcde")).puzzles
+            );
           });
         });
 
         describe("in general room", function () {
-          it("must specify puzzle", function () {
-            Messages.insert({
+          it("must specify puzzle", async function () {
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "general/0",
               timestamp: 7,
               body: `bot ${before}this ${after} ${descriptor}`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -184,13 +187,13 @@ describe("metas hubot script", function () {
           });
 
           it("can specify puzzle", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "general/0",
               timestamp: 7,
@@ -204,7 +207,7 @@ describe("metas hubot script", function () {
                 touched_by: "torgen",
               }
             );
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -223,14 +226,14 @@ describe("metas hubot script", function () {
       describe(`it ${verb} a ${descriptor}`, function () {
         describe("in puzzle room", function () {
           it("infers puzzle from this", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
               puzzles: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
@@ -244,7 +247,7 @@ describe("metas hubot script", function () {
                 touched_by: "torgen",
               }
             );
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -257,14 +260,14 @@ describe("metas hubot script", function () {
           });
 
           it("fails when it has a puzzle", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
               puzzles: ["a"],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
@@ -280,20 +283,20 @@ describe("metas hubot script", function () {
                 mention: ["torgen"],
               }
             );
-            chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
+            chai.assert.deepInclude(await Puzzles.findOneAsync("12345abcde"), {
               puzzles: ["a"],
             });
           });
 
           it("fails when it has multiple puzzles", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
               puzzles: ["a", "b", "c"],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
@@ -309,25 +312,25 @@ describe("metas hubot script", function () {
                 mention: ["torgen"],
               }
             );
-            chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
+            chai.assert.deepInclude(await Puzzles.findOneAsync("12345abcde"), {
               puzzles: ["a", "b", "c"],
             });
           });
 
-          it("fails when not meta", function () {
-            Puzzles.insert({
+          it("fails when not meta", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               body: `bot this ${verb} a ${descriptor}`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -340,21 +343,21 @@ describe("metas hubot script", function () {
           });
 
           it("can specify puzzle", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
               puzzles: [],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
@@ -368,10 +371,10 @@ describe("metas hubot script", function () {
                 touched_by: "torgen",
               }
             );
-            chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
+            chai.assert.deepInclude(await Puzzles.findOneAsync("12345abcde"), {
               puzzles: [],
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -384,14 +387,14 @@ describe("metas hubot script", function () {
           });
 
           it("fails when no such puzzle", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
               puzzles: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "puzzles/12345abcde",
               timestamp: 7,
@@ -407,21 +410,21 @@ describe("metas hubot script", function () {
                 mention: ["torgen"],
               }
             );
-            chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
+            chai.assert.deepInclude(await Puzzles.findOneAsync("12345abcde"), {
               puzzles: [],
             });
           });
         });
 
         describe("in general room", function () {
-          it("must specify puzzle", function () {
-            Messages.insert({
+          it("must specify puzzle", async function () {
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "general/0",
               timestamp: 7,
               body: `bot this ${verb} a ${descriptor}`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -434,14 +437,14 @@ describe("metas hubot script", function () {
           });
 
           it("can specify puzzle", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               nick: "torgen",
               room_name: "general/0",
               timestamp: 7,
@@ -455,7 +458,7 @@ describe("metas hubot script", function () {
                 touched_by: "torgen",
               }
             );
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -473,20 +476,20 @@ describe("metas hubot script", function () {
 
   describe("feeds into", function () {
     describe("in puzzle room", function () {
-      it("feeds this into that", function () {
-        Puzzles.insert({
+      it("feeds this into that", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           feedsInto: [],
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           room_name: "puzzles/12345abcde",
           timestamp: 7,
           nick: "torgen",
@@ -517,23 +520,23 @@ describe("metas hubot script", function () {
             mention: ["torgen"],
           }
         );
-        return Promise.all([l, e, m]);
+        await Promise.all([l, e, m]);
       });
 
-      it("feeds that into this", function () {
-        Puzzles.insert({
+      it("feeds that into this", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           feedsInto: [],
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           room_name: "puzzles/fghij67890",
           timestamp: 7,
           nick: "torgen",
@@ -564,29 +567,29 @@ describe("metas hubot script", function () {
             mention: ["torgen"],
           }
         );
-        return Promise.all([l, e, m]);
+        await Promise.all([l, e, m]);
       });
 
       it("feeds that into the other", async function () {
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           feedsInto: [],
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "0000000000",
           name: "A Third Thing",
           canon: "a_third_thing",
           feedsInto: [],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           room_name: "puzzles/0000000000",
           timestamp: 7,
           nick: "torgen",
@@ -618,32 +621,34 @@ describe("metas hubot script", function () {
           }
         );
         await Promise.all([l, e, m]);
-        chai.assert.deepInclude(Puzzles.findOne("0000000000"), {
+        chai.assert.deepInclude(await Puzzles.findOneAsync("0000000000"), {
           feedsInto: [],
         });
-        chai.assert.isUndefined(Puzzles.findOne("0000000000").puzzles);
+        chai.assert.isUndefined(
+          (await Puzzles.findOneAsync("0000000000")).puzzles
+        );
       });
-      it("already feeds", function () {
-        Puzzles.insert({
+      it("already feeds", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           feedsInto: ["fghij67890"],
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
           puzzles: ["12345abcde"],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           room_name: "puzzles/12345abcde",
           timestamp: 7,
           nick: "torgen",
           body: "bot this feeds into even this poem",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { nick: "testbot", timestamp: 7 },
           {
@@ -658,13 +663,13 @@ describe("metas hubot script", function () {
 
     describe("in general room", function () {
       it("fails to feed this into that", async function () {
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           room_name: "general/0",
           timestamp: 7,
           nick: "torgen",
@@ -680,11 +685,13 @@ describe("metas hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.isUndefined(Puzzles.findOne("fghij67890").puzzles);
+        chai.assert.isUndefined(
+          (await Puzzles.findOneAsync("fghij67890")).puzzles
+        );
       });
 
       it("fails to feed that into this", async function () {
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -692,7 +699,7 @@ describe("metas hubot script", function () {
           touched: 2,
           touched_by: "cjb",
         });
-        Messages.insert({
+        await Messages.insertAsync({
           room_name: "general/0",
           timestamp: 7,
           nick: "torgen",
@@ -708,27 +715,27 @@ describe("metas hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
+        chai.assert.deepInclude(await Puzzles.findOneAsync("12345abcde"), {
           feedsInto: [],
           touched: 2,
           touched_by: "cjb",
         });
       });
 
-      it("feeds that into the other", function () {
-        Puzzles.insert({
+      it("feeds that into the other", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           feedsInto: [],
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           room_name: "general/0",
           timestamp: 7,
           nick: "torgen",
@@ -768,21 +775,21 @@ describe("metas hubot script", function () {
     describe(`${verb} feed into`, function () {
       describe("in puzzle room", function () {
         describe("this from that", function () {
-          it("removes this", function () {
-            Puzzles.insert({
+          it("removes this", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: ["fghij67890"],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: ["12345abcde", "0000000000"],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
@@ -814,30 +821,30 @@ describe("metas hubot script", function () {
                 mention: ["torgen"],
               }
             );
-            return Promise.all([l, e, m]);
+            await Promise.all([l, e, m]);
           });
 
-          it("fails when this did not feed that", function () {
-            Puzzles.insert({
+          it("fails when this did not feed that", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: ["0000000000"],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
               body: `bot this ${verb} feed into even this poem`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -850,20 +857,20 @@ describe("metas hubot script", function () {
             );
           });
 
-          it("fails when that does not exist", function () {
-            Puzzles.insert({
+          it("fails when that does not exist", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
               body: `bot this ${verb} feed into even this poem`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -878,21 +885,21 @@ describe("metas hubot script", function () {
         });
 
         describe("that from this", function () {
-          it("removes that", function () {
-            Puzzles.insert({
+          it("removes that", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: ["fghij67890"],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: ["12345abcde", "0000000000"],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/fghij67890",
               timestamp: 7,
               nick: "torgen",
@@ -924,30 +931,30 @@ describe("metas hubot script", function () {
                 mention: ["torgen"],
               }
             );
-            return Promise.all([l, e, m]);
+            await Promise.all([l, e, m]);
           });
 
-          it("fails when that did not feed this", function () {
-            Puzzles.insert({
+          it("fails when that did not feed this", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: ["0000000000"],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
               body: `bot latino alphabet ${verb} feed into this`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -960,21 +967,21 @@ describe("metas hubot script", function () {
             );
           });
 
-          it("fails when that does not exist", function () {
-            Puzzles.insert({
+          it("fails when that does not exist", async function () {
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: ["0000000000"],
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/12345abcde",
               timestamp: 7,
               nick: "torgen",
               body: `bot latino alphabet ${verb} feed into this`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -990,20 +997,20 @@ describe("metas hubot script", function () {
 
         describe("that from the other", function () {
           it("removes that", async function () {
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: ["fghij67890"],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: ["12345abcde", "0000000000"],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "0000000000",
               name: "A Third Thing",
               canon: "a_third_thing",
@@ -1011,7 +1018,7 @@ describe("metas hubot script", function () {
               touched: 2,
               touched_by: "cjb",
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/0000000000",
               timestamp: 7,
               nick: "torgen",
@@ -1044,28 +1051,28 @@ describe("metas hubot script", function () {
               }
             );
             await Promise.all([l, e, m]);
-            chai.assert.deepInclude(Puzzles.findOne("0000000000"), {
+            chai.assert.deepInclude(await Puzzles.findOneAsync("0000000000"), {
               feedsInto: ["fghij67890"],
               touched: 2,
               touched_by: "cjb",
             });
           });
 
-          it("fails when that did not feed the other", function () {
-            Puzzles.insert({
+          it("fails when that did not feed the other", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: ["0000000000"],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "0000000000",
               name: "A Third Thing",
               canon: "a_third_thing",
@@ -1073,13 +1080,13 @@ describe("metas hubot script", function () {
               touched: 2,
               touched_by: "cjb",
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/0000000000",
               timestamp: 7,
               nick: "torgen",
               body: `bot latino alphabet ${verb} feed into even this poem`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -1092,15 +1099,15 @@ describe("metas hubot script", function () {
             );
           });
 
-          it("fails when that does not exist", function () {
-            Puzzles.insert({
+          it("fails when that does not exist", async function () {
+            await Puzzles.insertAsync({
               _id: "fghij67890",
               name: "Even This Poem",
               canon: "even_this_poem",
               feedsInto: [],
               puzzles: ["0000000000"],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "0000000000",
               name: "A Third Thing",
               canon: "a_third_thing",
@@ -1108,13 +1115,13 @@ describe("metas hubot script", function () {
               touched: 2,
               touched_by: "cjb",
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/0000000000",
               timestamp: 7,
               nick: "torgen",
               body: `bot latino alphabet ${verb} feed into even this poem`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -1127,14 +1134,14 @@ describe("metas hubot script", function () {
             );
           });
 
-          it("fails when the other does not exist", function () {
-            Puzzles.insert({
+          it("fails when the other does not exist", async function () {
+            await Puzzles.insertAsync({
               _id: "12345abcde",
               name: "Latino Alphabet",
               canon: "latino_alphabet",
               feedsInto: [],
             });
-            Puzzles.insert({
+            await Puzzles.insertAsync({
               _id: "0000000000",
               name: "A Third Thing",
               canon: "a_third_thing",
@@ -1142,13 +1149,13 @@ describe("metas hubot script", function () {
               touched: 2,
               touched_by: "cjb",
             });
-            Messages.insert({
+            await Messages.insertAsync({
               room_name: "puzzles/0000000000",
               timestamp: 7,
               nick: "torgen",
               body: `bot latino alphabet ${verb} feed into even this poem`,
             });
-            return waitForDocument(
+            await waitForDocument(
               Messages,
               { nick: "testbot", timestamp: 7 },
               {
@@ -1164,27 +1171,27 @@ describe("metas hubot script", function () {
       });
 
       describe("in general room", function () {
-        it("fails to remove this from that", function () {
-          Puzzles.insert({
+        it("fails to remove this from that", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: ["fghij67890"],
           });
-          Puzzles.insert({
+          await Puzzles.insertAsync({
             _id: "fghij67890",
             name: "Even This Poem",
             canon: "even_this_poem",
             feedsInto: [],
             puzzles: ["12345abcde", "0000000000"],
           });
-          Messages.insert({
+          await Messages.insertAsync({
             room_name: "general/0",
             timestamp: 7,
             nick: "torgen",
             body: `bot this ${verb} feed into even this poem`,
           });
-          return waitForDocument(
+          await waitForDocument(
             Messages,
             { nick: "testbot", timestamp: 7 },
             {
@@ -1196,27 +1203,27 @@ describe("metas hubot script", function () {
           );
         });
 
-        it("fails to remove that from this", function () {
-          Puzzles.insert({
+        it("fails to remove that from this", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: ["fghij67890"],
           });
-          Puzzles.insert({
+          await Puzzles.insertAsync({
             _id: "fghij67890",
             name: "Even This Poem",
             canon: "even_this_poem",
             feedsInto: [],
             puzzles: ["12345abcde", "0000000000"],
           });
-          Messages.insert({
+          await Messages.insertAsync({
             room_name: "general/0",
             timestamp: 7,
             nick: "torgen",
             body: `bot latino alphabet ${verb} feed into this`,
           });
-          return waitForDocument(
+          await waitForDocument(
             Messages,
             { nick: "testbot", timestamp: 7 },
             {
@@ -1228,21 +1235,21 @@ describe("metas hubot script", function () {
           );
         });
 
-        it("removes that from the other", function () {
-          Puzzles.insert({
+        it("removes that from the other", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: ["fghij67890"],
           });
-          Puzzles.insert({
+          await Puzzles.insertAsync({
             _id: "fghij67890",
             name: "Even This Poem",
             canon: "even_this_poem",
             feedsInto: [],
             puzzles: ["12345abcde", "0000000000"],
           });
-          Messages.insert({
+          await Messages.insertAsync({
             room_name: "general/0",
             timestamp: 7,
             nick: "torgen",
@@ -1274,7 +1281,7 @@ describe("metas hubot script", function () {
               mention: ["torgen"],
             }
           );
-          return Promise.all([l, e, m]);
+          await Promise.all([l, e, m]);
         });
       });
     })

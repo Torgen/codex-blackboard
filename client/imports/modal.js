@@ -15,8 +15,8 @@ Template.confirmmodal.events({
   },
 });
 
-export const confirm = (data) =>
-  new Promise(function (resolve) {
+export function confirm (data) {
+  currentConfirmation = new Promise(function (resolve) {
     let view = null;
     const onCancel = function () {
       Blaze.remove(view);
@@ -32,3 +32,8 @@ export const confirm = (data) =>
       document.body
     );
   });
+  return currentConfirmation;
+}
+
+// Visible for testing
+export var currentConfirmation;

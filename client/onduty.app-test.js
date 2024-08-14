@@ -48,9 +48,9 @@ describe("onduty", function () {
     chai.assert.deepInclude(Meteor.users.findOne("incognito"), {
       roles: ["onduty"],
     });
-    const wait = waitForDeletion(Roles, "onduty");
+    const {deleted} = await waitForDeletion(Roles, "onduty");
     await promiseCallOn(other_conn, "releaseOnduty");
-    await wait;
+    await deleted;
     chai.assert.doesNotHaveAnyKeys(Meteor.users.findOne("incognito"), [
       "roles",
     ]);

@@ -107,13 +107,13 @@ function encode(s) {
   return s.toLowerCase().replace(/[-_ ?%\#/\"]/g, (c) => convTable[c]);
 }
 
-function memegen(msg, imageName, topText, botText) {
-  if (msg.match[0].length > MaximumMemeLength.get()) {
+async function memegen(msg, imageName, topText, botText) {
+  if (msg.match[0].length > await MaximumMemeLength.get()) {
     console.log(`Got a ${imageName} meme but it was too long`);
     return;
   }
   const url = `${memeGeneratorUrl}/${imageName}/${encode(topText)}/${encode(
     botText
   )}.jpg`;
-  return msg.send(url);
+  await msg.send(url);
 }

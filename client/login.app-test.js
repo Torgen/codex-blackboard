@@ -8,6 +8,30 @@ import {
 import chai from "chai";
 import delay from "delay";
 
+function waitForLogin() {
+  return new Promise((resolve) => {
+    Tracker.autorun((computation) => {
+      if (!Meteor.user()) {
+        return;
+      }
+      computation.stop();
+      resolve();
+    })
+  });
+}
+
+function waitForNotLoggingIn() {
+  return new Promise((resolve) => {
+    Tracker.autorun((computation) => {
+      if (Meteor.loggingIn()) {
+        return;
+      }
+      computation.stop();
+      resolve();
+    })
+  });
+}
+
 describe("login", function () {
   this.timeout(20000);
   it("only sends email hash", async function () {
@@ -68,8 +92,7 @@ describe("login", function () {
         "https://secure.gravatar.com/avatar/a24f643d34150c3b4053989db38251c9.jpg?d=wavatar&s=80"
       );
       $(".bb-submit").click();
-      await waitForMethods();
-      await afterFlushPromise();
+      await waitForLogin();
       chai.assert.equal(
         Meteor.user().gravatar_md5,
         "a24f643d34150c3b4053989db38251c9"
@@ -82,7 +105,7 @@ describe("login", function () {
       await afterFlushPromise();
       chai.assert.isOk($(".bb-submit")[0]);
       $(".bb-submit").click();
-      await waitForMethods();
+      await waitForNotLoggingIn();
       await afterFlushPromise();
       chai.assert.isNotOk(Meteor.userId());
       chai.assert.isTrue(
@@ -97,7 +120,7 @@ describe("login", function () {
       await afterFlushPromise();
       chai.assert.isOk($(".bb-submit")[0]);
       $(".bb-submit").click();
-      await waitForMethods();
+      await waitForNotLoggingIn();
       await afterFlushPromise();
       chai.assert.isNotOk(Meteor.userId());
       chai.assert.isTrue($("#nickInputGroup")[0].classList.contains("error"));
@@ -113,7 +136,7 @@ describe("login", function () {
       await afterFlushPromise();
       chai.assert.isOk($(".bb-submit")[0]);
       $(".bb-submit").click();
-      await waitForMethods();
+      await waitForNotLoggingIn();
       await afterFlushPromise();
       chai.assert.isNotOk(Meteor.userId());
       chai.assert.isTrue($("#nickInputGroup")[0].classList.contains("error"));
@@ -123,13 +146,13 @@ describe("login", function () {
       );
     });
 
-    return it("logs in", async function () {
+    it("logs in", async function () {
       $("#passwordInput").val("failphrase");
       $("#nickInput").val("testy").trigger("input");
       await afterFlushPromise();
       chai.assert.isOk($(".bb-submit")[0]);
       $(".bb-submit").click();
-      await waitForMethods();
+      await waitForLogin();
       chai.assert.equal(Meteor.userId(), "testy");
     });
   });

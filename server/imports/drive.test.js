@@ -1,7 +1,8 @@
 import chai from "chai";
 import sinon from "sinon";
-import { Drive } from "./drive.js";
+import { Drive } from "/server/imports/drive.js";
 import { Readable } from "stream";
+import { assertRejects } from "/lib/imports/testutils.js";
 
 import * as batch from "/server/imports/batch.js";
 
@@ -56,14 +57,15 @@ describe("drive", function () {
     sinon.verifyAndRestore();
   });
 
-  it("propagates errors", function () {
+  it("propagates errors", async function () {
     sinon.replace(batch, "DO_BATCH_PROCESSING", false);
     files.expects("list").once().rejects({ code: 400 });
-    chai.assert.throws(() => new Drive(api));
+    const drive = new Drive(api);
+    await assertRejects(drive.connect(), Object);
   });
 
   function testCase(perms) {
-    it("creates folder when batch is enabled", function () {
+    it("creates folder when batch is enabled", async function () {
       sinon.replace(batch, "DO_BATCH_PROCESSING", true);
       files
         .expects("list")
@@ -158,12 +160,12 @@ describe("drive", function () {
           )
           .resolves({ data: {} })
       );
-      return new Drive(api);
+      await new Drive(api).connect();
     });
 
-    describe("with batch disabled", function () {
+    describe("with batch disabled", async function () {
       let drive = null;
-      beforeEach(function () {
+      beforeEach(async function () {
         sinon.replace(batch, "DO_BATCH_PROCESSING", false);
         files
           .expects("list")
@@ -204,11 +206,11 @@ describe("drive", function () {
               ],
             },
           });
-        drive = new Drive(api);
+        drive = await new Drive(api).connect();
       });
 
       describe("createPuzzle", function () {
-        it("creates", function () {
+        it("creates", async function () {
           files
             .expects("list")
             .withArgs(
@@ -311,10 +313,10 @@ describe("drive", function () {
               )
               .resolves({ data: {} })
           );
-          drive.createPuzzle("New Puzzle");
+          await drive.createPuzzle("New Puzzle");
         });
 
-        it("returns existing", function () {
+        it("returns existing", async function () {
           files
             .expects("list")
             .withArgs(
@@ -373,12 +375,12 @@ describe("drive", function () {
               })
             )
             .resolves({ data: { permissions: defaultPerms } });
-          drive.createPuzzle("New Puzzle");
+          await drive.createPuzzle("New Puzzle");
         });
       });
 
       describe("findPuzzle", function () {
-        it("returns null when no puzzle", function () {
+        it("returns null when no puzzle", async function () {
           files
             .expects("list")
             .withArgs(
@@ -388,10 +390,10 @@ describe("drive", function () {
               })
             )
             .resolves({ data: { files: [] } });
-          chai.assert.isNull(drive.findPuzzle("New Puzzle"));
+          chai.assert.isNull(await drive.findPuzzle("New Puzzle"));
         });
 
-        it("returns spreadsheet", function () {
+        it("returns spreadsheet", async function () {
           files
             .expects("list")
             .withArgs(
@@ -432,14 +434,14 @@ describe("drive", function () {
                 ],
               },
             });
-          chai.assert.include(drive.findPuzzle("New Puzzle"), {
+          chai.assert.include(await drive.findPuzzle("New Puzzle"), {
             id: "newpuzzle",
             spreadId: "newsheet",
           });
         });
       });
 
-      it("listPuzzles returns list", function () {
+      it("listPuzzles returns list", async function () {
         const item1 = {
           id: "newpuzzle",
           name: "New Puzzle",
@@ -480,10 +482,10 @@ describe("drive", function () {
               files: [item2],
             },
           });
-        chai.assert.sameDeepOrderedMembers(drive.listPuzzles(), [item1, item2]);
+        chai.assert.sameDeepOrderedMembers(await drive.listPuzzles(), [item1, item2]);
       });
 
-      it("renamePuzzle renames", function () {
+      it("renamePuzzle renames", async function () {
         files
           .expects("update")
           .withArgs(
@@ -502,10 +504,10 @@ describe("drive", function () {
             })
           )
           .resolves({ data: {} });
-        drive.renamePuzzle("Old Puzzle", "newpuzzle", "newsheet");
+        await drive.renamePuzzle("Old Puzzle", "newpuzzle", "newsheet");
       });
 
-      it("deletePuzzle deletes", function () {
+      it("deletePuzzle deletes", async function () {
         files
           .expects("list")
           .withArgs(
@@ -581,7 +583,7 @@ describe("drive", function () {
             })
           )
           .resolves({ data: {} });
-        drive.deletePuzzle("newpuzzle");
+        await drive.deletePuzzle("newpuzzle");
       });
     });
   }

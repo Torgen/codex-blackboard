@@ -14,7 +14,7 @@ editableTemplate(Template.edit_tag_value, {
         canonical(tem.data.name)
       ]?.value
     ) {
-      Meteor.call("setTag", {
+      Meteor.serializeCall("setTag", {
         type: tem.data.type,
         object: tem.data.id,
         name: tem.data.name,
@@ -56,7 +56,7 @@ Template.edit_tag_value.events({
   },
   'input input[type="color"]'(event, template) {
     const text = hexToCssColor(event.currentTarget.value);
-    Meteor.call("setTag", {
+    Meteor.serializeCall("setTag", {
       type: template.data.type,
       object: template.data.id,
       name: template.data.name,
@@ -75,7 +75,7 @@ Template.edit_tag_value.events({
         message,
       })
     ) {
-      Meteor.call("deleteTag", {
+      Meteor.serializeCall("deleteTag", {
         type: template.data.type,
         object: template.data.id,
         name: template.data.name,

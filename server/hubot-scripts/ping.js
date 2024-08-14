@@ -78,46 +78,46 @@ function regex_escape(s) {
 
 scripts.ping = function (robot) {
   const name_regex = new RegExp(`${regex_escape(robot.name)}\\?$`, "i");
-  robot.hear(name_regex, function (msg) {
-    msg.reply(msg.random(phrases));
+  robot.hear(name_regex, async function (msg) {
+    await msg.reply(msg.random(phrases));
     msg.finish();
   });
 
   if (robot.alias) {
     const alias_regex = new RegExp(`${regex_escape(robot.alias)}\\?$`, "i");
-    robot.hear(alias_regex, function (msg) {
-      msg.reply(msg.random(phrases));
+    robot.hear(alias_regex, async function (msg) {
+      await msg.reply(msg.random(phrases));
       msg.finish();
     });
   }
 
   robot.commands.push("bot ping - Reply with pong");
-  robot.respond(/PING$/i, function (msg) {
-    msg.reply("PONG");
+  robot.respond(/PING$/i, async function (msg) {
+    await msg.reply("PONG");
     msg.finish();
   });
 
   robot.commands.push("bot echo <text> - Reply back with <text>");
-  robot.respond(/ECHO (.*)$/i, function (msg) {
-    msg.reply(msg.match[1]);
+  robot.respond(/ECHO (.*)$/i, async function (msg) {
+    await msg.reply(msg.match[1]);
     msg.finish();
   });
 
   robot.commands.push("bot time - Reply with current time");
-  robot.respond(/TIME$/i, function (msg) {
-    msg.reply(`Server time is: ${new Date()}`);
+  robot.respond(/TIME$/i, async function (msg) {
+    await msg.reply(`Server time is: ${new Date()}`);
     msg.finish();
   });
 
   robot.commands.push("bot cry - Make the bot cry");
-  robot.respond(/CRY$/i, function (msg) {
-    msg.emote("cries");
+  robot.respond(/CRY$/i, async function (msg) {
+    await msg.emote("cries");
     msg.finish();
   });
 
   robot.commands.push("bot tell me a secret - Reply via private message");
-  robot.respond(/TELL ME A SECRET$/i, function (msg) {
-    msg.priv(msg.random(secrets));
+  robot.respond(/TELL ME A SECRET$/i, async function (msg) {
+    await msg.priv(msg.random(secrets));
     msg.finish();
   });
 };

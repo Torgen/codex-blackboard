@@ -11,7 +11,7 @@ params.allowedAttributes = {
 };
 
 export const ensureDawnOfTime = (room_name) =>
-  Messages.upsert(room_name, {
+  Messages.upsertAsync(room_name, {
     $min: { timestamp: Date.now() - 1 },
     $setOnInsert: {
       system: true,
@@ -20,9 +20,11 @@ export const ensureDawnOfTime = (room_name) =>
       bot_ignore: true,
     },
   });
-Meteor.startup(() => ["general/0", "oplog/0"].forEach(ensureDawnOfTime));
+Meteor.startup(() =>
+  Promise.all(["general/0", "oplog/0"].map(ensureDawnOfTime))
+);
 
-export function newMessage(newMsg) {
+export async function newMessage(newMsg) {
   check(newMsg, {
     body: String,
     nick: NonEmptyString,
@@ -73,7 +75,7 @@ export function newMessage(newMsg) {
   }
   newMsg.timestamp = Date.now();
   newMsg.mention = newMsg.mention?.map(canonical);
-  ensureDawnOfTime(newMsg.room_name);
-  newMsg._id = Messages.insert(newMsg);
+  await ensureDawnOfTime(newMsg.room_name);
+  newMsg._id = await Messages.insertAsync(newMsg);
   return newMsg;
 }

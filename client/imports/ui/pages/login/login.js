@@ -112,6 +112,7 @@ Template.login.events({
       $("#passwordInput").val(),
       function (err, res) {
         if (err != null) {
+          console.error(err);
           const le = $("#loginError");
           if (err.reason != null) {
             le.text(err.reason);

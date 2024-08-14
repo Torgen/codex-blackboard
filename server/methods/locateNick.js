@@ -6,7 +6,7 @@ import {
 } from "/lib/imports/match.js";
 
 Meteor.methods({
-  locateNick(args) {
+  async locateNick(args) {
     check(this.userId, NonEmptyString);
     check(
       args,
@@ -26,7 +26,7 @@ Meteor.methods({
     // priv_located_order implements a FIFO queue for updates, but
     // you don't lose your place if you're already in the queue
     const timestamp = Date.now();
-    const n = Meteor.users.update(this.userId, {
+    const n = await Meteor.users.updateAsync(this.userId, {
       $set: {
         priv_located: args.timestamp ?? timestamp,
         priv_located_at: args.location,

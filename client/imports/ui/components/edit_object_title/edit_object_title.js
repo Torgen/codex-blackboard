@@ -8,7 +8,7 @@ editableTemplate(Template.edit_object_title, {
     let type = pretty_collection(tem.data.type);
     type = type[0].toUpperCase() + type.slice(1);
     if (val !== collection(tem.data.type).findOne(tem.data.id).name) {
-      Meteor.call(`rename${type}`, {
+      Meteor.serializeCall(`rename${type}`, {
         id: tem.data.id,
         name: val,
       });

@@ -141,11 +141,11 @@ Meteor.publish(
 
 Meteor.publish(
   null,
-  loginRequired(function () {
-    const handle = Presence.find(
+  loginRequired(async function () {
+    const handle = await Presence.find(
       { room_name: null, scope: "online" },
       { nick: 1 }
-    ).observe({
+    ).observeAsync({
       added: ({ nick }) => {
         this.added("users", nick, { online: true });
       },
@@ -209,26 +209,22 @@ Meteor.publish(
 );
 
 // Share one map among all listeners
-(function () {
+await (async function () {
   const handles = new Set();
   const holders = new Map();
   function addHolder(role, holder) {
     let held = holders.get(holder);
     if (held != null) {
       held.add(role);
-      const result = [];
       for (let h of handles) {
-        result.push(h.changed("users", holder, { roles: [...held] }));
+        h.changed("users", holder, { roles: [...held] });
       }
-      return result;
     } else {
       held = new Set([role]);
       holders.set(holder, held);
-      const result1 = [];
       for (let h of handles) {
-        result1.push(h.added("users", holder, { roles: [...held] }));
+        h.added("users", holder, { roles: [...held] });
       }
-      return result1;
     }
   }
   function removeHolder(role, holder) {
@@ -236,21 +232,17 @@ Meteor.publish(
     held.delete(role);
     if (held.size === 0) {
       holders.delete(holder);
-      const result = [];
       for (let h of handles) {
-        result.push(h.removed("users", holder));
+        h.removed("users", holder);
       }
-      return result;
     } else {
-      const result1 = [];
       for (let h of handles) {
-        result1.push(h.changed("users", holder, { roles: [...held] }));
+        h.changed("users", holder, { roles: [...held] });
       }
-      return result1;
     }
   }
 
-  const handle = Roles.find({}, { fields: { holder: 1 } }).observe({
+  const handle = await Roles.find({}, { fields: { holder: 1 } }).observeAsync({
     added({ _id, holder }) {
       addHolder(_id, holder);
     },
@@ -281,9 +273,11 @@ Meteor.publish(
 // Your presence in all rooms, with _id changed to room_name.
 Meteor.publish(
   null,
-  loginRequired(function () {
+  loginRequired(async function () {
     const idToRoom = new Map();
-    const handle = LastRead.find({ nick: this.userId }).observeChanges({
+    const handle = await LastRead.find({
+      nick: this.userId,
+    }).observeChangesAsync({
       added: (id, fields) => {
         idToRoom.set(id, fields.room_name);
         this.added("lastread", fields.room_name, fields);
@@ -331,7 +325,7 @@ Meteor.publish(
   )
 );
 
-function registerPresence(room_name, scope) {
+async function registerPresence(room_name, scope) {
   const subscription_id = Random.id();
   /* istanbul ignore else */
   if (DEBUG) {
@@ -343,9 +337,9 @@ function registerPresence(room_name, scope) {
       }:${subscription_id}`
     );
   }
-  const keepalive = () => {
+  const keepalive = async () => {
     const now = Date.now();
-    Presence.upsert(
+    await Presence.upsertAsync(
       { nick: this.userId, room_name, scope },
       {
         $setOnInsert: {
@@ -361,7 +355,7 @@ function registerPresence(room_name, scope) {
         },
       }
     );
-    Presence.update(
+    await Presence.updateAsync(
       { nick: this.userId, room_name, scope },
       {
         $pull: {
@@ -374,12 +368,12 @@ function registerPresence(room_name, scope) {
       }
     );
   };
-  keepalive();
+  await keepalive();
   const interval = Meteor.setInterval(
     keepalive,
     PRESENCE_KEEPALIVE_MINUTES * 60 * 1000
   );
-  this.onStop(() => {
+  this.onStop(async () => {
     /* istanbul ignore else */
     if (DEBUG) {
       console.log(
@@ -388,8 +382,8 @@ function registerPresence(room_name, scope) {
     }
     Meteor.clearInterval(interval);
     const now = Date.now();
-    clear = () => {
-      Presence.update(
+    const clear = async () => {
+      await Presence.updateAsync(
         { nick: this.userId, room_name, scope },
         {
           $max: { timestamp: now },
@@ -403,7 +397,7 @@ function registerPresence(room_name, scope) {
       );
     };
     if (scope === "typing") {
-      clear();
+      await clear();
     } else {
       Meteor.setTimeout(clear, 2000);
     }
@@ -413,16 +407,16 @@ function registerPresence(room_name, scope) {
 
 Meteor.publish(
   "register-presence",
-  loginRequired(function (room_name, scope) {
+  loginRequired(async function (room_name, scope) {
     check(room_name, NonEmptyString);
     check(scope, NonEmptyString);
-    registerPresence.call(this, room_name, scope);
+    await registerPresence.call(this, room_name, scope);
   })
 );
 Meteor.publish(
   null,
-  loginRequired(function () {
-    registerPresence.call(this, null, "online");
+  loginRequired(async function () {
+    await registerPresence.call(this, null, "online");
   })
 );
 
@@ -433,10 +427,10 @@ Meteor.publish(
 
 Meteor.publish(
   "last-puzzle-room-message",
-  loginRequired(function (puzzle_id) {
+  loginRequired(async function (puzzle_id) {
     check(puzzle_id, NonEmptyString);
     this.added("puzzles", puzzle_id, {});
-    const lastChat = Messages.find(
+    const lastChat = await Messages.find(
       {
         room_name: `puzzles/${puzzle_id}`,
         $or: [{ to: null }, { to: this.userId }, { nick: this.userId }],
@@ -448,7 +442,7 @@ Meteor.publish(
         sort: { timestamp: -1 },
         limit: 1,
       }
-    ).observe({
+    ).observeAsync({
       added: (doc) =>
         this.changed("puzzles", puzzle_id, {
           last_message_timestamp: doc.timestamp,
@@ -458,10 +452,10 @@ Meteor.publish(
       this.changed("puzzles", puzzle_id, {
         last_read_timestamp: doc.timestamp,
       });
-    const lastRead = LastRead.find({
+    const lastRead = await LastRead.find({
       room_name: `puzzles/${puzzle_id}`,
       nick: this.userId,
-    }).observe({
+    }).observeAsync({
       added: lastReadCallback,
       changed: lastReadCallback,
     });
@@ -483,8 +477,8 @@ Meteor.publish(
 // get recent messages
 Meteor.publish(
   "recent-messages",
-  loginRequired(function (room_name, limit) {
-    const handle = Messages.find(
+  loginRequired(async function (room_name, limit) {
+    const handle = await Messages.find(
       {
         room_name,
         $or: [{ to: null }, { to: this.userId }, { nick: this.userId }],
@@ -494,7 +488,7 @@ Meteor.publish(
         sort: [["timestamp", "desc"]],
         limit,
       }
-    ).observeChanges({
+    ).observeChangesAsync({
       added: (id, fields) => {
         this.added("messages", id, {
           ...fields,
@@ -571,32 +565,34 @@ Meteor.publish(
 // synthetic 'all-names' collection which maps ids to type/name/canon
 Meteor.publish(
   null,
-  loginRequired(function () {
+  loginRequired(async function () {
     const self = this;
-    const handles = ["rounds", "puzzles"].map((type) =>
-      collection(type)
-        .find({})
-        .observe({
-          added(doc) {
-            self.added("names", doc._id, {
-              type,
-              name: doc.name,
-              canon: canonical(doc.name),
-            });
-          },
-          removed(doc) {
-            self.removed("names", doc._id);
-          },
-          changed(doc, olddoc) {
-            if (doc.name === olddoc.name) {
-              return;
-            }
-            self.changed("names", doc._id, {
-              name: doc.name,
-              canon: canonical(doc.name),
-            });
-          },
-        })
+    const handles = await Promise.all(
+      ["rounds", "puzzles"].map((type) =>
+        collection(type)
+          .find({})
+          .observeAsync({
+            added(doc) {
+              self.added("names", doc._id, {
+                type,
+                name: doc.name,
+                canon: canonical(doc.name),
+              });
+            },
+            removed(doc) {
+              self.removed("names", doc._id);
+            },
+            changed(doc, olddoc) {
+              if (doc.name === olddoc.name) {
+                return;
+              }
+              self.changed("names", doc._id, {
+                name: doc.name,
+                canon: canonical(doc.name),
+              });
+            },
+          })
+      )
     );
     // observe only returns after initial added callbacks have run.  So now
     // mark the subscription as ready
@@ -623,7 +619,7 @@ const JITSI_SHARED_SECRET =
 
 Meteor.publish(
   "jitsi-jwt",
-  loginRequired(function (roomName) {
+  loginRequired(async function (roomName) {
     check(roomName, String);
     if (!JITSI_APP_NAME || !JITSI_SHARED_SECRET) {
       this.added(JITSI_JWT_COLLECTION_NAME, roomName, {});
@@ -631,10 +627,10 @@ Meteor.publish(
       return;
     }
     const self = this;
-    function generateJwt() {
+    async function generateJwt() {
       const now = Math.floor(Date.now() / 1000);
       const expiry = now + 86400 * 5;
-      const user = Meteor.users.findOne(self.userId);
+      const user = await Meteor.users.findOneAsync(self.userId);
       const body = {
         context: {
           user: {
@@ -658,11 +654,13 @@ Meteor.publish(
       const hash = hmac.digest("base64url");
       return `${toSign}.${hash}`;
     }
-    this.added(JITSI_JWT_COLLECTION_NAME, roomName, { jwt: generateJwt() });
+    this.added(JITSI_JWT_COLLECTION_NAME, roomName, {
+      jwt: await generateJwt(),
+    });
     const intervalHandle = Meteor.setInterval(
-      () => {
+      async () => {
         this.changed(JITSI_JWT_COLLECTION_NAME, roomName, {
-          jwt: generateJwt(),
+          jwt: await generateJwt(),
         });
       },
       86400 * 100 * 3

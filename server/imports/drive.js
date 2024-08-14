@@ -16,7 +16,9 @@ const GDRIVE_SPREADSHEET_MIME_TYPE = "application/vnd.google-apps.spreadsheet";
 const XLSX_MIME_TYPE =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const MAX_RESULTS = 200;
-const SPREADSHEET_TEMPLATE = Assets.getBinary("spreadsheet-template.xlsx");
+const SPREADSHEET_TEMPLATE = Assets.getBinaryAsync(
+  "spreadsheet-template.xlsx"
+);
 
 const PERMISSION_LIST_FIELDS =
   "permissions(role,type,emailAddress,allowFileDiscovery)";
@@ -84,13 +86,13 @@ const spreadsheetSettings = {
   titleFunc: WORKSHEET_NAME,
   driveMimeType: GDRIVE_SPREADSHEET_MIME_TYPE,
   uploadMimeType: XLSX_MIME_TYPE,
-  uploadTemplate() {
+  async uploadTemplate() {
     // The file is small enough to fit in ram, so don't recreate a file read
     // stream every time.
     // Apparently there's a module called streamifier that does this.
     const r = new Readable();
     r._read = function () {};
-    r.push(SPREADSHEET_TEMPLATE);
+    r.push(await SPREADSHEET_TEMPLATE);
     r.push(null);
     return r;
   },
@@ -116,7 +118,7 @@ async function ensure(drive, name, folder, settings) {
         resource: doc,
         media: {
           mimeType: settings.uploadMimeType,
-          body: settings.uploadTemplate(),
+          body: await settings.uploadTemplate(),
         },
       })
     ).data;
@@ -242,35 +244,41 @@ async function rmrfFolder(drive, id) {
 export class Drive {
   constructor(drive) {
     this.drive = drive;
-    this.rootFolder = Promise.await(
-      awaitOrEnsureFolder(this.drive, ROOT_FOLDER_NAME())
+  }
+  async connect() {
+    this.rootFolder = (
+      await awaitOrEnsureFolder(this.drive, ROOT_FOLDER_NAME())
     ).id;
-    this.ringhuntersFolder = Promise.await(
-      awaitOrEnsureFolder(
+    this.ringhuntersFolder = (
+      await awaitOrEnsureFolder(
         this.drive,
         `${Meteor.settings?.public?.chatName ?? "Ringhunters"} Uploads`,
         this.rootFolder
       )
     ).id;
+    return this;
   }
 
-  createPuzzle(name) {
-    const { folder, permissionsPromise } = Promise.await(
-      ensureFolder(this.drive, name, this.rootFolder)
+  async createPuzzle(name) {
+    const { folder, permissionsPromise } = await ensureFolder(
+      this.drive,
+      name,
+      this.rootFolder
     );
     // is the spreadsheet already there?
     const spreadsheetP = ensure(this.drive, name, folder, spreadsheetSettings);
-    const [spreadsheet, p] = Promise.await(
-      Promise.all([spreadsheetP, permissionsPromise])
-    );
+    const [spreadsheet, p] = await Promise.all([
+      spreadsheetP,
+      permissionsPromise,
+    ]);
     return {
       id: folder.id,
       spreadId: spreadsheet.id,
     };
   }
 
-  findPuzzle(name) {
-    const resp = Promise.await(
+  async findPuzzle(name) {
+    const resp = (await
       this.drive.files.list({
         q: `name=${quote(name)} and mimeType=${quote(
           GDRIVE_FOLDER_MIME_TYPE
@@ -283,7 +291,7 @@ export class Drive {
       return null;
     }
     // look for spreadsheet
-    const spread = Promise.await(
+    const spread = (await
       this.drive.files.list({
         q: `name=${quote(WORKSHEET_NAME(name))} and ${quote(
           folder.id
@@ -297,11 +305,11 @@ export class Drive {
     };
   }
 
-  listPuzzles() {
+  async listPuzzles() {
     let resp = {};
     const results = [];
     while (true) {
-      resp = Promise.await(
+      resp = (await
         this.drive.files.list({
           q: `mimeType=${quote(GDRIVE_FOLDER_MIME_TYPE)} and ${quote(
             this.rootFolder
@@ -318,7 +326,7 @@ export class Drive {
     return results;
   }
 
-  renamePuzzle(name, id, spreadId) {
+  async renamePuzzle(name, id, spreadId) {
     const ps = [
       this.drive.files.update({
         fileId: id,
@@ -337,17 +345,17 @@ export class Drive {
         })
       );
     }
-    Promise.await(Promise.all(ps));
+    await Promise.all(ps);
     return "ok";
   }
 
-  deletePuzzle(id) {
-    return Promise.await(rmrfFolder(this.drive, id));
+  async deletePuzzle(id) {
+    return await rmrfFolder(this.drive, id);
   }
 
   // purge `rootFolder` and everything in it
-  purge() {
-    return Promise.await(rmrfFolder(this.drive, rootFolder));
+  async purge() {
+    return await rmrfFolder(this.drive, rootFolder);
   }
 }
 

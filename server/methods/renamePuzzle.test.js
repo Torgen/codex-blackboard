@@ -5,7 +5,7 @@ import { drive } from "/lib/imports/environment.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("renamePuzzle", function () {
   let driveMethods = null;
@@ -30,55 +30,54 @@ describe("renamePuzzle", function () {
     sinon.restore();
   });
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Messages, Puzzles));
 
   describe("when new name is unique", function () {
     let id = null;
-    beforeEach(
-      () =>
-        (id = Puzzles.insert({
-          name: "Foo",
-          canon: "foo",
-          created: 1,
-          created_by: "torgen",
-          touched: 1,
-          touched_by: "torgen",
-          solved: null,
-          solved_by: null,
-          link: "https://puzzlehunt.mit.edu/foo",
-          drive: "fid",
-          spreadsheet: "sid",
-          tags: {},
-        }))
-    );
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
+        name: "Foo",
+        canon: "foo",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        solved: null,
+        solved_by: null,
+        link: "https://puzzlehunt.mit.edu/foo",
+        drive: "fid",
+        spreadsheet: "sid",
+        tags: {},
+      });
+    });
 
-    it("fails without login", () =>
-      chai.assert.throws(
-        () =>
-          Meteor.call("renamePuzzle", {
-            id,
-            name: "Bar",
-          }),
+    it("fails without login", async function () {
+      await assertRejects(
+        Meteor.callAsync("renamePuzzle", {
+          id,
+          name: "Bar",
+        }),
         Match.Error
-      ));
+      );
+    });
 
     describe("when logged in", function () {
       let ret = null;
-      beforeEach(() =>
-        drive.withValue(
-          driveMethods,
-          () =>
-            (ret = callAs("renamePuzzle", "cjb", {
-              id,
-              name: "Bar",
-            }))
-        )
-      );
+      beforeEach(async function () {
+        await drive.withValue(driveMethods, async function () {
+          ret = await callAs("renamePuzzle", "cjb", {
+            id,
+            name: "Bar",
+          });
+        });
+      });
 
-      it("returns true", () => chai.assert.isTrue(ret));
+      it("returns true", function () {
+        chai.assert.isTrue(ret);
+      });
 
-      it("renames puzzle", function () {
-        const puzzle = Puzzles.findOne(id);
+      it("renames puzzle", async function () {
+        const puzzle = await Puzzles.findOneAsync(id);
         return chai.assert.include(puzzle, {
           name: "Bar",
           canon: "bar",
@@ -87,18 +86,20 @@ describe("renamePuzzle", function () {
         });
       });
 
-      it("renames drive", () =>
+      it("renames drive", function () {
         chai.assert.deepEqual(driveMethods.renamePuzzle.getCall(0).args, [
           "Bar",
           "fid",
           "sid",
-        ]));
+        ]);
+      });
 
-      it("oplogs", () =>
+      it("oplogs", async function () {
         chai.assert.lengthOf(
-          Messages.find({ id, type: "puzzles" }).fetch(),
+          await Messages.find({ id, type: "puzzles" }).fetchAsync(),
           1
-        ));
+        );
+      });
     });
   });
 
@@ -106,8 +107,8 @@ describe("renamePuzzle", function () {
     let id1 = null;
     let id2 = null;
     let ret = null;
-    beforeEach(function () {
-      id1 = Puzzles.insert({
+    beforeEach(async function () {
+      id1 = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -121,7 +122,7 @@ describe("renamePuzzle", function () {
         spreadsheet: "s1",
         tags: {},
       });
-      id2 = Puzzles.insert({
+      id2 = await Puzzles.insertAsync({
         name: "Bar",
         canon: "bar",
         created: 2,
@@ -135,32 +136,35 @@ describe("renamePuzzle", function () {
         spreadsheet: "s2",
         tags: {},
       });
-      drive.withValue(
-        driveMethods,
-        () =>
-          (ret = callAs("renamePuzzle", "cjb", {
-            id: id1,
-            name: "Bar",
-          }))
-      );
+      await drive.withValue(driveMethods, async function () {
+        ret = await callAs("renamePuzzle", "cjb", {
+          id: id1,
+          name: "Bar",
+        });
+      });
     });
 
     it("returns false", () => chai.assert.isFalse(ret));
 
-    it("leaves puzzle unchanged", () =>
-      chai.assert.include(Puzzles.findOne(id1), {
+    it("leaves puzzle unchanged", async function () {
+      chai.assert.include(await Puzzles.findOneAsync(id1), {
         name: "Foo",
         canon: "foo",
         touched: 1,
         touched_by: "torgen",
-      }));
+      });
+    });
 
-    it("doesn't oplog", () =>
+    it("doesn't oplog", async function () {
       chai.assert.lengthOf(
-        Messages.find({ id: { $in: [id1, id2] }, type: "puzzles" }).fetch(),
+        await Messages.find({
+          id: { $in: [id1, id2] },
+          type: "puzzles",
+        }).fetchAsync(),
         0,
         "oplogs"
-      ));
+      );
+    });
 
     it("doesn't rename drive", () =>
       chai.assert.equal(driveMethods.renamePuzzle.callCount, 0));

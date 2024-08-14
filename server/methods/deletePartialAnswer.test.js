@@ -1,37 +1,35 @@
 // For side effects
 import "/lib/model.js";
 import { Messages, Puzzles } from "/lib/imports/collections.js";
-// Test only works on server side; move to /server if you add client tests.
 import { callAs } from "../../server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("deletePartialAnswer", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Messages, Puzzles));
 
-  it("fails when not logged in", function () {
-    const id = Puzzles.insert({
+  it("fails when not logged in", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       touched: 6,
       touched_by: "bob",
       answers: ["barney", "sheila"],
     });
-    chai.assert.throws(
-      () => Meteor.call("deletePartialAnswer", id, "barney"),
+    await assertRejects(
+      Meteor.callAsync("deletePartialAnswer", id, "barney"),
       Match.Error
     );
   });
@@ -39,8 +37,8 @@ describe("deletePartialAnswer", function () {
   describe("when puzzle is solved", function () {
     let puzzle;
 
-    beforeEach(function () {
-      const id = Puzzles.insert({
+    beforeEach(async function () {
+      const id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         solved: 6,
@@ -54,8 +52,8 @@ describe("deletePartialAnswer", function () {
           },
         },
       });
-      callAs("deletePartialAnswer", "cjb", id, "barney");
-      puzzle = Puzzles.findOne(id);
+      await callAs("deletePartialAnswer", "cjb", id, "barney");
+      puzzle = await Puzzles.findOneAsync(id);
     });
 
     it("does not touch", function () {
@@ -69,24 +67,24 @@ describe("deletePartialAnswer", function () {
       chai.assert.deepEqual(puzzle.answers, ["barney", "sheila"]);
     });
 
-    it("does not oplog", function () {
-      chai.assert.isNotOk(Messages.findOne());
+    it("does not oplog", async function () {
+      chai.assert.isNotOk(await Messages.findOneAsync());
     });
   });
 
   describe("when puzzle is not solved", function () {
     let puzzle;
 
-    beforeEach(function () {
-      const id = Puzzles.insert({
+    beforeEach(async function () {
+      const id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         touched: 6,
         touched_by: "bob",
         answers: ["barney", "sheila"],
       });
-      callAs("deletePartialAnswer", "cjb", id, "barney");
-      puzzle = Puzzles.findOne(id);
+      await callAs("deletePartialAnswer", "cjb", id, "barney");
+      puzzle = await Puzzles.findOneAsync(id);
     });
 
     it("touches", function () {
@@ -100,8 +98,8 @@ describe("deletePartialAnswer", function () {
       chai.assert.deepEqual(puzzle.answers, ["sheila"]);
     });
 
-    it("oplogs", function () {
-      chai.assert.include(Messages.findOne(), {
+    it("oplogs", async function () {
+      chai.assert.include(await Messages.findOneAsync(), {
         nick: "cjb",
         timestamp: 7,
         room_name: "oplog/0",
@@ -120,16 +118,16 @@ describe("deletePartialAnswer", function () {
   describe("when puzzle does not have that answer", function () {
     let puzzle;
 
-    beforeEach(function () {
-      const id = Puzzles.insert({
+    beforeEach(async function () {
+      const id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         touched: 6,
         touched_by: "bob",
         answers: ["barney", "sheila"],
       });
-      callAs("deletePartialAnswer", "cjb", id, "qux");
-      puzzle = Puzzles.findOne(id);
+      await callAs("deletePartialAnswer", "cjb", id, "qux");
+      puzzle = await Puzzles.findOneAsync(id);
     });
 
     it("does not touch", function () {
@@ -143,8 +141,8 @@ describe("deletePartialAnswer", function () {
       chai.assert.deepEqual(puzzle.answers, ["barney", "sheila"]);
     });
 
-    it("does not oplog", function () {
-      chai.assert.isNotOk(Messages.findOne());
+    it("does not oplog", async function () {
+      chai.assert.isNotOk(await Messages.findOneAsync());
     });
   });
 });

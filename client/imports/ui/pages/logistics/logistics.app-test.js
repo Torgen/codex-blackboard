@@ -209,6 +209,7 @@ describe("logistics", function () {
         $input
           .val("new round by click")
           .trigger(new $.Event("keyup", { which: 13 }));
+        await waitForMethods();
         const newRound = await waitForDocument(Rounds, {
           name: "new round by click",
         });
@@ -245,6 +246,7 @@ describe("logistics", function () {
           .dragEnter($newRound)
           .dragOver($newRound)
           .drop($newRound);
+        await waitForMethods();
         const newRound = await waitForDocument(Rounds, {
           name: "Foo",
         });
@@ -278,6 +280,7 @@ describe("logistics", function () {
           $focus
             .val("new meta in round")
             .trigger(new $.Event("keyup", { which: 13 }));
+          await waitForMethods();
           const newMeta = await waitForDocument(Puzzles, {
             name: "new meta in round",
           });
@@ -336,6 +339,7 @@ describe("logistics", function () {
             `#bb-logistics-new-meta [data-round-id="${round._id}"]`
           ).get(0);
           drag.dragEnter($round).drop($round);
+          await waitForMethods();
           const newMeta = await waitForDocument(Puzzles, {
             name: "Dropped puzzle",
           });
@@ -374,6 +378,7 @@ describe("logistics", function () {
           $focus
             .val("new standalone in round")
             .trigger(new $.Event("keyup", { which: 13 }));
+          await waitForMethods();
           const puzzle = await waitForDocument(Puzzles, {
             name: "new standalone in round",
           });
@@ -428,6 +433,7 @@ describe("logistics", function () {
             `#bb-logistics-new-standalone [data-round-id="${round._id}"]`
           ).get(0);
           drag.dragEnter($round).drop($round);
+          await waitForMethods();
           const newStandalone = await waitForDocument(Puzzles, {
             name: "Dropped puzzle",
           });
@@ -480,6 +486,7 @@ describe("logistics", function () {
             `#bb-logistics-new-standalone [data-round-id="${round._id}"]`
           ).get(0);
           drag.dragEnter($round).drop($round);
+          await waitForMethods();
           const newStandalone = await waitForDocument(Puzzles, {
             name: "foo-with-only-image",
           });
@@ -524,6 +531,7 @@ describe("logistics", function () {
           $textbox
             .val("new feeder in meta")
             .trigger(new $.Event("keyup", { which: 13 }));
+          await waitForMethods();
           const feeder = await waitForDocument(Puzzles, {
             name: "new feeder in meta",
           });
@@ -577,6 +585,7 @@ describe("logistics", function () {
           await afterFlushPromise();
           chai.assert.isOk($meta.find(".puzzle.dragged-link").get(0));
           drag.drop($meta.get(0));
+          await waitForMethods();
           const newFeeder = await waitForDocument(Puzzles, {
             name: "Dropped puzzle",
           });
@@ -1117,6 +1126,7 @@ describe("logistics", function () {
           .dragEnter($standalone)
           .dragOver($standalone)
           .drop($standalone);
+        await waitForMethods();
         await waitForDocument(CalendarEvents, {
           _id: event,
           puzzle: standalone._id,
@@ -1159,6 +1169,7 @@ describe("logistics", function () {
           .dragEnter($metaPuzzle.get(0))
           .dragOver($metaPuzzle.get(0))
           .drop($metaPuzzle.get(0));
+        await waitForMethods();
         await waitForDocument(CalendarEvents, { _id: event, puzzle: meta._id });
       } finally {
         await promiseCall("deleteCalendarEvent", event);
@@ -1203,6 +1214,7 @@ describe("logistics", function () {
           .dragEnter($feeder.get(0))
           .dragOver($feeder.get(0))
           .drop($feeder.get(0));
+        await waitForMethods();
         await waitForDocument(CalendarEvents, {
           _id: event,
           puzzle: feeder._id,

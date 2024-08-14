@@ -68,7 +68,7 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
 
   mailListener.on(
     "mail",
-    Meteor.bindEnvironment(function (mail) {
+    async function (mail) {
       const sender = mail.from.value[0];
       console.log(sender);
       const mail_field = {
@@ -80,7 +80,7 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
       }
 
       console.log(`Mail from ${mail.from.text} arrived:`, mail.subject);
-      newMessage({
+      await newMessage({
         nick: sender.address,
         room_name: "general/0",
         body: mail.html ?? mail.text,
@@ -91,7 +91,7 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
           subject: mail.subject,
         },
       });
-    })
+    }
   );
 
   Meteor.startup(() => mailListener.start());

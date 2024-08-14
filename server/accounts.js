@@ -16,8 +16,8 @@ const sha1 = (x) => createHash("sha1").update(x).digest("hex");
 if (DO_BATCH_PROCESSING) {
   if (PASSWORD != null) {
     const sha_password = sha1(PASSWORD);
-    Meteor.startup(function () {
-      Meteor.users.update(
+    Meteor.startup(async function () {
+      await Meteor.users.updateAsync(
         {
           "services.resume": { $exists: true },
           "services.codex.password_used": { $exists: false },
@@ -25,7 +25,7 @@ if (DO_BATCH_PROCESSING) {
         { $set: { "services.codex.password_used": sha_password } },
         { multi: true }
       );
-      Meteor.users.update(
+      await Meteor.users.updateAsync(
         {
           "services.resume": { $exists: true },
           "services.codex.password_used": { $ne: sha_password },
@@ -37,7 +37,7 @@ if (DO_BATCH_PROCESSING) {
   }
 }
 
-Accounts.registerLoginHandler("codex", function (options) {
+Accounts.registerLoginHandler("codex", async function (options) {
   check(options, {
     nickname: String,
     real_name: String,
@@ -79,7 +79,7 @@ Accounts.registerLoginHandler("codex", function (options) {
 
   // If you have the team password, we'll create an account for you.
   try {
-    Meteor.users.upsert(
+    await Meteor.users.upsertAsync(
       {
         _id: canon,
         bot_wakeup: { $exists: false },

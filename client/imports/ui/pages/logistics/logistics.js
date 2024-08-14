@@ -81,6 +81,7 @@ Template.logistics.helpers({
     const x = [];
     for (let puzzle of round.puzzles) {
       const puz = Puzzles.findOne({ _id: puzzle });
+      if (!puz) { continue; }
       if (puz.feedsInto.length === 0 && puz.puzzles == null) {
         x.push(puz);
       }
@@ -93,6 +94,7 @@ Template.logistics.helpers({
     const x = [];
     for (let puzzle of round.puzzles) {
       const puz = Puzzles.findOne({ _id: puzzle });
+      if (!puz) { continue; }
       if (puz.puzzles != null) {
         x.push(puz);
       }
@@ -225,7 +227,7 @@ function makePuzzleOnDrop(targetId, puzzleParams) {
       event.currentTarget.closest(`#${targetId}`).classList.remove("dragover");
       event.currentTarget.parentElement.classList.remove("active");
       droppingLink(event, (name, link) => {
-        Meteor.call("newPuzzle", {
+        Meteor.serializeCall("newPuzzle", {
           name,
           link,
           round: this._id,
@@ -342,14 +344,14 @@ Template.logistics.events({
       event.originalEvent.dataTransfer.getData(PUZZLE_MIME_TYPE)
     );
     if (data.meta != null) {
-      Meteor.call("unfeedMeta", data.id, data.meta);
+      Meteor.serializeCall("unfeedMeta", data.id, data.meta);
     }
   },
 
   "drop #bb-logistics-new-round"(event, template) {
     event.currentTarget.classList.remove("dragover");
     droppingLink(event, function (name, link) {
-      Meteor.call("newRound", { name, link });
+      Meteor.serializeCall("newRound", { name, link });
     });
   },
   "drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone"(
@@ -377,7 +379,7 @@ Template.logistics.events({
             message: `Are you sure you want to delete the puzzle \"${puzzle.name}\"?`,
           })
         ) {
-          Meteor.call("deletePuzzle", puzzle._id);
+          Meteor.serializeCall("deletePuzzle", puzzle._id);
         }
       }
     }
@@ -448,7 +450,7 @@ Template.logistics_puzzle.events({
       const id = event.originalEvent.dataTransfer.getData(
         CALENDAR_EVENT_MIME_TYPE
       );
-      Meteor.call("setPuzzleForEvent", id, this._id);
+      Meteor.serializeCall("setPuzzleForEvent", id, this._id);
       event.preventDefault();
       event.stopPropagation();
     }
@@ -562,7 +564,7 @@ Template.logistics_meta.events({
       const id = event.originalEvent.dataTransfer.getData(
         CALENDAR_EVENT_MIME_TYPE
       );
-      Meteor.call("setPuzzleForEvent", id, this.meta._id);
+      Meteor.serializeCall("setPuzzleForEvent", id, this.meta._id);
       event.preventDefault();
       event.stopPropagation();
     }
@@ -578,10 +580,10 @@ Template.logistics_meta.events({
       if (data.meta === template.data.meta._id) {
         return;
       }
-      Meteor.call("feedMeta", data.id, template.data.meta._id);
+      Meteor.serializeCall("feedMeta", data.id, template.data.meta._id);
     } else {
       droppingLink(event, (name, link) => {
-        Meteor.call("newPuzzle", {
+        Meteor.serializeCall("newPuzzle", {
           name,
           link,
           feedsInto: [this.meta._id],
@@ -718,7 +720,7 @@ Template.logistics_callin_row.helpers({
 Template.logistics_callin_row.events({
   "change .bb-submitted-to-hq"(event, template) {
     const checked = !!event.currentTarget.checked;
-    Meteor.call("setField", {
+    Meteor.serializeCall("setField", {
       type: "callins",
       object: this._id,
       fields: {

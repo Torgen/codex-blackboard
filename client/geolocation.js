@@ -29,7 +29,7 @@ const updateLocation = (function () {
     }
     last = pos;
     lastnick = nick;
-    Tracker.nonreactive(() => Meteor.call("locateNick", { location: pos }));
+    Tracker.nonreactive(() => Meteor.serializeCall("locateNick", { location: pos }));
   };
 })();
 

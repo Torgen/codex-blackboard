@@ -31,12 +31,12 @@ Template.onduty_control.events({
   'click [data-onduty="claim"]'(event, template) {
     EXPERT_MODE.set(true);
     const current = Roles.findOne("onduty")?.holder ?? null;
-    Meteor.call("claimOnduty", { from: current });
+    Meteor.serializeCall("claimOnduty", { from: current });
   },
   'click [data-onduty="release"]'(event, template) {
-    Meteor.call("releaseOnduty");
+    Meteor.serializeCall("releaseOnduty");
   },
   'click [data-onduty="renew"]'(event, template) {
-    Meteor.call("renewOnduty");
+    Meteor.serializeCall("renewOnduty");
   },
 });

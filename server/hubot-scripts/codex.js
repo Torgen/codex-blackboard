@@ -14,8 +14,8 @@ import * as callin_types from "/lib/imports/callin_types.js";
 
 export default scripts.codex = function (robot) {
   //# ANSWERS
-  function targetByName(msg, name, who) {
-    const target = callAs("getByName", who, {
+  async function targetByName(msg, name, who) {
+    const target = await callAs("getByName", who, {
       name,
       optional_type: "puzzles",
     });
@@ -33,21 +33,21 @@ export default scripts.codex = function (robot) {
   );
   robot.respond(
     rejoin(/The answer to /, thingRE, /\ is /, thingRE, /$/i),
-    function (msg) {
+    async function (msg) {
       const name = strip(msg.match[1]);
       const answer = strip(msg.match[2]);
       const who = msg.envelope.user.id;
-      const target = targetByName(msg, name, who);
+      const target = await targetByName(msg, name, who);
       if (!target) {
         return;
       }
-      const res = callAs("setAnswer", who, {
+      const res = await callAs("setAnswer", who, {
         type: target.type,
         target: target.object._id,
         answer,
       });
       if (!res) {
-        msg.reply(
+        await msg.reply(
           { useful: true },
           msg.random([
             "I knew that!",
@@ -70,21 +70,21 @@ export default scripts.codex = function (robot) {
         `${target.object.name} bites the dust!`,
         `${target.object.name}, meet ${answer}.  We rock!`,
       ];
-      msg.reply({ useful: true }, msg.random(solution_banter));
+      await msg.reply({ useful: true }, msg.random(solution_banter));
       msg.finish();
     }
   );
 
-  function newCallIn(msg, name, prefix, params) {
+  async function newCallIn(msg, name, prefix, params) {
     let target;
     const who = msg.envelope.user.id;
     if (name != null) {
-      target = targetByName(msg, name, who);
+      target = await targetByName(msg, name, who);
       if (!target) {
         return;
       }
     } else {
-      target = objectFromRoom(msg);
+      target = await objectFromRoom(msg);
       if (target == null) {
         return;
       }
@@ -92,14 +92,14 @@ export default scripts.codex = function (robot) {
         params.callin_type = callin_types.PARTIAL_ANSWER;
       }
     }
-    callAs("newCallIn", who, {
+    await callAs("newCallIn", who, {
       target_type: target.type,
       target: target.object._id,
       ...params,
     });
     // I don't mind a little redundancy, but if it bothers you uncomment this:
     //suppressRoom: msg.envelope.room
-    msg.reply(
+    await msg.reply(
       { useful: true },
       `Okay, ${prefix}"${params.answer}" for #${target.type}/${target.object._id} added to call-in list!`
     );
@@ -120,12 +120,12 @@ export default scripts.codex = function (robot) {
       ")?",
       /$/i
     ),
-    function (msg) {
+    async function (msg) {
       const backsolve = /backsolve/.test(msg.match[1]);
       const provided = /provided/.test(msg.match[1]);
       const answer = strip(msg.match[3]);
       const name = msg.match[4] != null ? strip(msg.match[4]) : undefined;
-      newCallIn(msg, name, "", {
+      await newCallIn(msg, name, "", {
         answer,
         backsolve,
         provided,
@@ -152,7 +152,7 @@ export default scripts.codex = function (robot) {
       ")?",
       /$/i
     ),
-    function (msg) {
+    async function (msg) {
       const callin_type = {
         request_interaction: callin_types.INTERACTION_REQUEST,
         tell_hq: callin_types.MESSAGE_TO_HQ,
@@ -160,7 +160,7 @@ export default scripts.codex = function (robot) {
       }[canonical(msg.match[1])];
       const answer = strip(msg.match[2]);
       const name = msg.match[3] != null ? strip(msg.match[3]) : undefined;
-      newCallIn(msg, name, `${callin_type} `, {
+      await newCallIn(msg, name, `${callin_type} `, {
         answer,
         callin_type,
       });
@@ -173,18 +173,18 @@ export default scripts.codex = function (robot) {
   );
   robot.respond(
     rejoin(/Delete( the)? answer (to|for)( puzzle)? /, thingRE, /$/i),
-    function (msg) {
+    async function (msg) {
       const name = strip(msg.match[4]);
       const who = msg.envelope.user.id;
-      const target = targetByName(msg, name, who);
+      const target = await targetByName(msg, name, who);
       if (!target) {
         return;
       }
-      callAs("deleteAnswer", who, {
+      await callAs("deleteAnswer", who, {
         type: target.type,
         target: target.object._id,
       });
-      msg.reply(
+      await msg.reply(
         { useful: true },
         `Okay, I deleted the answer to #${target.type}/${target.object._id}.`
       );
@@ -209,7 +209,7 @@ export default scripts.codex = function (robot) {
       ")?",
       /$/i
     ),
-    function (msg) {
+    async function (msg) {
       let puzzle;
       const pname = strip(msg.match[1]);
       const ptype = msg.match[2];
@@ -220,7 +220,7 @@ export default scripts.codex = function (robot) {
       const url = strip(msg.match[5]);
       const who = msg.envelope.user.id;
       if (rname === "this" && !msg.match[3]) {
-        round = objectFromRoom(msg);
+        round = await objectFromRoom(msg);
         rText = "this";
         if (round == null) {
           return;
@@ -231,7 +231,7 @@ export default scripts.codex = function (robot) {
         } else if (msg.match[3] === "meta") {
           tname = "puzzles";
         }
-        round = callAs("getByName", who, {
+        round = await callAs("getByName", who, {
           name: rname,
           optional_type: tname,
         });
@@ -255,11 +255,15 @@ export default scripts.codex = function (robot) {
       if (round.type === "rounds") {
         extra.round = round.object._id;
       } else if (round.type === "puzzles") {
-        const metaround = callAs("getRoundForPuzzle", who, round.object._id);
+        const metaround = await callAs(
+          "getRoundForPuzzle",
+          who,
+          round.object._id
+        );
         extra.round = metaround._id;
         extra.feedsInto = [round.object._id];
       } else {
-        msg.reply(
+        await msg.reply(
           { useful: true },
           `A new puzzle can't be created in "${rname}" because it's a ${pretty_collection(
             round.type
@@ -272,20 +276,20 @@ export default scripts.codex = function (robot) {
         extra.puzzles = [];
       }
       try {
-        puzzle = callAs("newPuzzle", who, extra);
+        puzzle = await callAs("newPuzzle", who, extra);
       } catch (error) {
         if (isDuplicateError(error)) {
-          const existing = callAs("getByName", who, {
+          const existing = await callAs("getByName", who, {
             name: pname,
             type: "puzzles",
           });
-          msg.reply(
+          await msg.reply(
             { useful: true },
             `There's already a puzzle named #puzzles/${existing.object._id}.`
           );
         } else {
           console.log(error);
-          msg.reply(
+          await msg.reply(
             { useful: true },
             "There was an error creating that puzzle."
           );
@@ -293,7 +297,7 @@ export default scripts.codex = function (robot) {
         msg.finish();
         return;
       }
-      msg.reply(
+      await msg.reply(
         { useful: true },
         `Okay, I added #puzzles/${puzzle._id} to #${rText}.`
       );
@@ -303,19 +307,22 @@ export default scripts.codex = function (robot) {
 
   // deletePuzzle
   robot.commands.push("bot delete puzzle <puzzle> - Updates codex blackboard");
-  robot.respond(rejoin(/Delete puzzle /, thingRE, /$/i), function (msg) {
+  robot.respond(rejoin(/Delete puzzle /, thingRE, /$/i), async function (msg) {
     const name = strip(msg.match[1]);
     const who = msg.envelope.user.id;
-    const puzzle = targetByName(msg, name, who);
+    const puzzle = await targetByName(msg, name, who);
     if (!puzzle) {
       return;
     }
-    const res = callAs("deletePuzzle", who, puzzle.object._id);
+    const res = await callAs("deletePuzzle", who, puzzle.object._id);
     if (res) {
       // Can't use a mention because it's about to not exist.
-      msg.reply({ useful: true }, `Okay, I deleted "${puzzle.object.name}".`);
+      await msg.reply(
+        { useful: true },
+        `Okay, I deleted "${puzzle.object.name}".`
+      );
     } else {
-      msg.reply({ useful: true }, "Something went wrong.");
+      await msg.reply({ useful: true }, "Something went wrong.");
     }
     msg.finish();
   });
@@ -336,8 +343,8 @@ export default scripts.codex = function (robot) {
       ")?",
       /$/i
     ),
-    function (msg) {
-      let round, round_url;
+    async function (msg) {
+      let round;
       const rname = strip(msg.match[1]);
       const url = strip(msg.match[2]);
       const who = msg.envelope.user.id;
@@ -346,29 +353,28 @@ export default scripts.codex = function (robot) {
         body.link = url;
       }
       try {
-        round = callAs("newRound", who, body);
+        round = await callAs("newRound", who, body);
       } catch (error) {
         if (isDuplicateError(error)) {
-          const existing = callAs("getByName", who, {
+          const existing = await callAs("getByName", who, {
             name: rname,
             type: "rounds",
           });
-          msg.reply(
+          await msg.reply(
             { useful: true },
             `There's already a round named #rounds/${existing.object._id}.`
           );
         } else {
           console.log(error);
-          msg.reply(
+          await msg.reply(
             { useful: true },
             "There was an error creating that puzzle."
           );
         }
-        msg.finish();
+        await msg.finish();
         return;
       }
-      round_url = Meteor._relativeToSiteRootUrl(`/rounds/`);
-      msg.reply(
+      await msg.reply(
         { useful: true },
         `Okay, I created round #rounds/${round._id}.`
       );
@@ -378,26 +384,29 @@ export default scripts.codex = function (robot) {
 
   // deleteRound
   robot.commands.push("bot delete round <round> - Updates codex blackboard");
-  robot.respond(rejoin(/Delete round /, thingRE, /$/i), function (msg) {
+  robot.respond(rejoin(/Delete round /, thingRE, /$/i), async function (msg) {
     const rname = strip(msg.match[1]);
     const who = msg.envelope.user.id;
-    const round = callAs("getByName", who, {
+    const round = await callAs("getByName", who, {
       name: rname,
       optional_type: "rounds",
     });
     if (!round) {
-      msg.reply({ useful: true }, `I can't find a round called "${rname}".`);
+      await msg.reply(
+        { useful: true },
+        `I can't find a round called "${rname}".`
+      );
       return;
     }
-    const res = callAs("deleteRound", who, round.object._id);
+    const res = await callAs("deleteRound", who, round.object._id);
     if (!res) {
-      msg.reply(
+      await msg.reply(
         { useful: true },
         "Couldn't delete round. (Are there still puzzles in it?)"
       );
       return;
     }
-    msg.reply(
+    await msg.reply(
       { useful: true },
       // Can't use a mention because it no longer exists.
       `Okay, I deleted round "${round.object.name}".`
@@ -405,7 +414,7 @@ export default scripts.codex = function (robot) {
     msg.finish();
   });
 
-  function tagChangeTarget(msg) {
+  async function tagChangeTarget(msg) {
     let target, type;
     if (msg.match[2] != null) {
       const descriptor =
@@ -416,12 +425,12 @@ export default scripts.codex = function (robot) {
         msg.match[3] != null
           ? msg.match[3].replace(/\s+/g, "") + "s"
           : undefined;
-      target = callAs("getByName", msg.envelope.user.id, {
+      target = await callAs("getByName", msg.envelope.user.id, {
         name: strip(msg.match[4]),
         optional_type: type,
       });
       if (target == null) {
-        msg.reply(
+        await msg.reply(
           { useful: true },
           `I can't find ${descriptor} called "${strip(msg.match[4])}".`
         );
@@ -430,7 +439,7 @@ export default scripts.codex = function (robot) {
       }
       return [target, `#${target.type}/${target.object._id}`];
     } else {
-      return [objectFromRoom(msg), "this"];
+      return [await objectFromRoom(msg), "this"];
     }
   }
 
@@ -449,20 +458,20 @@ export default scripts.codex = function (robot) {
       thingRE,
       /$/i
     ),
-    function (msg) {
+    async function (msg) {
       const tag_name = strip(msg.match[1]);
       const tag_value = strip(msg.match[5]);
-      const [target, tText] = tagChangeTarget(msg);
+      const [target, tText] = await tagChangeTarget(msg);
       if (target == null) {
         return;
       }
-      callAs("setTag", msg.envelope.user.id, {
+      await callAs("setTag", msg.envelope.user.id, {
         type: target.type,
         object: target.object._id,
         name: tag_name,
         value: tag_value,
       });
-      msg.reply(
+      await msg.reply(
         { useful: true },
         `The ${tag_name} for ${tText} is now "${tag_value}".`
       );
@@ -483,40 +492,43 @@ export default scripts.codex = function (robot) {
       ")?",
       /$/i
     ),
-    function (msg) {
+    async function (msg) {
       const tag_name = strip(msg.match[1]);
-      const [target, tText] = tagChangeTarget(msg);
+      const [target, tText] = await tagChangeTarget(msg);
       if (target == null) {
         return;
       }
-      const res = callAs("deleteTag", msg.envelope.user.id, {
+      const res = await callAs("deleteTag", msg.envelope.user.id, {
         type: target.type,
         object: target.object._id,
         name: tag_name,
       });
       if (res) {
-        msg.reply(
+        await msg.reply(
           { useful: true },
           `The ${tag_name} for ${tText} is now unset.`
         );
       } else {
-        msg.reply({ useful: true }, `${tText} didn't have ${tag_name} set!`);
+        await msg.reply(
+          { useful: true },
+          `${tText} didn't have ${tag_name} set!`
+        );
       }
       msg.finish();
     }
   );
 
   function modifyStuckStatus(messageForOtherRoom, fn) {
-    return function (msg) {
+    return async function (msg) {
       let target;
       const who = msg.envelope.user.id;
       if (msg.match[1] != null) {
-        target = callAs("getByName", who, {
+        target = await callAs("getByName", who, {
           name: msg.match[1],
           optional_type: "puzzles",
         });
         if (target == null) {
-          msg.reply(
+          await msg.reply(
             { useful: true },
             `I don't know what "${msg.match[1]}" is.`
           );
@@ -524,19 +536,19 @@ export default scripts.codex = function (robot) {
           return;
         }
       } else {
-        target = objectFromRoom(msg);
+        target = await objectFromRoom(msg);
         if (target == null) {
           return;
         }
       }
       if (target.type !== "puzzles") {
-        msg.reply({ useful: true }, "Only puzzles can be stuck.");
+        await msg.reply({ useful: true }, "Only puzzles can be stuck.");
         msg.finish();
         return;
       }
-      const result = fn(who, target.object._id, msg.match[2]);
+      const result = await fn(who, target.object._id, msg.match[2]);
       if (result != null) {
-        msg.reply({ useful: true }, result);
+        await msg.reply({ useful: true }, result);
         msg.finish();
         return;
       }
@@ -544,7 +556,7 @@ export default scripts.codex = function (robot) {
         msg.envelope.room !== "general/0" &&
         msg.envelope.room !== `puzzles/${target.object._id}`
       ) {
-        msg.reply({ useful: true }, messageForOtherRoom);
+        await msg.reply({ useful: true }, messageForOtherRoom);
       }
       msg.finish();
     };
@@ -576,7 +588,7 @@ export default scripts.codex = function (robot) {
   robot.commands.push('bot poll "Your question" "option 1" "option 2"...');
   robot.respond(
     rejoin("poll ", wordOrQuote, "((?: ", wordOrQuote, ")+)", /$/i),
-    function (msg) {
+    async function (msg) {
       const optsRe = new RegExp(rejoin(" ", wordOrQuote), "g");
       const opts = [];
       let m;
@@ -584,11 +596,11 @@ export default scripts.codex = function (robot) {
         opts.push(strip(m[1]));
       }
       if (opts.length < 2 || opts.length > 5) {
-        msg.reply({ useful: true }, "Must have between 2 and 5 options.");
+        await msg.reply({ useful: true }, "Must have between 2 and 5 options.");
         msg.finish();
         return;
       }
-      callAs(
+      await callAs(
         "newPoll",
         msg.envelope.user.id,
         msg.envelope.room,
@@ -600,14 +612,14 @@ export default scripts.codex = function (robot) {
   );
 
   robot.commands.push("bot global list - lists dynamic settings");
-  robot.respond(/global list$/i, function (msg) {
+  robot.respond(/global list$/i, async function (msg) {
     for (let canon in all_settings) {
       const setting = all_settings[canon];
-      msg.priv(
+      await msg.priv(
         { useful: true },
         `${setting.name}: ${
           setting.description
-        }\nCurrent: '${setting.get()}' Default: '${setting.default}'`
+        }\nCurrent: '${await setting.get()}' Default: '${setting.default}'`
       );
     }
     msg.finish();
@@ -618,22 +630,28 @@ export default scripts.codex = function (robot) {
   );
   return robot.respond(
     rejoin(/global set /, thingRE, / to /, thingRE, /$/i),
-    function (msg) {
+    async function (msg) {
       const setting_name = strip(msg.match[1]);
       const value = strip(msg.match[2]);
       const setting = all_settings[canonical(setting_name)];
       if (setting == null) {
-        msg.reply(
+        await msg.reply(
           { useful: true },
           `Sorry, I don't know the setting '${setting_name}'.`
         );
         return;
       }
       try {
-        impersonating(msg.envelope.user.id, () => setting.set(value));
-        msg.reply({ useful: true }, `OK, set ${setting_name} to ${value}`);
+        await impersonating(msg.envelope.user.id, () => setting.set(value));
+        await msg.reply(
+          { useful: true },
+          `OK, set ${setting_name} to ${value}`
+        );
       } catch (error) {
-        msg.reply({ useful: true }, `Sorry, there was an error: ${error}`);
+        await msg.reply(
+          { useful: true },
+          `Sorry, there was an error: ${error}`
+        );
       }
     }
   );

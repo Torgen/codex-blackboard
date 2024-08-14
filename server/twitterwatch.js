@@ -14,8 +14,8 @@ import { TwitterApi, ETwitterStreamEvent } from "twitter-api-v2";
 import tweetToMessage from "./imports/twitter.js";
 import { DO_BATCH_PROCESSING } from "/server/imports/batch.js";
 
-(function (x) {
-  if (!x) return;
+Meteor.startup(async function () {
+  if (!DO_BATCH_PROCESSING) return;
   const settings = Meteor.settings?.twitter ?? {};
   if (settings.consumer_key == null) {
     settings.consumer_key = process.env.TWITTER_CONSUMER_KEY;
@@ -47,14 +47,14 @@ import { DO_BATCH_PROCESSING } from "/server/imports/batch.js";
   });
 
   // See https://dev.twitter.com/streaming/overview/request-parameters#track
-  const stream = Promise.await(twit.v1.filterStream({ track: HASHTAGS }));
+  const stream = await twit.v1.filterStream({ track: HASHTAGS });
   stream.autoReconnect = true;
   stream.autoReconnectRetries = Infinity;
   console.log(`Listening to ${HASHTAGS} on twitter`);
-  stream.on(ETwitterStreamEvent.Data, Meteor.bindEnvironment(tweetToMessage));
+  stream.on(ETwitterStreamEvent.Data, tweetToMessage);
 
   stream.on(
     ETwitterStreamEvent.ConnectError,
-    Meteor.bindEnvironment((error) => console.warn("Twitter error:", error))
+    (error) => console.warn("Twitter error:", error)
   );
-})(DO_BATCH_PROCESSING);
+});

@@ -9,36 +9,35 @@ import {
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("newCallIn", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(CallIns, Messages, Puzzles, Rounds));
 
   describe("of answer", function () {
-    it("fails when target doesn't exist", () =>
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: "something",
-            answer: "precipitate",
-          }),
+    it("fails when target doesn't exist", async function () {
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: "something",
+          answer: "precipitate",
+        }),
         Meteor.Error
-      ));
+      );
+    });
 
-    it("fails when target is not a puzzle", function () {
-      const id = Rounds.insert({
+    it("fails when target is not a puzzle", async function () {
+      const id = await Rounds.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -50,61 +49,60 @@ describe("newCallIn", function () {
         tags: {},
         puzzles: [],
       });
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: id,
-            target_type: "rounds",
-            answer: "precipitate",
-          }),
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: id,
+          target_type: "rounds",
+          answer: "precipitate",
+        }),
         Match.Error
       );
     });
 
     describe("on puzzle which exists", function () {
       let id = null;
-      beforeEach(
-        () =>
-          (id = Puzzles.insert({
-            name: "Foo",
-            canon: "foo",
-            created: 1,
-            created_by: "cscott",
-            touched: 1,
-            touched_by: "cscott",
-            solved: null,
-            solved_by: null,
-            tags: {},
-            feedsInto: [],
-          }))
-      );
+      beforeEach(async function () {
+        id = await Puzzles.insertAsync({
+          name: "Foo",
+          canon: "foo",
+          created: 1,
+          created_by: "cscott",
+          touched: 1,
+          touched_by: "cscott",
+          solved: null,
+          solved_by: null,
+          tags: {},
+          feedsInto: [],
+        });
+      });
 
-      it("fails without login", () =>
-        chai.assert.throws(
-          () =>
-            Meteor.call("newCallIn", {
-              target: id,
-              answer: "precipitate",
-            }),
-          Match.Error
-        ));
-
-      it("fails without answer", () =>
-        chai.assert.throws(
-          () => callAs("newCallIn", "torgen", { target: id }),
-          Match.Error
-        ));
-
-      describe("with simple callin", function () {
-        beforeEach(() =>
-          callAs("newCallIn", "torgen", {
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("newCallIn", {
             target: id,
             answer: "precipitate",
-          })
+          }),
+          Match.Error
         );
+      });
 
-        it("creates document", function () {
-          const c = CallIns.findOne();
+      it("fails without answer", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", { target: id }),
+          Match.Error
+        );
+      });
+
+      describe("with simple callin", function () {
+        beforeEach(async function () {
+          await callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+          });
+        });
+
+        it("creates document", async function () {
+          const c = await CallIns.findOneAsync();
           chai.assert.include(c, {
             name: "answer:Foo:precipitate",
             target: id,
@@ -119,11 +117,11 @@ describe("newCallIn", function () {
           });
         });
 
-        it("oplogs", function () {
-          const o = Messages.find({
+        it("oplogs", async function () {
+          const o = await Messages.find({
             room_name: "oplog/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
@@ -135,11 +133,11 @@ describe("newCallIn", function () {
           chai.assert.include(o[0].body, "precipitate", "message");
         });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${id}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -149,11 +147,11 @@ describe("newCallIn", function () {
           chai.assert.notInclude(o[0].body, "(Foo)", "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -164,13 +162,13 @@ describe("newCallIn", function () {
         });
       });
 
-      it("sets backsolve", function () {
-        callAs("newCallIn", "torgen", {
+      it("sets backsolve", async function () {
+        await callAs("newCallIn", "torgen", {
           target: id,
           answer: "precipitate",
           backsolve: true,
         });
-        const c = CallIns.findOne();
+        const c = await CallIns.findOneAsync();
         chai.assert.include(c, {
           target: id,
           answer: "precipitate",
@@ -182,13 +180,13 @@ describe("newCallIn", function () {
         });
       });
 
-      it("sets provided", function () {
-        callAs("newCallIn", "torgen", {
+      it("sets provided", async function () {
+        await callAs("newCallIn", "torgen", {
           target: id,
           answer: "precipitate",
           provided: true,
         });
-        const c = CallIns.findOne();
+        const c = await CallIns.findOneAsync();
         chai.assert.include(c, {
           target: id,
           answer: "precipitate",
@@ -201,8 +199,8 @@ describe("newCallIn", function () {
       });
     });
 
-    it("notifies meta chat for puzzle", function () {
-      const meta = Puzzles.insert({
+    it("notifies meta chat for puzzle", async function () {
+      const meta = await Puzzles.insertAsync({
         name: "Meta",
         canon: "meta",
         created: 2,
@@ -214,7 +212,7 @@ describe("newCallIn", function () {
         tags: {},
         feedsInto: [],
       });
-      const p = Puzzles.insert({
+      const p = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 2,
@@ -226,8 +224,8 @@ describe("newCallIn", function () {
         tags: {},
         feedsInto: [meta],
       });
-      Puzzles.update(meta, { $push: { puzzles: p } });
-      const r = Rounds.insert({
+      await Puzzles.updateAsync(meta, { $push: { puzzles: p } });
+      const r = await Rounds.insertAsync({
         name: "Bar",
         canon: "bar",
         created: 1,
@@ -237,14 +235,14 @@ describe("newCallIn", function () {
         puzzles: [meta, p],
         tags: {},
       });
-      callAs("newCallIn", "torgen", {
+      await callAs("newCallIn", "torgen", {
         target: p,
         answer: "precipitate",
       });
-      const m = Messages.find({
+      const m = await Messages.find({
         room_name: `puzzles/${meta}`,
         dawn_of_time: { $ne: true },
-      }).fetch();
+      }).fetchAsync();
       chai.assert.lengthOf(m, 1);
       chai.assert.include(m[0], {
         nick: "torgen",
@@ -256,19 +254,19 @@ describe("newCallIn", function () {
   });
 
   describe("of partial answer", function () {
-    it("fails when target doesn't exist", () =>
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: "something",
-            answer: "precipitate",
-            callin_type: "partial answer",
-          }),
+    it("fails when target doesn't exist", async function () {
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: "something",
+          answer: "precipitate",
+          callin_type: "partial answer",
+        }),
         Meteor.Error
-      ));
+      );
+    });
 
-    it("fails when target is not a puzzle", function () {
-      const id = Rounds.insert({
+    it("fails when target is not a puzzle", async function () {
+      const id = await Rounds.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -280,68 +278,66 @@ describe("newCallIn", function () {
         tags: {},
         puzzles: [],
       });
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: id,
-            target_type: "rounds",
-            answer: "precipitate",
-            callin_type: "partial answer",
-          }),
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: id,
+          target_type: "rounds",
+          answer: "precipitate",
+          callin_type: "partial answer",
+        }),
         Match.Error
       );
     });
 
     describe("on puzzle which exists", function () {
       let id = null;
-      beforeEach(
-        () =>
-          (id = Puzzles.insert({
-            name: "Foo",
-            canon: "foo",
-            created: 1,
-            created_by: "cscott",
-            touched: 1,
-            touched_by: "cscott",
-            solved: null,
-            solved_by: null,
-            tags: {},
-            feedsInto: [],
-          }))
-      );
+      beforeEach(async function () {
+        id = await Puzzles.insertAsync({
+          name: "Foo",
+          canon: "foo",
+          created: 1,
+          created_by: "cscott",
+          touched: 1,
+          touched_by: "cscott",
+          solved: null,
+          solved_by: null,
+          tags: {},
+          feedsInto: [],
+        });
+      });
 
-      it("fails without login", () =>
-        chai.assert.throws(
-          () =>
-            Meteor.call("newCallIn", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "partial answer",
-            }),
-          Match.Error
-        ));
-
-      it("fails without answer", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              callin_type: "partial answer",
-            }),
-          Match.Error
-        ));
-
-      describe("with simple callin", function () {
-        beforeEach(() =>
-          callAs("newCallIn", "torgen", {
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("newCallIn", {
             target: id,
             answer: "precipitate",
             callin_type: "partial answer",
-          })
+          }),
+          Match.Error
         );
+      });
 
-        it("creates document", function () {
-          const c = CallIns.findOne();
+      it("fails without answer", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            callin_type: "partial answer",
+          }),
+          Match.Error
+        );
+      });
+
+      describe("with simple callin", function () {
+        beforeEach(async function () {
+          await callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "partial answer",
+          });
+        });
+
+        it("creates document", async function () {
+          const c = await CallIns.findOneAsync();
           chai.assert.include(c, {
             name: "partial answer:Foo:precipitate",
             target: id,
@@ -356,11 +352,11 @@ describe("newCallIn", function () {
           });
         });
 
-        it("oplogs", function () {
-          const o = Messages.find({
+        it("oplogs", async function () {
+          const o = await Messages.find({
             room_name: "oplog/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
@@ -372,11 +368,11 @@ describe("newCallIn", function () {
           chai.assert.include(o[0].body, "precipitate", "message");
         });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${id}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -386,11 +382,11 @@ describe("newCallIn", function () {
           chai.assert.notInclude(o[0].body, "(Foo)", "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -401,14 +397,14 @@ describe("newCallIn", function () {
         });
       });
 
-      it("sets backsolve", function () {
-        callAs("newCallIn", "torgen", {
+      it("sets backsolve", async function () {
+        await callAs("newCallIn", "torgen", {
           target: id,
           answer: "precipitate",
           callin_type: "partial answer",
           backsolve: true,
         });
-        const c = CallIns.findOne();
+        const c = await CallIns.findOneAsync();
         chai.assert.include(c, {
           target: id,
           answer: "precipitate",
@@ -420,14 +416,14 @@ describe("newCallIn", function () {
         });
       });
 
-      it("sets provided", function () {
-        callAs("newCallIn", "torgen", {
+      it("sets provided", async function () {
+        await callAs("newCallIn", "torgen", {
           target: id,
           answer: "precipitate",
           callin_type: "partial answer",
           provided: true,
         });
-        const c = CallIns.findOne();
+        const c = await CallIns.findOneAsync();
         chai.assert.include(c, {
           target: id,
           answer: "precipitate",
@@ -440,8 +436,8 @@ describe("newCallIn", function () {
       });
     });
 
-    it("notifies meta chat for puzzle", function () {
-      const meta = Puzzles.insert({
+    it("notifies meta chat for puzzle", async function () {
+      const meta = await Puzzles.insertAsync({
         name: "Meta",
         canon: "meta",
         created: 2,
@@ -453,7 +449,7 @@ describe("newCallIn", function () {
         tags: {},
         feedsInto: [],
       });
-      const p = Puzzles.insert({
+      const p = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 2,
@@ -465,8 +461,8 @@ describe("newCallIn", function () {
         tags: {},
         feedsInto: [meta],
       });
-      Puzzles.update(meta, { $push: { puzzles: p } });
-      const r = Rounds.insert({
+      await Puzzles.updateAsync(meta, { $push: { puzzles: p } });
+      const r = await Rounds.insertAsync({
         name: "Bar",
         canon: "bar",
         created: 1,
@@ -476,15 +472,15 @@ describe("newCallIn", function () {
         puzzles: [meta, p],
         tags: {},
       });
-      callAs("newCallIn", "torgen", {
+      await callAs("newCallIn", "torgen", {
         target: p,
         answer: "precipitate",
         callin_type: "partial answer",
       });
-      const m = Messages.find({
+      const m = await Messages.find({
         room_name: `puzzles/${meta}`,
         dawn_of_time: { $ne: true },
-      }).fetch();
+      }).fetchAsync();
       chai.assert.lengthOf(m, 1);
       chai.assert.include(m[0], {
         nick: "torgen",
@@ -496,19 +492,19 @@ describe("newCallIn", function () {
   });
 
   describe("of interaction request", function () {
-    it("fails when target doesn't exist", () =>
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: "something",
-            answer: "precipitate",
-            callin_type: "interaction request",
-          }),
+    it("fails when target doesn't exist", async function () {
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: "something",
+          answer: "precipitate",
+          callin_type: "interaction request",
+        }),
         Meteor.Error
-      ));
+      );
+    });
 
-    it("fails when target is not a puzzle", function () {
-      const id = Rounds.insert({
+    it("fails when target is not a puzzle", async function () {
+      const id = await Rounds.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -520,92 +516,90 @@ describe("newCallIn", function () {
         tags: {},
         puzzles: [],
       });
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: id,
-            target_type: "rounds",
-            answer: "precipitate",
-            callin_type: "interaction request",
-          }),
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: id,
+          target_type: "rounds",
+          answer: "precipitate",
+          callin_type: "interaction request",
+        }),
         Match.Error
       );
     });
 
     describe("on puzzle which exists", function () {
       let id = null;
-      beforeEach(
-        () =>
-          (id = Puzzles.insert({
-            name: "Foo",
-            canon: "foo",
-            created: 1,
-            created_by: "cscott",
-            touched: 1,
-            touched_by: "cscott",
-            solved: null,
-            solved_by: null,
-            tags: {},
-            feedsInto: [],
-          }))
-      );
+      beforeEach(async function () {
+        id = await Puzzles.insertAsync({
+          name: "Foo",
+          canon: "foo",
+          created: 1,
+          created_by: "cscott",
+          touched: 1,
+          touched_by: "cscott",
+          solved: null,
+          solved_by: null,
+          tags: {},
+          feedsInto: [],
+        });
+      });
 
-      it("fails without login", () =>
-        chai.assert.throws(
-          () =>
-            Meteor.call("newCallIn", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "interaction request",
-            }),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("newCallIn", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "interaction request",
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails without answer", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              callin_type: "interaction request",
-            }),
+      it("fails without answer", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            callin_type: "interaction request",
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails with backsolve", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "interaction request",
-              backsolve: true,
-            }),
+      it("fails with backsolve", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "interaction request",
+            backsolve: true,
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails with provided", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "interaction request",
-              provided: true,
-            }),
+      it("fails with provided", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "interaction request",
+            provided: true,
+          }),
           Match.Error
-        ));
+        );
+      });
 
       describe("with valid parameters", function () {
-        beforeEach(() =>
-          callAs("newCallIn", "torgen", {
+        beforeEach(async function () {
+          await callAs("newCallIn", "torgen", {
             target: id,
             answer: "pay the cat tax",
             callin_type: "interaction request",
-          })
-        );
+          });
+        });
 
-        it("creates document", function () {
-          const c = CallIns.findOne();
+        it("creates document", async function () {
+          const c = await CallIns.findOneAsync();
           chai.assert.include(c, {
             name: "interaction request:Foo:pay the cat tax",
             target: id,
@@ -618,11 +612,11 @@ describe("newCallIn", function () {
           });
         });
 
-        it("oplogs", function () {
-          const o = Messages.find({
+        it("oplogs", async function () {
+          const o = await Messages.find({
             room_name: "oplog/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
@@ -634,11 +628,11 @@ describe("newCallIn", function () {
           chai.assert.include(o[0].body, "pay the cat tax", "message");
         });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${id}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -649,11 +643,11 @@ describe("newCallIn", function () {
           chai.assert.notInclude(o[0].body, "(Foo)", "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -668,19 +662,19 @@ describe("newCallIn", function () {
   });
 
   describe("of hq contact", function () {
-    it("fails when target doesn't exist", () =>
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: "something",
-            answer: "precipitate",
-            callin_type: "message to hq",
-          }),
+    it("fails when target doesn't exist", async function () {
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: "something",
+          answer: "precipitate",
+          callin_type: "message to hq",
+        }),
         Meteor.Error
-      ));
+      );
+    });
 
-    it("fails when target is not a puzzle", function () {
-      const id = Rounds.insert({
+    it("fails when target is not a puzzle", async function () {
+      const id = await Rounds.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -692,92 +686,90 @@ describe("newCallIn", function () {
         tags: {},
         puzzles: [],
       });
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: id,
-            target_type: "rounds",
-            answer: "precipitate",
-            callin_type: "message to hq",
-          }),
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: id,
+          target_type: "rounds",
+          answer: "precipitate",
+          callin_type: "message to hq",
+        }),
         Match.Error
       );
     });
 
     describe("on puzzle which exists", function () {
       let id = null;
-      beforeEach(
-        () =>
-          (id = Puzzles.insert({
-            name: "Foo",
-            canon: "foo",
-            created: 1,
-            created_by: "cscott",
-            touched: 1,
-            touched_by: "cscott",
-            solved: null,
-            solved_by: null,
-            tags: {},
-            feedsInto: [],
-          }))
-      );
+      beforeEach(async function () {
+        id = await Puzzles.insertAsync({
+          name: "Foo",
+          canon: "foo",
+          created: 1,
+          created_by: "cscott",
+          touched: 1,
+          touched_by: "cscott",
+          solved: null,
+          solved_by: null,
+          tags: {},
+          feedsInto: [],
+        });
+      });
 
-      it("fails without login", () =>
-        chai.assert.throws(
-          () =>
-            Meteor.call("newCallIn", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "message to hq",
-            }),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("newCallIn", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "message to hq",
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails without answer", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              callin_type: "message to hq",
-            }),
+      it("fails without answer", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            callin_type: "message to hq",
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails with backsolve", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "message to hq",
-              backsolve: true,
-            }),
+      it("fails with backsolve", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "message to hq",
+            backsolve: true,
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails with provided", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "message to hq",
-              provided: true,
-            }),
+      it("fails with provided", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "message to hq",
+            provided: true,
+          }),
           Match.Error
-        ));
+        );
+      });
 
       describe("with valid parameters", function () {
-        beforeEach(() =>
-          callAs("newCallIn", "torgen", {
+        beforeEach(async function () {
+          await callAs("newCallIn", "torgen", {
             target: id,
             answer: "pay the cat tax",
             callin_type: "message to hq",
-          })
-        );
+          });
+        });
 
-        it("creates document", function () {
-          const c = CallIns.findOne();
+        it("creates document", async function () {
+          const c = await CallIns.findOneAsync();
           chai.assert.include(c, {
             name: "message to hq:Foo:pay the cat tax",
             target: id,
@@ -790,11 +782,11 @@ describe("newCallIn", function () {
           });
         });
 
-        it("oplogs", function () {
-          const o = Messages.find({
+        it("oplogs", async function () {
+          const o = await Messages.find({
             room_name: "oplog/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
@@ -806,11 +798,11 @@ describe("newCallIn", function () {
           chai.assert.include(o[0].body, "pay the cat tax", "message");
         });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${id}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -821,11 +813,11 @@ describe("newCallIn", function () {
           chai.assert.notInclude(o[0].body, "(Foo)", "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -840,19 +832,19 @@ describe("newCallIn", function () {
   });
 
   describe("of expected callback", function () {
-    it("fails when target doesn't exist", () =>
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: "something",
-            answer: "precipitate",
-            callin_type: "expected callback",
-          }),
+    it("fails when target doesn't exist", async function () {
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: "something",
+          answer: "precipitate",
+          callin_type: "expected callback",
+        }),
         Meteor.Error
-      ));
+      );
+    });
 
-    it("fails when target is not a puzzle", function () {
-      const id = Rounds.insert({
+    it("fails when target is not a puzzle", async function () {
+      const id = await Rounds.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -864,92 +856,90 @@ describe("newCallIn", function () {
         tags: {},
         puzzles: [],
       });
-      chai.assert.throws(
-        () =>
-          callAs("newCallIn", "torgen", {
-            target: id,
-            target_type: "rounds",
-            answer: "precipitate",
-            callin_type: "expected callback",
-          }),
+      await assertRejects(
+        callAs("newCallIn", "torgen", {
+          target: id,
+          target_type: "rounds",
+          answer: "precipitate",
+          callin_type: "expected callback",
+        }),
         Match.Error
       );
     });
 
     describe("on puzzle which exists", function () {
       let id = null;
-      beforeEach(
-        () =>
-          (id = Puzzles.insert({
-            name: "Foo",
-            canon: "foo",
-            created: 1,
-            created_by: "cscott",
-            touched: 1,
-            touched_by: "cscott",
-            solved: null,
-            solved_by: null,
-            tags: {},
-            feedsInto: [],
-          }))
-      );
+      beforeEach(async function () {
+        id = await Puzzles.insertAsync({
+          name: "Foo",
+          canon: "foo",
+          created: 1,
+          created_by: "cscott",
+          touched: 1,
+          touched_by: "cscott",
+          solved: null,
+          solved_by: null,
+          tags: {},
+          feedsInto: [],
+        });
+      });
 
-      it("fails without login", () =>
-        chai.assert.throws(
-          () =>
-            Meteor.call("newCallIn", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "expected callback",
-            }),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("newCallIn", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "expected callback",
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails without answer", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              callin_type: "expected callback",
-            }),
+      it("fails without answer", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            callin_type: "expected callback",
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails with backsolve", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "expected callback",
-              backsolve: true,
-            }),
+      it("fails with backsolve", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "expected callback",
+            backsolve: true,
+          }),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails with provided", () =>
-        chai.assert.throws(
-          () =>
-            callAs("newCallIn", "torgen", {
-              target: id,
-              answer: "precipitate",
-              callin_type: "expected callback",
-              provided: true,
-            }),
+      it("fails with provided", async function () {
+        await assertRejects(
+          callAs("newCallIn", "torgen", {
+            target: id,
+            answer: "precipitate",
+            callin_type: "expected callback",
+            provided: true,
+          }),
           Match.Error
-        ));
+        );
+      });
 
       describe("with valid parameters", function () {
-        beforeEach(() =>
-          callAs("newCallIn", "torgen", {
+        beforeEach(async function () {
+          await callAs("newCallIn", "torgen", {
             target: id,
             answer: "pay the cat tax",
             callin_type: "expected callback",
-          })
-        );
+          });
+        });
 
-        it("creates document", function () {
-          const c = CallIns.findOne();
+        it("creates document", async function () {
+          const c = await CallIns.findOneAsync();
           chai.assert.include(c, {
             name: "expected callback:Foo:pay the cat tax",
             target: id,
@@ -962,11 +952,11 @@ describe("newCallIn", function () {
           });
         });
 
-        it("oplogs", function () {
-          const o = Messages.find({
+        it("oplogs", async function () {
+          const o = await Messages.find({
             room_name: "oplog/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             type: "puzzles",
@@ -978,11 +968,11 @@ describe("newCallIn", function () {
           chai.assert.include(o[0].body, "pay the cat tax", "message");
         });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${id}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",
@@ -993,11 +983,11 @@ describe("newCallIn", function () {
           chai.assert.notInclude(o[0].body, "(Foo)", "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "torgen",

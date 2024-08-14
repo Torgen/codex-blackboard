@@ -1,8 +1,8 @@
 import { Calendar, CalendarEvents } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { CalendarSync } from "./calendar.js";
+import { clearCollections } from "/lib/imports/testutils.js";
 
 describe("CalendarSync", function () {
   let clock = null;
@@ -13,8 +13,8 @@ describe("CalendarSync", function () {
   let events = null;
   let sync = null;
 
-  beforeEach(function () {
-    resetDatabase();
+  beforeEach(async function () {
+    await clearCollections(Calendar, CalendarEvents);
     clock = sinon.useFakeTimers({
       now: 60007,
       toFake: ["setTimeout", "clearTimeout", "Date"],
@@ -56,16 +56,19 @@ describe("CalendarSync", function () {
 
   function testCases() {
     describe("with existing calendar", function () {
-      beforeEach(function () {
-        Calendar.insert({ _id: "testCalendar", syncToken: "syncToken1" });
-        CalendarEvents.insert({
+      beforeEach(async function () {
+        await Calendar.insertAsync({
+          _id: "testCalendar",
+          syncToken: "syncToken1",
+        });
+        await CalendarEvents.insertAsync({
           _id: "evt1",
           summary: "Event 1",
           location: "Planet Nowhere",
           start: 1640814960000,
           end: 1640818560000,
         });
-        CalendarEvents.insert({
+        await CalendarEvents.insertAsync({
           _id: "evt3",
           summary: "Will be deleted",
           start: 1640814960000,
@@ -75,7 +78,7 @@ describe("CalendarSync", function () {
         calendars.expects("insert").never();
       });
 
-      it("updates incrementally", function () {
+      it("updates incrementally", async function () {
         events
           .expects("list")
           .once()
@@ -109,26 +112,33 @@ describe("CalendarSync", function () {
             },
           });
         sync = new CalendarSync(api);
-        chai.assert.include(Calendar.findOne(), {
+        await sync.start();
+        chai.assert.include(await Calendar.findOneAsync(), {
           _id: "testCalendar",
           syncToken: "syncToken2",
         });
-        chai.assert.include(CalendarEvents.findOne({ _id: "evt1" }), {
-          summary: "Event One",
-          start: 1640815200000,
-          end: 1640818800000,
-          link: "https://calendar.google.com/event/evt1",
-        });
-        chai.assert.include(CalendarEvents.findOne({ _id: "evt2" }), {
-          summary: "Event Two",
-          location: "Kresge Auditorium",
-          start: 1640901600000,
-          end: 1640905200000,
-        });
-        chai.assert.isNotOk(CalendarEvents.findOne({ _id: "evt3" }));
+        chai.assert.include(
+          await CalendarEvents.findOneAsync({ _id: "evt1" }),
+          {
+            summary: "Event One",
+            start: 1640815200000,
+            end: 1640818800000,
+            link: "https://calendar.google.com/event/evt1",
+          }
+        );
+        chai.assert.include(
+          await CalendarEvents.findOneAsync({ _id: "evt2" }),
+          {
+            summary: "Event Two",
+            location: "Kresge Auditorium",
+            start: 1640901600000,
+            end: 1640905200000,
+          }
+        );
+        chai.assert.isNotOk(await CalendarEvents.findOneAsync({ _id: "evt3" }));
       });
 
-      it("does full sync when gone", function () {
+      it("does full sync when gone", async function () {
         const e = new Error();
         e.code = 410;
         const list = events
@@ -159,22 +169,29 @@ describe("CalendarSync", function () {
             },
           });
         sync = new CalendarSync(api);
-        chai.assert.include(Calendar.findOne(), {
+        await sync.start();
+        chai.assert.include(await Calendar.findOneAsync(), {
           _id: "testCalendar",
           syncToken: "syncToken2",
         });
-        chai.assert.include(CalendarEvents.findOne({ _id: "evt1" }), {
-          summary: "Event One",
-          start: 1640815200000,
-          end: 1640818800000,
-          link: "https://calendar.google.com/event/evt1",
-        });
-        chai.assert.include(CalendarEvents.findOne({ _id: "evt2" }), {
-          summary: "Event Two",
-          location: "Kresge Auditorium",
-          start: 1640901600000,
-          end: 1640905200000,
-        });
+        chai.assert.include(
+          await CalendarEvents.findOneAsync({ _id: "evt1" }),
+          {
+            summary: "Event One",
+            start: 1640815200000,
+            end: 1640818800000,
+            link: "https://calendar.google.com/event/evt1",
+          }
+        );
+        chai.assert.include(
+          await CalendarEvents.findOneAsync({ _id: "evt2" }),
+          {
+            summary: "Event Two",
+            location: "Kresge Auditorium",
+            start: 1640901600000,
+            end: 1640905200000,
+          }
+        );
         chai.assert.deepEqual(list.getCall(0).args[0], {
           calendarId: "testCalendar",
           pageToken: null,
@@ -188,7 +205,7 @@ describe("CalendarSync", function () {
       });
     });
 
-    it("looks up calendar", function () {
+    it("looks up calendar", async function () {
       calendarList
         .expects("list")
         .once()
@@ -235,17 +252,18 @@ describe("CalendarSync", function () {
           },
         });
       sync = new CalendarSync(api);
-      chai.assert.include(Calendar.findOne(), {
+      await sync.start();
+      chai.assert.include(await Calendar.findOneAsync(), {
         _id: "testCalendar",
         syncToken: "syncToken1",
       });
-      chai.assert.include(CalendarEvents.findOne({ _id: "evt1" }), {
+      chai.assert.include(await CalendarEvents.findOneAsync({ _id: "evt1" }), {
         summary: "Event One",
         start: 1640815200000,
         end: 1640818800000,
         link: "https://calendar.google.com/event/evt1",
       });
-      chai.assert.include(CalendarEvents.findOne({ _id: "evt2" }), {
+      chai.assert.include(await CalendarEvents.findOneAsync({ _id: "evt2" }), {
         summary: "Event Two",
         location: "Kresge Auditorium",
         start: 1640901600000,
@@ -263,7 +281,7 @@ describe("CalendarSync", function () {
       });
     });
 
-    it("creates calendar", function () {
+    it("creates calendar", async function () {
       calendarList
         .expects("list")
         .once()
@@ -299,11 +317,12 @@ describe("CalendarSync", function () {
           },
         });
       sync = new CalendarSync(api);
-      chai.assert.include(Calendar.findOne(), {
+      await sync.start();
+      chai.assert.include(await Calendar.findOneAsync(), {
         _id: "testCalendar",
         syncToken: "syncToken1",
       });
-      chai.assert.isNotOk(CalendarEvents.findOne());
+      chai.assert.isNotOk(await CalendarEvents.findOneAsync());
     });
   }
 

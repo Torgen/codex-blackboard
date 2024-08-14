@@ -1,17 +1,16 @@
 import script, { brain } from "./brain.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import Robot from "../imports/hubot.js";
-import { waitForDocument } from "/lib/imports/testutils.js";
+import { clearCollections, waitForDocument } from "/lib/imports/testutils.js";
 import delay from "delay";
 
 describe("brain hubot script", function () {
   let robot = null;
   let clock = null;
 
-  beforeEach(function () {
-    resetDatabase();
+  beforeEach(async function () {
+    await clearCollections(brain);
     clock = sinon.useFakeTimers({
       now: 7,
       toFake: ["Date", "setInterval", "clearInterval"],
@@ -26,20 +25,20 @@ describe("brain hubot script", function () {
     clock.restore();
   });
 
-  it("loads data", function () {
-    brain.insert({
+  it("loads data", async function () {
+    await brain.insertAsync({
       _id: "ambushes",
       value: {
         torgen: ["hi"],
         cjb: ["yo", "wazzup?"],
       },
     });
-    brain.insert({
+    await brain.insertAsync({
       _id: "drinks",
       value: 3,
     });
-    script(robot);
-    robot.run();
+    await script(robot);
+    await robot.run();
     chai.assert.deepInclude(robot.brain.data, {
       ambushes: {
         torgen: ["hi"],
@@ -49,9 +48,9 @@ describe("brain hubot script", function () {
     });
   });
 
-  it("saves data", function () {
-    script(robot);
-    robot.run();
+  it("saves data", async function () {
+    await script(robot);
+    await robot.run();
     robot.brain.data.ambushes = {
       torgen: ["hi"],
       cjb: ["yo", "wazzup?"],
@@ -73,16 +72,18 @@ describe("brain hubot script", function () {
   });
 
   it("syncs users", async function () {
-    Meteor.users.insert({
+    await Meteor.users.insertAsync({
       _id: "torgen",
     });
-    script(robot);
-    robot.run();
+    await script(robot);
+    await robot.run();
     chai.assert.deepInclude(robot.brain.data.users.torgen, { name: "torgen" });
-    Meteor.users.update("torgen", { $set: { nickname: "Torgen" } });
+    await Meteor.users.updateAsync("torgen", { $set: { nickname: "Torgen" } });
     await delay(200);
     chai.assert.deepInclude(robot.brain.data.users.torgen, { name: "Torgen" });
-    Meteor.users.update("torgen", { $set: { real_name: "Dan Rosart" } });
+    await Meteor.users.updateAsync("torgen", {
+      $set: { real_name: "Dan Rosart" },
+    });
     await delay(200);
     chai.assert.deepInclude(robot.brain.data.users.torgen, {
       name: "Dan Rosart",

@@ -4,34 +4,58 @@ import { Messages, Puzzles } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("summon", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Messages, Puzzles));
 
-  it("fails when puzzle doesn't exist", function () {
+  it("fails without login", async function () {
+    const id = await Puzzles.insertAsync({
+      name: "Foo",
+      canon: "foo",
+      created: 1,
+      created_by: "cscott",
+      touched: 2,
+      touched_by: "cjb",
+      solved: 2,
+      solved_by: "cjb",
+      tags: {
+        answer: {
+          name: "Answer",
+          value: "precipitate",
+          touched: 2,
+          touched_by: "cjb",
+        },
+      },
+    });
+    await assertRejects(
+      Meteor.callAsync("summon", { object: id }),
+      Match.Error
+    );
+  });
+
+  it("fails when puzzle doesn't exist", async function () {
     chai.assert.isString(
-      callAs("summon", "torgen", { object: "never heard of it" })
+      await callAs("summon", "torgen", { object: "never heard of it" })
     );
   });
 
   describe("when already answered", function () {
     let id = null;
     let ret = null;
-    beforeEach(function () {
-      id = Puzzles.insert({
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -49,13 +73,13 @@ describe("summon", function () {
           },
         },
       });
-      ret = callAs("summon", "torgen", { object: id });
+      ret = await callAs("summon", "torgen", { object: id });
     });
 
     it("returns an error", () => chai.assert.isString(ret));
 
-    it("doesn't touch", () =>
-      chai.assert.deepInclude(Puzzles.findOne(id), {
+    it("doesn't touch", async function () {
+      chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
         touched: 2,
         touched_by: "cjb",
         solved: 2,
@@ -68,23 +92,29 @@ describe("summon", function () {
             touched_by: "cjb",
           },
         },
-      }));
+      });
+    });
 
-    it("doesn't chat", () =>
+    it("doesn't chat", async function () {
       chai.assert.lengthOf(
-        Messages.find({ room_name: { $ne: "oplog/0" } }).fetch(),
+        await Messages.find({ room_name: { $ne: "oplog/0" } }).fetchAsync(),
         0
-      ));
+      );
+    });
 
-    it("doesn't oplog", () =>
-      chai.assert.lengthOf(Messages.find({ room_name: "oplog/0" }).fetch(), 0));
+    it("doesn't oplog", async function () {
+      chai.assert.lengthOf(
+        await Messages.find({ room_name: "oplog/0" }).fetchAsync(),
+        0
+      );
+    });
   });
 
   describe("when already stuck", function () {
     let id = null;
     let ret = null;
-    beforeEach(function () {
-      id = Puzzles.insert({
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -102,15 +132,15 @@ describe("summon", function () {
           },
         },
       });
-      ret = callAs("summon", "torgen", {
+      ret = await callAs("summon", "torgen", {
         object: id,
         how: "Stuck like glue",
       });
     });
     it("returns nothing", () => chai.assert.isUndefined(ret));
 
-    it("updates document", () =>
-      chai.assert.deepInclude(Puzzles.findOne(id), {
+    it("updates document", async function () {
+      chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
         touched: 7,
         touched_by: "torgen",
         tags: {
@@ -121,23 +151,29 @@ describe("summon", function () {
             touched_by: "torgen",
           },
         },
-      }));
+      });
+    });
 
-    it("doesn't chat", () =>
+    it("doesn't chat", async function () {
       chai.assert.lengthOf(
-        Messages.find({ room_name: { $ne: "oplog/0" } }).fetch(),
+        await Messages.find({ room_name: { $ne: "oplog/0" } }).fetchAsync(),
         0
-      ));
+      );
+    });
 
-    it("doesn't oplog", () =>
-      chai.assert.lengthOf(Messages.find({ room_name: "oplog/0" }).fetch(), 0));
+    it("doesn't oplog", async function () {
+      chai.assert.lengthOf(
+        await Messages.find({ room_name: "oplog/0" }).fetchAsync(),
+        0
+      );
+    });
   });
 
   describe("with other status", function () {
     let id = null;
     let ret = null;
-    beforeEach(function () {
-      id = Puzzles.insert({
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -155,15 +191,15 @@ describe("summon", function () {
           },
         },
       });
-      ret = callAs("summon", "torgen", {
+      ret = await callAs("summon", "torgen", {
         object: id,
         how: "Stuck like glue",
       });
     });
     it("returns nothing", () => chai.assert.isUndefined(ret));
 
-    it("updates document", () =>
-      chai.assert.deepInclude(Puzzles.findOne(id), {
+    it("updates document", async function () {
+      chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
         touched: 7,
         touched_by: "torgen",
         tags: {
@@ -174,73 +210,77 @@ describe("summon", function () {
             touched_by: "torgen",
           },
         },
-      }));
+      });
+    });
 
-    it("notifies main chat", function () {
-      const msgs = Messages.find({
+    it("notifies main chat", async function () {
+      const msgs = await Messages.find({
         room_name: "general/0",
         dawn_of_time: { $ne: true },
-      }).fetch();
+      }).fetchAsync();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, ": Stuck like glue (");
       chai.assert.include(msgs[0].body, "Foo");
       chai.assert.notInclude(msgs[0].body, "solver-minutes");
     });
 
-    it("notifies puzzle chat", function () {
-      const msgs = Messages.find({
+    it("notifies puzzle chat", async function () {
+      const msgs = await Messages.find({
         room_name: `puzzles/${id}`,
         dawn_of_time: { $ne: true },
-      }).fetch();
+      }).fetchAsync();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, ": Stuck like glue");
       chai.assert.notInclude(msgs[0].body, "Foo");
       chai.assert.notInclude(msgs[0].body, "solver-minutes");
     });
 
-    it("oplogs", () =>
+    it("oplogs", async function () {
       chai.assert.lengthOf(
-        Messages.find({
+        await Messages.find({
           room_name: "oplog/0",
           stream: "stuck",
           type: "puzzles",
           id,
-        }).fetch(),
+        }).fetchAsync(),
         1
-      ));
+      );
+    });
   });
 
   describe("with no status", function () {
     let id = null;
-    beforeEach(
-      () =>
-        (id = Puzzles.insert({
-          name: "Foo",
-          canon: "foo",
-          created: 1,
-          created_by: "cscott",
-          touched: 2,
-          touched_by: "cjb",
-          solved: null,
-          solved_by: null,
-          tags: {},
-        }))
-    );
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
+        name: "Foo",
+        canon: "foo",
+        created: 1,
+        created_by: "cscott",
+        touched: 2,
+        touched_by: "cjb",
+        solved: null,
+        solved_by: null,
+        tags: {},
+      });
+    });
 
-    it("fails without login", () =>
-      chai.assert.throws(function () {
-        let ret;
-        ret = Meteor.call("summon", { object: id });
-      }, Match.Error));
+    it("fails without login", async function () {
+      await assertRejects(
+        Meteor.callAsync("summon", { object: id }),
+        Match.Error
+      );
+    });
 
     describe("empty how", function () {
       let ret = null;
-      beforeEach(() => (ret = callAs("summon", "torgen", { object: id })));
+      beforeEach(async function () {
+        ret = await callAs("summon", "torgen", { object: id });
+      });
 
       it("returns nothing", () => chai.assert.isUndefined(ret));
 
-      it("updates document", () =>
-        chai.assert.deepInclude(Puzzles.findOne(id), {
+      it("updates document", async function () {
+        chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
           touched: 7,
           touched_by: "torgen",
           tags: {
@@ -251,56 +291,57 @@ describe("summon", function () {
               touched_by: "torgen",
             },
           },
-        }));
+        });
+      });
 
-      it("notifies main chat", function () {
-        const msgs = Messages.find({
+      it("notifies main chat", async function () {
+        const msgs = await Messages.find({
           room_name: "general/0",
           dawn_of_time: { $ne: true },
-        }).fetch();
+        }).fetchAsync();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": Stuck (");
         chai.assert.include(msgs[0].body, "Foo");
         chai.assert.notInclude(msgs[0].body, "solver-minutes");
       });
 
-      it("notifies puzzle chat", function () {
-        const msgs = Messages.find({
+      it("notifies puzzle chat", async function () {
+        const msgs = await Messages.find({
           room_name: `puzzles/${id}`,
           dawn_of_time: { $ne: true },
-        }).fetch();
+        }).fetchAsync();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": Stuck");
         chai.assert.notInclude(msgs[0].body, "Foo");
         chai.assert.notInclude(msgs[0].body, "solver-minutes");
       });
 
-      it("oplogs", () =>
+      it("oplogs", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             room_name: "oplog/0",
             stream: "stuck",
             type: "puzzles",
             id,
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
     });
 
     describe("how starts with stuck", function () {
       let ret = null;
-      beforeEach(
-        () =>
-          (ret = callAs("summon", "torgen", {
-            object: id,
-            how: "stucK like glue",
-          }))
-      );
+      beforeEach(async function () {
+        ret = await callAs("summon", "torgen", {
+          object: id,
+          how: "stucK like glue",
+        });
+      });
 
       it("returns nothing", () => chai.assert.isUndefined(ret));
 
-      it("updates document", () =>
-        chai.assert.deepInclude(Puzzles.findOne(id), {
+      it("updates document", async function () {
+        chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
           touched: 7,
           touched_by: "torgen",
           tags: {
@@ -311,56 +352,57 @@ describe("summon", function () {
               touched_by: "torgen",
             },
           },
-        }));
+        });
+      });
 
-      it("notifies main chat", function () {
-        const msgs = Messages.find({
+      it("notifies main chat", async function () {
+        const msgs = await Messages.find({
           room_name: "general/0",
           dawn_of_time: { $ne: true },
-        }).fetch();
+        }).fetchAsync();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": stucK like glue (");
         chai.assert.include(msgs[0].body, "Foo");
         chai.assert.notInclude(msgs[0].body, "solver-minutes");
       });
 
-      it("notifies puzzle chat", function () {
-        const msgs = Messages.find({
+      it("notifies puzzle chat", async function () {
+        const msgs = await Messages.find({
           room_name: `puzzles/${id}`,
           dawn_of_time: { $ne: true },
-        }).fetch();
+        }).fetchAsync();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": stucK like glue");
         chai.assert.notInclude(msgs[0].body, "Foo");
         chai.assert.notInclude(msgs[0].body, "solver-minutes");
       });
 
-      it("oplogs", () =>
+      it("oplogs", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             room_name: "oplog/0",
             stream: "stuck",
             type: "puzzles",
             id,
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
     });
 
     describe("how starts with other", function () {
       let ret = null;
-      beforeEach(
-        () =>
-          (ret = callAs("summon", "torgen", {
-            object: id,
-            how: "no idea",
-          }))
-      );
+      beforeEach(async function () {
+        ret = await callAs("summon", "torgen", {
+          object: id,
+          how: "no idea",
+        });
+      });
 
       it("returns nothing", () => chai.assert.isUndefined(ret));
 
-      it("updates document", () =>
-        chai.assert.deepInclude(Puzzles.findOne(id), {
+      it("updates document", async function () {
+        chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
           touched: 7,
           touched_by: "torgen",
           tags: {
@@ -371,13 +413,14 @@ describe("summon", function () {
               touched_by: "torgen",
             },
           },
-        }));
+        });
+      });
 
-      it("notifies main chat", function () {
-        const msgs = Messages.find({
+      it("notifies main chat", async function () {
+        const msgs = await Messages.find({
           room_name: "general/0",
           dawn_of_time: { $ne: true },
-        }).fetch();
+        }).fetchAsync();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": no idea (");
         chai.assert.notInclude(msgs[0].body, "Stuck");
@@ -385,11 +428,11 @@ describe("summon", function () {
         chai.assert.include(msgs[0].body, "Foo");
       });
 
-      it("notifies puzzle chat", function () {
-        const msgs = Messages.find({
+      it("notifies puzzle chat", async function () {
+        const msgs = await Messages.find({
           room_name: `puzzles/${id}`,
           dawn_of_time: { $ne: true },
-        }).fetch();
+        }).fetchAsync();
         chai.assert.lengthOf(msgs, 1);
         chai.assert.include(msgs[0].body, ": no idea");
         chai.assert.notInclude(msgs[0].body, "Stuck");
@@ -397,24 +440,25 @@ describe("summon", function () {
         chai.assert.notInclude(msgs[0].body, "solver-minutes");
       });
 
-      it("oplogs", () =>
+      it("oplogs", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             room_name: "oplog/0",
             stream: "stuck",
             type: "puzzles",
             id,
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
     });
   });
 
   describe("with solver time", function () {
     let id = null;
     let ret = null;
-    beforeEach(function () {
-      id = Puzzles.insert({
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -433,15 +477,15 @@ describe("summon", function () {
           },
         },
       });
-      ret = callAs("summon", "torgen", {
+      ret = await callAs("summon", "torgen", {
         object: id,
         how: "Stuck like glue",
       });
     });
     it("returns nothing", () => chai.assert.isUndefined(ret));
 
-    it("updates document", () =>
-      chai.assert.deepInclude(Puzzles.findOne(id), {
+    it("updates document", async function () {
+      chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
         touched: 7,
         touched_by: "torgen",
         tags: {
@@ -452,39 +496,41 @@ describe("summon", function () {
             touched_by: "torgen",
           },
         },
-      }));
+      });
+    });
 
-    it("notifies main chat", function () {
-      const msgs = Messages.find({
+    it("notifies main chat", async function () {
+      const msgs = await Messages.find({
         room_name: "general/0",
         dawn_of_time: { $ne: true },
-      }).fetch();
+      }).fetchAsync();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, ": Stuck like glue (");
       chai.assert.include(msgs[0].body, "Foo");
       chai.assert.include(msgs[0].body, "32 solver-minutes");
     });
 
-    it("notifies puzzle chat", function () {
-      const msgs = Messages.find({
+    it("notifies puzzle chat", async function () {
+      const msgs = await Messages.find({
         room_name: `puzzles/${id}`,
         dawn_of_time: { $ne: true },
-      }).fetch();
+      }).fetchAsync();
       chai.assert.lengthOf(msgs, 1);
       chai.assert.include(msgs[0].body, ": Stuck like glue");
       chai.assert.notInclude(msgs[0].body, "Foo");
       chai.assert.notInclude(msgs[0].body, "solver-minutes");
     });
 
-    it("oplogs", () =>
+    it("oplogs", async function () {
       chai.assert.lengthOf(
-        Messages.find({
+        await Messages.find({
           room_name: "oplog/0",
           stream: "stuck",
           type: "puzzles",
           id,
-        }).fetch(),
+        }).fetchAsync(),
         1
-      ));
+      );
+    });
   });
 });

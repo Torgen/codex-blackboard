@@ -7,7 +7,7 @@ editableTemplate(Template.edit_field, {
     if (
       value !== collection(tem.data.type).findOne(tem.data.id)?.[tem.data.field]
     ) {
-      Meteor.call("setField", {
+      Meteor.serializeCall("setField", {
         type: tem.data.type,
         object: tem.data.id,
         fields: {

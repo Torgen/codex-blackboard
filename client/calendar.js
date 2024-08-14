@@ -46,17 +46,17 @@ Template.calendar_event.helpers({
 
 Template.calendar_event.events({
   "click .bb-event-unattend"(event, template) {
-    Meteor.call(
+    Meteor.serializeCall(
       "removeEventAttendee",
       template.data.event._id,
       Meteor.userId()
     );
   },
   "click .bb-event-attend"(event, template) {
-    Meteor.call("addEventAttendee", template.data.event._id, Meteor.userId());
+    Meteor.serializeCall("addEventAttendee", template.data.event._id, Meteor.userId());
   },
   "click .bb-detach-event"(event, template) {
-    Meteor.call("setPuzzleForEvent", template.data.event._id, null);
+    Meteor.serializeCall("setPuzzleForEvent", template.data.event._id, null);
   },
 });
 
@@ -80,7 +80,7 @@ Template.calendar_attachable_events.helpers({ attachable_events });
 
 Template.calendar_attachable_events.events({
   "click [data-event-id]"(event, template) {
-    Meteor.call(
+    Meteor.serializeCall(
       "setPuzzleForEvent",
       event.currentTarget.dataset.eventId,
       template.data.puzzle
@@ -109,6 +109,6 @@ Template.calendar_puzzle_cell.helpers({ attachable_events });
 
 Template.calendar_puzzle_cell_entry.events({
   "click .bb-detach-event"(event, template) {
-    Meteor.call("setPuzzleForEvent", template.data.event._id, null);
+    Meteor.serializeCall("setPuzzleForEvent", template.data.event._id, null);
   },
 });

@@ -50,9 +50,9 @@ export default class PuzzleDrag {
       return true;
     }
     if (meta != null) {
-      Meteor.call("moveWithinMeta", this.id, meta._id, args);
+      Meteor.serializeCall("moveWithinMeta", this.id, meta._id, args);
     } else if (round != null) {
-      Meteor.call("moveWithinRound", this.id, round._id, args);
+      Meteor.serializeCall("moveWithinRound", this.id, round._id, args);
     }
     return true;
   }

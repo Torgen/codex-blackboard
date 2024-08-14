@@ -479,7 +479,7 @@ function moveBeforePrevious(match, rel, event, template) {
   }
   const args = {};
   args[rel] = prevRow[0].dataset.puzzleId;
-  Meteor.call(
+  Meteor.serializeCall(
     "moveWithinRound",
     row[0]?.dataset.puzzleId,
     Template.parentData()._id,
@@ -495,7 +495,7 @@ function moveAfterNext(match, rel, event, template) {
   }
   const args = {};
   args[rel] = nextRow[0].dataset.puzzleId;
-  Meteor.call(
+  Meteor.serializeCall(
     "moveWithinRound",
     row[0]?.dataset.puzzleId,
     Template.parentData()._id,
@@ -509,11 +509,11 @@ Template.blackboard_round.events({
   },
   "click .bb-round-buttons .bb-move-down"(event, template) {
     const dir = SORT_REVERSE.get() ? -1 : 1;
-    Meteor.call("moveRound", template.data._id, dir);
+    Meteor.serializeCall("moveRound", template.data._id, dir);
   },
   "click .bb-round-buttons .bb-move-up"(event, template) {
     const dir = SORT_REVERSE.get() ? 1 : -1;
-    Meteor.call("moveRound", template.data._id, dir);
+    Meteor.serializeCall("moveRound", template.data._id, dir);
   },
   "click .bb-round-header.collapsed .collapse-toggle"(event, template) {
     reactiveLocalStorage.setItem(`collapsed_round.${template.data._id}`, false);
@@ -530,7 +530,7 @@ Template.blackboard_round.events({
         message: `Are you sure you want to delete the round \"${template.data.name}\"?`,
       })
     ) {
-      Meteor.call("deleteRound", template.data._id);
+      await Meteor.serializeCall("deleteRound", template.data._id);
     }
   },
 
@@ -559,7 +559,7 @@ Template.blackboard_meta.onCreated(function () {
 function moveWithinMeta(pos) {
   return function (event, template) {
     const meta = template.data;
-    Meteor.call("moveWithinMeta", this.puzzle._id, meta.puzzle._id, { pos });
+    Meteor.serializeCall("moveWithinMeta", this.puzzle._id, meta.puzzle._id, { pos });
   };
 }
 
@@ -675,13 +675,13 @@ Template.blackboard_puzzle_cells.events({
   },
   "change .bb-set-is-meta"(event, template) {
     if (event.target.checked) {
-      Meteor.call("makeMeta", template.data.puzzle._id);
+      Meteor.serializeCall("makeMeta", template.data.puzzle._id);
     } else {
-      Meteor.call("makeNotMeta", template.data.puzzle._id);
+      Meteor.serializeCall("makeNotMeta", template.data.puzzle._id);
     }
   },
   "click .bb-feed-meta a[data-puzzle-id]"(event, template) {
-    Meteor.call(
+    Meteor.serializeCall(
       "feedMeta",
       template.data.puzzle._id,
       event.target.dataset.puzzleId
@@ -689,7 +689,7 @@ Template.blackboard_puzzle_cells.events({
     event.preventDefault();
   },
   "click button[data-sort-order]"(event, template) {
-    Meteor.call("setField", {
+    Meteor.serializeCall("setField", {
       type: "puzzles",
       object: template.data.puzzle._id,
       fields: { order_by: event.currentTarget.dataset.sortOrder },
@@ -704,7 +704,7 @@ Template.blackboard_puzzle_cells.events({
         message: `Are you sure you want to delete the puzzle \"${template.data.puzzle.name}\"?`,
       })
     ) {
-      Meteor.call("deletePuzzle", template.data.puzzle._id);
+      Meteor.serializeCall("deletePuzzle", template.data.puzzle._id);
     }
   },
 });
@@ -770,7 +770,7 @@ Template.blackboard_column_body_answer.events({
         message: `Are you sure you want to delete the partial answer \"${answer}\"?`,
       })
     ) {
-      Meteor.call("deletePartialAnswer", template.data.puzzle._id, answer);
+      Meteor.serializeCall("deletePartialAnswer", template.data.puzzle._id, answer);
     }
   },
   async "click .bb-finalize-answers"(event, template) {
@@ -781,7 +781,7 @@ Template.blackboard_column_body_answer.events({
         message: `Are those all the answers for ${template.data.puzzle.name}?`,
       })
     ) {
-      Meteor.call("finalizeAnswers", template.data.puzzle._id);
+      Meteor.serializeCall("finalizeAnswers", template.data.puzzle._id);
     }
   },
 });
@@ -832,7 +832,7 @@ Template.blackboard_addmeta_entry.helpers({ color: colorHelper });
 
 Template.blackboard_unfeed_meta.events({
   "click .bb-unfeed-icon"(event, template) {
-    Meteor.call("unfeedMeta", template.data.puzzle._id, template.data.meta._id);
+    Meteor.serializeCall("unfeedMeta", template.data.puzzle._id, template.data.meta._id);
   },
 });
 

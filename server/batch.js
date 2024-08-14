@@ -59,9 +59,9 @@ if (DO_BATCH_PROCESSING) {
           limit: LOCATION_BATCH_SIZE,
         }
       )
-      .forEach(function (n, i) {
+      .forEachAsync(async function (n, i) {
         console.log(`Updating location for ${n._id} (${i})`);
-        Meteor.users.update(n._id, {
+        await Meteor.users.updateAsync(n._id, {
           $set: {
             located: n.priv_located,
             located_at: n.priv_located_at,
@@ -70,29 +70,32 @@ if (DO_BATCH_PROCESSING) {
         });
       });
   const maybeRunBatch = throttle(runBatch, LOCATION_THROTTLE);
-  Meteor.users
-    .find(
-      {
-        priv_located_order: { $exists: true, $ne: null },
-      },
-      {
-        fields: { priv_located_order: 1 },
-      }
-    )
-    .observeChanges({
-      added(id, fields) {
-        maybeRunBatch();
-      },
-      // also run batch on removed: batch size might not have been big enough
-      removed(id) {
-        maybeRunBatch();
-      },
-    });
+  Meteor.startup(async () =>
+    Meteor.users
+      .find(
+        {
+          priv_located_order: { $exists: true, $ne: null },
+        },
+        {
+          fields: { priv_located_order: 1 },
+        }
+      )
+      .observeChangesAsync({
+        added(id, fields) {
+          maybeRunBatch();
+        },
+        // also run batch on removed: batch size might not have been big enough
+        removed(id) {
+          maybeRunBatch();
+        },
+      })
+  );
 
-  const presence = watchPresence();
+  Meteor.startup(async () => await watchPresence());
 
   const roleManager = new RoleManager();
-  roleManager.start();
+  Meteor.startup(async() => await roleManager.start());
 
-  const stats = collectPeriodicStats();
+  Meteor.startup(async () => await collectPeriodicStats());
+  
 }

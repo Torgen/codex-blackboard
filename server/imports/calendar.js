@@ -17,7 +17,10 @@ const POLL_INTERVAL = 30000;
 export class CalendarSync {
   constructor(api) {
     this.api = api;
-    let cal = Calendar.findOne();
+  }
+
+  async start() {
+    let cal = await Calendar.findOneAsync();
 
     if (cal != null) {
       this.id = cal._id;
@@ -26,43 +29,42 @@ export class CalendarSync {
     } else {
       this.syncToken = null;
 
-      this.id = Promise.await(
-        (async () => {
-          // See if one exists
-          let pageToken = null;
-          while (true) {
-            const res = (await this.api.calendarList.list({ pageToken })).data;
-            for (let item of res.items) {
-              if (item.summary === ROOT_FOLDER_NAME()) {
-                console.log(`Found calendar ${item.id}`);
-                return item.id;
-              }
-            }
-            if (!(pageToken = res.nextPageToken)) {
-              break;
+      // See if one exists
+      let pageToken = null;
+      findCalendar: {
+        while (true) {
+          const res = (await this.api.calendarList.list({ pageToken })).data;
+          for (let item of res.items) {
+            if (item.summary === ROOT_FOLDER_NAME()) {
+              console.log(`Found calendar ${item.id}`);
+              this.id = item.id;
+              break findCalendar;
             }
           }
-          // Apparently not, so make one.
-          cal = (
-            await this.api.calendars.insert({
-              requestBody: {
-                summary: ROOT_FOLDER_NAME(),
-                timeZone: CALENDAR_TIME_ZONE,
-              },
-            })
-          ).data;
-          console.log(`Made calendar ${cal.id}`);
-          return cal.id;
-        })()
-      );
-
-      Calendar.insert({ _id: this.id });
+          if (!(pageToken = res.nextPageToken)) {
+            break;
+          }
+        }
+        // Apparently not, so make one.
+        cal = (
+          await this.api.calendars.insert({
+            requestBody: {
+              summary: ROOT_FOLDER_NAME(),
+              timeZone: CALENDAR_TIME_ZONE,
+            },
+          })
+        ).data;
+        console.log(`Made calendar ${cal.id}`);
+        this.id = cal.id;
+      }
+      await Calendar.insertAsync({ _id: this.id });
     }
 
     const promises = [this._pollAndReschedule()];
-    const acls = Promise.await(
-      this.api.acl.list({ calendarId: this.id, maxResults: 250 })
-    );
+    const acls = await this.api.acl.list({
+      calendarId: this.id,
+      maxResults: 250,
+    });
     if (
       !acls.data.items.some(
         (x) => x.role === "reader" && x.scope.type === "default"
@@ -133,7 +135,7 @@ export class CalendarSync {
         );
       }
     }
-    Promise.await(Promise.all(promises));
+    await Promise.all(promises);
   }
 
   async pollOnce() {
@@ -209,7 +211,7 @@ export class CalendarSync {
           ordered: false,
         })
       : Promise.resolve();
-    const updateSync = Calendar.rawCollection().update(
+    const updateSync = Calendar.updateAsync(
       { _id: this.id },
       { $set: { syncToken: this.syncToken } }
     );

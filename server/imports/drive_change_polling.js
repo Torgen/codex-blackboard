@@ -20,23 +20,25 @@ const CHANGES_FIELDS =
 
 export default class DriveChangeWatcher {
   constructor(driveApi, rootDir, env = Meteor) {
-    let startPageToken;
     this.driveApi = driveApi;
     this.rootDir = rootDir;
     this.env = env;
-    let lastToken = startPageTokens.findOne(
+  }
+  async start() {
+    let startPageToken;
+    let lastToken = await startPageTokens.findOneAsync(
       {},
       { limit: 1, sort: { timestamp: -1 } }
     );
     if (!lastToken) {
       ({
         data: { startPageToken },
-      } = Promise.await(this.driveApi.changes.getStartPageToken()));
+      } = await this.driveApi.changes.getStartPageToken());
       lastToken = {
         timestamp: Date.now(),
         token: startPageToken,
       };
-      startPageTokens.insert(lastToken);
+      await startPageTokens.insertAsync(lastToken);
     }
     this.startPageToken = lastToken.token;
     this.lastPoll = lastToken.timestamp;
@@ -46,7 +48,7 @@ export default class DriveChangeWatcher {
     );
   }
 
-  poll() {
+  async poll() {
     let puzzle;
     let token = this.startPageToken;
     const pollStart = Date.now();
@@ -54,13 +56,11 @@ export default class DriveChangeWatcher {
       let created, data, updates;
       const promises = [];
       while (true) {
-        ({ data } = Promise.await(
-          this.driveApi.changes.list({
-            pageToken: token,
-            pageSize: 1000,
-            fields: CHANGES_FIELDS,
-          })
-        ));
+        ({ data } = await this.driveApi.changes.list({
+          pageToken: token,
+          pageSize: 1000,
+          fields: CHANGES_FIELDS,
+        }));
         updates = new Map(); // key: puzzle id, value: max modifiedTime of file with it as parent
         created = new Map(); // key: file ID, value: {name, mimeType, webViewLink, channel}
         promises.push(
@@ -94,7 +94,7 @@ export default class DriveChangeWatcher {
             if (parents.includes(this.rootDir)) {
               channel = "general/0";
             } else {
-              puzzle = await Puzzles.rawCollection().findOne({
+              puzzle = await Puzzles.findOneAsync({
                 drive: { $in: parents },
               });
               if (puzzle == null) {
@@ -127,8 +127,8 @@ export default class DriveChangeWatcher {
             }
             if (channel != null) {
               if (
-                (await driveFiles.rawCollection().findOne({ _id: fileId }))
-                  ?.announced == null
+                (await driveFiles.findOneAsync({ _id: fileId }))?.announced ==
+                null
               ) {
                 return created.set(fileId, {
                   name,
@@ -150,7 +150,7 @@ export default class DriveChangeWatcher {
           );
         }
       }
-      Promise.await(Promise.all(promises));
+      await Promise.all(promises);
       const bulkPuzzleUpdates = [];
       for (const [puzzle, { timestamp, doc }] of updates) {
         const updateDoc = { $max: { drive_touched: timestamp } };
@@ -170,30 +170,36 @@ export default class DriveChangeWatcher {
             ordered: false,
           })
         : Promise.resolve();
+      const mapPromises = [];
       created.forEach(function (
         { name, mimeType, webViewLink, channel },
         fileId
       ) {
-        // Would be nice to use bulk write here, but since we're not forcing a particular ID
-        // we could have mismatched meteor vs. mongo ID types.
-        const now = Date.now();
-        Messages.insert({
-          body: `${fileType(
-            mimeType
-          )} \"${name}\" added to drive folder: ${webViewLink}`,
-          system: true,
-          room_name: channel,
-          bot_ignore: true,
-          useful: true,
-          file_upload: { name, mimeType, webViewLink, fileId },
-          timestamp: now,
-        });
-        driveFiles.upsert(fileId, { $max: { announced: now } });
+        mapPromises.push(
+          (async function () {
+            // Would be nice to use bulk write here, but since we're not forcing a particular ID
+            // we could have mismatched meteor vs. mongo ID types.
+            const now = Date.now();
+            await Messages.insertAsync({
+              body: `${fileType(
+                mimeType
+              )} \"${name}\" added to drive folder: ${webViewLink}`,
+              system: true,
+              room_name: channel,
+              bot_ignore: true,
+              useful: true,
+              file_upload: { name, mimeType, webViewLink, fileId },
+              timestamp: now,
+            });
+            await driveFiles.upsertAsync(fileId, { $max: { announced: now } });
+          })()
+        );
       });
-      Promise.await(puzzlePromise);
+      await Promise.all(mapPromises);
+      await puzzlePromise;
       this.lastPoll = pollStart;
       this.startPageToken = data.newStartPageToken;
-      startPageTokens.upsert(
+      await startPageTokens.upsertAsync(
         {},
         {
           $set: {

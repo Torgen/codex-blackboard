@@ -28,7 +28,7 @@ Template.create_object.events(
       }
       let type = pretty_collection(template.data.type);
       type = type[0].toUpperCase() + type.slice(1);
-      Meteor.call(`new${type}`, { name, ...this.params });
+      Meteor.serializeCall(`new${type}`, { name, ...this.params });
       template.name.set("");
     },
   })

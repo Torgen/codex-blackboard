@@ -4,72 +4,71 @@ import { LastRead } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("updatelastRead", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(LastRead));
 
-  it("fails without login", () =>
-    chai.assert.throws(
-      () =>
-        Meteor.call("updateLastRead", {
-          room_name: "general/0",
-          timestamp: 3,
-        }),
+  it("fails without login", async function () {
+    await assertRejects(
+      Meteor.callAsync("updateLastRead", {
+        room_name: "general/0",
+        timestamp: 3,
+      }),
       Match.Error
-    ));
+    );
+  });
 
-  it("creates", function () {
-    callAs("updateLastRead", "torgen", {
+  it("creates", async function () {
+    await callAs("updateLastRead", "torgen", {
       room_name: "general/0",
       timestamp: 3,
     });
     chai.assert.include(
-      LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
+      await LastRead.findOneAsync({ nick: "torgen", room_name: "general/0" }),
       { timestamp: 3 }
     );
   });
 
-  it("advances", function () {
-    LastRead.insert({
+  it("advances", async function () {
+    await LastRead.insertAsync({
       nick: "torgen",
       room_name: "general/0",
       timestamp: 2,
     });
-    callAs("updateLastRead", "torgen", {
+    await callAs("updateLastRead", "torgen", {
       room_name: "general/0",
       timestamp: 3,
     });
     chai.assert.include(
-      LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
+      await LastRead.findOneAsync({ nick: "torgen", room_name: "general/0" }),
       { timestamp: 3 }
     );
   });
 
-  it("doesn't retreat", function () {
-    LastRead.insert({
+  it("doesn't retreat", async function () {
+    await LastRead.insertAsync({
       nick: "torgen",
       room_name: "general/0",
       timestamp: 3,
     });
-    callAs("updateLastRead", "torgen", {
+    await callAs("updateLastRead", "torgen", {
       room_name: "general/0",
       timestamp: 2,
     });
     chai.assert.include(
-      LastRead.findOne({ nick: "torgen", room_name: "general/0" }),
+      await LastRead.findOneAsync({ nick: "torgen", room_name: "general/0" }),
       { timestamp: 3 }
     );
   });

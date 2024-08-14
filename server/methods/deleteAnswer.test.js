@@ -5,25 +5,24 @@ import { Messages, Puzzles } from "/lib/imports/collections.js";
 import { callAs } from "../../server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("deleteAnswer", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Messages, Puzzles));
 
-  it("fails without login", function () {
-    const id = Puzzles.insert({
+  it("fails without login", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -41,14 +40,14 @@ describe("deleteAnswer", function () {
         },
       },
     });
-    chai.assert.throws(
-      () => Meteor.call("deleteAnswer", { target: id }),
+    await assertRejects(
+      Meteor.callAsync("deleteAnswer", { target: id }),
       Match.Error
     );
   });
 
-  it("works when unanswered", function () {
-    const id = Puzzles.insert({
+  it("works when unanswered", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -66,8 +65,8 @@ describe("deleteAnswer", function () {
         },
       },
     });
-    callAs("deleteAnswer", "cjb", { target: id });
-    const doc = Puzzles.findOne(id);
+    await callAs("deleteAnswer", "cjb", { target: id });
+    const doc = await Puzzles.findOneAsync(id);
     chai.assert.deepEqual(doc, {
       _id: id,
       name: "Foo",
@@ -88,7 +87,7 @@ describe("deleteAnswer", function () {
         },
       },
     });
-    const oplogs = Messages.find({ room_name: "oplog/0" }).fetch();
+    const oplogs = await Messages.find({ room_name: "oplog/0" }).fetchAsync();
     chai.assert.equal(oplogs.length, 1);
     chai.assert.include(oplogs[0], {
       nick: "cjb",
@@ -106,8 +105,8 @@ describe("deleteAnswer", function () {
     });
   });
 
-  it("removes answer", function () {
-    const id = Puzzles.insert({
+  it("removes answer", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -132,8 +131,8 @@ describe("deleteAnswer", function () {
         },
       },
     });
-    callAs("deleteAnswer", "cjb", { target: id });
-    const doc = Puzzles.findOne(id);
+    await callAs("deleteAnswer", "cjb", { target: id });
+    const doc = await Puzzles.findOneAsync(id);
     chai.assert.deepEqual(doc, {
       _id: id,
       name: "Foo",
@@ -154,7 +153,7 @@ describe("deleteAnswer", function () {
         },
       },
     });
-    const oplogs = Messages.find({ room_name: "oplog/0" }).fetch();
+    const oplogs = await Messages.find({ room_name: "oplog/0" }).fetchAsync();
     chai.assert.equal(oplogs.length, 1);
     chai.assert.include(oplogs[0], {
       nick: "cjb",
@@ -172,8 +171,8 @@ describe("deleteAnswer", function () {
     });
   });
 
-  it("removes backsolve and provided", function () {
-    const id = Puzzles.insert({
+  it("removes backsolve and provided", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -204,8 +203,8 @@ describe("deleteAnswer", function () {
         },
       },
     });
-    callAs("deleteAnswer", "cjb", { target: id });
-    const doc = Puzzles.findOne(id);
+    await callAs("deleteAnswer", "cjb", { target: id });
+    const doc = await Puzzles.findOneAsync(id);
     chai.assert.deepEqual(doc, {
       _id: id,
       name: "Foo",
@@ -219,7 +218,7 @@ describe("deleteAnswer", function () {
       confirmed_by: null,
       tags: {},
     });
-    const oplogs = Messages.find({ room_name: "oplog/0" }).fetch();
+    const oplogs = await Messages.find({ room_name: "oplog/0" }).fetchAsync();
     chai.assert.equal(oplogs.length, 1);
     chai.assert.include(oplogs[0], {
       nick: "cjb",
