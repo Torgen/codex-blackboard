@@ -12,7 +12,7 @@ solvers, and/or have privacy-conscious members, since access is given by a
 shared password, and not membership in a Google Group or Discord server.
 
 See the wiki for instructions on:
-* [Building and managing a server](./docs/Operations.md)
+* [Building and managing a server](./docs/Operations.md). Note that there are significant changes for 2025!
 * [Using the server as a solver](./docs/Solving.md)
 * [Updating data on the server as an on-call](./docs/Oncall.md)
   
@@ -50,7 +50,7 @@ settings.json file on the virtual Linux filesystem.
 Installing Meteor
 -----------------
 
-Our blackboard app currently requires Meteor 2.14.
+Our blackboard app currently requires Meteor 3.0.1.
 
 At the moment the two ways to install Meteor are:
 

@@ -17,6 +17,20 @@ MongoDB Atlas, which provides a free tier that should suffice for the data size 
 you're running the app on a single VM, this can instead be a locally-running instance. The instructions below set up the
 latter.
 
+## Changes for 2025
+
+If you set up a server or VM for a previous year's version of Blackboard and intended to update Blackboard only, be aware
+that the 2024 and earlier versions of Blackboard used Meteor 2, which used Node 14 because it depended on the Fibers
+library to provide thread-like behavior. An undocumented API in the V8 runtime that enabled Fibers to work was changed in
+Node 16, which required the Meteor team to completely rewrite the parallelism on the server side to use Promises. This was
+completed in Meteor 3, which Blackboard now uses; as such:
+
+* You will need to update Node to version 20
+* You will not be able to switch back to an older version of Blackboard
+* There may be other changed to dependencies which mean it will no longer run on an older OS (e.g. Ubuntu 20.04).
+
+If you're using a VM, you may be better off creating a new one rather than using your existing one.
+
 ## SETTING UP A COMPUTE ENGINE VM
 
 My preferred setup, given the duration of the hunt and my frugality, is to run the blackboard on a single Compute Engine
@@ -36,19 +50,17 @@ resources.
    want to use the projector features, [Create a Google Maps JavaScript API key](https://console.cloud.google.com/project/_/google/maps-apis/credentials).
    Restrict its use to the domain name you will host your site on.
 6. [Create a VM](https://console.cloud.google.com/compute/instancesAdd). Recommended settings:
-   * Size: an `n1-standard-1` should be sufficient for a reasonably large team. I used an `n1-standard-4` for Codex Ogg
-     and peaked at 3% of available CPU, meaning a single core should support a team 8 times the size, assuming the
-     blackboard scales linearly. That said (or if you don't share that assumption), don't be penny-wise and pound-foolish,
-     especially if you're using free trial credit. The difference between 1 core and 2 is a dollar a day. Note that while
-     Node.js apps are single-threaded, the install script below starts a number of instances of the app equal to the
-     number of CPUs on the machine and balances over them. If you're experimenting with the blackboard and want to run it
-     on an f1-micro (which you get one of for free), build it as an n1-standard-1 and resize it later. The blackboard runs
-     fine on an f1-micro, but it doesn't compile on one.
+   * Size: an `e2-standard-2` should be sufficient for a reasonably large team. That said, don't be penny-wise and
+     pound-foolish, especially if you're using free trial credit. The difference between 1 core and 2 is a dollar a day.
+     Note that while Node.js apps are single-threaded, the install script below starts a number of instances of the app
+     equal to the number of CPUs on the machine and balances over them. If you're experimenting with the blackboard and
+     want to run it on an e2-micro (which you get one of for free), build it as an e2-standard-2 and resize it later.
+     The blackboard runs fine on an e2-micro, but it doesn't compile on one.
    * Storage: A 10G image should be plenty for the hunt, as the data generated tends to be on the order of megabytes; the
      primary reason to use more would be for throughput, as a virtual SSD twice the size gets twice as large a share of
      the throughput of the native drive. Again, this will cost pennies for the hunt weekend, so why not give it more than
      it needs?
-   * OS: Use Ubuntu 20.04LTS. The install script uses the MongoDB repository for Focal, and installation may fail for
+   * OS: Use Ubuntu 24.04LTS. The install script uses the MongoDB repository for Noble, and installation may fail for
      other distros.
    * Service Account: Use the one you created in the previous step.
    * Location: Somewhere close to your users. Assuming a large fraction of them are in Cambridge, MA, that means one of
@@ -165,6 +177,26 @@ sudo mv /opt/codex-old /opt/codex
 sudo systemctl start codex.target
 ```
 
+### Modifying settings
+The install script divides the settings among three .env files in the `/etc` directory:
+
+* `codex-per-team.env`: Settings that probably won't change even if you use the same server for multiple hunts.
+* `codex-per-hunt.env`: A symlink to another file in the same directory. These settings are likely to change if
+  you use the server for another hunt. To do this, duplicate the current file with a name that reflects the new
+  hunt, modify the appropriate settings, then move the symlink to point to the new file with
+  `ln -s -f $NEWFILE /etc/codex-per-hunt.env`. The settings you'll likely want to edit are:
+  * `MONGO_URL`: Only the portion after the slash needs to be changed.
+  * `DRIVE_SHARE_GROUP`: If you have a different mailing list for participants in the new hunt than the old one.
+  * `DRIVE_ROOT_FOLDER`: Especially if you change `DRIVE_SHARE_GROUP`, or else your team for the previous hunt
+    will have access to the files for the new one.
+* `codex-batch.env`: Settings specific to batch operations, such as the Hubot instance. If your machine has 2 or
+  CPUs or vCPUS, the setup script will run N+1 instances of the app: N which nginx balances across, and 1 just
+  for the batch operations so they can always run in parallel with user load. In that case, the batch instance 
+  will have these settings and the user-facing instance won't. If you only have 1 CPU or vCPU, it will only run
+  one instance of the app, which will do everything.
+
+After editing settings, run `sudo systemctl restart codex.target`.
+
 ## Setting up a private Jitsi Server
 If you want to set up your own Jitsi server to avoid depending on the largesse of a public server operator:
 
@@ -177,6 +209,6 @@ If you want to set up your own Jitsi server to avoid depending on the largesse o
 
 2. (Optional) Install `jitsi-meet-tokens` on your new machine. If you don't do this, your server will be open to the world, and anyone will be able to use your bandwidth.
 
-3. If your blackboard machines is already set up, make the following changes to `/etc/codex.common.env`
+3. If your blackboard machine is already set up, make the following changes to `/etc/codex-per-team.env`:
     * In the JSON object which is the value of `METEOR_SETTINGS`, set `jitsiServer` to the DNS name of your jitsi server.
     * (if you followed step 2) Set `JITSI_APP_NAME` and `JITSI_SHARED_SECRET` to the app name and shared secret you entered when you installed `jitsi-meet-tokens`.

@@ -4,8 +4,7 @@ Documentation=https://github.com/Torgen/codex-blackboard
 After=mongod.service
 Requires=mongod.service
 StopWhenUnneeded=true
-RefuseManualStart=true
-RefuseManualStop=true
+PartOf=codex.target
 
 [Service]
 ExecStart=/usr/bin/node /opt/codex/bundle/main.js
@@ -16,7 +15,8 @@ SyslogIdentifier=codex
 WorkingDirectory=/opt/codex/bundle
 User=nobody
 Group=nogroup
-EnvironmentFile=/etc/codex-common.env
+EnvironmentFile=/etc/codex-per-team.env
+EnvironmentFile=/etc/codex-per-hunt.env
 Environment=UNIX_SOCKET_PATH=/tmp/codex.%i
 Environment=UNIX_SOCKET_PERMISSIONS=666
 Environment=DISABLE_BATCH_PROCESSING=true
