@@ -8,7 +8,10 @@ async function ifPuzzleExists(msg, fn) {
     if (msg.message.done) {
       return;
     }
-    await msg.reply({ useful: true }, `I can't find a puzzle called \"${name}\".`);
+    await msg.reply(
+      { useful: true },
+      `I can't find a puzzle called \"${name}\".`
+    );
     msg.finish();
     return;
   }
@@ -87,16 +90,25 @@ export default scripts.metas = function (robot) {
   robot.commands.push(
     "bot <puzzle|this> feeds into <puzzle|this> - Update codex blackboard"
   );
-  robot.respond(rejoin(thingRE, / feeds into /, thingRE, /$/i), async function (msg) {
-    await leafIntoMeta(msg, async function (p, pText, m, mText, who) {
-      if (await callAs("feedMeta", who, p._id, m._id)) {
-        await msg.reply({ useful: true }, `OK, ${pText} now feeds into ${mText}.`);
-      } else {
-        await msg.reply({ useful: true }, `${pText} already fed into ${mText}.`);
-      }
-      msg.finish();
-    });
-  });
+  robot.respond(
+    rejoin(thingRE, / feeds into /, thingRE, /$/i),
+    async function (msg) {
+      await leafIntoMeta(msg, async function (p, pText, m, mText, who) {
+        if (await callAs("feedMeta", who, p._id, m._id)) {
+          await msg.reply(
+            { useful: true },
+            `OK, ${pText} now feeds into ${mText}.`
+          );
+        } else {
+          await msg.reply(
+            { useful: true },
+            `${pText} already fed into ${mText}.`
+          );
+        }
+        msg.finish();
+      });
+    }
+  );
 
   robot.commands.push(
     "bot <puzzle|this> doesn't feed into <puzzle|this> - Update codex blackboard"
