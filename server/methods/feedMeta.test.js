@@ -9,11 +9,11 @@ import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 describe("feedMeta", function () {
   let clock = null;
   beforeEach(function () {
-      clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      });}
-  );
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
@@ -168,11 +168,10 @@ describe("feedMeta", function () {
       link: "https://puzzlehunt.mit.edu/bar",
       tags: {},
     });
-    await assertRejects(
-      callAs("feedMeta", "jeff", leaf, "nope"),
-      Meteor.Error
-    );
-    chai.assert.deepEqual((await Puzzles.findOneAsync(leaf)).feedsInto, ["wew"]);
+    await assertRejects(callAs("feedMeta", "jeff", leaf, "nope"), Meteor.Error);
+    chai.assert.deepEqual((await Puzzles.findOneAsync(leaf)).feedsInto, [
+      "wew",
+    ]);
   });
 
   it("requires leaf", async function () {
@@ -187,10 +186,7 @@ describe("feedMeta", function () {
       link: "https://puzzlehunt.mit.edu/foo",
       tags: {},
     });
-    await assertRejects(
-      callAs("feedMeta", "jeff", "nope", meta),
-      Meteor.Error
-    );
+    await assertRejects(callAs("feedMeta", "jeff", "nope", meta), Meteor.Error);
     chai.assert.deepEqual((await Puzzles.findOneAsync(meta)).puzzles, ["yoy"]);
   });
 });

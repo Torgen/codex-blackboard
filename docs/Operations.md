@@ -22,7 +22,7 @@ latter.
 If you set up a server or VM for a previous year's version of Blackboard and intended to update Blackboard only, be aware
 that the 2024 and earlier versions of Blackboard used Meteor 2, which used Node 14 because it depended on the Fibers
 library to provide thread-like behavior. An undocumented API in the V8 runtime that enabled Fibers to work was changed in
-Node 16, which required the Meteor team to completely rewrite the parallelism on the server side to use Promises. This was
+Node 16, which required the Meteor team to completely rewrite the parallelism on the server-side to use Promises. This was
 completed in Meteor 3, which Blackboard now uses; as such:
 
 * You will need to update Node to version 20
@@ -191,7 +191,7 @@ The install script divides the settings among three .env files in the `/etc` dir
     will have access to the files for the new one.
 * `codex-batch.env`: Settings specific to batch operations, such as the Hubot instance. If your machine has 2 or
   CPUs or vCPUS, the setup script will run N+1 instances of the app: N which nginx balances across, and 1 just
-  for the batch operations so they can always run in parallel with user load. In that case, the batch instance 
+  for the batch operations so they can always run in parallel with user load. In that case, the batch instance
   will have these settings and the user-facing instance won't. If you only have 1 CPU or vCPU, it will only run
   one instance of the app, which will do everything.
 

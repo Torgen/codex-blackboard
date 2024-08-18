@@ -3,7 +3,11 @@ import "/lib/model.js";
 import { Roles } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
-import { clearCollections, waitForDeletion, waitForDocument } from "/lib/imports/testutils.js";
+import {
+  clearCollections,
+  waitForDeletion,
+  waitForDocument,
+} from "/lib/imports/testutils.js";
 import { RoleManager } from "./roles.js";
 
 describe("RoleManager", function () {
@@ -47,7 +51,7 @@ describe("RoleManager", function () {
     manager = new RoleManager();
     await manager.start();
     chai.assert.isOk(await Roles.findOneAsync("onduty"));
-    const {deleted} = await waitForDeletion(Roles, "onduty");
+    const { deleted } = await waitForDeletion(Roles, "onduty");
     clock.tick(1000);
     await deleted;
   });
@@ -70,7 +74,7 @@ describe("RoleManager", function () {
     clock.tick(1000);
     // check not deleted?
     await waitForDocument(Roles, { _id: "onduty", expires_at: 2000 }, {});
-    const {deleted} = await waitForDeletion(Roles, "onduty");
+    const { deleted } = await waitForDeletion(Roles, "onduty");
     clock.tick(1000);
     await deleted;
   });
@@ -83,7 +87,7 @@ describe("RoleManager", function () {
       renewed_at: -3599000,
       expires_at: 1000,
     });
-    const {deleted} = await waitForDeletion(Roles, "onduty");
+    const { deleted } = await waitForDeletion(Roles, "onduty");
     manager = new RoleManager();
     await manager.start();
     chai.assert.isOk(await Roles.findOneAsync("onduty"));

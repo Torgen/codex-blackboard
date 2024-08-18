@@ -186,9 +186,17 @@ Template.puzzle_info.events({
   },
   "change input.feed"(event, template) {
     if (event.currentTarget.checked) {
-      Meteor.serializeCall("feedMeta", this._id, Template.currentData().puzzle._id);
+      Meteor.serializeCall(
+        "feedMeta",
+        this._id,
+        Template.currentData().puzzle._id
+      );
     } else {
-      Meteor.serializeCall("unfeedMeta", this._id, Template.currentData().puzzle._id);
+      Meteor.serializeCall(
+        "unfeedMeta",
+        this._id,
+        Template.currentData().puzzle._id
+      );
     }
   },
   "click .bb-add-tag-button"(event, template) {

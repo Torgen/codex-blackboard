@@ -123,7 +123,9 @@ describe("setAnswer", function () {
       });
 
       it("oplogs", async function () {
-        const oplogs = await Messages.find({ room_name: "oplog/0" }).fetchAsync();
+        const oplogs = await Messages.find({
+          room_name: "oplog/0",
+        }).fetchAsync();
         chai.assert.equal(oplogs.length, 1);
         chai.assert.include(oplogs[0], {
           nick: "cjb",

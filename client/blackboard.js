@@ -559,7 +559,9 @@ Template.blackboard_meta.onCreated(function () {
 function moveWithinMeta(pos) {
   return function (event, template) {
     const meta = template.data;
-    Meteor.serializeCall("moveWithinMeta", this.puzzle._id, meta.puzzle._id, { pos });
+    Meteor.serializeCall("moveWithinMeta", this.puzzle._id, meta.puzzle._id, {
+      pos,
+    });
   };
 }
 
@@ -770,7 +772,11 @@ Template.blackboard_column_body_answer.events({
         message: `Are you sure you want to delete the partial answer \"${answer}\"?`,
       })
     ) {
-      Meteor.serializeCall("deletePartialAnswer", template.data.puzzle._id, answer);
+      Meteor.serializeCall(
+        "deletePartialAnswer",
+        template.data.puzzle._id,
+        answer
+      );
     }
   },
   async "click .bb-finalize-answers"(event, template) {
@@ -832,7 +838,11 @@ Template.blackboard_addmeta_entry.helpers({ color: colorHelper });
 
 Template.blackboard_unfeed_meta.events({
   "click .bb-unfeed-icon"(event, template) {
-    Meteor.serializeCall("unfeedMeta", template.data.puzzle._id, template.data.meta._id);
+    Meteor.serializeCall(
+      "unfeedMeta",
+      template.data.puzzle._id,
+      template.data.meta._id
+    );
   },
 });
 

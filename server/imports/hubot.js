@@ -92,7 +92,12 @@ class BlackboardAdapter extends Hubot.Adapter {
       if (DEBUG) {
         console.log(`send ${envelope.room}: ${string} (${envelope.user.id})`);
       }
-      if (envelope.message.direct && !props.useful && !string.startsWith(`@${envelope.user.id}`) && !props.to) {
+      if (
+        envelope.message.direct &&
+        !props.useful &&
+        !string.startsWith(`@${envelope.user.id}`) &&
+        !props.to
+      ) {
         string = `@${envelope.user.id}: ${string}`;
       }
       await callAs(
@@ -320,7 +325,7 @@ export default class BlackboardRobot extends Hubot.Robot {
     this.adapter = new BlackboardAdapter(this, canonical(this.name), gravatar);
     this.gravatar = gravatar;
     this.Response = BlackboardResponse;
-    this.logger.warning = this.logger.warn
+    this.logger.warning = this.logger.warn;
   }
 
   hear(regex, callback) {

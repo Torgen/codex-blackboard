@@ -482,7 +482,10 @@ describe("drive", function () {
               files: [item2],
             },
           });
-        chai.assert.sameDeepOrderedMembers(await drive.listPuzzles(), [item1, item2]);
+        chai.assert.sameDeepOrderedMembers(await drive.listPuzzles(), [
+          item1,
+          item2,
+        ]);
       });
 
       it("renamePuzzle renames", async function () {

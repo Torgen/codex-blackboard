@@ -10,15 +10,14 @@ export default async function (scopes) {
   if (!KEY) {
     try {
       KEY = await Assets.getBinaryAsync("drive-key.pem.crypt");
-    } catch (error) {
-    }
+    } catch (error) {}
   }
   if (KEY != null && Meteor.settings.decrypt_password != null) {
     // Decrypt the JWT authentication key synchronously at startup
     KEY = decrypt(KEY, Meteor.settings.decrypt_password);
   }
   if (/^-----BEGIN (RSA )?PRIVATE KEY-----/.test(KEY)) {
-    const jwt = new JWT({email: EMAIL, key: KEY, scopes});
+    const jwt = new JWT({ email: EMAIL, key: KEY, scopes });
     await jwt.authorize();
     return jwt;
   } else {

@@ -16,7 +16,7 @@ function waitForLogin() {
       }
       computation.stop();
       resolve();
-    })
+    });
   });
 }
 
@@ -28,7 +28,7 @@ function waitForNotLoggingIn() {
       }
       computation.stop();
       resolve();
-    })
+    });
   });
 }
 

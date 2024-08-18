@@ -1,8 +1,4 @@
-import {
-  Calendar,
-  CalendarEvents,
-  Rounds,
-} from "/lib/imports/collections.js";
+import { Calendar, CalendarEvents, Rounds } from "/lib/imports/collections.js";
 import { callAs, impersonating } from "./imports/impersonate.js";
 import { DO_BATCH_PROCESSING } from "/server/imports/batch.js";
 import { ensureAll } from "/lib/imports/settings.js";

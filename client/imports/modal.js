@@ -15,7 +15,7 @@ Template.confirmmodal.events({
   },
 });
 
-export function confirm (data) {
+export function confirm(data) {
   currentConfirmation = new Promise(function (resolve) {
     let view = null;
     const onCancel = function () {

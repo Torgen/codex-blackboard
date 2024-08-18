@@ -81,7 +81,9 @@ Template.logistics.helpers({
     const x = [];
     for (let puzzle of round.puzzles) {
       const puz = Puzzles.findOne({ _id: puzzle });
-      if (!puz) { continue; }
+      if (!puz) {
+        continue;
+      }
       if (puz.feedsInto.length === 0 && puz.puzzles == null) {
         x.push(puz);
       }
@@ -94,7 +96,9 @@ Template.logistics.helpers({
     const x = [];
     for (let puzzle of round.puzzles) {
       const puz = Puzzles.findOne({ _id: puzzle });
-      if (!puz) { continue; }
+      if (!puz) {
+        continue;
+      }
       if (puz.puzzles != null) {
         x.push(puz);
       }

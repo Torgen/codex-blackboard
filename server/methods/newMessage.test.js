@@ -10,11 +10,11 @@ describe("newMessage", function () {
   let clock = null;
 
   beforeEach(function () {
-      clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      });}
-  );
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 

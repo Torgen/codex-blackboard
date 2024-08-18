@@ -2617,7 +2617,6 @@ describe("codex hubot script", function () {
     }));
 
   describe("global set", function () {
-
     it("sets number", async function () {
       await Messages.insertAsync({
         nick: "torgen",

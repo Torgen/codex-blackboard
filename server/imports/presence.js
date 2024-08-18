@@ -93,7 +93,7 @@ class PresenceManager {
     // processed. (observe doesn't return on server until initial observation
     // is complete.)
     initiallySuppressPresence = false;
-    return this
+    return this;
   }
 
   stop() {

@@ -53,8 +53,7 @@ Meteor.startup(async function () {
   console.log(`Listening to ${HASHTAGS} on twitter`);
   stream.on(ETwitterStreamEvent.Data, tweetToMessage);
 
-  stream.on(
-    ETwitterStreamEvent.ConnectError,
-    (error) => console.warn("Twitter error:", error)
+  stream.on(ETwitterStreamEvent.ConnectError, (error) =>
+    console.warn("Twitter error:", error)
   );
 });

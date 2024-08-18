@@ -53,7 +53,11 @@ Template.calendar_event.events({
     );
   },
   "click .bb-event-attend"(event, template) {
-    Meteor.serializeCall("addEventAttendee", template.data.event._id, Meteor.userId());
+    Meteor.serializeCall(
+      "addEventAttendee",
+      template.data.event._id,
+      Meteor.userId()
+    );
   },
   "click .bb-detach-event"(event, template) {
     Meteor.serializeCall("setPuzzleForEvent", template.data.event._id, null);

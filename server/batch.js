@@ -94,8 +94,7 @@ if (DO_BATCH_PROCESSING) {
   Meteor.startup(async () => await watchPresence());
 
   const roleManager = new RoleManager();
-  Meteor.startup(async() => await roleManager.start());
+  Meteor.startup(async () => await roleManager.start());
 
   Meteor.startup(async () => await collectPeriodicStats());
-  
 }

@@ -108,7 +108,7 @@ function encode(s) {
 }
 
 async function memegen(msg, imageName, topText, botText) {
-  if (msg.match[0].length > await MaximumMemeLength.get()) {
+  if (msg.match[0].length > (await MaximumMemeLength.get())) {
     console.log(`Got a ${imageName} meme but it was too long`);
     return;
   }

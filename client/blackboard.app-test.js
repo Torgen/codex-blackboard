@@ -606,11 +606,15 @@ describe("blackboard", function () {
       addTagInput.focusout();
       await waitForMethods();
       const creation = bank();
-      chai.assert.include(creation.tags.meme, {
-        name: "Meme",
-        value: "",
-        touched_by: "testy",
-      }, "creation");
+      chai.assert.include(
+        creation.tags.meme,
+        {
+          name: "Meme",
+          value: "",
+          touched_by: "testy",
+        },
+        "creation"
+      );
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
       await afterFlushPromise();
@@ -621,11 +625,15 @@ describe("blackboard", function () {
         .focusout();
       await waitForMethods();
       let edit = bank();
-      chai.assert.include(edit.tags.meme, {
-        name: "Meme",
-        value: "yuno accept deposits?",
-        touched_by: "testy",
-      }, "edit on focusout");
+      chai.assert.include(
+        edit.tags.meme,
+        {
+          name: "Meme",
+          value: "yuno accept deposits?",
+          touched_by: "testy",
+        },
+        "edit on focusout"
+      );
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
       await afterFlushPromise();
@@ -637,11 +645,15 @@ describe("blackboard", function () {
       await waitForMethods();
       // no edit on escape
       edit = bank();
-      chai.assert.include(edit.tags.meme, {
-        name: "Meme",
-        value: "yuno accept deposits?",
-        touched_by: "testy",
-      }, "no edit on escape");
+      chai.assert.include(
+        edit.tags.meme,
+        {
+          name: "Meme",
+          value: "yuno accept deposits?",
+          touched_by: "testy",
+        },
+        "no edit on escape"
+      );
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
       await afterFlushPromise();
@@ -653,11 +665,15 @@ describe("blackboard", function () {
       await waitForMethods();
       // Edit on enter
       edit = bank();
-      chai.assert.include(edit.tags.meme, {
-        name: "Meme",
-        value: "yuno pay interest?",
-        touched_by: "testy",
-      }, "edit on enter");
+      chai.assert.include(
+        edit.tags.meme,
+        {
+          name: "Meme",
+          value: "yuno pay interest?",
+          touched_by: "testy",
+        },
+        "edit on enter"
+      );
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
       await afterFlushPromise();
@@ -669,11 +685,15 @@ describe("blackboard", function () {
       await waitForMethods();
       // empty cancels
       edit = bank();
-      chai.assert.include(edit.tags.meme, {
-        name: "Meme",
-        value: "yuno pay interest?",
-        touched_by: "testy",
-      }, "empty cancels");
+      chai.assert.include(
+        edit.tags.meme,
+        {
+          name: "Meme",
+          value: "yuno pay interest?",
+          touched_by: "testy",
+        },
+        "empty cancels"
+      );
       await afterFlushPromise();
       baseJq
         .find('[data-tag-name="meme"] .bb-edit-tag-value .bb-delete-icon')

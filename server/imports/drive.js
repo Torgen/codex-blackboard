@@ -16,9 +16,7 @@ const GDRIVE_SPREADSHEET_MIME_TYPE = "application/vnd.google-apps.spreadsheet";
 const XLSX_MIME_TYPE =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const MAX_RESULTS = 200;
-const SPREADSHEET_TEMPLATE = Assets.getBinaryAsync(
-  "spreadsheet-template.xlsx"
-);
+const SPREADSHEET_TEMPLATE = Assets.getBinaryAsync("spreadsheet-template.xlsx");
 
 const PERMISSION_LIST_FIELDS =
   "permissions(role,type,emailAddress,allowFileDiscovery)";
@@ -278,8 +276,8 @@ export class Drive {
   }
 
   async findPuzzle(name) {
-    const resp = (await
-      this.drive.files.list({
+    const resp = (
+      await this.drive.files.list({
         q: `name=${quote(name)} and mimeType=${quote(
           GDRIVE_FOLDER_MIME_TYPE
         )} and ${quote(this.rootFolder)} in parents`,
@@ -291,14 +289,12 @@ export class Drive {
       return null;
     }
     // look for spreadsheet
-    const spread = (await
-      this.drive.files.list({
-        q: `name=${quote(WORKSHEET_NAME(name))} and ${quote(
-          folder.id
-        )} in parents`,
-        pageSize: 1,
-      })
-    );
+    const spread = await this.drive.files.list({
+      q: `name=${quote(WORKSHEET_NAME(name))} and ${quote(
+        folder.id
+      )} in parents`,
+      pageSize: 1,
+    });
     return {
       id: folder.id,
       spreadId: spread.data.files[0]?.id,
@@ -309,8 +305,8 @@ export class Drive {
     let resp = {};
     const results = [];
     while (true) {
-      resp = (await
-        this.drive.files.list({
+      resp = (
+        await this.drive.files.list({
           q: `mimeType=${quote(GDRIVE_FOLDER_MIME_TYPE)} and ${quote(
             this.rootFolder
           )} in parents`,
