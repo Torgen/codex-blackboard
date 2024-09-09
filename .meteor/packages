@@ -27,7 +27,7 @@ shell-server@0.6.0
 babel-runtime@1.5.2
 dynamic-import@0.7.4
 ecmascript@0.16.9
-meteortesting:mocha
+meteortesting:mocha@3.2.0
 accounts-base@3.0.0
 underscore@1.6.4
 meteortesting:mocha-core
@@ -35,3 +35,4 @@ facts-base@1.0.2
 facts-ui@1.0.2
 reactive-dict@1.3.2
 jam:mongo-transactions
+lmieulet:meteor-coverage@5.0.0
