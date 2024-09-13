@@ -83,7 +83,7 @@ sudo systemctl start mongod.service
 # Turn on replication on mongodb.
 # This lets the meteor instances act like secondary replicas, which lets them
 # get updates in real-time instead of after 10 seconds when they poll.
-sudo mongo --eval 'rs.initiate({_id: "meteor", members: [{_id: 0, host: "127.0.0.1:27017"}]});'
+sudo mongosh --eval 'rs.initiate({_id: "meteor", members: [{_id: 0, host: "127.0.0.1:27017"}]});'
 
 sudo systemctl enable codex-batch.service
 
