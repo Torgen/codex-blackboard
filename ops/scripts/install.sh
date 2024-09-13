@@ -96,7 +96,7 @@ sudo apt-get install -y nginx
 cd /etc/ssl/certs
 sudo openssl dhparam -out dhparam.pem 4096
 # shellcheck disable=SC2086
-handlebars <"$scriptroot/../installtemplates/etc/nginx/sites-available/codex.handlebars" $PORTS --domainname "$domainname" --staticroom "$(uuidgen)" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
+handlebars <"$scriptroot/../installtemplates/etc/nginx/sites-available/codex.handlebars" $PORTS --domainname "$domainname" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
 sudo ln -s /etc/nginx/sites-{available,enabled}/codex
 sudo rm /etc/nginx/sites-enabled/default
 
