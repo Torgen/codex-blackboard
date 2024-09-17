@@ -64,6 +64,7 @@ describe("login", function () {
       // If this test case is run in isolation, ensure there's an entry. Intentionally different email.
       await login("testy", "Teresa Tybalt", "testy@example.com", "failphrase");
       await logout();
+      await waitForSubscriptions();
       $("#passwordInput").val("failphrase");
       $("#nickInput").focus().val("tes").trigger("keyup").trigger("input");
       await afterFlushPromise();
