@@ -17,7 +17,7 @@ if (Meteor.isAppTest) {
   try {
     const auth = await googleauth(SCOPES);
     // record the API and auth info
-    const api = drive.drive({
+    const api = drive({
       version: "v3",
       auth,
       retryConfig: { statusCodesToRetry: RETRY_RESPONSE_CODES },

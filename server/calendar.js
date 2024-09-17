@@ -10,7 +10,7 @@ if (DO_BATCH_PROCESSING && !Meteor.isAppTest) {
   Meteor.startup(async function () {
     try {
       const auth = await googleauth(SCOPES);
-      const api = calendar.calendar({
+      const api = calendar({
         version: "v3",
         auth,
         retryConfig: { statusCodesToRetry: RETRY_RESPONSE_CODES },
