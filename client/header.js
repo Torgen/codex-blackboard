@@ -372,6 +372,9 @@ Template.header_breadcrumbs.onCreated(function () {
     if (!Meteor.userId()) {
       return;
     }
+    if (Meteor.callInFlight()) {
+      return;
+    }
     await Meteor.serializeCall("getRinghuntersFolder");
     Session.set("RINGHUNTERS_FOLDER", f || undefined);
   });
