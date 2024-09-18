@@ -432,7 +432,11 @@ Meteor.publish(
   loginRequired(function () {
     const drive = driveEnv.get();
     if (drive?.ringhuntersFolder) {
-      this.added(TEAM_DRIVE_FOLDER_COLLECTION_NAME, drive.ringhuntersFolder, {});
+      this.added(
+        TEAM_DRIVE_FOLDER_COLLECTION_NAME,
+        drive.ringhuntersFolder,
+        {}
+      );
     }
     this.ready();
   })
