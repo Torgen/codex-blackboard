@@ -331,7 +331,6 @@ Template.puzzle_summon_modal.events({
 
 Template.puzzle_callin_button.events({
   "click .bb-callin-btn"(event, template) {
-    console.log("click event");
     $("#callin_modal input:text").val("");
     $('#callin_modal input[type="checkbox"]:checked').val([]);
     $("#callin_modal").modal({ show: true });
