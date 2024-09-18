@@ -11,7 +11,7 @@ if [[ -z $BUNDLE ]]; then
   meteor npm install
   meteor build --directory /opt/codex2
 else
-  sudo tar -C /opt/codex2 -xz "$BUNDLE"
+  sudo tar -C /opt/codex2 -xzf "$BUNDLE"
 fi
 
 cd /opt/codex2/bundle/programs/server || exit
