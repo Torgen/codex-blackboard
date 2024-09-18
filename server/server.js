@@ -14,6 +14,7 @@ import {
   Roles,
   Rounds,
   PeriodicStats,
+  TEAM_DRIVE_FOLDER_COLLECTION_NAME,
   collection,
 } from "/lib/imports/collections.js";
 import {
@@ -24,6 +25,7 @@ import {
 import { Settings } from "/lib/imports/settings.js";
 import { JITSI_SERVER } from "/lib/imports/server_settings.js";
 import { NonEmptyString } from "/lib/imports/match.js";
+import { drive as driveEnv } from "/lib/imports/environment.js";
 
 const DEBUG = !Meteor.isProduction;
 
@@ -423,6 +425,17 @@ Meteor.publish(
 Meteor.publish(
   null,
   loginRequired(() => Settings.find())
+);
+
+Meteor.publish(
+  null,
+  loginRequired(function () {
+    const drive = driveEnv.get();
+    if (drive?.ringhuntersFolder) {
+      this.added(TEAM_DRIVE_FOLDER_COLLECTION_NAME, drive.ringhuntersFolder, {});
+    }
+    this.ready();
+  })
 );
 
 Meteor.publish(

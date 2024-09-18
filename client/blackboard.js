@@ -1,5 +1,5 @@
 import { getTag } from "/lib/imports/tags.js";
-import { Presence, Puzzles, Rounds } from "/lib/imports/collections.js";
+import { Presence, Puzzles, Rounds, TeamDriveFolders } from "/lib/imports/collections.js";
 import { confirm } from "/client/imports/modal.js";
 import { findByChannel } from "/client/imports/presence_index.js";
 import { jitsiUrl } from "./imports/jitsi.js";
@@ -279,7 +279,7 @@ Template.blackboard.helpers({
     return reactiveLocalStorage.getItem("jitsiLocalStorage");
   },
   driveFolder() {
-    return Session.get("RINGHUNTERS_FOLDER");
+    return TeamDriveFolders.findOne()?._id;
   },
   addingRound() {
     const instance = Template.instance();

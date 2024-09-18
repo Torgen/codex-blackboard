@@ -367,19 +367,6 @@ Template.header_breadcrumb_puzzle.helpers({
   active,
 });
 
-Template.header_breadcrumbs.onCreated(function () {
-  this.autorun(async function () {
-    if (!Meteor.userId()) {
-      return;
-    }
-    if (Meteor.callInFlight()) {
-      return;
-    }
-    await Meteor.serializeCall("getRinghuntersFolder");
-    Session.set("RINGHUNTERS_FOLDER", f || undefined);
-  });
-});
-
 Template.header_breadcrumbs.helpers({
   breadcrumbs() {
     return breadcrumbs_var.get();
