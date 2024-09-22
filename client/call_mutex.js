@@ -12,7 +12,7 @@ Meteor.serializeCall = function (...args) {
   });
   anyCalls.set(true);
   const resP = Meteor.callAsync(...args);
-  Meteor.noMethodsInFlight = Promise.allSettled([resP]).then(function () {
+  Meteor.noMethodsInFlight = Promise.allSettled([resP.stubPromise]).then(function () {
     anyCalls.set(false);
   });
   return resP;
