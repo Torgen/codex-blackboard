@@ -17,7 +17,10 @@ export var waitForSubscriptions = () =>
 
 export async function waitForMethods() {
   await Meteor.noMethodsInFlight;
-  await Meteor.applyAsync("wait", [], { wait: true, returnServerResultPromise: true });
+  await Meteor.applyAsync("wait", [], {
+    wait: true,
+    returnServerResultPromise: true,
+  });
 }
 
 // Tracker.afterFlush runs code when all consequent of a tracker based change
