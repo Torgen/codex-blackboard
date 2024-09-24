@@ -26,7 +26,7 @@
     "gemoji": "^8.1.0",
     "google-auth-library": "^9.14.1",
     "hubot": "^9.0.0",
-    "hubot-help": "^2.1.2",
+    "hubot-help": "^2.1.5",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
     "meteor-node-stubs": "^1.2.10",
