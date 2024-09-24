@@ -4,25 +4,24 @@ import { Puzzles } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils";
 
 describe("makeNotMeta", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Puzzles));
 
-  it("fails without login", function () {
-    const id = Puzzles.insert({
+  it("fails without login", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -41,11 +40,11 @@ describe("makeNotMeta", function () {
         },
       },
     });
-    chai.assert.throws(() => Meteor.call("makeNotMeta", id), Match.Error);
+    await assertRejects(Meteor.callAsync("makeNotMeta", id), Match.Error);
   });
 
-  it("works when empty", function () {
-    const id = Puzzles.insert({
+  it("works when empty", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -64,8 +63,8 @@ describe("makeNotMeta", function () {
         },
       },
     });
-    chai.assert.isTrue(callAs("makeNotMeta", "cjb", id));
-    const doc = Puzzles.findOne(id);
+    chai.assert.isTrue(await callAs("makeNotMeta", "cjb", id));
+    const doc = await Puzzles.findOneAsync(id);
     chai.assert.deepEqual(doc, {
       _id: id,
       name: "Foo",
@@ -87,8 +86,8 @@ describe("makeNotMeta", function () {
     });
   });
 
-  it("fails when not empty", function () {
-    const id = Puzzles.insert({
+  it("fails when not empty", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -113,8 +112,8 @@ describe("makeNotMeta", function () {
         },
       },
     });
-    chai.assert.isFalse(callAs("makeNotMeta", "cjb", id));
-    const doc = Puzzles.findOne(id);
+    chai.assert.isFalse(await callAs("makeNotMeta", "cjb", id));
+    const doc = await Puzzles.findOneAsync(id);
     chai.assert.deepEqual(doc, {
       _id: id,
       name: "Foo",

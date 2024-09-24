@@ -4,14 +4,10 @@ import { Messages, Puzzles, Roles, Rounds } from "/lib/imports/collections.js";
 import { callAs, impersonating } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import isDuplicateError from "/lib/imports/duplicate.js";
 import { drive } from "/lib/imports/environment.js";
-import {
-  PuzzleUrlPrefix,
-  RoleRenewalTime,
-  UrlSeparator,
-} from "/lib/imports/settings.js";
+import { PuzzleUrlPrefix, RoleRenewalTime } from "/lib/imports/settings.js";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("newPuzzle", function () {
   let driveMethods = null;
@@ -36,29 +32,27 @@ describe("newPuzzle", function () {
     sinon.restore();
   });
 
-  beforeEach(function () {
-    resetDatabase();
-    PuzzleUrlPrefix.ensure();
-    RoleRenewalTime.ensure();
-    UrlSeparator.ensure();
+  beforeEach(async function () {
+    await clearCollections(Messages, Puzzles, Roles, Rounds);
+    await RoleRenewalTime.reset();
   });
 
-  it("fails without login", () =>
-    chai.assert.throws(
-      () =>
-        Meteor.call("newPuzzle", {
-          name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo",
-        }),
+  it("fails without login", async function () {
+    await assertRejects(
+      Meteor.callAsync("newPuzzle", {
+        name: "Foo",
+        link: "https://puzzlehunt.mit.edu/foo",
+      }),
       Match.Error
-    ));
+    );
+  });
 
   describe("when none exists with that name", function () {
     let round = null;
     let id = null;
     describe("when onduty", function () {
-      beforeEach(function () {
-        round = Rounds.insert({
+      beforeEach(async function () {
+        round = await Rounds.insertAsync({
           name: "Round",
           canon: "round",
           created: 1,
@@ -67,26 +61,26 @@ describe("newPuzzle", function () {
           touched_by: "cjb",
           puzzles: [],
         });
-        Roles.insert({
+        await Roles.insertAsync({
           _id: "onduty",
           holder: "torgen",
           claimed_at: 2,
           renewed_at: 2,
           expires_at: 3600002,
         });
-        drive.withValue(
-          driveMethods,
-          () =>
-            (id = callAs("newPuzzle", "torgen", {
+        await drive.withValue(driveMethods, async function () {
+          id = (
+            await callAs("newPuzzle", "torgen", {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
               round,
-            })._id)
-        );
+            })
+          )._id;
+        });
       });
 
-      it("creates puzzle", () =>
-        chai.assert.deepInclude(Puzzles.findOne(id), {
+      it("creates puzzle", async function () {
+        chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
           name: "Foo",
           canon: "foo",
           created: 7,
@@ -99,33 +93,37 @@ describe("newPuzzle", function () {
           drive: "fid",
           spreadsheet: "sid",
           tags: {},
-        }));
+        });
+      });
 
-      it("adds puzzle to round", () =>
-        chai.assert.deepInclude(Rounds.findOne(round), {
+      it("adds puzzle to round", async function () {
+        chai.assert.deepInclude(await Rounds.findOneAsync(round), {
           touched: 7,
           touched_by: "torgen",
           puzzles: [id],
-        }));
+        });
+      });
 
-      it("oplogs", () =>
+      it("oplogs", async function () {
         chai.assert.lengthOf(
-          Messages.find({ id, type: "puzzles" }).fetch(),
+          await Messages.find({ id, type: "puzzles" }).fetchAsync(),
           1
-        ));
+        );
+      });
 
-      it("renews onduty", () =>
-        chai.assert.deepInclude(Roles.findOne("onduty"), {
+      it("renews onduty", async function () {
+        chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
           holder: "torgen",
           claimed_at: 2,
           renewed_at: 7,
           expires_at: 3600007,
-        }));
+        });
+      });
     });
 
     describe("when someone else is onduty", function () {
-      beforeEach(function () {
-        round = Rounds.insert({
+      beforeEach(async function () {
+        round = await Rounds.insertAsync({
           name: "Round",
           canon: "round",
           created: 1,
@@ -134,36 +132,37 @@ describe("newPuzzle", function () {
           touched_by: "cjb",
           puzzles: [],
         });
-        Roles.insert({
+        await Roles.insertAsync({
           _id: "onduty",
           holder: "florgen",
           claimed_at: 2,
           renewed_at: 2,
           expires_at: 3600002,
         });
-        drive.withValue(
-          driveMethods,
-          () =>
-            (id = callAs("newPuzzle", "torgen", {
+        await drive.withValue(driveMethods, async function () {
+          id = (
+            await callAs("newPuzzle", "torgen", {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
               round,
-            })._id)
-        );
+            })
+          )._id;
+        });
       });
 
-      it("leaves onduty alone", () =>
-        chai.assert.deepInclude(Roles.findOne("onduty"), {
+      it("leaves onduty alone", async function () {
+        chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
           holder: "florgen",
           claimed_at: 2,
           renewed_at: 2,
           expires_at: 3600002,
-        }));
+        });
+      });
     });
 
     describe("when nobody is onduty", function () {
-      beforeEach(function () {
-        round = Rounds.insert({
+      beforeEach(async function () {
+        round = await Rounds.insertAsync({
           name: "Round",
           canon: "round",
           created: 1,
@@ -172,70 +171,27 @@ describe("newPuzzle", function () {
           touched_by: "cjb",
           puzzles: [],
         });
-        drive.withValue(
-          driveMethods,
-          () =>
-            (id = callAs("newPuzzle", "torgen", {
+        await drive.withValue(driveMethods, async function () {
+          id = (
+            await callAs("newPuzzle", "torgen", {
               name: "Foo",
               link: "https://puzzlehunt.mit.edu/foo",
               round,
-            })._id)
-        );
+            })
+          )._id;
+        });
       });
 
-      it("leaves onduty alone", () =>
-        chai.assert.isNotOk(Roles.findOne("onduty")));
+      it("leaves onduty alone", async function () {
+        chai.assert.isNotOk(await Roles.findOneAsync("onduty"));
+      });
     });
   });
 
   describe("with mechanics", function () {
     let round = null;
-    beforeEach(
-      () =>
-        (round = Rounds.insert({
-          name: "Round",
-          canon: "round",
-          created: 1,
-          created_by: "cjb",
-          touched: 1,
-          touched_by: "cjb",
-          puzzles: [],
-        }))
-    );
-
-    it("dedupes mechanics", () =>
-      drive.withValue(driveMethods, function () {
-        const id = callAs("newPuzzle", "torgen", {
-          name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo",
-          round,
-          mechanics: ["crossword", "crossword", "cryptic_clues"],
-        })._id;
-        chai.assert.deepEqual(Puzzles.findOne(id).mechanics, [
-          "crossword",
-          "cryptic_clues",
-        ]);
-      }));
-
-    it("rejects bad mechanics", () =>
-      chai.assert.throws(
-        () =>
-          callAs("newPuzzle", "torgen", {
-            name: "Foo",
-            link: "https://puzzlehunt.mit.edu/foo",
-            round,
-            mechanics: ["acrostic"],
-          }),
-        Match.Error
-      ));
-  });
-
-  it("derives link", () =>
-    drive.withValue(driveMethods, function () {
-      impersonating("cjb", () =>
-        PuzzleUrlPrefix.set("https://testhuntpleaseign.org/puzzles")
-      );
-      const round = Rounds.insert({
+    beforeEach(async function () {
+      round = await Rounds.insertAsync({
         name: "Round",
         canon: "round",
         created: 1,
@@ -244,11 +200,59 @@ describe("newPuzzle", function () {
         touched_by: "cjb",
         puzzles: [],
       });
-      const id = callAs("newPuzzle", "torgen", {
-        name: "Foo Puzzle",
-        round,
-      })._id;
-      chai.assert.deepInclude(Puzzles.findOne(id), {
+    });
+
+    it("dedupes mechanics", async function () {
+      await drive.withValue(driveMethods, async function () {
+        const id = (
+          await callAs("newPuzzle", "torgen", {
+            name: "Foo",
+            link: "https://puzzlehunt.mit.edu/foo",
+            round,
+            mechanics: ["crossword", "crossword", "cryptic_clues"],
+          })
+        )._id;
+        chai.assert.deepEqual((await Puzzles.findOneAsync(id)).mechanics, [
+          "crossword",
+          "cryptic_clues",
+        ]);
+      });
+    });
+
+    it("rejects bad mechanics", async function () {
+      await assertRejects(
+        callAs("newPuzzle", "torgen", {
+          name: "Foo",
+          link: "https://puzzlehunt.mit.edu/foo",
+          round,
+          mechanics: ["acrostic"],
+        }),
+        Match.Error
+      );
+    });
+  });
+
+  it("derives link", async function () {
+    await drive.withValue(driveMethods, async function () {
+      await impersonating("cjb", () =>
+        PuzzleUrlPrefix.set("https://testhuntpleaseign.org/puzzles")
+      );
+      const round = await Rounds.insertAsync({
+        name: "Round",
+        canon: "round",
+        created: 1,
+        created_by: "cjb",
+        touched: 1,
+        touched_by: "cjb",
+        puzzles: [],
+      });
+      const id = (
+        await callAs("newPuzzle", "torgen", {
+          name: "Foo Puzzle",
+          round,
+        })
+      )._id;
+      chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
         name: "Foo Puzzle",
         canon: "foo_puzzle",
         created: 7,
@@ -262,14 +266,15 @@ describe("newPuzzle", function () {
         spreadsheet: "sid",
         tags: {},
       });
-    }));
+    });
+  });
 
   describe("when one exists with that name", function () {
     var round = round;
     let id1 = null;
     let error = null;
-    beforeEach(function () {
-      id1 = Puzzles.insert({
+    beforeEach(async function () {
+      id1 = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -283,7 +288,7 @@ describe("newPuzzle", function () {
         spreadsheet: "sid",
         tags: {},
       });
-      round = Rounds.insert({
+      round = await Rounds.insertAsync({
         name: "Round",
         canon: "round",
         created: 1,
@@ -293,7 +298,7 @@ describe("newPuzzle", function () {
         puzzles: [id1],
       });
       try {
-        drive.withValue(driveMethods, () =>
+        await drive.withValue(driveMethods, () =>
           callAs("newPuzzle", "cjb", {
             name: "Foo",
             round,
@@ -304,28 +309,31 @@ describe("newPuzzle", function () {
       }
     });
 
-    it("throws duplicate error", () =>
-      chai.assert.isTrue(isDuplicateError(error), `${error}`));
+    it("throws duplicate error", function () {
+      chai.assert.isTrue(isDuplicateError(error), `${error}`);
+    });
 
-    it("doesn't touch", () =>
-      chai.assert.include(Puzzles.findOne(id1), {
+    it("doesn't touch", async function () {
+      chai.assert.include(await Puzzles.findOneAsync(id1), {
         created: 1,
         created_by: "torgen",
         touched: 1,
         touched_by: "torgen",
-      }));
+      });
+    });
 
-    it("doesn't oplog", () =>
+    it("doesn't oplog", async function () {
       chai.assert.lengthOf(
-        Messages.find({ id: id1, type: "puzzles" }).fetch(),
+        await Messages.find({ id: id1, type: "puzzles" }).fetchAsync(),
         0
-      ));
+      );
+    });
   });
 
   describe("when drive fails", function () {
     let round = null;
-    beforeEach(function () {
-      round = Rounds.insert({
+    beforeEach(async function () {
+      round = await Rounds.insertAsync({
         name: "Round",
         canon: "round",
         created: 1,
@@ -337,25 +345,28 @@ describe("newPuzzle", function () {
       driveMethods.createPuzzle = sinon.fake.throws("user limits");
     });
 
-    it("sets status", () =>
-      drive.withValue(driveMethods, function () {
-        const id = callAs("newPuzzle", "torgen", {
-          name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo",
-          round,
-        })._id;
-        chai.assert.include(Puzzles.findOne(id), {
+    it("sets status", async function () {
+      await drive.withValue(driveMethods, async function () {
+        const id = (
+          await callAs("newPuzzle", "torgen", {
+            name: "Foo",
+            link: "https://puzzlehunt.mit.edu/foo",
+            round,
+          })
+        )._id;
+        chai.assert.include(await Puzzles.findOneAsync(id), {
           drive_status: "failed",
           drive_error_message: "Error: user limits",
         });
-      }));
+      });
+    });
   });
 
   describe("when round does not exist", function () {
     let err = null;
-    beforeEach(function () {
+    beforeEach(async function () {
       try {
-        callAs("newPuzzle", "torgen", {
+        await callAs("newPuzzle", "torgen", {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
           round: "nonsuch",
@@ -367,8 +378,8 @@ describe("newPuzzle", function () {
     it("throws error", function () {
       chai.assert.isOk(err);
     });
-    it("does not create puzzle", function () {
-      chai.assert.isNotOk(Puzzles.findOne({ name: "Foo" }));
+    it("does not create puzzle", async function () {
+      chai.assert.isNotOk(await Puzzles.findOneAsync({ name: "Foo" }));
     });
   });
 
@@ -376,8 +387,8 @@ describe("newPuzzle", function () {
     let err = null;
     let round = null;
     let meta = null;
-    beforeEach(function () {
-      meta = Puzzles.insert({
+    beforeEach(async function () {
+      meta = await Puzzles.insertAsync({
         name: "Meta",
         canon: "meta",
         created: 1,
@@ -393,7 +404,7 @@ describe("newPuzzle", function () {
         puzzles: [],
         feedsInto: [],
       });
-      round = Rounds.insert({
+      round = await Rounds.insertAsync({
         name: "Round",
         canon: "round",
         created: 1,
@@ -403,7 +414,7 @@ describe("newPuzzle", function () {
         puzzles: [meta],
       });
       try {
-        callAs("newPuzzle", "torgen", {
+        await callAs("newPuzzle", "torgen", {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
           round,
@@ -416,14 +427,14 @@ describe("newPuzzle", function () {
     it("throws error", function () {
       chai.assert.isOk(err);
     });
-    it("does not create puzzle", function () {
-      chai.assert.isNotOk(Puzzles.findOne({ name: "Foo" }));
+    it("does not create puzzle", async function () {
+      chai.assert.isNotOk(await Puzzles.findOneAsync({ name: "Foo" }));
     });
-    it("does not modify round", function () {
-      chai.assert.deepEqual(Rounds.findOne(round).puzzles, [meta]);
+    it("does not modify round", async function () {
+      chai.assert.deepEqual((await Rounds.findOneAsync(round)).puzzles, [meta]);
     });
-    it("does not modify existing meta", function () {
-      chai.assert.isEmpty(Puzzles.findOne(meta).puzzles);
+    it("does not modify existing meta", async function () {
+      chai.assert.isEmpty((await Puzzles.findOneAsync(meta)).puzzles);
     });
   });
 
@@ -431,8 +442,8 @@ describe("newPuzzle", function () {
     let round = null;
     let meta = null;
     let puzzle = null;
-    beforeEach(function () {
-      meta = Puzzles.insert({
+    beforeEach(async function () {
+      meta = await Puzzles.insertAsync({
         name: "Meta",
         canon: "meta",
         created: 1,
@@ -448,7 +459,7 @@ describe("newPuzzle", function () {
         puzzles: [],
         feedsInto: [],
       });
-      round = Rounds.insert({
+      round = await Rounds.insertAsync({
         name: "Round",
         canon: "round",
         created: 1,
@@ -457,21 +468,29 @@ describe("newPuzzle", function () {
         touched_by: "cjb",
         puzzles: [meta],
       });
-      puzzle = callAs("newPuzzle", "torgen", {
+      puzzle = await callAs("newPuzzle", "torgen", {
         name: "Foo",
         link: "https://puzzlehunt.mit.edu/foo",
         round,
         feedsInto: [meta, meta],
       });
     });
-    it("adds to round", function () {
-      chai.assert.deepEqual(Rounds.findOne(round).puzzles, [meta, puzzle._id]);
+    it("adds to round", async function () {
+      chai.assert.deepEqual((await Rounds.findOneAsync(round)).puzzles, [
+        meta,
+        puzzle._id,
+      ]);
     });
-    it("feeds meta once", function () {
-      chai.assert.deepEqual(Puzzles.findOne(meta).puzzles, [puzzle._id]);
+    it("feeds meta once", async function () {
+      chai.assert.deepEqual((await Puzzles.findOneAsync(meta)).puzzles, [
+        puzzle._id,
+      ]);
     });
-    it("deduplicates metas", function () {
-      chai.assert.deepEqual(Puzzles.findOne(puzzle._id).feedsInto, [meta]);
+    it("deduplicates metas", async function () {
+      chai.assert.deepEqual(
+        (await Puzzles.findOneAsync(puzzle._id)).feedsInto,
+        [meta]
+      );
     });
   });
 
@@ -479,8 +498,8 @@ describe("newPuzzle", function () {
     let err = null;
     let round = null;
     let feeder = null;
-    beforeEach(function () {
-      feeder = Puzzles.insert({
+    beforeEach(async function () {
+      feeder = await Puzzles.insertAsync({
         name: "Feeder",
         canon: "feeder",
         created: 1,
@@ -495,7 +514,7 @@ describe("newPuzzle", function () {
         tags: {},
         feedsInto: [],
       });
-      round = Rounds.insert({
+      round = await Rounds.insertAsync({
         name: "Round",
         canon: "round",
         created: 1,
@@ -505,7 +524,7 @@ describe("newPuzzle", function () {
         puzzles: [feeder],
       });
       try {
-        callAs("newPuzzle", "torgen", {
+        await callAs("newPuzzle", "torgen", {
           name: "Foo",
           link: "https://puzzlehunt.mit.edu/foo",
           round,
@@ -518,14 +537,16 @@ describe("newPuzzle", function () {
     it("throws error", function () {
       chai.assert.isOk(err);
     });
-    it("does not create puzzle", function () {
-      chai.assert.isNotOk(Puzzles.findOne({ name: "Foo" }));
+    it("does not create puzzle", async function () {
+      chai.assert.isNotOk(await Puzzles.findOneAsync({ name: "Foo" }));
     });
-    it("does not modify existing feeder", function () {
-      chai.assert.isEmpty(Puzzles.findOne(feeder).feedsInto);
+    it("does not modify existing feeder", async function () {
+      chai.assert.isEmpty((await Puzzles.findOneAsync(feeder)).feedsInto);
     });
-    it("does not modify round", function () {
-      chai.assert.deepEqual(Rounds.findOne(round).puzzles, [feeder]);
+    it("does not modify round", async function () {
+      chai.assert.deepEqual((await Rounds.findOneAsync(round)).puzzles, [
+        feeder,
+      ]);
     });
   });
 
@@ -533,8 +554,8 @@ describe("newPuzzle", function () {
     let round = null;
     let feeder = null;
     let puzzle = null;
-    beforeEach(function () {
-      feeder = Puzzles.insert({
+    beforeEach(async function () {
+      feeder = await Puzzles.insertAsync({
         name: "Feeder",
         canon: "feeder",
         created: 1,
@@ -549,7 +570,7 @@ describe("newPuzzle", function () {
         tags: {},
         feedsInto: [],
       });
-      round = Rounds.insert({
+      round = await Rounds.insertAsync({
         name: "Round",
         canon: "round",
         created: 1,
@@ -558,24 +579,28 @@ describe("newPuzzle", function () {
         touched_by: "cjb",
         puzzles: [feeder],
       });
-      puzzle = callAs("newPuzzle", "torgen", {
+      puzzle = await callAs("newPuzzle", "torgen", {
         name: "Foo",
         link: "https://puzzlehunt.mit.edu/foo",
         round,
         puzzles: [feeder, feeder],
       });
     });
-    it("adds to round", function () {
-      chai.assert.deepEqual(Rounds.findOne(round).puzzles, [
+    it("adds to round", async function () {
+      chai.assert.deepEqual((await Rounds.findOneAsync(round)).puzzles, [
         feeder,
         puzzle._id,
       ]);
     });
-    it("is fed once", function () {
-      chai.assert.deepEqual(Puzzles.findOne(feeder).feedsInto, [puzzle._id]);
+    it("is fed once", async function () {
+      chai.assert.deepEqual((await Puzzles.findOneAsync(feeder)).feedsInto, [
+        puzzle._id,
+      ]);
     });
-    it("deduplicates metas", function () {
-      chai.assert.deepEqual(Puzzles.findOne(puzzle._id).puzzles, [feeder]);
+    it("deduplicates metas", async function () {
+      chai.assert.deepEqual((await Puzzles.findOneAsync(puzzle._id)).puzzles, [
+        feeder,
+      ]);
     });
   });
 });

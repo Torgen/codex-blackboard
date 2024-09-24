@@ -4,70 +4,69 @@ import { Messages, Roles, Rounds } from "/lib/imports/collections.js";
 import { callAs, impersonating } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import isDuplicateError from "/lib/imports/duplicate.js";
-import {
-  RoleRenewalTime,
-  RoundUrlPrefix,
-  UrlSeparator,
-} from "/lib/imports/settings.js";
+import { RoleRenewalTime, RoundUrlPrefix } from "/lib/imports/settings.js";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("newRound", function () {
   let clock = null;
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(function () {
     clock.restore();
     sinon.restore();
   });
 
-  beforeEach(function () {
-    resetDatabase();
-    RoleRenewalTime.ensure();
-    RoundUrlPrefix.ensure();
-    UrlSeparator.ensure();
+  beforeEach(async function () {
+    await clearCollections(Messages, Roles, Rounds);
+    await RoleRenewalTime.reset();
   });
 
-  it("fails without login", () =>
-    chai.assert.throws(
-      () =>
-        Meteor.call("newRound", {
-          name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo",
-          puzzles: ["yoy"],
-        }),
+  it("fails without login", async function () {
+    await assertRejects(
+      Meteor.callAsync("newRound", {
+        name: "Foo",
+        link: "https://puzzlehunt.mit.edu/foo",
+        puzzles: ["yoy"],
+      }),
       Match.Error
-    ));
+    );
+  });
 
   describe("when none exists with that name", function () {
     let id = null;
     describe("when onduty", function () {
-      beforeEach(function () {
-        Roles.insert({
+      beforeEach(async function () {
+        await Roles.insertAsync({
           _id: "onduty",
           holder: "torgen",
           claimed_at: 2,
           renewed_at: 2,
           expires_at: 3600002,
         });
-        id = callAs("newRound", "torgen", {
-          name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo",
-        })._id;
+        id = (
+          await callAs("newRound", "torgen", {
+            name: "Foo",
+            link: "https://puzzlehunt.mit.edu/foo",
+          })
+        )._id;
       });
 
-      it("oplogs", () =>
-        chai.assert.lengthOf(Messages.find({ id, type: "rounds" }).fetch(), 1));
+      it("oplogs", async function () {
+        chai.assert.lengthOf(
+          await Messages.find({ id, type: "rounds" }).fetchAsync(),
+          1
+        );
+      });
 
-      it("creates round", function () {
+      it("creates round", async function () {
         // Round is created, then drive et al are added
-        const round = Rounds.findOne(id);
+        const round = await Rounds.findOneAsync(id);
         chai.assert.deepInclude(round, {
           name: "Foo",
           canon: "foo",
@@ -84,60 +83,66 @@ describe("newRound", function () {
         );
       });
 
-      it("renews onduty", () =>
-        chai.assert.deepInclude(Roles.findOne("onduty"), {
+      it("renews onduty", async function () {
+        chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
           holder: "torgen",
           claimed_at: 2,
           renewed_at: 7,
           expires_at: 3600007,
-        }));
+        });
+      });
     });
 
     describe("when someone else is onduty", function () {
-      beforeEach(function () {
-        Roles.insert({
+      beforeEach(async function () {
+        await Roles.insertAsync({
           _id: "onduty",
           holder: "florgen",
           claimed_at: 2,
           renewed_at: 2,
           expires_at: 3600002,
         });
-        id = callAs("newRound", "torgen", {
-          name: "Foo",
-          link: "https://puzzlehunt.mit.edu/foo",
-        })._id;
+        id = (
+          await callAs("newRound", "torgen", {
+            name: "Foo",
+            link: "https://puzzlehunt.mit.edu/foo",
+          })
+        )._id;
       });
 
-      it("leaves onduty alone", () =>
-        chai.assert.deepInclude(Roles.findOne("onduty"), {
+      it("leaves onduty alone", async function () {
+        chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
           holder: "florgen",
           claimed_at: 2,
           renewed_at: 2,
           expires_at: 3600002,
-        }));
+        });
+      });
     });
 
     describe("when nobody is onduty", function () {
-      beforeEach(
-        () =>
-          (id = callAs("newRound", "torgen", {
+      beforeEach(async function () {
+        id = (
+          await callAs("newRound", "torgen", {
             name: "Foo",
             link: "https://puzzlehunt.mit.edu/foo",
-          })._id)
-      );
+          })
+        )._id;
+      });
 
-      it("leaves onduty alone", () =>
-        chai.assert.isNotOk(Roles.findOne("onduty")));
+      it("leaves onduty alone", async function () {
+        chai.assert.isNotOk(await Roles.findOneAsync("onduty"));
+      });
     });
   });
 
-  it("derives link", function () {
-    impersonating("cjb", () =>
+  it("derives link", async function () {
+    await impersonating("cjb", () =>
       RoundUrlPrefix.set("https://testhuntpleaseign.org/rounds")
     );
-    const id = callAs("newRound", "torgen", { name: "Foo Round" })._id;
+    const id = (await callAs("newRound", "torgen", { name: "Foo Round" }))._id;
     // Round is created, then drive et al are added
-    const round = Rounds.findOne(id);
+    const round = await Rounds.findOneAsync(id);
     chai.assert.deepInclude(round, {
       name: "Foo Round",
       canon: "foo_round",
@@ -154,8 +159,8 @@ describe("newRound", function () {
   describe("when one has that name", function () {
     let id1 = null;
     let error = null;
-    beforeEach(function () {
-      id1 = Rounds.insert({
+    beforeEach(async function () {
+      id1 = await Rounds.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -167,7 +172,7 @@ describe("newRound", function () {
         tags: {},
       });
       try {
-        callAs("newRound", "cjb", { name: "Foo" });
+        await callAs("newRound", "cjb", { name: "Foo" });
       } catch (err) {
         error = err;
       }
@@ -176,18 +181,20 @@ describe("newRound", function () {
     it("throws duplicate error", () =>
       chai.assert.isTrue(isDuplicateError(error), `${error}`));
 
-    it("doesn't touch", () =>
-      chai.assert.include(Rounds.findOne(id1), {
+    it("doesn't touch", async function () {
+      chai.assert.include(await Rounds.findOneAsync(id1), {
         created: 1,
         created_by: "torgen",
         touched: 1,
         touched_by: "torgen",
-      }));
+      });
+    });
 
-    it("doesn't oplog", () =>
+    it("doesn't oplog", async function () {
       chai.assert.lengthOf(
-        Messages.find({ id: id1, type: "rounds" }).fetch(),
+        await Messages.find({ id: id1, type: "rounds" }).fetchAsync(),
         0
-      ));
+      );
+    });
   });
 });

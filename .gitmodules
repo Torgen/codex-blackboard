@@ -1,7 +1,0 @@
-[submodule "packages/meteortesting_browser-tests"]
-	path = packages/meteortesting_browser-tests
-	url = https://github.com/Torgen/meteor-browser-tests
-[submodule "packages/bhunjadi_mongo-transactions"]
-	path = packages/bhunjadi_mongo-transactions
-	url = https://github.com/Torgen/meteor-mongo-transactions.git
-	branch = client-stubs

@@ -2,9 +2,8 @@ import memes from "./memes.js"; // for side effects
 import { Messages } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import Robot from "../imports/hubot.js";
-import { waitForDocument } from "/lib/imports/testutils.js";
+import { clearCollections, waitForDocument } from "/lib/imports/testutils.js";
 import { MaximumMemeLength } from "/lib/imports/settings.js";
 import delay from "delay";
 import { impersonating } from "../imports/impersonate.js";
@@ -13,9 +12,8 @@ describe("memes hubot script", function () {
   let robot = null;
   let clock = null;
 
-  beforeEach(function () {
-    resetDatabase();
-    MaximumMemeLength.ensure();
+  beforeEach(async function () {
+    clearCollections(Messages);
     clock = sinon.useFakeTimers({
       now: 6,
       toFake: ["Date"],
@@ -24,7 +22,7 @@ describe("memes hubot script", function () {
     // the standard message class or adapter.
     robot = new Robot("testbot", "testbot@testbot.test");
     memes(robot);
-    robot.run();
+    await robot.run();
     clock.tick(1);
   });
 
@@ -33,8 +31,8 @@ describe("memes hubot script", function () {
     clock.restore();
   });
 
-  it("triggers multiple memes", function () {
-    Messages.insert({
+  it("triggers multiple memes", async function () {
+    await Messages.insertAsync({
       nick: "torgen",
       room_name: "general/0",
       timestamp: 7,
@@ -72,12 +70,12 @@ describe("memes hubot script", function () {
         timestamp: 7,
       }
     );
-    return Promise.all([interesting, buzz, xy, success]);
+    await Promise.all([interesting, buzz, xy, success]);
   });
 
   it("maximum lemgth applies", async function () {
-    impersonating("cjb", () => MaximumMemeLength.set(50));
-    Messages.insert({
+    await impersonating("cjb", () => MaximumMemeLength.set(50));
+    await Messages.insertAsync({
       nick: "torgen",
       room_name: "general/0",
       timestamp: 7,
@@ -85,7 +83,7 @@ describe("memes hubot script", function () {
     });
     await delay(200);
     chai.assert.isUndefined(
-      Messages.findOne({ nick: "testbot", timestamp: 7 })
+      await Messages.findOneAsync({ nick: "testbot", timestamp: 7 })
     );
   });
 });

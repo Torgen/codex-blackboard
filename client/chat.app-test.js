@@ -74,10 +74,11 @@ describe("chat", function () {
     input.val("/me tests actions");
     input.trigger($.Event("keydown", { which: 13 }));
     chai.assert.equal(input.val(), "", "after first submit");
+    await waitForMethods();
     input.val("say another thing");
     input.trigger($.Event("keydown", { which: 13 }));
     chai.assert.equal(input.val(), "", "after second submit");
-    await waitForSubscriptions();
+    await waitForMethods();
     input.trigger($.Event("keydown", { key: "Up" }));
     chai.assert.equal(input.val(), "say another thing", "after first up");
     input.trigger($.Event("keydown", { key: "Up" }));

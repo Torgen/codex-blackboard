@@ -9,28 +9,27 @@ import {
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("setAnswer", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(CallIns, Messages, Presence, Puzzles));
 
   describe("without answer", function () {
     let id = null;
     let ret = null;
-    beforeEach(function () {
-      id = Puzzles.insert({
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -50,50 +49,51 @@ describe("setAnswer", function () {
           },
         },
       });
-      Presence.insert({
+      await Presence.insertAsync({
         room_name: `puzzles/${id}`,
         nick: "torgen",
         timestamp: 2,
         scope: "chat",
       });
-      Presence.insert({
+      await Presence.insertAsync({
         room_name: `puzzles/${id}`,
         nick: "botto",
         timestamp: 0,
         bot: true,
         scope: "chat",
       });
-      Presence.insert({
+      await Presence.insertAsync({
         room_name: `puzzles/${id}`,
         nick: "idle",
         timestamp: -130001,
         scope: "chat",
       });
     });
-    it("fails without login", () =>
-      chai.assert.throws(
-        () =>
-          Meteor.call("setAnswer", {
-            target: id,
-            answer: "bar",
-          }),
+    it("fails without login", async function () {
+      await assertRejects(
+        Meteor.callAsync("setAnswer", {
+          target: id,
+          answer: "bar",
+        }),
         Match.Error
-      ));
+      );
+    });
 
     describe("when logged in", function () {
       ret = null;
-      beforeEach(
-        () =>
-          (ret = callAs("setAnswer", "cjb", {
-            target: id,
-            answer: "bar",
-          }))
-      );
+      beforeEach(async function () {
+        ret = await callAs("setAnswer", "cjb", {
+          target: id,
+          answer: "bar",
+        });
+      });
 
-      it("returns true", () => chai.assert.isTrue(ret));
+      it("returns true", function () {
+        chai.assert.isTrue(ret);
+      });
 
-      it("modifies document", () =>
-        chai.assert.deepEqual(Puzzles.findOne(id), {
+      it("modifies document", async function () {
+        chai.assert.deepEqual(await Puzzles.findOneAsync(id), {
           _id: id,
           name: "Foo",
           canon: "foo",
@@ -119,10 +119,13 @@ describe("setAnswer", function () {
               touched_by: "torgen",
             },
           },
-        }));
+        });
+      });
 
-      it("oplogs", function () {
-        const oplogs = Messages.find({ room_name: "oplog/0" }).fetch();
+      it("oplogs", async function () {
+        const oplogs = await Messages.find({
+          room_name: "oplog/0",
+        }).fetchAsync();
         chai.assert.equal(oplogs.length, 1);
         chai.assert.include(oplogs[0], {
           nick: "cjb",
@@ -140,8 +143,8 @@ describe("setAnswer", function () {
   describe("with answer", function () {
     let id = null;
     let ret = null;
-    beforeEach(function () {
-      id = Puzzles.insert({
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -167,7 +170,7 @@ describe("setAnswer", function () {
           },
         },
       });
-      ret = callAs("setAnswer", "cjb", {
+      ret = await callAs("setAnswer", "cjb", {
         target: id,
         answer: "bar",
       });
@@ -175,8 +178,8 @@ describe("setAnswer", function () {
 
     it("returns true", () => chai.assert.isTrue(ret));
 
-    it("modifies document", () =>
-      chai.assert.deepEqual(Puzzles.findOne(id), {
+    it("modifies document", async function () {
+      chai.assert.deepEqual(await Puzzles.findOneAsync(id), {
         _id: id,
         name: "Foo",
         canon: "foo",
@@ -202,10 +205,11 @@ describe("setAnswer", function () {
             touched_by: "torgen",
           },
         },
-      }));
+      });
+    });
 
-    it("oplogs", function () {
-      const oplogs = Messages.find({ room_name: "oplog/0" }).fetch();
+    it("oplogs", async function () {
+      const oplogs = await Messages.find({ room_name: "oplog/0" }).fetchAsync();
       chai.assert.equal(oplogs.length, 1);
       chai.assert.include(oplogs[0], {
         nick: "cjb",
@@ -223,8 +227,8 @@ describe("setAnswer", function () {
   describe("with same answer", function () {
     let id = null;
     let ret = null;
-    beforeEach(function () {
-      id = Puzzles.insert({
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -250,26 +254,26 @@ describe("setAnswer", function () {
           },
         },
       });
-      Presence.insert({
+      await Presence.insertAsync({
         room_name: `puzzles/${id}`,
         nick: "torgen",
         timestamp: 2,
         present: true,
       });
-      Presence.insert({
+      await Presence.insertAsync({
         room_name: `puzzles/${id}`,
         nick: "botto",
         timestamp: 0,
         bot: true,
         scope: "chat",
       });
-      Presence.insert({
+      await Presence.insertAsync({
         room_name: `puzzles/${id}`,
         nick: "idle",
         timestamp: -130001,
         scope: "chat",
       });
-      ret = callAs("setAnswer", "cjb", {
+      ret = await callAs("setAnswer", "cjb", {
         target: id,
         answer: "bar",
       });
@@ -277,8 +281,8 @@ describe("setAnswer", function () {
 
     it("returns false", () => chai.assert.isFalse(ret));
 
-    it("leaves document alone", () =>
-      chai.assert.deepEqual(Puzzles.findOne(id), {
+    it("leaves document alone", async function () {
+      chai.assert.deepEqual(await Puzzles.findOneAsync(id), {
         _id: id,
         name: "Foo",
         canon: "foo",
@@ -304,14 +308,19 @@ describe("setAnswer", function () {
             touched_by: "torgen",
           },
         },
-      }));
+      });
+    });
 
-    it("doesn't oplog", () =>
-      chai.assert.lengthOf(Messages.find({ room_name: "oplog/0" }).fetch(), 0));
+    it("doesn't oplog", async function () {
+      chai.assert.lengthOf(
+        await Messages.find({ room_name: "oplog/0" }).fetchAsync(),
+        0
+      );
+    });
   });
 
-  it("modifies tags", function () {
-    const id = Puzzles.insert({
+  it("modifies tags", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       created: 1,
@@ -331,14 +340,14 @@ describe("setAnswer", function () {
       },
     });
     chai.assert.isTrue(
-      callAs("setAnswer", "cjb", {
+      await callAs("setAnswer", "cjb", {
         target: id,
         answer: "bar",
         backsolve: true,
         provided: true,
       })
     );
-    chai.assert.deepInclude(Puzzles.findOne(id), {
+    chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
       tags: {
         answer: { name: "Answer", value: "bar", touched: 7, touched_by: "cjb" },
         backsolve: {
@@ -361,8 +370,8 @@ describe("setAnswer", function () {
     let id = null;
     let cid1 = null;
     let cid2 = null;
-    beforeEach(function () {
-      id = Puzzles.insert({
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -374,7 +383,7 @@ describe("setAnswer", function () {
         confirmed_by: null,
         tags: {},
       });
-      cid1 = CallIns.insert({
+      cid1 = await CallIns.insertAsync({
         target_type: "puzzles",
         target: id,
         name: "Foo",
@@ -387,7 +396,7 @@ describe("setAnswer", function () {
         provided: false,
         status: "pending",
       });
-      cid2 = CallIns.insert({
+      cid2 = await CallIns.insertAsync({
         target_type: "puzzles",
         target: id,
         name: "Foo",
@@ -400,40 +409,50 @@ describe("setAnswer", function () {
         provided: false,
         status: "pending",
       });
-      callAs("setAnswer", "cjb", {
+      await callAs("setAnswer", "cjb", {
         target: id,
         answer: "bar",
       });
     });
 
-    it("updates callins", function () {
-      chai.assert.include(CallIns.findOne(cid1), {
+    it("updates callins", async function () {
+      chai.assert.include(await CallIns.findOneAsync(cid1), {
         status: "accepted",
         resolved: 7,
       });
-      chai.assert.include(CallIns.findOne(cid2), {
+      chai.assert.include(await CallIns.findOneAsync(cid2), {
         status: "cancelled",
         resolved: 7,
       });
     });
 
-    it("doesn't oplog for callins", () =>
+    it("doesn't oplog for callins", async function () {
       chai.assert.lengthOf(
-        Messages.find({ room_name: "oplog/0", type: "callins" }).fetch(),
+        await Messages.find({
+          room_name: "oplog/0",
+          type: "callins",
+        }).fetchAsync(),
         0
-      ));
+      );
+    });
 
-    it("oplogs for puzzle", () =>
+    it("oplogs for puzzle", async function () {
       chai.assert.lengthOf(
-        Messages.find({ room_name: "oplog/0", type: "puzzles", id }).fetch(),
+        await Messages.find({
+          room_name: "oplog/0",
+          type: "puzzles",
+          id,
+        }).fetchAsync(),
         1
-      ));
+      );
+    });
 
-    it("sets solved_by correctly", () =>
-      chai.assert.deepInclude(Puzzles.findOne(id), {
+    it("sets solved_by correctly", async function () {
+      chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
         solved: 7,
         solved_by: "codexbot",
         confirmed_by: "cjb",
-      }));
+      });
+    });
   });
 });

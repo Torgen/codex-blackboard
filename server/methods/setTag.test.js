@@ -4,25 +4,24 @@ import { Messages, Puzzles } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("setTag", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Messages, Puzzles));
 
-  it("fails without login", function () {
-    const id = Puzzles.insert({
+  it("fails without login", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       feedsInto: [],
@@ -41,20 +40,19 @@ describe("setTag", function () {
         },
       },
     });
-    chai.assert.throws(
-      () =>
-        Meteor.call("setTag", {
-          type: "puzzles",
-          object: id,
-          name: "Cares About",
-          value: "temperature",
-        }),
+    await assertRejects(
+      Meteor.callAsync("setTag", {
+        type: "puzzles",
+        object: id,
+        name: "Cares About",
+        value: "temperature",
+      }),
       Match.Error
     );
   });
 
-  it("adds new tag", function () {
-    const id = Puzzles.insert({
+  it("adds new tag", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       feedsInto: [],
@@ -73,13 +71,13 @@ describe("setTag", function () {
         },
       },
     });
-    callAs("setTag", "torgen", {
+    await callAs("setTag", "torgen", {
       type: "puzzles",
       object: id,
       name: "Cares About",
       value: "temperature",
     });
-    chai.assert.deepInclude(Puzzles.findOne(id), {
+    chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
       created: 1,
       created_by: "cjb",
       touched: 7,
@@ -103,8 +101,8 @@ describe("setTag", function () {
     });
   });
 
-  it("overwrites old tag", function () {
-    const id = Puzzles.insert({
+  it("overwrites old tag", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       feedsInto: [],
@@ -121,14 +119,14 @@ describe("setTag", function () {
         },
       },
     });
-    callAs("setTag", "torgen", {
+    await callAs("setTag", "torgen", {
       type: "puzzles",
       object: id,
       name: "Cares About",
       value: "temperature,pressure",
     });
 
-    chai.assert.deepInclude(Puzzles.findOne(id), {
+    chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
       created: 1,
       created_by: "cjb",
       touched: 7,
@@ -144,8 +142,8 @@ describe("setTag", function () {
     });
   });
 
-  it("defers to setAnswer", function () {
-    const id = Puzzles.insert({
+  it("defers to setAnswer", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       feedsInto: [],
@@ -162,14 +160,14 @@ describe("setTag", function () {
         },
       },
     });
-    callAs("setTag", "torgen", {
+    await callAs("setTag", "torgen", {
       type: "puzzles",
       object: id,
       name: "answEr",
       value: "bar",
     });
 
-    chai.assert.deepInclude(Puzzles.findOne(id), {
+    chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
       created: 1,
       created_by: "cjb",
       touched: 7,
@@ -192,7 +190,7 @@ describe("setTag", function () {
       },
     });
     chai.assert.include(
-      Messages.findOne({
+      await Messages.findOneAsync({
         room_name: "oplog/0",
         body: "Found an answer (BAR) to",
       }),
@@ -206,8 +204,8 @@ describe("setTag", function () {
     );
   });
 
-  it("sets link", function () {
-    const id = Puzzles.insert({
+  it("sets link", async function () {
+    const id = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       feedsInto: [],
@@ -224,14 +222,14 @@ describe("setTag", function () {
         },
       },
     });
-    callAs("setTag", "torgen", {
+    await callAs("setTag", "torgen", {
       type: "puzzles",
       object: id,
       name: "link",
       value: "https://moliday.holasses/puzzles/foo",
     });
 
-    chai.assert.deepInclude(Puzzles.findOne(id), {
+    chai.assert.deepInclude(await Puzzles.findOneAsync(id), {
       created: 1,
       created_by: "cjb",
       touched: 7,
@@ -246,14 +244,16 @@ describe("setTag", function () {
         },
       },
     });
-    chai.assert.doesNotHaveAnyKeys(Puzzles.findOne(id).tags, ["link"]);
+    chai.assert.doesNotHaveAnyKeys((await Puzzles.findOneAsync(id)).tags, [
+      "link",
+    ]);
   });
 
   describe("on metapuzzle", function () {
     let meta;
     let feeder;
-    beforeEach(function () {
-      meta = Puzzles.insert({
+    beforeEach(async function () {
+      meta = await Puzzles.insertAsync({
         name: "Meta",
         canon: "meta",
         feedsInto: [],
@@ -264,7 +264,7 @@ describe("setTag", function () {
         touched_by: "cscott",
         tags: {},
       });
-      feeder = Puzzles.insert({
+      feeder = await Puzzles.insertAsync({
         name: "Feeder",
         canon: "feeder",
         feedsInto: [meta],
@@ -281,17 +281,19 @@ describe("setTag", function () {
           },
         },
       });
-      Puzzles.update(meta, { $push: { puzzles: feeder } });
+      await Puzzles.updateAsync(meta, { $push: { puzzles: feeder } });
     });
 
-    it("notifies feeder on meta tags", function () {
-      callAs("setTag", "torgen", {
+    it("notifies feeder on meta tags", async function () {
+      await callAs("setTag", "torgen", {
         type: "puzzles",
         object: meta,
         name: "meta pattern",
         value: "crystalline",
       });
-      const message = Messages.findOne({ room_name: `puzzles/${feeder}` });
+      const message = await Messages.findOneAsync({
+        room_name: `puzzles/${feeder}`,
+      });
       chai.assert.deepInclude(message, {
         nick: "torgen",
         action: true,
@@ -299,14 +301,16 @@ describe("setTag", function () {
         body: 'has set the meta pattern of Meta to "crystalline".',
       });
     });
-    it("notifies feeder on many unset cares abouts", function () {
-      callAs("setTag", "torgen", {
+    it("notifies feeder on many unset cares abouts", async function () {
+      await callAs("setTag", "torgen", {
         type: "puzzles",
         object: meta,
         name: "cares about",
         value: "foo,bar,baz,qux,sheila",
       });
-      const message = Messages.findOne({ room_name: `puzzles/${feeder}` });
+      const message = await Messages.findOneAsync({
+        room_name: `puzzles/${feeder}`,
+      });
       chai.assert.deepInclude(message, {
         nick: "torgen",
         action: true,
@@ -314,14 +318,16 @@ describe("setTag", function () {
         body: 'would like the "foo", "bar", "qux", and "sheila" tags set for Meta.',
       });
     });
-    it("notifies feeder on two unset cares abouts", function () {
-      callAs("setTag", "torgen", {
+    it("notifies feeder on two unset cares abouts", async function () {
+      await callAs("setTag", "torgen", {
         type: "puzzles",
         object: meta,
         name: "cares about",
         value: "foo,baz,sheila",
       });
-      const message = Messages.findOne({ room_name: `puzzles/${feeder}` });
+      const message = await Messages.findOneAsync({
+        room_name: `puzzles/${feeder}`,
+      });
       chai.assert.deepInclude(message, {
         nick: "torgen",
         action: true,
@@ -329,14 +335,16 @@ describe("setTag", function () {
         body: 'would like the "foo" and "sheila" tags set for Meta.',
       });
     });
-    it("notifies feeder on one unset cares about", function () {
-      callAs("setTag", "torgen", {
+    it("notifies feeder on one unset cares about", async function () {
+      await callAs("setTag", "torgen", {
         type: "puzzles",
         object: meta,
         name: "cares about",
         value: "foo,baz",
       });
-      const message = Messages.findOne({ room_name: `puzzles/${feeder}` });
+      const message = await Messages.findOneAsync({
+        room_name: `puzzles/${feeder}`,
+      });
       chai.assert.deepInclude(message, {
         nick: "torgen",
         action: true,
@@ -344,14 +352,16 @@ describe("setTag", function () {
         body: 'would like the "foo" tag set for Meta.',
       });
     });
-    it("does not notify feeder on set cares about", function () {
-      callAs("setTag", "torgen", {
+    it("does not notify feeder on set cares about", async function () {
+      await callAs("setTag", "torgen", {
         type: "puzzles",
         object: meta,
         name: "cares about",
         value: "baz",
       });
-      chai.assert.notOk(Messages.findOne({ room_name: `puzzles/${feeder}` }));
+      chai.assert.notOk(
+        await Messages.findOneAsync({ room_name: `puzzles/${feeder}` })
+      );
     });
   });
 });

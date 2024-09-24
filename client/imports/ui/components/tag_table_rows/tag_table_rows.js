@@ -26,7 +26,7 @@ Template.tag_table_rows.events({
 
 Template.tag_table_rows.events(
   okCancelEvents(".bb-add-tag input", {
-    ok(value, event, template) {
+    async ok(value, event, template) {
       if (!this.adding.adding()) {
         return;
       }
@@ -36,7 +36,7 @@ Template.tag_table_rows.events(
       if (collection(this.type).findOne({ _id: this.id }).tags[cval] != null) {
         return;
       }
-      Meteor.call("setTag", {
+      const p = Meteor.serializeCall("setTag", {
         type: this.type,
         object: this.id,
         name: value,
@@ -44,6 +44,7 @@ Template.tag_table_rows.events(
       });
       // simulation is enough for us to start editing the value if the event was enter or tab
       if ([9, 13].includes(event.which)) {
+        await p.stubPromise;
         Tracker.afterFlush(() =>
           template
             .$(`tr[data-tag-name='${cval}'] .bb-edit-tag-value`)

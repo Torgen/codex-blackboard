@@ -2,7 +2,7 @@ import { newMessage } from "/server/imports/newMessage.js";
 import { NonEmptyString } from "/lib/imports/match.js";
 
 Meteor.methods({
-  newMessage(args) {
+  async newMessage(args) {
     check(this.userId, NonEmptyString);
     check(args, {
       body: Match.Optional(String),
@@ -23,11 +23,11 @@ Meteor.methods({
     if (newMsg.room_name == null) {
       newMsg.room_name = "general/0";
     }
-    newMsg = newMessage(newMsg);
+    newMsg = await newMessage(newMsg);
     // update the user's 'last read' message to include this one
     // (doing it here allows us to use server timestamp on message)
     if (!args.on_behalf) {
-      Meteor.call("updateLastRead", {
+      await Meteor.callAsync("updateLastRead", {
         room_name: newMsg.room_name,
         timestamp: newMsg.timestamp,
       });

@@ -4,39 +4,38 @@ import { CallIns, Messages, Puzzles, Roles } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils";
 import { RoleRenewalTime } from "/lib/imports/settings.js";
 
 describe("incorrectCallIn", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(function () {
-    resetDatabase();
-    RoleRenewalTime.ensure();
+  beforeEach(async function () {
+    await clearCollections(CallIns, Messages, Puzzles, Roles);
+    await RoleRenewalTime.reset();
   });
 
   let puzzle = null;
   let callin = null;
-  it("fails when callin doesn't exist", function () {
-    chai.assert.throws(
-      () => callAs("incorrectCallIn", "cjb", "never heard of it"),
+  it("fails when callin doesn't exist", async function () {
+    await assertRejects(
+      callAs("incorrectCallIn", "cjb", "never heard of it"),
       Meteor.Error
     );
   });
 
   describe("on answer", function () {
-    beforeEach(function () {
-      puzzle = Puzzles.insert({
+    beforeEach(async function () {
+      puzzle = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -48,7 +47,7 @@ describe("incorrectCallIn", function () {
         tags: {},
         feedsInto: [],
       });
-      callin = CallIns.insert({
+      callin = await CallIns.insertAsync({
         name: "Foo:precipitate",
         target: puzzle,
         target_type: "puzzles",
@@ -61,7 +60,7 @@ describe("incorrectCallIn", function () {
         provided: false,
         status: "pending",
       });
-      Roles.insert({
+      await Roles.insertAsync({
         _id: "onduty",
         holder: "cjb",
         claimed_at: 2,
@@ -70,73 +69,83 @@ describe("incorrectCallIn", function () {
       });
     });
 
-    it("fails without login", () =>
-      chai.assert.throws(
-        () => Meteor.call("incorrectCallIn", callin),
+    it("fails without login", async function () {
+      await assertRejects(
+        Meteor.callAsync("incorrectCallIn", callin),
         Match.Error
-      ));
+      );
+    });
 
     describe("when logged in", function () {
-      beforeEach(() => callAs("incorrectCallIn", "cjb", callin));
+      beforeEach(async function () {
+        await callAs("incorrectCallIn", "cjb", callin);
+      });
 
-      it("updates callin", function () {
-        const c = CallIns.findOne(callin);
+      it("updates callin", async function () {
+        const c = await CallIns.findOneAsync(callin);
         chai.assert.include(c, { status: "rejected" }, { resolved: 7 });
       });
 
-      it("oplogs", () =>
+      it("oplogs", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             type: "puzzles",
             id: puzzle,
             stream: "callins",
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
 
-      it("notifies puzzle chat", () =>
+      it("notifies puzzle chat", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             room_name: `puzzles/${puzzle}`,
             dawn_of_time: { $ne: true },
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
 
-      it("notifies general chat", () =>
+      it("notifies general chat", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
 
-      it("renews onduty", () =>
-        chai.assert.deepInclude(Roles.findOne("onduty"), {
+      it("renews onduty", async function () {
+        chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
           holder: "cjb",
           claimed_at: 2,
           renewed_at: 7,
           expires_at: 3600007,
-        }));
+        });
+      });
     });
 
     describe("when not onduty", function () {
-      beforeEach(() => callAs("incorrectCallIn", "cscott", callin));
+      beforeEach(async function () {
+        await callAs("incorrectCallIn", "cscott", callin);
+      });
 
-      it("leaves onduty alone", () =>
-        chai.assert.deepInclude(Roles.findOne("onduty"), {
+      it("leaves onduty alone", async function () {
+        chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
           holder: "cjb",
           claimed_at: 2,
           renewed_at: 2,
           expires_at: 3600002,
-        }));
+        });
+      });
     });
   });
 
   describe("on partial answer", function () {
-    beforeEach(function () {
-      puzzle = Puzzles.insert({
+    beforeEach(async function () {
+      puzzle = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -148,7 +157,7 @@ describe("incorrectCallIn", function () {
         tags: {},
         feedsInto: [],
       });
-      callin = CallIns.insert({
+      callin = await CallIns.insertAsync({
         name: "Foo:precipitate",
         target: puzzle,
         target_type: "puzzles",
@@ -161,7 +170,7 @@ describe("incorrectCallIn", function () {
         provided: false,
         status: "pending",
       });
-      Roles.insert({
+      await Roles.insertAsync({
         _id: "onduty",
         holder: "cjb",
         claimed_at: 2,
@@ -170,73 +179,83 @@ describe("incorrectCallIn", function () {
       });
     });
 
-    it("fails without login", () =>
-      chai.assert.throws(
-        () => Meteor.call("incorrectCallIn", callin),
+    it("fails without login", async function () {
+      await assertRejects(
+        Meteor.callAsync("incorrectCallIn", callin),
         Match.Error
-      ));
+      );
+    });
 
     describe("when logged in", function () {
-      beforeEach(() => callAs("incorrectCallIn", "cjb", callin));
+      beforeEach(async function () {
+        await callAs("incorrectCallIn", "cjb", callin);
+      });
 
-      it("updates callin", function () {
-        const c = CallIns.findOne(callin);
+      it("updates callin", async function () {
+        const c = await CallIns.findOneAsync(callin);
         chai.assert.include(c, { status: "rejected" }, { resolved: 7 });
       });
 
-      it("oplogs", () =>
+      it("oplogs", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             type: "puzzles",
             id: puzzle,
             stream: "callins",
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
 
-      it("notifies puzzle chat", () =>
+      it("notifies puzzle chat", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             room_name: `puzzles/${puzzle}`,
             dawn_of_time: { $ne: true },
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
 
-      it("notifies general chat", () =>
+      it("notifies general chat", async function () {
         chai.assert.lengthOf(
-          Messages.find({
+          await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch(),
+          }).fetchAsync(),
           1
-        ));
+        );
+      });
 
-      it("renews onduty", () =>
-        chai.assert.deepInclude(Roles.findOne("onduty"), {
+      it("renews onduty", async function () {
+        chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
           holder: "cjb",
           claimed_at: 2,
           renewed_at: 7,
           expires_at: 3600007,
-        }));
+        });
+      });
     });
 
     describe("when not onduty", function () {
-      beforeEach(() => callAs("incorrectCallIn", "cscott", callin));
+      beforeEach(async function () {
+        await callAs("incorrectCallIn", "cscott", callin);
+      });
 
-      it("leaves onduty alone", () =>
-        chai.assert.deepInclude(Roles.findOne("onduty"), {
+      it("leaves onduty alone", async function () {
+        chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
           holder: "cjb",
           claimed_at: 2,
           renewed_at: 2,
           expires_at: 3600002,
-        }));
+        });
+      });
     });
   });
 
   describe("on interaction request", function () {
-    beforeEach(function () {
-      puzzle = Puzzles.insert({
+    beforeEach(async function () {
+      puzzle = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -248,7 +267,7 @@ describe("incorrectCallIn", function () {
         tags: {},
         feedsInto: [],
       });
-      callin = CallIns.insert({
+      callin = await CallIns.insertAsync({
         name: "Foo:precipitate",
         target: puzzle,
         target_type: "puzzles",
@@ -264,38 +283,42 @@ describe("incorrectCallIn", function () {
     });
 
     describe("without response", function () {
-      it("fails without login", () =>
-        chai.assert.throws(
-          () => Meteor.call("incorrectCallIn", callin),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("incorrectCallIn", callin),
           Match.Error
-        ));
+        );
+      });
 
       describe("when logged in", function () {
-        beforeEach(() => callAs("incorrectCallIn", "cjb", callin));
+        beforeEach(async function () {
+          await callAs("incorrectCallIn", "cjb", callin);
+        });
 
-        it("updates callin", function () {
-          const c = CallIns.findOne(callin);
+        it("updates callin", async function () {
+          const c = await CallIns.findOneAsync(callin);
           chai.assert.include(c, {
             status: "rejected",
             resolved: 7,
           });
         });
 
-        it("does not oplog", () =>
+        it("does not oplog", async function () {
           chai.assert.lengthOf(
-            Messages.find({
+            await Messages.find({
               type: "puzzles",
               id: puzzle,
               stream: "callins",
-            }).fetch(),
+            }).fetchAsync(),
             0
-          ));
+          );
+        });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${puzzle}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
@@ -306,11 +329,11 @@ describe("incorrectCallIn", function () {
           chai.assert.notInclude(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
@@ -324,17 +347,20 @@ describe("incorrectCallIn", function () {
     });
 
     describe("with response", function () {
-      it("fails without login", () =>
-        chai.assert.throws(
-          () => Meteor.call("incorrectCallIn", callin, "sediment"),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("incorrectCallIn", callin, "sediment"),
           Match.Error
-        ));
+        );
+      });
 
       describe("when logged in", function () {
-        beforeEach(() => callAs("incorrectCallIn", "cjb", callin, "sediment"));
+        beforeEach(async function () {
+          await callAs("incorrectCallIn", "cjb", callin, "sediment");
+        });
 
-        it("updates callin", function () {
-          const c = CallIns.findOne(callin);
+        it("updates callin", async function () {
+          const c = await CallIns.findOneAsync(callin);
           chai.assert.include(c, {
             status: "rejected",
             response: "sediment",
@@ -342,21 +368,22 @@ describe("incorrectCallIn", function () {
           });
         });
 
-        it("does not oplog", () =>
+        it("does not oplog", async function () {
           chai.assert.lengthOf(
-            Messages.find({
+            await Messages.find({
               type: "puzzles",
               id: puzzle,
               stream: "callins",
-            }).fetch(),
+            }).fetchAsync(),
             0
-          ));
+          );
+        });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${puzzle}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
@@ -368,11 +395,11 @@ describe("incorrectCallIn", function () {
           chai.assert.notInclude(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
@@ -388,8 +415,8 @@ describe("incorrectCallIn", function () {
   });
 
   describe("on message to hq", function () {
-    beforeEach(function () {
-      puzzle = Puzzles.insert({
+    beforeEach(async function () {
+      puzzle = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -401,7 +428,7 @@ describe("incorrectCallIn", function () {
         tags: {},
         feedsInto: [],
       });
-      callin = CallIns.insert({
+      callin = await CallIns.insertAsync({
         name: "Foo:precipitate",
         target: puzzle,
         target_type: "puzzles",
@@ -417,38 +444,42 @@ describe("incorrectCallIn", function () {
     });
 
     describe("without response", function () {
-      it("fails without login", () =>
-        chai.assert.throws(
-          () => Meteor.call("incorrectCallIn", callin),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("incorrectCallIn", callin),
           Match.Error
-        ));
+        );
+      });
 
       describe("when logged in", function () {
-        beforeEach(() => callAs("incorrectCallIn", "cjb", callin));
+        beforeEach(async function () {
+          await callAs("incorrectCallIn", "cjb", callin);
+        });
 
-        it("updates callin", function () {
-          const c = CallIns.findOne(callin);
+        it("updates callin", async function () {
+          const c = await CallIns.findOneAsync(callin);
           chai.assert.include(c, {
             status: "rejected",
             resolved: 7,
           });
         });
 
-        it("does not oplog", () =>
+        it("does not oplog", async function () {
           chai.assert.lengthOf(
-            Messages.find({
+            await Messages.find({
               type: "puzzles",
               id: puzzle,
               stream: "callins",
-            }).fetch(),
+            }).fetchAsync(),
             0
-          ));
+          );
+        });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${puzzle}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
@@ -459,11 +490,11 @@ describe("incorrectCallIn", function () {
           chai.assert.notInclude(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
@@ -477,17 +508,20 @@ describe("incorrectCallIn", function () {
     });
 
     describe("with response", function () {
-      it("fails without login", () =>
-        chai.assert.throws(
-          () => Meteor.call("incorrectCallIn", callin, "sediment"),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("incorrectCallIn", callin, "sediment"),
           Match.Error
-        ));
+        );
+      });
 
       describe("when logged in", function () {
-        beforeEach(() => callAs("incorrectCallIn", "cjb", callin, "sediment"));
+        beforeEach(async function () {
+          await callAs("incorrectCallIn", "cjb", callin, "sediment");
+        });
 
-        it("updates callin", function () {
-          const c = CallIns.findOne(callin);
+        it("updates callin", async function () {
+          const c = await CallIns.findOneAsync(callin);
           chai.assert.include(c, {
             status: "rejected",
             response: "sediment",
@@ -495,21 +529,22 @@ describe("incorrectCallIn", function () {
           });
         });
 
-        it("does not oplog", () =>
+        it("does not oplog", async function () {
           chai.assert.lengthOf(
-            Messages.find({
+            await Messages.find({
               type: "puzzles",
               id: puzzle,
               stream: "callins",
-            }).fetch(),
+            }).fetchAsync(),
             0
-          ));
+          );
+        });
 
-        it("notifies puzzle chat", function () {
-          const o = Messages.find({
+        it("notifies puzzle chat", async function () {
+          const o = await Messages.find({
             room_name: `puzzles/${puzzle}`,
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
@@ -521,11 +556,11 @@ describe("incorrectCallIn", function () {
           chai.assert.notInclude(o[0].body, `(#puzzles/${puzzle})`, "message");
         });
 
-        it("notifies general chat", function () {
-          const o = Messages.find({
+        it("notifies general chat", async function () {
+          const o = await Messages.find({
             room_name: "general/0",
             dawn_of_time: { $ne: true },
-          }).fetch();
+          }).fetchAsync();
           chai.assert.lengthOf(o, 1);
           chai.assert.include(o[0], {
             nick: "cjb",
@@ -541,8 +576,8 @@ describe("incorrectCallIn", function () {
   });
 
   describe("on expected callback", function () {
-    beforeEach(function () {
-      puzzle = Puzzles.insert({
+    beforeEach(async function () {
+      puzzle = await Puzzles.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -554,7 +589,7 @@ describe("incorrectCallIn", function () {
         tags: {},
         feedsInto: [],
       });
-      callin = CallIns.insert({
+      callin = await CallIns.insertAsync({
         name: "Foo:precipitate",
         target: puzzle,
         target_type: "puzzles",
@@ -570,31 +605,35 @@ describe("incorrectCallIn", function () {
     });
 
     describe("without response", function () {
-      it("fails without login", () =>
-        chai.assert.throws(
-          () => Meteor.call("incorrectCallIn", callin),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("incorrectCallIn", callin),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails when logged in", () =>
-        chai.assert.throws(
-          () => callAs("incorrectCallIn", "cjb", callin),
+      it("fails when logged in", async function () {
+        await assertRejects(
+          callAs("incorrectCallIn", "cjb", callin),
           Meteor.Error
-        ));
+        );
+      });
     });
 
     describe("with response", function () {
-      it("fails without login", () =>
-        chai.assert.throws(
-          () => Meteor.call("incorrectCallIn", callin, "sediment"),
+      it("fails without login", async function () {
+        await assertRejects(
+          Meteor.callAsync("incorrectCallIn", callin, "sediment"),
           Match.Error
-        ));
+        );
+      });
 
-      it("fails when logged in", () =>
-        chai.assert.throws(
-          () => callAs("incorrectCallIn", "cjb", callin, "sediment"),
+      it("fails when logged in", async function () {
+        await assertRejects(
+          callAs("incorrectCallIn", "cjb", callin, "sediment"),
           Meteor.Error
-        ));
+        );
+      });
     });
   });
 });

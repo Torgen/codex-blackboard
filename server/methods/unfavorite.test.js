@@ -2,31 +2,33 @@
 import "/lib/model.js";
 import { Puzzles } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
-import chai from "chai";
+import chai, { assert } from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("unfavorite", function () {
   let clock = null;
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Puzzles));
 
   describe("when no such puzzle", function () {
-    it("fails without login", () =>
-      chai.assert.throws(() => Meteor.call("unfavorite", "id"), Match.Error));
+    it("fails without login", async function () {
+      await assertRejects(Meteor.callAsync("unfavorite", "id"), Match.Error);
+    });
 
     describe("when logged in", function () {
       let ret = null;
-      beforeEach(() => (ret = callAs("unfavorite", "cjb", "id")));
+      beforeEach(async function () {
+        ret = await callAs("unfavorite", "cjb", "id");
+      });
 
       it("returns false", () => chai.assert.isFalse(ret));
     });
@@ -34,39 +36,42 @@ describe("unfavorite", function () {
 
   describe("when favorites is absent", function () {
     let id = null;
-    beforeEach(
-      () =>
-        (id = Puzzles.insert({
-          name: "Foo",
-          canon: "foo",
-          created: 1,
-          created_by: "torgen",
-          touched: 1,
-          touched_by: "torgen",
-          solved: null,
-          solved_by: null,
-          link: "https://puzzlehunt.mit.edu/foo",
-          drive: "fid",
-          spreadsheet: "sid",
-          doc: "did",
-          tags: {},
-        }))
-    );
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
+        name: "Foo",
+        canon: "foo",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        solved: null,
+        solved_by: null,
+        link: "https://puzzlehunt.mit.edu/foo",
+        drive: "fid",
+        spreadsheet: "sid",
+        doc: "did",
+        tags: {},
+      });
+    });
 
-    it("fails without login", () =>
-      chai.assert.throws(() => Meteor.call("favorite", id), Match.Error));
+    it("fails without login", async function () {
+      await assertRejects(Meteor.callAsync("favorite", id), Match.Error);
+    });
 
     describe("when logged in", function () {
       let ret = null;
-      beforeEach(() => (ret = callAs("unfavorite", "cjb", id)));
+      beforeEach(async function () {
+        ret = await callAs("unfavorite", "cjb", id);
+      });
 
       it("returns true", () => chai.assert.isTrue(ret));
 
-      it("leaves favorites unset", () =>
-        chai.assert.isUndefined(Puzzles.findOne(id).favorites));
+      it("leaves favorites unset", async function () {
+        chai.assert.isUndefined((await Puzzles.findOneAsync(id)).favorites);
+      });
 
-      it("does not touch", function () {
-        const doc = Puzzles.findOne(id);
+      it("does not touch", async function () {
+        const doc = await Puzzles.findOneAsync(id);
         chai.assert.equal(doc.touched, 1);
         chai.assert.equal(doc.touched_by, "torgen");
       });
@@ -75,46 +80,49 @@ describe("unfavorite", function () {
 
   describe("when favorites has others", function () {
     let id = null;
-    beforeEach(
-      () =>
-        (id = Puzzles.insert({
-          name: "Foo",
-          canon: "foo",
-          created: 1,
-          created_by: "torgen",
-          touched: 1,
-          touched_by: "torgen",
-          solved: null,
-          solved_by: null,
-          favorites: {
-            torgen: true,
-            cscott: true,
-          },
-          link: "https://puzzlehunt.mit.edu/foo",
-          drive: "fid",
-          spreadsheet: "sid",
-          doc: "did",
-          tags: {},
-        }))
-    );
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
+        name: "Foo",
+        canon: "foo",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        solved: null,
+        solved_by: null,
+        favorites: {
+          torgen: true,
+          cscott: true,
+        },
+        link: "https://puzzlehunt.mit.edu/foo",
+        drive: "fid",
+        spreadsheet: "sid",
+        doc: "did",
+        tags: {},
+      });
+    });
 
-    it("fails without login", () =>
-      chai.assert.throws(() => Meteor.call("unfavorite", id), Match.Error));
+    it("fails without login", async function () {
+      await assertRejects(Meteor.callAsync("unfavorite", id), Match.Error);
+    });
 
     describe("when logged in", function () {
       let ret = null;
-      beforeEach(() => (ret = callAs("unfavorite", "cjb", id)));
+      beforeEach(async function () {
+        ret = await callAs("unfavorite", "cjb", id);
+      });
 
       it("returns true", () => chai.assert.isTrue(ret));
 
-      it("leaves favorites unchanged", () =>
-        chai.assert.deepEqual(Puzzles.findOne(id).favorites, {
+      it("leaves favorites unchanged", async function () {
+        chai.assert.deepEqual((await Puzzles.findOneAsync(id)).favorites, {
           torgen: true,
           cscott: true,
-        }));
+        });
+      });
 
-      it("does not touch", function () {
-        const doc = Puzzles.findOne(id);
+      it("does not touch", async function () {
+        const doc = await Puzzles.findOneAsync(id);
         chai.assert.equal(doc.touched, 1);
         chai.assert.equal(doc.touched_by, "torgen");
       });
@@ -123,43 +131,48 @@ describe("unfavorite", function () {
 
   describe("when favorites has self", function () {
     let id = null;
-    beforeEach(
-      () =>
-        (id = Puzzles.insert({
-          name: "Foo",
-          canon: "foo",
-          created: 1,
-          created_by: "torgen",
-          touched: 1,
-          touched_by: "torgen",
-          solved: null,
-          solved_by: null,
-          favorites: {
-            torgen: true,
-            cjb: true,
-          },
-          link: "https://puzzlehunt.mit.edu/foo",
-          drive: "fid",
-          spreadsheet: "sid",
-          doc: "did",
-          tags: {},
-        }))
-    );
+    beforeEach(async function () {
+      id = await Puzzles.insertAsync({
+        name: "Foo",
+        canon: "foo",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        solved: null,
+        solved_by: null,
+        favorites: {
+          torgen: true,
+          cjb: true,
+        },
+        link: "https://puzzlehunt.mit.edu/foo",
+        drive: "fid",
+        spreadsheet: "sid",
+        doc: "did",
+        tags: {},
+      });
+    });
 
-    it("fails without login", () =>
-      chai.assert.throws(() => Meteor.call("unfavorite", id), Match.Error));
+    it("fails without login", async function () {
+      await assertRejects(Meteor.callAsync("unfavorite", id), Match.Error);
+    });
 
     describe("when logged in", function () {
       let ret = null;
-      beforeEach(() => (ret = callAs("unfavorite", "cjb", id)));
+      beforeEach(async function () {
+        ret = await callAs("unfavorite", "cjb", id);
+      });
 
       it("returns true", () => chai.assert.isTrue(ret));
 
-      it("removes self from favorites", () =>
-        chai.assert.deepEqual(Puzzles.findOne(id).favorites, { torgen: true }));
+      it("removes self from favorites", async function () {
+        chai.assert.deepEqual((await Puzzles.findOneAsync(id)).favorites, {
+          torgen: true,
+        });
+      });
 
-      it("does not touch", function () {
-        const doc = Puzzles.findOne(id);
+      it("does not touch", async function () {
+        const doc = await Puzzles.findOneAsync(id);
         chai.assert.equal(doc.touched, 1);
         chai.assert.equal(doc.touched_by, "torgen");
       });

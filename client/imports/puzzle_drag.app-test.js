@@ -3,6 +3,7 @@ import { EditPage } from "/client/imports/router.js";
 import PuzzleDrag from "./puzzle_drag.js";
 import {
   waitForSubscriptions,
+  waitForMethods,
   afterFlushPromise,
   login,
   logout,
@@ -62,6 +63,7 @@ describe("drag-and-drop", function () {
         dt
       )
     );
+    await waitForMethods();
     await afterFlushPromise();
     chai.assert.isBelow(
       posJQ.offset().top,
@@ -83,6 +85,7 @@ describe("drag-and-drop", function () {
         dt
       )
     );
+    await waitForMethods();
     await afterFlushPromise();
     chai.assert.isAbove(
       kidsJQ.offset().top,
@@ -99,6 +102,7 @@ describe("drag-and-drop", function () {
         dt
       )
     );
+    await waitForMethods();
     await afterFlushPromise();
     chai.assert.isBelow(
       kidsJQ.offset().top,
@@ -115,6 +119,7 @@ describe("drag-and-drop", function () {
         dt
       )
     );
+    await waitForMethods();
     await afterFlushPromise();
     chai.assert.isBelow(
       posJQ.offset().top,

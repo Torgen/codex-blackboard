@@ -110,7 +110,7 @@ Template.header_loginmute.events({
       { $or: [{ to: Meteor.userId() }, { mention: Meteor.userId() }] },
       { sort: { timestamp: -1 } }
     ).timestamp;
-    Meteor.call("updateLastRead", {
+    Meteor.serializeCall("updateLastRead", {
       room_name: "private",
       timestamp: latest,
     });
@@ -365,16 +365,6 @@ Template.header_breadcrumb_puzzle.helpers({
     }
   },
   active,
-});
-
-Template.header_breadcrumbs.onCreated(function () {
-  this.autorun(() =>
-    Meteor.call("getRinghuntersFolder", function (error, f) {
-      if (error == null) {
-        Session.set("RINGHUNTERS_FOLDER", f || undefined);
-      }
-    })
-  );
 });
 
 Template.header_breadcrumbs.helpers({

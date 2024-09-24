@@ -5,7 +5,7 @@ Accounts.removeDefaultRateLimit();
 
 Meteor.methods({
   wait() {},
-  setAnyField(args) {
+  async setAnyField(args) {
     check(this.userId, NonEmptyString);
     check(
       args,
@@ -18,15 +18,15 @@ Meteor.methods({
     const now = Date.now();
     args.fields.touched = now;
     args.fields.touched_by = this.userId;
-    collection(args.type).update(args.object, { $set: args.fields });
+    await collection(args.type).updateAsync(args.object, { $set: args.fields });
     return true;
   },
-  newCalendarEvent(args) {
+  async newCalendarEvent(args) {
     check(this.userId, NonEmptyString);
-    return CalendarEvents.insert(args);
+    return await CalendarEvents.insertAsync(args);
   },
-  deleteCalendarEvent(_id) {
+  async deleteCalendarEvent(_id) {
     check(this.userId, NonEmptyString);
-    CalendarEvents.remove({ _id });
+    await CalendarEvents.removeAsync({ _id });
   },
 });

@@ -15,6 +15,8 @@ import {
   HIDE_SOLVED_METAS,
   STUCK_TO_TOP,
 } from "/client/imports/settings.js";
+import { waitForDeletion } from "../lib/imports/testutils.js";
+import { currentConfirmation } from "./imports/modal.js";
 
 describe("blackboard", function () {
   this.timeout(30000);
@@ -572,13 +574,14 @@ describe("blackboard", function () {
       chai.assert.include(Puzzles.findOne(indirect._id), {
         name: "Creatively Undirected",
       });
+      const { deleted } = await waitForDeletion(Puzzles, indirect._id);
       $(
         `#m${meta._id} tr.puzzle[data-puzzle-id=\"${indirect._id}\"] .bb-puzzle-title .bb-delete-icon`
       ).click();
       await afterFlushPromise();
       $("#confirmModal .bb-confirm-ok").click();
+      await deleted;
       await waitForMethods();
-      chai.assert.isNotOk(Puzzles.findOne(indirect._id));
     });
 
     it("adds and deletes tags", async function () {
@@ -601,13 +604,17 @@ describe("blackboard", function () {
       await afterFlushPromise();
       chai.assert.isTrue(addTagInput.parent().hasClass("success"));
       addTagInput.focusout();
-      const creation = bank();
       await waitForMethods();
-      chai.assert.include(creation.tags.meme, {
-        name: "Meme",
-        value: "",
-        touched_by: "testy",
-      });
+      const creation = bank();
+      chai.assert.include(
+        creation.tags.meme,
+        {
+          name: "Meme",
+          value: "",
+          touched_by: "testy",
+        },
+        "creation"
+      );
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
       await afterFlushPromise();
@@ -618,11 +625,15 @@ describe("blackboard", function () {
         .focusout();
       await waitForMethods();
       let edit = bank();
-      chai.assert.include(edit.tags.meme, {
-        name: "Meme",
-        value: "yuno accept deposits?",
-        touched_by: "testy",
-      });
+      chai.assert.include(
+        edit.tags.meme,
+        {
+          name: "Meme",
+          value: "yuno accept deposits?",
+          touched_by: "testy",
+        },
+        "edit on focusout"
+      );
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
       await afterFlushPromise();
@@ -634,11 +645,15 @@ describe("blackboard", function () {
       await waitForMethods();
       // no edit on escape
       edit = bank();
-      chai.assert.include(edit.tags.meme, {
-        name: "Meme",
-        value: "yuno accept deposits?",
-        touched_by: "testy",
-      });
+      chai.assert.include(
+        edit.tags.meme,
+        {
+          name: "Meme",
+          value: "yuno accept deposits?",
+          touched_by: "testy",
+        },
+        "no edit on escape"
+      );
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
       await afterFlushPromise();
@@ -650,11 +665,15 @@ describe("blackboard", function () {
       await waitForMethods();
       // Edit on enter
       edit = bank();
-      chai.assert.include(edit.tags.meme, {
-        name: "Meme",
-        value: "yuno pay interest?",
-        touched_by: "testy",
-      });
+      chai.assert.include(
+        edit.tags.meme,
+        {
+          name: "Meme",
+          value: "yuno pay interest?",
+          touched_by: "testy",
+        },
+        "edit on enter"
+      );
       await afterFlushPromise();
       baseJq.find('[data-tag-name="meme"] .bb-edit-tag-value').first().click();
       await afterFlushPromise();
@@ -666,18 +685,24 @@ describe("blackboard", function () {
       await waitForMethods();
       // empty cancels
       edit = bank();
-      chai.assert.include(edit.tags.meme, {
-        name: "Meme",
-        value: "yuno pay interest?",
-        touched_by: "testy",
-      });
+      chai.assert.include(
+        edit.tags.meme,
+        {
+          name: "Meme",
+          value: "yuno pay interest?",
+          touched_by: "testy",
+        },
+        "empty cancels"
+      );
       await afterFlushPromise();
       baseJq
         .find('[data-tag-name="meme"] .bb-edit-tag-value .bb-delete-icon')
         .first()
         .click();
+      const confirmation = currentConfirmation;
       await afterFlushPromise();
       $("#confirmModal .bb-confirm-ok").click();
+      await currentConfirmation;
       await waitForMethods();
       const deleted = bank();
       chai.assert.notOk(deleted.tags.meme);
@@ -790,10 +815,11 @@ describe("blackboard", function () {
         $(
           `[data-puzzle-id="${id}"] [data-partial-answer="bar"] .bb-delete-icon`
         ).click();
+        const confirmation = currentConfirmation;
         await afterFlushPromise();
         $("#confirmModal .bb-confirm-ok").click();
+        await confirmation;
         await waitForMethods();
-
         const puzzle = Puzzles.findOne(id);
         chai.assert.deepEqual(puzzle.answers, ["foo", "baz", "qux"]);
       });
@@ -819,9 +845,10 @@ describe("blackboard", function () {
         await afterFlushPromise();
         $(`[data-puzzle-id="${id}"] .bb-finalize-answers`).click();
         await afterFlushPromise();
+        const confirmation = currentConfirmation;
         $("#confirmModal .bb-confirm-ok").click();
+        await confirmation;
         await waitForMethods();
-
         const puzzle = Puzzles.findOne(id);
         chai.assert.equal(puzzle.tags.answer.value, "bar; baz; foo; qux");
       });

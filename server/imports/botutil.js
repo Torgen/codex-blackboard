@@ -39,13 +39,13 @@ export function strip(s) {
 }
 
 // helper function
-export function objectFromRoom(msg) {
+export async function objectFromRoom(msg) {
   // get puzzle id from room name
   const { room } = msg.envelope;
   const who = msg.envelope.user.id;
   const [type, id] = room.split("/", 2);
   if (type === "general" || type === "callins") {
-    msg.reply(
+    await msg.reply(
       { useful: true },
       "You need to tell me which puzzle this is for."
     );
@@ -53,13 +53,13 @@ export function objectFromRoom(msg) {
     return;
   }
   if (type !== "puzzles" && type !== "rounds") {
-    msg.reply({ useful: true }, `I don't understand the type: ${type}.`);
+    await msg.reply({ useful: true }, `I don't understand the type: ${type}.`);
     msg.finish();
     return;
   }
-  const object = callAs("get", who, type, id);
+  const object = await callAs("get", who, type, id);
   if (!object) {
-    msg.reply(
+    await msg.reply(
       { useful: true },
       `Something went wrong.  I can't look up ${room}.`
     );
@@ -69,19 +69,19 @@ export function objectFromRoom(msg) {
   return { type, object };
 }
 
-export function puzzleOrThis(s, msg) {
+export async function puzzleOrThis(s, msg) {
   if (s === "this") {
-    return [objectFromRoom(msg), "this"];
+    return [await objectFromRoom(msg), "this"];
   }
   const who = msg.envelope.user.id;
-  const p = callAs("getByName", who, {
+  const p = await callAs("getByName", who, {
     name: s,
     optional_type: "puzzles",
   });
   if (p != null) {
     return [p, `#puzzles/${p.object._id}`];
   }
-  msg.reply({ useful: true }, `I can't find a puzzle called \"${s}\".`);
+  await msg.reply({ useful: true }, `I can't find a puzzle called \"${s}\".`);
   msg.finish();
   return [null, null];
 }

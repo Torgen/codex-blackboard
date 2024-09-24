@@ -13,7 +13,7 @@ editableTemplate(Template.edit_tag_name, {
       if (newCanon !== canon && thing.tags[newCanon] != null) {
         return;
       }
-      return Meteor.call("renameTag", {
+      return Meteor.serializeCall("renameTag", {
         type: tem.data.type,
         object: tem.data.id,
         old_name: tem.data.name,

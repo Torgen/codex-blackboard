@@ -32,7 +32,7 @@ Template.puzzle_mechanics.events({
     const method = event.currentTarget.checked
       ? "addMechanic"
       : "removeMechanic";
-    Meteor.call(
+    Meteor.serializeCall(
       method,
       template.data._id,
       event.currentTarget.dataset.mechanic
@@ -45,6 +45,6 @@ Template.favorite_mechanics.events({
     const method = event.currentTarget.checked
       ? "favoriteMechanic"
       : "unfavoriteMechanic";
-    Meteor.call(method, event.currentTarget.dataset.mechanic);
+    Meteor.serializeCall(method, event.currentTarget.dataset.mechanic);
   },
 });

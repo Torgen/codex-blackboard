@@ -7,10 +7,16 @@ import Hubot from "hubot/es2015";
 // Log messages?
 const DEBUG = !Meteor.isProduction;
 
-// Monkey-patch Hubot to support private messages
-Hubot.Response.prototype.priv = function (...strings) {
-  return this.robot.adapter.priv(this.envelope, ...strings);
-};
+// Monkey-patch Hubot to support private messages and add message back to the envelope
+class BlackboardResponse extends Hubot.Response {
+  constructor(robot, message, match) {
+    super(robot, message, match);
+    this.envelope.message = this.message;
+  }
+  async priv(...strings) {
+    return await this.send({ to: this.envelope.user.id }, ...strings);
+  }
+}
 
 const tweakStrings = (strings, f) =>
   strings.map(function (obj) {
@@ -22,44 +28,42 @@ const tweakStrings = (strings, f) =>
   });
 
 class BlackboardAdapter extends Hubot.Adapter {
-  static initClass() {
-    this.prototype.sendHelper = Meteor.bindEnvironment(
-      function (envelope, strings, map) {
-        // be present in the room
-        try {
-          this.present(envelope.room);
-        } catch (error) {}
-        const props = Object.create(null);
-        const lines = [];
-        while (strings.length > 0) {
-          if (typeof strings[0] === "function") {
-            strings[0] = strings[0]();
-            continue;
-          }
-          const string = strings.shift();
-          if (typeof string === "object") {
-            Object.assign(props, string);
-            continue;
-          }
-          if (string != null) {
-            lines.push(string);
-          }
-        }
-        if (lines.length && envelope.message.direct && !props.useful) {
-          Messages.update(envelope.message.id, { $set: { useless_cmd: true } });
-        }
-        for (const line of lines) {
-          try {
-            map(line, props);
-          } catch (err) {
-            /* istanbul ignore else */
-            if (DEBUG) {
-              console.error(`Hubot error: ${err}`);
-            }
-          }
+  async sendHelper(envelope, strings, map) {
+    // be present in the room
+    try {
+      await this.present(envelope.room);
+    } catch (error) {}
+    const props = Object.create(null);
+    const lines = [];
+    while (strings.length > 0) {
+      if (typeof strings[0] === "function") {
+        strings[0] = strings[0]();
+        continue;
+      }
+      const string = strings.shift();
+      if (typeof string === "object") {
+        Object.assign(props, string);
+        continue;
+      }
+      if (string != null) {
+        lines.push(string);
+      }
+    }
+    if (lines.length && envelope.message.direct && !props.useful) {
+      await Messages.updateAsync(envelope.message.id, {
+        $set: { useless_cmd: true },
+      });
+    }
+    for (const line of lines) {
+      try {
+        await map(line, props);
+      } catch (err) {
+        /* istanbul ignore else */
+        if (DEBUG) {
+          console.error(`Hubot error: ${err}`);
         }
       }
-    );
+    }
   }
   constructor(robot, botname, gravatar) {
     super(robot);
@@ -77,22 +81,26 @@ class BlackboardAdapter extends Hubot.Adapter {
   // strings  - One or more Strings for each message to send.
   //
   // Returns nothing.
-  send(envelope, ...strings) {
+  async send(envelope, ...strings) {
     if (envelope.message.private) {
-      this.priv(envelope, ...strings);
+      await this.priv(envelope, ...strings);
       return;
     }
-    this.sendHelper(envelope, strings, (string, props) => {
+    await this.sendHelper(envelope, strings, async (string, props) => {
+      console.log(props);
       /* istanbul ignore else */
       if (DEBUG) {
         console.log(`send ${envelope.room}: ${string} (${envelope.user.id})`);
       }
-      if (envelope.message.direct && !props.useful) {
-        if (!string.startsWith(`@${envelope.user.id}`)) {
-          string = `@${envelope.user.id}: ${string}`;
-        }
+      if (
+        envelope.message.direct &&
+        !props.useful &&
+        !string.startsWith(`@${envelope.user.id}`) &&
+        !props.to
+      ) {
+        string = `@${envelope.user.id}: ${string}`;
       }
-      callAs(
+      await callAs(
         "newMessage",
         this.botname,
         Object.assign({}, props, {
@@ -110,17 +118,20 @@ class BlackboardAdapter extends Hubot.Adapter {
   // strings  - One or more Strings for each message to send.
   //
   // Returns nothing.
-  emote(envelope, ...strings) {
+  async emote(envelope, ...strings) {
     if (envelope.message.private) {
-      this.priv(envelope, ...tweakStrings(strings, (s) => `*** ${s} ***`));
+      await this.priv(
+        envelope,
+        ...tweakStrings(strings, (s) => `*** ${s} ***`)
+      );
       return;
     }
-    this.sendHelper(envelope, strings, (string, props) => {
+    await this.sendHelper(envelope, strings, async (string, props) => {
       /* istanbul ignore else */
       if (DEBUG) {
         console.log(`emote ${envelope.room}: ${string} (${envelope.user.id})`);
       }
-      callAs(
+      await callAs(
         "newMessage",
         this.botname,
         Object.assign({}, props, {
@@ -134,13 +145,13 @@ class BlackboardAdapter extends Hubot.Adapter {
   }
 
   // Priv: our extension -- send a PM to user
-  priv(envelope, ...strings) {
-    this.sendHelper(envelope, strings, (string, props) => {
+  async priv(envelope, ...strings) {
+    await this.sendHelper(envelope, strings, async (string, props) => {
       /* istanbul ignore else */
       if (DEBUG) {
         console.log(`priv ${envelope.room}: ${string} (${envelope.user.id})`);
       }
-      callAs(
+      await callAs(
         "newMessage",
         this.botname,
         Object.assign({}, props, {
@@ -160,12 +171,12 @@ class BlackboardAdapter extends Hubot.Adapter {
   // strings  - One or more Strings for each reply to send.
   //
   // Returns nothing.
-  reply(envelope, ...strings) {
+  async reply(envelope, ...strings) {
     if (envelope.message.private) {
-      this.priv(envelope, ...strings);
+      await this.priv(envelope, ...strings);
       return;
     } else {
-      this.send(
+      await this.send(
         envelope,
         ...[
           { mention: [envelope.user.id] },
@@ -175,9 +186,9 @@ class BlackboardAdapter extends Hubot.Adapter {
     }
   }
 
-  present(room_name) {
+  async present(room_name) {
     const now = Date.now();
-    Presence.upsert(
+    await Presence.upsertAsync(
       { scope: "chat", room_name, nick: this.botname },
       {
         $set: {
@@ -195,7 +206,7 @@ class BlackboardAdapter extends Hubot.Adapter {
         },
       }
     );
-    Presence.update(
+    await Presence.updateAsync(
       { scope: "chat", room_name, nick: this.botname },
       {
         $pull: {
@@ -211,9 +222,9 @@ class BlackboardAdapter extends Hubot.Adapter {
   // Public: Raw method for invoking the bot to run. Extend this.
   //
   // Returns nothing.
-  run() {
+  async run() {
     // register our nick
-    Meteor.users.upsert(this.botname, {
+    await Meteor.users.upsertAsync(this.botname, {
       $set: {
         nickname: this.robot.name,
         gravatar_md5: md5(this.gravatar),
@@ -222,16 +233,16 @@ class BlackboardAdapter extends Hubot.Adapter {
       $unset: { services: "" },
     });
     // register our presence in general chat
-    const keepalive = () => this.present("general/0");
-    keepalive();
+    const keepalive = async () => await this.present("general/0");
+    await keepalive();
     this.keepalive = Meteor.setInterval(keepalive, 30 * 1000); // every 30s refresh presence
 
     const IGNORED_NICKS = new Set(["", this.botname]);
     // listen to the chat room, ignoring messages sent before we startup
     let startup = true;
     const query = Messages.find({ timestamp: { $gt: Date.now() } });
-    this.handle = query.observeChanges({
-      added: (id, msg) => {
+    this.handle = await query.observeChangesAsync({
+      added: async (id, msg) => {
         if (startup) {
           return;
         }
@@ -260,7 +271,7 @@ class BlackboardAdapter extends Hubot.Adapter {
               console.warn("Weird presence message:", msg);
               return;
           }
-          this.receive(pm);
+          await this.receive(pm);
           return;
         }
         if (
@@ -285,11 +296,11 @@ class BlackboardAdapter extends Hubot.Adapter {
         if (tm.private && !tm.direct) {
           tm.text = `${this.robot.name} ${tm.text}`;
         }
-        this.receive(tm);
+        await this.receive(tm);
       },
     });
     startup = false;
-    callAs("newMessage", this.botname, {
+    await callAs("newMessage", this.botname, {
       body: "wakes up",
       room_name: "general/0",
       action: true,
@@ -307,34 +318,14 @@ class BlackboardAdapter extends Hubot.Adapter {
     Meteor.clearInterval(this.keepalive);
   }
 }
-BlackboardAdapter.initClass();
 
-// grrrr, Meteor.bindEnvironment doesn't preserve `this` apparently
-function bind(f) {
-  const g = Meteor.bindEnvironment((self, ...args) => f.apply(self, args));
-  return function (...args) {
-    return g(this, ...args);
-  };
-}
-
-Hubot.Robot.prototype.loadAdapter = function () {};
-
-export default class Robot extends Hubot.Robot {
+export default class BlackboardRobot extends Hubot.Robot {
   constructor(botname, gravatar) {
-    super(null, false, botname, "bot");
+    super("blackboard", false, botname, "bot");
+    this.adapter = new BlackboardAdapter(this, canonical(this.name), gravatar);
     this.gravatar = gravatar;
-    this.hear = bind(this.hear);
-    this.respond = bind(this.respond);
-    this.enter = bind(this.enter);
-    this.leave = bind(this.leave);
-    this.topic = bind(this.topic);
-    this.error = bind(this.error);
-    this.catchAll = bind(this.catchAll);
-    this.adapter = new BlackboardAdapter(
-      this,
-      canonical(this.name),
-      this.gravatar
-    );
+    this.Response = BlackboardResponse;
+    this.logger.warning = this.logger.warn;
   }
 
   hear(regex, callback) {
@@ -369,13 +360,11 @@ export default class Robot extends Hubot.Robot {
     }
   }
   privatize(callback) {
-    return Meteor.bindEnvironment(
-      this.private
-        ? function (resp) {
-            resp.message.private = true;
-            return callback(resp);
-          }
-        : callback
-    );
+    return this.private
+      ? function (resp) {
+          resp.message.private = true;
+          return callback(resp);
+        }
+      : callback;
   }
 }

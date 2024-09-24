@@ -15,8 +15,13 @@ export var waitForSubscriptions = () =>
     }, 200);
   });
 
-export var waitForMethods = () =>
-  new Promise((resolve) => Meteor.apply("wait", [], { wait: true }, resolve));
+export async function waitForMethods() {
+  await Meteor.noMethodsInFlight;
+  await Meteor.applyAsync("wait", [], {
+    wait: true,
+    returnServerResultPromise: true,
+  });
+}
 
 // Tracker.afterFlush runs code when all consequent of a tracker based change
 //   (such as a route change) have occured. This makes it a promise.
@@ -31,6 +36,6 @@ export async function logout() {
   await afterFlushPromise();
 }
 
-export var promiseCall = denodeify(Meteor.call);
+export var promiseCall = Meteor.callAsync;
 
-export var promiseCallOn = (x, ...a) => denodeify(x.call.bind(x))(...a);
+export var promiseCallOn = (x, ...a) => x.callAsync(...a);

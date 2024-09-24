@@ -4,7 +4,7 @@ import { Messages, Rounds } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("renameRound", function () {
   let clock = null;
@@ -21,49 +21,47 @@ describe("renameRound", function () {
     sinon.restore();
   });
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Messages, Rounds));
 
   describe("when new name is unique", function () {
     let id = null;
-    beforeEach(
-      () =>
-        (id = Rounds.insert({
-          name: "Foo",
-          canon: "foo",
-          created: 1,
-          created_by: "torgen",
-          touched: 1,
-          touched_by: "torgen",
-          puzzles: ["yoy"],
-          link: "https://puzzlehunt.mit.edu/foo",
-          tags: {},
-        }))
-    );
+    beforeEach(async function () {
+      id = await Rounds.insertAsync({
+        name: "Foo",
+        canon: "foo",
+        created: 1,
+        created_by: "torgen",
+        touched: 1,
+        touched_by: "torgen",
+        puzzles: ["yoy"],
+        link: "https://puzzlehunt.mit.edu/foo",
+        tags: {},
+      });
+    });
 
-    it("fails without login", () =>
-      chai.assert.throws(
-        () =>
-          Meteor.call("renameRound", {
-            id,
-            name: "Bar",
-          }),
+    it("fails without login", async function () {
+      await assertRejects(
+        Meteor.callAsync("renameRound", {
+          id,
+          name: "Bar",
+        }),
         Match.Error
-      ));
+      );
+    });
 
     describe("when logged in", function () {
       let ret = null;
-      beforeEach(
-        () =>
-          (ret = callAs("renameRound", "cjb", {
-            id,
-            name: "Bar",
-          }))
-      );
+      beforeEach(async function () {
+        ret = await callAs("renameRound", "cjb", {
+          id,
+          name: "Bar",
+        });
+      });
 
       it("returns true", () => chai.assert.isTrue(ret));
 
-      it("renames round", function () {
-        const round = Rounds.findOne(id);
+      it("renames round", async function () {
+        const round = await Rounds.findOneAsync(id);
         chai.assert.include(round, {
           name: "Bar",
           canon: "bar",
@@ -72,12 +70,13 @@ describe("renameRound", function () {
         });
       });
 
-      it("oplogs", () =>
+      it("oplogs", async function () {
         chai.assert.lengthOf(
-          Messages.find({ id, type: "rounds" }).fetch(),
+          await Messages.find({ id, type: "rounds" }).fetchAsync(),
           1,
           "oplogs"
-        ));
+        );
+      });
     });
   });
 
@@ -85,8 +84,8 @@ describe("renameRound", function () {
     let id1 = null;
     let id2 = null;
     let ret = null;
-    beforeEach(function () {
-      id1 = Rounds.insert({
+    beforeEach(async function () {
+      id1 = await Rounds.insertAsync({
         name: "Foo",
         canon: "foo",
         created: 1,
@@ -96,7 +95,7 @@ describe("renameRound", function () {
         link: "https://puzzlehunt.mit.edu/foo",
         tags: {},
       });
-      id2 = Rounds.insert({
+      id2 = await Rounds.insertAsync({
         name: "Bar",
         canon: "bar",
         created: 2,
@@ -106,7 +105,7 @@ describe("renameRound", function () {
         link: "https://puzzlehunt.mit.edu/foo",
         tags: {},
       });
-      ret = callAs("renameRound", "cjb", {
+      ret = await callAs("renameRound", "cjb", {
         id: id1,
         name: "Bar",
       });
@@ -114,18 +113,23 @@ describe("renameRound", function () {
 
     it("returns false", () => chai.assert.isFalse(ret));
 
-    it("leaves round alone", () =>
-      chai.assert.include(Rounds.findOne(id1), {
+    it("leaves round alone", async function () {
+      chai.assert.include(await Rounds.findOneAsync(id1), {
         name: "Foo",
         canon: "foo",
         touched: 1,
         touched_by: "torgen",
-      }));
+      });
+    });
 
-    it("doesn't oplog", () =>
+    it("doesn't oplog", async function () {
       chai.assert.lengthOf(
-        Messages.find({ id: { $in: [id1, id2] }, type: "rounds" }).fetch(),
+        await Messages.find({
+          id: { $in: [id1, id2] },
+          type: "rounds",
+        }).fetchAsync(),
         0
-      ));
+      );
+    });
   });
 });

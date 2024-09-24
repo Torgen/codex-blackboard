@@ -9,16 +9,16 @@ import {
 } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import Robot from "../imports/hubot.js";
 import { drive } from "/lib/imports/environment.js";
-import { waitForDocument } from "/lib/imports/testutils.js";
+import { clearCollections, waitForDocument } from "/lib/imports/testutils.js";
 import {
   all_settings,
   EmbedPuzzles,
   MaximumMemeLength,
   PuzzleUrlPrefix,
   RoundUrlPrefix,
+  resetAll,
 } from "/lib/imports/settings.js";
 import { impersonating } from "../imports/impersonate.js";
 
@@ -27,8 +27,9 @@ describe("codex hubot script", function () {
   let clock = null;
   let driveMethods = null;
 
-  beforeEach(function () {
-    resetDatabase();
+  beforeEach(async function () {
+    await clearCollections(CallIns, Messages, Polls, Puzzles, Rounds);
+    await resetAll();
     clock = sinon.useFakeTimers({
       now: 6,
       toFake: ["Date"],
@@ -37,7 +38,7 @@ describe("codex hubot script", function () {
     // the standard message class or adapter.
     robot = new Robot("testbot", "testbot@testbot.test");
     codex(robot);
-    robot.run();
+    await robot.run();
     clock.tick(1);
     driveMethods = {
       createPuzzle: sinon.fake.returns({
@@ -56,14 +57,14 @@ describe("codex hubot script", function () {
   });
 
   describe("setAnswer", function () {
-    it("fails when puzzle does not exist", function () {
-      Messages.insert({
+    it("fails when puzzle does not exist", async function () {
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "puzzles/12345abcde",
         timestamp: Date.now(),
         body: "bot the answer to latino alphabet is linear abeja",
       });
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         { nick: "testbot", timestamp: 7 },
         {
@@ -76,14 +77,14 @@ describe("codex hubot script", function () {
     });
 
     it("sets answer", async function () {
-      Puzzles.insert({
+      await Puzzles.insertAsync({
         _id: "12345abcde",
         name: "Latino Alphabet",
         canon: "latino_alphabet",
         feedsInto: [],
         tags: {},
       });
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "puzzles/12345abcde",
         timestamp: Date.now(),
@@ -107,7 +108,7 @@ describe("codex hubot script", function () {
           },
         }
       );
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         { nick: "testbot", body: /^@torgen:/ },
         {
@@ -120,7 +121,7 @@ describe("codex hubot script", function () {
     });
 
     it("overwrites answer", async function () {
-      Puzzles.insert({
+      await Puzzles.insertAsync({
         _id: "12345abcde",
         name: "Latino Alphabet",
         canon: "latino_alphabet",
@@ -139,7 +140,7 @@ describe("codex hubot script", function () {
           },
         },
       });
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "puzzles/12345abcde",
         timestamp: Date.now(),
@@ -162,7 +163,7 @@ describe("codex hubot script", function () {
           },
         }
       );
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         { nick: "testbot", body: /^@torgen:/ },
         {
@@ -175,7 +176,7 @@ describe("codex hubot script", function () {
     });
 
     it("leaves old answer", async function () {
-      Puzzles.insert({
+      await Puzzles.insertAsync({
         _id: "12345abcde",
         name: "Latino Alphabet",
         canon: "latino_alphabet",
@@ -194,7 +195,7 @@ describe("codex hubot script", function () {
           },
         },
       });
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "puzzles/12345abcde",
         timestamp: Date.now(),
@@ -210,27 +211,30 @@ describe("codex hubot script", function () {
           mention: ["torgen"],
         }
       );
-      chai.assert.deepInclude(Puzzles.findOne({ _id: "12345abcde" }), {
-        touched: 3,
-        touched_by: "cjb",
-        solved: 3,
-        solved_by: "cscott",
-        confirmed_by: "cjb",
-        tags: {
-          answer: {
-            name: "Answer",
-            value: "linear abeja",
-            touched: 3,
-            touched_by: "cjb",
+      chai.assert.deepInclude(
+        await Puzzles.findOneAsync({ _id: "12345abcde" }),
+        {
+          touched: 3,
+          touched_by: "cjb",
+          solved: 3,
+          solved_by: "cscott",
+          confirmed_by: "cjb",
+          tags: {
+            answer: {
+              name: "Answer",
+              value: "linear abeja",
+              touched: 3,
+              touched_by: "cjb",
+            },
           },
-        },
-      });
+        }
+      );
     });
   });
 
   describe("deleteAnswer", function () {
     it("deletes answer", async function () {
-      Puzzles.insert({
+      await Puzzles.insertAsync({
         _id: "12345abcde",
         name: "Latino Alphabet",
         canon: "latino_alphabet",
@@ -248,7 +252,7 @@ describe("codex hubot script", function () {
           },
         },
       });
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "puzzles/fghij67890",
         timestamp: Date.now(),
@@ -262,7 +266,7 @@ describe("codex hubot script", function () {
           touched_by: "torgen",
         }
       );
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         { nick: "testbot", body: /^@torgen:/ },
         {
@@ -274,14 +278,14 @@ describe("codex hubot script", function () {
       );
     });
 
-    it("fails when no such puzzle exists", function () {
-      Messages.insert({
+    it("fails when no such puzzle exists", async function () {
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
         body: "bot delete answer for latino alphabet",
       });
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         { nick: "testbot", timestamp: 7 },
         {
@@ -297,21 +301,21 @@ describe("codex hubot script", function () {
   describe("newCallIn", function () {
     describe("of answer", function () {
       describe("in puzzle room", function () {
-        it("infers puzzle", function () {
-          Puzzles.insert({
+        it("infers puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
             body: "bot call in linear abeja",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -325,8 +329,8 @@ describe("codex hubot script", function () {
           );
         });
 
-        it("creates partial answer for puzzle with multiple answers", function () {
-          Puzzles.insert({
+        it("creates partial answer for puzzle with multiple answers", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
@@ -334,13 +338,13 @@ describe("codex hubot script", function () {
             tags: {},
             answers: ["buzz"],
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
             body: "bot call in linear abeja",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -354,21 +358,21 @@ describe("codex hubot script", function () {
           );
         });
 
-        it("allows specifying puzzle", function () {
-          Puzzles.insert({
+        it("allows specifying puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/fghij67890",
             timestamp: Date.now(),
             body: "bot call in linear abeja for latino alphabet",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -382,21 +386,21 @@ describe("codex hubot script", function () {
           );
         });
 
-        it("understands backsolved", function () {
-          Puzzles.insert({
+        it("understands backsolved", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
             body: "bot call in backsolved linear abeja",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -411,21 +415,21 @@ describe("codex hubot script", function () {
           );
         });
 
-        it("understands provided", function () {
-          Puzzles.insert({
+        it("understands provided", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
             body: "bot call in provided linear abeja",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -443,7 +447,7 @@ describe("codex hubot script", function () {
 
       describe("in general room", function () {
         it("fails when puzzle is not specified", async function () {
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
@@ -459,11 +463,11 @@ describe("codex hubot script", function () {
               mention: ["torgen"],
             }
           );
-          chai.assert.isUndefined(CallIns.findOne());
+          chai.assert.isUndefined(await CallIns.findOneAsync());
         });
 
         it("fails when puzzle does not exist", async function () {
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
@@ -479,24 +483,24 @@ describe("codex hubot script", function () {
               mention: ["torgen"],
             }
           );
-          chai.assert.isUndefined(CallIns.findOne());
+          chai.assert.isUndefined(await CallIns.findOneAsync());
         });
 
-        it("allows specifying puzzle", function () {
-          Puzzles.insert({
+        it("allows specifying puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
             body: "bot call in linear abeja for latino alphabet",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -514,21 +518,21 @@ describe("codex hubot script", function () {
 
     describe("of interaction request", function () {
       describe("in puzzle room", function () {
-        it("infers puzzle", function () {
-          Puzzles.insert({
+        it("infers puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
             body: "bot request interaction linear abeja",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -542,21 +546,21 @@ describe("codex hubot script", function () {
           );
         });
 
-        it("allows specifying puzzle", function () {
-          Puzzles.insert({
+        it("allows specifying puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/fghij67890",
             timestamp: Date.now(),
             body: "bot request interaction linear abeja for latino alphabet",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -573,7 +577,7 @@ describe("codex hubot script", function () {
 
       describe("in general room", function () {
         it("fails when puzzle is not specified", async function () {
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
@@ -589,11 +593,11 @@ describe("codex hubot script", function () {
               mention: ["torgen"],
             }
           );
-          chai.assert.isUndefined(CallIns.findOne());
+          chai.assert.isUndefined(await CallIns.findOneAsync());
         });
 
         it("fails when puzzle does not exist", async function () {
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
@@ -609,24 +613,24 @@ describe("codex hubot script", function () {
               mention: ["torgen"],
             }
           );
-          chai.assert.isUndefined(CallIns.findOne());
+          chai.assert.isUndefined(await CallIns.findOneAsync());
         });
 
-        it("allows specifying puzzle", function () {
-          Puzzles.insert({
+        it("allows specifying puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
             body: "bot request interaction linear abeja for latino alphabet",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -644,21 +648,21 @@ describe("codex hubot script", function () {
 
     describe("of message to hq", function () {
       describe("in puzzle room", function () {
-        it("infers puzzle", function () {
-          Puzzles.insert({
+        it("infers puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
             body: "bot tell HQ linear abeja",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -672,21 +676,21 @@ describe("codex hubot script", function () {
           );
         });
 
-        it("allows specifying puzzle", function () {
-          Puzzles.insert({
+        it("allows specifying puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/fghij67890",
             timestamp: Date.now(),
             body: "bot tell HQ linear abeja for latino alphabet",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -703,7 +707,7 @@ describe("codex hubot script", function () {
 
       describe("in general room", function () {
         it("fails when puzzle is not specified", async function () {
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
@@ -719,11 +723,11 @@ describe("codex hubot script", function () {
               mention: ["torgen"],
             }
           );
-          chai.assert.isUndefined(CallIns.findOne());
+          chai.assert.isUndefined(await CallIns.findOneAsync());
         });
 
         it("fails when puzzle does not exist", async function () {
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
@@ -739,24 +743,24 @@ describe("codex hubot script", function () {
               mention: ["torgen"],
             }
           );
-          chai.assert.isUndefined(CallIns.findOne());
+          chai.assert.isUndefined(await CallIns.findOneAsync());
         });
 
-        it("allows specifying puzzle", function () {
-          Puzzles.insert({
+        it("allows specifying puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
             body: "bot tell HQ linear abeja for latino alphabet",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -774,21 +778,21 @@ describe("codex hubot script", function () {
 
     describe("of expected callback", function () {
       describe("in puzzle room", function () {
-        it("infers puzzle", function () {
-          Puzzles.insert({
+        it("infers puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/12345abcde",
             timestamp: Date.now(),
             body: "bot expect  callback linear abeja",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -802,21 +806,21 @@ describe("codex hubot script", function () {
           );
         });
 
-        it("allows specifying puzzle", function () {
-          Puzzles.insert({
+        it("allows specifying puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "puzzles/fghij67890",
             timestamp: Date.now(),
             body: "bot expect callback linear abeja for latino alphabet",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -833,7 +837,7 @@ describe("codex hubot script", function () {
 
       describe("in general room", function () {
         it("fails when puzzle is not specified", async function () {
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
@@ -849,11 +853,11 @@ describe("codex hubot script", function () {
               mention: ["torgen"],
             }
           );
-          chai.assert.isUndefined(CallIns.findOne());
+          chai.assert.isUndefined(await CallIns.findOneAsync());
         });
 
         it("fails when puzzle does not exist", async function () {
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
@@ -869,24 +873,24 @@ describe("codex hubot script", function () {
               mention: ["torgen"],
             }
           );
-          chai.assert.isUndefined(CallIns.findOne());
+          chai.assert.isUndefined(await CallIns.findOneAsync());
         });
 
-        it("allows specifying puzzle", function () {
-          Puzzles.insert({
+        it("allows specifying puzzle", async function () {
+          await Puzzles.insertAsync({
             _id: "12345abcde",
             name: "Latino Alphabet",
             canon: "latino_alphabet",
             feedsInto: [],
             tags: {},
           });
-          Messages.insert({
+          await Messages.insertAsync({
             nick: "torgen",
             room_name: "general/0",
             timestamp: Date.now(),
             body: "bot expect callback linear abeja for latino alphabet",
           });
-          return waitForDocument(
+          await waitForDocument(
             CallIns,
             { answer: "linear abeja" },
             {
@@ -908,17 +912,17 @@ describe("codex hubot script", function () {
       beforeEach(() => PuzzleUrlPrefix.ensure());
 
       it("creates in named meta", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [mid],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -933,7 +937,7 @@ describe("codex hubot script", function () {
           }
         );
         await waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
           {}
@@ -941,17 +945,17 @@ describe("codex hubot script", function () {
       });
 
       it("created with specified link", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [mid],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -967,7 +971,7 @@ describe("codex hubot script", function () {
           }
         );
         await waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: rid, puzzles: [mid, puzz._id] },
           {}
@@ -975,17 +979,17 @@ describe("codex hubot script", function () {
       });
 
       it("creates in this meta", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [mid],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: `puzzles/${mid}`,
           timestamp: Date.now(),
@@ -999,22 +1003,22 @@ describe("codex hubot script", function () {
             feedsInto: [mid],
           }
         );
-        return waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
+        await waitForDocument(Puzzles, { _id: mid, puzzles: puzz._id }, {});
       });
 
       it("creates in named round", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
           puzzles: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [mid],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -1033,22 +1037,24 @@ describe("codex hubot script", function () {
           { _id: rid, puzzles: [mid, puzz._id] },
           {}
         );
-        chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
+        chai.assert.deepInclude(await Puzzles.findOneAsync(mid), {
+          puzzles: [],
+        });
       });
 
       it("fails when one exists by that name", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
           puzzles: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [mid],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -1067,22 +1073,24 @@ describe("codex hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.deepInclude(Rounds.findOne(rid), { puzzles: [mid] });
+        chai.assert.deepInclude(await Rounds.findOneAsync(rid), {
+          puzzles: [mid],
+        });
       });
 
       it("creates in this round", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
           puzzles: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [mid],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: `rounds/${rid}`,
           timestamp: Date.now(),
@@ -1101,22 +1109,24 @@ describe("codex hubot script", function () {
           { _id: rid, puzzles: [mid, puzz._id] },
           {}
         );
-        chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
+        chai.assert.deepInclude(await Puzzles.findOneAsync(mid), {
+          puzzles: [],
+        });
       });
 
       it("creates meta in this round", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
           puzzles: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [mid],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: `rounds/${rid}`,
           timestamp: Date.now(),
@@ -1136,22 +1146,24 @@ describe("codex hubot script", function () {
           { _id: rid, puzzles: [mid, puzz._id] },
           {}
         );
-        chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
+        chai.assert.deepInclude(await Puzzles.findOneAsync(mid), {
+          puzzles: [],
+        });
       });
 
       it("fails when this is not a puzzle or round", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Even This Poem",
           canon: "even_this_poem",
           feedsInto: [],
           puzzles: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [mid],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -1168,23 +1180,27 @@ describe("codex hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
-        chai.assert.deepInclude(Rounds.findOne(rid), { puzzles: [mid] });
+        chai.assert.deepInclude(await Puzzles.findOneAsync(mid), {
+          puzzles: [],
+        });
+        chai.assert.deepInclude(await Rounds.findOneAsync(rid), {
+          puzzles: [mid],
+        });
       });
 
       it("allows specifying type to create in", async function () {
-        const mid = Puzzles.insert({
+        const mid = await Puzzles.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           feedsInto: [],
           puzzles: [],
         });
-        const rid = Rounds.insert({
+        const rid = await Rounds.insertAsync({
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           puzzles: [],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -1199,17 +1215,19 @@ describe("codex hubot script", function () {
           }
         );
         await waitForDocument(Rounds, { _id: rid, puzzles: [puzz._id] }, {});
-        chai.assert.deepInclude(Puzzles.findOne(mid), { puzzles: [] });
+        chai.assert.deepInclude(await Puzzles.findOneAsync(mid), {
+          puzzles: [],
+        });
       });
 
-      it("fails when no such thing to create in", function () {
-        Messages.insert({
+      it("fails when no such thing to create in", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot Latino Alphabet is a new puzzle in elliptic curve",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { body: '@torgen: I can\'t find anything called "elliptic curve".' },
           {
@@ -1226,12 +1244,12 @@ describe("codex hubot script", function () {
   describe("deletePuzzle", () =>
     drive.withValue(driveMethods, function () {
       it("deletes puzzle", async function () {
-        const pid = Puzzles.insert({
+        const pid = await Puzzles.insertAsync({
           name: "Foo",
           canon: "foo",
           feedsInto: [],
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -1248,17 +1266,17 @@ describe("codex hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.isUndefined(Puzzles.findOne({ _id: pid }));
+        chai.assert.isUndefined(await Puzzles.findOneAsync({ _id: pid }));
       });
 
-      it("fails when puzzle does not exist", function () {
-        Messages.insert({
+      it("fails when puzzle does not exist", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot delete puzzle foo",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { body: '@torgen: I can\'t find a puzzle called "foo".' },
           {
@@ -1273,18 +1291,18 @@ describe("codex hubot script", function () {
     }));
 
   describe("newRound", function () {
-    it("creates round", function () {
-      RoundUrlPrefix.ensure();
-      impersonating("testbot", () =>
+    it("creates round", async function () {
+      await RoundUrlPrefix.ensure();
+      await impersonating("testbot", () =>
         RoundUrlPrefix.set("https://moliday.holasses/round")
       );
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
         body: "bot Elliptic Curve is a new round",
       });
-      return waitForDocument(
+      await waitForDocument(
         Rounds,
         { name: "Elliptic Curve" },
         {
@@ -1295,23 +1313,23 @@ describe("codex hubot script", function () {
           touched_by: "torgen",
           puzzles: [],
           sort_key: 7,
-          link: "https://moliday.holasses/round/elliptic_curve",
+          link: "https://moliday.holasses/round/elliptic-curve",
         }
       );
     });
 
-    it("creates round with specified link", function () {
-      RoundUrlPrefix.ensure();
-      impersonating("testbot", () =>
+    it("creates round with specified link", async function () {
+      await RoundUrlPrefix.ensure();
+      await impersonating("testbot", () =>
         RoundUrlPrefix.set("https://moliday.holasses/round")
       );
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
         body: "bot Elliptic Curve is a new round with link https://moliday.holasses/circular",
       });
-      return waitForDocument(
+      await waitForDocument(
         Rounds,
         { name: "Elliptic Curve" },
         {
@@ -1328,18 +1346,18 @@ describe("codex hubot script", function () {
     });
 
     it("fails when one exists by that name", async function () {
-      const rid = Rounds.insert({
+      const rid = await Rounds.insertAsync({
         name: "Elliptic Curve",
         canon: "elliptic_curve",
         puzzles: [],
       });
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
         body: "bot elliptic curve is a new round",
       });
-      return await waitForDocument(
+      await waitForDocument(
         Messages,
         {
           body: `@torgen: There's already a round named #rounds/${rid}.`,
@@ -1357,12 +1375,12 @@ describe("codex hubot script", function () {
 
   describe("deleteRound", function () {
     it("deletes empty round", async function () {
-      const rid = Rounds.insert({
+      const rid = await Rounds.insertAsync({
         name: "Elliptic Curve",
         canon: "elliptic_curve",
         puzzles: [],
       });
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
@@ -1379,16 +1397,16 @@ describe("codex hubot script", function () {
           mention: ["torgen"],
         }
       );
-      chai.assert.isUndefined(Rounds.findOne({ _id: rid }));
+      chai.assert.isUndefined(await Rounds.findOneAsync({ _id: rid }));
     });
 
     it("fails when round contains puzzles", async function () {
-      const rid = Rounds.insert({
+      const rid = await Rounds.insertAsync({
         name: "Elliptic Curve",
         canon: "elliptic_curve",
         puzzles: ["1"],
       });
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
@@ -1407,17 +1425,17 @@ describe("codex hubot script", function () {
           mention: ["torgen"],
         }
       );
-      chai.assert.isObject(Rounds.findOne({ _id: rid }));
+      chai.assert.isObject(await Rounds.findOneAsync({ _id: rid }));
     });
 
-    it("fails when round does not exist", function () {
-      Messages.insert({
+    it("fails when round does not exist", async function () {
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
         body: "bot delete round elliptic curve",
       });
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         { body: '@torgen: I can\'t find a round called "elliptic curve".' },
         {
@@ -1433,20 +1451,20 @@ describe("codex hubot script", function () {
 
   describe("setTag", function () {
     describe("in puzzle room", function () {
-      it("infers puzzle", function () {
-        Puzzles.insert({
+      it("infers puzzle", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
           body: "bot set Color to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color.value": "blue" },
           {
@@ -1462,26 +1480,26 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("allows specifying puzzle", function () {
-        Puzzles.insert({
+      it("allows specifying puzzle", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/fghij67890",
           timestamp: Date.now(),
           body: "bot set Color for latino alphabet to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color.value": "blue" },
           {
@@ -1497,26 +1515,26 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("allows specifying round", function () {
-        Puzzles.insert({
+      it("allows specifying round", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Rounds.insert({
+        await Rounds.insertAsync({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
           body: "bot set Color for elliptic curve to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: "fghij67890", "tags.color.value": "blue" },
           {
@@ -1534,20 +1552,20 @@ describe("codex hubot script", function () {
     });
 
     describe("in round room", function () {
-      it("infers round", function () {
-        Rounds.insert({
+      it("infers round", async function () {
+        await Rounds.insertAsync({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
           body: "bot set Color to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: "fghij67890", "tags.color.value": "blue" },
           {
@@ -1563,26 +1581,26 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("allows specifying puzzle", function () {
-        Rounds.insert({
+      it("allows specifying puzzle", async function () {
+        await Rounds.insertAsync({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           tags: {},
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
           body: "bot set Color for latino alphabet to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color.value": "blue" },
           {
@@ -1598,26 +1616,26 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("allows specifying round", function () {
-        Rounds.insert({
+      it("allows specifying round", async function () {
+        await Rounds.insertAsync({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           tags: {},
         });
-        Rounds.insert({
+        await Rounds.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
           body: "bot set Color of latino alphabet to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: "12345abcde", "tags.color.value": "blue" },
           {
@@ -1635,14 +1653,14 @@ describe("codex hubot script", function () {
     });
 
     describe("in general room", function () {
-      it("fails when target is not specified", function () {
-        Messages.insert({
+      it("fails when target is not specified", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot set Color to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { body: "@torgen: You need to tell me which puzzle this is for." },
           {
@@ -1654,14 +1672,14 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("fails when target does not exist", function () {
-        Messages.insert({
+      it("fails when target does not exist", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot set Color for latino alphabet to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { body: '@torgen: I can\'t find anything called "latino alphabet".' },
           {
@@ -1673,20 +1691,20 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("allows specifying puzzle", function () {
-        Puzzles.insert({
+      it("allows specifying puzzle", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot set Color for latino alphabet to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color.value": "blue" },
           {
@@ -1702,20 +1720,20 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("allows specifying round", function () {
-        Rounds.insert({
+      it("allows specifying round", async function () {
+        await Rounds.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot set Color for latino alphabet to blue",
         });
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: "12345abcde", "tags.color.value": "blue" },
           {
@@ -1735,8 +1753,8 @@ describe("codex hubot script", function () {
 
   describe("deleteTag", function () {
     describe("in puzzle room", function () {
-      it("infers puzzle", function () {
-        Puzzles.insert({
+      it("infers puzzle", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -1746,21 +1764,21 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
           body: "bot unset Color",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
           {}
         );
       });
 
-      it("allows specifying puzzle", function () {
-        Puzzles.insert({
+      it("allows specifying puzzle", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -1770,33 +1788,33 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/fghij67890",
           timestamp: Date.now(),
           body: "bot unset Color for latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
           {}
         );
       });
 
-      it("allows specifying round", function () {
-        Puzzles.insert({
+      it("allows specifying round", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Rounds.insert({
+        await Rounds.insertAsync({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
@@ -1806,33 +1824,33 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
           body: "bot unset Color for elliptic curve",
         });
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: "fghij67890", "tags.color": { $exists: false } },
           {}
         );
       });
 
-      it("complains if not set", function () {
-        Puzzles.insert({
+      it("complains if not set", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
           body: "bot unset Color",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { body: "@torgen: this didn't have Color set!" },
           {
@@ -1846,8 +1864,8 @@ describe("codex hubot script", function () {
     });
 
     describe("in round room", function () {
-      it("infers round", function () {
-        Rounds.insert({
+      it("infers round", async function () {
+        await Rounds.insertAsync({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
@@ -1857,27 +1875,27 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
           body: "bot unset Color",
         });
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: "fghij67890", "tags.color": { $exists: false } },
           {}
         );
       });
 
-      it("allows specifying puzzle", function () {
-        Rounds.insert({
+      it("allows specifying puzzle", async function () {
+        await Rounds.insertAsync({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           tags: {},
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -1887,27 +1905,27 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
           body: "bot unset Color for latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
           {}
         );
       });
 
-      it("allows specifying round", function () {
-        Rounds.insert({
+      it("allows specifying round", async function () {
+        await Rounds.insertAsync({
           _id: "fghij67890",
           name: "Elliptic Curve",
           canon: "elliptic_curve",
           tags: {},
         });
-        Rounds.insert({
+        await Rounds.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -1917,33 +1935,33 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/fghij67890",
           timestamp: Date.now(),
           body: "bot unset Color of latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: "12345abcde", "tags.color": { $exists: false } },
           {}
         );
       });
 
-      it("complains if not set ", function () {
-        Rounds.insert({
+      it("complains if not set ", async function () {
+        await Rounds.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/12345abcde",
           timestamp: Date.now(),
           body: "bot unset Color",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { body: `@torgen: this didn't have Color set!` },
           {
@@ -1957,14 +1975,14 @@ describe("codex hubot script", function () {
     });
 
     describe("in general room", function () {
-      it("fails when target is not specified", function () {
-        Messages.insert({
+      it("fails when target is not specified", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot unset Color",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { body: "@torgen: You need to tell me which puzzle this is for." },
           {
@@ -1976,14 +1994,14 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("fails when target does not exist", function () {
-        Messages.insert({
+      it("fails when target does not exist", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot unset Color for latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { body: '@torgen: I can\'t find anything called "latino alphabet".' },
           {
@@ -1995,8 +2013,8 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("allows specifying puzzle", function () {
-        Puzzles.insert({
+      it("allows specifying puzzle", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -2006,21 +2024,21 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot unset Color for latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.color": { $exists: false } },
           {}
         );
       });
 
-      it("allows specifying round", function () {
-        Rounds.insert({
+      it("allows specifying round", async function () {
+        await Rounds.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -2030,13 +2048,13 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot unset Color for latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Rounds,
           { _id: "12345abcde", "tags.color": { $exists: false } },
           {}
@@ -2047,20 +2065,20 @@ describe("codex hubot script", function () {
 
   describe("stuck", function () {
     describe("in puzzle room", function () {
-      it("marks stuck without reason", function () {
-        Puzzles.insert({
+      it("marks stuck without reason", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
           body: "bot stuck",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.status.value": "Stuck" },
           {
@@ -2076,20 +2094,20 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("marks stuck with reason", function () {
-        Puzzles.insert({
+      it("marks stuck with reason", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
           body: "bot stuck because maparium is closed",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           {
             _id: "12345abcde",
@@ -2108,26 +2126,26 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("allows specifying puzzle", function () {
-        Puzzles.insert({
+      it("allows specifying puzzle", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
           body: "bot stuck on even this poem because maparium is closed",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           {
             _id: "fghij67890",
@@ -2148,20 +2166,20 @@ describe("codex hubot script", function () {
     });
 
     describe("in general room", function () {
-      it("marks stuck without reason", function () {
-        Puzzles.insert({
+      it("marks stuck without reason", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot stuck on latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", "tags.status.value": "Stuck" },
           {
@@ -2177,20 +2195,20 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("marks stuck with reason", function () {
-        Puzzles.insert({
+      it("marks stuck with reason", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot stuck on latino alphabet because maparium is closed",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           {
             _id: "12345abcde",
@@ -2209,14 +2227,14 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("fails without puzzle", function () {
-        Messages.insert({
+      it("fails without puzzle", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot stuck because maparium is closed",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { nick: "testbot", timestamp: 7 },
           {
@@ -2229,13 +2247,13 @@ describe("codex hubot script", function () {
       });
 
       it("fails on round", async function () {
-        Rounds.insert({
+        await Rounds.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -2251,27 +2269,27 @@ describe("codex hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.deepInclude(Rounds.findOne("12345abcde"), {
+        chai.assert.deepInclude(await Rounds.findOneAsync("12345abcde"), {
           tags: {},
         });
       });
     });
 
     describe("in round room", () =>
-      it("fails without puzzle", function () {
-        Rounds.insert({
+      it("fails without puzzle", async function () {
+        await Rounds.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/12345abcde",
           timestamp: Date.now(),
           body: "bot stuck because maparium is closed",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { nick: "testbot", timestamp: 7 },
           {
@@ -2287,7 +2305,7 @@ describe("codex hubot script", function () {
   describe("unstuck", function () {
     describe("in puzzle room", function () {
       it("marks unstuck", async function () {
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -2300,7 +2318,7 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
@@ -2314,13 +2332,13 @@ describe("codex hubot script", function () {
             timestamp: 7,
           }
         );
-        chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
+        chai.assert.deepInclude(await Puzzles.findOneAsync("12345abcde"), {
           tags: {},
         });
       });
 
       it("is here to help", async function () {
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -2333,7 +2351,7 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/12345abcde",
           timestamp: Date.now(),
@@ -2347,13 +2365,13 @@ describe("codex hubot script", function () {
             timestamp: 7,
           }
         );
-        chai.assert.deepInclude(Puzzles.findOne("12345abcde"), {
+        chai.assert.deepInclude(await Puzzles.findOneAsync("12345abcde"), {
           tags: {},
         });
       });
 
-      it("allows specifying puzzle", function () {
-        Puzzles.insert({
+      it("allows specifying puzzle", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -2366,19 +2384,19 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Puzzles.insert({
+        await Puzzles.insertAsync({
           _id: "fghij67890",
           name: "Even This Poem",
           canon: "even_this_poem",
           tags: {},
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "puzzles/fghij67890",
           timestamp: Date.now(),
           body: "bot unstuck on latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", tags: {} },
           {
@@ -2390,8 +2408,8 @@ describe("codex hubot script", function () {
     });
 
     describe("in general room", function () {
-      it("marks unstuck", function () {
-        Puzzles.insert({
+      it("marks unstuck", async function () {
+        await Puzzles.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -2404,13 +2422,13 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot unstuck on latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Puzzles,
           { _id: "12345abcde", tags: {} },
           {
@@ -2420,14 +2438,14 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("fails without puzzle", function () {
-        Messages.insert({
+      it("fails without puzzle", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot unstuck",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { nick: "testbot", timestamp: 7 },
           {
@@ -2439,14 +2457,14 @@ describe("codex hubot script", function () {
         );
       });
 
-      it("fails when no such puzzle", function () {
-        Messages.insert({
+      it("fails when no such puzzle", async function () {
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
           body: "bot unstuck on latino alphabet",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { nick: "testbot", timestamp: 7 },
           {
@@ -2460,8 +2478,8 @@ describe("codex hubot script", function () {
     });
 
     describe("in round room", () =>
-      it("fails without puzzle", function () {
-        Rounds.insert({
+      it("fails without puzzle", async function () {
+        await Rounds.insertAsync({
           _id: "12345abcde",
           name: "Latino Alphabet",
           canon: "latino_alphabet",
@@ -2474,13 +2492,13 @@ describe("codex hubot script", function () {
             },
           },
         });
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "rounds/12345abcde",
           timestamp: Date.now(),
           body: "bot unstuck",
         });
-        return waitForDocument(
+        await waitForDocument(
           Messages,
           { nick: "testbot", timestamp: 7 },
           {
@@ -2495,7 +2513,7 @@ describe("codex hubot script", function () {
 
   describe("poll", function () {
     it("creates poll", async function () {
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
@@ -2515,7 +2533,7 @@ describe("codex hubot script", function () {
           votes: {},
         }
       );
-      return await waitForDocument(
+      await waitForDocument(
         Messages,
         { poll: poll._id },
         {
@@ -2526,14 +2544,14 @@ describe("codex hubot script", function () {
       );
     });
 
-    it("requires two options", function () {
-      Messages.insert({
+    it("requires two options", async function () {
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
         body: 'bot poll "Vote for me!" OK',
       });
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         { body: "@torgen: Must have between 2 and 5 options." },
         {
@@ -2546,14 +2564,14 @@ describe("codex hubot script", function () {
       );
     });
 
-    it("forbids more than five options", function () {
-      Messages.insert({
+    it("forbids more than five options", async function () {
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
         body: 'bot poll "Best dwarf" Grumpy Happy Sleepy Sneezy Dopey Bashful Doc',
       });
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         { body: "@torgen: Must have between 2 and 5 options." },
         {
@@ -2572,9 +2590,9 @@ describe("codex hubot script", function () {
       let k, v;
       for (k in all_settings) {
         v = all_settings[k];
-        v.ensure();
+        await v.ensure();
       }
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
@@ -2599,14 +2617,8 @@ describe("codex hubot script", function () {
     }));
 
   describe("global set", function () {
-    beforeEach(function () {
-      for (let k in all_settings) {
-        all_settings[k].ensure();
-      }
-    });
-
     it("sets number", async function () {
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
@@ -2623,11 +2635,11 @@ describe("codex hubot script", function () {
           mention: ["torgen"],
         }
       );
-      chai.assert.equal(97, MaximumMemeLength.get());
+      chai.assert.equal(97, await MaximumMemeLength.get());
     });
 
     it("sets boolean", async function () {
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
@@ -2644,11 +2656,11 @@ describe("codex hubot script", function () {
           mention: ["torgen"],
         }
       );
-      chai.assert.isFalse(EmbedPuzzles.get());
+      chai.assert.isFalse(await EmbedPuzzles.get());
     });
 
     it("sets url", async function () {
-      Messages.insert({
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
@@ -2667,17 +2679,20 @@ describe("codex hubot script", function () {
           mention: ["torgen"],
         }
       );
-      chai.assert.equal("https://moliday.holasses/round", RoundUrlPrefix.get());
+      chai.assert.equal(
+        "https://moliday.holasses/round",
+        await RoundUrlPrefix.get()
+      );
     });
 
-    it("fails when setting does not exist", function () {
-      Messages.insert({
+    it("fails when setting does not exist", async function () {
+      await Messages.insertAsync({
         nick: "torgen",
         room_name: "general/0",
         timestamp: Date.now(),
         body: "bot global set background color to black",
       });
-      return waitForDocument(
+      await waitForDocument(
         Messages,
         {
           body: "@torgen: Sorry, I don't know the setting 'background color'.",
@@ -2694,7 +2709,7 @@ describe("codex hubot script", function () {
 
     describe("when value has wrong format for setting", function () {
       it("fails for boolean", async function () {
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -2711,11 +2726,11 @@ describe("codex hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.isTrue(EmbedPuzzles.get());
+        chai.assert.isTrue(await EmbedPuzzles.get());
       });
 
       it("fails for url", async function () {
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -2732,11 +2747,11 @@ describe("codex hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.equal("", RoundUrlPrefix.get());
+        chai.assert.equal("", await RoundUrlPrefix.get());
       });
 
       it("fails for number", async function () {
-        Messages.insert({
+        await Messages.insertAsync({
           nick: "torgen",
           room_name: "general/0",
           timestamp: Date.now(),
@@ -2753,7 +2768,7 @@ describe("codex hubot script", function () {
             mention: ["torgen"],
           }
         );
-        chai.assert.equal(140, MaximumMemeLength.get());
+        chai.assert.equal(140, await MaximumMemeLength.get());
       });
     });
   });

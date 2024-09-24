@@ -3,11 +3,11 @@ import "/lib/model.js";
 import { Messages, Puzzles } from "/lib/imports/collections.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import DriveChangeWatcher, {
   startPageTokens,
   driveFiles,
 } from "./drive_change_polling.js";
+import { clearCollections } from "/lib/imports/testutils.js";
 
 const SPREADSHEET_TYPE = "application/vnd.google-apps.spreadsheet";
 const DOC_TYPE = "application/vnd.google-apps.document";
@@ -21,8 +21,8 @@ describe("drive change polling", function () {
   let poller = null;
   let env = null;
 
-  beforeEach(function () {
-    resetDatabase();
+  beforeEach(async function () {
+    await clearCollections(Messages, Puzzles, startPageTokens, driveFiles);
     clock = sinon.useFakeTimers({
       now: 60007,
       toFake: ["Date"],
@@ -40,6 +40,7 @@ describe("drive change polling", function () {
       },
     };
     changes = sinon.mock(api.changes);
+    poller = new DriveChangeWatcher(api, "root_folder", env);
   });
 
   afterEach(function () {
@@ -49,49 +50,49 @@ describe("drive change polling", function () {
 
   afterEach(() => sinon.verifyAndRestore());
 
-  it("fetches page token when never polled", function () {
+  it("fetches page token when never polled", async function () {
     changes
       .expects("getStartPageToken")
       .once()
       .resolves({ data: { startPageToken: "firstPage" } });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
-    chai.assert.include(startPageTokens.findOne(), {
+    await poller.start();
+    chai.assert.include(await startPageTokens.findOneAsync(), {
       timestamp: 60007,
       token: "firstPage",
     });
   });
 
-  it("polls immediately when poll is overdue", function () {
-    startPageTokens.insert({
+  it("polls immediately when poll is overdue", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 7,
       token: "firstPage",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     chai.assert.equal(env.setTimeout.firstCall.lastArg, 0);
   });
 
-  it("waits to poll", function () {
-    startPageTokens.insert({
+  it("waits to poll", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     chai.assert.equal(env.setTimeout.firstCall.lastArg, 30000);
   });
 
-  it("updates puzzle and does not announce when spreadsheet updated", function () {
-    startPageTokens.insert({
+  it("updates puzzle and does not announce when spreadsheet updated", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    const puzz = Puzzles.insert({
+    const puzz = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       doc: "foo_doc",
       spreadsheet: "foo_sheet",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     changes
       .expects("list")
       .once()
@@ -115,26 +116,26 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
+    await poller.poll();
+    chai.assert.include(await Puzzles.findOneAsync({ canon: "foo" }), {
       drive_touched: 31006,
     });
-    chai.assert.isUndefined(Messages.findOne());
+    chai.assert.isUndefined(await Messages.findOneAsync());
   });
 
-  it("updates puzzle and does not announce when doc updated", function () {
-    startPageTokens.insert({
+  it("updates puzzle and does not announce when doc updated", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    const puzz = Puzzles.insert({
+    const puzz = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       doc: "foo_doc",
       spreadsheet: "foo_sheet",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     changes
       .expects("list")
       .once()
@@ -158,26 +159,26 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
+    await poller.poll();
+    chai.assert.include(await Puzzles.findOneAsync({ canon: "foo" }), {
       drive_touched: 31006,
     });
-    chai.assert.isUndefined(Messages.findOne());
+    chai.assert.isUndefined(await Messages.findOneAsync());
   });
 
-  it("updates puzzle and announces when new file updated", function () {
-    startPageTokens.insert({
+  it("updates puzzle and announces when new file updated", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    const puzz = Puzzles.insert({
+    const puzz = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       doc: "foo_doc",
       spreadsheet: "foo_sheet",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     changes
       .expects("list")
       .once()
@@ -201,12 +202,14 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
+    await poller.poll();
+    chai.assert.include(await Puzzles.findOneAsync({ canon: "foo" }), {
       drive_touched: 31006,
     });
-    chai.assert.include(driveFiles.findOne("foo_other"), { announced: 60007 });
-    chai.assert.deepInclude(Messages.findOne(), {
+    chai.assert.include(await driveFiles.findOneAsync("foo_other"), {
+      announced: 60007,
+    });
+    chai.assert.deepInclude(await Messages.findOneAsync(), {
       room_name: `puzzles/${puzz}`,
       system: true,
       file_upload: {
@@ -218,18 +221,18 @@ describe("drive change polling", function () {
     });
   });
 
-  it("updates puzzle announces and sets doc when new doc updated", function () {
-    startPageTokens.insert({
+  it("updates puzzle announces and sets doc when new doc updated", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    const puzz = Puzzles.insert({
+    const puzz = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       spreadsheet: "foo_sheet",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     changes
       .expects("list")
       .once()
@@ -253,13 +256,15 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
+    await poller.poll();
+    chai.assert.include(await Puzzles.findOneAsync({ canon: "foo" }), {
       drive_touched: 31006,
       doc: "foo_doc",
     });
-    chai.assert.include(driveFiles.findOne("foo_doc"), { announced: 60007 });
-    chai.assert.deepInclude(Messages.findOne(), {
+    chai.assert.include(await driveFiles.findOneAsync("foo_doc"), {
+      announced: 60007,
+    });
+    chai.assert.deepInclude(await Messages.findOneAsync(), {
       room_name: `puzzles/${puzz}`,
       system: true,
       file_upload: {
@@ -271,23 +276,23 @@ describe("drive change polling", function () {
     });
   });
 
-  it("updates puzzle and does not announce when announced file updated", function () {
-    startPageTokens.insert({
+  it("updates puzzle and does not announce when announced file updated", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    driveFiles.insert({
+    await driveFiles.insertAsync({
       _id: "foo_other",
       announced: 5,
     });
-    const puzz = Puzzles.insert({
+    const puzz = await Puzzles.insertAsync({
       name: "Foo",
       canon: "foo",
       drive: "foo_drive",
       doc: "foo_doc",
       spreadsheet: "foo_sheet",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     changes
       .expects("list")
       .once()
@@ -311,19 +316,19 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.include(Puzzles.findOne({ canon: "foo" }), {
+    await poller.poll();
+    chai.assert.include(await Puzzles.findOneAsync({ canon: "foo" }), {
       drive_touched: 31006,
     });
-    chai.assert.isUndefined(Messages.findOne());
+    chai.assert.isUndefined(await Messages.findOneAsync());
   });
 
-  it("announces in general chat when new file updated", function () {
-    startPageTokens.insert({
+  it("announces in general chat when new file updated", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     changes
       .expects("list")
       .once()
@@ -347,9 +352,11 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.include(driveFiles.findOne("foo_other"), { announced: 60007 });
-    chai.assert.deepInclude(Messages.findOne(), {
+    await poller.poll();
+    chai.assert.include(await driveFiles.findOneAsync("foo_other"), {
+      announced: 60007,
+    });
+    chai.assert.deepInclude(await Messages.findOneAsync(), {
       room_name: "general/0",
       system: true,
       file_upload: {
@@ -361,16 +368,16 @@ describe("drive change polling", function () {
     });
   });
 
-  it("does not announce in general chat when announced file updated", function () {
-    startPageTokens.insert({
+  it("does not announce in general chat when announced file updated", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    driveFiles.insert({
+    await driveFiles.insertAsync({
       _id: "foo_other",
       announced: 5,
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     changes
       .expects("list")
       .once()
@@ -394,16 +401,16 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.isUndefined(Messages.findOne());
+    await poller.poll();
+    chai.assert.isUndefined(await Messages.findOneAsync());
   });
 
-  it("does not announce when new file updated in unknown folder", function () {
-    startPageTokens.insert({
+  it("does not announce when new file updated in unknown folder", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     changes
       .expects("list")
       .once()
@@ -427,18 +434,18 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.isUndefined(Messages.findOne());
+    await poller.poll();
+    chai.assert.isUndefined(await Messages.findOneAsync());
   });
 
   // Test when initial poll fails, polls are rescheduled
 
-  it("calls again with next page token", function () {
-    startPageTokens.insert({
+  it("calls again with next page token", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     const list = changes
       .expects("list")
       .twice()
@@ -482,8 +489,8 @@ describe("drive change polling", function () {
           ],
         },
       });
-    poller.poll();
-    chai.assert.deepInclude(Messages.findOne(), {
+    await poller.poll();
+    chai.assert.deepInclude(await Messages.findOneAsync(), {
       room_name: "general/0",
       system: true,
       file_upload: {
@@ -495,18 +502,18 @@ describe("drive change polling", function () {
     });
     chai.assert.include(list.getCall(0).args[0], { pageToken: "firstPage" });
     chai.assert.include(list.getCall(1).args[0], { pageToken: "continue" });
-    chai.assert.include(startPageTokens.findOne(), {
+    chai.assert.include(await startPageTokens.findOneAsync(), {
       timestamp: 60007,
       token: "secondPage",
     });
   });
 
-  it("does not announce when failure on next page token", function () {
-    startPageTokens.insert({
+  it("does not announce when failure on next page token", async function () {
+    await startPageTokens.insertAsync({
       timestamp: 30007,
       token: "firstPage",
     });
-    poller = new DriveChangeWatcher(api, "root_folder", env);
+    await poller.start();
     const list = changes
       .expects("list")
       .twice()
@@ -532,11 +539,11 @@ describe("drive change polling", function () {
       })
       .onSecondCall()
       .rejects("error");
-    poller.poll();
-    chai.assert.isUndefined(Messages.findOne());
+    await poller.poll();
+    chai.assert.isUndefined(await Messages.findOneAsync());
     chai.assert.include(list.getCall(0).args[0], { pageToken: "firstPage" });
     chai.assert.include(list.getCall(1).args[0], { pageToken: "continue" });
-    chai.assert.include(startPageTokens.findOne(), {
+    chai.assert.include(await startPageTokens.findOneAsync(), {
       timestamp: 30007,
       token: "firstPage",
     });

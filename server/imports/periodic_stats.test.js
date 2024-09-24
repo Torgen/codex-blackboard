@@ -1,18 +1,16 @@
-import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { PeriodicStats, Presence } from "/lib/imports/collections.js";
 import { StatsCollectionTime } from "/lib/imports/settings.js";
-import { waitForDocument } from "/lib/imports/testutils.js";
+import { clearCollections, waitForDocument } from "/lib/imports/testutils.js";
 import collectPeriodicStats from "/server/imports/periodic_stats.js";
 import { impersonating } from "/server/imports/impersonate.js";
 
 describe("periodic stats collection", function () {
   this.timeout(10000);
   let collector, clock, mockMeteor, setTimeout, clearTimeout;
-  beforeEach(function () {
-    resetDatabase();
-    StatsCollectionTime.ensure();
+  beforeEach(async function () {
+    await clearCollections(PeriodicStats, Presence);
+    await StatsCollectionTime.reset();
     clock = sinon.useFakeTimers({ toFake: ["Date"], now: 7 });
     mockMeteor = sinon.mock(Meteor);
     setTimeout = mockMeteor.expects("setTimeout");
@@ -26,15 +24,15 @@ describe("periodic stats collection", function () {
   });
 
   it("collects on schedule", async function () {
-    const a = Presence.insert({ scope: "online", nick: "a" });
-    const b = Presence.insert({ scope: "online", nick: "b" });
-    const c = Presence.insert({ scope: "online", nick: "c" });
-    collector = collectPeriodicStats();
+    const a = await Presence.insertAsync({ scope: "online", nick: "a" });
+    const b = await Presence.insertAsync({ scope: "online", nick: "b" });
+    const c = await Presence.insertAsync({ scope: "online", nick: "c" });
+    collector = await collectPeriodicStats();
     setTimeout
       .once()
       .withArgs(sinon.match.func, 60000)
       .returns("first timeout");
-    impersonating("torgen", () => StatsCollectionTime.set(1));
+    await impersonating("torgen", () => StatsCollectionTime.set(1));
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
@@ -43,7 +41,7 @@ describe("periodic stats collection", function () {
     setTimeout.verify();
     const callback = setTimeout.firstCall.firstArg;
     setTimeout.resetHistory();
-    Presence.remove(c);
+    await Presence.removeAsync(c);
     clock.tick(60000);
     setTimeout
       .once()
@@ -59,15 +57,15 @@ describe("periodic stats collection", function () {
   });
 
   it("reschedules to past", async function () {
-    const a = Presence.insert({ scope: "online", nick: "a" });
-    const b = Presence.insert({ scope: "online", nick: "b" });
-    const c = Presence.insert({ scope: "online", nick: "c" });
-    collector = collectPeriodicStats();
+    const a = await Presence.insertAsync({ scope: "online", nick: "a" });
+    const b = await Presence.insertAsync({ scope: "online", nick: "b" });
+    const c = await Presence.insertAsync({ scope: "online", nick: "c" });
+    collector = await collectPeriodicStats();
     setTimeout
       .once()
       .withArgs(sinon.match.func, 120000)
       .returns("first timeout");
-    impersonating("torgen", () => StatsCollectionTime.set(2));
+    await impersonating("torgen", () => StatsCollectionTime.set(2));
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
@@ -80,9 +78,9 @@ describe("periodic stats collection", function () {
       .once()
       .withArgs(sinon.match.func, 60000)
       .returns("second timeout");
-    Presence.remove(c);
+    await Presence.removeAsync(c);
     clock.tick(90000);
-    impersonating("torgen", () => StatsCollectionTime.set(1));
+    await impersonating("torgen", () => StatsCollectionTime.set(1));
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 90007 },
@@ -93,15 +91,15 @@ describe("periodic stats collection", function () {
   });
 
   it("reschedules to nearer future", async function () {
-    const a = Presence.insert({ scope: "online", nick: "a" });
-    const b = Presence.insert({ scope: "online", nick: "b" });
-    const c = Presence.insert({ scope: "online", nick: "c" });
-    collector = collectPeriodicStats();
+    const a = await Presence.insertAsync({ scope: "online", nick: "a" });
+    const b = await Presence.insertAsync({ scope: "online", nick: "b" });
+    const c = await Presence.insertAsync({ scope: "online", nick: "c" });
+    collector = await collectPeriodicStats();
     setTimeout
       .once()
       .withArgs(sinon.match.func, 120000)
       .returns("first timeout");
-    impersonating("torgen", () => StatsCollectionTime.set(2));
+    await impersonating("torgen", () => StatsCollectionTime.set(2));
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
@@ -119,24 +117,24 @@ describe("periodic stats collection", function () {
           return "second timeout";
         })
     );
-    Presence.remove(c);
+    await Presence.removeAsync(c);
     clock.tick(30000);
-    impersonating("torgen", () => StatsCollectionTime.set(1));
+    await impersonating("torgen", () => StatsCollectionTime.set(1));
     await p;
     clearTimeout.verify();
     clearTimeout.resetHistory().once().withArgs("second timeout");
   });
 
   it("reschedules after short pause", async function () {
-    const a = Presence.insert({ scope: "online", nick: "a" });
-    const b = Presence.insert({ scope: "online", nick: "b" });
-    const c = Presence.insert({ scope: "online", nick: "c" });
-    collector = collectPeriodicStats();
+    const a = await Presence.insertAsync({ scope: "online", nick: "a" });
+    const b = await Presence.insertAsync({ scope: "online", nick: "b" });
+    const c = await Presence.insertAsync({ scope: "online", nick: "c" });
+    collector = await collectPeriodicStats();
     setTimeout
       .once()
       .withArgs(sinon.match.func, 60000)
       .returns("first timeout");
-    impersonating("torgen", () => StatsCollectionTime.set(1));
+    await impersonating("torgen", () => StatsCollectionTime.set(1));
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
@@ -147,7 +145,7 @@ describe("periodic stats collection", function () {
       clearTimeout.once().withArgs("first timeout").callsFake(resolve)
     );
     clock.tick(20000);
-    impersonating("torgen", () => StatsCollectionTime.set(0));
+    await impersonating("torgen", () => StatsCollectionTime.set(0));
     await p;
     clearTimeout.verify();
     const p2 = new Promise((resolve) =>
@@ -161,22 +159,22 @@ describe("periodic stats collection", function () {
         })
     );
     clock.tick(20000);
-    impersonating("torgen", () => StatsCollectionTime.set(1));
+    await impersonating("torgen", () => StatsCollectionTime.set(1));
     await p2;
     setTimeout.verify();
     clearTimeout.resetHistory().once().withArgs("second timeout");
   });
 
   it("collects after long pause", async function () {
-    const a = Presence.insert({ scope: "online", nick: "a" });
-    const b = Presence.insert({ scope: "online", nick: "b" });
-    const c = Presence.insert({ scope: "online", nick: "c" });
-    collector = collectPeriodicStats();
+    const a = await Presence.insertAsync({ scope: "online", nick: "a" });
+    const b = await Presence.insertAsync({ scope: "online", nick: "b" });
+    const c = await Presence.insertAsync({ scope: "online", nick: "c" });
+    collector = await collectPeriodicStats();
     setTimeout
       .once()
       .withArgs(sinon.match.func, 60000)
       .returns("first timeout");
-    impersonating("torgen", () => StatsCollectionTime.set(1));
+    await impersonating("torgen", () => StatsCollectionTime.set(1));
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 7 },
@@ -187,17 +185,17 @@ describe("periodic stats collection", function () {
       clearTimeout.once().withArgs("first timeout").callsFake(resolve)
     );
     clock.tick(40000);
-    impersonating("torgen", () => StatsCollectionTime.set(0));
+    await impersonating("torgen", () => StatsCollectionTime.set(0));
     await p;
     clearTimeout.verify();
-    Presence.remove(c);
+    await Presence.removeAsync(c);
     clock.tick(40000);
     setTimeout
       .resetHistory()
       .once()
       .withArgs(sinon.match.func, 60000)
       .returns("second timeout");
-    impersonating("torgen", () => StatsCollectionTime.set(1));
+    await impersonating("torgen", () => StatsCollectionTime.set(1));
     await waitForDocument(
       PeriodicStats,
       { stream: "solvers_online", timestamp: 80007 },

@@ -66,33 +66,30 @@ if (DO_BATCH_PROCESSING && watch.username && watch.password) {
   );
   mailListener.on("error", (err) => console.error("IMAP error", err));
 
-  mailListener.on(
-    "mail",
-    Meteor.bindEnvironment(function (mail) {
-      const sender = mail.from.value[0];
-      console.log(sender);
-      const mail_field = {
-        from_address: sender.address,
-        subject: mail.subject,
-      };
-      if (sender.name != null) {
-        mail_field.from_name = sender.name;
-      }
+  mailListener.on("mail", async function (mail) {
+    const sender = mail.from.value[0];
+    console.log(sender);
+    const mail_field = {
+      from_address: sender.address,
+      subject: mail.subject,
+    };
+    if (sender.name != null) {
+      mail_field.from_name = sender.name;
+    }
 
-      console.log(`Mail from ${mail.from.text} arrived:`, mail.subject);
-      newMessage({
-        nick: sender.address,
-        room_name: "general/0",
-        body: mail.html ?? mail.text,
-        bodyIsHtml: mail.html != null,
-        bot_ignore: true,
-        mail: {
-          sender_name: sender.name ?? "",
-          subject: mail.subject,
-        },
-      });
-    })
-  );
+    console.log(`Mail from ${mail.from.text} arrived:`, mail.subject);
+    await newMessage({
+      nick: sender.address,
+      room_name: "general/0",
+      body: mail.html ?? mail.text,
+      bodyIsHtml: mail.html != null,
+      bot_ignore: true,
+      mail: {
+        sender_name: sender.name ?? "",
+        subject: mail.subject,
+      },
+    });
+  });
 
   Meteor.startup(() => mailListener.start());
 }

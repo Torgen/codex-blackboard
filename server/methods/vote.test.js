@@ -4,25 +4,24 @@ import { Polls } from "/lib/imports/collections.js";
 import { callAs } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("vote", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 7,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 7,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(() => resetDatabase());
+  beforeEach(() => clearCollections(Polls));
 
-  it("fails without login", function () {
-    Polls.insert({
+  it("fails without login", async function () {
+    await Polls.insertAsync({
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
@@ -32,22 +31,24 @@ describe("vote", function () {
       created_by: "cscott",
       votes: {},
     });
-    chai.assert.throws(() => Meteor.call("vote", "foo", "foo"), Match.Error);
+    await assertRejects(Meteor.callAsync("vote", "foo", "foo"), Match.Error);
   });
 
-  it("fails with missing poll", () =>
-    chai.assert.throws(() => callAs("vote", "torgen", "", "foo"), Match.Error));
-
-  it("fails with missing option", () =>
-    chai.assert.throws(() => callAs("vote", "torgen", "foo"), Match.Error));
-
-  it("no-ops when no such poll", function () {
-    callAs("vote", "torgen", "foo", "bar");
-    chai.assert.notExists(Polls.findOne());
+  it("fails with missing poll", async function () {
+    await assertRejects(callAs("vote", "torgen", "", "foo"), Match.Error);
   });
 
-  it("no-ops when no such option", function () {
-    Polls.insert({
+  it("fails with missing option", async function () {
+    await assertRejects(callAs("vote", "torgen", "foo"), Match.Error);
+  });
+
+  it("no-ops when no such poll", async function () {
+    await callAs("vote", "torgen", "foo", "bar");
+    chai.assert.notExists(await Polls.findOneAsync());
+  });
+
+  it("no-ops when no such option", async function () {
+    await Polls.insertAsync({
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
@@ -57,8 +58,8 @@ describe("vote", function () {
       created_by: "cscott",
       votes: { metasj: { canon: "foo", timestamp: 4 } },
     });
-    callAs("vote", "torgen", "foo", "qux");
-    chai.assert.deepEqual(Polls.findOne(), {
+    await callAs("vote", "torgen", "foo", "qux");
+    chai.assert.deepEqual(await Polls.findOneAsync(), {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
@@ -70,8 +71,8 @@ describe("vote", function () {
     });
   });
 
-  it("adds vote", function () {
-    Polls.insert({
+  it("adds vote", async function () {
+    await Polls.insertAsync({
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
@@ -81,8 +82,8 @@ describe("vote", function () {
       created_by: "cscott",
       votes: { metasj: { canon: "foo", timestamp: 4 } },
     });
-    callAs("vote", "torgen", "foo", "bar");
-    chai.assert.deepEqual(Polls.findOne(), {
+    await callAs("vote", "torgen", "foo", "bar");
+    chai.assert.deepEqual(await Polls.findOneAsync(), {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
@@ -97,8 +98,8 @@ describe("vote", function () {
     });
   });
 
-  it("changes vote", function () {
-    Polls.insert({
+  it("changes vote", async function () {
+    await Polls.insertAsync({
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },
@@ -108,8 +109,8 @@ describe("vote", function () {
       created_by: "cscott",
       votes: { metasj: { canon: "foo", timestamp: 4 } },
     });
-    callAs("vote", "metasj", "foo", "bar");
-    chai.assert.deepEqual(Polls.findOne(), {
+    await callAs("vote", "metasj", "foo", "bar");
+    chai.assert.deepEqual(await Polls.findOneAsync(), {
       _id: "foo",
       options: [
         { canon: "foo", option: "Foo" },

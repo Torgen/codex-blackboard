@@ -4,40 +4,40 @@ import { Roles } from "/lib/imports/collections.js";
 import { callAs, impersonating } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { RoleRenewalTime } from "/lib/imports/settings.js";
+import { assertRejects, clearCollections } from "/lib/imports/testutils.js";
 
 describe("renewOnduty", function () {
   let clock = null;
 
-  beforeEach(
-    () =>
-      (clock = sinon.useFakeTimers({
-        now: 70000,
-        toFake: ["Date"],
-      }))
-  );
+  beforeEach(function () {
+    clock = sinon.useFakeTimers({
+      now: 70000,
+      toFake: ["Date"],
+    });
+  });
 
   afterEach(() => clock.restore());
 
-  beforeEach(function () {
-    resetDatabase();
-    RoleRenewalTime.ensure();
+  beforeEach(async function () {
+    await clearCollections(Roles);
+    await RoleRenewalTime.reset();
   });
 
-  it("fails without login", () =>
-    chai.assert.throws(() => Meteor.call("renewOnduty"), Match.Error));
+  it("fails without login", async function () {
+    await assertRejects(Meteor.callAsync("renewOnduty"), Match.Error);
+  });
 
-  it("renews your onduty", function () {
-    Roles.insert({
+  it("renews your onduty", async function () {
+    await Roles.insertAsync({
       _id: "onduty",
       holder: "torgen",
       claimed_at: 10,
       renewed_at: 10,
       expires_at: 3600010,
     });
-    chai.assert.isTrue(callAs("renewOnduty", "torgen"));
-    chai.assert.deepInclude(Roles.findOne("onduty"), {
+    chai.assert.isTrue(await callAs("renewOnduty", "torgen"));
+    chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
       holder: "torgen",
       claimed_at: 10,
       renewed_at: 70000,
@@ -45,17 +45,17 @@ describe("renewOnduty", function () {
     });
   });
 
-  it("uses renewal time", function () {
-    impersonating("cjb", () => RoleRenewalTime.set(30));
-    Roles.insert({
+  it("uses renewal time", async function () {
+    await impersonating("cjb", () => RoleRenewalTime.set(30));
+    await Roles.insertAsync({
       _id: "onduty",
       holder: "torgen",
       claimed_at: 10,
       renewed_at: 10,
       expires_at: 3600010,
     });
-    chai.assert.isTrue(callAs("renewOnduty", "torgen"));
-    chai.assert.deepInclude(Roles.findOne("onduty"), {
+    chai.assert.isTrue(await callAs("renewOnduty", "torgen"));
+    chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
       holder: "torgen",
       claimed_at: 10,
       renewed_at: 70000,
@@ -63,21 +63,21 @@ describe("renewOnduty", function () {
     });
   });
 
-  it("fails when nobody is onduty", function () {
-    chai.assert.isFalse(callAs("renewOnduty", "torgen"));
-    chai.assert.isNotOk(Roles.findOne("onduty"));
+  it("fails when nobody is onduty", async function () {
+    chai.assert.isFalse(await callAs("renewOnduty", "torgen"));
+    chai.assert.isNotOk(await Roles.findOneAsync("onduty"));
   });
 
-  it("fails when somebody else is onduty", function () {
-    Roles.insert({
+  it("fails when somebody else is onduty", async function () {
+    await Roles.insertAsync({
       _id: "onduty",
       holder: "cscott",
       claimed_at: 10,
       renewed_at: 10,
       expires_at: 3600010,
     });
-    chai.assert.isFalse(callAs("renewOnduty", "torgen"));
-    chai.assert.deepInclude(Roles.findOne("onduty"), {
+    chai.assert.isFalse(await callAs("renewOnduty", "torgen"));
+    chai.assert.deepInclude(await Roles.findOneAsync("onduty"), {
       holder: "cscott",
       claimed_at: 10,
       renewed_at: 10,

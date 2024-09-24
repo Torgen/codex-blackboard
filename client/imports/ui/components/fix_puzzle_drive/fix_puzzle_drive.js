@@ -15,7 +15,7 @@ Template.fix_puzzle_drive.events({
   "click .bb-fix-drive"(event, template) {
     event.preventDefault(); // keep .bb-editable from being processed!
     event.stopPropagation(); // keep .bb-editable from being processed!
-    Meteor.call("fixPuzzleFolder", {
+    Meteor.serializeCall("fixPuzzleFolder", {
       object: this.puzzle,
       name: Puzzles.findOne({ _id: this.puzzle }).name,
     });

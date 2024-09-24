@@ -1,13 +1,13 @@
 import { PeriodicStats, Presence } from "/lib/imports/collections";
 import { StatsCollectionTime } from "/lib/imports/settings";
 
-export default function collectPeriodicStats() {
+export default async function collectPeriodicStats() {
   let lastInterval, lastCollection, timeout;
-  function collect() {
+  async function collect() {
     console.log("Collecting solvers online");
-    const numOnline = Presence.find({ scope: "online" }).count();
+    const numOnline = await Presence.find({ scope: "online" }).countAsync();
     lastCollection = Date.now();
-    PeriodicStats.insert({
+    await PeriodicStats.insertAsync({
       timestamp: lastCollection,
       stream: "solvers_online",
       value: numOnline,
@@ -15,7 +15,7 @@ export default function collectPeriodicStats() {
     timeout = Meteor.setTimeout(collect, lastInterval);
     console.log(`${numOnline} solvers online`);
   }
-  const handle = StatsCollectionTime.watch(function (value) {
+  const handle = await StatsCollectionTime.watch(function (value) {
     console.log(`Collection interval is now ${value} minutes`);
     // Value is in minutes; convert to milliseconds.
     const valueMs = value * 60000;

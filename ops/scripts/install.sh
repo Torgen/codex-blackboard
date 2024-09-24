@@ -27,11 +27,11 @@ curl https://install.meteor.com/ | sh
 
 # Set up apt
 sudo apt-get install gnupg
-wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+curl -sL https://deb.nodesource.com/setup_20.x | sudo bash -
 sudo apt-get update
-sudo apt-get install -y mongodb-org=6.0.4 mongodb-org-database=6.0.4 mongodb-org-server=6.0.4 mongodb-org-mongos=6.0.4 mongodb-org-tools=6.0.4 nodejs software-properties-common
+sudo apt-get install -y mongodb-org nodejs software-properties-common
 
 # This will help us template some files
 sudo npm install -g handlebars-cmd
@@ -49,10 +49,13 @@ sudo npm install
 sudo cp -a "$scriptroot"/../installfiles/* /
 sudo systemctl daemon-reload
 node_path=$(npm root -g --no-update-notifier)
+staticroom=$(uuidgen)
 
-handlebars <"$scriptroot/../installtemplates/etc/codex-common.env.handlebars" --domainname "$domainname" | sudo bash -c "cat > /etc/codex-common.env"
+sudo ln -s /etc/codex-per-hunt-initial.env /etc/codex-per-hunt.env
+handlebars <"$scriptroot/../installtemplates/etc/codex-per-team.env.handlebars" --domainname "$domainname" --staticroom "$staticroom" | sudo bash -c "cat > /etc/codex-per-team.env"
 handlebars <"$scriptroot/../installtemplates/etc/codex-batch.env.handlebars" --node_path "$node_path" | sudo bash -c "cat > /etc/codex-batch.env"
-sudo vim /etc/codex-common.env
+sudo vim /etc/codex-per-team.env
+sudo vim /etc/codex-per-hunt.env
 sudo chmod 600 /etc/codex-batch.env
 sudo vim /etc/codex-batch.env
 
@@ -80,7 +83,7 @@ sudo systemctl start mongod.service
 # Turn on replication on mongodb.
 # This lets the meteor instances act like secondary replicas, which lets them
 # get updates in real-time instead of after 10 seconds when they poll.
-sudo mongo --eval 'rs.initiate({_id: "meteor", members: [{_id: 0, host: "127.0.0.1:27017"}]});'
+sudo mongosh --eval 'rs.initiate({_id: "meteor", members: [{_id: 0, host: "127.0.0.1:27017"}]});'
 
 sudo systemctl enable codex-batch.service
 
@@ -93,7 +96,7 @@ sudo apt-get install -y nginx
 cd /etc/ssl/certs
 sudo openssl dhparam -out dhparam.pem 4096
 # shellcheck disable=SC2086
-handlebars <"$scriptroot/../installtemplates/etc/nginx/sites-available/codex.handlebars" $PORTS --domainname "$domainname" --staticroom "$(uuidgen)" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
+handlebars <"$scriptroot/../installtemplates/etc/nginx/sites-available/codex.handlebars" $PORTS --domainname "$domainname" | sudo bash -c "cat > /etc/nginx/sites-available/codex"
 sudo ln -s /etc/nginx/sites-{available,enabled}/codex
 sudo rm /etc/nginx/sites-enabled/default
 
