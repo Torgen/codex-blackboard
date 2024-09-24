@@ -144,7 +144,7 @@ describe("newCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(o[0].body, `(#puzzles/${id})`, "mention");
         });
 
         it("notifies general chat", async function () {
@@ -158,7 +158,7 @@ describe("newCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${id})`, "mention");
         });
       });
 
@@ -249,7 +249,7 @@ describe("newCallIn", function () {
         action: true,
       });
       chai.assert.include(m[0].body, "PRECIPITATE");
-      chai.assert.include(m[0].body, "(Foo)");
+      chai.assert.include(m[0].body, `(#puzzles/${p})`, "mention");
     });
   });
 
@@ -379,7 +379,7 @@ describe("newCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(o[0].body, `(#puzzles/${id})`, "mention");
         });
 
         it("notifies general chat", async function () {
@@ -393,7 +393,7 @@ describe("newCallIn", function () {
             action: true,
           });
           chai.assert.include(o[0].body, "PRECIPITATE", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${id})`, "mention");
         });
       });
 
@@ -487,7 +487,7 @@ describe("newCallIn", function () {
         action: true,
       });
       chai.assert.include(m[0].body, "PRECIPITATE");
-      chai.assert.include(m[0].body, "(Foo)");
+      chai.assert.include(m[0].body, `(#puzzles/${p})`, "mention");
     });
   });
 
@@ -640,7 +640,7 @@ describe("newCallIn", function () {
           });
           chai.assert.include(o[0].body, "PAY THE CAT TAX", "message");
           chai.assert.include(o[0].body, "interaction", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(o[0].body, `(#puzzles/${id})`, "mention");
         });
 
         it("notifies general chat", async function () {
@@ -655,7 +655,7 @@ describe("newCallIn", function () {
           });
           chai.assert.include(o[0].body, "PAY THE CAT TAX", "message");
           chai.assert.include(o[0].body, "interaction", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${id})`, "mention");
         });
       });
     });
@@ -810,7 +810,7 @@ describe("newCallIn", function () {
           });
           chai.assert.include(o[0].body, '"PAY THE CAT TAX"', "message");
           chai.assert.include(o[0].body, "tell HQ", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(o[0].body, `(#puzzles/${id})`, "mention");
         });
 
         it("notifies general chat", async function () {
@@ -825,7 +825,7 @@ describe("newCallIn", function () {
           });
           chai.assert.include(o[0].body, '"PAY THE CAT TAX"', "message");
           chai.assert.include(o[0].body, "tell HQ", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${id})`, "mention");
         });
       });
     });
@@ -980,7 +980,7 @@ describe("newCallIn", function () {
           });
           chai.assert.include(o[0].body, '"PAY THE CAT TAX"', "message");
           chai.assert.include(o[0].body, "expects HQ to call back", "message");
-          chai.assert.notInclude(o[0].body, "(Foo)", "message");
+          chai.assert.notInclude(o[0].body, `(#puzzles/${id})`, "mention");
         });
 
         it("notifies general chat", async function () {
@@ -995,7 +995,7 @@ describe("newCallIn", function () {
           });
           chai.assert.include(o[0].body, '"PAY THE CAT TAX"', "message");
           chai.assert.include(o[0].body, "expects HQ to call back", "message");
-          chai.assert.include(o[0].body, "(Foo)", "message");
+          chai.assert.include(o[0].body, `(#puzzles/${id})`, "mention");
         });
       });
     });
