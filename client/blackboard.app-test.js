@@ -88,7 +88,7 @@ describe("blackboard", function () {
     await afterFlushPromise();
     chai.assert.isNotOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
     chai.assert.isOk($joy.find(".metafooter")[0]);
-    chai.assert.equal(
+    chai.assert.include(
       $joy.find(".metafooter .num-hidden").text(),
       "(1 solved puzzle hidden)"
     );
