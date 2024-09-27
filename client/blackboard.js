@@ -559,6 +559,7 @@ Template.blackboard_round.events({
 
 Template.blackboard_meta.onCreated(function () {
   this.adding = new ReactiveVar(false);
+  this.showAnyways = new ReactiveVar(false);
 });
 
 function moveWithinMeta(pos) {
@@ -602,6 +603,9 @@ Template.blackboard_meta.events({
       true
     );
   },
+  "click tr.metafooter.unsolved-hidden"(event, template) {
+    template.showAnyways.set(!template.showAnyways.get());
+  },
 });
 
 Template.blackboard_meta.helpers({
@@ -621,7 +625,11 @@ Template.blackboard_meta.helpers({
     );
     if (puzzle?.order_by) {
       filter = { feedsInto: this._id };
-      if (!Session.get("canEdit") && HIDE_SOLVED.get()) {
+      if (
+        !Session.get("canEdit") &&
+        HIDE_SOLVED.get() &&
+        !Template.instance().showAnyways.get()
+      ) {
         filter.solved = { $eq: null };
       }
       return Puzzles.find(filter, {
@@ -635,6 +643,9 @@ Template.blackboard_meta.helpers({
       _id: id,
       puzzle: Puzzles.findOne(id) || { _id: id },
     }));
+    if (Template.instance().showAnyways.get()) {
+      return p;
+    }
     return maybeFilterSolved(p);
   },
   numHidden() {
@@ -649,6 +660,9 @@ Template.blackboard_meta.helpers({
       }
     }
     return count;
+  },
+  showAnyways() {
+    return HIDE_SOLVED.get() && Template.instance().showAnyways.get();
   },
   collapsed() {
     return (
