@@ -320,7 +320,16 @@
         text-transform: uppercase;
       }
     }
-    tr.metafooter .num-hidden { font-size: 10.5px }
+    tr.metafooter.unsolved-hidden {
+      cursor: pointer;
+      .can-collapse();
+      &:not(.collapsed) .collapse-toggle::before {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f139";
+      }
+      .num-hidden { font-size: 10.5px }
+    }
     tr.puzzle, tr.round-empty {
       --tint:  var(--much-lighter);
     }

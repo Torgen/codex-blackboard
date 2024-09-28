@@ -522,8 +522,8 @@
   </td></tr>
   {{else unless collapsed}}
     {{#with nh}}
-      <tr class="metafooter"><td colspan="{{nCols}}">
-        <span class="num-hidden">({{this}} solved puzzle{{#if plural this}}s{{/if}} hidden)</span>
+      <tr class="metafooter unsolved-hidden {{#unless showAnyways}}collapsed{{/unless}}"><td colspan="{{nCols}}">
+        <span class="num-hidden"><i class="fas collapse-toggle"></i> ({{this}} solved puzzle{{#if plural this}}s{{/if}}{{#unless showAnyways}} hidden{{/unless}})</span>
       </td></tr>
     {{/with}}
   {{/if}}
