@@ -158,9 +158,19 @@
   /* tweak table column to make room for add tag/up/down icons */
   td.puzzle-name { padding-right: (14px)*3; }
 }
-.bb-show-filter-by-user + .dropdown-menu {
-  left: unset;
-  right: 0;
+#bb-tables .bb-show-filter-by-user {
+  cursor: pointer;
+  &.inverse {
+    background: var(--text-color);
+    color: var(--bg-color);
+    padding-left: 4px;
+    padding-right: 4px;
+    border-radius: 4px;
+  }
+  & + .dropdown-menu {
+    left: unset;
+    right: 0;
+  }
 }
 .can-collapse() {
   &.collapsed .bb-tag-table {

@@ -111,34 +111,18 @@ Template.blackboard.helpers({
   whoseGitHub() {
     return WHOSE_GITHUB;
   },
+  columnContext() {
+    return {
+      blackboard: Template.instance(),
+    };
+  },
   filter() {
-    return Template.instance().userSearch.get() != null;
+    return Template.instance().userSearch.get();
   },
   searchResults() {
     return (Template.instance().foundPuzzles.get() ?? []).map((id) =>
       Puzzles.findOne({ _id: id })
     );
-  },
-});
-
-Template.blackboard.events({
-  "click .puzzle-working .button-group:not(.open) .bb-show-filter-by-user"(
-    event,
-    template
-  ) {
-    Meteor.defer(() => template.find(".bb-filter-by-user").focus());
-  },
-  "click .puzzle-working .dropdown-menu"(event, template) {
-    event.stopPropagation();
-  },
-  "keyup .bb-filter-by-user"(event, template) {
-    if (event.keyCode !== 13) {
-      return;
-    }
-    template.userSearch.set(event.target.value || null);
-  },
-  "click .bb-clear-filter-by-user"(event, template) {
-    template.userSearch.set(null);
   },
 });
 
@@ -911,4 +895,34 @@ Template.blackboard_column_header_working.onCreated(function () {
   this.autorun(() => {
     this.subscribe("all-presence");
   });
+});
+
+Template.blackboard_column_header_working.helpers({
+  filter() {
+    return this.blackboard.userSearch.get();
+  },
+});
+
+Template.blackboard_column_header_working.events({
+  "click .puzzle-working .button-group:not(.open) .bb-show-filter-by-user"(
+    event,
+    template
+  ) {
+    Meteor.defer(() => template.find(".bb-filter-by-user").focus());
+  },
+  "click .puzzle-working .dropdown-menu"(event, template) {
+    event.stopPropagation();
+  },
+  "keyup .bb-filter-by-user"(event, template) {
+    if (event.keyCode !== 13) {
+      return;
+    }
+    template.data.blackboard.userSearch.set(event.target.value || null);
+    template.$(".button-group").removeClass("open");
+  },
+  "click .bb-clear-filter-by-user"(event, template) {
+    template.data.blackboard.userSearch.set(null);
+    template.$(".button-group").removeClass("open");
+    event.stopPropagation();
+  },
 });
