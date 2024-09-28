@@ -64,42 +64,63 @@ describe("blackboard", function () {
     chai.assert.equal(Session.get("id"), isss._id);
   });
 
-  it("hides solved", async function () {
-    BlackboardPage();
-    await waitForSubscriptions();
-
-    const joy = Puzzles.findOne({ name: "Joy" });
-    chai.assert.isOk(joy);
-    const $joy = $(`#m${joy._id}`);
-    const warm = Puzzles.findOne({ name: "Warm And Fuzzy" });
-    chai.assert.isOk(warm);
-    chai.assert.isOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
-    chai.assert.isNotOk($joy.find(".metafooter")[0]);
-
-    await promiseCall("setAnswer", {
-      target: warm._id,
-      answer: "fleece",
+  describe("when hide solved is selected", function () {
+    let joy, $joy, warm;
+    before(async function () {
+      BlackboardPage();
+      await waitForSubscriptions();
+      joy = Puzzles.findOne({ name: "Joy" });
+      $joy = $(`#m${joy._id}`);
+      warm = Puzzles.findOne({ name: "Warm And Fuzzy" });
+      HIDE_SOLVED.set(true);
+      await afterFlushPromise();
     });
-    await afterFlushPromise();
-    chai.assert.isOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
-    chai.assert.isNotOk($joy.find(".metafooter")[0]);
-
-    HIDE_SOLVED.set(true);
-    await afterFlushPromise();
-    chai.assert.isNotOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
-    chai.assert.isOk($joy.find(".metafooter")[0]);
-    chai.assert.include(
-      $joy.find(".metafooter .num-hidden").text(),
-      "(1 solved puzzle hidden)"
-    );
-
-    await promiseCall("deleteAnswer", { target: warm._id });
-    await afterFlushPromise();
-
-    chai.assert.isOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
-    chai.assert.isNotOk($joy.find(".metafooter")[0]);
-
-    HIDE_SOLVED.set(false);
+    describe("when a puzzle is solved", function () {
+      before(async function () {
+        await promiseCall("setAnswer", {
+          target: warm._id,
+          answer: "fleece",
+        });
+        await afterFlushPromise();
+      });
+      it("hides the solved puzzle", function () {
+        chai.assert.isNotOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
+        chai.assert.isOk($joy.find(".metafooter")[0]);
+        chai.assert.include(
+          $joy.find(".metafooter .num-hidden").text(),
+          "(1 solved puzzle hidden)"
+        );
+      });
+      describe("when the footer is clicked", function () {
+        before(async function () {
+          $joy.find(".metafooter").click();
+          await afterFlushPromise();
+        });
+        it("shows the solved puzzle", function () {
+          chai.assert.isOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
+          chai.assert.isOk($joy.find(".metafooter")[0]);
+          chai.assert.include(
+            $joy.find(".metafooter .num-hidden").text(),
+            "(1 solved puzzle)"
+          );
+        });
+        after(async function () {
+          $joy.find(".metafooter").click();
+          await afterFlushPromise();
+        });
+      });
+      after(async function () {
+        await promiseCall("deleteAnswer", { target: warm._id });
+      });
+    });
+    describe("when no puzzle is solved", function () {
+      it("does not show the footer", function () {
+        chai.assert.isNotOk($joy.find(".metafooter")[0]);
+      });
+    });
+    after(function () {
+      HIDE_SOLVED.set(false);
+    });
   });
 
   it("hides rounds with no unsolved metas or standalones", async function () {
