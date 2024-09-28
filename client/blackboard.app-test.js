@@ -83,34 +83,59 @@ describe("blackboard", function () {
         });
         await afterFlushPromise();
       });
-      it("hides the solved puzzle", function () {
-        chai.assert.isNotOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
-        chai.assert.isOk($joy.find(".metafooter")[0]);
-        chai.assert.include(
-          $joy.find(".metafooter .num-hidden").text(),
-          "(1 solved puzzle hidden)"
-        );
-      });
-      describe("when the footer is clicked", function () {
-        before(async function () {
-          $joy.find(".metafooter").click();
-          await afterFlushPromise();
-        });
-        it("shows the solved puzzle", function () {
-          chai.assert.isOk($joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]);
+      function hideAndClickTest() {
+        it("hides the solved puzzle", function () {
+          chai.assert.isNotOk(
+            $joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]
+          );
           chai.assert.isOk($joy.find(".metafooter")[0]);
           chai.assert.include(
             $joy.find(".metafooter .num-hidden").text(),
-            "(1 solved puzzle)"
+            "(1 solved puzzle hidden)"
           );
         });
+        describe("when the footer is clicked", function () {
+          before(async function () {
+            $joy.find(".metafooter").click();
+            await afterFlushPromise();
+          });
+          it("shows the solved puzzle", function () {
+            chai.assert.isOk(
+              $joy.find(`tr[data-puzzle-id=\"${warm._id}\"]`)[0]
+            );
+            chai.assert.isOk($joy.find(".metafooter")[0]);
+            chai.assert.include(
+              $joy.find(".metafooter .num-hidden").text(),
+              "(1 solved puzzle)"
+            );
+          });
+          after(async function () {
+            $joy.find(".metafooter").click();
+            await afterFlushPromise();
+          });
+        });
+      }
+      hideAndClickTest();
+      describe("when order_by is set", function () {
+        before(async function () {
+          await promiseCall("setField", {
+            type: "puzzles",
+            object: joy._id,
+            fields: { order_by: "name" },
+          });
+        });
+        hideAndClickTest();
         after(async function () {
-          $joy.find(".metafooter").click();
-          await afterFlushPromise();
+          await promiseCall("setField", {
+            type: "puzzles",
+            object: joy._id,
+            fields: { order_by: "" },
+          });
         });
       });
       after(async function () {
         await promiseCall("deleteAnswer", { target: warm._id });
+        await afterFlushPromise();
       });
     });
     describe("when no puzzle is solved", function () {
