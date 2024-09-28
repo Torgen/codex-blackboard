@@ -115,7 +115,7 @@
         <tr>
           <th class="puzzle-name">Name</th>
           {{#each column in visibleColumns}}
-            {{> Template.dynamic template=(concat "blackboard_column_header_" column._id)}}
+            {{> Template.dynamic template=(concat "blackboard_column_header_" column._id) data=columnContext}}
           {{/each}}
         </tr>
         {{/unless}}
@@ -183,7 +183,7 @@
 <template name="blackboard_column_header_working">
   <th class="puzzle-working">Working on this
     <span class="button-group">
-      <a href="#" name="bb-show-filter-by-user" title="Filter puzzles by solver" class="dropdown-toggle bb-show-filter-by-user" data-toggle="dropdown"><i class="fas fa-search"></i></a>
+      <span name="bb-show-filter-by-user" title="Filter puzzles by solver" class="dropdown-toggle bb-show-filter-by-user {{#if filter}}inverse{{/if}}" data-toggle="dropdown"><i class="fas fa-search"></i>{{#with filter}} {{this}} <i class="fas fa-times bb-clear-filter-by-user"></i>{{/with}}</span>
       <ul class="bb-filter-by-user-dropdown dropdown-menu">
         <li class="form-search">
           <div class="input-append">
