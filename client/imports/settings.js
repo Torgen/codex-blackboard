@@ -156,12 +156,12 @@ class EnumSetting extends Setting {
   }
 }
 export const ICONS_ONLY = "icons-only";
-export const ICONS_AND_NICKNAMES = "icons-and-nicknames";
-export const NICKNAMES_ONLY = "nicknames-only";
+export const ICONS_AND_NICKNAMES = "icons-and-nicks";
+export const NICKNAMES_ONLY = "nicks-only";
 export const WHOS_WORKING_STYLE_OPTIONS = Object.freeze({
-  "icons-only": Object.freeze({ display: "Icons Only" }),
-  "icons-and-nicks": Object.freeze({ display: "Icons And Nicknames" }),
-  "nicks-only": Object.freeze({ display: "Nicknames Only" }),
+  [ICONS_ONLY]: Object.freeze({ display: "Icons Only" }),
+  [ICONS_AND_NICKNAMES]: Object.freeze({ display: "Icons And Nicknames" }),
+  [NICKNAMES_ONLY]: Object.freeze({ display: "Nicknames Only" }),
 });
 
 export const WHOS_WORKING_STYLE = new EnumSetting(
