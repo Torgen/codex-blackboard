@@ -159,7 +159,7 @@ Click here to stay in this meeting instead.{{/if}}">
 </template>
 
 <template name="chat_format_body">
-  {{#each chunk in chunks}}{{>dynamic_no_whitespace template=(chunk_template chunk.type) data=chunk.content}}{{/each}}
+  {{#each chunk in chunks}}{{>Template.dynamic template=(chunk_template chunk.type) data=chunk.content}}{{/each}}
 </template>
 
 <template name="poll">

@@ -36,9 +36,3 @@ Template.text_chunk_url_image.helpers({
     return url.match(/(\.|format=)(png|jpg|jpeg|gif)$/i);
   },
 });
-
-Template.dynamic_no_whitespace.helpers({
-  chooseTemplate(name) {
-    return Blaze._getTemplate(name, () => Template.instance());
-  },
-});
