@@ -13,6 +13,7 @@ import {
   START_AUDIO_MUTED,
   COMPACT_MODE,
   CURRENT_COLUMNS,
+  WHOS_WORKING_STYLE,
 } from "./imports/settings.js";
 
 Template.options_dropdown.helpers({
@@ -72,6 +73,9 @@ Template.options_dropdown.events({
         })
         .get()
     );
+  },
+  'change input[name="whos-working-display-style"]'(event, template) {
+    WHOS_WORKING_STYLE.set(event.target.value);
   },
 });
 

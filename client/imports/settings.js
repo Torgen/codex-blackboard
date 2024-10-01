@@ -84,7 +84,11 @@ const visibleColumnsWhenEditing = new Set(["answer", "status"]);
 Tracker.autorun(function () {
   const cols = reactiveLocalStorage.getItem("currentColumns");
   const col_array =
-    cols != null ? cols.split(",") : ["answer", "status", "working", "update"];
+    cols != null
+      ? cols.split(",")
+      : COMPACT_MODE.get()
+        ? ["answer"]
+        : ["answer", "status", "working", "update"];
   currentColumns.set(Object.freeze(col_array));
 });
 
@@ -100,9 +104,8 @@ class CurrentColumnsSetting extends Setting {
 export const CURRENT_COLUMNS = new CurrentColumnsSetting("currentColumns");
 
 Tracker.autorun(function () {
-  const visible_array = COMPACT_MODE.get()
-    ? Object.freeze(["answer"])
-    : Meteor.userId() && Session.get("canEdit")
+  const visible_array =
+    Meteor.userId() && Session.get("canEdit")
       ? currentColumns.get().filter((x) => visibleColumnsWhenEditing.has(x))
       : currentColumns.get();
   return visibleColumns.set(Object.freeze(visible_array));
@@ -128,3 +131,36 @@ Template.registerHelper("nCols", () => 1 + visibleColumns.get().length);
 
 // If iterating over a list without _id fields, the key is index, which makes insertions render oddly.
 Template.registerHelper("visibleColumns", () => visibleColumnsForHelper.get());
+Template.registerHelper("columnIsVisible", col => visibleColumns.get().includes(col));
+
+class EnumSetting extends Setting {
+  constructor(name, options, defaultValue) {
+    super(name);
+    this.options = options;
+    this.defaultValue = defaultValue;
+    Template.registerHelper(`${name}Options`, Object.entries(options).map(([k, v]) => ({_id: k, ...v})));
+  }
+  get() {
+    return reactiveLocalStorage.getItem(this.name) ?? this.defaultValue;
+  }
+  set(val) {
+    if (!this.options[val]) {
+      throw new Error(`${val} not in option list ${this.options}`);
+    }
+    reactiveLocalStorage.setItem(this.name, val);
+  }
+}
+export const ICONS_ONLY = "icons-only";
+export const ICONS_AND_NICKNAMES = "icons-and-nicknames";
+export const NICKNAMES_ONLY = "nicknames-only";
+export const WHOS_WORKING_STYLE_OPTIONS = Object.freeze({
+  "icons-only": Object.freeze({display: "Icons Only"}),
+  "icons-and-nicks": Object.freeze({display: "Icons And Nicknames"}),
+  "nicks-only": Object.freeze({display: "Nicknames Only"}),
+});
+
+export const WHOS_WORKING_STYLE = new EnumSetting(
+  "whosWorkingStyle",
+  WHOS_WORKING_STYLE_OPTIONS,
+  ICONS_ONLY
+);

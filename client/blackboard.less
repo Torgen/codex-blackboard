@@ -429,6 +429,10 @@
     }
 
     .puzzle-working {
+      .nick {
+        display: inline-block;
+        img { vertical-align: text-top; }
+      }
       .using-jitsi & {
         .nick.background {
           opacity: 0.6;
@@ -446,7 +450,7 @@
         .in-chat::before { content: '\f086'; }
       }
     }
-    td.puzzle-update {
+    td.puzzle-update, td.puzzle-added {
       font-size: 85%;
     }
   }
