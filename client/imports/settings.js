@@ -131,14 +131,19 @@ Template.registerHelper("nCols", () => 1 + visibleColumns.get().length);
 
 // If iterating over a list without _id fields, the key is index, which makes insertions render oddly.
 Template.registerHelper("visibleColumns", () => visibleColumnsForHelper.get());
-Template.registerHelper("columnIsVisible", col => visibleColumns.get().includes(col));
+Template.registerHelper("columnIsVisible", (col) =>
+  visibleColumns.get().includes(col)
+);
 
 class EnumSetting extends Setting {
   constructor(name, options, defaultValue) {
     super(name);
     this.options = options;
     this.defaultValue = defaultValue;
-    Template.registerHelper(`${name}Options`, Object.entries(options).map(([k, v]) => ({_id: k, ...v})));
+    Template.registerHelper(
+      `${name}Options`,
+      Object.entries(options).map(([k, v]) => ({ _id: k, ...v }))
+    );
   }
   get() {
     return reactiveLocalStorage.getItem(this.name) ?? this.defaultValue;
@@ -154,9 +159,9 @@ export const ICONS_ONLY = "icons-only";
 export const ICONS_AND_NICKNAMES = "icons-and-nicknames";
 export const NICKNAMES_ONLY = "nicknames-only";
 export const WHOS_WORKING_STYLE_OPTIONS = Object.freeze({
-  "icons-only": Object.freeze({display: "Icons Only"}),
-  "icons-and-nicks": Object.freeze({display: "Icons And Nicknames"}),
-  "nicks-only": Object.freeze({display: "Nicknames Only"}),
+  "icons-only": Object.freeze({ display: "Icons Only" }),
+  "icons-and-nicks": Object.freeze({ display: "Icons And Nicknames" }),
+  "nicks-only": Object.freeze({ display: "Nicknames Only" }),
 });
 
 export const WHOS_WORKING_STYLE = new EnumSetting(
