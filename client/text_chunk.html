@@ -1,12 +1,5 @@
 
-<template name="dynamic_no_whitespace">{{
-  #with chooseTemplate template}}{{
-    # .. ../data}}{{
-      > Template.contentBlock}}{{
-    / ..}}{{
-  /with}}</template>
-
-<template name="text_chunks">{{#each chunk in chunks}}{{>dynamic_no_whitespace template=(concat "text_chunk_" chunk.type) data=chunk.content}}{{/each}}</template>
+<template name="text_chunks">{{#each chunk in chunks}}{{>Template.dynamic template=(concat "text_chunk_" chunk.type) data=chunk.content}}{{/each}}</template>
 
 <template name="text_chunk_break"><br></template>
 
