@@ -39,18 +39,25 @@
           Hide solved Favorites
         </label>
       </a></li>
-      <li><a name="bb-compact-mode">
-        <label class="checkbox bb-compact-mode" title="Hide all info except puzzle name, links, and solution">
-          <input type="checkbox" name="bb-compact-mode" checked="{{compactMode}}">
-          Compact mode
-        </label>
-      </a></li>
       <li class="dropdown-submenu">
-        <a name="custom-columns">Visible Columns</a>
-        <ul class="dropdown-menu">
+        <a name="custom-columns">Column Settings</a>
+        <ul class="dropdown-menu nav-list">
+          <li class="disabled"><a name="name-column"><label class="checkbox">
+              <input type="checkbox" checked="checked" disabled="disabled">Name</label></a></li>
+          <li class="indent"><a name="bb-compact-mode">
+            <label class="checkbox bb-compact-mode" title="Hide tags and other metas fed by puzzles">
+              <input type="checkbox" name="bb-compact-mode" checked="{{compactMode}}">
+              Hide Tags
+            </label>
+          </a></li>
           {{#options_dropdown_column_checkbox column="answer"}}Solution{{/options_dropdown_column_checkbox}}
           {{#options_dropdown_column_checkbox column="status"}}Status{{/options_dropdown_column_checkbox}}
           {{#options_dropdown_column_checkbox column="working"}}Working On This{{/options_dropdown_column_checkbox}}
+          <li class="disabled indent"><a name="nick-display-options">Display Style:</a></li>
+          {{#each style in whosWorkingStyleOptions}}
+            <li class="indent"><a name="{{style._id}}-option"><label class="radio"><input type="radio" name="whos-working-display-style" value="{{style._id}}" checked="{{equal whosWorkingStyle style._id}}">{{style.display}}</label></a></li>
+          {{/each}}
+          {{#options_dropdown_column_checkbox column="added"}}Added{{/options_dropdown_column_checkbox}}
           {{#options_dropdown_column_checkbox column="update"}}Last Update{{/options_dropdown_column_checkbox}}
         </ul>
       </li>
@@ -100,7 +107,7 @@
 
 <template name="options_dropdown_column_checkbox">
   <!-- data context is name of column, i.e. what's after "puzzle-" in the class -->
-  <li><a name="answer-column"><label class="checkbox">
+  <li><a name="{{column}}-column"><label class="checkbox">
     <input data-column-visibility="{{column}}" type="checkbox" checked="{{columnVisible}}">
     {{> Template.contentBlock}}
   </label></a></li>
