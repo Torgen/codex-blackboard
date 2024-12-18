@@ -51,8 +51,8 @@
     "sinon": "^19.0.2"
   },
   "scripts": {
-    "test": "meteor test --once --driver-package meteortesting:mocha",
-    "test.full": "meteor test --once --driver-package meteortesting:mocha --full-app --settings tests/integration_test_settings.json",
+    "test": "LANG=EN_us meteor test --once --driver-package meteortesting:mocha",
+    "test.full": "LANG=en_US meteor test --once --driver-package meteortesting:mocha --full-app --settings tests/integration_test_settings.json",
     "coverage": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_HTML=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
     "coverage.json": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_JSON=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
     "coverage.client.json": "TEST_SERVER=0 meteor npm run-script coverage.json",

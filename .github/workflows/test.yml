@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TEST_BROWSER_DRIVER: playwright
-      LANG: en_US
     strategy:
       matrix:
         browser:
