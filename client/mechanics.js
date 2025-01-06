@@ -2,6 +2,7 @@ import { mechanics } from "/lib/imports/mechanics.js";
 import floatingDropdown from "/client/imports/ui/mixins/floating_dropdown";
 
 Template.registerHelper("yourFavoriteMechanic", function () {
+  "use strict"; // otherwise, this is new String("mechanic"), not "mechanic"
   return Meteor.user().favorite_mechanics?.includes(this);
 });
 
