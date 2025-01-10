@@ -1,0 +1,33 @@
+on:
+  workflow_run:
+    workflows: ["Bundle Size Build"]
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+
+name: "Bundle Size Diff"
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          run-id: ${{github.event.workflow_run.id}}
+      - id: pr
+        run: echo "pr=$(cat pr/NR)" >> "$GITHUB_OUTPUT"
+      - id: diff
+        uses: ./.github/actions/diff-bundle-stats
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          number: ${{steps.pr.outputs.pr}}
+          header: bundlesize
+          message: ${{steps.diff.outputs.diff}}
+          hide_and_recreate: true
