@@ -144,11 +144,12 @@ Template.starred_messages.onCreated(function () {
 
 Template.starred_messages.helpers({
   messages() {
+    console.log("calling messages");
     return Messages.find(
       { room_name: starred_messages_room(), starred: true },
       {
         sort: [["timestamp", "asc"]],
-        transform: messageTransform,
+        transform: messageTransform(Template.currentData().canModify),
       }
     );
   },
@@ -241,24 +242,27 @@ Template.poll.events({
   },
 });
 
-function messageTransform(m) {
-  return {
-    _id: m._id,
-    message: m,
+function messageTransform(canModifyStar) {
+  return function (m) {
+    return {
+      _id: m._id,
+      message: m,
+      canModifyStar,
 
-    read() {
-      // Since a message can go from unread to read, but never the other way,
-      // use a nonreactive read at first. If it's unread, then do a reactive read
-      // to create the tracker dependency.
-      const result = Tracker.nonreactive(
-        () => m.timestamp <= Session.get("lastread")
-      );
-      if (!result) {
-        Session.get("lastread");
-      }
-      return result;
-    },
-  };
+      read() {
+        // Since a message can go from unread to read, but never the other way,
+        // use a nonreactive read at first. If it's unread, then do a reactive read
+        // to create the tracker dependency.
+        const result = Tracker.nonreactive(
+          () => m.timestamp <= Session.get("lastread")
+        );
+        if (!result) {
+          Session.get("lastread");
+        }
+        return result;
+      },
+    };
+  }
 }
 
 // Template Binding
@@ -324,7 +328,7 @@ Template.messages.helpers({
       { room_name, from_chat_subscription: true },
       {
         sort: [["timestamp", "asc"]],
-        transform: messageTransform,
+        transform: messageTransform(true),
       }
     );
   },

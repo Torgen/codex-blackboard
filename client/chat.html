@@ -125,7 +125,7 @@ Click here to stay in this meeting instead.{{/if}}">
       <div class="bb-message-hover-controls">
         {{#unless message.to}}
           {{! can't star a PM. }}
-          <div class="bb-message-star" title="{{#if message.starred}}Unstar{{else}}Star{{/if}} this message" role="button" aria-pressed="{{message.starred}}"></div>
+          <div class="bb-message-star" title="{{#unless canModifyStar}}Unlock the page to {{/unless}}{{#if message.starred}}Unstar{{else}}Star{{/if}} this message" role="button" aria-pressed="{{message.starred}}" aria-disabled="{{#unless canModifyStar}}true{{/unless}}"></div>
         {{/unless}}
         {{> message_delete_button}}
       </div>
