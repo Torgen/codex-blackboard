@@ -262,7 +262,7 @@ function messageTransform(canModifyStar) {
         return result;
       },
     };
-  }
+  };
 }
 
 // Template Binding
