@@ -20,11 +20,35 @@
       border-bottom-right-radius: 5px;
     }
 }
+@gravatar-size: 48px;
 .bb-chat-messages {
+  position: relative;
   margin-bottom: 41px; /* 41px navbar - 15px padding on #bb-body */
   @chat-arrow-size: 6px;
   @chat-arrow-height: 15px;
-  @gravatar-size: 48px;
+  .bb-message-hover-controls {
+    height: 20px;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% - 10px);
+    display: none;
+    background-color: var(--bg-color);
+    padding: 2px;
+    border: 1px solid #ccc;
+    z-index: 1;
+  }
+  .media-object.pull-left {
+    float: none;
+    position: absolute;
+  }
+  .bb-message {
+    overflow: visible;
+  }
+  .bb-message, .bb-message-system, .bb-message-action {
+    &:hover .bb-message-hover-controls {
+      display: flex;
+    }
+  }
   .media + .media.bb-message-followup {
       margin-top: -9px;
       &:before, &:after {
@@ -49,10 +73,17 @@
     padding: 0px;
     margin-bottom: 0px;
     clear: both;
+    .bb-message-hover-controls {
+      position: static;
+      display: flex;
+      float: right;
+      border: none;
+      background: none;
+      padding: none;
+    }
   }
   .bb-message-star {
     display: inline-block;
-    float: right;
     padding-right: 0.3em;
     position: relative;
     width: 1em;
@@ -68,7 +99,6 @@
   }
   .bb-delete-message {
     position: relative;
-    float: right;
     cursor: pointer;
     padding-right: 0.3em;
     height: 1em;
@@ -125,6 +155,7 @@
     }
   }
   .bb-message-body {
+    margin-left: @gravatar-size + 10px;
     min-height: @gravatar-size; /* match gravatar height */
     background-color: var(--bg-color);
     box-sizing: border-box;
@@ -327,7 +358,7 @@ table.poll {
       /* hide chat bubble arrows when display gets too narrow */
       &:before, &:after { display: none; }
       .timestamp { float: right; /* still */ }
-      .media-object.pull-left { float: left; /* still */ margin: 0px; }
+      .media-object.pull-left { margin: 0px; }
       .img-rounded {
                 border-radius: 0px;
           -moz-border-radius: 0px;
@@ -338,6 +369,7 @@ table.poll {
     .bb-message-action, .bb-message-system { padding-left: 6px; }
     .bb-message-last-read { margin-left: 0px; margin-right: 0px; }
     .bb-message-body {
+      margin-left: @gravatar-size;
       /* min-height: 0; */
               border-radius: 0px;
         -moz-border-radius: 0px;
