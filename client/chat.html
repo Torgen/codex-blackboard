@@ -96,7 +96,7 @@ Click here to stay in this meeting instead.{{/if}}">
 </template>
 
 <template name="message_delete_button">
-  <div class="bb-delete-message"></div>
+  <div class="bb-delete-message" title="Delete this message" role="button"></div>
 </template>
 
 <template name="starred_messages">
@@ -122,11 +122,13 @@ Click here to stay in this meeting instead.{{/if}}">
     {{/if}}
     <div class="media-body bb-message-body">
       <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
-      {{#unless message.to}}
-        {{! can't star a PM. }}
-        <div class="bb-message-star"></div>
-      {{/unless}}
-      {{> message_delete_button}}
+      <div class="bb-message-hover-controls">
+        {{#unless message.to}}
+          {{! can't star a PM. }}
+          <div class="bb-message-star" title="{{#unless canModifyStar}}Unlock the page to {{/unless}}{{#if message.starred}}Unstar{{else}}Star{{/if}} this message" role="button" aria-pressed="{{message.starred}}" aria-disabled="{{#unless canModifyStar}}true{{/unless}}"></div>
+        {{/unless}}
+        {{> message_delete_button}}
+      </div>
       <h5 class="media-heading">
         {{#if message.tweet}}
           <i class="fab fa-twitter"></i> @<a href="https://twitter.com/{{message.nick}}" target="_blank">{{message.nick}}</a> <a href="https://twitter.com/{{message.nick}}/status/{{message.tweet.id_str}}" target="_blank">tweeted</a>:
@@ -204,7 +206,7 @@ Click here to stay in this meeting instead.{{/if}}">
       {{else if message.system}}
         <div class="bb-message-system" data-read="{{#unless read}}un{{/unless}}read">
           <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
-          {{> message_delete_button}}
+          <div class="bb-message-hover-controls">{{> message_delete_button}}</div>
           {{#with message.file_upload}}
             <span data-mime-type="{{mimeType}}">{{fileType mimeType}}</span> "<a target="_blank" href="{{webViewLink}}" rel="noopener noreferrer">{{name}}</a>" added to drive folder.
           {{else}}
@@ -215,7 +217,7 @@ Click here to stay in this meeting instead.{{/if}}">
         {{#if message.action}}
           <div class="bb-message-action {{#if includes message.mention mynick}}bb-message-mention-me{{/if}}" data-nick="{{message.nick}}" data-read="{{#unless read}}un{{/unless}}read">
             <div class="pull-right timestamp">{{pretty_ts message.timestamp}}</div>
-            {{> message_delete_button}}
+            <div class="bb-message-hover-controls">{{> message_delete_button}}</div>
             {{>gravatar nick=message.nick size=16 }}
             <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{nickOrName message.nick}}</span> {{>chat_format_body body=message.body bodyIsHtml=message.bodyIsHtml}}
           </div>
