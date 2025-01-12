@@ -411,7 +411,7 @@ describe("chat", function () {
         chai.assert.equal(0, typeahead.length);
       });
 
-      it("completes room name", async function () {
+      it("completes room id", async function () {
         const id = Puzzles.findOne({ name: "Space Elevator" })._id;
         const recipe = Puzzles.findOne({ name: "Cooking a Recipe" })._id;
         ChatPage("puzzles", id);
@@ -424,6 +424,72 @@ describe("chat", function () {
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
         chai.assert.equal(input.val(), `#puzzles/${recipe} `);
+        const typeahead = $("#messageInputTypeahead");
+        chai.assert.equal(0, typeahead.length);
+      });
+
+      it("completes puzzle room id", async function () {
+        const id = Puzzles.findOne({ name: "Space Elevator" })._id;
+        const recipe = Puzzles.findOne({ name: "Cooking a Recipe" })._id;
+        ChatPage("puzzles", id);
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const input = $("#messageInput");
+        input.val(`#puzzles/Cook`);
+        input.click();
+        await afterFlushPromise();
+        $(`a[data-value="puzzles/${recipe}"]`).click();
+        await afterFlushPromise();
+        chai.assert.equal(input.val(), `#puzzles/${recipe} `);
+        const typeahead = $("#messageInputTypeahead");
+        chai.assert.equal(0, typeahead.length);
+      });
+
+      it("doesn't need hash for puzzles", async function () {
+        const id = Puzzles.findOne({ name: "Space Elevator" })._id;
+        const recipe = Puzzles.findOne({ name: "Cooking a Recipe" })._id;
+        ChatPage("puzzles", id);
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const input = $("#messageInput");
+        input.val(`#Cook`);
+        input.click();
+        await afterFlushPromise();
+        $(`a[data-value="puzzles/${recipe}"]`).click();
+        await afterFlushPromise();
+        chai.assert.equal(input.val(), `#puzzles/${recipe} `);
+        const typeahead = $("#messageInputTypeahead");
+        chai.assert.equal(0, typeahead.length);
+      });
+
+      it("completes round room id", async function () {
+        const id = Rounds.findOne({ name: "Civilization" })._id;
+        ChatPage("puzzles", id);
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const input = $("#messageInput");
+        input.val(`#rounds/ivil`);
+        input.click();
+        await afterFlushPromise();
+        $(`a[data-value="rounds/${id}"]`).click();
+        await afterFlushPromise();
+        chai.assert.equal(input.val(), `#rounds/${id} `);
+        const typeahead = $("#messageInputTypeahead");
+        chai.assert.equal(0, typeahead.length);
+      });
+
+      it("doesn't need hash for rounds", async function () {
+        const id = Rounds.findOne({ name: "Civilization" })._id;
+        ChatPage("puzzles", id);
+        await waitForSubscriptions();
+        await afterFlushPromise();
+        const input = $("#messageInput");
+        input.val(`#ivil`);
+        input.click();
+        await afterFlushPromise();
+        $(`a[data-value="rounds/${id}"]`).click();
+        await afterFlushPromise();
+        chai.assert.equal(input.val(), `#rounds/${id} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
