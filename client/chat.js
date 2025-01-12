@@ -884,10 +884,10 @@ Template.messages_input.onCreated(function () {
       this.selected.set(null);
       return;
     }
-    const qdoc = { $regex: query, $options: "i" };
     let c, l;
     switch (type) {
       case "users":
+        const qdoc = { $regex: query, $options: "i" };
         c = Meteor.users.find(
           { $or: [{ _id: qdoc }, { real_name: qdoc }] },
           {
@@ -899,12 +899,19 @@ Template.messages_input.onCreated(function () {
         l = c.map((x) => x._id);
         break;
       case "rooms":
-        const orList = [{ name: qdoc }];
+        let orList;
         const [type, id] = query.split("/", 2);
         if (!id) {
-          orList.push({ type: { $regex: type, $options: "i" } });
+          orList = [
+            { type: { $regex: type, $options: "i" } },
+            { type: { $in: ["rounds", "puzzles"] }, _id: { $regex: type, $options: "i" }},
+            { type: { $in: ["rounds", "puzzles"] }, name: { $regex: type, $options: "i" } },
+          ];
         } else {
-          orList.push({ type, _id: { $regex: id, $options: "i" } });
+          orList = [
+            { type, _id: { $regex: id, $options: "i" } },
+            { type, name: { $regex: id, $options: "i" } },
+          ];
         }
         c = Names.find(
           { $or: orList },
