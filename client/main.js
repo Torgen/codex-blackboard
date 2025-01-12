@@ -33,6 +33,7 @@ import {
   FIRST_LOGIN,
 } from "/client/imports/settings.js";
 import textify from "/client/imports/textify.js";
+import { plain_text } from "/client/imports/chunk_text.js";
 import "/client/imports/ui/components/splitter/splitter.js";
 import "/client/imports/ui/pages/graph/graph_page.js";
 import "/client/imports/ui/pages/map/map_page.js";
@@ -335,7 +336,7 @@ ${collection(msg.type).findOne(msg.id)?.name}`;
 });
 
 Meteor.startup(() =>
-  // Notifications on favrite mechanics
+  // Notifications on favorite mechanics
   Tracker.autorun(function () {
     if (!allPuzzlesHandle?.ready()) {
       return;
@@ -416,6 +417,8 @@ Meteor.startup(() =>
         let { body } = message;
         if (message.bodyIsHtml) {
           body = textify(body);
+        } else {
+          body = plain_text(body);
         }
         const description =
           message.to != null
@@ -466,8 +469,14 @@ Meteor.startup(function () {
         // If sound effects are off, notifications should be silent. If they're not, turn off sound for
         // notifications that already have sound effects.
         const silent = MUTE_SOUND_EFFECTS.get();
+        let { body } = msg;
+        if (msg.bodyIsHtml) {
+          body = textify(body);
+        } else {
+          body = plain_text(body);
+        }
         notification.notify(`Announcement by ${msg.nick}`, {
-          body: msg.body,
+          body,
           tag: msg._id,
           icon: gravatarForNotification(msg),
           data,
