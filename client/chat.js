@@ -144,7 +144,6 @@ Template.starred_messages.onCreated(function () {
 
 Template.starred_messages.helpers({
   messages() {
-    console.log("calling messages");
     return Messages.find(
       { room_name: starred_messages_room(), starred: true },
       {
