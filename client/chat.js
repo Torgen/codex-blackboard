@@ -904,8 +904,14 @@ Template.messages_input.onCreated(function () {
         if (!id) {
           orList = [
             { type: { $regex: type, $options: "i" } },
-            { type: { $in: ["rounds", "puzzles"] }, _id: { $regex: type, $options: "i" }},
-            { type: { $in: ["rounds", "puzzles"] }, name: { $regex: type, $options: "i" } },
+            {
+              type: { $in: ["rounds", "puzzles"] },
+              _id: { $regex: type, $options: "i" },
+            },
+            {
+              type: { $in: ["rounds", "puzzles"] },
+              name: { $regex: type, $options: "i" },
+            },
           ];
         } else {
           orList = [
