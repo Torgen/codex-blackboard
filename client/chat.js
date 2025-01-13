@@ -906,16 +906,12 @@ Template.messages_input.onCreated(function () {
             { type: { $regex: type, $options: "i" } },
             {
               type: { $in: ["rounds", "puzzles"] },
-              _id: { $regex: type, $options: "i" },
-            },
-            {
-              type: { $in: ["rounds", "puzzles"] },
               name: { $regex: type, $options: "i" },
             },
           ];
         } else {
           orList = [
-            { type, _id: { $regex: id, $options: "i" } },
+            { type, _id: { $regex: id } },
             { type, name: { $regex: id, $options: "i" } },
           ];
         }
