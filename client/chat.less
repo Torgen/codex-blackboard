@@ -48,6 +48,7 @@
     overflow: visible;
   }
   .bb-message, .bb-message-system, .bb-message-action {
+    position: relative;
     &:hover .bb-message-hover-controls {
       display: flex;
     }
@@ -225,12 +226,18 @@
     }
   }
   .bb-message-action {
-    font-weight: bold; background: #eee; color: #444;
+    &, & .bb-message-hover-controls {
+      background: #eee;
+      color: #444;
+    }
+    font-weight: bold; 
     padding: 2px 0;
     
     .darkMode & {
-      background: #444;
-      color: #eee;
+      &, & .bb-message-hover-controls {
+        background: #444;
+        color: #eee;
+      }
     }
     &.bb-message-mention-me {
       background:#ded;
