@@ -129,8 +129,8 @@ Meteor.startup(async function () {
     Session.set("notifications", "denied");
     return;
   }
-  const perm = await navigator.permissions.query({name: "notifications"});
-  function permCheck () {
+  const perm = await navigator.permissions.query({ name: "notifications" });
+  function permCheck() {
     Session.set("notifications", perm.state);
     if (perm.state === "granted") {
       setupNotifications();
