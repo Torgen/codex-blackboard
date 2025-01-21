@@ -76,13 +76,7 @@ export function shouldAsk() {
   return p !== "granted" && p !== "denied";
 }
 
-export var ask = () =>
-  Notification.requestPermission(function (ok) {
-    Session.set("notifications", ok);
-    if (ok === "granted") {
-      setupNotifications();
-    }
-  });
+export var ask = () => Notification.requestPermission();
 
 // On android chrome, we clobber this with a version that uses the
 // ServiceWorkerRegistration.
@@ -129,14 +123,19 @@ function finishSetupNotifications() {
   }
 }
 
-Meteor.startup(function () {
+Meteor.startup(async function () {
   // Prep notifications
   if (typeof Notification === "undefined" || Notification === null) {
     Session.set("notifications", "denied");
     return;
   }
-  Session.set("notifications", Notification.permission);
-  if (Notification.permission === "granted") {
-    setupNotifications();
+  const perm = await navigator.permissions.query({name: "notifications"});
+  function permCheck () {
+    Session.set("notifications", perm.state);
+    if (perm.state === "granted") {
+      setupNotifications();
+    }
   }
+  permCheck();
+  perm.onchange = permCheck;
 });
