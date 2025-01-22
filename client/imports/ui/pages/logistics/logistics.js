@@ -603,6 +603,12 @@ Template.logistics_meta.helpers({
     return colorFromThingWithTags(this.meta);
   },
   puzzles() {
+    if (this.meta.order_by) {
+      return Puzzles.find(
+        { feedsInto: this.meta._id },
+        { sort: { [this.meta.order_by]: 1 } }
+      );
+    }
     return this.meta.puzzles.map((_id) => Puzzles.findOne({ _id }));
   },
   feederParams() {
