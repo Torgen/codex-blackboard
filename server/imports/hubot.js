@@ -28,11 +28,7 @@ const tweakStrings = (strings, f) =>
   });
 
 class BlackboardAdapter extends Hubot.Adapter {
-  async sendHelper(envelope, strings, map) {
-    // be present in the room
-    try {
-      await this.present(envelope.room);
-    } catch (error) {}
+  async sendHelper(envelope, strings, map, join = true) {
     const props = Object.create(null);
     const lines = [];
     while (strings.length > 0) {
@@ -53,6 +49,12 @@ class BlackboardAdapter extends Hubot.Adapter {
       await Messages.updateAsync(envelope.message.id, {
         $set: { useless_cmd: true },
       });
+    }
+    // be present in the room
+    if (join && !Object.hasOwn(props, "to")) {
+      try {
+        await this.present(envelope.room);
+      } catch (error) {}
     }
     for (const line of lines) {
       try {
@@ -146,22 +148,27 @@ class BlackboardAdapter extends Hubot.Adapter {
 
   // Priv: our extension -- send a PM to user
   async priv(envelope, ...strings) {
-    await this.sendHelper(envelope, strings, async (string, props) => {
-      /* istanbul ignore else */
-      if (DEBUG) {
-        console.log(`priv ${envelope.room}: ${string} (${envelope.user.id})`);
-      }
-      await callAs(
-        "newMessage",
-        this.botname,
-        Object.assign({}, props, {
-          to: `${envelope.user.id}`,
-          body: string,
-          room_name: envelope.room,
-          bot_ignore: true,
-        })
-      );
-    });
+    await this.sendHelper(
+      envelope,
+      strings,
+      async (string, props) => {
+        /* istanbul ignore else */
+        if (DEBUG) {
+          console.log(`priv ${envelope.room}: ${string} (${envelope.user.id})`);
+        }
+        await callAs(
+          "newMessage",
+          this.botname,
+          Object.assign({}, props, {
+            to: `${envelope.user.id}`,
+            body: string,
+            room_name: envelope.room,
+            bot_ignore: true,
+          })
+        );
+      },
+      false
+    );
   }
 
   // Public: Raw method for building a reply and sending it back to the chat

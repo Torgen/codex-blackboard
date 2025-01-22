@@ -227,7 +227,7 @@ describe("hubot", function () {
     const id = await Messages.insertAsync({
       timestamp: Date.now() + 1,
       nick: "torgen",
-      room_name: "general/0",
+      room_name: "specific/0",
       body: "testbot hello",
     });
     await waitForDocument(
@@ -236,12 +236,15 @@ describe("hubot", function () {
       {
         timestamp: 9,
         nick: "testbot",
-        room_name: "general/0",
+        room_name: "specific/0",
         bot_ignore: true,
         mention: ["torgen"],
       }
     );
     chai.assert.include(await Messages.findOneAsync(id), { useless_cmd: true });
+    chai.assert.ok(
+      await Presence.findOneAsync({ room_name: "specific/0", nick: "testbot" })
+    );
   });
 
   it("replies to private messages privately", async function () {
@@ -254,7 +257,7 @@ describe("hubot", function () {
     const id = await Messages.insertAsync({
       timestamp: Date.now(),
       nick: "torgen",
-      room_name: "general/0",
+      room_name: "specific/0",
       body: "hello",
       to: "testbot",
     });
@@ -264,13 +267,16 @@ describe("hubot", function () {
       {
         timestamp: 9,
         nick: "testbot",
-        room_name: "general/0",
+        room_name: "specific/0",
         bot_ignore: true,
       }
     );
     chai.assert.notDeepInclude(await Messages.findOneAsync(id), {
       useless_cmd: true,
     });
+    chai.assert.notOk(
+      await Presence.findOneAsync({ room_name: "specific/0", nick: "testbot" })
+    );
   });
 
   it("emotes to public messages publicly", async function () {
@@ -366,7 +372,7 @@ describe("hubot", function () {
     const id = await Messages.insertAsync({
       timestamp: Date.now(),
       nick: "torgen",
-      room_name: "general/0",
+      room_name: "specific/0",
       body: "testbot hello",
     });
     await waitForDocument(
@@ -375,10 +381,13 @@ describe("hubot", function () {
       {
         timestamp: 9,
         nick: "testbot",
-        room_name: "general/0",
+        room_name: "specific/0",
         bot_ignore: true,
       }
     );
     chai.assert.include(await Messages.findOneAsync(id), { useless_cmd: true });
+    chai.assert.notOk(
+      await Presence.findOneAsync({ room_name: "specific/0", nick: "testbot" })
+    );
   });
 });
