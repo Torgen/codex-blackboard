@@ -77,7 +77,6 @@ Template.puzzle_info.helpers({
     return getTag(this, name) || "";
   },
   orderedFeeders() {
-    console.log(this);
     if (this.puzzle.order_by) {
       return Puzzles.find(
         { feedsInto: this.puzzle._id },
