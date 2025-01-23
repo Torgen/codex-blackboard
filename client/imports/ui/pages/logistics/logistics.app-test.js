@@ -194,6 +194,71 @@ describe("logistics", function () {
     });
   });
 
+  describe("meta with default order_by", function () {
+    it("lists feeders in order added", async function () {
+      await LogisticsPage();
+      await waitForSubscriptions();
+      const joy = Puzzles.findOne({ name: "Joy" });
+      const $joy = $(`.bb-logistics-meta[data-puzzle-id="${joy._id}"]`);
+      chai.assert.deepEqual(
+        $joy
+          .find(".feeders a")
+          .map(function () {
+            return this.innerText;
+          })
+          .get(),
+        [
+          "Warm And Fuzzy",
+          "Caged",
+          "Cooking a Recipe",
+          "Crossed Paths",
+          "Birds of a Feather",
+          "What The...",
+        ]
+      );
+    });
+  });
+
+  describe("meta with order_by name", function () {
+    let joy;
+    before(async function () {
+      joy = Puzzles.findOne({ name: "Joy" });
+      await promiseCall("setField", {
+        type: "puzzles",
+        object: joy._id,
+        fields: { order_by: "name" },
+      });
+    });
+    it("lists feeders in alphabetical order", async function () {
+      await LogisticsPage();
+      await waitForSubscriptions();
+      const $joy = $(`.bb-logistics-meta[data-puzzle-id="${joy._id}"]`);
+      chai.assert.deepEqual(
+        $joy
+          .find(".feeders a")
+          .map(function () {
+            return this.innerText;
+          })
+          .get(),
+        [
+          "Birds of a Feather",
+          "Caged",
+          "Cooking a Recipe",
+          "Crossed Paths",
+          "Warm And Fuzzy",
+          "What The...",
+        ]
+      );
+    });
+    after(async function () {
+      await promiseCall("setField", {
+        type: "puzzles",
+        object: joy._id,
+        fields: { order_by: "" },
+      });
+    });
+  });
+
   describe("new round button", function () {
     describe("when clicked", function () {
       it("creates round on enter", async function () {
