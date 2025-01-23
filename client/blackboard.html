@@ -385,14 +385,7 @@
           {{#if isMeta}}
           <tr>
             <td>Sort Order:</td>
-            <td><div class="btn-group bb-puzzle-order">
-              <button class="btn btn-mini {{#unless order_by}}active{{/unless}}" data-sort-order="" title="Manual">
-                <i class="fas fa-exchange-alt fa-rotate-90"></i>
-              </button>
-              <button class="btn btn-mini {{#if equal order_by "name"}}active{{/if}}" data-sort-order="name" title="Alphabetical">
-                <i class="fas fa-sort-alpha-down"></i>
-              </button>
-            </div></td>
+            <td>{{> meta_sort_order }}</td>
           </tr>
           {{/if}}
           <tr>

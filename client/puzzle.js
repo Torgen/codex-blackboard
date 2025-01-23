@@ -13,6 +13,7 @@ import * as callin_types from "/lib/imports/callin_types.js";
 import "/client/imports/ui/components/edit_object_title/edit_object_title.js";
 import "/client/imports/ui/components/edit_tag_value/edit_tag_value.js";
 import "/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.js";
+import "/client/imports/ui/components/meta_sort_order";
 import "/client/imports/ui/components/onduty/current.js";
 import "/client/imports/ui/components/tag_table_rows/tag_table_rows.js";
 import "/client/imports/ui/components/time_since/time_since.js";
@@ -75,7 +76,19 @@ Template.puzzle_info.helpers({
   tag(name) {
     return getTag(this, name) || "";
   },
+  orderedFeeders() {
+    if (this.puzzle.order_by) {
+      return Puzzles.find(
+        { feedsInto: this.puzzle._id },
+        { sort: { [this.puzzle.order_by]: 1 } }
+      );
+    }
+    return this.puzzle.puzzles;
+  },
   getPuzzle(id) {
+    if (Object.hasOwn(id, "_id")) {
+      return id;
+    }
     return Puzzles.findOne(id);
   },
   caresabout() {
@@ -207,7 +220,6 @@ Template.puzzle_info.events({
 const dataHelper = function () {
   const r = {};
   const puzzle = (r.puzzle = Puzzles.findOne(Session.get("id")));
-  const round = (r.round = Rounds.findOne({ puzzles: puzzle?._id }));
   r.isMeta = puzzle?.puzzles != null;
   r.stuck = isStuck(puzzle);
   r.capType = capType(puzzle);

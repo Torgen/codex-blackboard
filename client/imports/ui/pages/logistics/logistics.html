@@ -114,7 +114,7 @@
 <template name="logistics_meta">
   {{#let p=puzzles}}
   <div class="bb-logistics-meta {{#if willDelete}}would-disappear{{/if}} {{#if meta.solved}}solved{{else if stuck this}}stuck{{/if}} {{#if draggingLink}}dragover{{/if}}"
-       style="--meta-color: {{color}}; --num-feeders:calc({{p.length}}{{#if creatingFeeder}} + 1{{/if}}{{#if all draggingLink (any fromAnotherMeta (not draggedPuzzle))}} + 1{{/if}})"
+       style="--meta-color: {{color}}; --num-feeders:calc({{nullToZero p.length}} + {{nullToZero p.count}}{{#if creatingFeeder}} + 1{{/if}}{{#if all draggingLink (any fromAnotherMeta (not draggedPuzzle))}} + 1{{/if}})"
        data-puzzle-id="{{meta._id}}">
     <header>
       <div class="round">{{round.name}}</div>

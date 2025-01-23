@@ -101,8 +101,27 @@
 {{/let}}
 {{#if puzzle.puzzles}}{{#let cares=caresabout}}
 <table class="bb-round-answers table table-bordered table-condensed"><tbody>
-  <tr><th>Feeder <span class="btn-group"><button title="Show unattached puzzles" class="btn btn-mini unattached {{#if unattached}}active{{/if}}"><i class="fas fa-unlink"></i></button>{{#if metameta}}<button title="Show feeders of feeders" class="btn btn-mini grandfeeders {{#if grandfeeders}}active{{/if}}"><i class="fas fa-sitemap"></i></button>{{/if}}</span></th><th>Answer</th>{{#each cares}}<th>{{name}}</th>{{/each}}</tr>
-  {{#each feeder in puzzle.puzzles}}{{#with getPuzzle feeder}}
+  <tr>
+    <th>
+      Feeder
+      <span class="btn-group">
+        <button title="Show unattached puzzles" class="btn btn-mini unattached {{#if unattached}}active{{/if}}">
+          <i class="fas fa-unlink"></i>
+        </button>
+        {{#if metameta}}
+          <button title="Show feeders of feeders" class="btn btn-mini grandfeeders {{#if grandfeeders}}active{{/if}}">
+            <i class="fas fa-sitemap"></i>
+          </button>
+        {{/if}}
+      </span>
+      {{> meta_sort_order puzzle}}
+    </th>
+    <th>Answer</th>
+    {{#each cares}}
+      <th>{{name}}</th>
+    {{/each}}
+  </tr>
+  {{#each feeder in orderedFeeders}}{{#with getPuzzle feeder}}
     <tr data-feeder-id="{{_id}}">
       <td>{{#if any grandfeeders unattached}}<input type="checkbox" class="feed" checked="checked">{{/if}}{{>link id=_id}}</td>
       <td class="answer">{{#if solved}}{{tag "answer"}}{{else if answers}}{{#each pa in answers}}{{pa}}; {{/each}}⋯{{/if}}</td>

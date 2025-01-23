@@ -78,7 +78,7 @@ describe("puzzle", function () {
       await afterFlushPromise();
     });
 
-    return describe("in info view", function () {
+    describe("in info view", function () {
       beforeEach(async function () {
         PuzzlePage(id, "info");
         await waitForSubscriptions();
@@ -100,16 +100,68 @@ describe("puzzle", function () {
         );
       });
 
-      it("allows modifying feeders", async function () {
-        $(".unattached").click();
-        await afterFlushPromise();
-        const storm = Puzzles.findOne({ name: "The Brainstorm" });
-        $(`[data-feeder-id=\"${storm._id}\"] input`).click();
-        await waitForMethods();
-        chai.assert.include(Puzzles.findOne(id).puzzles, storm._id);
-        $(`[data-feeder-id=\"${storm._id}\"] input`).click();
-        await waitForMethods();
-        chai.assert.notInclude(Puzzles.findOne(id).puzzles, storm._id);
+      describe("when unattached is checked", function () {
+        before(async function () {
+          $(".unattached:not(.active)").click();
+          await afterFlushPromise();
+        });
+        it("allows modifying feeders", async function () {
+          const storm = Puzzles.findOne({ name: "The Brainstorm" });
+          $(`[data-feeder-id=\"${storm._id}\"] input`).click();
+          await waitForMethods();
+          chai.assert.include(Puzzles.findOne(id).puzzles, storm._id);
+          $(`[data-feeder-id=\"${storm._id}\"] input`).click();
+          await waitForMethods();
+          chai.assert.notInclude(Puzzles.findOne(id).puzzles, storm._id);
+        });
+        after(async function () {
+          $(".unattached.active").click();
+          await afterFlushPromise();
+        });
+      });
+
+      describe("when order_by is name", function () {
+        before(async function () {
+          await promiseCall("setField", {
+            type: "puzzles",
+            object: id,
+            fields: { order_by: "name" },
+          });
+          await afterFlushPromise();
+        });
+
+        it("renders them in alphabetical order", async function () {
+          chai.assert.deepEqual(
+            $(".bb-round-answers tr[data-feeder-id] td:first-child")
+              .map(function () {
+                return this.innerText;
+              })
+              .get(),
+            [
+              "Asteroids",
+              "Birds of a Feather",
+              "Chemistry Experimentation",
+              "Cross Words",
+              "Irritating Places",
+              "Let's Get Ready To Jumble",
+              "Roadside America",
+              "Scattered and Absurd",
+              "Temperance",
+              "That Time I Somehow Felt Incomplete",
+              "What's In a Name?",
+              "Yeah, But It Didn't Work!",
+            ]
+          );
+        });
+
+        after(async function () {
+          await promiseCall("setField", {
+            type: "puzzles",
+            object: id,
+            fields: { order_by: "" },
+          });
+          await afterFlushPromise();
+        });
       });
 
       it("renders multiple answers", async function () {

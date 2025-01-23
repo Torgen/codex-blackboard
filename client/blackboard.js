@@ -25,6 +25,7 @@ import "/client/imports/ui/components/edit_field/edit_field.js";
 import "/client/imports/ui/components/edit_tag_value/edit_tag_value.js";
 import "/client/imports/ui/components/edit_object_title/edit_object_title.js";
 import "/client/imports/ui/components/fix_puzzle_drive/fix_puzzle_drive.js";
+import "/client/imports/ui/components/meta_sort_order";
 import "/client/imports/ui/components/onduty/control.js";
 import "/client/imports/ui/components/tag_table_rows/tag_table_rows.js";
 import "/client/imports/ui/components/time_since/time_since.js";
@@ -692,13 +693,6 @@ Template.blackboard_puzzle_cells.events({
       event.target.dataset.puzzleId
     );
     event.preventDefault();
-  },
-  "click button[data-sort-order]"(event, template) {
-    Meteor.serializeCall("setField", {
-      type: "puzzles",
-      object: template.data.puzzle._id,
-      fields: { order_by: event.currentTarget.dataset.sortOrder },
-    });
   },
   async "click .bb-puzzle-title .bb-delete-icon"(event, template) {
     event.stopPropagation();
