@@ -285,7 +285,7 @@ Template.messages.helpers({
     // test Session.get('nobot') last to get a fine-grained dependency
     // on the `nobot` session variable only for 'useless' messages
     const myNick = Meteor.userId();
-    const botnick = botuser()._id;
+    const botnick = botuser()?._id;
     if (m.nick === myNick) {
       return true;
     }
@@ -1121,8 +1121,11 @@ Template.messages_input.onCreated(function () {
           }
           if (to === "bot") {
             // allow 'bot' as a shorthand for 'codexbot'
-            to = botuser()._id;
-            continue;
+            const bot = botuser();
+            if (bot) {
+              to = bot._id;
+              continue;
+            }
           }
           [extra, rest] = rest.split(/\s+([^]*)/, 2);
           to += " " + extra;
