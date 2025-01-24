@@ -102,7 +102,7 @@ Template.registerHelper("nickLocation", function (args) {
   if (canonical(args.nick) === Meteor.userId()) {
     return "";
   } // that's me!
-  if (args.nick === botuser()._id) {
+  if (args.nick === botuser()?._id) {
     const idx = Math.floor(Session.get("currentTime") / (10 * 60 * 1000));
     return ` is ${CODEXBOT_LOCATIONS[idx % CODEXBOT_LOCATIONS.length]}`;
   }
