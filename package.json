@@ -4,7 +4,7 @@
   "description": "codex-blackboard ================",
   "main": "index.js",
   "dependencies": {
-    "@babel/runtime": "^7.26.0",
+    "@babel/runtime": "^7.26.7",
     "@floating-ui/dom": "^1.6.13",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@googleapis/calendar": "^9.7.9",
