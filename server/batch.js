@@ -70,25 +70,26 @@ if (DO_BATCH_PROCESSING) {
         });
       });
   const maybeRunBatch = throttle(runBatch, LOCATION_THROTTLE);
-  Meteor.startup(async () =>
-    await Meteor.users
-      .find(
-        {
-          priv_located_order: { $exists: true, $ne: null },
-        },
-        {
-          fields: { priv_located_order: 1 },
-        }
-      )
-      .observeChangesAsync({
-        added(id, fields) {
-          maybeRunBatch();
-        },
-        // also run batch on removed: batch size might not have been big enough
-        removed(id) {
-          maybeRunBatch();
-        },
-      })
+  Meteor.startup(
+    async () =>
+      await Meteor.users
+        .find(
+          {
+            priv_located_order: { $exists: true, $ne: null },
+          },
+          {
+            fields: { priv_located_order: 1 },
+          }
+        )
+        .observeChangesAsync({
+          added(id, fields) {
+            maybeRunBatch();
+          },
+          // also run batch on removed: batch size might not have been big enough
+          removed(id) {
+            maybeRunBatch();
+          },
+        })
   );
 
   Meteor.startup(async () => await watchPresence());
