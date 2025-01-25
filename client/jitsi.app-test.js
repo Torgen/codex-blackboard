@@ -89,8 +89,8 @@ describe("jitsi", function () {
     const mock = expectFactory();
     BlackboardPage();
     await defaultLogin();
-    await afterFlushPromise();
     await waitForSubscriptions();
+    await afterFlushPromise();
     EditPage();
     await afterFlushPromise();
     chai.assert.equal(factory.callCount, 1);
@@ -100,8 +100,8 @@ describe("jitsi", function () {
     const mock = expectFactory();
     BlackboardPage();
     await defaultLogin();
-    await afterFlushPromise();
     await waitForSubscriptions();
+    await afterFlushPromise();
     await LogisticsPage();
     await waitForSubscriptions();
     await afterFlushPromise();
@@ -229,7 +229,7 @@ describe("jitsi", function () {
     );
   });
 
-  return it("doesn't rejoin when mute preference changes", async function () {
+  it("doesn't rejoin when mute preference changes", async function () {
     const mock1 = expectFactory();
     const dispose1 = mock1.expects("dispose").never();
     BlackboardPage();
