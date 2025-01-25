@@ -14,13 +14,14 @@ If you're solving in a room with a projector or other large communal display, th
 for displaying your team's progress. All these paths are relative to the base URL of your site. How to get thgem onto the
 display will depend on whether you can use the projector as an additional monitor, or whether it supports casting or
 Google Hangouts.
-* `/statistics`: (*New for 2023*) A stacked line graph of your number of puzzles unlocked and solved over time.
-* `/map`: (*New for 2023*) A map of the world, with the gravatars of your teams members attached to their location.
+
+- `/statistics`: (_New for 2023_) A stacked line graph of your number of puzzles unlocked and solved over time.
+- `/map`: (_New for 2023_) A map of the world, with the gravatars of your teams members attached to their location.
   Clusters of team members near each other show up as a count; team members who don't give the app location access appear
   clustered in the Atlantic Ocean.
-* `/graph`: A hierarchical view of the hunt structure, with boxes representing rounds and ovals representing puzzles. The
+- `/graph`: A hierarchical view of the hunt structure, with boxes representing rounds and ovals representing puzzles. The
   puzzles turn green when solved, and arrows connect puzzles to the metas they feed.
-* `/projector`: (*New for 2023*) Rotates between statistics, map, and graph every 10 seconds. In this mode the center of
+- `/projector`: (_New for 2023_) Rotates between statistics, map, and graph every 10 seconds. In this mode the center of
   the map view will approximately follow the sun.
 
 ## First Shift
@@ -31,7 +32,7 @@ know the appropriate values.
 
 ## Onduty Role
 
-(*New for 2023*) When you become oncall, you should claim the onduty role. At the top of the blackboard and in the panel above chat on
+(_New for 2023_) When you become oncall, you should claim the onduty role. At the top of the blackboard and in the panel above chat on
 the Logistics page, a control with a pager icon will show the current onduty, or will turn orange if nobody is onduty. The green hand
 button will claim the role, including from someone else.
 
@@ -52,8 +53,8 @@ at. If so, enter your phone number in the settings when you go on call.
 
 ## Calendar Events
 
-(*New for 2022*) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus
-icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared  with you, either because you are a member
+(_New for 2022_) If configured to do so, the blackboard will create a Google Calendar which you can add events to. The calendar-with-a-plus
+icon will allow you to add the calendar to your Google Calendar account. If the calendar was shared with you, either because you are a member
 of the appropriate Google group or you were added explicitly by the owner, you will be able to add events to the calendar which will sync to
 the blackboard. (Calendars are never editable by the public.) If you should be able to edit the calendar and can't, contact whoever owns the machine.)
 
@@ -61,7 +62,7 @@ You can use the calendar for non-puzzle hunt events such as the kickoff, puzzle 
 
 ## Logistics View
 
-(*New for 2023*) The Logistics view is a dense view of the hunt as a whole, optimized for both quick editing and for directing unattached
+(_New for 2023_) The Logistics view is a dense view of the hunt as a whole, optimized for both quick editing and for directing unattached
 solvers to puzzles where their efforts would be most valuable. If you have never been onduty or viewed the Logistics page, you can reach it
 from the hamburger menu at the bottom-left of the blackboard. If you have done either, it can be reached from the hand truck icon in the header.
 
@@ -98,14 +99,15 @@ good time to check if there are any new ones.
 ### Alternate Call-in Types
 
 Besides answers, there are three other types of call-ins you may see in the queue:
-* Interaction Requests may be provided immediately on unlock, or require solving to extract. They may cause HQ to deliver
+
+- Interaction Requests may be provided immediately on unlock, or require solving to extract. They may cause HQ to deliver
   an artifact or pose a creative challenge to the team. Recent hunts have had a separate form to enter these phrases besides
   the standard answer form, so use that form instead if it is available. If HQ provides a response, such as detailed instructions
   or a time when the artifact will be delivered, enter it in the provided text box before marking the request as accepted or refused.
-* Messages to HQ are for any other kind of contact, which may include spending hint currency or reporting an apparent error in a puzzle.
+- Messages to HQ are for any other kind of contact, which may include spending hint currency or reporting an apparent error in a puzzle.
   Recent hunts have had a separate form to enter these messages, so use it if applicable.
   You may have to interpret this message rather than simply pasting it into the form.
-* Expected Callbacks are for when HQ will be contacting you without you having to do something.
+- Expected Callbacks are for when HQ will be contacting you without you having to do something.
   For example, if HQ assigned the team a creative task with a Dropbox to submit it to, the team may submit to that dropbox directly,
   then use this call-in type to tell you that they have done so.
 
@@ -123,97 +125,103 @@ which can have other puzzles feed into them.
 
 ### To create a round
 
-* From the Logistics page, drag a link to the round from the hunt site onto the "Round" button in the "+ New"
-section at the top left. The round's name will be the text of the link. You can create a round without a URL by clicking the
-Round button and typing the name in the text area. (If the [Round URL Prefix](Dynamic-Settings.md#user-content-round-url-prefix) dynamic
-setting is set, blackboard will attempt to guess the URL from the name.)
-* Using the Blackboard's edit mode, click the "New Round" button at the top of the table. You can edit the URL under the round's tags.
-* Using the bot, say: `bot NAME is a new round`. If you know the URL, you can add `with url X` to the command to set it.
+- From the Logistics page, drag a link to the round from the hunt site onto the "Round" button in the "+ New"
+  section at the top left. The round's name will be the text of the link. You can create a round without a URL by clicking the
+  Round button and typing the name in the text area. (If the [Round URL Prefix](Dynamic-Settings.md#user-content-round-url-prefix) dynamic
+  setting is set, blackboard will attempt to guess the URL from the name.)
+- Using the Blackboard's edit mode, click the "New Round" button at the top of the table. You can edit the URL under the round's tags.
+- Using the bot, say: `bot NAME is a new round`. If you know the URL, you can add `with url X` to the command to set it.
 
 ### To create a new metapuzzle
 
-* On the Logistics page, drag a link to the puzzle from the hunt site onto the "Meta" button in the "+ New" section at the
-top left, then drop it onto the name of the round the Metapuzzle belongs to. The name of the metapuzzle will be the text of
-the link. You can create a metapuzzle without a URL by clicking the Meta button, then clicking the round name in the dropdown.
-(If the [Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
-the URL from the puzzle name.)
-* Using the Blackboard's edit mode, click the "New Meta" button in the round header and type the puzzle's name in the focused
-text box. You can edit the URL under the tags.
-* Using the bot, say: `bot META NAME is a new meta in ROUND NAME`. In the round chat room (which will rarely be used) you can
-say `this` instead of the round name. If you know the URL, you can add `with url X` to the command to set it.
+- On the Logistics page, drag a link to the puzzle from the hunt site onto the "Meta" button in the "+ New" section at the
+  top left, then drop it onto the name of the round the Metapuzzle belongs to. The name of the metapuzzle will be the text of
+  the link. You can create a metapuzzle without a URL by clicking the Meta button, then clicking the round name in the dropdown.
+  (If the [Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
+  the URL from the puzzle name.)
+- Using the Blackboard's edit mode, click the "New Meta" button in the round header and type the puzzle's name in the focused
+  text box. You can edit the URL under the tags.
+- Using the bot, say: `bot META NAME is a new meta in ROUND NAME`. In the round chat room (which will rarely be used) you can
+  say `this` instead of the round name. If you know the URL, you can add `with url X` to the command to set it.
 
 ### To create a new puzzle feeding into a meta
 
-* Using the Logistics page, drag a link to the puzzle onto the meta. The name of the puzzle will be the text of the link. To
-create a puzzle without a URL, click the "+ puzzle" button in the corner of the meta. (If the
-[Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
-the URL from the puzzle name.)
-* Using the Blackboard's edit mode, click the "New Puzzle" button in the meta's section footer. You can edit the URL under the
-new puzzle's tags.
-* Using the bot, say; `bot PUZZLE NAME is a new puzzle in META NAME`. In the meta's chat room, you can say `this` instead of the
-meta's name. If you know the URL, you can add `with url X` to the command to set it.
+- Using the Logistics page, drag a link to the puzzle onto the meta. The name of the puzzle will be the text of the link. To
+  create a puzzle without a URL, click the "+ puzzle" button in the corner of the meta. (If the
+  [Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess
+  the URL from the puzzle name.)
+- Using the Blackboard's edit mode, click the "New Puzzle" button in the meta's section footer. You can edit the URL under the
+  new puzzle's tags.
+- Using the bot, say; `bot PUZZLE NAME is a new puzzle in META NAME`. In the meta's chat room, you can say `this` instead of the
+  meta's name. If you know the URL, you can add `with url X` to the command to set it.
 
 ### To create a non-meta puzzle that doesn't feed into any metas
 
-* Using the logistics page, drag a link to the puzzle from the hunt site onto the Puzzle button in the "+ New" section at the
-top left, then drop it on the round to create the puzzle in. The name of the puzzle will be the text of the link. To create a
-puzzle without a URL, click the "+ puzzle" button in the corner of the meta. (If the
-[Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess the URL
-from the puzzle name.)
-* Using the Blackboard's edit mode, click the caret at the right side of the "New Meta" button and choose
-"New uncategorized puzzle" in the dropdown. You can edit the URL in the new puzzle's tags.
-* Using the bot, say: `bot PUZZLE NAME is a new puzzle in ROUND NAME`. In the round's chat room, you can say `this` instead
-of the meta's name. If you know the URL, you can add `with url X` to the command to set it.
+- Using the logistics page, drag a link to the puzzle from the hunt site onto the Puzzle button in the "+ New" section at the
+  top left, then drop it on the round to create the puzzle in. The name of the puzzle will be the text of the link. To create a
+  puzzle without a URL, click the "+ puzzle" button in the corner of the meta. (If the
+  [Puzzle URL Prefix](Dynamic-Settings.md#user-content-puzzle-url-prefix) dynamic setting is set, blackboard will attempt to guess the URL
+  from the puzzle name.)
+- Using the Blackboard's edit mode, click the caret at the right side of the "New Meta" button and choose
+  "New uncategorized puzzle" in the dropdown. You can edit the URL in the new puzzle's tags.
+- Using the bot, say: `bot PUZZLE NAME is a new puzzle in ROUND NAME`. In the round's chat room, you can say `this` instead
+  of the meta's name. If you know the URL, you can add `with url X` to the command to set it.
 
 ### To make a puzzle feed into a meta
 
 Sometimes when you unlock a puzzle you don't know which meta(s) it feeds into. If you determine that later:
-* Using the logistics page, drag the puzzle onto the meta it feeds into. A puzzle can feed multiple metas, so you can drag from
-another meta.
-* Using the Blackboard's edit mode, select the meta from the dropdown in the `Feeds Into` heading in the tags table
-* Using the bot, say `bot PUZZLE NAME feeds into META NAME`. You can replace either `PUZZLE NAME` or `META NAME` with `this` if
-you're in the appropriate chat room.
+
+- Using the logistics page, drag the puzzle onto the meta it feeds into. A puzzle can feed multiple metas, so you can drag from
+  another meta.
+- Using the Blackboard's edit mode, select the meta from the dropdown in the `Feeds Into` heading in the tags table
+- Using the bot, say `bot PUZZLE NAME feeds into META NAME`. You can replace either `PUZZLE NAME` or `META NAME` with `this` if
+  you're in the appropriate chat room.
 
 ### To remove a puzzle from a meta
 
 If a puzzle was incorrectly categorized as feeding a meta:
-* Using the logistics page, drag the puzzle from the meta onto empty space. The puzzle will appear blurry if dropping it will remove
-it from the meta.
-* Using the blackboard's edit mode, click the X next to the meta's name in the `Feeds Into` heading in the tags table.
-* Using the bot, say `bot PUZZLE NAME doesn't feed into META NAME`. You can replace either `PUZZLE NAME` or `META NAME` with `this` if
-you're in the appropriate chat room.
+
+- Using the logistics page, drag the puzzle from the meta onto empty space. The puzzle will appear blurry if dropping it will remove
+  it from the meta.
+- Using the blackboard's edit mode, click the X next to the meta's name in the `Feeds Into` heading in the tags table.
+- Using the bot, say `bot PUZZLE NAME doesn't feed into META NAME`. You can replace either `PUZZLE NAME` or `META NAME` with `this` if
+  you're in the appropriate chat room.
 
 ### Editing mechanics and tags
 
 After adding a new puzzle, if you have time, try to determine if it has any of the mechanics described on the [Mechanics](Mechanics.md) page.
-* Using the logistics page, when hovering over a puzzle, an edit button will appear at the right side. Clicking it will open a dialog where
-you can edit the puzzle's tags, URL, and mechanics. Click the `Mechanics` button to open a dropdown with checkboxes for the known mechanics,
-and check all that apply.
-* Using the blackboard's edit mode, under the `Mechanics` header of the tag table is the same button. You can also add, delete, and edit other
-tags.
-* You can't manage mechanics using the bot. You can set tags by saying `bot set TAG for ROUND OR PUZZLE NAME to COLOR`.  In the chat room for
-the round or puzzle, you can elide the `for ROUND OR PUZZLE NAME` part.
+
+- Using the logistics page, when hovering over a puzzle, an edit button will appear at the right side. Clicking it will open a dialog where
+  you can edit the puzzle's tags, URL, and mechanics. Click the `Mechanics` button to open a dropdown with checkboxes for the known mechanics,
+  and check all that apply.
+- Using the blackboard's edit mode, under the `Mechanics` header of the tag table is the same button. You can also add, delete, and edit other
+  tags.
+- You can't manage mechanics using the bot. You can set tags by saying `bot set TAG for ROUND OR PUZZLE NAME to COLOR`. In the chat room for
+  the round or puzzle, you can elide the `for ROUND OR PUZZLE NAME` part.
 
 #### Special Tags
-* The `answer` tag usually shouldn't be set directly; it is set automatically when an `answer` callin is marked as correct.
-* The `status` tag is normally set using the `Mark Stuck` dialog on the puzzle page.
-* The `color` tag determines the background color of a round on the blackboard and logistics page. If it isn't set, a color will be chosen based
-on the puzzle's randomly-generated ID. Any color recognized by CSS is accepted.
+
+- The `answer` tag usually shouldn't be set directly; it is set automatically when an `answer` callin is marked as correct.
+- The `status` tag is normally set using the `Mark Stuck` dialog on the puzzle page.
+- The `color` tag determines the background color of a round on the blackboard and logistics page. If it isn't set, a color will be chosen based
+  on the puzzle's randomly-generated ID. Any color recognized by CSS is accepted.
 
 ### Associating a calendar event with a puzzle
 
 If a puzzle has a calendar event associated with it, you can link them. A calendar even can only be linked to one puzzle.
-* Using the logistics page, drag a calendar event from the column on the right onto the puzzle it should be associated with.
-* Using the blackboard's edit mode, select the calendar event from the dropdown menu under `Upcoming Events` in the puzzle's table row.
-* From the puzzle info page, the calendar icon above the puzzle's title opens a dropdown to select from upcoming events.
-* You can't manage calendar events using the bot.
+
+- Using the logistics page, drag a calendar event from the column on the right onto the puzzle it should be associated with.
+- Using the blackboard's edit mode, select the calendar event from the dropdown menu under `Upcoming Events` in the puzzle's table row.
+- From the puzzle info page, the calendar icon above the puzzle's title opens a dropdown to select from upcoming events.
+- You can't manage calendar events using the bot.
 
 ### Deleting a puzzle
 
 Warning: there is no way to undelete a puzzle.
-* Using the logistics page, drag the puzzle to the `Delete` button at the top left. You will be asked to confirm.
-* Using the Blackboard's edit mode, click the X next to the puzzle's name. You will be asked to confirm.
-* Using the bot, say `bot delete puzzle PUZZLE NAME`.
+
+- Using the logistics page, drag the puzzle to the `Delete` button at the top left. You will be asked to confirm.
+- Using the Blackboard's edit mode, click the X next to the puzzle's name. You will be asked to confirm.
+- Using the bot, say `bot delete puzzle PUZZLE NAME`.
 
 ## Unsticking Puzzles
 
@@ -240,7 +248,9 @@ Starring messages in other rooms does not generate an announcement, but does pin
 Should we be given a choice at some point, such as which round to unlock, which puzzle to spend a free solve on, or where to get dinner,
 you can solicit the team's input with a poll. This is a bot command like any other, but because the poll will appear to be said by you,
 you may want to send it to the bot as a private message to avoid apparent redundancy.
+
 ```irc
 /msg bot poll "Who would win?" Me Myself Irene "John Rambo"
 ```
+
 Quote the question and any options with a space in them. Polls support a minimum of two and a maximum of five options. Like any chat message, a poll can be starred.

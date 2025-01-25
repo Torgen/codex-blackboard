@@ -1,5 +1,4 @@
-codex-blackboard
-================
+# codex-blackboard
 
 ![Build Status](https://github.com/Torgen/codex-blackboard/actions/workflows/test.yml/badge.svg)
 [![codecov](https://codecov.io/gh/Torgen/codex-blackboard/graph/badge.svg?token=FLDXAUZQ9M)](https://codecov.io/gh/Torgen/codex-blackboard)
@@ -12,12 +11,12 @@ solvers, and/or have privacy-conscious members, since access is given by a
 shared password, and not membership in a Google Group or Discord server.
 
 See the wiki for instructions on:
-* [Building and managing a server](./docs/Operations.md). Note that there are significant changes for 2025!
-* [Using the server as a solver](./docs/Solving.md)
-* [Updating data on the server as an on-call](./docs/Oncall.md)
-  
-Developing
-----------
+
+- [Building and managing a server](./docs/Operations.md). Note that there are significant changes for 2025!
+- [Using the server as a solver](./docs/Solving.md)
+- [Updating data on the server as an on-call](./docs/Oncall.md)
+
+## Developing
 
 To run in development mode:
 
@@ -47,19 +46,18 @@ client and/or graphical editors) you will need to mount a directory on the
 virtual Linux filesystem as .meteor/local. You will also need to store your
 settings.json file on the virtual Linux filesystem.
 
-Installing Meteor
------------------
+## Installing Meteor
 
 Our blackboard app currently requires Meteor 3.0.3.
 
 At the moment the two ways to install Meteor are:
 
-* just make a git clone of the meteor repository and put it in $PATH, or
-* use the package downloaded by their install shell script
+- just make a git clone of the meteor repository and put it in $PATH, or
+- use the package downloaded by their install shell script
 
 The latter option is easier, and automatically downloads the correct
 version of meteor and all its dependencies, based on the contents of
-`codex-blackboard/.meteor/release`.  Simply cross your fingers, trust
+`codex-blackboard/.meteor/release`. Simply cross your fingers, trust
 in the meteor devs, and do:
 
     curl https://install.meteor.com | /bin/sh
@@ -69,7 +67,7 @@ it just involves downloading a binary distribution and installing it
 in `~/.meteor`.
 
 If piping stuff from the internet directly to `/bin/sh` gives you the
-willies, then you can also run from a git checkout.  Something like:
+willies, then you can also run from a git checkout. Something like:
 
     cd ~/3rdParty
     git clone git://github.com/meteor/meteor.git
@@ -79,7 +77,7 @@ willies, then you can also run from a git checkout.  Something like:
 
 Meteor can run directly from its checkout, and figure out where to
 find the rest of its files itself --- but it only follows a single symlink
-to its binary; a symlink can't point to another symlink.  If you use a
+to its binary; a symlink can't point to another symlink. If you use a
 git checkout, you will be responsible for updating your checkout to
 the latest version of meteor when `codex-blackboard/.meteor/release`
 changes.

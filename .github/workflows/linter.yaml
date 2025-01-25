@@ -52,7 +52,9 @@ jobs:
           VALIDATE_BASH_EXEC: false
           VALIDATE_CHECKOV: false
           VALIDATE_ENV: false
-          VALIDATE_HTML: false  # They're actually spacebars
+          VALIDATE_HTML: false # They're actually spacebars
+          VALIDATE_HTML_PRETTIER: false # same
+          VALIDATE_JAVASCRIPT_PRETTIER: false # eslint runs prettier
           VALIDATE_JAVASCRIPT_STANDARD: false
           LINTER_RULES_PATH: /
           DEFAULT_BRANCH: master
