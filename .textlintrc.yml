@@ -1,0 +1,4 @@
+rules:
+  terminology:
+    exclude:
+      - "Yarn"

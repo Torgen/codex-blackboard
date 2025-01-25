@@ -41,7 +41,7 @@ you can just leave `meteor` running. You can reset the internal database with:
 but note that this won't delete any Google Drive files.
 
 If you're running under Windows Subsystem for Linux, and you want to use your
-Windows partition for the git repository (e.g. so you can use the native GitHub
+Windows partition for the Git repository (e.g. so you can use the native GitHub
 client and/or graphical editors) you will need to mount a directory on the
 virtual Linux filesystem as .meteor/local. You will also need to store your
 settings.json file on the virtual Linux filesystem.
@@ -52,7 +52,7 @@ Our blackboard app currently requires Meteor 3.0.3.
 
 At the moment the two ways to install Meteor are:
 
-- just make a git clone of the meteor repository and put it in $PATH, or
+- just make a Git clone of the meteor repository and put it in $PATH, or
 - use the package downloaded by their install shell script
 
 The latter option is easier, and automatically downloads the correct
@@ -67,18 +67,20 @@ it just involves downloading a binary distribution and installing it
 in `~/.meteor`.
 
 If piping stuff from the internet directly to `/bin/sh` gives you the
-willies, then you can also run from a git checkout. Something like:
+willies, then you can also run from a Git checkout. Something like:
 
+```
     cd ~/3rdParty
     git clone git://github.com/meteor/meteor.git
     cd meteor
     git checkout release/METEOR@1.0
     cd ~/bin ; ln -s ~/3rdParty/meteor/meteor .
+```
 
 Meteor can run directly from its checkout, and figure out where to
 find the rest of its files itself --- but it only follows a single symlink
 to its binary; a symlink can't point to another symlink. If you use a
-git checkout, you will be responsible for updating your checkout to
+Git checkout, you will be responsible for updating your checkout to
 the latest version of meteor when `codex-blackboard/.meteor/release`
 changes.
 
