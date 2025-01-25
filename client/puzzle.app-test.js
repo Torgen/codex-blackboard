@@ -15,8 +15,11 @@ function modalHiddenPromise() {
 }
 
 describe("puzzle", function () {
-  this.timeout(30000);
-  before(() => login("testy", "Teresa Tybalt", "", "failphrase"));
+  before(async function () {
+    this.timeout(30000);
+    await login("testy", "Teresa Tybalt", "", "failphrase");
+    await waitForSubscriptions();
+  });
 
   after(() => logout());
 
@@ -24,7 +27,6 @@ describe("puzzle", function () {
     this.timeout(10000);
     let id = null;
     beforeEach(async function () {
-      await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Interstellar Spaceship" })._id;
     });
 
@@ -70,7 +72,6 @@ describe("puzzle", function () {
     this.timeout(10000);
     let id = null;
     beforeEach(async function () {
-      await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Anger" })._id;
     });
 
@@ -194,7 +195,6 @@ describe("puzzle", function () {
     this.timeout(10000);
     let id = null;
     beforeEach(async function () {
-      await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Cross Words" })._id;
     });
 
@@ -216,7 +216,6 @@ describe("puzzle", function () {
     let id = null;
     let callin = null;
     beforeEach(async function () {
-      await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Cross Words" })._id;
       PuzzlePage(id, "puzzle");
       await waitForSubscriptions();
