@@ -20,10 +20,10 @@ if (DO_BATCH_PROCESSING) {
         running = false;
       }
     };
-    var run = function () {
+    var run = async function () {
       [running, pending] = [true, false];
       try {
-        func.apply(context, args);
+        await func.apply(context, args);
       } catch (error) {}
       // Note that the timeout doesn't start until the function has completed.
       Meteor.setTimeout(later, wait);
@@ -47,7 +47,7 @@ if (DO_BATCH_PROCESSING) {
   // this ensures nobody gets starved for updates
   // limit to 10 location updates/minute
   const LOCATION_BATCH_SIZE = 10;
-  const LOCATION_THROTTLE = 60 * 1000;
+  const LOCATION_THROTTLE = (Meteor.isAppTest ? 5 : 60) * 1000;
   const runBatch = () =>
     Meteor.users
       .find(
@@ -71,7 +71,7 @@ if (DO_BATCH_PROCESSING) {
       });
   const maybeRunBatch = throttle(runBatch, LOCATION_THROTTLE);
   Meteor.startup(async () =>
-    Meteor.users
+    await Meteor.users
       .find(
         {
           priv_located_order: { $exists: true, $ne: null },
