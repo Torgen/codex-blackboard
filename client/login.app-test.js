@@ -86,7 +86,7 @@ describe("login", function () {
         $('[for="nickEmail"] .gravatar img').attr("src"),
         "https://secure.gravatar.com/avatar/05c1de2f5c5e7933bee97a499e818c5e.jpg?d=wavatar&s=80"
       );
-      await delay(500);
+      await delay(600);
       await afterFlushPromise();
       chai.assert.equal(
         $('[for="nickEmail"] .gravatar img').attr("src"),
