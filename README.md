@@ -69,7 +69,7 @@ in `~/.meteor`.
 If piping stuff from the internet directly to `/bin/sh` gives you the
 willies, then you can also run from a Git checkout. Something like:
 
-```
+```shell
     cd ~/3rdParty
     git clone git://github.com/meteor/meteor.git
     cd meteor

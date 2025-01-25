@@ -224,7 +224,6 @@ If you are not in that puzzle's chat, you can call in the answer from any chat b
 - Another puzzle: `bot call in what a rush for fraternity massacre backsolved`
 </details>
 
-
 <details>
   <summary><strong>Why shouldn't I submit the answer directly on the puzzle hunt site?</strong></summary>
 Even though every puzzle page has a link to enter an answer on it, there are several reasons to use the call-in queue instead:
