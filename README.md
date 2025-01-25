@@ -20,9 +20,10 @@ See the wiki for instructions on:
 
 To run in development mode:
 
+```shell
     cd codex-blackboard
-    meteor
-    <browse to localhost:3000>
+    meteor --open
+```
 
 If you have application default credentials configured (e.g. you're running on
 Compute Engine, you manually configured the environment variable, or you used
@@ -35,8 +36,10 @@ file with that key, then pass the filename to meteor with the --settings flag.)
 Your code is pushed live to the server as you make changes, so
 you can just leave `meteor` running. You can reset the internal database with:
 
+```shell
     meteor reset
     meteor --settings private/settings.json
+```
 
 but note that this won't delete any Google Drive files.
 
@@ -60,7 +63,9 @@ version of meteor and all its dependencies, based on the contents of
 `codex-blackboard/.meteor/release`. Simply cross your fingers, trust
 in the meteor devs, and do:
 
+```shell
     curl https://install.meteor.com | /bin/sh
+```
 
 You can read the script and manually install meteor this way as well;
 it just involves downloading a binary distribution and installing it
