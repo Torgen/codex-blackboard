@@ -18,7 +18,7 @@ on:
     # The branches below must be a subset of the branches above
     branches: ["master"]
   schedule:
-    - cron: '37 17 * * 3'
+    - cron: "37 17 * * 3"
 
 jobs:
   analyze:
@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript']
+        language: ["javascript"]
 
     steps:
       - name: Checkout repository

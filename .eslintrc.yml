@@ -31,7 +31,7 @@ parserOptions:
 # Plugins #
 ###########
 plugins:
-  - 'prettier'
+  - "prettier"
 
 #########
 # Rules #
@@ -43,7 +43,6 @@ rules:
 # Overrides for JSON parsing #
 ##############################
 overrides:
-
   # JSON files
   - files:
       - "*.json"

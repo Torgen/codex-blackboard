@@ -1,6 +1,5 @@
 # Mechanics
 
-
 When adding a puzzle to the blackboard, try to determine whether it has any of these mechanics. Your teammates may have
 subscribed to notifications about these mechanics, and getting first crack at them will both optimize the deployment of
 the team's resources and maximize the enjoyment of its members.
