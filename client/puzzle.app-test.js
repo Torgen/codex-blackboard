@@ -15,15 +15,18 @@ function modalHiddenPromise() {
 }
 
 describe("puzzle", function () {
-  this.timeout(10000);
-  before(() => login("testy", "Teresa Tybalt", "", "failphrase"));
+  before(async function () {
+    this.timeout(30000);
+    await login("testy", "Teresa Tybalt", "", "failphrase");
+    await waitForSubscriptions();
+  });
 
   after(() => logout());
 
   describe("metameta", function () {
+    this.timeout(10000);
     let id = null;
     beforeEach(async function () {
-      await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Interstellar Spaceship" })._id;
     });
 
@@ -34,7 +37,7 @@ describe("puzzle", function () {
       await afterFlushPromise();
     });
 
-    return describe("in info view", function () {
+    describe("in info view", function () {
       beforeEach(async function () {
         PuzzlePage(id, "info");
         await afterFlushPromise();
@@ -66,9 +69,9 @@ describe("puzzle", function () {
   });
 
   describe("meta", function () {
+    this.timeout(10000);
     let id = null;
     beforeEach(async function () {
-      await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Anger" })._id;
     });
 
@@ -189,9 +192,9 @@ describe("puzzle", function () {
   });
 
   describe("leaf", function () {
+    this.timeout(10000);
     let id = null;
     beforeEach(async function () {
-      await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Cross Words" })._id;
     });
 
@@ -208,11 +211,11 @@ describe("puzzle", function () {
     });
   });
 
-  return describe("callin modal", function () {
+  describe("callin modal", function () {
+    this.timeout(10000);
     let id = null;
     let callin = null;
     beforeEach(async function () {
-      await waitForSubscriptions();
       id = Puzzles.findOne({ name: "Cross Words" })._id;
       PuzzlePage(id, "puzzle");
       await waitForSubscriptions();

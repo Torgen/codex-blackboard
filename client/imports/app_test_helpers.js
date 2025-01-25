@@ -1,17 +1,29 @@
 import { Meteor } from "meteor/meteor";
 import { Tracker } from "meteor/tracker";
-import { DDP } from "meteor/ddp-client";
 import denodeify from "denodeify";
 import loginWithCodex from "/client/imports/accounts.js";
 
 // Utility -- returns a promise which resolves when all subscriptions are done
-export var waitForSubscriptions = () =>
+export var waitForSubscriptions = (connection = Meteor.connection) =>
   new Promise(function (resolve) {
     let poll = Meteor.setInterval(function () {
-      if (DDP._allSubscriptionsReady()) {
-        Meteor.clearInterval(poll);
-        resolve();
+      let allReady = true;
+      Object.values(connection._subscriptions).forEach(
+        ({ id, name, params, ready }) => {
+          if (!ready) {
+            console.log(
+              `Waiting for subscription ${id} -- ${name}(${params.join()})`
+            );
+            allReady = false;
+          }
+        }
+      );
+      if (!allReady) {
+        return;
       }
+      console.log("all subscriptions were ready.");
+      Meteor.clearInterval(poll);
+      resolve();
     }, 200);
   });
 

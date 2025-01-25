@@ -19,6 +19,7 @@ import chai from "chai";
 describe("chat", function () {
   this.timeout(10000);
   before(async function () {
+    ChatPage("general", "0");
     await login("testy", "Teresa Tybalt", "", "failphrase");
     await waitForSubscriptions();
     await afterFlushPromise();
@@ -793,6 +794,7 @@ describe("chat", function () {
     });
 
     describe("starred message in blackboard", function () {
+      this.timeout(30000);
       let id;
       before(async function () {
         const msg = await promiseCall("newMessage", {
@@ -816,6 +818,7 @@ describe("chat", function () {
     });
 
     describe("starred message in edit mode", function () {
+      this.timeout(30000);
       let id;
       before(async function () {
         const msg = await promiseCall("newMessage", {

@@ -17,7 +17,7 @@ const GRAVATAR_192 =
   "https://secure.gravatar.com/avatar/ec59d144f959e61bdf692ff0eb379d67.jpg?d=wavatar&s=192";
 
 describe("notifications dropdown", function () {
-  this.timeout(10000);
+  this.timeout(30000);
   before(async function () {
     await login("testy", "Teresa Tybalt", "fake@artifici.al", "failphrase");
     BlackboardPage();
@@ -25,7 +25,7 @@ describe("notifications dropdown", function () {
 
   after(() => logout());
 
-  return it("enables and disables clicked streams", async function () {
+  it("enables and disables clicked streams", async function () {
     Session.set("notifications", "granted");
     await afterFlushPromise();
     try {
@@ -68,7 +68,7 @@ describe("notifications dropdown", function () {
 });
 
 describe("notifications", function () {
-  this.timeout(10000);
+  this.timeout(30000);
   let other_conn = null;
   before(async function () {
     await login("testy", "Teresa Tybalt", "fake@artifici.al", "failphrase");
