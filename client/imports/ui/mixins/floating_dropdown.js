@@ -47,7 +47,7 @@ export default function floatingDropdown(template) {
   });
 
   template.onDestroyed(function () {
-    this.observer.disconnect();
+    this.observer?.disconnect();
     this.popper?.();
   });
 }
