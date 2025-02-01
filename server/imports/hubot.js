@@ -247,8 +247,10 @@ class BlackboardAdapter extends Hubot.Adapter {
 
     const IGNORED_NICKS = new Set(["", this.botname]);
     this.running = true;
-    this.handle = Messages.rawCollection().watch([{ $match: { operationType: "insert" } }]);
-    this.handle.on("change", async ({fullDocument: {_id: id, ...msg}}) => {
+    this.handle = Messages.rawCollection().watch([
+      { $match: { operationType: "insert" } },
+    ]);
+    this.handle.on("change", async ({ fullDocument: { _id: id, ...msg } }) => {
       // Allows us to shutdown synchronously without awaiting the close() promise.
       if (!this.running) {
         return;
