@@ -75,6 +75,8 @@ class BlackboardAdapter extends Hubot.Adapter {
     this.gravatar = gravatar;
     robot.respond(/(?:)/, () => false);
     this.mynameRE = robot.listeners.pop().regex;
+    /** @type boolean */
+    this.running = false;
   }
 
   // Public: Raw method for sending data back to the chat source. Extend this.
@@ -89,7 +91,6 @@ class BlackboardAdapter extends Hubot.Adapter {
       return;
     }
     await this.sendHelper(envelope, strings, async (string, props) => {
-      console.log(props);
       /* istanbul ignore else */
       if (DEBUG) {
         console.log(`send ${envelope.room}: ${string} (${envelope.user.id})`);
@@ -245,68 +246,62 @@ class BlackboardAdapter extends Hubot.Adapter {
     this.keepalive = Meteor.setInterval(keepalive, 30 * 1000); // every 30s refresh presence
 
     const IGNORED_NICKS = new Set(["", this.botname]);
-    // listen to the chat room, ignoring messages sent before we startup
-    let startup = true;
-    const query = Messages.find({ timestamp: { $gt: Date.now() } });
-    this.handle = await query.observeChangesAsync({
-      added: async (id, msg) => {
-        if (startup) {
-          return;
+    this.running = true;
+    this.handle = Messages.rawCollection().watch([
+      { $match: { operationType: "insert" } },
+    ]);
+    this.handle.on("change", async ({ fullDocument: { _id: id, ...msg } }) => {
+      // Allows us to shutdown synchronously without awaiting the close() promise.
+      if (!this.running) {
+        return;
+      }
+      if (msg.bot_ignore) {
+        return;
+      }
+      if (IGNORED_NICKS.has(msg.nick)) {
+        return;
+      }
+      // Copy user, adding room. Room is needed for the envelope, but if we
+      // made the user here anew we would need to query the users table to get
+      // the real name.
+      const user = Object.create(this.robot.brain.userForId(msg.nick));
+      Object.assign(user, { room: msg.room_name });
+      if (msg.presence != null) {
+        let pm;
+        switch (msg.presence) {
+          case "join":
+            pm = new Hubot.EnterMessage(user, null, id);
+            break;
+          case "part":
+            pm = new Hubot.LeaveMessage(user, null, id);
+            break;
+          /* istanbul ignore next */
+          default:
+            console.warn("Weird presence message:", msg);
+            return;
         }
-        if (msg.bot_ignore) {
-          return;
-        }
-        if (IGNORED_NICKS.has(msg.nick)) {
-          return;
-        }
-        // Copy user, adding room. Room is needed for the envelope, but if we
-        // made the user here anew we would need to query the users table to get
-        // the real name.
-        const user = Object.create(this.robot.brain.userForId(msg.nick));
-        Object.assign(user, { room: msg.room_name });
-        if (msg.presence != null) {
-          let pm;
-          switch (msg.presence) {
-            case "join":
-              pm = new Hubot.EnterMessage(user, null, id);
-              break;
-            case "part":
-              pm = new Hubot.LeaveMessage(user, null, id);
-              break;
-            /* istanbul ignore next */
-            default:
-              console.warn("Weird presence message:", msg);
-              return;
-          }
-          await this.receive(pm);
-          return;
-        }
-        if (
-          msg.system ||
-          msg.action ||
-          msg.oplog ||
-          msg.bodyIsHtml ||
-          msg.poll
-        ) {
-          return;
-        }
-        /* istanbul ignore else */
-        if (DEBUG) {
-          console.log(
-            `Received from ${msg.nick} in ${msg.room_name}: ${msg.body}`
-          );
-        }
-        const tm = new Hubot.TextMessage(user, msg.body, id);
-        tm.private = msg.to != null;
-        // if private, ensure it's treated as a direct address
-        tm.direct = this.mynameRE.test(tm.text);
-        if (tm.private && !tm.direct) {
-          tm.text = `${this.robot.name} ${tm.text}`;
-        }
-        await this.receive(tm);
-      },
+        await this.receive(pm);
+        return;
+      }
+      if (msg.system || msg.action || msg.oplog || msg.bodyIsHtml || msg.poll) {
+        return;
+      }
+      /* istanbul ignore else */
+      if (DEBUG) {
+        console.log(
+          `Received from ${msg.nick} in ${msg.room_name}: ${msg.body}`
+        );
+      }
+      const tm = new Hubot.TextMessage(user, msg.body, id);
+      tm.private = msg.to != null;
+      // if private, ensure it's treated as a direct address
+      tm.direct = this.mynameRE.test(tm.text);
+      if (tm.private && !tm.direct) {
+        tm.text = `${this.robot.name} ${tm.text}`;
+      }
+      await this.receive(tm);
     });
-    startup = false;
+    this.handle.on("error", console.error);
     await callAs("newMessage", this.botname, {
       body: "wakes up",
       room_name: "general/0",
@@ -321,7 +316,8 @@ class BlackboardAdapter extends Hubot.Adapter {
   //
   // Returns nothing.
   close() {
-    this.handle?.stop();
+    this.running = false;
+    this.handle?.close().catch(console.error);
     Meteor.clearInterval(this.keepalive);
   }
 }
