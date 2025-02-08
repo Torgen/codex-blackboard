@@ -98,7 +98,6 @@ function assignReadMarker(element) {
 
 // Globals
 var instachat = {};
-instachat["UTCOffset"] = new Date().getTimezoneOffset() * 60000;
 instachat["alertWhenUnreadMessages"] = false;
 instachat["scrolledToBottom"] = true;
 instachat["readMarker"] = $('<div class="bb-message-last-read">read</div>');
@@ -363,6 +362,7 @@ function cleanupChat() {
   instachat.mutationObserver?.disconnect();
   instachat.readObserver?.disconnect();
   instachat.bottomObserver?.disconnect();
+  instachat.resizeObserver?.disconnect();
 }
 
 Template.messages.onDestroyed(function () {
@@ -446,6 +446,13 @@ Template.messages.onCreated(function () {
 });
 
 Template.messages.onRendered(function () {
+  const parent = this.view.firstNode()?.parentElement;
+  if (parent) {
+    instachat.resizeObserver = new ResizeObserver(function() {
+      maybeScrollMessagesView()
+    });
+    instachat.resizeObserver.observe(parent);
+  }
   const chatBottom = document.getElementById("chat-bottom");
   instachat.bottomObserver = new IntersectionObserver(function (entries) {
     if (selfScroll != null) {
