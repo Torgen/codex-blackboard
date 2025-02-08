@@ -448,8 +448,8 @@ Template.messages.onCreated(function () {
 Template.messages.onRendered(function () {
   const parent = this.view.firstNode()?.parentElement;
   if (parent) {
-    instachat.resizeObserver = new ResizeObserver(function() {
-      maybeScrollMessagesView()
+    instachat.resizeObserver = new ResizeObserver(function () {
+      maybeScrollMessagesView();
     });
     instachat.resizeObserver.observe(parent);
   }
