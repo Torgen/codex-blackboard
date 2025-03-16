@@ -846,6 +846,19 @@ const MSG_AT_START_PATTERN = /^\/m(sg)? /;
 const AT_MENTION_PATTERN = /(^|[\s])@([A-Za-z_0-9]*)$/;
 const ROOM_MENTION_PATTERN = /(^|[\s])#([A-Za-z_0-9/]*)$/;
 
+Template.messages_presence.onRendered(function () {
+  this.hideHandle = Meteor.setTimeout(() => {
+    this.$(".inner-nick").animate({width: "toggle"}, "fast");
+    delete this.hideHandle
+  }, 5000);
+});
+
+Template.messages_presence.onDestroyed(function () {
+  if (this.hideHandle) {
+    Meteor.clearTimeout(this.hideHandle);
+  }
+});
+
 Template.messages_input.onCreated(function () {
   this.autorun(() => {
     const room_name = Session.get("room_name");
