@@ -848,8 +848,8 @@ const ROOM_MENTION_PATTERN = /(^|[\s])#([A-Za-z_0-9/]*)$/;
 
 Template.messages_presence.onRendered(function () {
   this.hideHandle = Meteor.setTimeout(() => {
-    this.$(".inner-nick").animate({width: "toggle"}, "fast");
-    delete this.hideHandle
+    this.$(".inner-nick").animate({ width: "toggle" }, "fast");
+    delete this.hideHandle;
   }, 5000);
 });
 
