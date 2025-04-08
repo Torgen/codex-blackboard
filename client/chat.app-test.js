@@ -15,6 +15,10 @@ import {
   Rounds,
 } from "/lib/imports/collections.js";
 import chai from "chai";
+import {
+  selectWithin,
+  selectionWithin,
+} from "./imports/contenteditable_selection.js";
 
 describe("chat", function () {
   this.timeout(10000);
@@ -64,33 +68,49 @@ describe("chat", function () {
     await waitForSubscriptions();
     await afterFlushPromise();
     const input = $("#messageInput");
-    input.val("/me tests actions");
+    input.prop("innerText", "/me tests actions");
     input.trigger($.Event("keydown", { which: 13 }));
-    chai.assert.equal(input.val(), "", "after first submit");
+    chai.assert.equal(input.prop("innerText"), "", "after first submit");
     await waitForMethods();
-    input.val("say another thing");
+    input.prop("innerText", "say another thing");
     input.trigger($.Event("keydown", { which: 13 }));
-    chai.assert.equal(input.val(), "", "after second submit");
+    chai.assert.equal(input.prop("innerText"), "", "after second submit");
     await waitForMethods();
     input.trigger($.Event("keydown", { key: "Up" }));
-    chai.assert.equal(input.val(), "say another thing", "after first up");
+    chai.assert.equal(
+      input.prop("innerText"),
+      "say another thing",
+      "after first up"
+    );
     input.trigger($.Event("keydown", { key: "Up" }));
-    chai.assert.equal(input.val(), "/me tests actions", "after second up");
+    chai.assert.equal(
+      input.prop("innerText"),
+      "/me tests actions",
+      "after second up"
+    );
     input.trigger($.Event("keydown", { key: "Up" }));
-    chai.assert.equal(input.val(), "/me tests actions", "after third up");
+    chai.assert.equal(
+      input.prop("innerText"),
+      "/me tests actions",
+      "after third up"
+    );
     input.trigger($.Event("keydown", { key: "Down" }));
     chai.assert.equal(
-      input.val(),
+      input.prop("innerText"),
       "/me tests actions",
       "after down with selection at start"
     );
-    input[0].setSelectionRange(input.val().length, input.val().length);
+    selectWithin(input[0], input.prop("innerText").length);
     input.trigger($.Event("keydown", { key: "Down" }));
-    chai.assert.equal(input.val(), "say another thing", "after first down");
+    chai.assert.equal(
+      input.prop("innerText"),
+      "say another thing",
+      "after first down"
+    );
     input.trigger($.Event("keydown", { key: "Down" }));
-    chai.assert.equal(input.val(), "", "after second down");
+    chai.assert.equal(input.prop("innerText"), "", "after second down");
     input.trigger($.Event("keydown", { key: "Down" }));
-    chai.assert.equal(input.val(), "", "after third down");
+    chai.assert.equal(input.prop("innerText"), "", "after third down");
   });
 
   it("loads more", async function () {
@@ -174,9 +194,9 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("/join painted potsherds");
+      input.prop("innerText", "/join painted potsherds");
       input.trigger($.Event("keydown", { which: 13 }));
-      chai.assert.equal(input.val(), "");
+      chai.assert.equal(input.prop("innerText"), "");
       chai.assert.equal(Session.get("type"), "puzzles");
       chai.assert.equal(Session.get("id"), puzz._id);
     });
@@ -187,9 +207,9 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("/join civilization");
+      input.prop("innerText", "/join civilization");
       input.trigger($.Event("keydown", { which: 13 }));
-      chai.assert.equal(input.val(), "");
+      chai.assert.equal(input.prop("innerText"), "");
       chai.assert.equal(Session.get("type"), "rounds");
       chai.assert.equal(Session.get("id"), rnd._id);
     });
@@ -200,9 +220,9 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("/join ringhunters");
+      input.prop("innerText", "/join ringhunters");
       input.trigger($.Event("keydown", { which: 13 }));
-      chai.assert.equal(input.val(), "");
+      chai.assert.equal(input.prop("innerText"), "");
       chai.assert.equal(Session.get("type"), "general");
       chai.assert.equal(Session.get("id"), 0);
     });
@@ -212,9 +232,12 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("/join pelvic splanchnic ganglion");
+      input.prop("innerText", "/join pelvic splanchnic ganglion");
       input.trigger($.Event("keydown", { which: 13 }));
-      chai.assert.equal(input.val(), "/join pelvic splanchnic ganglion");
+      chai.assert.equal(
+        input.prop("innerText"),
+        "/join pelvic splanchnic ganglion"
+      );
       chai.assert.equal(Session.get("type"), "general");
       chai.assert.equal(Session.get("id"), 0);
       await afterFlushPromise();
@@ -228,7 +251,7 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("ten characters").trigger("input");
+      input.prop("innerText", "ten characters").trigger("input");
       const presence = waitForDocument(Presence, {
         scope: "typing",
         nick: "testy",
@@ -243,7 +266,7 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("some innocuous text");
+      input.prop("innerText", "some innocuous text");
       input.click();
       await afterFlushPromise();
       let typeahead = $("#messageInputTypeahead");
@@ -261,7 +284,7 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val("/m a");
+        input.prop("innerText", "/m a");
         input.click();
         await afterFlushPromise();
         let a = $("#messageInputTypeahead li.active a");
@@ -287,8 +310,8 @@ describe("chat", function () {
         chai.assert.equal("kwal", a.data("value"), "no change");
         input.trigger($.Event("keydown", { key: "Tab" }));
         await afterFlushPromise();
-        chai.assert.equal(input.val(), "/m kwal ");
-        chai.assert.equal(input[0].selectionStart, 8);
+        chai.assert.equal(input.prop("innerText"), "/m kwal ");
+        chai.assert.deepEqual(selectionWithin(input[0]), [8, 8]);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -299,14 +322,14 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val("Yo @es hmu");
-        input[0].setSelectionRange(4, 4);
+        input.prop("innerText", "Yo @es hmu");
+        selectWithin(input[0], 4);
         input.click();
         await afterFlushPromise();
         $('a[data-value="testy"]').click();
         await afterFlushPromise();
-        chai.assert.equal(input.val(), "Yo @testy  hmu");
-        chai.assert.equal(input[0].selectionStart, 10);
+        chai.assert.equal(input.prop("innerText"), "Yo @testy  hmu");
+        chai.assert.deepEqual(selectionWithin(input[0]), [10, 10]);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -317,8 +340,8 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val("/m kwal you hear about @cs");
-        input[0].setSelectionRange(26, 26);
+        input.prop("innerText", "/m kwal you hear about @cs");
+        selectWithin(input[0], 26);
         input.click();
         await afterFlushPromise();
         const typeahead = $("#messageInputTypeahead");
@@ -331,8 +354,8 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val("/m a");
-        input[0].setSelectionRange(1, 2);
+        input.prop("innerText", "/m a");
+        selectWithin(input[0], 1, 2);
         input.click();
         await afterFlushPromise();
         const typeahead = $("#messageInputTypeahead");
@@ -352,7 +375,7 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val("prefix #ci");
+        input.prop("innerText", "prefix #ci");
         input.click();
         await afterFlushPromise();
         let a = $("#messageInputTypeahead li.active a");
@@ -379,8 +402,8 @@ describe("chat", function () {
         chai.assert.equal(`rounds/${civ}`, a.data("value"), "no change");
         input.trigger($.Event("keydown", { key: "Tab" }));
         await afterFlushPromise();
-        chai.assert.equal(input.val(), `prefix #rounds/${civ} `);
-        chai.assert.equal(input[0].selectionStart, 33);
+        chai.assert.equal(input.prop("innerText"), `prefix #rounds/${civ} `);
+        chai.assert.deepEqual(selectionWithin(input[0]), [33, 33]);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -392,14 +415,17 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val("Yo #ci hmu");
-        input[0].setSelectionRange(4, 4);
+        input.prop("innerText", "Yo #ci hmu");
+        selectWithin(input[0], 4);
         input.click();
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.val(), `Yo #puzzles/${recipe}  hmu`);
-        chai.assert.equal(input[0].selectionStart, 30);
+        chai.assert.equal(
+          input.prop("innerText"),
+          `Yo #puzzles/${recipe}  hmu`
+        );
+        chai.assert.deepEqual(selectionWithin(input[0]), [30, 30]);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -411,12 +437,12 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val(`#puzzles/${recipe.substr(0, 12)}`);
+        input.prop("innerText", `#puzzles/${recipe.substr(0, 12)}`);
         input.click();
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.val(), `#puzzles/${recipe} `);
+        chai.assert.equal(input.prop("innerText"), `#puzzles/${recipe} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -428,12 +454,12 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val(`#puzzles/Cook`);
+        input.prop("innerText", "#puzzles/Cook");
         input.click();
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.val(), `#puzzles/${recipe} `);
+        chai.assert.equal(input.prop("innerText"), `#puzzles/${recipe} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -445,12 +471,12 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val(`#Cook`);
+        input.prop("innerText", "#Cook");
         input.click();
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.val(), `#puzzles/${recipe} `);
+        chai.assert.equal(input.prop("innerText"), `#puzzles/${recipe} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -461,12 +487,12 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val(`#rounds/ivil`);
+        input.prop("innerText", "#rounds/ivil");
         input.click();
         await afterFlushPromise();
         $(`a[data-value="rounds/${id}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.val(), `#rounds/${id} `);
+        chai.assert.equal(input.prop("innerText"), `#rounds/${id} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -477,12 +503,12 @@ describe("chat", function () {
         await waitForSubscriptions();
         await afterFlushPromise();
         const input = $("#messageInput");
-        input.val(`#ivil`);
+        input.prop("innerText", "#ivil");
         input.click();
         await afterFlushPromise();
         $(`a[data-value="rounds/${id}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.val(), `#rounds/${id} `);
+        chai.assert.equal(input.prop("innerText"), `#rounds/${id} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -496,7 +522,7 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("@kwal you hear about @Cscott?");
+      input.prop("innerText", "@kwal you hear about @Cscott?");
       input.trigger($.Event("keydown", { which: 13 }));
       await waitForMethods();
       await afterFlushPromise();
@@ -513,7 +539,7 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("@kwal exists but @flibby does not");
+      input.prop("innerText", "@kwal exists but @flibby does not");
       input.trigger($.Event("keydown", { which: 13 }));
       await waitForMethods();
       await afterFlushPromise();
@@ -530,7 +556,7 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("/me heard about @Cscott");
+      input.prop("innerText", "/me heard about @Cscott");
       input.trigger($.Event("keydown", { which: 13 }));
       await waitForMethods();
       await afterFlushPromise();
@@ -551,7 +577,7 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("/msg kwal you hear about @Cscott?");
+      input.prop("innerText", "/msg kwal you hear about @Cscott?");
       input.trigger($.Event("keydown", { which: 13 }));
       await waitForMethods();
       await afterFlushPromise();
@@ -569,9 +595,12 @@ describe("chat", function () {
       await waitForSubscriptions();
       await afterFlushPromise();
       const input = $("#messageInput");
-      input.val("/msg cromslor you hear about @Cscott?");
+      input.prop("innerText", "/msg cromslor you hear about @Cscott?");
       input.trigger($.Event("keydown", { which: 13 }));
-      chai.assert.equal(input.val(), "/msg cromslor you hear about @Cscott?");
+      chai.assert.equal(
+        input.prop("innerText"),
+        "/msg cromslor you hear about @Cscott?"
+      );
       await afterFlushPromise();
       chai.assert.isTrue(input.hasClass("error"));
     });
