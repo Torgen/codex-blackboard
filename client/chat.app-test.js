@@ -32,13 +32,7 @@ describe("chat", function () {
     await afterFlushPromise();
     await waitForSubscriptions();
     await afterFlushPromise();
-    chai.assert.equal($(".bb-chat-presence-block").length, 0, "before");
-    $(".bb-show-whos-here").click();
-    await afterFlushPromise();
-    chai.assert.equal($(".bb-chat-presence-block tr").length, 2, "opened");
-    $(".bb-show-whos-here").click();
-    await afterFlushPromise();
-    chai.assert.equal($(".bb-chat-presence-block").length, 0, "closed");
+    chai.assert.equal($(".bb-chat-presence-block .nick").length, 2, "presence");
     chai.assert.isDefined($('a[href^="https://codexian.us"]').html(), "link");
     chai.assert.isDefined(
       $('img[src^="https://memegen.link/doge"]').html(),
@@ -48,21 +42,19 @@ describe("chat", function () {
 
   it("updates read marker", async function () {
     const id = Puzzles.findOne({ name: "Temperance" })._id;
-    const joinedPresence = waitForDocument(Messages, {
-      presence: "join",
-      nick: "testy",
+    await promiseCall("newMessage", {
+      on_behalf: true,
       room_name: `puzzles/${id}`,
-      timestamp: { $gte: Date.now() },
+      body: "Something to move the read marker below.",
     });
     ChatPage("puzzles", id);
     await afterFlushPromise();
     await waitForSubscriptions();
     await afterFlushPromise();
-    await joinedPresence;
-    await afterFlushPromise();
     chai.assert.isNotOk($(".bb-message-last-read").offset(), "before");
     $("#messageInput").focus();
     await waitForMethods();
+    await afterFlushPromise();
     chai.assert.isOk($(".bb-message-last-read").offset(), "after");
   });
 
