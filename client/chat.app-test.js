@@ -18,6 +18,7 @@ import chai from "chai";
 import {
   selectWithin,
   selectionWithin,
+  textContent,
 } from "./imports/contenteditable_selection.js";
 
 describe("chat", function () {
@@ -70,40 +71,40 @@ describe("chat", function () {
     const input = $("#messageInput");
     input.prop("innerText", "/me tests actions");
     input.trigger($.Event("keydown", { which: 13 }));
-    chai.assert.equal(input.prop("innerText"), "", "after first submit");
+    chai.assert.equal(textContent(input[0]), "", "after first submit");
     await waitForMethods();
     input.prop("innerText", "say another thing");
     input.trigger($.Event("keydown", { which: 13 }));
-    chai.assert.equal(input.prop("innerText"), "", "after second submit");
+    chai.assert.equal(textContent(input[0]), "", "after second submit");
     await waitForMethods();
     input.trigger($.Event("keydown", { key: "Up" }));
     chai.assert.equal(
-      input.prop("innerText"),
+      textContent(input[0]),
       "say another thing",
       "after first up"
     );
     input.trigger($.Event("keydown", { key: "Up" }));
     chai.assert.equal(
-      input.prop("innerText"),
+      textContent(input[0]),
       "/me tests actions",
       "after second up"
     );
     input.trigger($.Event("keydown", { key: "Up" }));
     chai.assert.equal(
-      input.prop("innerText"),
+      textContent(input[0]),
       "/me tests actions",
       "after third up"
     );
     input.trigger($.Event("keydown", { key: "Down" }));
     chai.assert.equal(
-      input.prop("innerText"),
+      textContent(input[0]),
       "/me tests actions",
       "after down with selection at start"
     );
     selectWithin(input[0], input.prop("innerText").length);
     input.trigger($.Event("keydown", { key: "Down" }));
     chai.assert.equal(
-      input.prop("innerText"),
+      textContent(input[0]),
       "say another thing",
       "after first down"
     );
@@ -310,7 +311,7 @@ describe("chat", function () {
         chai.assert.equal("kwal", a.data("value"), "no change");
         input.trigger($.Event("keydown", { key: "Tab" }));
         await afterFlushPromise();
-        chai.assert.equal(input.prop("innerText"), "/m kwal ");
+        chai.assert.equal(textContent(input[0]), "/m kwal ");
         chai.assert.deepEqual(selectionWithin(input[0]), [8, 8]);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
@@ -328,7 +329,7 @@ describe("chat", function () {
         await afterFlushPromise();
         $('a[data-value="testy"]').click();
         await afterFlushPromise();
-        chai.assert.equal(input.prop("innerText"), "Yo @testy  hmu");
+        chai.assert.equal(textContent(input[0]), "Yo @testy  hmu");
         chai.assert.deepEqual(selectionWithin(input[0]), [10, 10]);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
@@ -402,7 +403,7 @@ describe("chat", function () {
         chai.assert.equal(`rounds/${civ}`, a.data("value"), "no change");
         input.trigger($.Event("keydown", { key: "Tab" }));
         await afterFlushPromise();
-        chai.assert.equal(input.prop("innerText"), `prefix #rounds/${civ} `);
+        chai.assert.equal(textContent(input[0]), `prefix #rounds/${civ} `);
         chai.assert.deepEqual(selectionWithin(input[0]), [33, 33]);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
@@ -422,7 +423,7 @@ describe("chat", function () {
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
         chai.assert.equal(
-          input.prop("innerText"),
+          textContent(input[0]),
           `Yo #puzzles/${recipe}  hmu`
         );
         chai.assert.deepEqual(selectionWithin(input[0]), [30, 30]);
@@ -442,7 +443,7 @@ describe("chat", function () {
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.prop("innerText"), `#puzzles/${recipe} `);
+        chai.assert.equal(textContent(input[0]), `#puzzles/${recipe} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -459,7 +460,7 @@ describe("chat", function () {
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.prop("innerText"), `#puzzles/${recipe} `);
+        chai.assert.equal(textContent(input[0]), `#puzzles/${recipe} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -476,7 +477,7 @@ describe("chat", function () {
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.prop("innerText"), `#puzzles/${recipe} `);
+        chai.assert.equal(textContent(input[0]), `#puzzles/${recipe} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -492,7 +493,7 @@ describe("chat", function () {
         await afterFlushPromise();
         $(`a[data-value="rounds/${id}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.prop("innerText"), `#rounds/${id} `);
+        chai.assert.equal(textContent(input[0]), `#rounds/${id} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });
@@ -508,7 +509,7 @@ describe("chat", function () {
         await afterFlushPromise();
         $(`a[data-value="rounds/${id}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(input.prop("innerText"), `#rounds/${id} `);
+        chai.assert.equal(textContent(input[0]), `#rounds/${id} `);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
       });

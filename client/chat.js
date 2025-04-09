@@ -40,6 +40,7 @@ import { hsize } from "/client/imports/ui/components/splitter/splitter.js";
 import {
   selectionWithin,
   selectWithin,
+  textContent,
 } from "./imports/contenteditable_selection.js";
 
 const GENERAL_ROOM = GENERAL_ROOM_NAME;
@@ -1031,7 +1032,7 @@ Template.messages_input.onCreated(function () {
       return;
     }
     const position = selection[0];
-    const v = i.prop("innerText");
+    const v = textContent(i[0]);
     const tv = v.substring(position);
     const nextSpace = tv.search(/[\s]/);
     const consider =
@@ -1067,7 +1068,7 @@ Template.messages_input.onCreated(function () {
     if (selection === null) {
       return;
     }
-    const v = i.prop("innerText");
+    const v = textContent(i[0]);
     const ss = selection[0];
     const tv = v.substring(ss);
     const nextSpace = tv.search(/[\s]/);
@@ -1247,7 +1248,7 @@ Template.messages_input.events({
         event.preventDefault();
         template.moveActive(1);
       } else if (
-        selectionWithin(event.target)?.[0] === event.target.innerText.length
+        selectionWithin(event.target)?.[0] === textContent(event.target).length
       ) {
         console.log(`history_ts: ${this.history_ts}`);
         // 40 is arrow down. Checking that the cursor is at the end of the box.
@@ -1288,7 +1289,7 @@ Template.messages_input.events({
       } else {
         // implicit submit on enter (but not shift-enter or ctrl-enter)
         const $message = $(event.currentTarget);
-        const message = $message.prop("innerText");
+        const message = textContent($message[0]);
         if (template.submit(message)) {
           $message.prop("innerText", "");
         }
@@ -1318,7 +1319,7 @@ Template.messages_input.events({
   },
   "input #messageInput"(event, template) {
     const minChars = TypingIndicatorCharacters.get();
-    const value = event.currentTarget.innerText;
+    const value = textContent(event.currentTarget);
     let time = null;
     if (
       minChars > 0 &&
