@@ -1107,7 +1107,6 @@ Template.messages_input.onCreated(function () {
   };
 
   this.submit = function (message) {
-    console.log(`message: "${message}"`);
     this.typing.set(null);
     let to;
     let n;
@@ -1218,7 +1217,6 @@ Template.messages_input.events({
         event.preventDefault();
         template.moveActive(-1);
       } else if (selectionWithin(event.target)?.[1] === 0) {
-        console.log(`history_ts: ${this.history_ts}`);
         // Checking that the cursor is at the start of the box.
         query = {
           room_name: Session.get("room_name"),
@@ -1241,16 +1239,12 @@ Template.messages_input.events({
       }
     }
     if (["Down", "ArrowDown"].includes(event.key)) {
-      console.log(
-        `selectionWith: ${selectionWithin(event.target)}, innerText.length: ${event.target.innerText.length}`
-      );
       if (template.query.get() != null) {
         event.preventDefault();
         template.moveActive(1);
       } else if (
         selectionWithin(event.target)?.[0] === textContent(event.target).length
       ) {
-        console.log(`history_ts: ${this.history_ts}`);
         // 40 is arrow down. Checking that the cursor is at the end of the box.
         if (template.history_ts == null) {
           return;
