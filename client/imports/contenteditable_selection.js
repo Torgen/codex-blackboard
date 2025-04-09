@@ -86,3 +86,22 @@ export function selectWithin(element, anchor, focus = anchor) {
   }
   sel.setBaseAndExtent(anchorNode, anchor, focusNode, focus);
 }
+
+/** Returns the text content of a contenteditable element.
+ * Consistent among browsers, unlike innerText.
+ * @param {HTMLElement} editable Element with contentediable="plaintext-only"
+ * @return {String} text content of the element.
+ */
+export function textContent(editable) {
+  const parts = []
+  for (node of editable.childNodes.values()) {
+    if (node.nodeType == Node.TEXT_NODE) {
+      parts.push(node.textContent);
+    } else if (node instanceof HTMLBRElement) {
+      parts.push("\n");
+    } else {
+      throw new Error(`Unexpected node ${node}`);
+    }
+  }
+  return parts.join('');
+}
