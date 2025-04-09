@@ -422,10 +422,7 @@ describe("chat", function () {
         await afterFlushPromise();
         $(`a[data-value="puzzles/${recipe}"]`).click();
         await afterFlushPromise();
-        chai.assert.equal(
-          textContent(input[0]),
-          `Yo #puzzles/${recipe}  hmu`
-        );
+        chai.assert.equal(textContent(input[0]), `Yo #puzzles/${recipe}  hmu`);
         chai.assert.deepEqual(selectionWithin(input[0]), [30, 30]);
         const typeahead = $("#messageInputTypeahead");
         chai.assert.equal(0, typeahead.length);
