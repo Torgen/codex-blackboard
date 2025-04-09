@@ -21,6 +21,16 @@
     }
 }
 @gravatar-size: 48px;
+.bb-embedded-chat {
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
 .bb-chat-messages {
   position: relative;
   margin-bottom: 41px; /* 41px navbar - 15px padding on #bb-body */
@@ -408,19 +418,23 @@ table.poll {
 */
 
 .bb-chat-presence-block {
-  display: block;
-  position: absolute;
-  bottom: calc(36px + var(--jitsi-height, 0px));
-  left: 0;
-  right: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: clip;
   width: 100%;
-  max-height: 150px;
-  overflow: auto;
   background: var(--bg-color);
-  opacity: .85;
   border-top: 1px solid var(--text-color);
-  .bb-avatar {
-    width: 48px;
+  .nick {
+    height: 20px;
+    align-items: center;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin-right: 2px;
+    .inner-nick {
+      white-space: nowrap;
+    }
   }
 }
 
@@ -437,7 +451,10 @@ table.poll {
 
 #messageForm {
   flex-grow: 1;
-  padding-left: 0;
+  padding-left: 10px;
+  button + & {
+    padding-left: 0px;
+  }
   padding-right: 10px;
   textarea {
     overflow: hidden;

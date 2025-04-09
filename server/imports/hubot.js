@@ -266,23 +266,6 @@ class BlackboardAdapter extends Hubot.Adapter {
       // the real name.
       const user = Object.create(this.robot.brain.userForId(msg.nick));
       Object.assign(user, { room: msg.room_name });
-      if (msg.presence != null) {
-        let pm;
-        switch (msg.presence) {
-          case "join":
-            pm = new Hubot.EnterMessage(user, null, id);
-            break;
-          case "part":
-            pm = new Hubot.LeaveMessage(user, null, id);
-            break;
-          /* istanbul ignore next */
-          default:
-            console.warn("Weird presence message:", msg);
-            return;
-        }
-        await this.receive(pm);
-        return;
-      }
       if (msg.system || msg.action || msg.oplog || msg.bodyIsHtml || msg.poll) {
         return;
       }

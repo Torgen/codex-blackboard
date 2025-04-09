@@ -174,50 +174,6 @@ describe("hubot", function () {
     chai.assert.isFalse(spy.called);
   });
 
-  it("receives enter messages", async function () {
-    const spy = sinon.spy();
-    robot.hear(/.*/, spy);
-    robot.leave(spy);
-    let resolve;
-    // TODO: use Promise.withResolvers when it's available
-    const p = new Promise(function (r) {
-      resolve = r;
-    });
-    robot.enter(resolve);
-    await robot.run();
-    await Messages.insertAsync({
-      timestamp: Date.now() + 1,
-      nick: "torgen",
-      room_name: "general/0",
-      presence: "join",
-      system: true,
-    });
-    await p;
-    chai.assert.isFalse(spy.called);
-  });
-
-  it("receives leave messages", async function () {
-    const spy = sinon.spy();
-    robot.hear(/.*/, spy);
-    robot.enter(spy);
-    let resolve;
-    // TODO: use Promise.withResolvers when it's available
-    const p = new Promise(function (r) {
-      resolve = r;
-    });
-    robot.leave(resolve);
-    await robot.run();
-    await Messages.insertAsync({
-      timestamp: Date.now() + 1,
-      nick: "torgen",
-      room_name: "general/0",
-      presence: "part",
-      system: true,
-    });
-    await p;
-    chai.assert.isFalse(spy.called);
-  });
-
   it("replies to public messages publicly", async function () {
     robot.respond(/hello/, function (msg) {
       clock.tick(2);

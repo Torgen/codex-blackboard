@@ -500,6 +500,7 @@ Meteor.publish(
         room_name,
         $or: [{ to: null }, { to: this.userId }, { nick: this.userId }],
         deleted: { $ne: true },
+        presence: null,
       },
       {
         sort: [["timestamp", "desc"]],

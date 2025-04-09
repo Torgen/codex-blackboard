@@ -1,18 +1,5 @@
-import canonical from "/lib/imports/canonical.js";
 import { PRESENCE_KEEPALIVE_MINUTES } from "/lib/imports/constants.js";
-import { Messages, Presence, Puzzles } from "/lib/imports/collections.js";
-
-// look up a real name, if there is one
-async function maybe_real_name(nick) {
-  const n = await Meteor.users.findOneAsync(canonical(nick));
-  return n?.real_name || nick;
-}
-
-const common_presence_fields = {
-  system: true,
-  to: null,
-  bodyIsHtml: false,
-};
+import { Presence, Puzzles } from "/lib/imports/collections.js";
 
 class PresenceManager {
   async start() {
@@ -27,9 +14,6 @@ class PresenceManager {
       );
     }, 60 * 1000);
 
-    // generate automatic "<nick> entered <room>" and <nick> left room" messages
-    // as the presence set changes
-    let initiallySuppressPresence = true;
     this.noclients = await Presence.find({ clients: [] }).observeAsync({
       async added(presence) {
         await Presence.removeAsync(presence._id);
@@ -39,38 +23,6 @@ class PresenceManager {
       { scope: "chat" },
       { fields: { clients: 0 } }
     ).observeAsync({
-      async added(presence) {
-        if (initiallySuppressPresence) {
-          return;
-        }
-        if (presence.room_name === "oplog/0") {
-          return;
-        }
-        await Messages.insertAsync({
-          nick: presence.nick,
-          presence: "join",
-          body: `${await maybe_real_name(presence.nick)} joined the room.`,
-          room_name: presence.room_name,
-          timestamp: presence.joined_timestamp,
-          ...common_presence_fields,
-        });
-      },
-      async removed(presence) {
-        if (initiallySuppressPresence) {
-          return;
-        }
-        if (presence.room_name === "oplog/0") {
-          return;
-        }
-        await Messages.insertAsync({
-          nick: presence.nick,
-          presence: "part",
-          body: `${await maybe_real_name(presence.nick)} left the room.`,
-          room_name: presence.room_name,
-          timestamp: Date.now(),
-          ...common_presence_fields,
-        });
-      },
       async changed(newDoc, oldDoc) {
         if (newDoc.bot) {
           return;
@@ -89,10 +41,6 @@ class PresenceManager {
         );
       },
     });
-    // turn on presence notifications once initial observation set has been
-    // processed. (observe doesn't return on server until initial observation
-    // is complete.)
-    initiallySuppressPresence = false;
     return this;
   }
 
