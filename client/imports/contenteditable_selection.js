@@ -93,7 +93,7 @@ export function selectWithin(element, anchor, focus = anchor) {
  * @return {String} text content of the element.
  */
 export function textContent(editable) {
-  const parts = []
+  const parts = [];
   for (node of editable.childNodes.values()) {
     if (node.nodeType == Node.TEXT_NODE) {
       parts.push(node.textContent);
@@ -103,5 +103,5 @@ export function textContent(editable) {
       throw new Error(`Unexpected node ${node}`);
     }
   }
-  return parts.join('');
+  return parts.join("");
 }
