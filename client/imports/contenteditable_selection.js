@@ -25,10 +25,8 @@ export function selectionWithin(editable) {
     return [v.length, v.length];
   }
   if (an.parentElement === editable && fo.parentElement === editable) {
-    console.log(`an ${an} fo ${fo}`);
     const anchorOffset = sel.anchorOffset + lengthBefore(an);
     const focusOffset = sel.focusOffset + lengthBefore(fo);
-    console.log(`an ${anchorOffset} fo ${focusOffset}`);
     return [
       Math.min(anchorOffset, focusOffset),
       Math.max(anchorOffset, focusOffset),
