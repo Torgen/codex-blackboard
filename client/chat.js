@@ -830,9 +830,6 @@ Template.chat_format_body.helpers({
 });
 
 Template.messages_input.helpers({
-  show_presence() {
-    return Template.instance().show_presence.get();
-  },
   whos_here: whos_here_helper,
   typeaheadResults() {
     return Template.instance().queryCursor.get();
@@ -875,7 +872,6 @@ Template.messages_input.onCreated(function () {
     this.subscribe("presence-for-room", room_name);
   });
 
-  this.show_presence = new ReactiveVar(false);
   this.query = new ReactiveVar(null);
   this.queryType = new ReactiveVar(null);
   this.queryCursor = new ReactiveVar(null);
@@ -1199,10 +1195,6 @@ function format_body(msg) {
 }
 
 Template.messages_input.events({
-  "click .bb-show-whos-here"(event, template) {
-    const rvar = template.show_presence;
-    rvar.set(!rvar.get());
-  },
   "keydown textarea"(event, template) {
     let msg, query, s;
     template.error.set(null);
