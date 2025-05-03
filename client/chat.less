@@ -439,7 +439,6 @@ table.poll {
 }
 
 .bb-chat-footer {
-  height: 36px;
   background: url('/img/irongrip.png');
   display: flex;
   flex-direction: row;
@@ -452,17 +451,26 @@ table.poll {
     padding-left: 0px;
   }
   padding-right: 10px;
-  textarea {
-    overflow: hidden;
-    margin-bottom: 0; margin-top: 5px;
-    resize: none; height: 30px;
-  }
   .typeahead {
     display: block;
   }
 }
 #messageInput {
   margin-top: 3px;
+  overflow: hidden;
+  margin-bottom: 0;
+  margin-top: 5px;
+  resize: none;
+  min-height: 30px;
+  background-color: var(--bg-color);
+  padding: 5px;
+  &:empty::before {
+    content: attr(data-placeholder);
+    user-select: none;
+    pointer-events: none;
+    position: absolute;
+    opacity: .5;
+  }
   &.error {
     background-color: pink;
     border: 1px solid red;

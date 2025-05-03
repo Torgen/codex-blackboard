@@ -37,6 +37,11 @@ import { confirm } from "./imports/modal.js";
 import isVisible from "/client/imports/visible.js";
 import Favico from "favico.js";
 import { hsize } from "/client/imports/ui/components/splitter/splitter.js";
+import {
+  selectionWithin,
+  selectWithin,
+  textContent,
+} from "./imports/contenteditable_selection.js";
 
 const GENERAL_ROOM = GENERAL_ROOM_NAME;
 const GENERAL_ROOM_REGEX = new RegExp(`^${GENERAL_ROOM}$`, "i");
@@ -1018,16 +1023,20 @@ Template.messages_input.onCreated(function () {
 
   this.updateTypeahead = function () {
     const i = this.$("#messageInput");
-    const v = i.val();
-    const ss = i.prop("selectionStart");
-    const se = i.prop("selectionEnd");
-    if (ss !== se) {
+    const selection = selectionWithin(i[0]);
+    if (selection === null) {
+      return;
+    }
+    if (selection[0] !== selection[1]) {
       this.setQuery(null, null);
       return;
     }
-    const tv = v.substring(ss);
+    const position = selection[0];
+    const v = textContent(i[0]);
+    const tv = v.substring(position);
     const nextSpace = tv.search(/[\s]/);
-    const consider = nextSpace === -1 ? v : v.substring(0, ss + nextSpace);
+    const consider =
+      nextSpace === -1 ? v : v.substring(0, position + nextSpace);
     let match = consider.match(MSG_PATTERN);
     if (match) {
       this.setQuery(match[2], "users");
@@ -1052,39 +1061,44 @@ Template.messages_input.onCreated(function () {
   };
 
   this.confirmTypeahead = function (nick) {
-    console.log(nick);
     let newCaret;
     this.setQuery(null, null);
     const i = this.$("#messageInput");
-    const v = i.val();
-    const ss = i.prop("selectionStart");
+    const selection = selectionWithin(i[0]);
+    if (selection === null) {
+      return;
+    }
+    const v = textContent(i[0]);
+    const ss = selection[0];
     const tv = v.substring(ss);
     const nextSpace = tv.search(/[\s]/);
     const consider = nextSpace === -1 ? v : v.substring(0, ss + nextSpace);
     let match = consider.match(MSG_PATTERN);
     if (match) {
-      i.val(
+      i.prop(
+        "innerText",
         v.substring(0, match[0].length - match[2].length) +
           nick +
           " " +
           v.substring(consider.length)
       );
       newCaret = match[0].length - match[2].length + nick.length + 1;
-      i[0].setSelectionRange(newCaret, newCaret);
+      selectWithin(i[0], newCaret);
       i.focus();
       return;
     }
     for (const pattern of [AT_MENTION_PATTERN, ROOM_MENTION_PATTERN]) {
       match = consider.match(pattern);
       if (match) {
-        i.val(
+        i.prop(
+          "innerText",
           v.substring(0, consider.length - match[2].length) +
             nick +
             " " +
             v.substring(consider.length)
         );
         newCaret = consider.length - match[2].length + nick.length + 1;
-        i[0].setSelectionRange(newCaret, newCaret);
+        selectWithin(i[0], newCaret);
         i.blur();
         i.focus();
         return;
@@ -1096,7 +1110,7 @@ Template.messages_input.onCreated(function () {
     this.typing.set(null);
     let to;
     let n;
-    if (!message) {
+    if (!message?.trim().length) {
       return false;
     }
     const args = {
@@ -1195,14 +1209,14 @@ function format_body(msg) {
 }
 
 Template.messages_input.events({
-  "keydown textarea"(event, template) {
+  "keydown #messageInput"(event, template) {
     let msg, query, s;
     template.error.set(null);
     if (["Up", "ArrowUp"].includes(event.key)) {
       if (template.query.get() != null) {
         event.preventDefault();
         template.moveActive(-1);
-      } else if (event.target.selectionEnd === 0) {
+      } else if (selectionWithin(event.target)?.[1] === 0) {
         // Checking that the cursor is at the start of the box.
         query = {
           room_name: Session.get("room_name"),
@@ -1218,8 +1232,8 @@ Template.messages_input.events({
         msg = Messages.findOne(query, { sort: { timestamp: -1 } });
         if (msg != null) {
           template.history_ts = msg.timestamp;
-          event.target.value = format_body(msg);
-          event.target.setSelectionRange(0, 0);
+          event.target.innerText = format_body(msg);
+          selectWithin(event.target, 0);
         }
         return;
       }
@@ -1228,7 +1242,9 @@ Template.messages_input.events({
       if (template.query.get() != null) {
         event.preventDefault();
         template.moveActive(1);
-      } else if (event.target.selectionStart === event.target.value.length) {
+      } else if (
+        selectionWithin(event.target)?.[0] === textContent(event.target).length
+      ) {
         // 40 is arrow down. Checking that the cursor is at the end of the box.
         if (template.history_ts == null) {
           return;
@@ -1247,11 +1263,11 @@ Template.messages_input.events({
         if (msg != null) {
           template.history_ts = msg.timestamp;
           const body = format_body(msg);
-          event.target.value = body;
-          event.target.setSelectionRange(body.length, body.length);
+          event.target.innerText = body;
+          selectWithin(event.target, body.length);
         } else {
           template.typing.set(null);
-          event.target.value = "";
+          event.target.innerText = "";
           template.history_ts = null;
         }
         return;
@@ -1267,9 +1283,9 @@ Template.messages_input.events({
       } else {
         // implicit submit on enter (but not shift-enter or ctrl-enter)
         const $message = $(event.currentTarget);
-        const message = $message.val();
+        const message = textContent($message[0]);
         if (template.submit(message)) {
-          $message.val("");
+          $message.prop("innerText", "");
         }
       }
     }
@@ -1278,7 +1294,6 @@ Template.messages_input.events({
     if (event.key === "Tab") {
       s = template.selected.get();
       if (s != null) {
-        console.log(s);
         event.preventDefault();
         template.confirmTypeahead(s);
       }
@@ -1298,7 +1313,7 @@ Template.messages_input.events({
   },
   "input #messageInput"(event, template) {
     const minChars = TypingIndicatorCharacters.get();
-    const value = event.currentTarget.value;
+    const value = textContent(event.currentTarget);
     let time = null;
     if (
       minChars > 0 &&
