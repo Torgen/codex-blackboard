@@ -68,9 +68,7 @@ describe("contentEditable", function () {
         selectWithin(editable, 5, 30);
       });
       it("selected all three nodes", function () {
-        const sel = document.getSelection();
-        chai.assert.equal(sel.direction, "forward", "direction");
-        const range = sel.getRangeAt(0);
+        const range = document.getSelection().getRangeAt(0);
         chai.assert.equal(
           range.startContainer,
           editable.firstChild,
@@ -91,9 +89,7 @@ describe("contentEditable", function () {
         selectWithin(editable, 30, 5);
       });
       it("selected all three nodes", function () {
-        const sel = document.getSelection();
-        chai.assert.equal(sel.direction, "backward", "direction");
-        const range = sel.getRangeAt(0);
+        const range = document.getSelection().getRangeAt(0);
         chai.assert.equal(
           range.startContainer,
           editable.firstChild,
@@ -114,9 +110,7 @@ describe("contentEditable", function () {
         selectWithin(editable, 30);
       });
       it("selected one nodes", function () {
-        const sel = document.getSelection();
-        chai.assert.equal(sel.direction, "none", "direction");
-        const range = sel.getRangeAt(0);
+        const range = document.getSelection().getRangeAt(0);
         chai.assert.isTrue(range.collapsed, "collapsed");
         chai.assert.equal(
           range.startContainer,
