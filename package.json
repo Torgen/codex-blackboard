@@ -45,7 +45,7 @@
     "drag-mock": "^1.4.0",
     "eslint": "^9.26.0",
     "eslint-plugin-jsonc": "^2.20.0",
-    "eslint-plugin-prettier": "^5.2.6",
+    "eslint-plugin-prettier": "^5.4.0",
     "playwright": "^1.52.0",
     "prettier": "^3.5.3",
     "sinon": "^20.0.0"
