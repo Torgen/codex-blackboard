@@ -138,13 +138,14 @@ When you tear down this VM, remember to release your static IP address, or you w
 
 Even if not running your VM on Compute Engine, you will need to follow steps 1-3 above to enable the Drive API. After
 creating a VM on whichever cloud provider you're using, but before running the install script, download a JSON key for the
-service account you created and put it somewhere on the VM (/etc is good). Make it world readable. During step 8,
-uncomment `GOOGLE_APPLICATION_CREDENTIALS` in `/etc/codex-common.env` and set it to the path to your json file.
+service account you created and put it somewhere on the VM (/etc is good). Make it readable by the `blackboard` user and/or group.
+During step 8, uncomment `GOOGLE_APPLICATION_CREDENTIALS` in `/etc/codex-common.env` and set it to the path to your json file.
 
-As written, the blackboard will run as nobody, which is why you need to make the key world-readable.
-If this is a machine multiple users have access to, you can change the user the blackboard runs as in `/etc/systemd/system/codex@.service` and
-`/etc/systemd/system/codex-batch.service`, after which you can make the file readable only by that user.
-Run `sudo systemctl daemon-reload` after making that change.
+As written, the script will create a dedicated user and group both named `blackboard` which the app will run as.
+If you installed the app for the 2025 MIT Mystery Hunt, the Systemd units that were installed at that time ran
+the app as nobody/nogroup. If you need the app to run as a dedicated user because you want to give it access to files
+that shouldn't be public, you can update the `User` and `Group` entries in the `[Service]` section of the unit files;
+make sure to run `sudo systemctl daemon-reload` afterwards.
 
 The install script assumes it should use the MongoDB repository for Ubuntu 20.04. If this is not the release you are using,
 you will have to look up the installation instructions on the MongoDB site.
