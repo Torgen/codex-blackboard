@@ -37,6 +37,9 @@ sudo apt-get install -y mongodb-org nodejs software-properties-common
 sudo npm install -g handlebars-cmd
 cd "$scriptroot"/../..
 
+sudo addgroup blackboard
+sudo useradd -G blackboard -m blackboard
+
 # Build the bundle, then install it.
 meteor npm install
 sudo mkdir /opt/codex

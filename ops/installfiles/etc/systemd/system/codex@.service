@@ -13,8 +13,8 @@ StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=codex
 WorkingDirectory=/opt/codex/bundle
-User=nobody
-Group=nogroup
+User=blackboard
+Group=blackboard
 EnvironmentFile=/etc/codex-per-team.env
 EnvironmentFile=/etc/codex-per-hunt.env
 Environment=UNIX_SOCKET_PATH=/tmp/codex.%i
