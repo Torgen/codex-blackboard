@@ -1,0 +1,12 @@
+<template name="room_presence">{{!
+    Data context:
+    room_name (string) the room to show the presence for.
+  }}{{
+  #let j=jitsi co=chat_only}}{{#if any (j.count) (co.count)}}{{
+    #with j.count}}<i class="presence fas fa-video"><span class="count">{{this}}</span></i>{{
+    /with}}{{
+    #with co.count}}<i class="presence fas fa-comment-alt"><span class="count">{{this}}</span></i>{{
+    /with
+  }}{{/if}}{{
+  /let
+}}</template>

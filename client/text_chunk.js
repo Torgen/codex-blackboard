@@ -1,6 +1,6 @@
 import { chunk_text } from "./imports/chunk_text.js";
 import { collection, pretty_collection } from "/lib/imports/collections.js";
-import { findByChannel } from "/client/imports/presence_index.js";
+import "./imports/ui/components/room_presence";
 
 Template.text_chunks.helpers({
   chunks() {
@@ -23,11 +23,8 @@ Template.text_chunk_room.helpers({
     return collection(this.type).findOne({ _id: this.id });
   },
   pretty_collection,
-  jitsi() {
-    return findByChannel(`${this.type}/${this.id}`, { jitsi: { $gt: 0 } });
-  },
-  chat_only() {
-    return findByChannel(`${this.type}/${this.id}`, { jitsi: 0 });
+  room_name() {
+    return `${this.type}/${this.id}`;
   },
 });
 

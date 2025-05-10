@@ -56,6 +56,7 @@ jobs:
           VALIDATE_HTML_PRETTIER: false # same
           VALIDATE_JAVASCRIPT_PRETTIER: false # eslint runs prettier
           VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_JSCPD: false
           LINTER_RULES_PATH: /
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
