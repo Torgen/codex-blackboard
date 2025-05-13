@@ -19,9 +19,10 @@ const CHANGES_FIELDS =
   "nextPageToken,newStartPageToken,changes(changeType,removed,fileId,file(name,mimeType,parents,createdTime,modifiedTime,webViewLink))";
 
 export default class DriveChangeWatcher {
-  constructor(driveApi, rootDir, env = Meteor) {
+  constructor(driveApi, rootDir, sharedDrive = null, env = Meteor) {
     this.driveApi = driveApi;
     this.rootDir = rootDir;
+    this.sharedDrive = sharedDrive;
     this.env = env;
   }
   async start() {
@@ -31,9 +32,13 @@ export default class DriveChangeWatcher {
       { limit: 1, sort: { timestamp: -1 } }
     );
     if (!lastToken) {
+      const args = { supportsAllDrives: true };
+      if (this.sharedDrive) {
+        args.driveId = this.sharedDrive;
+      }
       ({
         data: { startPageToken },
-      } = await this.driveApi.changes.getStartPageToken());
+      } = await this.driveApi.changes.getStartPageToken(args));
       lastToken = {
         timestamp: Date.now(),
         token: startPageToken,
@@ -60,6 +65,9 @@ export default class DriveChangeWatcher {
           pageToken: token,
           pageSize: 1000,
           fields: CHANGES_FIELDS,
+          supportsAllDrives: true,
+          includeItemsFromAllDrives: this.sharedDrive != null,
+          driveId: this.sharedDrive,
         }));
         updates = new Map(); // key: puzzle id, value: max modifiedTime of file with it as parent
         created = new Map(); // key: file ID, value: {name, mimeType, webViewLink, channel}

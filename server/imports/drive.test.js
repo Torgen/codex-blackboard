@@ -73,6 +73,9 @@ describe("drive", function () {
           sinon.match({
             q: "name='Test Folder' and 'root' in parents",
             pageSize: 1,
+            supportsAllDrives: true,
+            includeItemsFromAllDrives: true,
+            corpora: "allDrives",
           })
         )
         .resolves({ data: { files: [] } });
@@ -84,6 +87,7 @@ describe("drive", function () {
               name: "Test Folder",
               mimeType: "application/vnd.google-apps.folder",
             },
+            supportsAllDrives: true,
           })
         )
         .resolves({
@@ -99,6 +103,7 @@ describe("drive", function () {
           sinon.match({
             fileId: "hunt",
             fields: PERMISSION_LIST_FIELDS,
+            supportsAllDrives: true,
           })
         )
         .resolves({ data: { permissions: [] } });
@@ -109,6 +114,7 @@ describe("drive", function () {
             sinon.match({
               fileId: "hunt",
               resource: perm,
+              supportsAllDrives: true,
             })
           )
           .resolves({ data: {} })
@@ -119,6 +125,9 @@ describe("drive", function () {
           sinon.match({
             q: "name='Ringhunters Uploads' and 'hunt' in parents",
             pageSize: 1,
+            supportsAllDrives: true,
+            includeItemsFromAllDrives: true,
+            corpora: "allDrives",
           })
         )
         .resolves({ data: { files: [] } });
@@ -131,6 +140,7 @@ describe("drive", function () {
               mimeType: "application/vnd.google-apps.folder",
               parents: sinon.match.some(sinon.match("hunt")),
             },
+            supportsAllDrives: true,
           })
         )
         .resolves({
@@ -146,6 +156,7 @@ describe("drive", function () {
           sinon.match({
             fileId: "uploads",
             fields: PERMISSION_LIST_FIELDS,
+            supportsAllDrives: true,
           })
         )
         .resolves({ data: { permissions: [] } });
@@ -156,6 +167,120 @@ describe("drive", function () {
             sinon.match({
               fileId: "uploads",
               resource: perm,
+              supportsAllDrives: true,
+            })
+          )
+          .resolves({ data: {} })
+      );
+      await new Drive(api).connect();
+    });
+
+    it("creates in shared drive when set", async function () {
+      sinon.replace(batch, "DO_BATCH_PROCESSING", true);
+      sinon.define(Meteor.settings, "shared_drive", "aDriveThatIsShared");
+      files
+        .expects("list")
+        .withArgs(
+          sinon.match({
+            q: "name='Test Folder' and 'aDriveThatIsShared' in parents",
+            pageSize: 1,
+            supportsAllDrives: true,
+            includeItemsFromAllDrives: true,
+            corpora: "allDrives",
+          })
+        )
+        .resolves({ data: { files: [] } });
+      files
+        .expects("create")
+        .withArgs(
+          sinon.match({
+            resource: {
+              name: "Test Folder",
+              mimeType: "application/vnd.google-apps.folder",
+              parents: sinon.match.some(sinon.match("aDriveThatIsShared")),
+            },
+            supportsAllDrives: true,
+          })
+        )
+        .resolves({
+          data: {
+            id: "hunt",
+            name: "Test Folder",
+            mimeType: "application/vnd.google-apps.folder",
+            driveId: "aDriveThatIsShared",
+          },
+        });
+      permissions
+        .expects("list")
+        .withArgs(
+          sinon.match({
+            fileId: "hunt",
+            fields: PERMISSION_LIST_FIELDS,
+            supportsAllDrives: true,
+          })
+        )
+        .resolves({ data: { permissions: [] } });
+      perms.forEach((perm) =>
+        permissions
+          .expects("create")
+          .withArgs(
+            sinon.match({
+              fileId: "hunt",
+              resource: perm,
+              supportsAllDrives: true,
+            })
+          )
+          .resolves({ data: {} })
+      );
+      files
+        .expects("list")
+        .withArgs(
+          sinon.match({
+            q: "name='Ringhunters Uploads' and 'hunt' in parents",
+            pageSize: 1,
+            supportsAllDrives: true,
+            includeItemsFromAllDrives: true,
+            corpora: "allDrives",
+          })
+        )
+        .resolves({ data: { files: [] } });
+      files
+        .expects("create")
+        .withArgs(
+          sinon.match({
+            resource: {
+              name: "Ringhunters Uploads",
+              mimeType: "application/vnd.google-apps.folder",
+              parents: sinon.match.some(sinon.match("hunt")),
+            },
+            supportsAllDrives: true,
+          })
+        )
+        .resolves({
+          data: {
+            id: "uploads",
+            name: "Ringhunters Uploads",
+            mimeType: "application/vnd.google-apps.folder",
+          },
+        });
+      permissions
+        .expects("list")
+        .withArgs(
+          sinon.match({
+            fileId: "uploads",
+            fields: PERMISSION_LIST_FIELDS,
+            supportsAllDrives: true,
+          })
+        )
+        .resolves({ data: { permissions: [] } });
+      perms.forEach((perm) =>
+        permissions
+          .expects("create")
+          .withArgs(
+            sinon.match({
+              fileId: "uploads",
+              resource: perm,
+              supportsAllDrives: true,
             })
           )
           .resolves({ data: {} })
@@ -173,6 +298,9 @@ describe("drive", function () {
             sinon.match({
               q: "name='Test Folder' and 'root' in parents",
               pageSize: 1,
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              corpora: "allDrives",
             })
           )
           .resolves({
@@ -192,6 +320,9 @@ describe("drive", function () {
             sinon.match({
               q: "name='Ringhunters Uploads' and 'hunt' in parents",
               pageSize: 1,
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              corpora: "allDrives",
             })
           )
           .resolves({
@@ -217,6 +348,9 @@ describe("drive", function () {
               sinon.match({
                 q: "name='New Puzzle' and 'hunt' in parents",
                 pageSize: 1,
+                supportsAllDrives: true,
+                includeItemsFromAllDrives: true,
+                corpora: "allDrives",
               })
             )
             .resolves({ data: { files: [] } });
@@ -229,6 +363,7 @@ describe("drive", function () {
                   mimeType: "application/vnd.google-apps.folder",
                   parents: sinon.match.some(sinon.match("hunt")),
                 },
+                supportsAllDrives: true,
               })
             )
             .resolves({
@@ -245,6 +380,7 @@ describe("drive", function () {
               sinon.match({
                 fileId: "newpuzzle",
                 fields: PERMISSION_LIST_FIELDS,
+                supportsAllDrives: true,
               })
             )
             .resolves({ data: { permissions: [] } });
@@ -255,6 +391,7 @@ describe("drive", function () {
                 sinon.match({
                   fileId: "newpuzzle",
                   resource: perm,
+                  supportsAllDrives: true,
                 })
               )
               .resolves({ data: {} })
@@ -265,6 +402,9 @@ describe("drive", function () {
               sinon.match({
                 pageSize: 1,
                 q: "name='Worksheet: New Puzzle' and mimeType='application/vnd.google-apps.spreadsheet' and 'newpuzzle' in parents",
+                supportsAllDrives: true,
+                includeItemsFromAllDrives: true,
+                corpora: "allDrives",
               })
             )
             .resolves({ data: { files: [] } });
@@ -283,6 +423,7 @@ describe("drive", function () {
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                   body: sinon.match.instanceOf(Readable),
                 }),
+                supportsAllDrives: true,
               })
             )
             .resolves({
@@ -299,6 +440,7 @@ describe("drive", function () {
               sinon.match({
                 fileId: "newsheet",
                 fields: PERMISSION_LIST_FIELDS,
+                supportsAllDrives: true,
               })
             )
             .resolves({ data: { permissions: [] } });
@@ -309,6 +451,7 @@ describe("drive", function () {
                 sinon.match({
                   fileId: "newsheet",
                   resource: perm,
+                  supportsAllDrives: true,
                 })
               )
               .resolves({ data: {} })
@@ -323,6 +466,9 @@ describe("drive", function () {
               sinon.match({
                 q: "name='New Puzzle' and 'hunt' in parents",
                 pageSize: 1,
+                supportsAllDrives: true,
+                includeItemsFromAllDrives: true,
+                corpora: "allDrives",
               })
             )
             .resolves({
@@ -343,6 +489,7 @@ describe("drive", function () {
               sinon.match({
                 fileId: "newpuzzle",
                 fields: PERMISSION_LIST_FIELDS,
+                supportsAllDrives: true,
               })
             )
             .resolves({ data: { permissions: defaultPerms } });
@@ -352,6 +499,9 @@ describe("drive", function () {
               sinon.match({
                 pageSize: 1,
                 q: "name='Worksheet: New Puzzle' and mimeType='application/vnd.google-apps.spreadsheet' and 'newpuzzle' in parents",
+                supportsAllDrives: true,
+                includeItemsFromAllDrives: true,
+                corpora: "allDrives",
               })
             )
             .resolves({
@@ -372,6 +522,7 @@ describe("drive", function () {
               sinon.match({
                 fileId: "newsheet",
                 fields: PERMISSION_LIST_FIELDS,
+                supportsAllDrives: true,
               })
             )
             .resolves({ data: { permissions: defaultPerms } });
@@ -387,6 +538,9 @@ describe("drive", function () {
               sinon.match({
                 q: "name='New Puzzle' and mimeType='application/vnd.google-apps.folder' and 'hunt' in parents",
                 pageSize: 1,
+                supportsAllDrives: true,
+                includeItemsFromAllDrives: true,
+                corpora: "allDrives",
               })
             )
             .resolves({ data: { files: [] } });
@@ -400,6 +554,9 @@ describe("drive", function () {
               sinon.match({
                 q: "name='New Puzzle' and mimeType='application/vnd.google-apps.folder' and 'hunt' in parents",
                 pageSize: 1,
+                supportsAllDrives: true,
+                includeItemsFromAllDrives: true,
+                corpora: "allDrives",
               })
             )
             .resolves({
@@ -420,6 +577,9 @@ describe("drive", function () {
               sinon.match({
                 pageSize: 1,
                 q: "name='Worksheet: New Puzzle' and 'newpuzzle' in parents",
+                supportsAllDrives: true,
+                includeItemsFromAllDrives: true,
+                corpora: "allDrives",
               })
             )
             .resolves({
@@ -460,6 +620,9 @@ describe("drive", function () {
             sinon.match({
               q: "mimeType='application/vnd.google-apps.folder' and 'hunt' in parents",
               pageSize: 200,
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              corpora: "allDrives",
             })
           )
           .resolves({
@@ -475,6 +638,9 @@ describe("drive", function () {
               q: "mimeType='application/vnd.google-apps.folder' and 'hunt' in parents",
               pageSize: 200,
               pageToken: "token",
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              corpora: "allDrives",
             })
           )
           .resolves({
@@ -495,6 +661,7 @@ describe("drive", function () {
             sinon.match({
               fileId: "newpuzzle",
               resource: sinon.match({ name: "Old Puzzle" }),
+              supportsAllDrives: true,
             })
           )
           .resolves({ data: {} });
@@ -504,6 +671,7 @@ describe("drive", function () {
             sinon.match({
               fileId: "newsheet",
               resource: sinon.match({ name: "Worksheet: Old Puzzle" }),
+              supportsAllDrives: true,
             })
           )
           .resolves({ data: {} });
@@ -517,6 +685,9 @@ describe("drive", function () {
             sinon.match({
               q: "mimeType='application/vnd.google-apps.folder' and 'newpuzzle' in parents",
               pageSize: 200,
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              corpora: "allDrives",
             })
           )
           .resolves({ data: { files: [] } }); // Puzzles don't have folders
@@ -526,6 +697,9 @@ describe("drive", function () {
             sinon.match({
               q: "mimeType!='application/vnd.google-apps.folder' and 'newpuzzle' in parents",
               pageSize: 200,
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              corpora: "allDrives",
             })
           )
           .resolves({
@@ -546,6 +720,7 @@ describe("drive", function () {
           .withArgs(
             sinon.match({
               fileId: "newsheet",
+              supportsAllDrives: true,
             })
           )
           .resolves({ data: {} });
@@ -556,6 +731,9 @@ describe("drive", function () {
               q: "mimeType!='application/vnd.google-apps.folder' and 'newpuzzle' in parents",
               pageSize: 200,
               pageToken: "token",
+              supportsAllDrives: true,
+              includeItemsFromAllDrives: true,
+              corpora: "allDrives",
             })
           )
           .resolves({
@@ -575,6 +753,7 @@ describe("drive", function () {
           .withArgs(
             sinon.match({
               fileId: "newdoc",
+              supportsAllDrives: true,
             })
           )
           .resolves({ data: {} });
@@ -583,6 +762,7 @@ describe("drive", function () {
           .withArgs(
             sinon.match({
               fileId: "newpuzzle",
+              supportsAllDrives: true,
             })
           )
           .resolves({ data: {} });

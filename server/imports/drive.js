@@ -4,6 +4,7 @@ import {
   ROOT_FOLDER_NAME,
   CODEX_ACCOUNT,
   SHARE_GROUP,
+  SHARED_DRIVE,
 } from "./googlecommon.js";
 import * as batch from "/server/imports/batch.js";
 
@@ -66,14 +67,20 @@ async function ensurePermissions(drive, id) {
     });
   }
   const resp = (
-    await drive.permissions.list({ fileId: id, fields: PERMISSION_LIST_FIELDS })
+    await drive.permissions.list({
+      fileId: id,
+      fields: PERMISSION_LIST_FIELDS,
+      supportsAllDrives: true,
+    })
   ).data;
   const ps = [];
   perms.forEach(function (p) {
     // does this permission already exist?
     const exists = resp.permissions.some((pp) => samePerm(p.resource, pp));
     if (!exists) {
-      ps.push(drive.permissions.create({ fileId: id, ...p }));
+      ps.push(
+        drive.permissions.create({ fileId: id, supportsAllDrives: true, ...p })
+      );
     }
   });
   await Promise.all(ps);
@@ -103,6 +110,9 @@ async function ensure(drive, name, folder, settings) {
         settings.driveMimeType
       )} and ${quote(folder.id)} in parents`,
       pageSize: 1,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+      corpora: "allDrives",
     })
   ).data.files[0];
   if (doc == null) {
@@ -118,6 +128,7 @@ async function ensure(drive, name, folder, settings) {
           mimeType: settings.uploadMimeType,
           body: await settings.uploadTemplate(),
         },
+        supportsAllDrives: true,
       })
     ).data;
   }
@@ -132,6 +143,9 @@ async function awaitFolder(drive, name, parent) {
       await drive.files.list({
         q: `name=${quote(name)} and ${quote(parent)} in parents`,
         pageSize: 1,
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        corpora: "allDrives",
       })
     ).data;
     if (resp.files.length > 0) {
@@ -155,6 +169,9 @@ async function ensureFolder(drive, name, parent) {
     await drive.files.list({
       q: `name=${quote(name)} and ${quote(parent || "root")} in parents`,
       pageSize: 1,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+      corpora: "allDrives",
     })
   ).data;
   if (resp.files.length > 0) {
@@ -168,7 +185,8 @@ async function ensureFolder(drive, name, parent) {
     if (parent) {
       resource.parents = [parent];
     }
-    resource = (await drive.files.create({ resource })).data;
+    resource = (await drive.files.create({ resource, supportsAllDrives: true }))
+      .data;
   }
   // give the new folder the right permissions
   return {
@@ -208,6 +226,9 @@ async function rmrfFolder(drive, id) {
         )} in parents`,
         pageSize: MAX_RESULTS,
         pageToken: resp.nextPageToken,
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        corpora: "allDrives",
       })
     ).data;
     resp.files.forEach((item) => ps.push(rmrfFolder(item.id)));
@@ -224,10 +245,13 @@ async function rmrfFolder(drive, id) {
         )} in parents`,
         pageSize: MAX_RESULTS,
         pageToken: resp.nextPageToken,
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        corpora: "allDrives",
       })
     ).data;
     resp.files.forEach((item) =>
-      ps.push(drive.files.delete({ fileId: item.id }))
+      ps.push(drive.files.delete({ fileId: item.id, supportsAllDrives: true }))
     );
     if (resp.nextPageToken == null) {
       break;
@@ -235,7 +259,7 @@ async function rmrfFolder(drive, id) {
   }
   await Promise.all(ps);
   // folder empty; delete the folder and we're done
-  await drive.files.delete({ fileId: id });
+  await drive.files.delete({ fileId: id, supportsAllDrives: true });
   return "ok";
 }
 
@@ -244,9 +268,13 @@ export class Drive {
     this.drive = drive;
   }
   async connect() {
-    this.rootFolder = (
-      await awaitOrEnsureFolder(this.drive, ROOT_FOLDER_NAME())
-    ).id;
+    const rootFolder = await awaitOrEnsureFolder(
+      this.drive,
+      ROOT_FOLDER_NAME(),
+      SHARED_DRIVE()
+    );
+    this.rootFolder = rootFolder.id;
+    this.sharedDrive = rootFolder.driveId;
     this.ringhuntersFolder = (
       await awaitOrEnsureFolder(
         this.drive,
@@ -282,6 +310,9 @@ export class Drive {
           GDRIVE_FOLDER_MIME_TYPE
         )} and ${quote(this.rootFolder)} in parents`,
         pageSize: 1,
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        corpora: "allDrives",
       })
     ).data;
     const folder = resp.files[0];
@@ -294,6 +325,9 @@ export class Drive {
         folder.id
       )} in parents`,
       pageSize: 1,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+      corpora: "allDrives",
     });
     return {
       id: folder.id,
@@ -312,6 +346,9 @@ export class Drive {
           )} in parents`,
           pageSize: MAX_RESULTS,
           pageToken: resp.nextPageToken,
+          supportsAllDrives: true,
+          includeItemsFromAllDrives: true,
+          corpora: "allDrives",
         })
       ).data;
       results.push(...resp.files);
@@ -329,6 +366,7 @@ export class Drive {
         resource: {
           name,
         },
+        supportsAllDrives: true,
       }),
     ];
     if (spreadId != null) {
@@ -338,6 +376,7 @@ export class Drive {
           resource: {
             name: WORKSHEET_NAME(name),
           },
+          supportsAllDrives: true,
         })
       );
     }
