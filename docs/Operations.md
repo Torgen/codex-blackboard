@@ -89,15 +89,13 @@ resources.
       is used for settings which are not set, typically because they are optional and their correct values can't be determined automatically.
       If you set one of these, you must remove the leading `;` or your change will have no effect. The possible settings are well documented;
       the most important are:
+      - `SHARED_DRIVE`: Necessary if running as a service account created after 15 April 2025, as
+        it will not have its own Drive quota and will be unable to create files. Shared drives can only be created by accounts that belong to Google Workspace domains, but they can be shared with anyone. If you use this, give the service account the machine runs as the `organizer` permission on the shared drive.
       - `DRIVE_OWNER_ADDRESS`: If you want all documents, folders, and calendars the blackboard creates to be shared with you, set this to the email address to share them with.
       - `DRIVE_SHARE_GROUP`: (_New for 2022_) If you have a Google group for members of your team, either at
-        `googlegroups.com` or a workspace domain, setting this will share the documents and folders with them so that they can
-        appear in the UI as themselves instead of as anonymous animals. It will also let them edit the calendar. (Unlike
-        drive, calendars can't be made writable to anyone with the link.)
+        `googlegroups.com` or a workspace domain, setting this will share the documents and folders with them so that they can appear in the UI as themselves instead of as anonymous animals. It will also let them edit the calendar. (Unlike drive, calendars can't be made writable to anyone with the link.)
       - `TEAM_PASSWORD`: The shared password all users will use to login. If you don't set it, any password will be accepted.
-      - `DRIVE_FOLDER_NAME`: The name of the top-level drive folder. If you use the blackboard for multiple hunts, you
-        want this set to a different value for each so puzzles with coincidentally the same name don't use the same
-        spreadsheet. (I'm looking at you, Potlines.) If you don't set it, it will default to `MIT Mystery Hunt` plus the current year.
+      - `DRIVE_FOLDER_NAME`: The name of the top-level drive folder. If you use the blackboard for multiple hunts, you want this set to a different value for each so puzzles with coincidentally the same name don't use the same spreadsheet. (I'm looking at you, Potlines.) If you don't set it, it will default to `MIT Mystery Hunt` plus the current year.
       - `METEOR_SETTINGS`: Almost every server-side setting can be set in this JSON object. (It is the equivalent of the `settings.json`
         file you might use when running locally in development mode, or if you use Galaxy); client-side settings must be set in the
         `public` sub-object. The relevant keys under `public` are:
@@ -110,7 +108,7 @@ resources.
         - `teamName`: The name of the team as it will appear at the top of the blackboard. This is also used in Jitsi meeting names, if configured.
         - `whoseGitHub`: The hamburger menu has a link to the issues page on GitHub. This controls which fork of the repository the link points at.
         - `jitsiServer`: The DNS name (no protocol or path) of a Jitsi server. This is no longer set by default, because the server at `meet.jit.si` is no longer free.
-          You can set it to a public Jitsi server near you (<https://jitsi.github.io/handbook/docs/community-instances> has a list), but some servers on that list aren't actually open to the public. .
+          You can set it to a public Jitsi server near you (<https://jitsi.github.io/handbook/docs/community-instances> has a list), but some servers on that list aren't actually open to the public.
           It's also possible to run your own Jitsi server if you can spare the bandwidth. See below for instructions.
           If this is unset, no meetings will be created or embedded.
       - `STATIC_JITSI_ROOM`: Puzzle rooms use the random puzzle ID in their room URL, so they are not guessable.
