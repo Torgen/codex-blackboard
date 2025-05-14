@@ -27,7 +27,11 @@ if (Meteor.isAppTest) {
     console.log("Google Drive authorized and activated");
     driveEnv.bindSingleton(d);
     if (DO_BATCH_PROCESSING) {
-      await new DriveChangeWatcher(api, d.ringhuntersFolder, d.sharedDrive).start();
+      await new DriveChangeWatcher(
+        api,
+        d.ringhuntersFolder,
+        d.sharedDrive
+      ).start();
     }
   } catch (error) {
     console.warn("Error trying to retrieve drive API:", error);
