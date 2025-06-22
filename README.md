@@ -51,7 +51,7 @@ settings.json file on the virtual Linux filesystem.
 
 ## Installing Meteor
 
-Our blackboard app currently requires Meteor 3.0.3.
+Our blackboard app currently requires Meteor 3.3.
 
 At the moment the two ways to install Meteor are:
 
