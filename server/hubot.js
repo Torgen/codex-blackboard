@@ -22,6 +22,8 @@ if (DO_BATCH_PROCESSING) {
 
   Meteor.startup(async function () {
     const robot = new Robot(BOTNAME, BOT_GRAVATAR);
+    await robot.run();
+
     // register scripts
     robot.privately(hubot_help);
     robot.loadExternalScripts(EXTERNAL_SCRIPTS);
@@ -33,7 +35,5 @@ if (DO_BATCH_PROCESSING) {
       console.log(`Loading hubot script: ${name}`);
       await script(robot);
     }
-
-    await robot.run();
   });
 }
