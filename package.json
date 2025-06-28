@@ -86,10 +86,6 @@
     }
   },
   "meteor": {
-    "modern": {
-      "transpiler": {
-        "verbose": true
-      }
-    }
+    "modern": true
   }
 }
