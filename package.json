@@ -48,7 +48,8 @@
     "eslint-plugin-prettier": "^5.5.0",
     "playwright": "^1.53.1",
     "prettier": "^3.5.3",
-    "sinon": "^21.0.0"
+    "sinon": "^21.0.0",
+    "swc-plugin-coverage-instrument": "^0.0.27"
   },
   "overrides": {
     "path-to-regexp": "^8.0.0",
@@ -58,6 +59,7 @@
     "test": "LANG=EN_us meteor test --once --driver-package meteortesting:mocha",
     "test.full": "LANG=en_US meteor test --once --driver-package meteortesting:mocha --full-app --settings tests/integration_test_settings.json",
     "coverage": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_HTML=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
+    "coverage.full": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_HTML=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm run-script test.full",
     "coverage.json": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_JSON=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
     "coverage.client.json": "TEST_SERVER=0 meteor npm run-script coverage.json",
     "coverage.server.json": "TEST_CLIENT=0 meteor npm run-script coverage.json",
@@ -80,6 +82,13 @@
         "plugins": [
           "istanbul"
         ]
+      }
+    }
+  },
+  "meteor": {
+    "modern": {
+      "transpiler": {
+        "verbose": true
       }
     }
   }
