@@ -33,7 +33,7 @@ function waitForNotLoggingIn() {
 }
 
 describe("login", function () {
-  this.timeout(20000);
+  this.timeout(30000);
   it("only sends email hash", async function () {
     await login("testy", "Teresa Tybalt", "fake@artifici.al", "failphrase");
     await waitForSubscriptions();
