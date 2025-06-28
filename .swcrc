@@ -1,7 +1,9 @@
 {
-    "jsc": {
-        "experimental": {
-            "plugins": [["swc-plugin-coverage-instrument", {}]]
-        }
+  "jsc": {
+    "experimental": {
+      "plugins": [["swc-plugin-coverage-instrument", {
+        "unstableExclude": ["packages/**", "node_modules/**"]
+      }]]
     }
+  }
 }
