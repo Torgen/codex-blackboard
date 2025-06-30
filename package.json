@@ -9,7 +9,7 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@googleapis/calendar": "^10.0.1",
     "@googleapis/drive": "^13.0.1",
-    "@googlemaps/js-api-loader": "^1.16.8",
+    "@googlemaps/js-api-loader": "^1.16.10",
     "@googlemaps/markerclusterer": "^2.5.3",
     "@googlemaps/markerwithlabel": "^2.0.28",
     "chart.js": "^4.5.0",
@@ -29,11 +29,11 @@
     "hubot-help": "^2.1.5",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
-    "meteor-node-stubs": "^1.2.19",
+    "meteor-node-stubs": "^1.2.20",
     "normalize-text": "^2.6.0",
     "page": "^1.11.6",
     "sanitize-html": "^2.17.0",
-    "twitter-api-v2": "^1.23.2"
+    "twitter-api-v2": "^1.24.0"
   },
   "devDependencies": {
     "@playwright/browser-chromium": "^1.53.1",
@@ -47,7 +47,7 @@
     "eslint-plugin-jsonc": "^2.20.1",
     "eslint-plugin-prettier": "^5.5.0",
     "playwright": "^1.53.1",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "sinon": "^21.0.0",
     "swc-plugin-coverage-instrument": "^0.0.27"
   },
