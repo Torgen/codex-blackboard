@@ -1,8 +1,9 @@
-module.exports =
-  process.env.BABEL_ENV == "COVERAGE"
-    ? {
-        jsc: {
-          experimental: {
+module.exports = {
+  jsc: {
+    externalHelpers: true,
+    experimental:
+      process.env.BABEL_ENV == "COVERAGE"
+        ? {
             plugins: [
               [
                 "swc-plugin-coverage-instrument",
@@ -16,7 +17,7 @@ module.exports =
                 },
               ],
             ],
-          },
-        },
-      }
-    : {};
+          }
+        : undefined,
+  },
+};
