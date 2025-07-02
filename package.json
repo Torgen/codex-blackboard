@@ -12,6 +12,7 @@
     "@googlemaps/js-api-loader": "^1.16.10",
     "@googlemaps/markerclusterer": "^2.5.3",
     "@googlemaps/markerwithlabel": "^2.0.28",
+    "@swc/helpers": "^0.5.17",
     "chart.js": "^4.5.0",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "coffeescript": "^2.7.0",
@@ -48,7 +49,8 @@
     "eslint-plugin-prettier": "^5.5.1",
     "playwright": "^1.53.2",
     "prettier": "^3.6.2",
-    "sinon": "^21.0.0"
+    "sinon": "^21.0.0",
+    "swc-plugin-coverage-instrument": "^0.0.27"
   },
   "overrides": {
     "path-to-regexp": "^8.0.0",
@@ -58,6 +60,7 @@
     "test": "LANG=EN_us meteor test --once --driver-package meteortesting:mocha",
     "test.full": "LANG=en_US meteor test --once --driver-package meteortesting:mocha --full-app --settings tests/integration_test_settings.json",
     "coverage": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_HTML=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
+    "coverage.full": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_HTML=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm run-script test.full",
     "coverage.json": "BABEL_ENV=COVERAGE COVERAGE=1 COVERAGE_OUT_JSON=1 COVERAGE_APP_FOLDER=$PWD/ meteor npm test",
     "coverage.client.json": "TEST_SERVER=0 meteor npm run-script coverage.json",
     "coverage.server.json": "TEST_CLIENT=0 meteor npm run-script coverage.json",
@@ -82,5 +85,8 @@
         ]
       }
     }
+  },
+  "meteor": {
+    "modern": true
   }
 }
