@@ -12,6 +12,7 @@
     "@googlemaps/js-api-loader": "^1.16.10",
     "@googlemaps/markerclusterer": "^2.5.3",
     "@googlemaps/markerwithlabel": "^2.0.28",
+    "@swc/helpers": "^0.5.17",
     "chart.js": "^4.5.0",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "coffeescript": "^2.7.0",
