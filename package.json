@@ -10,7 +10,7 @@
     "@googleapis/calendar": "^10.0.1",
     "@googleapis/drive": "^13.0.1",
     "@googlemaps/js-api-loader": "^1.16.10",
-    "@googlemaps/markerclusterer": "^2.5.3",
+    "@googlemaps/markerclusterer": "^2.6.1",
     "@googlemaps/markerwithlabel": "^2.0.28",
     "@swc/helpers": "^0.5.17",
     "chart.js": "^4.5.0",
