@@ -1,4 +1,5 @@
 # Must have comment, right?
 node_modules/
+.swc
 .coverage
 .vscode
