@@ -340,10 +340,16 @@ describe("logistics", function () {
         chai.assert.isTrue($input.is(":focus"), "input is focused");
         $input.val("new round by click").trigger("focusout");
         await afterFlushPromise();
-        chai.assert.isNotEmpty($newRound.find("input[type=text]").get(), "input still exists");
+        chai.assert.isNotEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input still exists"
+        );
         $input.trigger(new $.Event("keydown", { which: 27 })); // Escape
         await afterFlushPromise();
-        chai.assert.isEmpty($newRound.find("input[type=text]").get(), "input exists");
+        chai.assert.isEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input exists"
+        );
         await waitForMethods();
         chai.assert.isNotOk(
           Rounds.findOne({
