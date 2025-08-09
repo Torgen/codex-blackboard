@@ -269,7 +269,7 @@ describe("logistics", function () {
         await afterFlushPromise();
         console.log("after flush");
         const $input = $newRound.find("input[type=text]");
-        chai.assert.isOk($input.get(), "input exists");
+        chai.assert.isNotEmpty($input.get(), "input exists");
         chai.assert.isTrue($input.is(":focus"), "input is focused");
         $input
           .val("new round by click")
@@ -305,11 +305,11 @@ describe("logistics", function () {
         await afterFlushPromise();
         console.log("after flush");
         const $checkbox = $newRound.find("input[type=checkbox]");
-        chai.assert.isOk($checkbox.get(), "checkbox exists");
+        chai.assert.isNotEmpty($checkbox.get(), "checkbox exists");
         $checkbox.prop("checked", false).trigger("change");
         await afterFlushPromise();
         const $input = $newRound.find("input[type=text]");
-        chai.assert.isOk($input.get(), "input exists");
+        chai.assert.isNotEmpty($input.get(), "input exists");
         chai.assert.isTrue($input.is(":focus"), "input is focused");
         $input
           .val("new round by click")
@@ -326,6 +326,47 @@ describe("logistics", function () {
         } finally {
           await promiseCall("deleteRound", newRound._id);
         }
+      });
+
+      it("does not submit on focusout", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        chai.assert.isTrue($input.is(":focus"), "input is focused");
+        $input.val("new round by click").trigger("focusout");
+        await afterFlushPromise();
+        chai.assert.isNotEmpty($newRound.find("input[type=text]").get(), "input still exists");
+        $input.trigger(new $.Event("keydown", { which: 27 })); // Escape
+        await afterFlushPromise();
+        chai.assert.isEmpty($newRound.find("input[type=text]").get(), "input exists");
+        await waitForMethods();
+        chai.assert.isNotOk(
+          Rounds.findOne({
+            name: "new round by click",
+          })
+        );
+      });
+
+      it("closes on click away", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        $(".bb-logistics").click();
+        await afterFlushPromise();
+        chai.assert.isEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input no longer exists"
+        );
       });
     });
 
