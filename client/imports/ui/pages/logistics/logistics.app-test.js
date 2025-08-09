@@ -363,6 +363,30 @@ describe("logistics", function () {
         }
       });
 
+      it("does not cancel on focusout", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        chai.assert.isTrue($input.is(":focus"), "input is focused");
+        $input.trigger("focusout");
+        await afterFlushPromise();
+        chai.assert.isNotEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input still exists"
+        );
+        $input.trigger(new $.Event("keydown", { which: 27 })); // Escape
+        await afterFlushPromise();
+        chai.assert.isEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input no longer exists"
+        );
+      });
+
       it("does not submit on focusout", async function () {
         await LogisticsPage();
         await waitForSubscriptions();
@@ -373,7 +397,9 @@ describe("logistics", function () {
         const $input = $newRound.find("input[type=text]");
         chai.assert.isNotEmpty($input.get(), "input exists");
         chai.assert.isTrue($input.is(":focus"), "input is focused");
-        $input.val("new round by click").trigger("focusout");
+        $input.val("new round by click").trigger("input");
+        await afterFlushPromise();
+        $input.trigger("focusout");
         await afterFlushPromise();
         chai.assert.isNotEmpty(
           $newRound.find("input[type=text]").get(),
@@ -383,7 +409,7 @@ describe("logistics", function () {
         await afterFlushPromise();
         chai.assert.isEmpty(
           $newRound.find("input[type=text]").get(),
-          "input exists"
+          "input no longer exists"
         );
         await waitForMethods();
         chai.assert.isNotOk(
