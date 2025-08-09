@@ -297,6 +297,41 @@ describe("logistics", function () {
         }
       });
 
+      it("creates round on commit button", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        chai.assert.isTrue($input.is(":focus"), "input is focused");
+        $input.val("new round by click").trigger("input");
+        $newRound.find("button.commit").click();
+        await waitForMethods();
+        const newRound = await waitForDocument(Rounds, {
+          name: "new round by click",
+        });
+        try {
+          chai.assert.deepInclude(newRound, {
+            created_by: "testy",
+          });
+          chai.assert.equal(newRound.puzzles.length, 1);
+          const puzzle = newRound.puzzles[0];
+          try {
+            chai.assert.deepInclude(Puzzles.findOne(puzzle), {
+              name: "new round by click Placeholder",
+              puzzles: [],
+            });
+          } finally {
+            await promiseCall("deletePuzzle", puzzle);
+          }
+        } finally {
+          await promiseCall("deleteRound", newRound._id);
+        }
+      });
+
       it("creates round without placeholder", async function () {
         await LogisticsPage();
         await waitForSubscriptions();
