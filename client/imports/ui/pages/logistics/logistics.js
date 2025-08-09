@@ -39,10 +39,8 @@ const editingPuzzle = new ReactiveVar();
 
 Template.logistics.onCreated(function () {
   Session.set("topRight", "logistics_topright_panel");
-  // This is tristate because if you click the button while it's open, you expect it to close,
-  // but the click is received after the focusout event on the contents closes it, which
-  // reopens it.
-  this.creatingRound = new ReactiveVar(0);
+  this.creatingRound = new ReactiveVar(false);
+  this.createPlaceholderMeta = new ReactiveVar(true);
   // for meta and puzzle the above isn't necessary because the text box is outside the dropdown
   // These store the round the meta/puzzle are being created in.
   this.creatingMeta = new ReactiveVar(null);
@@ -51,6 +49,14 @@ Template.logistics.onCreated(function () {
     this.subscribe("all-presence");
     this.subscribe("pending-callins");
   });
+  const self = this;
+  this.clickOutsideNewRound = function (event) {
+    if (event.target.closest("#bb-logistics-new-round")) {
+      return;
+    }
+    self.creatingRound.set(false);
+    return $("body").off("click", self.clickOutsideNewRound);
+  };
 });
 
 Template.logistics.onRendered(function () {
@@ -111,16 +117,24 @@ Template.logistics.helpers({
   puzzleParams(round) {
     return { round };
   },
+  createPlaceholderMeta() {
+    return Template.instance().createPlaceholderMeta.get();
+  },
+  newRoundParams() {
+    return {
+      createPlaceholder: Template.instance().createPlaceholderMeta.get(),
+    };
+  },
   creatingRound() {
-    return Template.instance().creatingRound.get() === 2;
+    return Template.instance().creatingRound.get();
   },
   doneCreatingRound() {
     const instance = Template.instance();
     return {
       done() {
         const wasStillCreating = instance.creatingRound.get();
-        instance.creatingRound.set(0);
-        return wasStillCreating === 2;
+        instance.creatingRound.set(false);
+        return wasStillCreating;
       },
     };
   },
@@ -245,12 +259,14 @@ makePuzzleOnDrop("bb-logistics-new-standalone", {});
 makePuzzleOnDrop("bb-logistics-new-meta", { puzzles: [] });
 
 Template.logistics.events({
-  "mousedown #bb-logistics-new-round:not(.open)"(event, template) {
-    template.creatingRound.set(1);
-  },
   "click #bb-logistics-new-round"(event, template) {
-    if (template.creatingRound.get() === 1) {
-      template.creatingRound.set(2);
+    const creatingRoundNow = !template.creatingRound.get();
+    template.creatingRound.set(creatingRoundNow);
+    if (creatingRoundNow) {
+      template.createPlaceholderMeta.set(true);
+      $("body").on("click", template.clickOutsideNewRound);
+    } else {
+      $("body").off("click", template.clickOutsideNewRound);
     }
   },
   "click .dropdown-menu.stay-open"(event, template) {
@@ -262,7 +278,9 @@ Template.logistics.events({
   "click #bb-logistics-new-standalone a.round-name"(event, template) {
     template.creatingPuzzle.set(this._id);
   },
-
+  "change #create-placeholder-meta"(event, template) {
+    template.createPlaceholderMeta.set(event.currentTarget.checked);
+  },
   "dragstart .bb-logistics-standalone .puzzle"(event, template) {
     const data = { id: this._id, meta: null };
     draggedPuzzle.set(data);

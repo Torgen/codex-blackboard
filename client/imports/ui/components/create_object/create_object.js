@@ -17,22 +17,36 @@ Template.create_object.events({
   },
 });
 
+function ok(name, evt, template) {
+  if (evt.type == "focusout" && template.data.clickToCommit) {
+    return;
+  }
+  if (!this.done.done()) {
+    return;
+  }
+  let type = pretty_collection(template.data.type);
+  type = type[0].toUpperCase() + type.slice(1);
+  Meteor.serializeCall(`new${type}`, { name, ...this.params });
+  template.name.set("");
+}
+
 Template.create_object.events(
   okCancelEvents("input", {
     cancel(evt, template) {
-      this.done.done();
-    },
-    ok(name, evt, template) {
-      if (!this.done.done()) {
+      if (evt.type == "focusout" && template.data.clickToCommit) {
         return;
       }
-      let type = pretty_collection(template.data.type);
-      type = type[0].toUpperCase() + type.slice(1);
-      Meteor.serializeCall(`new${type}`, { name, ...this.params });
-      template.name.set("");
+      this.done.done();
     },
+    ok,
   })
 );
+
+Template.create_object.events({
+  "click .commit"(evt, template) {
+    ok.apply(this, [template.name.get(), evt, template]);
+  },
+});
 
 Template.create_object.helpers({
   pretty() {

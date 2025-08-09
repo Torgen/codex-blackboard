@@ -5,13 +5,16 @@
         done.done() will be called when editing is done, and maybe the object is about to be created. If done() returns false,
         creation will be aborted if it were going to happen.
         (This must be nested inside an object because otherwise Blaze will call it.)
+  clickToCommit: if true, unfocus doesn't commit the change, but add a button that does.
+  tooltipPosition: where to put the error tooltip. (bottom by default)
   params: object containing additional parameters to the new{type} call.
   }}
   
-  <div class="bb-{{pretty}}-title bb-editable control-group {{titleAddClass}}">
+  <div class="bb-{{pretty}}-title bb-editable control-group create-object {{titleAddClass}}">
     <input type="text" placeholder="{{upperPretty}} name" class="input-block-level" />
+    {{#if clickToCommit}}<button class="btn btn-success commit"><i class="fas fa-plus"></i></button>{{/if}}
     {{#if titleAddStatus}}
-      <div class="tooltip bottom in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleAddStatus}}</div></div>
+      <div class="tooltip {{#with tooltipPosition}}{{this}}{{else}}bottom{{/with}} in bb-edit-status"><div class="tooltip-arrow"></div><div class="tooltip-inner">{{titleAddStatus}}</div></div>
     {{/if}}
   </div>
 </template>
