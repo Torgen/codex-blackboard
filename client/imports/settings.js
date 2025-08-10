@@ -33,7 +33,6 @@ export const HIDE_USELESS_BOT_MESSAGES = new DefaultFalseSetting(
   "noBot"
 );
 export const MUTE_SOUND_EFFECTS = new DefaultFalseSetting("mute", "sfxMute");
-export const HIDE_OLD_PRESENCE = new DefaultFalseSetting("hideOldPresence");
 export const LESS_COLORFUL = new DefaultFalseSetting("boringMode");
 export const SORT_REVERSE = new DefaultFalseSetting("sortReverse");
 export const EXPERT_MODE = new DefaultFalseSetting("expertMode");
