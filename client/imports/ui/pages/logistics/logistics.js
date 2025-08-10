@@ -39,10 +39,8 @@ const editingPuzzle = new ReactiveVar();
 
 Template.logistics.onCreated(function () {
   Session.set("topRight", "logistics_topright_panel");
-  // This is tristate because if you click the button while it's open, you expect it to close,
-  // but the click is received after the focusout event on the contents closes it, which
-  // reopens it.
-  this.creatingRound = new ReactiveVar(0);
+  this.creatingRound = new ReactiveVar(false);
+  this.createPlaceholderMeta = new ReactiveVar(true);
   // for meta and puzzle the above isn't necessary because the text box is outside the dropdown
   // These store the round the meta/puzzle are being created in.
   this.creatingMeta = new ReactiveVar(null);
@@ -51,6 +49,14 @@ Template.logistics.onCreated(function () {
     this.subscribe("all-presence");
     this.subscribe("pending-callins");
   });
+  const self = this;
+  this.clickOutsideNewRound = function (event) {
+    if (event.target.closest("#bb-logistics-new-round")) {
+      return;
+    }
+    self.creatingRound.set(false);
+    return $("body").off("click", self.clickOutsideNewRound);
+  };
 });
 
 Template.logistics.onRendered(function () {
@@ -111,16 +117,24 @@ Template.logistics.helpers({
   puzzleParams(round) {
     return { round };
   },
+  createPlaceholderMeta() {
+    return Template.instance().createPlaceholderMeta.get();
+  },
+  newRoundParams() {
+    return {
+      createPlaceholder: Template.instance().createPlaceholderMeta.get(),
+    };
+  },
   creatingRound() {
-    return Template.instance().creatingRound.get() === 2;
+    return Template.instance().creatingRound.get();
   },
   doneCreatingRound() {
     const instance = Template.instance();
     return {
       done() {
         const wasStillCreating = instance.creatingRound.get();
-        instance.creatingRound.set(0);
-        return wasStillCreating === 2;
+        instance.creatingRound.set(false);
+        return wasStillCreating;
       },
     };
   },
@@ -194,9 +208,7 @@ function toggleButtonOnDragEnter(event, template) {
     return;
   }
   if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
-    if (event.currentTarget.dataset.toggle) {
-      event.currentTarget.classList.add("open");
-    }
+    event.currentTarget.classList.add("open");
     event.currentTarget.classList.add("dragover");
     lastEnter = event.target;
   }
@@ -228,7 +240,6 @@ function droppingLink(event, fn) {
 function makePuzzleOnDrop(targetId, puzzleParams) {
   return Template.logistics.events({
     [`drop #${targetId} .round-name`](event, template) {
-      event.currentTarget.closest(`#${targetId}`).classList.remove("dragover");
       event.currentTarget.parentElement.classList.remove("active");
       droppingLink(event, (name, link) => {
         Meteor.serializeCall("newPuzzle", {
@@ -245,12 +256,14 @@ makePuzzleOnDrop("bb-logistics-new-standalone", {});
 makePuzzleOnDrop("bb-logistics-new-meta", { puzzles: [] });
 
 Template.logistics.events({
-  "mousedown #bb-logistics-new-round:not(.open)"(event, template) {
-    template.creatingRound.set(1);
-  },
   "click #bb-logistics-new-round"(event, template) {
-    if (template.creatingRound.get() === 1) {
-      template.creatingRound.set(2);
+    const creatingRoundNow = !template.creatingRound.get();
+    template.creatingRound.set(creatingRoundNow);
+    if (creatingRoundNow) {
+      template.createPlaceholderMeta.set(true);
+      $("body").on("click", template.clickOutsideNewRound);
+    } else {
+      $("body").off("click", template.clickOutsideNewRound);
     }
   },
   "click .dropdown-menu.stay-open"(event, template) {
@@ -262,7 +275,9 @@ Template.logistics.events({
   "click #bb-logistics-new-standalone a.round-name"(event, template) {
     template.creatingPuzzle.set(this._id);
   },
-
+  "change #create-placeholder-meta"(event, template) {
+    template.createPlaceholderMeta.set(event.currentTarget.checked);
+  },
   "dragstart .bb-logistics-standalone .puzzle"(event, template) {
     const data = { id: this._id, meta: null };
     draggedPuzzle.set(data);
@@ -295,7 +310,8 @@ Template.logistics.events({
     event.stopPropagation();
     event.preventDefault();
   },
-  "dragover #bb-logistics-new-round": allowDropUriList,
+  "dragover #bb-logistics-new-round [data-create-placeholder-meta]":
+    allowDropUriList,
   "dragover #bb-logistics-new-meta .round-name": allowDropUriList,
   "dragover #bb-logistics-new-standalone .round-name": allowDropUriList,
   "dragover #bb-logistics-delete"(event, template) {
@@ -314,6 +330,9 @@ Template.logistics.events({
     if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
       event.currentTarget.classList.remove("active");
     }
+  },
+  "dragenter .bb-logistics"(event, template) {
+    template.creatingRound.set(false);
   },
   "dragenter #bb-logistics-new-round": toggleButtonOnDragEnter,
   "dragenter #bb-logistics-new-meta": toggleButtonOnDragEnter,
@@ -351,14 +370,21 @@ Template.logistics.events({
       Meteor.serializeCall("unfeedMeta", data.id, data.meta);
     }
   },
-
-  "drop #bb-logistics-new-round"(event, template) {
-    event.currentTarget.classList.remove("dragover");
+  "drop #bb-logistics-new-round [data-create-placeholder-meta]"(
+    event,
+    template
+  ) {
+    event.currentTarget.parentElement.classList.remove("active");
     droppingLink(event, function (name, link) {
-      Meteor.serializeCall("newRound", { name, link });
+      Meteor.serializeCall("newRound", {
+        name,
+        link,
+        createPlaceholder:
+          event.currentTarget.dataset.createPlaceholderMeta === "true",
+      });
     });
   },
-  "drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone"(
+  "drop #bb-logistics-new-round, drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone"(
     event,
     template
   ) {

@@ -9,7 +9,13 @@
               <i class="fas fa-folder-open"></i> Round
               {{#if creatingRound}}
                 <ul class="dropdown-menu stay-open">
-                  <li>{{> create_object type="rounds" done=doneCreatingRound}}</li>
+                  <li>{{> create_object type="rounds" done=doneCreatingRound tooltipPosition="right" clickToCommit=true params=newRoundParams}}</li>
+                  <li><label class="checkbox"><input type="checkbox" id="create-placeholder-meta" checked="{{createPlaceholderMeta}}"> Create Placeholder Meta</label></li>
+                </ul>
+              {{else}}
+                <ul class="dropdown-menu">
+                  <li><a data-create-placeholder-meta="false">Empty</a></li>
+                  <li><a data-create-placeholder-meta="true">With Placeholder Meta</a></li>
                 </ul>
               {{/if}}
             </button>

@@ -1,6 +1,6 @@
 // For side effects
 import "/lib/model.js";
-import { Messages, Roles, Rounds } from "/lib/imports/collections.js";
+import { Messages, Puzzles, Roles, Rounds } from "/lib/imports/collections.js";
 import { callAs, impersonating } from "/server/imports/impersonate.js";
 import chai from "chai";
 import sinon from "sinon";
@@ -23,7 +23,7 @@ describe("newRound", function () {
   });
 
   beforeEach(async function () {
-    await clearCollections(Messages, Roles, Rounds);
+    await clearCollections(Messages, Puzzles, Roles, Rounds);
     await RoleRenewalTime.reset();
   });
 
@@ -133,6 +133,35 @@ describe("newRound", function () {
       it("leaves onduty alone", async function () {
         chai.assert.isNotOk(await Roles.findOneAsync("onduty"));
       });
+    });
+  });
+
+  describe("with placeholder", function () {
+    let round;
+    beforeEach(async function () {
+      round = await callAs("newRound", "torgen", {
+        name: "Foo Round",
+        createPlaceholder: true,
+      });
+    });
+    it("has puzzle", async function () {
+      chai.assert.equal(round.puzzles.length, 1);
+      const actualRound = await Rounds.findOneAsync({ _id: round._id });
+      chai.assert.deepEqual(round.puzzles, actualRound.puzzles);
+    });
+    it("creates puzzle", async function () {
+      chai.assert.deepInclude(
+        await Puzzles.findOneAsync({ _id: round.puzzles[0] }),
+        {
+          name: "Foo Round Placeholder",
+          canon: "foo_round_placeholder",
+          created: 7,
+          created_by: "torgen",
+          touched: 7,
+          touched_by: "torgen",
+          puzzles: [],
+        }
+      );
     });
   });
 

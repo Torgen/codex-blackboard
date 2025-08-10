@@ -261,15 +261,15 @@ describe("logistics", function () {
 
   describe("new round button", function () {
     describe("when clicked", function () {
-      it("creates round on enter", async function () {
+      it("creates round with placeholder", async function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const $newRound = $("#bb-logistics-new-round");
         $newRound.mousedown().click();
         await afterFlushPromise();
         console.log("after flush");
-        const $input = $newRound.find("input");
-        chai.assert.isOk($input.get(), "input exists");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
         chai.assert.isTrue($input.is(":focus"), "input is focused");
         $input
           .val("new round by click")
@@ -282,40 +282,232 @@ describe("logistics", function () {
           chai.assert.deepInclude(newRound, {
             created_by: "testy",
           });
+          chai.assert.equal(newRound.puzzles.length, 1);
+          const puzzle = newRound.puzzles[0];
+          try {
+            chai.assert.deepInclude(Puzzles.findOne(puzzle), {
+              name: "new round by click Placeholder",
+              puzzles: [],
+            });
+          } finally {
+            await promiseCall("deletePuzzle", puzzle);
+          }
         } finally {
           await promiseCall("deleteRound", newRound._id);
         }
       });
+
+      it("creates round on commit button", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        chai.assert.isTrue($input.is(":focus"), "input is focused");
+        $input.val("new round by click").trigger("input");
+        $newRound.find("button.commit").click();
+        await waitForMethods();
+        const newRound = await waitForDocument(Rounds, {
+          name: "new round by click",
+        });
+        try {
+          chai.assert.deepInclude(newRound, {
+            created_by: "testy",
+          });
+          chai.assert.equal(newRound.puzzles.length, 1);
+          const puzzle = newRound.puzzles[0];
+          try {
+            chai.assert.deepInclude(Puzzles.findOne(puzzle), {
+              name: "new round by click Placeholder",
+              puzzles: [],
+            });
+          } finally {
+            await promiseCall("deletePuzzle", puzzle);
+          }
+        } finally {
+          await promiseCall("deleteRound", newRound._id);
+        }
+      });
+
+      it("creates round without placeholder", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $checkbox = $newRound.find("input[type=checkbox]");
+        chai.assert.isNotEmpty($checkbox.get(), "checkbox exists");
+        $checkbox.prop("checked", false).trigger("change");
+        await afterFlushPromise();
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        chai.assert.isTrue($input.is(":focus"), "input is focused");
+        $input
+          .val("new round by click")
+          .trigger(new $.Event("keyup", { which: 13 }));
+        await waitForMethods();
+        const newRound = await waitForDocument(Rounds, {
+          name: "new round by click",
+        });
+        try {
+          chai.assert.deepInclude(newRound, {
+            created_by: "testy",
+            puzzles: [],
+          });
+        } finally {
+          await promiseCall("deleteRound", newRound._id);
+        }
+      });
+
+      it("does not cancel on focusout", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        chai.assert.isTrue($input.is(":focus"), "input is focused");
+        $input.trigger("focusout");
+        await afterFlushPromise();
+        chai.assert.isNotEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input still exists"
+        );
+        $input.trigger(new $.Event("keydown", { which: 27 })); // Escape
+        await afterFlushPromise();
+        chai.assert.isEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input no longer exists"
+        );
+      });
+
+      it("does not submit on focusout", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        chai.assert.isTrue($input.is(":focus"), "input is focused");
+        $input.val("new round by click").trigger("input");
+        await afterFlushPromise();
+        $input.trigger("focusout");
+        await afterFlushPromise();
+        chai.assert.isNotEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input still exists"
+        );
+        $input.trigger(new $.Event("keydown", { which: 27 })); // Escape
+        await afterFlushPromise();
+        chai.assert.isEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input no longer exists"
+        );
+        await waitForMethods();
+        chai.assert.isNotOk(
+          Rounds.findOne({
+            name: "new round by click",
+          })
+        );
+      });
+
+      it("closes on click away", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = $("#bb-logistics-new-round");
+        $newRound.mousedown().click();
+        await afterFlushPromise();
+        console.log("after flush");
+        const $input = $newRound.find("input[type=text]");
+        chai.assert.isNotEmpty($input.get(), "input exists");
+        $(".bb-logistics").click();
+        await afterFlushPromise();
+        chai.assert.isEmpty(
+          $newRound.find("input[type=text]").get(),
+          "input no longer exists"
+        );
+      });
     });
 
     describe("when link dropped", function () {
-      it("creates round from text", async function () {
+      const fakeLink = document.createElement("div");
+      fakeLink.ondragstart = function (event) {
+        event.dataTransfer.setData(
+          "text/uri-list",
+          "https://molasses.holiday/foo"
+        );
+        event.dataTransfer.setData("url", "https://molasses.holiday/foo");
+        event.dataTransfer.setData(
+          "text/html",
+          '<a href="https://molasses.holiday/foo">\n\n   Foo   \n\n </a>'
+        );
+        event.dataTransfer.effectAllowed = "all";
+      };
+      it("creates empty round from text", async function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const $newRound = document.querySelector("#bb-logistics-new-round");
-        const fakeLink = document.createElement("div");
-        fakeLink.ondragstart = function (event) {
-          event.dataTransfer.setData(
-            "text/uri-list",
-            "https://molasses.holiday/foo"
-          );
-          event.dataTransfer.setData("url", "https://molasses.holiday/foo");
-          event.dataTransfer.setData(
-            "text/html",
-            '<a href="https://molasses.holiday/foo">\n\n   Foo   \n\n </a>'
-          );
-          event.dataTransfer.effectAllowed = "all";
-        };
-        dragMock
+        const drag = dragMock
           .dragStart(fakeLink)
           .dragEnter($newRound)
-          .dragOver($newRound)
-          .drop($newRound);
+          .dragOver($newRound);
+        await afterFlushPromise();
+        const $empty = $newRound.querySelector(
+          "[data-create-placeholder-meta=false]"
+        );
+        drag.dragEnter($empty).dragOver($empty).drop($empty);
         await waitForMethods();
         const newRound = await waitForDocument(Rounds, {
           name: "Foo",
         });
         try {
+          chai.assert.deepInclude(newRound, {
+            link: "https://molasses.holiday/foo",
+            puzzles: [],
+          });
+        } finally {
+          await promiseCall("deleteRound", newRound._id);
+        }
+      });
+      it("creates round with placeholder from text", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = document.querySelector("#bb-logistics-new-round");
+        const drag = dragMock
+          .dragStart(fakeLink)
+          .dragEnter($newRound)
+          .dragOver($newRound);
+        await afterFlushPromise();
+        const $withPlaceholder = $newRound.querySelector(
+          "[data-create-placeholder-meta=true]"
+        );
+        drag
+          .dragEnter($withPlaceholder)
+          .dragOver($withPlaceholder)
+          .drop($withPlaceholder);
+        await waitForMethods();
+        const newRound = await waitForDocument(Rounds, {
+          name: "Foo",
+        });
+        try {
+          chai.assert.equal(newRound.puzzles.length, 1);
+          const puzzle = newRound.puzzles[0];
+          try {
+            chai.assert.deepInclude(Puzzles.findOne(puzzle), {
+              name: "Foo Placeholder",
+              puzzles: [],
+            });
+          } finally {
+            await promiseCall("deletePuzzle", puzzle);
+          }
           chai.assert.include(newRound, {
             link: "https://molasses.holiday/foo",
           });

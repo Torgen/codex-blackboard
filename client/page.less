@@ -14,6 +14,7 @@
   src: local('Open Sans Emoji'), local('OpenSansEmoji'), url('../fonts/OpenSansEmoji.ttf') format('truetype');
 }
 
+@import '{}/client/imports/ui/components/create_object/create_object.less';
 @import '{}/client/imports/ui/components/edit_object_title/edit_object_title.less';
 @import '{}/client/imports/ui/components/edit_tag_name/edit_tag_name.less';
 @import '{}/client/imports/ui/components/edit_tag_value/edit_tag_value.less';
@@ -58,10 +59,11 @@ body {
     .help-inline, .help-block {
       color: #aaa;
     }
-    .dropdown-menu {
-      background-color: var(--bg-color);
-    }
     .nav li a:hover { background-color: #333;}
+  }
+  .open .dropdown-menu {
+    background-color: var(--bg-color);
+    color: var(--text-color);
   }
 }
 .darkMode {
