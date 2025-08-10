@@ -85,7 +85,7 @@ export function chunk_text(text) {
     if (paragraph) {
       // Pass 2: mentions
       let tail_start = 0;
-      for (let mention of paragraph.matchAll(/([\s]|^)@([a-zA-Z0-9_]*)/g)) {
+      for (let mention of paragraph.matchAll(/([\s]|^)@([a-zA-Z0-9_]+)/g)) {
         if (mention.index > tail_start || mention[1].length) {
           const interval =
             paragraph.slice(tail_start, mention.index) + mention[1];

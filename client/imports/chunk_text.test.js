@@ -19,6 +19,11 @@ describe("chunk_text", function () {
       { type: "text", content: ": yo" },
     ]));
 
+  it("empty @ is plain text", () =>
+    chai.assert.deepEqual(chunk_text("foo @ bar"), [
+      { type: "text", content: "foo @ bar" },
+    ]));
+
   it("matches urls without protocol", () =>
     chai.assert.deepEqual(chunk_text("it's www.foo.com/bar, yo"), [
       { type: "text", content: "it's " },
