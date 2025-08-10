@@ -27,7 +27,6 @@ import {
 import { TypingIndicatorCharacters } from "/lib/imports/settings.js";
 import {
   CAP_JITSI_HEIGHT,
-  HIDE_OLD_PRESENCE,
   HIDE_USELESS_BOT_MESSAGES,
   MUTE_SOUND_EFFECTS,
 } from "./imports/settings.js";
@@ -303,20 +302,6 @@ Template.messages.helpers({
       return true;
     }
     return !HIDE_USELESS_BOT_MESSAGES.get();
-  },
-  presence_too_old() {
-    if (!HIDE_OLD_PRESENCE.get()) {
-      return false;
-    }
-    // If a message is too old, it will always be too old unless the option changes,
-    // so don't re-evaluate the calculation every minute.
-    const result = Tracker.nonreactive(() => {
-      return this.message.timestamp < Session.get("currentTime") - 3600000;
-    });
-    if (!result) {
-      Session.get("currentTime");
-    }
-    return result;
   },
   messages() {
     if (!Template.instance().waitForObservers.get()) {

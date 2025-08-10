@@ -7,7 +7,6 @@ import {
   STUCK_TO_TOP,
   HIDE_USELESS_BOT_MESSAGES,
   MUTE_SOUND_EFFECTS,
-  HIDE_OLD_PRESENCE,
   LESS_COLORFUL,
   START_VIDEO_MUTED,
   START_AUDIO_MUTED,
@@ -54,9 +53,6 @@ Template.options_dropdown.events({
   },
   "change .bb-sfx-mute input"(event, template) {
     MUTE_SOUND_EFFECTS.set(event.target.checked);
-  },
-  "change .bb-hide-old-presence input"(event, template) {
-    HIDE_OLD_PRESENCE.set(event.target.checked);
   },
   "change .bb-start-video-muted input"(event, template) {
     START_VIDEO_MUTED.set(event.target.checked);
