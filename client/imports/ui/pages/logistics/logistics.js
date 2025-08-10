@@ -208,9 +208,7 @@ function toggleButtonOnDragEnter(event, template) {
     return;
   }
   if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
-    if (event.currentTarget.dataset.toggle) {
-      event.currentTarget.classList.add("open");
-    }
+    event.currentTarget.classList.add("open");
     event.currentTarget.classList.add("dragover");
     lastEnter = event.target;
   }
@@ -242,7 +240,6 @@ function droppingLink(event, fn) {
 function makePuzzleOnDrop(targetId, puzzleParams) {
   return Template.logistics.events({
     [`drop #${targetId} .round-name`](event, template) {
-      event.currentTarget.closest(`#${targetId}`).classList.remove("dragover");
       event.currentTarget.parentElement.classList.remove("active");
       droppingLink(event, (name, link) => {
         Meteor.serializeCall("newPuzzle", {
@@ -313,7 +310,8 @@ Template.logistics.events({
     event.stopPropagation();
     event.preventDefault();
   },
-  "dragover #bb-logistics-new-round": allowDropUriList,
+  "dragover #bb-logistics-new-round [data-create-placeholder-meta]":
+    allowDropUriList,
   "dragover #bb-logistics-new-meta .round-name": allowDropUriList,
   "dragover #bb-logistics-new-standalone .round-name": allowDropUriList,
   "dragover #bb-logistics-delete"(event, template) {
@@ -332,6 +330,9 @@ Template.logistics.events({
     if (event.originalEvent.dataTransfer.types.includes("text/uri-list")) {
       event.currentTarget.classList.remove("active");
     }
+  },
+  "dragenter .bb-logistics"(event, template) {
+    template.creatingRound.set(false);
   },
   "dragenter #bb-logistics-new-round": toggleButtonOnDragEnter,
   "dragenter #bb-logistics-new-meta": toggleButtonOnDragEnter,
@@ -369,14 +370,21 @@ Template.logistics.events({
       Meteor.serializeCall("unfeedMeta", data.id, data.meta);
     }
   },
-
-  "drop #bb-logistics-new-round"(event, template) {
-    event.currentTarget.classList.remove("dragover");
+  "drop #bb-logistics-new-round [data-create-placeholder-meta]"(
+    event,
+    template
+  ) {
+    event.currentTarget.parentElement.classList.remove("active");
     droppingLink(event, function (name, link) {
-      Meteor.serializeCall("newRound", { name, link });
+      Meteor.serializeCall("newRound", {
+        name,
+        link,
+        createPlaceholder:
+          event.currentTarget.dataset.createPlaceholderMeta === "true",
+      });
     });
   },
-  "drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone"(
+  "drop #bb-logistics-new-round, drop #bb-logistics-new-meta, drop #bb-logistics-new-standalone"(
     event,
     template
   ) {

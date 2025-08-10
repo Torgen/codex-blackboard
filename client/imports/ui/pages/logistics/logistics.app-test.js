@@ -438,33 +438,76 @@ describe("logistics", function () {
     });
 
     describe("when link dropped", function () {
-      it("creates round from text", async function () {
+      const fakeLink = document.createElement("div");
+      fakeLink.ondragstart = function (event) {
+        event.dataTransfer.setData(
+          "text/uri-list",
+          "https://molasses.holiday/foo"
+        );
+        event.dataTransfer.setData("url", "https://molasses.holiday/foo");
+        event.dataTransfer.setData(
+          "text/html",
+          '<a href="https://molasses.holiday/foo">\n\n   Foo   \n\n </a>'
+        );
+        event.dataTransfer.effectAllowed = "all";
+      };
+      it("creates empty round from text", async function () {
         await LogisticsPage();
         await waitForSubscriptions();
         const $newRound = document.querySelector("#bb-logistics-new-round");
-        const fakeLink = document.createElement("div");
-        fakeLink.ondragstart = function (event) {
-          event.dataTransfer.setData(
-            "text/uri-list",
-            "https://molasses.holiday/foo"
-          );
-          event.dataTransfer.setData("url", "https://molasses.holiday/foo");
-          event.dataTransfer.setData(
-            "text/html",
-            '<a href="https://molasses.holiday/foo">\n\n   Foo   \n\n </a>'
-          );
-          event.dataTransfer.effectAllowed = "all";
-        };
-        dragMock
+        const drag = dragMock
           .dragStart(fakeLink)
           .dragEnter($newRound)
-          .dragOver($newRound)
-          .drop($newRound);
+          .dragOver($newRound);
+        await afterFlushPromise();
+        const $empty = $newRound.querySelector(
+          "[data-create-placeholder-meta=false]"
+        );
+        drag.dragEnter($empty).dragOver($empty).drop($empty);
         await waitForMethods();
         const newRound = await waitForDocument(Rounds, {
           name: "Foo",
         });
         try {
+          chai.assert.deepInclude(newRound, {
+            link: "https://molasses.holiday/foo",
+            puzzles: [],
+          });
+        } finally {
+          await promiseCall("deleteRound", newRound._id);
+        }
+      });
+      it("creates round with placeholder from text", async function () {
+        await LogisticsPage();
+        await waitForSubscriptions();
+        const $newRound = document.querySelector("#bb-logistics-new-round");
+        const drag = dragMock
+          .dragStart(fakeLink)
+          .dragEnter($newRound)
+          .dragOver($newRound);
+        await afterFlushPromise();
+        const $withPlaceholder = $newRound.querySelector(
+          "[data-create-placeholder-meta=true]"
+        );
+        drag
+          .dragEnter($withPlaceholder)
+          .dragOver($withPlaceholder)
+          .drop($withPlaceholder);
+        await waitForMethods();
+        const newRound = await waitForDocument(Rounds, {
+          name: "Foo",
+        });
+        try {
+          chai.assert.equal(newRound.puzzles.length, 1);
+          const puzzle = newRound.puzzles[0];
+          try {
+            chai.assert.deepInclude(Puzzles.findOne(puzzle), {
+              name: "Foo Placeholder",
+              puzzles: [],
+            });
+          } finally {
+            await promiseCall("deletePuzzle", puzzle);
+          }
           chai.assert.include(newRound, {
             link: "https://molasses.holiday/foo",
           });
