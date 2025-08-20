@@ -61,7 +61,7 @@ jobs:
         env:
           PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5.4.3
+        uses: codecov/codecov-action@v5.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: run-${{ matrix.test_script }}-${{ matrix.browser }}
