@@ -40,7 +40,7 @@ describe("memes hubot script", function () {
     });
     const interesting = waitForDocument(
       Messages,
-      { nick: "testbot", body: /https:\/\/memegen.link\/interesting/ },
+      { nick: "testbot", body: /https:\/\/api.memegen.link\/interesting/ },
       {
         room_name: "general/0",
         timestamp: 7,
@@ -48,7 +48,7 @@ describe("memes hubot script", function () {
     );
     const buzz = waitForDocument(
       Messages,
-      { nick: "testbot", body: /https:\/\/memegen.link\/buzz/ },
+      { nick: "testbot", body: /https:\/\/api.memegen.link\/buzz/ },
       {
         room_name: "general/0",
         timestamp: 7,
@@ -56,7 +56,7 @@ describe("memes hubot script", function () {
     );
     const xy = waitForDocument(
       Messages,
-      { nick: "testbot", body: /https:\/\/memegen.link\/xy/ },
+      { nick: "testbot", body: /https:\/\/api.memegen.link\/xy/ },
       {
         room_name: "general/0",
         timestamp: 7,
@@ -64,7 +64,7 @@ describe("memes hubot script", function () {
     );
     const success = waitForDocument(
       Messages,
-      { nick: "testbot", body: /https:\/\/memegen.link\/success/ },
+      { nick: "testbot", body: /https:\/\/api.memegen.link\/success/ },
       {
         room_name: "general/0",
         timestamp: 7,
