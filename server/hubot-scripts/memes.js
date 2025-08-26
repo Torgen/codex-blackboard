@@ -89,7 +89,7 @@ export default scripts.memes = function (robot) {
   );
 };
 
-const memeGeneratorUrl = "https://memegen.link";
+const memeGeneratorUrl = "https://api.memegen.link";
 
 // not a great conversion: no way to safely represent '~' or "'" eg
 const convTable = {
