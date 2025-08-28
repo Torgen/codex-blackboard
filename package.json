@@ -30,7 +30,7 @@
     "hubot-help": "^2.1.5",
     "mail-listener6": "^2.0.3",
     "md5": "^2.3.0",
-    "meteor-node-stubs": "^1.2.22",
+    "meteor-node-stubs": "^1.2.24",
     "normalize-text": "^2.6.0",
     "page": "^1.11.6",
     "sanitize-html": "^2.17.0",
