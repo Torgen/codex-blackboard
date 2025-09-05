@@ -34,7 +34,7 @@
     "normalize-text": "^2.6.0",
     "page": "^1.11.6",
     "sanitize-html": "^2.17.0",
-    "twitter-api-v2": "^1.25.0"
+    "twitter-api-v2": "^1.27.0"
   },
   "devDependencies": {
     "@playwright/browser-chromium": "^1.55.0",
