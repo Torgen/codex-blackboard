@@ -9,7 +9,7 @@
     "@fortawesome/fontawesome-free": "^7.0.1",
     "@googleapis/calendar": "^12.0.0",
     "@googleapis/drive": "^18.0.0",
-    "@googlemaps/js-api-loader": "^1.16.10",
+    "@googlemaps/js-api-loader": "^2.0.1",
     "@googlemaps/markerclusterer": "^2.6.2",
     "@googlemaps/markerwithlabel": "^2.0.28",
     "@swc/helpers": "^0.5.17",
