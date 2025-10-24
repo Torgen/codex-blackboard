@@ -25,7 +25,7 @@
     "denodeify": "^1.2.1",
     "favico.js": "^0.3.10",
     "gemoji": "^8.1.0",
-    "google-auth-library": "^10.4.1",
+    "google-auth-library": "^10.4.2",
     "hubot": "^9.0.0",
     "hubot-help": "^2.1.5",
     "mail-listener6": "^2.0.3",
