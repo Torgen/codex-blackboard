@@ -8,7 +8,7 @@
     "@floating-ui/dom": "^1.7.4",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@googleapis/calendar": "^14.0.0",
-    "@googleapis/drive": "^19.1.0",
+    "@googleapis/drive": "^19.2.0",
     "@googlemaps/js-api-loader": "^2.0.2",
     "@googlemaps/markerclusterer": "^2.6.2",
     "@googlemaps/markerwithlabel": "^2.0.28",
