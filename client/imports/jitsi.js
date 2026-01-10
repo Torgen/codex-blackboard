@@ -82,6 +82,9 @@ export function createJitsiMeet(room, container) {
       startWithAudioMuted: START_AUDIO_MUTED.get(),
       startWithVideoMuted: START_VIDEO_MUTED.get(),
       prejoinPageEnabled: false,
+      prejoinConfig: {
+        enabled: false,
+      },
       enableTalkWhileMuted: false,
       disableDeepLinking: true,
       disableModeratorIndicator: true,
