@@ -1,7 +1,7 @@
 import "./map.html";
 import "./cluster.html";
 import { gravatarUrl, nickHash, nickAndName } from "/lib/imports/nickEmail.js";
-import { Loader } from "@googlemaps/js-api-loader";
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { MarkerWithLabel } from "@googlemaps/markerwithlabel";
 import { positionOrDefault, solarLongitude } from "./geography.js";
@@ -9,14 +9,11 @@ import summarize_markers from "./summarize_markers.js";
 import { MAPS_API_KEY } from "/lib/imports/server_settings.js";
 
 const loaded = new ReactiveVar(false);
-(async function () {
-  const loader = new Loader({
-    apiKey: MAPS_API_KEY,
-    version: "weekly",
-  });
-  await loader.load();
-  loaded.set(true);
-})();
+setOptions({
+  apiKey: MAPS_API_KEY,
+  version: "weekly",
+});
+importLibrary("maps").then(() => loaded.set(true));
 
 Template.map.onCreated(function () {
   this.map = new ReactiveVar(null);
