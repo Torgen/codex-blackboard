@@ -1,0 +1,9 @@
+<template name="nick_roles">{{!
+    Data context:
+    nick (string) the user to show the roles for.
+  }}{{#each role in (nick_roles nick)
+    }}{{#let data=(role_data role)
+      }}<i class="fas fa-{{data.icon}}" title="{{data.tooltip}}"></i>{{
+    /let}}{{
+  /each
+}}</template>
