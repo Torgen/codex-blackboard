@@ -222,10 +222,6 @@ Template.registerHelper(
   "nickExists",
   (nick) => Meteor.users.findOne({ _id: nick }) != null
 );
-Template.registerHelper(
-  "isonduty",
-  (nick) => Roles.findOne("onduty")?.holder === nick
-);
 
 Template.registerHelper("stuck", isStuck);
 

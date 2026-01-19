@@ -36,6 +36,7 @@ import { confirm } from "./imports/modal.js";
 import isVisible from "/client/imports/visible.js";
 import Favico from "favico.js";
 import { hsize } from "/client/imports/ui/components/splitter/splitter.js";
+import "/client/imports/ui/components/nick_roles";
 import {
   selectionWithin,
   selectWithin,

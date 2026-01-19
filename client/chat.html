@@ -69,7 +69,7 @@ Click here to stay in this meeting instead.{{/if}}">
         <ul id="messageInputTypeahead" class="typeahead dropdown-menu">
           {{#each this}}
             {{#if equal queryType "users"}}
-              <li class="{{#if selected _id}}active{{/if}}"><a href="#" data-value="{{_id}}">{{>gravatar_with_badges nick=_id size=16}} {{nickAndName _id}}{{#if isonduty _id}} <i class="fas fa-pager" title="onduty"></i>{{/if}}</a></li>
+              <li class="{{#if selected _id}}active{{/if}}"><a href="#" data-value="{{_id}}">{{>gravatar_with_badges nick=_id size=16}} {{nickAndName _id}} {{>nick_roles nick=_id}}</a></li>
             {{else if equal queryType "rooms"}}
               <li class="{{#if selected (concat type "/" _id)}}active{{/if}}"><a href="#" data-value="{{type}}/{{_id}}">
                 <i class="fas {{#if equal type "rounds"}}fa-globe{{else if equal type "puzzles"}}fa-puzzle-piece{{/if}}"></i> {{name}}</a>
@@ -127,7 +127,7 @@ Click here to stay in this meeting instead.{{/if}}">
         {{else if message.mail}}
           Mail from {{#with message.mail.sender_name}}{{this}}{{else}}{{message.nick}}{{/with}} <i class="fas fa-envelope"></i> {{message.mail.subject}}
         {{else}}
-          <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{#if isonduty message.nick}}<i class="fas fa-pager" title="On duty"></i> {{/if}}{{nickOrName message.nick}}</span>
+          <span title="{{message.nick}}{{nickLocation message.nick}}" class="{{#if nickNear message.nick}}near{{/if}}">{{>nick_roles nick=message.nick}} {{nickOrName message.nick}}</span>
             {{#if any message.to (includes message.mention mynick)}}
               <small>({{#if message.to}}Private{{#unless equal message.to currentUser._id}}
                 to {{>gravatar nick=message.to size=12}}{{nickOrName message.to}}{{/unless}}{{else}}Mentioned you{{/if}}{{#if showRoom}}{{#let splitroom=(split message.room_name "/")}}
