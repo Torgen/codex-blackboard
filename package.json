@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.28.6",
-    "@floating-ui/dom": "^1.7.4",
+    "@floating-ui/dom": "^1.7.5",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@googleapis/calendar": "^14.2.0",
     "@googleapis/drive": "^20.0.0",
