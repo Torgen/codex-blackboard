@@ -37,8 +37,8 @@
     "twitter-api-v2": "^1.29.0"
   },
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.57.0",
-    "@playwright/browser-firefox": "^1.57.0",
+    "@playwright/browser-chromium": "^1.58.2",
+    "@playwright/browser-firefox": "^1.58.2",
     "@types/chai": "^4.3.11",
     "@types/sinon": "^21.0.0",
     "babel-plugin-istanbul": "^7.0.1",
@@ -47,7 +47,7 @@
     "eslint": "^10.0.0",
     "eslint-plugin-jsonc": "^2.21.1",
     "eslint-plugin-prettier": "^5.5.5",
-    "playwright": "^1.57.0",
+    "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "sinon": "^21.0.1",
     "swc-plugin-coverage-instrument": "^0.0.32"
