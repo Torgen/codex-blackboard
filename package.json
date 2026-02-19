@@ -33,7 +33,7 @@
     "meteor-node-stubs": "^1.2.26",
     "normalize-text": "^2.6.0",
     "page": "^1.11.6",
-    "sanitize-html": "^2.17.0",
+    "sanitize-html": "^2.17.1",
     "twitter-api-v2": "^1.29.0"
   },
   "devDependencies": {
