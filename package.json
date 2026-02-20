@@ -44,7 +44,7 @@
     "babel-plugin-istanbul": "^7.0.1",
     "chai": "^5.0.0",
     "drag-mock": "^1.4.0",
-    "eslint": "^10.0.0",
+    "eslint": "^10.0.1",
     "eslint-plugin-jsonc": "^2.21.1",
     "eslint-plugin-prettier": "^5.5.5",
     "playwright": "^1.57.0",
