@@ -25,7 +25,7 @@ jobs:
         run: echo "pr=$(cat pr/NR)" >> "$GITHUB_OUTPUT"
       - id: diff
         uses: ./.github/actions/diff-bundle-stats
-      - uses: marocchino/sticky-pull-request-comment@v2
+      - uses: marocchino/sticky-pull-request-comment@v3
         with:
           number: ${{steps.pr.outputs.pr}}
           header: bundlesize
