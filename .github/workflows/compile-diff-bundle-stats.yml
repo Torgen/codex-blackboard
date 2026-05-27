@@ -1,0 +1,29 @@
+name: Compile Diff Bundle Stats Action
+on:
+  push:
+    paths:
+      - .github/actions/diff-bundle-stats/package.json
+      - .github/actions/diff-bundle-stats/package-lock.json
+      - .github/actions/diff-bundle-stats/src/main.js
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --prefix .github/actions/diff-bundle-stats
+
+      - name: Compile with ncc
+        run: npx ncc build .github/actions/diff-bundle-stats/src/index.js -o .github/actions/diff-bundle-stats/dist --minify --no-cache
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Recompile"
