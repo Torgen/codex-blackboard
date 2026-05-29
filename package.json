@@ -45,7 +45,7 @@
     "chai": "^5.0.0",
     "drag-mock": "^1.4.0",
     "eslint": "^10.4.0",
-    "eslint-plugin-jsonc": "^3.1.2",
+    "eslint-plugin-jsonc": "^3.2.0",
     "eslint-plugin-prettier": "^5.5.6",
     "playwright": "^1.57.0",
     "prettier": "^3.8.3",
