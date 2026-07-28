@@ -41,7 +41,6 @@
     "@playwright/browser-firefox": "^1.62.0",
     "@types/chai": "^4.3.11",
     "@types/sinon": "^22.0.0",
-    "babel-plugin-istanbul": "^8.0.0",
     "chai": "^5.0.0",
     "drag-mock": "^1.4.0",
     "eslint": "^10.8.0",
@@ -77,15 +76,6 @@
   },
   "homepage": "https://github.com/Torgen/codex-blackboard#readme",
   "private": true,
-  "babel": {
-    "env": {
-      "COVERAGE": {
-        "plugins": [
-          "istanbul"
-        ]
-      }
-    }
-  },
   "meteor": {
     "modern": true
   }
