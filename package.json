@@ -43,7 +43,7 @@
     "@types/sinon": "^22.0.0",
     "chai": "^5.0.0",
     "drag-mock": "^1.4.0",
-    "eslint": "^10.8.0",
+    "eslint": "^10.8.1",
     "eslint-plugin-jsonc": "^3.4.1",
     "eslint-plugin-prettier": "^5.5.6",
     "playwright": "^1.62.1",
