@@ -23,7 +23,7 @@ jobs:
 
       - name: Compile with ncc
         run: >
-          npx ncc build .github/actions/diff-bundle-stats/src/index.js
+          npx @vercel/ncc build .github/actions/diff-bundle-stats/src/index.js
           -o .github/actions/diff-bundle-stats/dist --minify --no-cache
 
       - uses: stefanzweifel/git-auto-commit-action@v7
