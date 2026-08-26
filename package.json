@@ -49,7 +49,7 @@
     "playwright": "^1.62.1",
     "prettier": "^3.9.6",
     "sinon": "^22.1.0",
-    "swc-plugin-coverage-instrument": "^0.0.32"
+    "swc-plugin-coverage-instrument": "^0.0.33"
   },
   "overrides": {
     "path-to-regexp": "^8.0.0",
