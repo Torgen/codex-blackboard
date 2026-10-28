@@ -2,7 +2,7 @@ import canonical from "/lib/imports/canonical.js";
 import { Messages, Presence } from "/lib/imports/collections.js";
 import md5 from "md5";
 import { callAs } from "./impersonate.js";
-import Hubot from "hubot/es2015";
+import Hubot from "hubot";
 
 // Log messages?
 const DEBUG = !Meteor.isProduction;

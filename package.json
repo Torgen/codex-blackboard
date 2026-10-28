@@ -77,6 +77,12 @@
   "homepage": "https://github.com/Torgen/codex-blackboard#readme",
   "private": true,
   "meteor": {
-    "modern": true
+    "modern": {
+      "transpiler": {
+        "excludeNodeModules": [
+          "hubot"
+        ]
+      }
+    }
   }
 }
