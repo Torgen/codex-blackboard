@@ -51,6 +51,8 @@ jobs:
           VALIDATE_ANSIBLE: false
           VALIDATE_BASH_EXEC: false
           VALIDATE_CHECKOV: false
+          VALIDATE_GITHUB_ACTIONS: false # doesn't recognize node24
+          VALIDATE_GITLEAKS: false # Falsely complains about minified javascript
           VALIDATE_ENV: false
           VALIDATE_HTML: false # They're actually spacebars
           VALIDATE_HTML_PRETTIER: false # same
@@ -60,3 +62,5 @@ jobs:
           LINTER_RULES_PATH: /
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: kjanat/actionlint@v1
