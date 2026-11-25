@@ -449,12 +449,17 @@ table.poll {
   background-color: var(--bg-color);
   padding: 5px;
   white-space: -moz-pre-space;
+  position: relative;
   &:empty::before {
     content: attr(data-placeholder);
     user-select: none;
     pointer-events: none;
     position: absolute;
     opacity: .5;
+    max-width: calc(100% - 10px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   &.error {
     background-color: pink;
