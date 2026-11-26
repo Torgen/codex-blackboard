@@ -13,7 +13,7 @@
     "@googlemaps/markerclusterer": "^2.6.2",
     "@googlemaps/markerwithlabel": "^2.0.28",
     "@swc/helpers": "^0.5.24",
-    "chart.js": "^4.6.1",
+    "chart.js": "^4.6.2",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "coffeescript": "^2.7.1",
     "css-color-names": "1.0.1",
